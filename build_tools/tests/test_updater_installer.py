@@ -9,7 +9,7 @@ import sys
 import tempfile
 import time
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,6 +47,33 @@ class InstallerFixtures:
 
 
 class InstallerTests(InstallerFixtures, unittest.TestCase):
+    def test_binary_creation_preserves_newlines_and_sets_binary_flag(self):
+        self.binary = b'MZ\x00\n\r\n\x1a\xff'
+        self.info.update(size=len(self.binary), sha256=hashlib.sha256(self.binary).hexdigest())
+        original = os.open
+        with patch('Driftkings.core.updater.installer.os.open', wraps=original) as opened:
+            self.assertTrue(self.schedule())
+        self.assertEqual((self.stage / 'Driftkings.UpdateInstaller.exe').read_bytes(), self.binary)
+        if os.name == 'nt':
+            self.assertTrue(all(call.args[1] & os.O_BINARY for call in opened.call_args_list))
+
+    def test_changed_written_helper_never_launches_and_removes_only_preparation(self):
+        original = os.fsync
+        def corrupt(descriptor):
+            original(descriptor)
+            helper = self.stage / 'Driftkings.UpdateInstaller.exe'
+            if helper.exists():
+                data = helper.read_bytes()
+                helper.write_bytes(data[:-1] + bytes([data[-1] ^ 1]))
+        with patch('Driftkings.core.updater.installer.os.fsync', side_effect=corrupt):
+            with self.assertRaises(ValueError):
+                self.schedule()
+        self.launcher.assert_not_called()
+        self.assertFalse((self.stage / 'Driftkings.UpdateInstaller.exe').exists())
+        self.assertFalse((self.stage / 'install.json').exists())
+        self.assertEqual(self.target.read_bytes(), self.old)
+        self.assertEqual(self.ready.read_bytes(), self.data)
+
     def schedule(self, safe=lambda: True, **changes):
         return self.installer.schedule(str(self.ready), changes.get('client', '2.4.0.2'),
                                        changes.get('channel', 'stable'), safe)

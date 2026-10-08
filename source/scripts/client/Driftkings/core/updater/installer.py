@@ -44,7 +44,7 @@ def read_json(path):
 
 def write_new(path, document):
     # Exclusive creation also prevents overwriting a ticket for a live helper.
-    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_BINARY', 0), 0o600)
     try:
         with os.fdopen(descriptor, 'wb') as output:
             output.write(json.dumps(document, ensure_ascii=False).encode('utf-8'))
@@ -146,12 +146,17 @@ class Installer(object):
         helper_created = False
         ticket_created = False
         try:
-            descriptor = os.open(helper, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            descriptor = os.open(helper, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_BINARY', 0), 0o600)
             helper_created = True
             with os.fdopen(descriptor, 'wb') as output:
                 output.write(binary)
                 output.flush()
                 os.fsync(output.fileno())
+            # WoT's CRT can default descriptors to text mode. Never execute
+            # bytes that differ from the verified owned resource on disk.
+            safe_file(helper)
+            if os.path.getsize(helper) != info['size'] or digest(helper) != info['sha256']:
+                raise ValueError('Written installer size/hash mismatch')
             # Recheck safety after validation and IO, immediately before launch.
             if context_safe() is not True:
                 os.remove(helper)

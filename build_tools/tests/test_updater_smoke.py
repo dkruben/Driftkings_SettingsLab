@@ -26,6 +26,54 @@ from Driftkings.core.updater.results import Results
 
 
 class UpdaterSmokeTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == 'nt', 'Windows CRT text-mode regression')
+    def test_helper_bytes_with_windows_crt_text_default(self):
+        import shutil
+        from Driftkings.core.updater.installer import HELPER_RESOURCE
+        root = tempfile.mkdtemp(dir=os.path.abspath('build/updater-tests'))
+        original_open = os.open
+        calls = []
+        def opening(path, flags, mode=0o777):
+            # Force the game CRT's text default if the caller omitted O_BINARY.
+            if not flags & os.O_BINARY:
+                flags |= os.O_TEXT
+            return original_open(path, flags, mode)
+        def package(version):
+            output = io.BytesIO()
+            with zipfile.ZipFile(output, 'w', zipfile.ZIP_STORED) as archive:
+                archive.writestr('meta.xml', '<root><id>driftkings.unified</id><version>%s</version></root>' % version)
+                archive.writestr('res/scripts/client/gui/mods/mod_Driftkings.pyc', b'\x03\xf3\x0d\x0a' + b'\0' * 20)
+            return output.getvalue()
+        try:
+            stage = os.path.join(root, 'mods/configs/Driftkings/cache/update/download-binary')
+            os.makedirs(stage)
+            ready = os.path.join(stage, 'Driftkings.wotmod.ready')
+            new = package('1.0.0')
+            meta = Manifest(dict(schema=1, version='1.0.0', channel='stable', gameVersion='2.4.0.2',
+                file='Driftkings.wotmod', size=len(new), sha256=hashlib.sha256(new).hexdigest(),
+                download='https://github.com/' + REPOSITORY + '/releases/download/v1/Driftkings.wotmod'))
+            with open(ready, 'wb') as output: output.write(new)
+            write_new(os.path.join(stage, 'release.json'), meta.document())
+            target = os.path.join(root, 'mods/2.4.0.2')
+            os.makedirs(target)
+            with open(os.path.join(target, 'Driftkings.wotmod'), 'wb') as output: output.write(package(VERSION))
+            binary = b'MZ\x00\n\r\n\x1a\xff'
+            info = json.dumps(dict(schema=1, size=len(binary), sha256=hashlib.sha256(binary).hexdigest())).encode('ascii')
+            class Process(object):
+                def poll(self): return None
+            def launch(*args, **kwargs):
+                calls.append(args)
+                return Process()
+            installer = Installer(root, lambda name: binary if name == HELPER_RESOURCE else info, launch)
+            os.open = opening
+            self.assertTrue(installer.schedule(ready, '2.4.0.2', 'stable', lambda: True))
+            with open(os.path.join(stage, 'Driftkings.UpdateInstaller.exe'), 'rb') as source:
+                self.assertEqual(source.read(), binary)
+            self.assertEqual(len(calls), 1)
+        finally:
+            os.open = original_open
+            shutil.rmtree(root)
+
     def test_receipt_path_validation_without_ctypes(self):
         try:
             import __builtin__ as builtins
