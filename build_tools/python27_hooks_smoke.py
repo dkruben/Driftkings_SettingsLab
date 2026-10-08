@@ -26,6 +26,10 @@ def smoke(ui, **opts):
                         target = os.path.join(base, *name.split('.'))
                         assert os.path.isfile(target + '.py') or os.path.isfile(os.path.join(target, '__init__.py')), (path, name)
     ui.write('Python 2.7 unified namespace and imports: OK\n')
+    if os.environ.get('DK_SMOKE_STAGING'):
+        sys.path.remove(base)
+        base = os.path.abspath(os.environ['DK_SMOKE_STAGING'])
+        sys.path.insert(0, base)
     from Driftkings.core.keycodes import valid_key_code
     assert valid_key_code(30L) and valid_key_code(259L) and valid_key_code(326)
     assert not any(valid_key_code(code) for code in (True, 0, 327, 30.0, '30'))
@@ -72,7 +76,9 @@ def smoke(ui, **opts):
         module = types.ModuleType(name)
         module.__path__ = [os.path.join(base, *name.split('.'))]
         sys.modules[name] = module
-    h = imp.load_source('dk_test_hooks', os.path.join(base, 'Driftkings/core/hooks.py'))
+    load = imp.load_compiled if os.environ.get('DK_SMOKE_STAGING') else imp.load_source
+    suffix = '.pyc' if os.environ.get('DK_SMOKE_STAGING') else '.py'
+    h = load('dk_test_hooks', os.path.join(base, 'Driftkings/core/hooks' + suffix))
     class Target(object):
         def method(self, value): return value + 1
         @staticmethod
@@ -111,7 +117,7 @@ def smoke(ui, **opts):
     ui.write('Python 2.7 managed hooks: OK\n')
     import tempfile
     import shutil
-    settings = imp.load_source('dk_test_settings', os.path.join(base, 'Driftkings/settings/store.py'))
+    settings = load('dk_test_settings', os.path.join(base, 'Driftkings/settings/store' + suffix))
     directory = tempfile.mkdtemp(prefix='dk-settings-test-')
     try:
         path = os.path.join(directory, 'settings.json')
@@ -168,7 +174,7 @@ def smoke(ui, **opts):
         shutil.rmtree(directory)
     ui.write('Python 2.7 shared defaults and unified UTF-8 translations: OK\n')
 
-    layout = imp.load_source('dk_test_carousel', os.path.join(base, 'Driftkings/core/carousel.py'))
+    layout = load('dk_test_carousel', os.path.join(base, 'Driftkings/core/carousel' + suffix))
     data = layout.config_defaults()
     assert len(data['carousel']['normal']['extraFields']) == 14
     assert len(data['carousel']['small']['extraFields']) == 4

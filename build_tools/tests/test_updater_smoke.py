@@ -26,6 +26,17 @@ from Driftkings.core.updater.results import Results
 
 
 class UpdaterSmokeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if os.name == 'nt':
+            from windows_files_test_support import initialize
+            initialize()
+
+    @classmethod
+    def tearDownClass(cls):
+        from windows_files_test_support import close
+        close()
+
     def test_coordinated_restart_consent_is_binary_json_and_one_shot(self):
         import shutil
         root = tempfile.mkdtemp(dir=os.path.abspath('build/updater-tests'))

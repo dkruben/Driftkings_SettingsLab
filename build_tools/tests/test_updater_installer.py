@@ -207,6 +207,7 @@ class NativeInstallerTests(InstallerFixtures, unittest.TestCase):
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Diagnostics;
 class Parent {
     static void Main(string[] args) {
         string executable = Assembly.GetExecutingAssembly().Location;
@@ -217,7 +218,7 @@ class Parent {
         string sha;
         using (var hash = SHA256.Create())
             sha = BitConverter.ToString(hash.ComputeHash(File.ReadAllBytes(target))).Replace("-", "").ToLowerInvariant();
-        File.AppendAllText(executable + ".starts", sha + "|" + receipt + "|" + args.Length + "|" + Environment.CurrentDirectory + "\\n");
+        File.AppendAllText(executable + ".starts", sha + "|" + receipt + "|" + args.Length + "|" + Environment.CurrentDirectory + "|" + Process.GetCurrentProcess().Id + "\\n");
         if (!receipt.Contains("\\"installed\\"")) Console.ReadLine();
     }
 }''')
@@ -321,12 +322,29 @@ class Fault {
             time.sleep(0.01)
         starts = self.starts()
         self.assertEqual(len(starts), 2)
-        sha, receipt, arguments, cwd = starts[1].split('|')
+        sha, receipt, arguments, cwd, reopened_pid = starts[1].split('|')
         self.assertEqual(sha, hashlib.sha256(self.data).hexdigest())
         self.assertEqual(json.loads(receipt)['status'], 'installed')
         self.assertEqual(arguments, '0')
         self.assertEqual(Path(cwd), self.root)
         self.assertFalse((self.stage / 'restart.install').exists())
+        # The harness writes its observation before returning from Main. Wait
+        # for that exact child to exit before TemporaryDirectory deletes its image.
+        import ctypes
+        from ctypes import wintypes
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        kernel.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        process = kernel.OpenProcess(0x00100000, False, int(reopened_pid))
+        if process:
+            try:
+                self.assertEqual(kernel.WaitForSingleObject(process, 5000), 0, 'Reopened fixture did not exit')
+            finally:
+                kernel.CloseHandle(process)
+        else:
+            self.assertEqual(ctypes.get_last_error(), 87, 'Could not inspect reopened fixture')
 
     def test_native_failed_install_never_reopens_client(self):
         helper = self.launch()

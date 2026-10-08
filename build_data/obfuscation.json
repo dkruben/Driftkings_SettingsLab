@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "profile": "safe",
+  "include": [
+    "Driftkings/core/marks_calculator.pyc",
+    "Driftkings/core/updater/versioning.pyc",
+    "Driftkings/core/updater/manifest.pyc"
+  ],
+  "exclude": [
+    "gui/mods/mod_Driftkings.pyc",
+    "Driftkings/__init__.pyc",
+    "Driftkings/component_list.pyc",
+    "Driftkings/core/__init__.pyc",
+    "Driftkings/core/hooks.pyc",
+    "Driftkings/core/callbacks.pyc",
+    "Driftkings/core/contexts.pyc",
+    "Driftkings/core/mod_compatibility.pyc",
+    "Driftkings/core/battle_capabilities.pyc",
+    "Driftkings/settings/",
+    "Driftkings/views/",
+    "Driftkings/ui/",
+    "Driftkings/i18n/",
+    "Driftkings/templates/",
+    "Driftkings/registries/"
+  ]
+}

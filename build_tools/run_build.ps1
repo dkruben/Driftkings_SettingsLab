@@ -1,6 +1,7 @@
 param(
     [ValidateSet("debug", "release")]
-    [string]$Mode = "debug"
+    [string]$Mode = "debug",
+    [switch]$NoObfuscation
 )
 # Both historical entry points build the same local, unified SettingsLab package.
 $ErrorActionPreference = "Stop"
@@ -12,7 +13,10 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $pythonExe build_tools/localize_configs.py --check
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $pythonExe build_tools/build_lab.py --flash
+    $buildArgs = @("build_tools/build_lab.py", "--flash")
+    if ($Mode -eq "release") { $buildArgs += "--release" }
+    if ($NoObfuscation) { $buildArgs += "--no-obfuscation" }
+    & $pythonExe @buildArgs
     exit $LASTEXITCODE
 } finally {
     Pop-Location

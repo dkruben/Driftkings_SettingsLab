@@ -16,6 +16,17 @@ from Driftkings.core.updater import windows_files
 
 
 class ResultTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if os.name == 'nt':
+            from windows_files_test_support import initialize
+            initialize()
+
+    @classmethod
+    def tearDownClass(cls):
+        from windows_files_test_support import close
+        close()
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(dir=ROOT / 'build')
         self.addCleanup(self.temp.cleanup)
@@ -145,9 +156,8 @@ class ResultTests(unittest.TestCase):
         folder.mkdir()
         windows_files.safe_path(str(folder / 'not-created.json'))
         junction = self.root / 'junction'
-        windows_files.run('$target=' + windows_files.literal(str(folder)) +
-                          '; $link=' + windows_files.literal(str(junction)) +
-                          '; New-Item -ItemType Junction -Path $link -Value $target | Out-Null')
+        from test_windows_files_v2 import junction as create_junction
+        create_junction(junction, folder)
         try:
             with self.assertRaises(OSError):
                 windows_files.safe_path(str(junction / 'not-created.json'))
@@ -161,7 +171,7 @@ class ResultTests(unittest.TestCase):
         receipt = self.stage / 'notified.json'
         previous = receipt.read_bytes()
         report['fingerprint'] = 'a' * 64
-        with patch.object(windows_files, 'run', side_effect=OSError('unavailable')):
+        with patch.object(windows_files, 'replace_receipt', side_effect=OSError('unavailable')):
             with self.assertRaises(OSError):
                 self.reader.acknowledge(report)
         self.assertEqual(receipt.read_bytes(), previous)

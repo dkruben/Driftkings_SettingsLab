@@ -72,6 +72,12 @@ class UpdaterService(object):
             from Driftkings.core.updater.installer import Installer
             from Driftkings.core.callbacks import callbacks
             self.installer = self.installer or Installer(os.getcwd())
+            from Driftkings.core.updater import windows_files
+            if os.name == 'nt':
+                try:
+                    windows_files.initialize(self.installer.resource_reader, self.installer.root)
+                except Exception:
+                    LOG.warning('Windows file validation unavailable; receipt operations fail closed', exc_info=True)
             self.callbacks = self.callbacks or callbacks
             from Driftkings.core.updater.file_work import FileWork
             if self.file_work is None or self.file_work.closed:

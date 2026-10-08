@@ -68,7 +68,7 @@ def validate_owned_bytecode_source(name, root=ROOT):
             raise ValueError('Packaged module has no source: ' + name)
 
 
-def build():
+def build(staging=None):
     entries, modules, sources = {}, [], []
 
     def add(name, content):
@@ -113,7 +113,7 @@ def build():
                               for path in sorted((ROOT / 'source/scripts/client/Driftkings' / scope).rglob('*.py')))
     for source in infrastructure:
         relative = source.with_suffix('.pyc').as_posix()
-        content = (ROOT / 'build/scripts/client' / relative).read_bytes()
+        content = ((Path(staging) if staging else ROOT / 'build/scripts/client') / relative).read_bytes()
         if content[:4] != b'\x03\xf3\x0d\x0a': raise ValueError('Expected Python 2.7 bytecode: ' + relative)
         add('res/scripts/client/' + relative, content)
     bank = ROOT / 'res/sound_bank_wwise/SixthSense/GeneratedSoundBanks/Windows/driftkings_sixthsense.bnk'
@@ -134,6 +134,16 @@ def build():
         raise ValueError('Owned updater helper is stale or mismatched; rebuild it locally')
     for resource in ('Driftkings.UpdateInstaller.exe', 'helper.json'):
         add('res/gui/Driftkings/updater/' + resource, (ROOT / 'build/updater' / resource).read_bytes())
+    windows_folder = ROOT / 'build/windows-files'
+    windows_helper = (windows_folder / 'Driftkings.WindowsFiles.exe').read_bytes()
+    windows_info = json.loads((windows_folder / 'helper.json').read_text(encoding='utf-8'))
+    windows_report = json.loads((windows_folder / 'build-report.json').read_text(encoding='utf-8'))
+    if (windows_info != dict(schema=1, size=len(windows_helper), sha256=hashlib.sha256(windows_helper).hexdigest()) or
+            windows_report['sourceSha256'] != hashlib.sha256((ROOT / 'source/updater/WindowsFiles.cs').read_bytes()).hexdigest() or
+            windows_report['helperSha256'] != windows_info['sha256']):
+        raise ValueError('WindowsFiles helper stale or mismatched')
+    add('res/gui/Driftkings/windows-files/Driftkings.WindowsFiles.exe', windows_helper)
+    add('res/gui/Driftkings/windows-files/helper.json', (windows_folder / 'helper.json').read_bytes())
     version = package_version()
     add('meta.xml', ('<root><id>driftkings.unified</id><version>%s</version><name>Driftkings</name><description>Unified laboratory build</description></root>' % version).encode('utf-8'))
     validate_dependency_resources(entries, ROOT / 'res/wotmods')
@@ -166,4 +176,9 @@ def prepare():
 
 if __name__ == '__main__':
     if '--prepare' in sys.argv: prepare()
-    else: build()
+    else:
+        import argparse
+        parser = argparse.ArgumentParser(description=__doc__)
+        parser.add_argument('--staging', type=Path)
+        args = parser.parse_args()
+        build(args.staging)
