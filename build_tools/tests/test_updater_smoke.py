@@ -26,6 +26,39 @@ from Driftkings.core.updater.results import Results
 
 
 class UpdaterSmokeTests(unittest.TestCase):
+    def test_background_files_deliver_only_on_client_without_ctypes(self):
+        import threading
+        import time
+        from Driftkings.core.updater.file_work import FileWork
+        main = threading.current_thread().ident
+        pending = {}
+        class Callbacks(object):
+            sequence = 0
+            def schedule(self, delay, callback):
+                assert threading.current_thread().ident == main
+                self.sequence += 1
+                pending[self.sequence] = callback
+                return self.sequence
+            def cancel(self, token): pending.pop(token, None)
+        callbacks = Callbacks()
+        work = FileWork(callbacks)
+        delivered = []
+        def task():
+            assert threading.current_thread().ident != main
+            return 42
+        try:
+            work.submit(task, lambda value, error: delivered.append((threading.current_thread().ident, value, error)))
+            deadline = time.time() + 3
+            while not delivered and time.time() < deadline:
+                batch = list(pending.values())
+                pending.clear()
+                for callback in batch: callback()
+                time.sleep(0.01)
+            self.assertEqual(delivered, [(main, 42, None)])
+        finally:
+            work.close()
+        self.assertEqual(pending, {})
+
     @unittest.skipUnless(os.name == 'nt', 'Windows CRT text-mode regression')
     def test_helper_bytes_with_windows_crt_text_default(self):
         import shutil

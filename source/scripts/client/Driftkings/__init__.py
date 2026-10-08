@@ -1,2 +1,2 @@
 """Unified Driftkings package."""
-VERSION = '0.1.1-beta.4'
+VERSION = '0.1.1-beta.5'

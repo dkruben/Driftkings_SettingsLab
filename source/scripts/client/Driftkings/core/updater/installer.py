@@ -18,6 +18,31 @@ INFO_RESOURCE = 'gui/Driftkings/updater/helper.json'
 READY = 'Driftkings.wotmod.ready'
 
 
+def file_signature(paths):
+    """Cheap identity of files and their complete parent chains; never spawns."""
+    names = set()
+    for path in paths:
+        current = os.path.abspath(path)
+        while current not in names:
+            names.add(current)
+            parent = os.path.dirname(current)
+            if parent == current:
+                break
+            current = parent
+    values = []
+    for path in sorted(names):
+        try:
+            info = os.lstat(path)
+            value = (info.st_dev, info.st_ino, info.st_size, info.st_mtime, info.st_ctime,
+                     getattr(info, 'st_file_attributes', None))
+        except OSError:
+            if os.path.lexists(path):
+                raise
+            value = None
+        values.append((path, value))
+    return tuple(values)
+
+
 def digest(path):
     value = hashlib.sha256()
     with open(path, 'rb') as source:
@@ -90,6 +115,70 @@ class Installer(object):
             raise ValueError('Stage size/hash mismatch')
         validate_package(ready, manifest.version.text)
         return manifest
+
+    def resources(self):
+        # ResMgr must only be accessed by the client thread.
+        return {name: self.resource_reader(name) for name in (HELPER_RESOURCE, INFO_RESOURCE)}
+
+    def prepare_install(self, ready, client_version, channel, permit, resources):
+        """Worker: reuse complete schedule/resume validation, intercept launch."""
+        ready = os.path.abspath(ready)
+        folder = os.path.dirname(ready)
+        ticket_path = os.path.join(folder, 'install.json')
+        helper = os.path.join(folder, 'Driftkings.UpdateInstaller.exe')
+        resume = os.path.lexists(ticket_path)
+        captured = []
+        def capture(args, **options):
+            captured.append((args, options))
+            # No process is created and no prepared acknowledgement is inferred.
+            return None
+        shadow = Installer(self.root, lambda name: resources[name], capture)
+        action = shadow.resume if resume else shadow.schedule
+        if not action(ready, client_version, channel, permit):
+            return None
+        paths = (ready, os.path.join(folder, 'release.json'), ticket_path, helper,
+                 os.path.join(self.root, 'mods', normalize_game_version(client_version), 'Driftkings.wotmod'))
+        try:
+            return dict(args=captured[0][0], options=captured[0][1],
+                        created=[] if resume else [ticket_path, helper], paths=paths,
+                        signature=file_signature(paths), ticket=read_json(ticket_path),
+                        helperInfo=bounded_json(resources[INFO_RESOURCE]))
+        except Exception:
+            if not resume:
+                for path in (ticket_path, helper):
+                    if os.path.isfile(path): os.remove(path)
+            raise
+
+    @staticmethod
+    def discard_preparation(job):
+        if job is not None:
+            for path in job['created']:
+                if os.path.isfile(path): os.remove(safe_file(path))
+
+    def launch_prepared(self, job, context_safe):
+        """Client: fresh context and cheap provenance checks before native launch."""
+        if job is None:
+            return False
+        try:
+            if (self.process is not None and self.process.poll() is None or
+                    not callable(context_safe) or context_safe() is not True):
+                self.discard_preparation(job)
+                return False
+            if file_signature(job['paths']) != job['signature']:
+                raise ValueError('Preparation changed before launch')
+            if read_json(job['paths'][2]) != job['ticket']:
+                raise ValueError('Preparation ticket changed before launch')
+            helper = safe_file(job['args'][0])
+            if os.path.getsize(helper) != job['helperInfo']['size'] or digest(helper) != job['helperInfo']['sha256']:
+                raise ValueError('Written installer changed before launch')
+            if context_safe() is not True:
+                self.discard_preparation(job)
+                return False
+            self.process = self.launcher(job['args'], **job['options'])
+            return True
+        except Exception:
+            self.discard_preparation(job)
+            raise
 
     def recover_ready(self, client_version, channel, installed=VERSION):
         """Read-only bounded discovery; interrupted downloads/configs are untouched."""

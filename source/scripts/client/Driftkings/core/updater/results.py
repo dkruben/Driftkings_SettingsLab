@@ -47,6 +47,17 @@ class Results(object):
         self.cache = os.path.join(self.root, 'mods', 'configs', 'Driftkings', 'cache', 'update')
         self.loaded_version = loaded_version
 
+    def proof_signature(self, ready):
+        """Cheap change guard for a background-validated receipt, not validation."""
+        from Driftkings.core.updater.installer import file_signature
+        ready = os.path.abspath(ready)
+        folder = os.path.dirname(ready)
+        if (os.path.basename(ready) != 'Driftkings.wotmod.ready' or os.path.dirname(folder) != self.cache or
+                not os.path.basename(folder).startswith('download-')):
+            raise ValueError('Unknown operation path')
+        return file_signature([ready] + [os.path.join(folder, name) for name in
+                              ('result.json', 'install.json', 'release.json', 'Driftkings.UpdateInstaller.exe')])
+
     def _folder(self, ready):
         ready = os.path.abspath(ready)
         folder = os.path.dirname(ready)

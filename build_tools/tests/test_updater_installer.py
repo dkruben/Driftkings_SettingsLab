@@ -302,6 +302,7 @@ class Fault {
         self.assertEqual(helper.wait(timeout=10), 1)
         self.assertEqual(self.target.read_bytes(), self.old)
         self.assertEqual(self.installer.result(str(self.ready))['status'], 'error')
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'stagedPackageMismatch')
 
     def test_native_rejects_non_game_parent(self):
         helper = self.launch(os.getpid())
@@ -328,6 +329,7 @@ class Fault {
         self.assertEqual(helper.wait(timeout=10), 1)
         self.assertEqual(self.target.read_bytes(), self.old)
         self.assertEqual(self.installer.result(str(self.ready))['status'], 'error')
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'gameAlreadyRunning')
 
     def test_native_target_changed_after_ack_is_preserved(self):
         helper = self.launch()
@@ -336,6 +338,7 @@ class Fault {
         self.exit_parent()
         self.assertEqual(helper.wait(timeout=10), 1)
         self.assertEqual(self.target.read_bytes(), b'external change')
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'installedPackageChanged')
         self.assertFalse(Path(str(self.target) + '.old').exists())
 
     def test_native_recovers_interrupted_replace_from_verified_backup(self):
@@ -357,6 +360,7 @@ class Fault {
         self.assertEqual(helper.wait(timeout=10), 1)
         self.assertEqual(self.target.read_bytes(), self.old)
         self.assertEqual(backup.read_bytes(), b'unknown')
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'backupMismatch')
 
     def test_native_completed_transaction_recovers_backup_cleanup(self):
         Path(str(self.target) + '.old').write_bytes(self.old)
@@ -417,6 +421,7 @@ class Fault {
     def test_service_with_real_helper_confirms_prepared_and_cancelled(self):
         from Driftkings.core.updater import UpdaterService
         from Driftkings.core.updater.results import Results
+        from Driftkings.core.updater.file_work import FileWork
         from Driftkings.core.updater.state import RESTART_REQUIRED, READY
         from test_updater_download import Callbacks
         binary = self.helper.read_bytes()
@@ -434,10 +439,14 @@ class Fault {
         callbacks = Callbacks()
         policy = SimpleNamespace(blocked_reason=lambda space: None if space == 'lobby' else 'unsafeContext')
         service = UpdaterService(api, safe_spaces=('login', 'lobby'), installer=self.installer,
-                                 callbacks=callbacks, context_policy=policy, results=Results(str(self.root)))
+                                 callbacks=callbacks, context_policy=policy, results=Results(str(self.root)), file_work=FileWork(callbacks))
         service.start()
         self.addCleanup(service.stop)
         service.onContextEntered('lobby')
+        deadline = time.monotonic() + 8
+        while time.monotonic() < deadline and service.state.snapshot()['status'] != READY:
+            callbacks.pump()
+            time.sleep(0.02)
         self.assertEqual(service.state.snapshot()['status'], READY)
         self.assertTrue(service.schedule_install())
         deadline = time.monotonic() + 8

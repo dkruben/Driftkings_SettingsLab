@@ -3,6 +3,7 @@
 import logging
 import os
 import time
+import threading
 from Driftkings import VERSION
 from Driftkings.core.updater.checker import Checker
 from Driftkings.core.updater.state import State, IDLE, CHECKING, AVAILABLE, ERROR, DOWNLOADING, VERIFYING, READY, INSTALLING, RESTART_REQUIRED
@@ -15,7 +16,7 @@ INTERVAL = 4 * 60 * 60
 
 class UpdaterService(object):
     def __init__(self, api=None, transport=None, clock=None, safe_spaces=None, timeout=15.0, staging_root=None,
-                 installer=None, callbacks=None, context_policy=None, results=None, notifier=None):
+                 installer=None, callbacks=None, context_policy=None, results=None, notifier=None, file_work=None):
         self.api = api
         self.clock = clock or time.time
         self.safe_spaces = safe_spaces
@@ -48,6 +49,12 @@ class UpdaterService(object):
         self._restart_requested = False
         self._notified = set()
         self._previous_reports = []
+        self.file_work = file_work
+        self._prepare_permit = None
+        self._prepare_active = False
+        self._receipt_busy = False
+        self._receipt_proof = None
+        self._recovery_busy = False
 
     def start(self):
         if self.active:
@@ -66,6 +73,9 @@ class UpdaterService(object):
             from Driftkings.core.callbacks import callbacks
             self.installer = self.installer or Installer(os.getcwd())
             self.callbacks = self.callbacks or callbacks
+            from Driftkings.core.updater.file_work import FileWork
+            if self.file_work is None or self.file_work.closed:
+                self.file_work = FileWork(self.callbacks)
             from Driftkings.core.updater.results import Results
             self.results = self.results or Results(self.installer.root)
             if self.notifier is None:
@@ -75,6 +85,9 @@ class UpdaterService(object):
                 self.context_policy = self.context_policy or runtime_context()
             except Exception:
                 LOG.warning('Install context unavailable; scheduling disabled')
+        if self.file_work is not None and self.file_work.closed:
+            from Driftkings.core.updater.file_work import FileWork
+            self.file_work = FileWork(self.callbacks)
         self.active = True
         subscribe = getattr(self.context_policy, 'subscribe', None)
         if callable(subscribe):
@@ -93,14 +106,17 @@ class UpdaterService(object):
         self._preferences_changed({})
         LOG.info('Starting updater; installed version %s', VERSION)
         if self.results is not None:
-            try:
-                self._previous_reports = self.results.scan(getattr(self.api, 'client_version', None))
-                if self._previous_reports:
-                    report = self._previous_reports[-1]
-                    self.state.update(lastInstallResult={key: report[key] for key in ('status', 'version', 'error')})
-                    LOG.info('Previous update result detected: %s', report['status'])
-            except Exception:
-                LOG.warning('Previous update result inspection failed', exc_info=True)
+            client = getattr(self.api, 'client_version', None)
+            if self.file_work is not None:
+                try:
+                    self.file_work.submit(lambda: self.results.scan(client), self._previous_results_received)
+                except Exception as error:
+                    self._previous_results_received(None, error)
+            else:
+                try:
+                    self._previous_results_received(self.results.scan(client), None)
+                except Exception as error:
+                    self._previous_results_received(None, error)
         if self._install_armed:
             if self.installer.process.poll() is None:
                 self._install_pending = True
@@ -116,6 +132,12 @@ class UpdaterService(object):
         if not self.active:
             return
         self.active = False
+        if self._prepare_permit is not None:
+            self._prepare_permit.clear()
+        if self.file_work is not None:
+            self.file_work.close()
+        self._receipt_proof = None
+        self._receipt_busy = self._prepare_active = self._recovery_busy = False
         self._install_generation += 1
         unsubscribe = getattr(self.context_policy, 'unsubscribe', None)
         if callable(unsubscribe):
@@ -178,7 +200,7 @@ class UpdaterService(object):
             self._refresh_install_context()
 
     def check(self, manual=False):
-        if (not self.active or self.downloader.busy or getattr(self.checker.transport, 'busy', False) or
+        if (not self.active or self._recovery_busy or self.downloader.busy or getattr(self.checker.transport, 'busy', False) or
                 self._install_pending or self._install_armed or
                 self.state.snapshot()['status'] in (CHECKING, READY, INSTALLING, RESTART_REQUIRED)):
             return False
@@ -284,6 +306,9 @@ class UpdaterService(object):
             self._deliver_notifications()
 
     def _refresh_install_context(self):
+        if self._prepare_permit is not None:
+            if self._safe_install_context(): self._prepare_permit.set()
+            else: self._prepare_permit.clear()
         ready = bool(self._ready_path and not self._install_pending and not self._install_armed)
         reason = self._blocked_reason() if ready or self._install_armed else None
         self.state.update(canInstall=ready and reason is None, installBlocked=reason,
@@ -292,6 +317,8 @@ class UpdaterService(object):
     def _recover_staging(self):
         if self.installer is None or not self.active or self._install_pending or self._install_armed:
             return
+        if self.file_work is not None:
+            return self._recover_staging_async()
         try:
             path = self.installer.recover_ready(getattr(self.api, 'client_version', None),
                                                 self.api.get('dk.settings', 'updateChannel', 'stable'))
@@ -319,6 +346,7 @@ class UpdaterService(object):
         self._cancel_requested = False
         self._restart_requested = False
         self._receipt_error_since = None
+        self._receipt_proof = None
         self.state.update(status=INSTALLING, error=None, canInstall=False, installBlocked=None,
                           cancellingInstall=False, restartDeferred=False)
         LOG.info('Install preparation requested')
@@ -328,6 +356,8 @@ class UpdaterService(object):
                 self.state.update(status=READY)
                 self._refresh_install_context()
             return False
+        if self.file_work is not None:
+            return self._prepare_install_async()
         try:
             ticket = os.path.join(os.path.dirname(self._ready_path), 'install.json')
             self._previous_result_stamp = self.results.result_stamp(self._ready_path) if self.results is not None else None
@@ -359,6 +389,7 @@ class UpdaterService(object):
 
     def _install_failed(self, error):
         self._install_generation += 1
+        self._receipt_proof = None
         self._cancel_helper()
         self._install_pending = False
         self._install_armed = False
@@ -373,30 +404,208 @@ class UpdaterService(object):
         generation = self._install_generation
         self._install_token = self.callbacks.schedule(delay, lambda: self._poll_install(generation))
 
+    def _previous_results_received(self, reports, error):
+        if not self.active:
+            return
+        if error is not None:
+            LOG.warning('Previous update result inspection failed: %s', error)
+            return
+        self._previous_reports = reports
+        if reports:
+            report = reports[-1]
+            self.state.update(lastInstallResult={key: report[key] for key in ('status', 'version', 'error')})
+            LOG.info('Previous update result detected: %s (%s)', report['status'], report['error'])
+            self._deliver_notifications()
+
+    def _recover_staging_async(self):
+        if self._recovery_busy:
+            return
+        self._recovery_busy = True
+        generation = self._generation
+        client = getattr(self.api, 'client_version', None)
+        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        def task():
+            path = self.installer.recover_ready(client, channel)
+            return (path, self.installer.validate_stage(path, client, channel) if path else None)
+        def completed(value, error):
+            self._recovery_busy = False
+            if not self.active or self._install_pending or self._install_armed:
+                return
+            if generation != self._generation:
+                self._recover_staging()
+                return
+            if error is not None:
+                LOG.warning('Update staging recovery failed: %s', error)
+            elif value[0]:
+                path, manifest = value
+                self._ready_path = path
+                self.checker.selected_manifest = manifest
+                self.state.update(status=READY, latestVersion=manifest.version.text,
+                                  changelog=list(manifest.changelog), compatible=True, error=None,
+                                  canDownload=False, canCancel=False, downloadPercent=100)
+                LOG.info('Recovered verified update staging')
+            self._refresh_install_context()
+            if self.context in self.safe_spaces:
+                self.check()
+        try:
+            self.file_work.submit(task, completed)
+        except Exception:
+            self._recovery_busy = False
+            LOG.exception('Could not queue staging recovery')
+
+    def _prepare_install_async(self):
+        generation = self._install_generation
+        ready = self._ready_path
+        client = getattr(self.api, 'client_version', None)
+        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        permit = threading.Event()
+        permit.set()
+        self._prepare_permit = permit
+        self._prepare_active = True
+        try:
+            resources = self.installer.resources()
+            def task():
+                previous = self.results.result_stamp(ready) if self.results is not None else None
+                job = self.installer.prepare_install(ready, client, channel, permit.is_set, resources)
+                try:
+                    ticket = self.results.ticket(ready) if self.results is not None and job is not None else None
+                    return dict(job=job, previous=previous, ticket=ticket)
+                except Exception:
+                    self.installer.discard_preparation(job)
+                    raise
+            def cleanup(value):
+                self.installer.discard_preparation(value['job'])
+            def completed(value, error):
+                self._prepare_active = False
+                self._prepare_permit = None
+                if not self.active or generation != self._install_generation:
+                    if value is not None: cleanup(value)
+                    return
+                if error is not None:
+                    LOG.error('Background install preparation failed: %s', error)
+                    self._install_failed('installPreparationError')
+                    return
+                if self._cancel_requested or not self._safe_install_context():
+                    cleanup(value)
+                    cancelled = self._cancel_requested
+                    self._install_pending = self._cancel_requested = False
+                    self._install_generation += 1
+                    changes = dict(status=READY, cancellingInstall=False, installScheduled=False)
+                    if cancelled:
+                        changes['lastInstallResult'] = dict(status='cancelled', version=self.state.snapshot()['latestVersion'], error=None)
+                    self.state.update(**changes)
+                    self._refresh_install_context()
+                    LOG.info('Preparation discarded before any native helper launch')
+                    return
+                try:
+                    self._previous_result_stamp = value['previous']
+                    self._install_ticket = value['ticket']
+                    if not self.installer.launch_prepared(value['job'], self._safe_install_context):
+                        self._install_pending = False
+                        self.state.update(status=READY)
+                        self._refresh_install_context()
+                        return
+                    LOG.info('Installer launched after background validation')
+                    self._install_deadline = self.clock() + 15.0
+                    self._schedule_install_poll(0.25)
+                except Exception:
+                    LOG.exception('Prepared installer launch failed')
+                    self._install_failed('installPreparationError')
+            self.file_work.submit(task, completed, cleanup)
+            return True
+        except Exception:
+            self._prepare_active = False
+            permit.clear()
+            self._prepare_permit = None
+            LOG.exception('Could not queue install preparation')
+            self._install_failed('installPreparationError')
+            return False
+
+    def _poll_install_async(self, generation):
+        if self._receipt_busy:
+            return
+        self._receipt_busy = True
+        ready = self._ready_path
+        cancelled = self._cancel_requested
+        client = getattr(self.api, 'client_version', None)
+        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        def task():
+            before = self.results.proof_signature(ready) if self.results is not None else None
+            result = self.installer.result(ready)
+            ticket = self.results.ticket(ready) if self.results is not None else None
+            stamp = self.results.result_stamp(ready) if self.results is not None else None
+            signature = self.results.proof_signature(ready) if self.results is not None else None
+            if before != signature:
+                raise OSError('Receipt changed during background validation')
+            if stamp is not None and result is not None:
+                from Driftkings.core.updater.results import fingerprint
+                if stamp[0] != fingerprint(result):
+                    raise OSError('Receipt content changed during background validation')
+            valid = None
+            if cancelled and isinstance(result, dict) and result.get('status') == 'cancelled':
+                try:
+                    self.installer.validate_stage(ready, client, channel)
+                    valid = True
+                except Exception:
+                    valid = False
+            return dict(result=result, ticket=ticket, stamp=stamp, signature=signature, stageValid=valid)
+        def completed(value, error):
+            self._receipt_busy = False
+            self._accept_install_probe(generation, value, error)
+        try:
+            self.file_work.submit(task, completed)
+        except Exception as error:
+            self._receipt_busy = False
+            self._accept_install_probe(generation, None, error)
+
     def _poll_install(self, generation):
         if generation != self._install_generation:
             return
         self._install_token = None
         if not self.active or not self._install_pending:
             return
+        if self.file_work is not None:
+            return self._poll_install_async(generation)
+        return self._accept_install_probe(generation)
+
+    def _accept_install_probe(self, generation, probe=None, error=None):
+        if generation != self._install_generation or not self.active or not self._install_pending:
+            return
         try:
+            if error is not None:
+                raise error
+            if probe is not None and self.results is not None:
+                if probe['signature'] != self.results.proof_signature(self._ready_path):
+                    raise OSError('Receipt changed before client delivery')
             process = self.installer.process
-            result = self.installer.result(self._ready_path)
+            result = probe['result'] if probe is not None else self.installer.result(self._ready_path)
             # A previous helper's result is never acknowledgement for this PID.
             matching = (isinstance(result, dict) and set(result) == set(('schema', 'status', 'error', 'helperPid')) and
                         type(result.get('schema')) is int and result['schema'] == 1 and
                         type(result.get('helperPid')) is int and result['helperPid'] == process.pid)
-            if self.results is not None and self.results.ticket(self._ready_path) != self._install_ticket:
+            ticket = probe['ticket'] if probe is not None else (self.results.ticket(self._ready_path) if self.results is not None else None)
+            if self.results is not None and ticket != self._install_ticket:
                 self._install_failed('installTicketChanged')
                 return
-            if self.results is not None and self.results.result_stamp(self._ready_path) == self._previous_result_stamp:
+            stamp = probe['stamp'] if probe is not None else (self.results.result_stamp(self._ready_path) if self.results is not None else None)
+            if self.results is not None and stamp == self._previous_result_stamp:
                 matching = False
+            if probe is not None:
+                self._receipt_proof = dict(probe, checkedAt=self.clock()) if matching else None
+            if matching and result.get('status') == 'error':
+                LOG.error('Native installer rejected operation: %s', result.get('error'))
             if self._cancel_requested:
                 if matching and result.get('status') == 'cancelled' and process.poll() == 3:
+                    if probe is not None and probe['stageValid'] is None:
+                        self._schedule_install_poll(0.05)
+                        return
                     valid = True
                     try:
-                        self.installer.validate_stage(self._ready_path, getattr(self.api, 'client_version', None),
-                                                      self.api.get('dk.settings', 'updateChannel', 'stable'))
+                        if probe is not None:
+                            valid = probe['stageValid']
+                        else:
+                            self.installer.validate_stage(self._ready_path, getattr(self.api, 'client_version', None),
+                                                          self.api.get('dk.settings', 'updateChannel', 'stable'))
                     except Exception:
                         valid = False
                         LOG.warning('Cancelled update staging is not eligible for reuse', exc_info=True)
@@ -463,6 +672,12 @@ class UpdaterService(object):
         if not self.active or not self._install_pending or self._cancel_requested or self._restart_requested:
             return False
         try:
+            self._receipt_proof = None
+            if self._prepare_active:
+                self._cancel_requested = True
+                if self._prepare_permit is not None: self._prepare_permit.clear()
+                self.state.update(cancellingInstall=True, canInstall=False, canRestart=False)
+                return True
             self.installer.cancel(self._ready_path)
             self._cancel_requested = True
             self._install_deadline = self.clock() + 15.0
@@ -480,6 +695,15 @@ class UpdaterService(object):
         try:
             if self.installer.process.poll() is not None:
                 return False
+            if self.file_work is not None:
+                proof = self._receipt_proof
+                if proof is None or not 0 <= self.clock() - proof['checkedAt'] <= 5.0:
+                    return False
+                if self.results is not None and proof['signature'] != self.results.proof_signature(self._ready_path):
+                    return False
+                result = proof['result']
+                return (result.get('status') == 'prepared' and result.get('helperPid') == self.installer.process.pid and
+                        proof['ticket'] == self._install_ticket and proof['stamp'] != self._previous_result_stamp)
             result = self.installer.result(self._ready_path)
             if (not isinstance(result, dict) or type(result.get('schema')) is not int or result['schema'] != 1 or
                     result.get('status') != 'prepared' or result.get('helperPid') != self.installer.process.pid):
@@ -535,8 +759,16 @@ class UpdaterService(object):
             try:
                 self.notifier('updates.result.' + report['status'], report['version'])
                 self._notified.add(identity)
-                self.results.acknowledge(report)
-                self._previous_reports.remove(report)
+                if self.file_work is not None:
+                    def acknowledged(value, error, report=report):
+                        if error is not None:
+                            LOG.warning('Update notification receipt failed: %s', error)
+                        elif report in self._previous_reports:
+                            self._previous_reports.remove(report)
+                    self.file_work.submit(lambda report=report: self.results.acknowledge(report), acknowledged)
+                else:
+                    self.results.acknowledge(report)
+                    self._previous_reports.remove(report)
                 LOG.info('Update %s: %s', report['status'], report['error'])
             except Exception:
                 LOG.warning('Update result notification/receipt failed', exc_info=True)

@@ -28,9 +28,15 @@ internal static class Installer
     static readonly JavaScriptSerializer Json = new JavaScriptSerializer { MaxJsonLength = 65536, RecursionLimit = 10 };
     static string stage;
 
-    static void Require(bool valid, string message)
+    sealed class ValidationFailure : Exception
     {
-        if (!valid) throw new InvalidDataException(message);
+        internal readonly string Code;
+        internal ValidationFailure(string message, string code) : base(message) { Code = code; }
+    }
+
+    static void Require(bool valid, string message, string code = "installValidationError")
+    {
+        if (!valid) throw new ValidationFailure(message, code);
     }
 
     static bool Same(string a, string b)
@@ -41,14 +47,14 @@ internal static class Installer
     static void Safe(string path, bool exists)
     {
         path = Path.GetFullPath(path);
-        Require(Path.GetPathRoot(path).Length == 3 && path[1] == ':', "Local drive required");
-        if (exists) Require(File.Exists(path) || Directory.Exists(path), "Missing owned path");
+        Require(Path.GetPathRoot(path).Length == 3 && path[1] == ':', "Local drive required", "pathNotLocal");
+        if (exists) Require(File.Exists(path) || Directory.Exists(path), "Missing owned path", "ownedPathMissing");
         for (string current = path; current != null; current = Path.GetDirectoryName(current))
         {
             // GetFileAttributes also detects links whose target is missing.
             try
             {
-                Require((File.GetAttributes(current) & FileAttributes.ReparsePoint) == 0, "Reparse point rejected");
+                Require((File.GetAttributes(current) & FileAttributes.ReparsePoint) == 0, "Reparse point rejected", "reparsePathRejected");
             }
             catch (FileNotFoundException) { }
             catch (DirectoryNotFoundException) { }
@@ -103,7 +109,7 @@ internal static class Installer
                 var document = new XmlDocument { XmlResolver = null };
                 document.Load(reader);
                 Require(document.DocumentElement.Name == "root" && document.SelectSingleNode("/root/id").InnerText == "driftkings.unified" &&
-                        document.SelectSingleNode("/root/version").InnerText == version, "Wrong package identity/version");
+                        document.SelectSingleNode("/root/version").InnerText == version, "Wrong package identity/version", "packageIdentityMismatch");
             }
         }
     }
@@ -150,7 +156,7 @@ internal static class Installer
         // Includes a WGC restart or another WoT instance: defer rather than race it.
         foreach (var process in Process.GetProcessesByName("WorldOfTanks"))
         {
-            using (process) Require(process.HasExited, "WoT is running; installation deferred");
+            using (process) Require(process.HasExited, "WoT is running; installation deferred", "gameAlreadyRunning");
         }
     }
 
@@ -194,7 +200,7 @@ internal static class Installer
         // Keep that backup if its provenance does not match this transaction.
         if (File.Exists(backup))
         {
-            Require(Matches(backup, oldSize, oldSha), "Backup does not match transaction");
+            Require(Matches(backup, oldSize, oldSha), "Backup does not match transaction", "backupMismatch");
             using (var old = new FileStream(backup, FileMode.Open, FileAccess.Read, FileShare.Read))
                 Package(old, (string)ticket["installedVersion"]);
             if (Matches(target, size, sha))
@@ -207,7 +213,7 @@ internal static class Installer
             Require(Matches(target, oldSize, oldSha), "Recovery verification failed");
             Result("rolledBack", "interruptedInstall"); return 2;
         }
-        Require(Matches(target, oldSize, oldSha), "Installed package changed; refusing replacement");
+        Require(Matches(target, oldSize, oldSha), "Installed package changed; refusing replacement", "installedPackageChanged");
         using (var old = new FileStream(target, FileMode.Open, FileAccess.Read, FileShare.Read))
             Package(old, (string)ticket["installedVersion"]);
         try
@@ -219,12 +225,12 @@ internal static class Installer
                 ready.CopyTo(output, 65536);
                 output.Flush(true);
             }
-            Require(Matches(temporary, size, sha), "Copied package hash mismatch");
+            Require(Matches(temporary, size, sha), "Copied package hash mismatch", "copiedPackageMismatch");
             NoGame(); Safe(target, true); Safe(temporary, true); Safe(backup, false);
-            Require(Matches(target, oldSize, oldSha), "Installed package changed during preparation");
+            Require(Matches(target, oldSize, oldSha), "Installed package changed during preparation", "installedPackageChanged");
             Result("installing", null);
             ReplaceVerified(target, temporary, backup,
-                            () => Require(Matches(target, size, sha), "Final verification failed"),
+                            () => Require(Matches(target, size, sha), "Final verification failed", "finalPackageMismatch"),
                             path => Matches(path, oldSize, oldSha), NoGame,
                             () => Result("installed", null), () => Result("rolledBack", "installFailed"));
             // Cleanup is outside the transaction. A locked backup is retained
@@ -272,7 +278,7 @@ internal static class Installer
                 string readyPath = Path.Combine(stage, "Driftkings.wotmod.ready"); Safe(readyPath, true);
                 using (var ready = new FileStream(readyPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    Require(ready.Length == (int)ticket["size"] && Hash(ready) == (string)ticket["sha256"], "Staged package mismatch");
+                    Require(ready.Length == (int)ticket["size"] && Hash(ready) == (string)ticket["sha256"], "Staged package mismatch", "stagedPackageMismatch");
                     Package(ready, (string)ticket["version"]);
                     Result("prepared", null);
                     // Cooperative cancellation for unconfirmed preparation or
@@ -302,7 +308,16 @@ internal static class Installer
                     string path = Path.Combine(stage, "result.json");
                     string previous = File.Exists(path) ? File.ReadAllText(path) : "";
                     if (!previous.Contains("\"rolledBack\"") && !previous.Contains("\"installed\""))
-                        Result("error", error is IOException ? "installIOError" : "installValidationError");
+                    {
+                        var validation = error as ValidationFailure;
+                        int nativeCode = error.HResult & 0xffff;
+                        string code = validation != null ? validation.Code :
+                                      error is UnauthorizedAccessException ? "installAccessDenied" :
+                                      error is IOException && (nativeCode == 32 || nativeCode == 33) ? "installSharingViolation" :
+                                      error is IOException ? "installIOError" :
+                                      error is InvalidOperationException ? "processInspectionFailed" : "installValidationError";
+                        Result("error", code);
+                    }
                 }
                 catch { } // Failed result IO cannot justify mutating game/config files.
             }
