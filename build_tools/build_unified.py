@@ -1,8 +1,10 @@
 """Build the unified package directly from compiled files and enabled manifests."""
 import ast
+import hashlib
 import json
 import re
 import sys
+import runpy
 from pathlib import Path
 import zipfile
 
@@ -16,8 +18,10 @@ def package_version(root=ROOT):
     tree = ast.parse((root / 'source/scripts/client/Driftkings/__init__.py').read_text(encoding='utf-8-sig'))
     values = [ast.literal_eval(node.value) for node in tree.body if isinstance(node, ast.Assign)
               and any(isinstance(target, ast.Name) and target.id == 'VERSION' for target in node.targets)]
-    if len(values) != 1 or not isinstance(values[0], str) or not re.fullmatch(r'\d+\.\d+\.\d+', values[0]):
-        raise ValueError('Declare one VERSION in Driftkings/__init__.py (major.minor.patch)')
+    if len(values) != 1 or not isinstance(values[0], str):
+        raise ValueError('Declare one VERSION in Driftkings/__init__.py')
+    version_type = runpy.run_path(str(ROOT / 'source/scripts/client/Driftkings/core/updater/versioning.py'))['Version']
+    version_type(values[0])
     return values[0]
 
 
@@ -119,6 +123,17 @@ def build():
     else:
         add(name, (ROOT / 'res/audioww/driftkings_sixthsense.bnk').read_bytes())
     add('res/gui/flash/DriftkingsBattle.swf', (ROOT / 'res/flash/battle/DriftkingsBattle.swf').read_bytes())
+    # Owned offline installer is compiled locally, never downloaded from a release.
+    helper = (ROOT / 'build/updater/Driftkings.UpdateInstaller.exe').read_bytes()
+    helper_info = json.loads((ROOT / 'build/updater/helper.json').read_text(encoding='utf-8'))
+    helper_report = json.loads((ROOT / 'build/updater/build-report.json').read_text(encoding='utf-8'))
+    helper_hash = hashlib.sha256(helper).hexdigest()
+    if (helper_info != dict(schema=1, size=len(helper), sha256=helper_hash) or
+            helper_report.get('helperSha256') != helper_hash or
+            helper_report.get('sourceSha256') != hashlib.sha256((ROOT / 'source/updater/Installer.cs').read_bytes()).hexdigest()):
+        raise ValueError('Owned updater helper is stale or mismatched; rebuild it locally')
+    for resource in ('Driftkings.UpdateInstaller.exe', 'helper.json'):
+        add('res/gui/Driftkings/updater/' + resource, (ROOT / 'build/updater' / resource).read_bytes())
     version = package_version()
     add('meta.xml', ('<root><id>driftkings.unified</id><version>%s</version><name>Driftkings</name><description>Unified laboratory build</description></root>' % version).encode('utf-8'))
     validate_dependency_resources(entries, ROOT / 'res/wotmods')

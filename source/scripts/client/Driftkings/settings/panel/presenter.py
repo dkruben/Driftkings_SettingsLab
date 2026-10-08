@@ -22,6 +22,7 @@ class Presenter(object):
         self.confirming = False
         self.restart_prompt = False
         self.close_after_restart = False
+        self.restart_reason = None
         self.message = None
         self._sequence = 0
         self.capture = None
@@ -89,10 +90,13 @@ class Presenter(object):
                 images = control.preview.get('images')
                 path = images[value] if images is not None and isinstance(value, int) and 0 <= value < len(images) else '' if images is not None else value
                 previews[control.id] = self.image_previews.resolve(path)
-        return {'selected': self.selected, 'compatibilityWarnings': compatibility_warnings, 'previews': previews, 'values': values, 'secrets': secrets, 'changed': changed,
+        updater = getattr(self.api, 'updater', None)
+        return {'updater': updater.state.snapshot() if updater is not None else None,
+                'selected': self.selected, 'compatibilityWarnings': compatibility_warnings, 'previews': previews, 'values': values, 'secrets': secrets, 'changed': changed,
                 'disabled': disabled, 'status': status, 'pending': self.session.pending_apply(),
                 'unsaved': self.session.unsaved(), 'confirm': self.confirming, 'message': self.message,
-                'restartPrompt': self.restart_prompt, 'restartRequired': sorted(self.api.restart_required),
+                'restartPrompt': self.restart_prompt, 'restartReason': self.restart_reason,
+                'restartRequired': sorted(self.api.restart_required),
                 'inBattle': self.api.in_battle,
                 'theme': self.theme(), 'canUndo': bool(self.session.history), 'capture': self.capture,
                 'keyNames': self.key_names, 'profiles': self.profiles.names(), 'profileText': self.profile_text,
@@ -148,10 +152,57 @@ class Presenter(object):
             raise ValueError('Unknown mod')
         return mod_id
 
+    def _on_check_updates(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is None:
+            raise ValueError('Updater unavailable')
+        updater.check(manual=True)
+
+    def _on_download_update(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is None or not updater.download():
+            raise ValueError('Update download unavailable')
+
+    def _on_cancel_update_download(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is None:
+            raise ValueError('Updater unavailable')
+        updater.cancel_download()
+
     def _on_select(self, data, result):
         from Driftkings.settings.panel.sound import sound_manager
         sound_manager.stop()
         self.selected = self._require_mod(data)
+
+    def _on_schedule_update(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is None or not updater.schedule_install():
+            self._say('updates.installBlocked')
+
+    def _on_cancel_update_install(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is not None:
+            updater.cancel_install()
+        if self.restart_reason == 'updater':
+            self.restart_prompt = False
+            self.restart_reason = None
+
+    def _on_restart_update(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is None or not updater.restart_ready() or self.session.unsaved():
+            self._say('updates.restartBlocked')
+            return
+        self.restart_reason = 'updater'
+        self.restart_prompt = True
+        self.close_after_restart = False
+
+    def _on_defer_update(self, data, result):
+        updater = getattr(self.api, 'updater', None)
+        if updater is not None:
+            updater.defer_restart()
+        if self.restart_reason == 'updater':
+            self.restart_prompt = False
+            self.restart_reason = None
 
     def _on_set(self, data, result):
         mod_id = self._require_mod(data)
@@ -227,6 +278,7 @@ class Presenter(object):
             self._close_or_restart(result)
 
     def _close_or_restart(self, result):
+        self.restart_reason = None
         self.restart_prompt = bool(self.api.restart_required)
         self.close_after_restart = True
         result['close'] = not self.restart_prompt
@@ -236,16 +288,24 @@ class Presenter(object):
             raise ValueError('No restart request pending')
         choice = data.get('choice')
         if choice == 'now':
-            if self.api.in_battle or self.session.unsaved() or not self.api.restart_required:
+            updater = getattr(self.api, 'updater', None)
+            permitted = (updater is not None and updater.restart_ready()) if self.restart_reason == 'updater' else bool(self.api.restart_required)
+            if self.api.in_battle or self.session.unsaved() or not permitted:
                 raise ValueError('Restart is not available')
             result['restart'] = True
+            result['restartReason'] = self.restart_reason
             result['close'] = True
         elif choice == 'later':
+            if self.restart_reason == 'updater':
+                updater = getattr(self.api, 'updater', None)
+                if updater is not None:
+                    updater.defer_restart()
             result['close'] = self.close_after_restart
         else:
             raise ValueError('Unknown restart choice')
         self.restart_prompt = False
         self.close_after_restart = False
+        self.restart_reason = None
 
     def _save(self):
         try:

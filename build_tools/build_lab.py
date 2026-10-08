@@ -22,6 +22,7 @@ def main():
                            'extensions.dksmoke=build_tools/python27_hooks_smoke.py', 'dksmoke'], cwd=str(ROOT))
     subprocess.check_call([sys.executable, 'build_tools/build_unified.py', '--prepare'], cwd=str(ROOT))
     subprocess.check_call([sys.executable, 'build_tools/build_ui_resources.py'], cwd=str(ROOT))
+    subprocess.check_call([sys.executable, 'build_tools/build_updater_helper.py'], cwd=str(ROOT))
     carousel_manifest = ROOT / 'build_data/components/CarouselStats.json'
     if json.loads(carousel_manifest.read_text()).get('enabled'):
         subprocess.check_call([sys.executable, 'build_tools/build_carousel_bridge.py'], cwd=str(ROOT))

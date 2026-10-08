@@ -44,6 +44,7 @@ class SettingsView(ViewImpl):
         self.live = False
         self.sentSchema = None
         self.sentRevision = None
+        self.updaterState = None
         settings = ViewSettings(resource_id(WINDOW_RESOURCE))
         settings.flags = ViewFlags.VIEW
         settings.model = SettingsModel()
@@ -56,11 +57,18 @@ class SettingsView(ViewImpl):
         super(SettingsView, self)._onLoading(*args, **kwargs)
         self.live = True
         self.controller.api.registry.subscribe(self.push)
+        updater = getattr(self.controller.api, 'updater', None)
+        if updater is not None:
+            self.updaterState = updater.state
+            self.updaterState.subscribe(self.push)
         self.push()
 
     def _finalize(self):
         self.live = False
         self.controller.api.registry.unsubscribe(self.push)
+        if self.updaterState is not None:
+            self.updaterState.unsubscribe(self.push)
+            self.updaterState = None
         try:
             self.presenter.dispose()
         except Exception:
@@ -105,7 +113,12 @@ class SettingsView(ViewImpl):
             return
         result = self.presenter.handle(data)
         if result.get('restart'):
-            self.controller.restart()
+            if result.get('restartReason') == 'updater':
+                if not self.controller.restart(reason='updater'):
+                    self.presenter._say('updates.restartBlocked')
+                    self.push()
+            else:
+                self.controller.restart()
             return
         if result['close']:
             window = self.getParentWindow()
@@ -192,11 +205,15 @@ class SettingsController(object):
         if window is not None:
             window.destroy()
 
-    def restart(self):
+    def restart(self, reason=None):
         # Recheck the actual context; never interrupt an active battle.
         player = BigWorld.player()
         if self.space != GuiGlobalSpaceID.LOBBY or (player and getattr(player, 'arena', None) is not None):
             return False
+        if reason == 'updater':
+            updater = getattr(self.api, 'updater', None)
+            if updater is None or not updater.claim_restart():
+                return False
         self.close()
         BigWorld.savePreferences()
         import WGC

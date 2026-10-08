@@ -152,6 +152,7 @@
         controls = {}; rendered = modId; activeTab = '';
         ui.tabs.textContent = '';
         ui.controls.textContent = '';
+        ui.updates = null;
         var mod = mods[modId], text = labels();
         ui.themeReset.style.display = modId === 'dk.settings' ? 'block' : 'none';
         if (!mod) {
@@ -162,7 +163,7 @@
         }
         ui.modName.textContent = mod.name;
         var meta = mod.category ? [categoryLabel(mod.category)] : [];
-        if (mod.version) { meta.push((text.version || 'Version') + ' ' + mod.version); }
+        if (mod.version) { meta.push((modId === 'dk.settings' ? 'DriftKings' : (text.version || 'Version')) + ' ' + mod.version); }
         if (mod.author) { meta.push((text.author || 'Author') + ' ' + mod.author); }
         ui.modMeta.textContent = meta.join('   •   ');
         ui.modDescription.textContent = mod.description || '';
@@ -196,6 +197,35 @@
             if (def.tab && tabs.indexOf(def.tab) < 0) { tabs.push(def.tab); }
             controls[def.id] = control;
         });
+        if (modId === 'dk.settings') {
+            var updates = ui.updates = el('div', 'dk-updates', null, ui.controls);
+            el('div', 'dk-section', text['updates.title'], updates);
+            ui.updateInstalled = el('div', 'dk-update-line', null, updates);
+            ui.updateChannel = el('div', 'dk-update-line', null, updates);
+            ui.updateLastCheck = el('div', 'dk-update-line', null, updates);
+            ui.updateStatus = el('div', 'dk-update-line', null, updates);
+            ui.updateBlocked = el('div', 'dk-update-blocked', null, updates);
+            ui.updateOutcome = el('div', 'dk-update-result', null, updates);
+            ui.updateLatest = el('div', 'dk-update-line', null, updates);
+            ui.updateChanges = el('div', 'dk-update-changelog', null, updates);
+            ui.updateCheck = footerButton(updates, function () { send('check_updates'); });
+            ui.updateCheck.textContent = text['updates.check'];
+            ui.updateDownload = footerButton(updates, function () { send('download_update'); });
+            ui.updateDownload.className += ' dk-update-download';
+            ui.updateDownload.textContent = text['updates.install'];
+            ui.updateCancel = footerButton(updates, function () { send('cancel_update_download'); });
+            ui.updateCancel.textContent = text['updates.cancelDownload'];
+            ui.updateInstall = footerButton(updates, function () { send('schedule_update'); });
+            ui.updateInstall.className += ' dk-update-install';
+            ui.updateInstall.textContent = text['updates.install'];
+            ui.updateRestart = footerButton(updates, function () { send('restart_update'); });
+            ui.updateRestart.className += ' dk-update-restart';
+            ui.updateRestart.textContent = text.restartNow;
+            ui.updateLater = footerButton(updates, function () { send('defer_update'); });
+            ui.updateLater.textContent = text['updates.later'];
+            ui.updateCancelInstall = footerButton(updates, function () { send('cancel_update_install'); });
+            ui.updateCancelInstall.textContent = text['updates.cancelInstall'];
+        }
         if (tabs.length) {
             [text.all].concat(tabs).forEach(function (name, index) { footerButton(ui.tabs, function () { activeTab = index ? name : ''; filter(); }).textContent = name; });
         }
@@ -227,11 +257,52 @@
         layout();
         if (rendered !== state.selected) { renderMod(state.selected); }
         var modId = state.selected, values = state.values[modId] || {};
+        if (ui.updates) {
+            var update = state.updater, strings = labels();
+            ui.updates.style.display = update ? '' : 'none';
+            if (update) {
+                ui.updateInstalled.textContent = strings['updates.installed'] + ': ' + update.installedVersion;
+                ui.updateChannel.textContent = strings['updates.channel'] + ': ' + update.channel;
+                ui.updateLastCheck.textContent = strings['updates.lastCheck'] + ': ' + (update.lastCheck === null ? strings['updates.never'] : new Date(update.lastCheck * 1000).toLocaleString());
+                ui.updateStatus.textContent = strings['updates.' + update.status] || update.status;
+                if (update.status === 'IDLE' && update.lastCheck === null) { ui.updateStatus.textContent = strings['updates.notChecked']; }
+                if (update.error === 'transportUnavailable') { ui.updateStatus.textContent = strings['updates.transportUnavailable']; }
+                if (update.latestVersion && update.compatible === false) { ui.updateStatus.textContent += ' ' + strings['updates.incompatible']; }
+                ui.updateLatest.textContent = update.latestVersion ? strings['updates.latest'] + ': ' + update.latestVersion : '';
+                ui.updateChanges.textContent = (update.changelog || []).join('\n');
+                var busy = ['CHECKING', 'DOWNLOADING', 'VERIFYING', 'INSTALLING', 'RESTART_REQUIRED'].indexOf(update.status) >= 0;
+                ui.updateCheck.disabled = busy || update.status === 'READY' || !!update.cancellingInstall;
+                var downloadable = update.canDownload && update.compatible === true && ['AVAILABLE', 'ERROR'].indexOf(update.status) >= 0;
+                ui.updateDownload.style.display = downloadable ? '' : 'none';
+                ui.updateDownload.disabled = !downloadable;
+                ui.updateCancel.style.display = update.canCancel ? '' : 'none';
+                ui.updateCancel.disabled = !update.canCancel;
+                var installable = update.canInstall && update.compatible === true && ['READY', 'ERROR'].indexOf(update.status) >= 0 && !update.cancellingInstall;
+                ui.updateInstall.style.display = installable ? '' : 'none';
+                ui.updateInstall.disabled = !installable;
+                var prepared = update.status === 'RESTART_REQUIRED' && update.installScheduled === true && !update.cancellingInstall;
+                ui.updateRestart.style.display = prepared ? '' : 'none';
+                ui.updateRestart.disabled = !prepared || !update.canRestart || !!state.unsaved;
+                ui.updateLater.style.display = prepared && !update.restartDeferred ? '' : 'none';
+                ui.updateLater.disabled = !prepared;
+                ui.updateCancelInstall.style.display = update.status === 'INSTALLING' || update.installScheduled || update.cancellingInstall ? '' : 'none';
+                ui.updateCancelInstall.disabled = !!update.cancellingInstall;
+                ui.updateBlocked.textContent = update.installBlocked ? (strings['updates.block.' + update.installBlocked] || strings['updates.installBlocked']) : '';
+                if (prepared) { ui.updateBlocked.textContent += ' ' + strings['updates.wgcLimit']; }
+                if (update.cancellingInstall) { ui.updateStatus.textContent = strings['updates.cancelling']; }
+                var outcome = update.lastInstallResult;
+                ui.updateOutcome.textContent = outcome ? (strings['updates.result.' + outcome.status] || strings['updates.result.failed']).replace('{version}', outcome.version || '') : '';
+                if (update.status === 'DOWNLOADING' && typeof update.downloadPercent === 'number') {
+                    ui.updateStatus.textContent += ' ' + update.downloadPercent + '%';
+                }
+            }
+        }
         var changed = state.changed[modId] || [], disabled = state.disabled[modId] || [];
+        var updaterBusy = state.updater && ['CHECKING', 'DOWNLOADING', 'VERIFYING', 'INSTALLING'].indexOf(state.updater.status) >= 0;
         var secrets = state.secrets[modId] || [];
         Object.keys(controls).forEach(function (key) {
             var control = controls[key];
-            control.info({disabled: contains(disabled, key), changed: contains(changed, key),
+            control.info({disabled: contains(disabled, key) || !!(updaterBusy && modId === 'dk.settings' && key === 'updateChannel'), changed: contains(changed, key),
                           values: state.values[modId], secretSet: contains(secrets, key), keyNames: state.keyNames || {}, capture: state.capture && state.capture.mod === modId && state.capture.key === key});
             if (Object.prototype.hasOwnProperty.call(values, key)) { control.update(values[key]); }
             if (control.previewUpdate) { control.previewUpdate((state.previews || {})[key] || ''); }
@@ -266,11 +337,12 @@
         if (profileDialog && profileDialog.area && profileDialog.exported !== state.profileText) { profileDialog.area.value = state.profileText || ''; profileDialog.exported = state.profileText; }
         setClass(ui.unsaved, 'is-visible', !!state.unsaved || !!state.pending);
         ui.dialogTitle.textContent = state.restartPrompt ? text.restartTitle : text.confirmTitle;
-        ui.dialogText.textContent = state.restartPrompt ? text.restartText : text.confirmText;
+        ui.dialogText.textContent = state.restartPrompt ? (state.restartReason === 'updater' ? text['updates.restartText'] : text.restartText) : text.confirmText;
         ui.confirmStay.textContent = state.restartPrompt ? text.restartLater : text.confirmStay;
         ui.confirmSave.textContent = state.restartPrompt ? text.restartNow : text.confirmSave;
         ui.confirmDiscard.style.display = state.restartPrompt ? 'none' : '';
-        ui.confirmSave.disabled = !!(state.restartPrompt && state.inBattle);
+        ui.confirmSave.disabled = !!(state.restartPrompt && (state.inBattle || state.unsaved ||
+            state.restartReason === 'updater' && (!state.updater || !state.updater.canRestart)));
         ui.profiles.disabled = !!state.inBattle;
         var showDialog = !!(state.confirm || state.restartPrompt);
         setClass(ui.overlay, 'is-visible', showDialog);
@@ -280,6 +352,7 @@
         } else if (!showDialog && confirmFocused) { DK.modal.close(null); }
         confirmFocused = showDialog;
         toast(state.message);
+        filter();
     }
 
     function toast(message) {
@@ -355,6 +428,11 @@
             var visible = (!activeTab || !def.tab || def.tab === activeTab) && (matches(mods[rendered]) || matches(def));
             control.node.style.display = visible ? '' : 'none';
         });
+        if (ui.updates) {
+            var updateTitle = labels()['updates.title'] || '';
+            ui.updates.style.display = state && state.updater && (!activeTab || activeTab === updateTitle) &&
+                (!query || updateTitle.toLowerCase().indexOf(query) >= 0 || matches(mods[rendered])) ? '' : 'none';
+        }
         (ui.groups || []).forEach(function (group) {
             group.node.style.display = group.ids.some(function (id) { return ui.nav[id].style.display !== 'none'; }) ? '' : 'none';
         });

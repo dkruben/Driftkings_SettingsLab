@@ -33,6 +33,10 @@ def install(api):
     mod.add_slider('sectionFontSize', T('core.sectionFontSize'), min_value=14, max_value=26, default=18)
     mod.add_section(T('core.diagnostics'))
     mod.add_switch('debug', T('core.debug'), default=False, description=T('core.debug.tip'))
+    mod.add_section(T('updates.title'))
+    mod.add_switch('autoCheckUpdates', T('updates.autoCheck'), default=True)
+    mod.add_dropdown('updateChannel', T('updates.channel'),
+                     values=[('stable', T('updates.stable')), ('beta', T('updates.beta'))], default='stable')
 
     tab = None
     for control in mod._mod.controls:

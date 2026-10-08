@@ -32,7 +32,8 @@ class Core(object):
             from Driftkings.settings import SettingsService
             from Driftkings.core.keyboard import keyboard
             from Driftkings.core.callbacks import callbacks
-            services = (keyboard, callbacks, WindowViews(), BattleViews(), SettingsService())
+            from Driftkings.core.updater import UpdaterService
+            services = (keyboard, callbacks, WindowViews(), BattleViews(), SettingsService(), UpdaterService())
         self.services = tuple(services)
         self.context_factory = context_factory
         self.initialized = []

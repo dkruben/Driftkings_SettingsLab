@@ -9,7 +9,7 @@ import tempfile
 import types
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 ROOT = Path(__file__).resolve().parents[2]
 CLIENT = str(ROOT / 'source/scripts/client')
@@ -141,6 +141,21 @@ class ViewTests(unittest.TestCase):
         self.assertTrue(self.controller.open())
         self.view = self.controller.window.content
         return self.view.model
+
+    def test_updater_observation_patches_state_and_unsubscribes_on_close(self):
+        from Driftkings.core.updater.state import State, AVAILABLE
+        state = State()
+        self.api.updater = types.SimpleNamespace(state=state)
+        model = self.open()
+        schema = model.props[0]
+        self.assertEqual(len(state._listeners), 1)
+        state.update(status=AVAILABLE, latestVersion='1.0.0', compatible=False,
+                     changelog=['<b>Literal remote text</b>'])
+        self.assertIs(model.props[0], schema)
+        self.assertEqual(json.loads(model.props[1])['updater']['latestVersion'], '1.0.0')
+        self.controller.close()
+        self.assertEqual(state._listeners, [])
+        state.update(status=AVAILABLE, latestVersion='2.0.0')
 
     def test_open_push_patch_and_close(self):
         model = self.open()
@@ -302,6 +317,90 @@ class ViewTests(unittest.TestCase):
         self.assertTrue(self.controller.is_open)
         self.assertTrue(self.api.in_battle)
         self.assertFalse(self.controller.restart())
+
+    def updater_fixture(self, prepared=True):
+        from Driftkings.core.updater.state import State, RESTART_REQUIRED, INSTALLING
+        state = State()
+        state.update(status=RESTART_REQUIRED if prepared else INSTALLING, installScheduled=prepared,
+                     canRestart=prepared, latestVersion='1.0.0')
+        updater = types.SimpleNamespace(state=state, restart_ready=Mock(return_value=prepared),
+                                        claim_restart=Mock(side_effect=[prepared, False]),
+                                        defer_restart=Mock(return_value=True), cancel_install=Mock(return_value=True),
+                                        schedule_install=Mock(return_value=True))
+        self.api.updater = updater
+        bigworld = sys.modules['BigWorld']
+        bigworld.savePreferences = Mock()
+        bigworld.restartGame = Mock()
+        wgc = types.SimpleNamespace(notifyRestart=Mock())
+        patcher = patch.dict(sys.modules, {'WGC': wgc})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return updater, bigworld, wgc
+
+    def test_updater_restart_is_blocked_before_prepared(self):
+        updater, bigworld, wgc = self.updater_fixture(prepared=False)
+        self.open()
+        self.send(action='restart_update')
+        self.assertFalse(self.view.presenter.restart_prompt)
+        self.assertFalse(self.controller.restart(reason='updater'))
+        bigworld.restartGame.assert_not_called()
+        wgc.notifyRestart.assert_not_called()
+
+    def test_updater_reuses_existing_restart_flow_and_prevents_duplicate_restart(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.open()
+        self.send(action='restart_update')
+        self.assertTrue(self.view.presenter.restart_prompt)
+        self.send(action='restart', choice='now')
+        bigworld.savePreferences.assert_called_once()
+        wgc.notifyRestart.assert_called_once()
+        bigworld.restartGame.assert_called_once()
+        self.assertFalse(self.controller.restart(reason='updater'))
+        self.assertEqual(bigworld.restartGame.call_count, 1)
+
+    def test_updater_later_only_closes_dialog_and_window_reopens_from_service_state(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.open()
+        self.send(action='restart_update')
+        self.send(action='restart', choice='later')
+        self.assertTrue(self.controller.is_open)
+        self.assertFalse(self.view.presenter.restart_prompt)
+        updater.defer_restart.assert_called_once()
+        updater.cancel_install.assert_not_called()
+        self.controller.close()
+        self.assertEqual(updater.state._listeners, [])
+        model = self.open()
+        self.assertTrue(json.loads(model.props[1])['updater']['installScheduled'])
+        self.assertFalse(self.view.presenter.restart_prompt)
+        bigworld.restartGame.assert_not_called()
+
+    def test_updater_cancellation_delegates_to_service_without_claiming_success(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.open()
+        self.send(action='cancel_update_install')
+        updater.cancel_install.assert_called_once()
+        self.assertIsNone(updater.state.snapshot()['lastInstallResult'])
+        updater.restart_ready.return_value = False
+        self.send(action='restart_update')
+        self.assertFalse(self.view.presenter.restart_prompt)
+        bigworld.restartGame.assert_not_called()
+
+    def test_updater_restart_rechecks_context_in_existing_controller(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.open()
+        self.send(action='restart_update')
+        self.player[0] = types.SimpleNamespace(arena=object())
+        self.send(action='restart', choice='now')
+        bigworld.restartGame.assert_not_called()
+        updater.claim_restart.assert_not_called()
+
+    def test_updater_unsaved_edits_block_restart(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.open()
+        self.send(action='set', mod='dk.demo', key='volume', value=20)
+        self.send(action='restart_update')
+        self.assertFalse(self.view.presenter.restart_prompt)
+        bigworld.restartGame.assert_not_called()
 
     def test_hangar_shortcut_button_is_removed(self):
         self.assertFalse(hasattr(self.module, 'install_gameface'))

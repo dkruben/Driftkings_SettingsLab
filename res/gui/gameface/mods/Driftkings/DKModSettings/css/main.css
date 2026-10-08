@@ -1,6 +1,9 @@
 @font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Regular.ttf'); font-weight: 400; }
 @font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Bold.ttf'); font-weight: 700; }
 /* DK Mod Settings window layout. Accent colors are generated in js/app.js (themeCss). */
+.dk-updates { padding: 12rem; border-top: 1rem solid #4a4a46; }
+.dk-update-line { margin: 6rem 0; }
+.dk-update-changelog { white-space: pre-wrap; overflow-wrap: break-word; margin: 10rem 0; }
 * { box-sizing: border-box; }
 /* html font-size is set by js/app.js to the client's UI scale (1rem = 1 UI unit). */
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }

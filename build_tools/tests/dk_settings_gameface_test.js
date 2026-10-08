@@ -452,6 +452,92 @@ push(null, state({selected: 'dk.settings'}));
 assert.strictEqual(rows().length, 0);
 assert(app.find('dk-nav-item')[1].has('is-selected'));
 
+// Updates observe runtime metadata and send only a manual check action.
+Object.assign(labels, {'updates.title': 'Updates', 'updates.installed': 'Installed version',
+    'updates.channel': 'Channel', 'updates.lastCheck': 'Last check', 'updates.never': 'Never',
+    'updates.check': 'Check for updates', 'updates.latest': 'New version available',
+    'updates.IDLE': 'Not checked', 'updates.CHECKING': 'Checking...', 'updates.AVAILABLE': 'Update available',
+    'updates.incompatible': 'Incompatible game'});
+Object.assign(labels, {'updates.download': 'Download update', 'updates.cancelDownload': 'Cancel download',
+    'updates.DOWNLOADING': 'Downloading', 'updates.VERIFYING': 'Verifying', 'updates.READY': 'Ready to install',
+    'updates.install': 'Update now', 'updates.INSTALLING': 'Preparing safe installation',
+    'updates.RESTART_REQUIRED': 'Update prepared', 'updates.later': 'More later', 'updates.cancelInstall': 'Cancel update',
+    'updates.cancelling': 'Waiting for cancellation confirmation', 'updates.block.loadingContext': 'Wait for the Hangar',
+    'updates.installBlocked': 'Return to Hangar', 'updates.wgcLimit': 'WGC restart is not yet certified',
+    'updates.result.cancelled': 'Update cancelled', 'updates.result.installed': 'Updated to {version}'});
+const update = {installedVersion: '0.1.0', latestVersion: null, channel: 'stable', status: 'IDLE',
+    lastCheck: null, changelog: [], compatible: null};
+push(schema, state({selected: 'dk.settings', updater: update}));
+assert.strictEqual(app.find('dk-updates')[0].style.display, '');
+button('Check for updates').click();
+assert.deepStrictEqual(sent.pop(), {action: 'check_updates'});
+push(null, state({selected: 'dk.settings', updater: Object.assign({}, update, {status: 'CHECKING', lastCheck: 100})}));
+assert.strictEqual(button('Check for updates').disabled, true);
+const beforeRepeated = sent.length;
+button('Check for updates').click();
+assert.strictEqual(sent.length, beforeRepeated);
+push(null, state({selected: 'dk.settings', updater: Object.assign({}, update, {status: 'AVAILABLE',
+    latestVersion: '1.0.0', compatible: false, changelog: ['<script>remote text</script>']})}));
+assert.strictEqual(app.find('dk-update-changelog')[0].textContent, '<script>remote text</script>');
+assert.strictEqual(app.find('dk-update-changelog')[0].children.length, 0);
+assert(app.find('dk-update-line').some(node => node.textContent.includes('Incompatible game')));
+assert.strictEqual(app.find('dk-update-download')[0].style.display, 'none');
+assert.strictEqual(app.find('dk-update-install')[0].style.display, 'none');
+push(null, state({selected: 'dk.settings', updater: Object.assign({}, update, {status: 'AVAILABLE',
+    latestVersion: '1.0.0', compatible: true, canDownload: true})}));
+assert.strictEqual(app.find('dk-update-download')[0].disabled, false);
+assert.strictEqual(app.find('dk-update-download')[0].textContent, 'Update now');
+app.find('dk-update-download')[0].click();
+assert.deepStrictEqual(sent.pop(), {action: 'download_update'});
+push(null, state({selected: 'dk.settings', updater: Object.assign({}, update, {status: 'DOWNLOADING',
+    downloadPercent: 42, canDownload: false, canCancel: true})}));
+assert.strictEqual(button('Check for updates').disabled, true);
+assert.strictEqual(app.find('dk-update-download')[0].disabled, true);
+assert(app.find('dk-update-line').some(node => node.textContent === 'Downloading 42%'));
+button('Cancel download').click();
+assert.deepStrictEqual(sent.pop(), {action: 'cancel_update_download'});
+push(null, state({selected: 'dk.settings', updater: Object.assign({}, update, {status: 'READY',
+    downloadPercent: 100, canDownload: false, canCancel: false})}));
+assert.strictEqual(button('Cancel download').disabled, true);
+assert(app.find('dk-update-line').some(node => node.textContent.includes('Ready to install')));
+push(null, state({selected:'dk.settings', updater:Object.assign({}, update, {status:'READY', compatible:true,
+    canInstall:false, installBlocked:'loadingContext'})}));
+assert.strictEqual(app.find('dk-update-install')[0].style.display, 'none');
+assert.strictEqual(app.find('dk-update-blocked')[0].textContent, 'Wait for the Hangar');
+push(null, state({selected:'dk.settings', updater:Object.assign({}, update, {status:'READY', compatible:true, canInstall:true})}));
+app.find('dk-update-install')[0].click();
+assert.deepStrictEqual(sent.pop(), {action:'schedule_update'});
+push(null, state({selected:'dk.settings', updater:Object.assign({}, update, {status:'INSTALLING', compatible:true})}));
+assert.strictEqual(app.find('dk-update-restart')[0].style.display, 'none');
+assert.strictEqual(button('Check for updates').disabled, true);
+button('Cancel update').click();
+assert.deepStrictEqual(sent.pop(), {action:'cancel_update_install'});
+const prepared = Object.assign({}, update, {status:'RESTART_REQUIRED', installScheduled:true, canRestart:true});
+push(null, state({selected:'dk.settings', updater:prepared}));
+assert.strictEqual(app.find('dk-update-restart')[0].disabled, false);
+assert(app.find('dk-update-blocked')[0].textContent.includes('not yet certified'));
+app.find('dk-update-restart')[0].click();
+assert.deepStrictEqual(sent.pop(), {action:'restart_update'});
+button('More later').click();
+assert.deepStrictEqual(sent.pop(), {action:'defer_update'});
+push(null, state({selected:'dk.settings', updater:Object.assign({}, prepared, {restartDeferred:true})}));
+assert.strictEqual(button('More later').style.display, 'none');
+assert.strictEqual(app.find('dk-update-restart')[0].style.display, '');
+button('Cancel update').click();
+assert.deepStrictEqual(sent.pop(), {action:'cancel_update_install'});
+push(null, state({selected:'dk.settings', updater:Object.assign({}, prepared, {cancellingInstall:true, canRestart:false})}));
+assert.strictEqual(app.find('dk-update-restart')[0].style.display, 'none');
+assert.strictEqual(button('Cancel update').disabled, true);
+assert(app.find('dk-update-line').some(n=>n.textContent === 'Waiting for cancellation confirmation'));
+push(null, state({selected:'dk.settings', updater:Object.assign({}, update, {status:'READY', compatible:true, canInstall:true,
+    lastInstallResult:{status:'cancelled',version:'1.0.0'}})}));
+assert.strictEqual(app.find('dk-update-result')[0].textContent, 'Update cancelled');
+// Rebuild the panel as a reopened window would; the service snapshot is authoritative.
+push(schema, state({selected:'dk.settings', updater:prepared}));
+assert.strictEqual(app.find('dk-update-restart')[0].disabled, false);
+push(null, state());
+assert.strictEqual(app.find('dk-updates').length, 0);
+
 // Disposal releases the model subscription and listeners.
 ctx.windowListeners.unload();
 assert.strictEqual(changed, null);
