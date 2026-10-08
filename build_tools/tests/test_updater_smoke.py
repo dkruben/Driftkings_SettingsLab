@@ -19,7 +19,7 @@ from Driftkings.core.updater.versioning import Version
 from Driftkings.core.updater.transport import Response
 from Driftkings.core.updater.state import State
 from Driftkings.core.updater.downloader import Downloader
-from Driftkings.core.updater.https_transport import HttpsTransport, verified_opener, http
+from Driftkings.core.updater.https_transport import HttpsTransport, HTTPSRedirects, verified_opener, http
 from Driftkings.core.updater.installer import Installer, write_new, digest, read_json
 from Driftkings.core.updater.context import InstallContext
 from Driftkings.core.updater.results import Results
@@ -182,6 +182,18 @@ class UpdaterSmokeTests(unittest.TestCase):
                     if os.path.isfile(target): os.remove(target)
                 os.rmdir(directory)
             os.rmdir(root)
+
+
+class RedirectCompatibilityTests(unittest.TestCase):
+    def test_allowed_redirect_and_rejected_host_on_python27(self):
+        handler = HTTPSRedirects()
+        request = http.Request('https://github.com/' + REPOSITORY + '/releases/download/v1/Driftkings.wotmod')
+        target = 'https://release-assets.githubusercontent.com/test'
+        redirected = handler.redirect_request(request, None, 302, '', {}, target)
+        self.assertEqual(redirected.get_full_url(), target)
+        for target in ('http://github.com/test', 'https://evil.test/test'):
+            with self.assertRaises(ValueError):
+                handler.redirect_request(request, None, 302, '', {}, target)
 
 
 if __name__ == '__main__':

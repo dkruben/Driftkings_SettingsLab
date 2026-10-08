@@ -33,7 +33,8 @@ class HTTPSRedirects(http.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         validate_https(urljoin(req.get_full_url(), newurl))
-        return super(HTTPSRedirects, self).redirect_request(req, fp, code, msg, headers, newurl)
+        # WoT's Python 2.7 urllib2 handlers are old-style classes.
+        return http.HTTPRedirectHandler.redirect_request(self, req, fp, code, msg, headers, newurl)
 
 
 def verified_opener():
@@ -167,8 +168,10 @@ class HttpsTransport(object):
             except socket.timeout:
                 error = 'timeout'
             except http.HTTPError:
+                LOG.exception('HTTPS request returned an HTTP error')
                 error = 'httpError'
             except Exception:
+                LOG.exception('HTTPS request failed; certificate verification remains enabled')
                 error = 'networkError'
             finally:
                 if response is not None:

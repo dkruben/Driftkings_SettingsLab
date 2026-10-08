@@ -75,6 +75,7 @@ class Checker(object):
                 if handle is not None and alive():
                     self._handles.append(handle)
             except Exception:
+                LOG.exception('Could not start update metadata request')
                 finish(error='networkError')
 
         def next_manifest(queue):
