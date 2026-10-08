@@ -1,0 +1,12 @@
+{
+    "enabled": true,
+    "gunMarkerMinimumSize": 0,
+    "percentCorrection": 100,
+    "showClientAndServerReticleBeta": false,
+    "showServerSpgStrategicReticle": false,
+    "serverReticleAimingCircleShape": 0,
+    "serverReticleAimingCircleOpacity": 50,
+    "serverReticleGunMarkerShape": 0,
+    "serverReticleGunMarkerOpacity": 50,
+    "showClientAndServerReticle": false
+}

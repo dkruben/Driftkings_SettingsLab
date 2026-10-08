@@ -1,0 +1,10 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/lobby/gun_marks.pyc": "build/scripts/client/Driftkings/lobby/gun_marks.pyc",
+        "res/gui/gameface/mods/Driftkings/MarksOnGunHangar/model.html": "res/gui/gameface/mods/Driftkings/MarksOnGunHangar/model.html",
+        "res/gui/gameface/mods/Driftkings/MarksOnGunHangar/marks.js": "res/gui/gameface/mods/Driftkings/MarksOnGunHangar/marks.js",
+        "res/gui/gameface/mods/Driftkings/MarksOnGunHangar/marks.css": "res/gui/gameface/mods/Driftkings/MarksOnGunHangar/marks.css",
+        "res/mods/configs/res_map/DriftkingsMarksOnGunHangar.json": "res/mods/configs/res_map/DriftkingsMarksOnGunHangar.json"
+    }
+}

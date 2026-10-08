@@ -1,0 +1,11 @@
+{
+    "enabled": true,
+    "showInTechTree": true,
+    "showInTechTreeMarkOfGunPercent": true,
+    "showInTechTreeMastery": true,
+    "showInTechTreeMarkOfGunTankNameColored": false,
+    "badgeOffsetX": 0,
+    "badgeOffsetY": -18,
+    "badgeFontSize": 14,
+    "colorRating": 0
+}

@@ -1,0 +1,252 @@
+{
+  "textFieldShadow": {
+    "enabled": true,
+    "color": "0x000000",
+    "alpha": 80,
+    "blur": 2,
+    "strength": 2,
+    "distance": 0,
+    "angle": 0
+  },
+  "extraFields": [
+    {
+      "x": 140,
+      "y": 18,
+      "alpha": "{{v.battles?100|0}}",
+      "format": "<img src='mods/Driftkings/Carroucel/battles.png' width='13' height='13'>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 140,
+      "y": 15,
+      "align": "right",
+      "format": "<font size='12' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 140,
+      "y": 33,
+      "alpha": "{{v.winrate?100|0}}",
+      "format": "<img src='mods/Driftkings/Carroucel/wins.png' width='13' height='13'>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 140,
+      "y": 30,
+      "align": "right",
+      "format": "<b><font face='$FieldFont' size='12' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 0,
+      "y": 33,
+      "alpha": "{{v.hitsRatio?100|0}}",
+      "format": "<font face='$FieldFont' size='14' color='#00AAFF'>&#x25CE;</font>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 15,
+      "y": 35,
+      "align": "left",
+      "format": "<b><font face='mono' size='11' color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~ %}}</font></b>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 0,
+      "y": 63,
+      "alpha": "{{v.tfb?100|0}}",
+      "format": "<img src='mods/Driftkings/Carroucel/damage.png' width='18' height='18'>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 19,
+      "y": 63,
+      "align": "left",
+      "format": "<font size='12' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}} {{v.tfb?{{v.wn8expd%d}}|}}</font>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 152,
+      "y": 63,
+      "align": "right",
+      "format": "[{{v.battletiermin}}-{{v.battletiermax}}]",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 1,
+      "y": 12,
+      "format": "<img src='{{icon:mastery}}' width='23' height='23'>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 140,
+      "y": 45,
+      "width": 14,
+      "height": 14,
+      "alpha": "{{v.marksOnGun?100|0}}",
+      "format": "<img src='{{icon:marksOnGun}}' width='14' height='14'>"
+    },
+    {
+      "x": 140,
+      "y": 45,
+      "align": "right",
+      "format": "<font size='12' color='{{v.c_damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
+      "shadow": "$ref:textFieldShadow"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "layer": "substrate",
+      "width": 160,
+      "height": 100,
+      "bgColor": "#0A0A0A"
+    },
+    {
+      "enabled": true,
+      "x": 2,
+      "y": 2,
+      "layer": "substrate",
+      "width": 160,
+      "height": 100,
+      "alpha": "{{v.selected?100|0}}",
+      "format": "<img src='mods/Driftkings/Carroucel/{{v.c_type}}.png' width='154' height='94'>"
+    }
+  ],
+  "fields": {
+    "flag": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "tankIcon": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "tankType": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "level": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "xp": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "tankName": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1,
+      "textFormat": {},
+      "shadow": {}
+    },
+    "rentInfo": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1,
+      "textFormat": {},
+      "shadow": {}
+    },
+    "info": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1,
+      "textFormat": {},
+      "shadow": {}
+    },
+    "infoImg": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "infoBuy": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1,
+      "textFormat": {},
+      "shadow": {}
+    },
+    "clanLock": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100
+    },
+    "price": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100
+    },
+    "actionPrice": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100
+    },
+    "favorite": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "crystalsBorder": {
+      "enabled": true,
+      "alpha": 100
+    },
+    "crystalsIcon": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100
+    },
+    "coreBorder": {
+      "enabled": true,
+      "alpha": 100
+    },
+    "stats": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "textFormat": {},
+      "shadow": {}
+    },
+    "progressionPoints": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    }
+  },
+  "gap": 10,
+  "height": 140,
+  "width": 210
+}

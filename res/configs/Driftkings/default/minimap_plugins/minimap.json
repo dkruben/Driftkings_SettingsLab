@@ -1,0 +1,52 @@
+{
+  "enabled": true,
+  "minimapSchema": 1,
+  "permanentMinimapDeath": false,
+  "yaw": true,
+  "showNames": true,
+  "viewRadius": true,
+  "zoomFactor": 1.1,
+  "zoomFactorMax": 2.0,
+  "button": [
+    "KEY_LCONTROL"
+  ],
+  "alpha": 90,
+  "changeColorCircles": true,
+  "colorDrawCircle": "2B28D1",
+  "colorMaxViewCircle": "E02810",
+  "colorMinSpottingCircle": "35DE46",
+  "colorViewCircle": "FF7FFF",
+  "showLastPositions": true,
+  "lastPositionDuration": 30,
+  "showVehicleTypes": true,
+  "icons": {
+    "scale": 1.0,
+    "alpha": 100,
+    "selfScale": 1.0,
+    "selfAlpha": 100,
+    "selfColor": "FFFFFF"
+  },
+  "mapSize": {
+    "enabled": false,
+    "x": 5,
+    "y": 5,
+    "fontSize": 11,
+    "color": "FFFFFF",
+    "format": "{{width}} x {{height}} m"
+  },
+  "artilleryAim": {
+    "enabled": true,
+    "scale": 50,
+    "src": "gui/maps/Driftkings/Minimap/MinimapAim_0.png",
+    "alpha": 100
+  },
+  "presentation": {
+    "alternativeEnabled": true,
+    "zoom": true,
+    "center": true,
+    "sizeIndex": 5,
+    "backgroundAlpha": 100,
+    "normalAlpha": 100,
+    "alternativeAlpha": 100
+  }
+}

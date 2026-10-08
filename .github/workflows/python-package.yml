@@ -1,0 +1,43 @@
+name: Validate mod sources and configurations
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test settings and component integration
+        run: python -m unittest discover -s build_tools/tests
+      - name: Check EU translations
+        run: python build_tools/localize_configs.py --check
+      - name: Validate JSON resources and manifests
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for root in ('res', 'build_data'):
+              for path in Path(root).rglob('*.json'):
+                  json.loads(path.read_text(encoding='utf-8-sig'))
+          PY
+      - name: Parse client sources with Python 2.7
+        run: >-
+          docker run --rm -v "$PWD:/work:ro" -w /work python:2.7
+          python -c "import ast, os; files = [os.path.join(root, name) for root, dirs, names in os.walk('source/scripts/client') for name in names if name.endswith('.py')]; [ast.parse(open(path, 'rb').read(), path) for path in files]; print('%d Python sources parsed' % len(files))"
+      - name: Check Gameface JavaScript
+        run: find res/gui/gameface -name '*.js' -exec node --check {} \;
+      - name: Test owned Gameface bridge and carousel
+        run: |
+          node build_tools/tests/ui_bridge_test.js
+          node build_tools/tests/carousel_native_test.js
+          node build_tools/tests/carousel_layout_test.js

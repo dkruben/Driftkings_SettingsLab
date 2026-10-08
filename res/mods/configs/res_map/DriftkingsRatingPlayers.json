@@ -1,0 +1,12 @@
+[
+  {
+    "itemID": "mods/Driftkings/RatingPlayers/model",
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/Driftkings/RatingPlayers/model.html",
+    "parameters": {
+      "extension": "",
+      "entrance": "main",
+      "impl": "gameface"
+    }
+  }
+]

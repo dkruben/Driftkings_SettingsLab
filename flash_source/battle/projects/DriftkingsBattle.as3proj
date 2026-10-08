@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project version="2">
+  <output>
+    <movie outputType="Application" path="../../../res/flash/battle/DriftkingsBattle.swf" fps="30" width="1024" height="768" version="11" minorVersion="1" platform="Flash Player" />
+  </output>
+  <classpaths>
+    <class path="../src" />
+    <class path="../../shared/as3" />
+  </classpaths>
+  <build>
+    <option strict="True" />
+    <option optimize="True" />
+  </build>
+  <externalLibraryPaths>
+    <element path="../../shared/swc/base_app-1.0-SNAPSHOT.swc" />
+    <element path="../../shared/swc/battle.swc" />
+    <element path="../../shared/swc/common-1.0-SNAPSHOT.swc" />
+    <element path="../../shared/swc/common_i18n_library-1.0-SNAPSHOT.swc" />
+    <element path="../../shared/swc/gui_base-1.0-SNAPSHOT.swc" />
+    <element path="../../shared/swc/gui_battle-1.0-SNAPSHOT.swc" />
+    <element path="../../shared/swc/gui_lobby-1.0-SNAPSHOT.swc" />
+    <element path="../../shared/swc/lobby.swc" />
+  </externalLibraryPaths>
+  <compileTargets>
+    <compile path="../src/DriftkingsBattle.as" />
+  </compileTargets>
+</project>

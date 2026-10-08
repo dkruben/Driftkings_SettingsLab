@@ -1,0 +1,159 @@
+@font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Regular.ttf'); font-weight: 400; }
+@font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Bold.ttf'); font-weight: 700; }
+/* DK Mod Settings window layout. Accent colors are generated in js/app.js (themeCss). */
+* { box-sizing: border-box; }
+/* html font-size is set by js/app.js to the client's UI scale (1rem = 1 UI unit). */
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { background: transparent; color: #e8e4da; font-family: Warhelios; font-size: 15rem; }
+button, input { font-family: Warhelios; font-size: 15rem; color: #e8e4da; }
+
+/* The window is fullscreen; the panel is centered over a dimmed hangar. */
+#dk-app {
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+}
+.dk-window {
+    position: relative; display: flex; flex-direction: column; flex: 0 0 auto; width: 1180rem; height: 760rem;
+    background: rgba(12, 13, 15, 0.96); border: 1rem solid #4a4a46;
+    box-shadow: 0 0 40rem rgba(0, 0, 0, 0.7);
+}
+.dk-window:before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2rem;
+    background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.35), rgba(255,255,255,0.04));
+}
+
+/* Header */
+.dk-header {
+    display: flex; flex-direction: row; align-items: center; height: 56rem; padding: 0 10rem 0 20rem;
+    background: linear-gradient(180deg, rgba(40, 40, 38, 0.9), rgba(20, 20, 20, 0.9));
+    border-bottom: 1rem solid #34342f;
+}
+.dk-logo { width: 26rem; height: 26rem; margin-right: 12rem; }
+.dk-title { font-size: 19rem; font-weight: bold; letter-spacing: 2rem; color: #f2ecd9; }
+.dk-spacer { flex: 1 1 auto; }
+.dk-unsaved { display: none; font-size: 13rem; margin-right: 18rem; }
+.dk-unsaved.is-visible { display: block; }
+.dk-close {
+    width: 38rem; height: 38rem; padding: 0; border: 1rem solid transparent; background: transparent;
+    color: #a9a59a; font-size: 26rem; line-height: 34rem; cursor: pointer; transition: color 0.15s, border-color 0.15s;
+}
+.dk-close:hover { color: #ffffff; border-color: #5b5a52; }
+
+/* Body */
+.dk-body { display: flex; flex-direction: row; flex: 1 1 auto; min-height: 0; }
+.dk-sidebar {
+    width: 250rem; flex: 0 0 auto; overflow-y: auto; padding: 8rem 0;
+    background: rgba(0, 0, 0, 0.35); border-right: 1rem solid #2c2c29;
+}
+.dk-sidebar-area { position: relative; width: 250rem; flex: 0 0 auto; min-height: 0; display: flex; }
+.dk-sidebar-area .dk-sidebar { width: 100%; padding-right: 14rem; }
+.dk-control-area { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+.dk-control-area .dk-controls { flex: 1 1 auto; min-width: 0; padding-right: 28rem; }
+.dk-scroll-track { position: absolute; right: 3rem; top: 3rem; bottom: 3rem; width: 9rem; background: rgba(0,0,0,.3); cursor: pointer; }
+.dk-scroll-thumb { position: absolute; left: 1rem; right: 1rem; min-height: 24px; background: #82786a; border-radius: 3rem; }
+.dk-scroll-thumb:hover { background: #d9b779; }
+.dk-window.is-narrow .dk-sidebar-area { width: 180rem; }
+.dk-nav-item {
+    display: flex; flex-direction: row; align-items: center; height: 44rem; padding: 0 14rem 0 14rem;
+    border-left: 3rem solid transparent; color: #bdb8aa; cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+.dk-nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #f2ecd9; }
+.dk-nav-item.is-selected { background: rgba(255, 255, 255, 0.07); color: #ffffff; }
+.dk-nav-icon { width: 20rem; height: 20rem; margin-right: 12rem; opacity: 0.85; }
+.dk-nav-badge {
+    width: 20rem; height: 20rem; margin-right: 12rem; font-size: 12rem; line-height: 20rem; text-align: center;
+    color: #101010; font-weight: bold;
+}
+.dk-nav-name { flex: 1 1 auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.dk-nav-dot { width: 8rem; height: 8rem; border-radius: 4rem; margin-left: 8rem; visibility: hidden; }
+.dk-nav-item.is-changed .dk-nav-dot { visibility: visible; }
+.dk-nav-item.is-error .dk-nav-name { color: #ff9b85; }
+
+.dk-content { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.dk-mod-header { padding: 18rem 28rem 14rem 28rem; border-bottom: 1rem solid #26261f; }
+.dk-mod-name { font-size: 22rem; color: #f6f0dc; }
+.dk-mod-meta { margin-top: 4rem; font-size: 12rem; color: #8f8b80; letter-spacing: 0.5rem; }
+.dk-mod-description { margin-top: 8rem; font-size: 13rem; color: #b3ae9f; }
+.dk-banner {
+    display: none; margin-top: 10rem; padding: 8rem 12rem; font-size: 13rem;
+    border-left: 3rem solid #d9412b; background: rgba(217, 65, 43, 0.12); color: #ffc2b5;
+}
+.dk-banner.is-visible { display: block; }
+.dk-controls { flex: 1 1 auto; overflow-y: auto; padding: 6rem 28rem 24rem 28rem; }
+.dk-empty { padding: 40rem 28rem; color: #8f8b80; }
+
+/* Footer */
+.dk-footer {
+    display: flex; flex-direction: row; align-items: center; height: 64rem; padding: 0 16rem;
+    background: rgba(0, 0, 0, 0.45); border-top: 1rem solid #34342f;
+}
+.dk-footer .dk-btn { margin-left: 10rem; }
+.dk-footer .dk-btn:first-child { margin-left: 0; }
+
+.dk-btn {
+    height: 38rem; min-width: 110rem; padding: 0 18rem; border: 1rem solid #5a574d; cursor: pointer;
+    background: linear-gradient(180deg, #3b3a35, #2a2926); color: #ece6d2; font-size: 14rem;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.dk-btn:hover { border-color: #8a8574; color: #ffffff; }
+.dk-btn.is-disabled { opacity: 0.4; cursor: default; }
+.dk-btn.is-primary { color: #141414; font-weight: bold; }
+
+/* Toast and dialog */
+.dk-toast {
+    position: absolute; left: 50%; bottom: 80rem; width: 460rem; margin-left: -230rem; padding: 10rem 16rem;
+    background: rgba(20, 20, 20, 0.95); border: 1rem solid #4f4c43; text-align: center; font-size: 14rem;
+    opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0.25s;
+}
+.dk-toast.is-visible { opacity: 1; visibility: visible; }
+.dk-toast.is-error { border-color: #b8432f; color: #ffc2b5; }
+
+.dk-overlay {
+    position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;
+    background: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;
+}
+.dk-overlay.is-visible { display: flex; }
+.dk-dialog { width: 520rem; padding: 24rem; background: #16171a; border: 1rem solid #5a574d; }
+.dk-dialog-title { font-size: 19rem; color: #f6f0dc; }
+.dk-dialog-text { margin: 12rem 0 22rem 0; color: #b3ae9f; }
+.dk-dialog-actions { display: flex; flex-direction: row; justify-content: flex-end; }
+.dk-dialog-actions .dk-btn { margin-left: 10rem; }
+
+/* Popups and tooltips are rendered above everything to avoid scroll clipping. */
+.dk-layer { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.dk-popup {
+    position: absolute; min-width: 160rem; max-height: 320rem; overflow-y: auto; padding: 4rem 0;
+    background: #1b1c1f; border: 1rem solid #5a574d; box-shadow: 0 6rem 24rem rgba(0, 0, 0, 0.6);
+}
+.dk-tooltip {
+    position: absolute; max-width: 360rem; padding: 8rem 12rem; font-size: 13rem; color: #e8e4da;
+    background: #202125; border: 1rem solid #5a574d; box-shadow: 0 4rem 16rem rgba(0, 0, 0, 0.6);
+}
+
+textarea { font-family: Warhelios; font-size: 15rem; color: #e8e4da; }
+.dk-header, .dk-footer, .dk-tabs { flex-shrink: 0; }
+.dk-search { width: 240rem; height: 30rem; margin: 0 16rem; background: #141516; border: 1rem solid #514b40; padding: 0 10rem; }
+.dk-columns { display: flex; flex-direction: row; }
+.dk-column { flex: 1 1 50%; min-width: 0; padding-right: 16rem; }
+.dk-column .dk-row { flex-direction: column; align-items: stretch; }
+.dk-column .dk-input-area { width: 100%; margin-top: 8rem; }
+.dk-column .dk-label-area { width: 100%; }
+.dk-tabs, .dk-profile-actions { display: flex; flex-wrap: wrap; }
+.dk-tabs .dk-btn, .dk-profile-actions .dk-btn { min-width: 60rem; margin: 4rem; padding: 0 10rem; }
+.dk-profile-dialog { width: 720rem; max-width: 96%; max-height: 94%; overflow-y: auto; }
+.dk-profile-json { width: 100%; height: 200rem; margin: 12rem 0; }
+.dk-multiline { width: 100%; height: 90rem; }
+.dk-window.is-narrow .dk-sidebar { width: 180rem; }
+.dk-window.is-narrow .dk-columns { flex-direction: column; }
+.dk-window.is-narrow .dk-unsaved { display: none; }
+.dk-window.is-narrow .dk-footer .dk-btn { min-width: 64rem; padding: 0 8rem; margin-left: 4rem; }
+.dk-window.is-narrow .dk-search { width: 160rem; }
+.dk-row.is-disabled { opacity: .45; }
+
+.dk-mod-header { position: relative; }
+.dk-installed-button { position: absolute; right: 16rem; top: 14rem; min-width: 100rem; }
+.dk-mod-name { margin-right: 170rem; }
+.dk-installed-row { padding: 9rem 0; border-bottom: 1rem solid #454135; }
+
+.dk-theme-reset { position: absolute; right: 16rem; top: 58rem; min-width: 100rem; height: 28rem; font-size: 12rem; }

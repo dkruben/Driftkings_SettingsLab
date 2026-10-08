@@ -1,0 +1,7 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/battle/sixth_sense.pyc": "build/scripts/client/Driftkings/battle/sixth_sense.pyc",
+        "res/gui/maps/icons/SixthSense/**": "res/res/maps/icons/SixthSense/**"
+    }
+}

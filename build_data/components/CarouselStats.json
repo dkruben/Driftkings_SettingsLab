@@ -1,0 +1,13 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/lobby/carousel.pyc": "build/scripts/client/Driftkings/lobby/carousel.pyc",
+        "res/gui/gameface/mods/Driftkings/CarouselStats/model.html": "res/gui/gameface/mods/Driftkings/CarouselStats/model.html",
+        "res/gui/gameface/mods/Driftkings/CarouselStats/carousel.js": "res/gui/gameface/mods/Driftkings/CarouselStats/carousel.js",
+        "res/gui/gameface/mods/Driftkings/CarouselStats/carousel.css": "res/gui/gameface/mods/Driftkings/CarouselStats/carousel.css",
+        "res/mods/configs/res_map/DriftkingsCarouselStats.json": "res/mods/configs/res_map/DriftkingsCarouselStats.json",
+        "res/gui/gameface/mods/Driftkings/CarouselStats/carousel_layout.js": "res/gui/gameface/mods/Driftkings/CarouselStats/carousel_layout.js",
+        "res/gui/gameface/mods/Driftkings/CarouselStats/carousel_native.js": "res/gui/gameface/mods/Driftkings/CarouselStats/carousel_native.js",
+        "res/gui/gameface/_dist/production/mono/hangar/views/main/main.html/bundle.js": "build/gameface/carousel/bundle.js"
+    }
+}

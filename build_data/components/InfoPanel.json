@@ -1,0 +1,6 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/battle/info_panel.pyc": "build/scripts/client/Driftkings/battle/info_panel.pyc"
+    }
+}

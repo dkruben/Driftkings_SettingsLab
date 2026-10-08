@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "enabled": true,
+  "statsEnabled": true,
+  "colorScale": 0,
+  "rating": "wn8",
+  "performance": {
+    "cacheEnabled": true,
+    "cacheExpiry": 3600,
+    "minBattlesToShow": 10,
+    "requestTimeout": 5,
+    "diagnostics": false
+  },
+  "hpEnabled": true,
+  "hpVisibility": "always",
+  "hpKey": [
+    [
+      56,
+      184
+    ]
+  ],
+  "spottedEnabled": true
+}

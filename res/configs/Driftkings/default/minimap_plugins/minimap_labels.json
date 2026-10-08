@@ -1,0 +1,42 @@
+{
+  "labels": {
+    "enabled": true,
+    "normal": "{{vehicle}}",
+    "alternative": "{{vehicle}} · {{name%.16s}}",
+    "dead": "{{vehicle}}",
+    "lost": "{{vehicle}}",
+    "fontSize": 10,
+    "alpha": 100,
+    "x": 0,
+    "y": 0,
+    "align": "left",
+    "shadow": true,
+    "customColors": false,
+    "allyColor": "80D639",
+    "enemyColor": "F05050",
+    "squadColor": "FFB964",
+    "deadColor": "999999",
+    "ally": "",
+    "enemy": "",
+    "squad": "",
+    "alternativeAlly": "",
+    "alternativeEnemy": "",
+    "alternativeSquad": "",
+    "avoidOverlap": false,
+    "compactLength": 14
+  },
+  "health": {
+    "visibility": "never",
+    "mode": "value",
+    "x": 0,
+    "y": 12,
+    "width": 30,
+    "height": 3,
+    "fontSize": 9
+  },
+  "lostMarker": {
+    "showSeconds": false,
+    "fade": false,
+    "minimumAlpha": 25
+  }
+}

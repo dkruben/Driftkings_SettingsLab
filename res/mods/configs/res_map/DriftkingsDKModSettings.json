@@ -1,0 +1,12 @@
+[
+  {
+    "itemID": "mods/Driftkings/DKModSettings/window",
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/Driftkings/DKModSettings/window.html",
+    "parameters": {
+      "extension": "",
+      "entrance": "main",
+      "impl": "gameface"
+    }
+  }
+]

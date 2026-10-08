@@ -1,0 +1,19 @@
+{
+    "enabled": true,
+    "wasteShotBlock": false,
+    "teamShotBlock": true,
+    "teamKillerShotUnblock": false,
+    "deadShotBlock": true,
+    "deadShotBlockTimeOut": 2,
+    "disableKey": [
+        "KEY_Q"
+    ],
+    "activateMessage": true,
+    "triggerMessage": true,
+    "clientMessages": {
+        "wasteShotBlockedMessage": "Waste shot blocked!",
+        "teamShotBlockedMessage": "Team shot blocked!",
+        "deadShotBlockedMessage": "Dead shot blocked!"
+    },
+    "chatMessages": "[{name} - {vehicle}], get out of the way!"
+}

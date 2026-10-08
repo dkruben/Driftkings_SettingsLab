@@ -1,0 +1,10 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/battle/players_panel.pyc": "build/scripts/client/Driftkings/battle/players_panel.pyc",
+        "res/gui/maps/Driftkings/PlayerPanelPro/spotted/**": "res/configs/Driftkings/PlayerPanelPro/spotted/**",
+        "res/gui/maps/Driftkings/PlayerPanelPro/hp/**": "res/configs/Driftkings/PlayerPanelPro/icons/**",
+        "res/gui/gameface/mods/Driftkings/RatingPlayers/**": "res/gui/gameface/mods/Driftkings/RatingPlayers/**",
+        "res/mods/configs/res_map/DriftkingsRatingPlayers.json": "res/mods/configs/res_map/DriftkingsRatingPlayers.json"
+    }
+}

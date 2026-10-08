@@ -1,0 +1,8 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/components/account_manager.pyc": "build/scripts/client/Driftkings/components/account_manager.pyc",
+        "res/gui/gameface/mods/Driftkings/AccountManager/**": "res/gui/gameface/mods/Driftkings/AccountManager/**",
+        "res/mods/configs/res_map/DriftkingsAccountManager.json": "res/mods/configs/res_map/DriftkingsAccountManager.json"
+    }
+}

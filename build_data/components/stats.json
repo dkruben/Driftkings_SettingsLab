@@ -1,0 +1,8 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/stats/__init__.pyc": "build/scripts/client/Driftkings/stats/__init__.pyc",
+        "res/scripts/client/Driftkings/stats/vehinfo.pyc": "build/scripts/client/Driftkings/stats/vehinfo.pyc",
+        "res/scripts/client/Driftkings/stats/xvm_stats.pyc": "build/scripts/client/Driftkings/stats/xvm_stats.pyc"
+    }
+}

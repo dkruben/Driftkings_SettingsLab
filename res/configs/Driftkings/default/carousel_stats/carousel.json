@@ -1,0 +1,66 @@
+{
+  "backgroundAlpha": 55,
+  "cellType": "normal",
+  "colorRating": 0,
+  "edgeFadeAlpha": 78,
+  "enableLockBackground": false,
+  "enabled": true,
+  "filters": {
+    "bonus": {
+      "enabled": true
+    },
+    "elite": {
+      "enabled": true
+    },
+    "favorite": {
+      "enabled": true
+    },
+    "params": {
+      "enabled": true
+    },
+    "premium": {
+      "enabled": true
+    }
+  },
+  "filtersPadding": {
+    "horizontal": 11,
+    "vertical": 13
+  },
+  "hideBuySlot": true,
+  "hideBuyTank": false,
+  "hideRestoreTank": true,
+  "nations_order": [
+    "ussr",
+    "germany",
+    "usa",
+    "china",
+    "france",
+    "uk",
+    "japan",
+    "czech",
+    "poland",
+    "sweden",
+    "italy"
+  ],
+  "rows": 2,
+  "scrollingSpeed": 1,
+  "showIcons": true,
+  "showTotalSlots": true,
+  "showUsedSlots": true,
+  "slotBackgroundAlpha": 100,
+  "slotBorderAlpha": 89,
+  "slotSelectedBorderAlpha": 100,
+  "sorting_criteria": [
+    "nation",
+    "type",
+    "level"
+  ],
+  "suppressCarouselTooltips": false,
+  "types_order": [
+    "lightTank",
+    "mediumTank",
+    "heavyTank",
+    "AT-SPG",
+    "SPG"
+  ]
+}

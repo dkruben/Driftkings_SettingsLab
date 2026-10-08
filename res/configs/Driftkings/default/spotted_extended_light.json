@@ -1,0 +1,16 @@
+{
+    "enabled": true,
+    "sound": true,
+    "iconSizeX": 47,
+    "iconSizeY": 16,
+    "soundSpotted": "enemy_sighted_for_team",
+    "soundAssist": "gun_intuition",
+    "messageColorSpotted": "FF69B5",
+    "messageColorAssistRadio": "28F09C",
+    "messageColorAssistTrack": "00FF00",
+    "messageColorAssistStun": "00FFFF",
+    "Spotted": "{icons}{vehicles}",
+    "AssistRadio": "{icons}{vehicles}{damage}",
+    "AssistTrack": "{icons}{vehicles}{damage}",
+    "AssistStun": "{icons}{vehicles}{damage}"
+}

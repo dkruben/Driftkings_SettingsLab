@@ -1,0 +1,7 @@
+{
+    "enabled": true,
+    "files": {
+        "res/gui/gameface/mods/Driftkings/DKModSettings/**": "res/gui/gameface/mods/Driftkings/DKModSettings/**",
+        "res/mods/configs/res_map/DriftkingsDKModSettings.json": "res/mods/configs/res_map/DriftkingsDKModSettings.json"
+    }
+}

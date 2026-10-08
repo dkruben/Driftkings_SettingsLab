@@ -1,0 +1,12 @@
+[
+  {
+    "itemID": "mods/Driftkings/HangarClock/model",
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/Driftkings/HangarClock/model.html",
+    "parameters": {
+      "extension": "",
+      "entrance": "main",
+      "impl": "gameface"
+    }
+  }
+]

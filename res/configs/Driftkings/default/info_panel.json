@@ -1,0 +1,55 @@
+{
+    "enabled": true,
+    "aliveOnly": false,
+    "altKey": [
+        "KEY_LALT"
+    ],
+    "compareValues": {
+        "equal": {
+            "color": "#FFFFFF",
+            "delim": "="
+        },
+        "lessThan": {
+            "color": "#00FF00",
+            "delim": "&lt;"
+        },
+        "moreThan": {
+            "color": "#FF0000",
+            "delim": "&gt;"
+        }
+    },
+    "delay": 5,
+    "templatePreset": 3,
+    "formats": [
+        "{{vehicle_name}}<br/>{{gun_reload_equip}} s<br/><img src='img://gui/maps/icons/vehicle/{{icon_system_name}}.png'><br/><textformat tabstops='[95]'>Massa: {{vehicle_weight}} t<tab>Visão: {{vision_radius}} m</textformat><br/><textformat tabstops='[65,105,145]'>Casco:<tab>{{armor_hull_front}}<tab>{{armor_hull_side}}<tab>{{armor_hull_back}}</textformat><br/><textformat tabstops='[65,105,145]'>Torre:<tab>{{armor_turret_front}}<tab>{{armor_turret_side}}<tab>{{armor_turret_back}}</textformat><br/><textformat tabstops='[65,105,145]'>Tipo:<tab>{{shell_type_1}}<tab>{{shell_type_2}}<tab>{{shell_type_3}}</textformat><br/><textformat tabstops='[65,105,145]'>Penetração:<tab>{{shell_power_1}}<tab>{{shell_power_2}}<tab>{{shell_power_3}}</textformat><br/><textformat tabstops='[65,105,145]'>Dano:<tab>{{shell_damage_1}}<tab>{{shell_damage_2}}<tab>{{shell_damage_3}}</textformat>"
+    ],
+    "showFor": 0,
+    "textLock": false,
+    "textPosition": {
+        "x": -110,
+        "y": 150,
+        "alignX": "center",
+        "alignY": "center",
+        "width": 250,
+        "height": 250
+    },
+    "textFormat": {
+        "font": "$FieldFont",
+        "size": 14,
+        "color": "#FCFCFC",
+        "align": "left",
+        "leading": -12
+    },
+    "textShadow": {
+        "alpha": 0.8,
+        "angle": 90,
+        "blurX": 5,
+        "blurY": 5,
+        "color": "#000000",
+        "distance": 1,
+        "quality": 2,
+        "strength": 2
+    },
+    "backgroundEnabled": false,
+    "backgroundAlpha": 0.78
+}

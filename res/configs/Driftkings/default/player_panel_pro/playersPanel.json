@@ -1,0 +1,63 @@
+{
+  "playersPanel": {
+    "enabled": true,
+    "alpha": 80,
+    "iconAlpha": 100,
+    "removeSelectedBackground": false,
+    "removePanelsModeSwitcher": false,
+    "removeHealthPoints": true,
+    "startMode": "medium2",
+    "altMode": null,
+    "showUnavailable": true
+  },
+  "templates": {
+    "enemySpottedMarker": {
+      "enabled": "{{.spottedEnabled}}",
+      "x": -38,
+      "y": 0,
+      "width": 22,
+      "height": 22,
+      "bindToIcon": true,
+      "src": "img://gui/maps/Driftkings/PlayerPanelPro/spotted/{{alive?{{spotted|neverSeen}}|dead}}.png"
+    },
+    "hpBarBg": {
+      "x": "{{ally?76|80}}",
+      "y": 4,
+      "width": 70,
+      "height": 12,
+      "bindToIcon": true,
+      "src": "img://gui/maps/Driftkings/PlayerPanelPro/hp/hp_bg.png"
+    },
+    "hpBar": {
+      "enabled": "{{hp>0?true|false}}",
+      "x": "{{ally?75|79}}",
+      "y": 3,
+      "width": "{{hp-ratio:72}}",
+      "height": 14,
+      "bindToIcon": true,
+      "src": "img://gui/maps/Driftkings/PlayerPanelPro/hp/hp_alive_{{ally?l|r}}.png"
+    },
+    "hp": {
+      "bindToIcon": true,
+      "x": "{{ally?75|79}}",
+      "width": 72,
+      "y": 3,
+      "textFormat": {
+        "font": "$FieldFont",
+        "size": 11,
+        "color": "0xFFFFFF",
+        "align": "center"
+      },
+      "format": "{{hp}}/{{hp-max}}",
+      "shadow": {
+        "enabled": true,
+        "color": "0x000000",
+        "alpha": 90,
+        "blur": 2,
+        "strength": 2,
+        "distance": 0,
+        "angle": 0
+      }
+    }
+  }
+}

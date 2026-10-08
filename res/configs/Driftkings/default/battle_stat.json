@@ -1,0 +1,30 @@
+{
+    "enabled": true,
+    "format": "{header}: {allyChance} {compareSign} {enemyChance}",
+    "textLock": false,
+    "textPosition": {
+        "alignX": "right",
+        "alignY": "top",
+        "x": -250,
+        "y": 443
+    },
+    "textShadow": {
+        "enabled": true,
+        "distance": 0,
+        "angle": 90,
+        "color": "#000000",
+        "alpha": 1,
+        "blurX": 2,
+        "blurY": 2,
+        "strength": 100,
+        "quality": 1
+    },
+    "textFormat": {
+        "font": "$FieldFont",
+        "size": 16,
+        "bold": false,
+        "italic": false,
+        "color": "#DBD7D2"
+    },
+    "colorRating": 0
+}

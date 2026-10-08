@@ -1,0 +1,11 @@
+{
+    "rating": "wn8",
+    "loading": {
+        "formatLeftNick": "<font size='12' color='{{c:r}}'>{{name%.20s~..}}</font> <font size='10' alpha='#A0'>{{clan}}</font>",
+        "formatRightNick": "<font size='10' alpha='#A0'>{{clan}}</font> <font size='12' color='{{c:r}}'>{{name%.20s~..}}</font>",
+        "formatLeftVehicle": "<font size='11'>{{vehicle%.10s~..}}</font><b><font face='Lucida Console' size='11'> <font color='{{c:r}}'>{{r%4d|----}}</font> <font color='#C8C8B5'>{{kb%2d~k|--}}</font> <font color='{{c:winrate}}'>{{winrate%2d~%|--%}}</font> | <font color='{{c:tdv}}'>{{tdv%3.01f|-.-}}</font></font></b>",
+        "formatRightVehicle": "<b><font face='Lucida Console' size='11' color='#C8C8B5'><font color='{{c:tdv}}'>{{tdv%3.01f|-.-}}</font> | <font color='{{c:winrate}}'>{{winrate%2d~%|--%}}</font> <font color='#C8C8B5'>{{kb%2d~k|--}}</font> <font color='{{c:r}}'>{{r%4d|----}}</font> </font></b><font size='11'>{{vehicle%.10s~..}}</font>",
+        "enabled": true,
+        "showUnavailable": true
+    }
+}

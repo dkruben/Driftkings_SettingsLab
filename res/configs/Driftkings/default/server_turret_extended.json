@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "activateMessage": false,
+    "fixAccuracyInMove": true,
+    "serverTurret": false,
+    "fixWheelCruiseControl": true,
+    "autoActivateWheelMode": true,
+    "maxWheelMode": true,
+    "buttonAutoMode": [
+        "KEY_R",
+        [
+            "KEY_LALT",
+            "KEY_RALT"
+        ]
+    ],
+    "buttonMaxMode": [
+        "KEY_R",
+        [
+            "KEY_LCONTROL",
+            "KEY_RCONTROL"
+        ]
+    ]
+}

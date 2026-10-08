@@ -1,0 +1,3 @@
+#dk-player-ratings { position: absolute; top: 18%; left: 24px; width: 330px; padding: 12px; background: rgba(0,0,0,.65); color: #ddd; font: 15px Arial; pointer-events: none; }
+.dk-rating-row { display: flex; justify-content: space-between; margin-top: 5px; }
+.dk-rating-row span:first-child { max-width: 220px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }

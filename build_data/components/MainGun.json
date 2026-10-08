@@ -1,0 +1,7 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/battle/main_gun.pyc": "build/scripts/client/Driftkings/battle/main_gun.pyc",
+        "res/gui/maps/Driftkings/MainGun/bg.png": "res/res/gui/maps/Driftkings/MainGun/bg.png"
+    }
+}

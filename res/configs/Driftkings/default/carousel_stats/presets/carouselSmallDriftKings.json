@@ -1,0 +1,108 @@
+{
+  "width": 160,
+  "height": 35,
+  "gap": 10,
+  "fields": {
+    "flag": {
+      "enabled": false,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "tankIcon": {
+      "enabled": false,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "tankType": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "level": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "xp": {
+      "enabled": false,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "tankName": {
+      "enabled": false,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "info": {
+      "enabled": false,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "favorite": {
+      "enabled": true,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    },
+    "progressionPoints": {
+      "enabled": false,
+      "dx": 0,
+      "dy": 0,
+      "alpha": 100,
+      "scale": 1
+    }
+  },
+  "extraFields": [
+    {
+      "enabled": true,
+      "x": 0,
+      "y": 0,
+      "width": 160,
+      "height": 35,
+      "bgColor": "#000000",
+      "alpha": 55,
+      "layer": "substrate",
+      "format": ""
+    },
+    {
+      "enabled": true,
+      "x": 4,
+      "y": 12,
+      "src": "{{icon:mastery}}",
+      "iconSize": 23,
+      "format": ""
+    },
+    {
+      "enabled": true,
+      "x": 156,
+      "y": 12,
+      "align": "right",
+      "fontSize": 15,
+      "format": "{{vehicle}}",
+      "color": "{{premium?#FFD700|#C8C8B5}}"
+    },
+    {
+      "enabled": true,
+      "x": 28,
+      "y": 16,
+      "fontSize": 12,
+      "format": "{{winrate%2d~%|--%}}",
+      "color": "{{c:winrate}}"
+    }
+  ]
+}

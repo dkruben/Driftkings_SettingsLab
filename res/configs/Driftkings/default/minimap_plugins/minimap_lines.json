@@ -1,0 +1,15 @@
+{
+  "lines": {
+    "direction": "client",
+    "sector": "client",
+    "customStyle": false,
+    "directionColor": "F2BB35",
+    "sectorColor": "FFFFFF",
+    "alpha": 80,
+    "geometry": false,
+    "thickness": 1,
+    "length": 500,
+    "dash": 18,
+    "gap": 5
+  }
+}

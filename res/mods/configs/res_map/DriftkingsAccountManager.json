@@ -1,0 +1,8 @@
+[
+  {
+    "itemID": "mods/Driftkings/AccountManager/window",
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/Driftkings/AccountManager/window.html",
+    "parameters": {"extension": "", "entrance": "main", "impl": "gameface"}
+  }
+]

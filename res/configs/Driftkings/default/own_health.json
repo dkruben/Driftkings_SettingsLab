@@ -1,0 +1,17 @@
+{
+    "enabled": true,
+    "x": 0,
+    "y": -55,
+    "alignX": "center",
+    "alignY": "bottom",
+    "avgColor": {
+        "brightness": 0.9,
+        "saturation": 0.7
+    },
+    "colors": {
+        "ally": "#60CB00",
+        "bgColor": "#000000",
+        "enemy": "#ED070A",
+        "enemyColorBlind": "#6F6CD3"
+    }
+}

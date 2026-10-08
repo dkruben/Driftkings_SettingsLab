@@ -1,0 +1,12 @@
+[
+  {
+    "itemID": "mods/Driftkings/BattleEfficiency/model",
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/Driftkings/BattleEfficiency/model.html",
+    "parameters": {
+      "extension": "",
+      "entrance": "main",
+      "impl": "gameface"
+    }
+  }
+]

@@ -1,0 +1,73 @@
+{
+  "enabled": true,
+  "standardFields": [
+    "frags",
+    "vehicle"
+  ],
+  "expandAreaWidth": 230,
+  "removeSquadIcon": false,
+  "squadIconAlpha": 100,
+  "vehicleIconOffsetXLeft": 0,
+  "vehicleIconOffsetXRight": 0,
+  "vehicleLevelOffsetXLeft": 0,
+  "vehicleLevelOffsetXRight": 0,
+  "vehicleLevelAlpha": 100,
+  "fragsOffsetXLeft": 0,
+  "fragsOffsetXRight": 0,
+  "fragsWidth": 24,
+  "fragsFormatLeft": "{{frags}}",
+  "fragsFormatRight": "{{frags}}",
+  "fragsShadowLeft": null,
+  "fragsShadowRight": null,
+  "badgeOffsetXLeft": 0,
+  "badgeOffsetXRight": 0,
+  "badgeWidth": 24,
+  "badgeAlpha": "{{alive?100|70}}",
+  "nickOffsetXLeft": 0,
+  "nickOffsetXRight": 0,
+  "nickMinWidth": 46,
+  "nickMaxWidth": 158,
+  "nickFormatLeft": "<font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{name%.{{anonym?10|12}}s~..}}{{anonym? <font face='$FieldFont' size='19'>*</font>}}</font> <font alpha='#A0'>{{clan}}</font>",
+  "nickFormatRight": "<font alpha='#A0'>{{clan}}</font> <font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{name%.12s~..}}</font>",
+  "nickShadowLeft": null,
+  "nickShadowRight": null,
+  "prestigeOffsetXLeft": 0,
+  "prestigeOffsetXRight": 0,
+  "vehicleOffsetXLeft": 0,
+  "vehicleOffsetXRight": 0,
+  "vehicleWidth": 72,
+  "vehicleFormatLeft": "<font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{vehicle}}</font>",
+  "vehicleFormatRight": "<font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{vehicle}}</font>",
+  "vehicleShadowLeft": null,
+  "vehicleShadowRight": null,
+  "removeSpottedIndicator": true,
+  "spottedIndicatorAlpha": 100,
+  "spottedIndicatorOffsetX": 0,
+  "spottedIndicatorOffsetY": 0,
+  "fixedPosition": false,
+  "extraFieldsLeft": [
+    {
+      "ref": "hpBarBg"
+    },
+    {
+      "ref": "hpBar"
+    },
+    {
+      "ref": "hp"
+    }
+  ],
+  "extraFieldsRight": [
+    {
+      "ref": "hpBarBg"
+    },
+    {
+      "ref": "hpBar"
+    },
+    {
+      "ref": "hp"
+    },
+    {
+      "ref": "enemySpottedMarker"
+    }
+  ]
+}

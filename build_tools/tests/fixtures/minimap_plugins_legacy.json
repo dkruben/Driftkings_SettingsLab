@@ -1,0 +1,71 @@
+{
+  "enabled": true,
+  "permanentMinimapDeath": false,
+  "yaw": true,
+  "showNames": true,
+  "viewRadius": true,
+  "zoomFactor": 1.1,
+  "zoomFactorMax": 2.0,
+  "button": [
+    "KEY_LCONTROL"
+  ],
+  "alpha": 90,
+  "changeColorCircles": true,
+  "colorDrawCircle": "2B28D1",
+  "colorMaxViewCircle": "E02810",
+  "colorMinSpottingCircle": "35DE46",
+  "colorViewCircle": "FF7FFF",
+  "showLastPositions": true,
+  "lastPositionDuration": 30,
+  "showVehicleTypes": true,
+  "labels": {
+    "enabled": true,
+    "normal": "{{vehicle}}",
+    "alternative": "{{vehicle}} · {{name%.16s}}",
+    "dead": "{{vehicle}}",
+    "lost": "{{vehicle}}",
+    "fontSize": 10,
+    "alpha": 100
+  },
+  "circles": {
+    "draw": {
+      "mode": "client",
+      "alpha": 90
+    },
+    "maxView": {
+      "mode": "client",
+      "alpha": 90
+    },
+    "proximity": {
+      "mode": "client",
+      "alpha": 90
+    },
+    "view": {
+      "mode": "client",
+      "alpha": 90
+    }
+  },
+  "lines": {
+    "direction": "client",
+    "sector": "client",
+    "customStyle": false,
+    "directionColor": "F2BB35",
+    "sectorColor": "FFFFFF",
+    "alpha": 80
+  },
+  "artilleryAim": {
+    "enabled": true,
+    "scale": 50,
+    "src": "gui/maps/Driftkings/Minimap/MinimapAim.png",
+    "alpha": 100
+  },
+  "presentation": {
+    "alternativeEnabled": true,
+    "zoom": true,
+    "center": true,
+    "sizeIndex": 5,
+    "normalAlpha": 100,
+    "alternativeAlpha": 100
+  },
+  "minimapSchema": 1
+}

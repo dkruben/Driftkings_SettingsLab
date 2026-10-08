@@ -1,0 +1,6 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/lobby/crew.pyc": "build/scripts/client/Driftkings/lobby/crew.pyc"
+    }
+}

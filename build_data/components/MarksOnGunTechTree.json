@@ -1,0 +1,10 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/lobby/gun_marks_tree.pyc": "build/scripts/client/Driftkings/lobby/gun_marks_tree.pyc",
+        "res/gui/gameface/mods/Driftkings/MarksOnGunTechTree/marks.js": "res/gui/gameface/mods/Driftkings/MarksOnGunTechTree/marks.js",
+        "res/gui/gameface/mods/Driftkings/MarksOnGunTechTree/marks.css": "res/gui/gameface/mods/Driftkings/MarksOnGunTechTree/marks.css",
+        "res/gui/gameface/mods/Driftkings/MarksOnGunTechTree/model.html": "res/gui/gameface/mods/Driftkings/MarksOnGunTechTree/model.html",
+        "res/mods/configs/res_map/DriftkingsMarksOnGunTechTree.json": "res/mods/configs/res_map/DriftkingsMarksOnGunTechTree.json"
+    }
+}

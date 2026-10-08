@@ -1,0 +1,15 @@
+{
+    "enabled": true,
+    "align": "left",
+    "red": "FE0E00",
+    "orange": "FE7903",
+    "yellow": "F8F400",
+    "green": "A6FFA6",
+    "blue": "02C9B3",
+    "purple": "D042F3",
+    "template": "<font color='#%(color)s'>%(timer).1fs. - %(percent)d%%</font>",
+    "x": 60,
+    "y": 110,
+    "alignX": "center",
+    "alignY": "center"
+}

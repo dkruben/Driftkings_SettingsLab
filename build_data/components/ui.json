@@ -1,0 +1,14 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/ui/__init__.pyc": "build/scripts/client/Driftkings/ui/__init__.pyc",
+        "res/scripts/client/Driftkings/ui/common/__init__.pyc": "build/scripts/client/Driftkings/ui/common/__init__.pyc",
+        "res/scripts/client/Driftkings/ui/common/events.pyc": "build/scripts/client/Driftkings/ui/common/events.pyc",
+        "res/scripts/client/Driftkings/ui/common/markers.pyc": "build/scripts/client/Driftkings/ui/common/markers.pyc",
+        "res/scripts/client/Driftkings/ui/utils/__init__.pyc": "build/scripts/client/Driftkings/ui/utils/__init__.pyc",
+        "res/scripts/client/Driftkings/ui/utils/timers.pyc": "build/scripts/client/Driftkings/ui/utils/timers.pyc",
+        "res/scripts/client/Driftkings/ui/utils/vehicle_cache.pyc": "build/scripts/client/Driftkings/ui/utils/vehicle_cache.pyc",
+        "res/scripts/client/Driftkings/ui/gameface.pyc": "build/scripts/client/Driftkings/ui/gameface.pyc",
+        "res/gui/gameface/mods/Driftkings/shared/bootstrap.js": "res/gui/gameface/mods/Driftkings/shared/bootstrap.js"
+    }
+}

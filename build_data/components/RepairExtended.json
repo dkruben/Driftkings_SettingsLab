@@ -1,0 +1,6 @@
+{
+    "enabled": true,
+    "files": {
+        "res/scripts/client/Driftkings/battle/repair.pyc": "build/scripts/client/Driftkings/battle/repair.pyc"
+    }
+}
