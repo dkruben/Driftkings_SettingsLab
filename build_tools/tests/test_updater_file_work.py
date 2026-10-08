@@ -149,6 +149,39 @@ class BackgroundServiceTests(InstallerFixtures, unittest.TestCase):
         self.reason = 'battleContext'
         self.assertFalse(self.service.claim_restart())
 
+    def test_restart_consent_is_pid_bound_one_shot_and_can_be_revoked(self):
+        import json
+        import os
+        self.prepared()
+        self.assertTrue(self.service.claim_restart())
+        marker = self.stage / 'restart.install'
+        self.assertEqual(json.loads(marker.read_text()), dict(schema=1, helperPid=23456, parentPid=os.getpid()))
+        self.assertFalse(self.service.claim_restart())
+        self.service.revoke_restart()
+        self.assertFalse(marker.exists())
+        until(self.callbacks, lambda: self.service.restart_ready())
+        self.assertTrue(self.service.claim_restart())
+
+    def test_restart_marker_write_failure_never_authorizes_shutdown(self):
+        self.prepared()
+        with patch.object(self.installer, 'request_restart', side_effect=OSError('write failed')):
+            self.assertFalse(self.service.claim_restart())
+        self.assertFalse(self.service._restart_requested)
+        self.assertFalse((self.stage / 'restart.install').exists())
+
+    def test_live_receipt_recheck_prevents_marker_for_changed_acknowledgement(self):
+        self.prepared()
+        (self.stage / 'result.json').write_text('{"schema":1,"status":"prepared","error":null,"helperPid":1}')
+        self.assertFalse(self.installer.request_restart(str(self.ready)))
+        self.assertFalse((self.stage / 'restart.install').exists())
+
+    def test_stale_marker_is_removed_before_rearming_interrupted_ticket(self):
+        self.prepared()
+        (self.stage / 'restart.install').write_text('{"schema":1,"helperPid":1,"parentPid":2}')
+        self.installer.process.poll.return_value = 1
+        self.assertTrue(self.installer.resume(str(self.ready), '2.4.0.2', 'stable', lambda: True))
+        self.assertFalse((self.stage / 'restart.install').exists())
+
     def test_changed_receipt_invalidates_restart_before_next_poll(self):
         self.prepared()
         (self.stage / 'result.json').write_text('{"schema":1,"status":"error","error":"fixture","helperPid":23456}')

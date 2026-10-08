@@ -87,7 +87,7 @@ class InstallLifecycleTests(unittest.TestCase):
         self.callbacks = Callbacks()
         self.process = Mock(pid=23456, poll=Mock(return_value=None))
         self.installer = Mock(process=self.process, recover_ready=Mock(return_value=None),
-                              schedule=Mock(return_value=True), resume=Mock(return_value=True),
+                              schedule=Mock(return_value=True), resume=Mock(return_value=True), request_restart=Mock(return_value=True),
                               result=Mock(return_value=None))
         self.service = UpdaterService(self.api, safe_spaces=('login', 'lobby'), clock=lambda: self.now,
                                       installer=self.installer, callbacks=self.callbacks, context_policy=self.policy)

@@ -56,7 +56,7 @@ class Results(object):
                 not os.path.basename(folder).startswith('download-')):
             raise ValueError('Unknown operation path')
         return file_signature([ready] + [os.path.join(folder, name) for name in
-                              ('result.json', 'install.json', 'release.json', 'Driftkings.UpdateInstaller.exe')])
+                              ('result.json', 'install.json', 'release.json', 'Driftkings.UpdateInstaller.exe', 'restart.install')])
 
     def _folder(self, ready):
         ready = os.path.abspath(ready)

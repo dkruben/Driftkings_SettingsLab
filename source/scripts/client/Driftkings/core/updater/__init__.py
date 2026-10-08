@@ -650,6 +650,8 @@ class UpdaterService(object):
                     return
             if self.active and self._install_pending and generation == self._install_generation:
                 self._receipt_error_since = None
+                if self._install_armed:
+                    self._refresh_install_context()
                 self._schedule_install_poll(1.0 if self._install_armed else 0.25)
         except (IOError, OSError):
             # Windows replacement/sharing can transiently deny a receipt read.
@@ -724,8 +726,30 @@ class UpdaterService(object):
         if not self._safe_install_context():
             self._restart_requested = False
             return False
-        LOG.info('Restart requested through existing Settings flow')
+        try:
+            if self.installer.request_restart(self._ready_path) is not True:
+                self._restart_requested = False
+                return False
+            if not self._safe_install_context():
+                self.revoke_restart()
+                return False
+        except Exception:
+            LOG.exception('Could not prepare coordinated updater restart')
+            self._restart_requested = False
+            self._refresh_install_context()
+            return False
+        LOG.info('Coordinated restart requested; helper will reopen WoT after installation')
         return True
+
+    def revoke_restart(self):
+        """Undo consent when client shutdown fails; never leave a relaunch armed."""
+        try:
+            self.installer.revoke_restart(self._ready_path)
+            self._restart_requested = False
+            self._refresh_install_context()
+        except Exception:
+            LOG.exception('Could not revoke coordinated restart')
+            self._install_failed('restartPreparationError')
 
     def defer_restart(self):
         if not self.active or not self._install_armed or self._cancel_requested:

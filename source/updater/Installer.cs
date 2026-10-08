@@ -1,4 +1,4 @@
-// Owned, offline Windows installer. No downloads, shell commands or restart.
+// Owned offline installer. Explicit relaunch only after verified installation.
 // Requires the Windows .NET Framework 4.5+ runtime (ZipArchive).
 using System;
 using System.Collections.Generic;
@@ -160,6 +160,35 @@ internal static class Installer
         }
     }
 
+    static bool RestartRequested(int parentPid)
+    {
+        string path = Path.Combine(stage, "restart.install");
+        Safe(path, false);
+        if (!File.Exists(path)) return false;
+        Require(new FileInfo(path).Length <= 1024, "Restart consent exceeds limit", "invalidRestartConsent");
+        var value = Json.Deserialize<Dictionary<string, object>>(File.ReadAllText(path, Encoding.UTF8));
+        Require(value != null && value.Count == 3 && value.ContainsKey("schema") &&
+                value.ContainsKey("helperPid") && value.ContainsKey("parentPid"),
+                "Invalid restart consent fields", "invalidRestartConsent");
+        Require(value["schema"] is int && (int)value["schema"] == 1 &&
+                value["parentPid"] is int && (int)value["parentPid"] == parentPid &&
+                value["helperPid"] is int && (int)value["helperPid"] == Process.GetCurrentProcess().Id,
+                "Restart consent belongs to another process", "invalidRestartConsent");
+        File.Delete(path); // One-shot consent, consumed before any replacement.
+        return true;
+    }
+
+    static void Relaunch(string executable, string root)
+    {
+        // Only the validated parent image; never ticket paths, arguments or shell.
+        Safe(executable, true);
+        NoGame();
+        var options = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true,
+                                                       WorkingDirectory = root };
+        using (var process = Process.Start(options))
+            Require(process != null, "Could not reopen client", "restartLaunchFailed");
+    }
+
     internal static void ReplaceVerified(string target, string temporary, string backup,
                                          Action verifyNew, Func<string, bool> validOld,
                                          Action beforeRollback, Action committed, Action rolledBack)
@@ -276,6 +305,8 @@ internal static class Installer
                 owned = true;
                 var ticket = Ticket();
                 string readyPath = Path.Combine(stage, "Driftkings.wotmod.ready"); Safe(readyPath, true);
+                bool restart;
+                int outcome;
                 using (var ready = new FileStream(readyPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Require(ready.Length == (int)ticket["size"] && Hash(ready) == (string)ticket["sha256"], "Staged package mismatch", "stagedPackageMismatch");
@@ -294,8 +325,23 @@ internal static class Installer
                     }
                     Safe(cancel, false);
                     if (File.Exists(cancel)) { Result("cancelled", null); return 3; }
-                    return Apply(root, ticket, ready);
+                    restart = RestartRequested(pid);
+                    outcome = Apply(root, ticket, ready);
                 }
+                // Publish/flush final result and release transaction handles first.
+                gate.Dispose(); gate = null;
+                CloseHandle(parent); parent = IntPtr.Zero;
+                if (restart && outcome == 0)
+                {
+                    try { Relaunch(executable, root); }
+                    catch
+                    {
+                        // The verified install remains successful; reopen manually.
+                        Result("installed", "restartLaunchFailed");
+                        return 4;
+                    }
+                }
+                return outcome;
             }
         }
         catch (Exception error)

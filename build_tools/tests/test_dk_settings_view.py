@@ -325,12 +325,13 @@ class ViewTests(unittest.TestCase):
                      canRestart=prepared, latestVersion='1.0.0')
         updater = types.SimpleNamespace(state=state, restart_ready=Mock(return_value=prepared),
                                         claim_restart=Mock(side_effect=[prepared, False]),
-                                        defer_restart=Mock(return_value=True), cancel_install=Mock(return_value=True),
+                                        defer_restart=Mock(return_value=True), revoke_restart=Mock(), cancel_install=Mock(return_value=True),
                                         schedule_install=Mock(return_value=True))
         self.api.updater = updater
         bigworld = sys.modules['BigWorld']
         bigworld.savePreferences = Mock()
         bigworld.restartGame = Mock()
+        bigworld.quit = Mock()
         wgc = types.SimpleNamespace(notifyRestart=Mock())
         patcher = patch.dict(sys.modules, {'WGC': wgc})
         patcher.start()
@@ -346,17 +347,18 @@ class ViewTests(unittest.TestCase):
         bigworld.restartGame.assert_not_called()
         wgc.notifyRestart.assert_not_called()
 
-    def test_updater_reuses_existing_restart_flow_and_prevents_duplicate_restart(self):
+    def test_updater_quits_for_coordinated_restart_and_prevents_duplicate_request(self):
         updater, bigworld, wgc = self.updater_fixture()
         self.open()
         self.send(action='restart_update')
         self.assertTrue(self.view.presenter.restart_prompt)
         self.send(action='restart', choice='now')
         bigworld.savePreferences.assert_called_once()
-        wgc.notifyRestart.assert_called_once()
-        bigworld.restartGame.assert_called_once()
+        wgc.notifyRestart.assert_not_called()
+        bigworld.restartGame.assert_not_called()
+        bigworld.quit.assert_called_once()
         self.assertFalse(self.controller.restart(reason='updater'))
-        self.assertEqual(bigworld.restartGame.call_count, 1)
+        self.assertEqual(bigworld.quit.call_count, 1)
 
     def test_updater_later_only_closes_dialog_and_window_reopens_from_service_state(self):
         updater, bigworld, wgc = self.updater_fixture()
@@ -373,6 +375,40 @@ class ViewTests(unittest.TestCase):
         self.assertTrue(json.loads(model.props[1])['updater']['installScheduled'])
         self.assertFalse(self.view.presenter.restart_prompt)
         bigworld.restartGame.assert_not_called()
+
+    def test_normal_settings_restart_keeps_engine_and_wgc_flow(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.assertTrue(self.controller.restart())
+        wgc.notifyRestart.assert_called_once()
+        bigworld.restartGame.assert_called_once()
+        bigworld.quit.assert_not_called()
+        updater.claim_restart.assert_not_called()
+
+    def test_updater_shutdown_failure_revokes_native_relaunch(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        bigworld.quit.side_effect = RuntimeError('shutdown failed')
+        self.assertFalse(self.controller.restart(reason='updater'))
+        updater.revoke_restart.assert_called_once()
+        bigworld.restartGame.assert_not_called()
+        wgc.notifyRestart.assert_not_called()
+
+    def test_preferences_failure_does_not_request_shutdown_or_native_relaunch(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        bigworld.savePreferences.side_effect = RuntimeError('save failed')
+        self.assertFalse(self.controller.restart(reason='updater'))
+        updater.claim_restart.assert_not_called()
+        bigworld.quit.assert_not_called()
+        wgc.notifyRestart.assert_not_called()
+
+    def test_shutdown_failure_after_window_disposal_does_not_use_disposed_presenter(self):
+        updater, bigworld, wgc = self.updater_fixture()
+        self.open()
+        self.send(action='restart_update')
+        bigworld.quit.side_effect = RuntimeError('shutdown failed')
+        self.send(action='restart', choice='now')
+        updater.revoke_restart.assert_called_once()
+        self.assertFalse(self.controller.is_open)
+        wgc.notifyRestart.assert_not_called()
 
     def test_updater_cancellation_delegates_to_service_without_claiming_success(self):
         updater, bigworld, wgc = self.updater_fixture()

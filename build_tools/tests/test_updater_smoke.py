@@ -26,6 +26,28 @@ from Driftkings.core.updater.results import Results
 
 
 class UpdaterSmokeTests(unittest.TestCase):
+    def test_coordinated_restart_consent_is_binary_json_and_one_shot(self):
+        import shutil
+        root = tempfile.mkdtemp(dir=os.path.abspath('build/updater-tests'))
+        try:
+            folder = os.path.join(root, 'mods/configs/Driftkings/cache/update/download-restart')
+            os.makedirs(folder)
+            ready = os.path.join(folder, 'Driftkings.wotmod.ready')
+            write_new(os.path.join(folder, 'result.json'), dict(schema=1, status='prepared', error=None, helperPid=23456))
+            class Process(object):
+                pid = 23456
+                def poll(self): return None
+            installer = Installer(root)
+            installer.process = Process()
+            self.assertTrue(installer.request_restart(ready))
+            marker = os.path.join(folder, 'restart.install')
+            self.assertEqual(read_json(marker), dict(schema=1, helperPid=23456, parentPid=os.getpid()))
+            with self.assertRaises(OSError): installer.request_restart(ready)
+            installer.revoke_restart(ready)
+            self.assertFalse(os.path.exists(marker))
+        finally:
+            shutil.rmtree(root)
+
     def test_background_files_deliver_only_on_client_without_ctypes(self):
         import threading
         import time

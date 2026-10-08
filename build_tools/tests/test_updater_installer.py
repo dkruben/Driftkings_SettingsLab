@@ -203,7 +203,24 @@ class NativeInstallerTests(InstallerFixtures, unittest.TestCase):
         cls.helper = build()
         FIXTURES.mkdir(parents=True, exist_ok=True)
         harness = FIXTURES / 'Parent.cs'
-        harness.write_text('using System; class Parent { static void Main() { Console.ReadLine(); } }')
+        harness.write_text('''using System;
+using System.IO;
+using System.Reflection;
+using System.Security.Cryptography;
+class Parent {
+    static void Main(string[] args) {
+        string executable = Assembly.GetExecutingAssembly().Location;
+        string root = Path.GetDirectoryName(Path.GetDirectoryName(executable));
+        string target = Path.Combine(root, "mods", "2.4.0.2", "Driftkings.wotmod");
+        string result = Path.Combine(root, "mods", "configs", "Driftkings", "cache", "update", "download-fixture", "result.json");
+        string receipt = File.Exists(result) ? File.ReadAllText(result) : "";
+        string sha;
+        using (var hash = SHA256.Create())
+            sha = BitConverter.ToString(hash.ComputeHash(File.ReadAllBytes(target))).Replace("-", "").ToLowerInvariant();
+        File.AppendAllText(executable + ".starts", sha + "|" + receipt + "|" + args.Length + "|" + Environment.CurrentDirectory + "\\n");
+        if (!receipt.Contains("\\"installed\\"")) Console.ReadLine();
+    }
+}''')
         cls.parent_binary = FIXTURES / 'WorldOfTanks.exe'
         compiler = Path(os.environ.get('WINDIR', 'C:/Windows')) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'
         subprocess.check_call([str(compiler), '/nologo', '/out:' + str(cls.parent_binary), str(harness)])
@@ -238,6 +255,10 @@ class Fault {
         shutil.copyfile(self.parent_binary, binary)
         self.parent = subprocess.Popen([str(binary)], stdin=subprocess.PIPE, creationflags=0x08000000)
         self.parents.append(self.parent)
+        deadline = time.monotonic() + 5
+        while not Path(str(binary) + '.starts').exists() and time.monotonic() < deadline:
+            time.sleep(0.01)
+        self.assertTrue(Path(str(binary) + '.starts').exists(), 'Fixture parent failed to start')
         shutil.copyfile(self.helper, self.stage / 'Driftkings.UpdateInstaller.exe')
         self.ticket = dict(schema=1, gameVersion='2.4.0.2', version='1.0.0', size=len(self.data),
                            sha256=hashlib.sha256(self.data).hexdigest(), installedVersion=VERSION,
@@ -280,6 +301,85 @@ class Fault {
         self.parent.stdin.flush()
         self.parent.wait(timeout=10)
 
+    def restart_consent(self, helper, **changes):
+        value = dict(schema=1, parentPid=self.parent.pid, helperPid=helper.pid)
+        value.update(changes)
+        (self.stage / 'restart.install').write_text(json.dumps(value))
+
+    def starts(self):
+        return Path(str(self.root / 'win64/WorldOfTanks.exe') + '.starts').read_text().splitlines()
+
+    def test_native_reopens_only_after_verified_install_and_final_receipt(self):
+        helper = self.launch()
+        self.prepared()
+        self.restart_consent(helper)
+        self.assertEqual(len(self.starts()), 1)
+        self.exit_parent()
+        self.assertEqual(helper.wait(timeout=10), 0)
+        deadline = time.monotonic() + 5
+        while len(self.starts()) < 2 and time.monotonic() < deadline:
+            time.sleep(0.01)
+        starts = self.starts()
+        self.assertEqual(len(starts), 2)
+        sha, receipt, arguments, cwd = starts[1].split('|')
+        self.assertEqual(sha, hashlib.sha256(self.data).hexdigest())
+        self.assertEqual(json.loads(receipt)['status'], 'installed')
+        self.assertEqual(arguments, '0')
+        self.assertEqual(Path(cwd), self.root)
+        self.assertFalse((self.stage / 'restart.install').exists())
+
+    def test_native_failed_install_never_reopens_client(self):
+        helper = self.launch()
+        self.prepared()
+        self.restart_consent(helper)
+        self.target.write_bytes(b'external change')
+        self.exit_parent()
+        self.assertEqual(helper.wait(timeout=10), 1)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'installedPackageChanged')
+        self.assertEqual(self.target.read_bytes(), b'external change')
+
+    def test_native_stale_restart_consent_cannot_install_or_reopen(self):
+        helper = self.launch()
+        self.prepared()
+        self.restart_consent(helper, helperPid=helper.pid + 1)
+        self.exit_parent()
+        self.assertEqual(helper.wait(timeout=10), 1)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertEqual(self.target.read_bytes(), self.old)
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'invalidRestartConsent')
+
+    def test_native_restart_consent_cannot_supply_executable_or_commands(self):
+        helper = self.launch()
+        self.prepared()
+        self.restart_consent(helper, command='untrusted command')
+        self.exit_parent()
+        self.assertEqual(helper.wait(timeout=10), 1)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertEqual(self.target.read_bytes(), self.old)
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'invalidRestartConsent')
+
+    def test_native_restart_consent_for_another_parent_is_rejected(self):
+        helper = self.launch()
+        self.prepared()
+        self.restart_consent(helper, parentPid=self.parent.pid + 1)
+        self.exit_parent()
+        self.assertEqual(helper.wait(timeout=10), 1)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertEqual(self.target.read_bytes(), self.old)
+        self.assertEqual(self.installer.result(str(self.ready))['error'], 'invalidRestartConsent')
+
+    def test_native_cancellation_wins_over_restart_consent(self):
+        helper = self.launch()
+        self.prepared()
+        self.restart_consent(helper)
+        self.installer.cancel(str(self.ready))
+        self.assertEqual(helper.wait(timeout=10), 3)
+        self.exit_parent()
+        self.assertEqual(len(self.starts()), 1)
+        self.assertEqual(self.target.read_bytes(), self.old)
+        self.assertEqual(self.installer.result(str(self.ready))['status'], 'cancelled')
+
     # The Python boundary tests run separately above. Native fixtures have an
     # existing helper/ticket and exercise the real executable transaction only.
     def test_native_waits_for_process_exit_then_atomically_installs(self):
@@ -295,6 +395,7 @@ class Fault {
         self.assertFalse(Path(str(self.target) + '.old').exists())
         self.assertFalse(Path(str(self.target) + '.new').exists())
         self.assertEqual(self.config.read_bytes(), b'\xef\xbb\xbf{"unchanged":true}')
+        self.assertEqual(len(self.starts()), 1)  # Scheduling alone never authorizes relaunch.
 
     def test_native_stage_hash_revalidated_before_acknowledgement(self):
         self.ready.write_bytes(self.data[:-1] + b'x')

@@ -16,6 +16,7 @@ from Driftkings.core.updater.versioning import Version, TEXT, normalize_game_ver
 HELPER_RESOURCE = 'gui/Driftkings/updater/Driftkings.UpdateInstaller.exe'
 INFO_RESOURCE = 'gui/Driftkings/updater/helper.json'
 READY = 'Driftkings.wotmod.ready'
+RESTART = 'restart.install'
 
 
 def file_signature(paths):
@@ -137,7 +138,8 @@ class Installer(object):
         if not action(ready, client_version, channel, permit):
             return None
         paths = (ready, os.path.join(folder, 'release.json'), ticket_path, helper,
-                 os.path.join(self.root, 'mods', normalize_game_version(client_version), 'Driftkings.wotmod'))
+                 os.path.join(self.root, 'mods', normalize_game_version(client_version), 'Driftkings.wotmod'),
+                 os.path.join(folder, RESTART))
         try:
             return dict(args=captured[0][0], options=captured[0][1],
                         created=[] if resume else [ticket_path, helper], paths=paths,
@@ -253,6 +255,7 @@ class Installer(object):
             marker = os.path.join(folder, 'cancel.install')
             if os.path.lexists(marker):
                 os.remove(safe_file(marker))
+            self._clear_restart(folder)
             write_new(ticket_path, ticket)
             ticket_created = True
             self.process = self.launcher([helper, folder, str(os.getpid())], shell=False,
@@ -300,9 +303,41 @@ class Installer(object):
         marker = os.path.join(folder, 'cancel.install')
         if os.path.lexists(marker):
             os.remove(safe_file(marker))
+        self._clear_restart(folder)
         self.process = self.launcher([helper, folder, str(os.getpid())], shell=False,
                                      creationflags=0x08000000, close_fds=False)
         return True
+
+    @staticmethod
+    def _clear_restart(folder):
+        marker = os.path.join(folder, RESTART)
+        if os.path.lexists(marker):
+            os.remove(safe_file(marker))
+
+    def request_restart(self, ready):
+        """Explicit one-shot consent; executable/arguments never enter the marker."""
+        if self.process is None or self.process.poll() is not None:
+            return False
+        receipt = self.result(ready)
+        if (not isinstance(receipt, dict) or set(receipt) != set(('schema', 'status', 'error', 'helperPid')) or
+                type(receipt['schema']) is not int or receipt['schema'] != 1 or
+                receipt['status'] != 'prepared' or receipt['error'] is not None or
+                type(receipt['helperPid']) is not int or receipt['helperPid'] != self.process.pid):
+            return False
+        folder = os.path.dirname(os.path.abspath(ready))
+        if os.path.dirname(folder) != self.cache or not os.path.basename(folder).startswith('download-'):
+            raise ValueError('Restart outside owned operation')
+        safe_directory(folder)
+        write_new(os.path.join(folder, RESTART), dict(schema=1, helperPid=self.process.pid, parentPid=os.getpid()))
+        return True
+
+    def revoke_restart(self, ready):
+        marker = os.path.join(os.path.dirname(os.path.abspath(ready)), RESTART)
+        if os.path.lexists(marker):
+            expected = dict(schema=1, helperPid=self.process.pid, parentPid=os.getpid())
+            if read_json(marker) != expected:
+                raise ValueError('Restart consent changed')
+            os.remove(safe_file(marker))
 
     @staticmethod
     def cancel(ready):

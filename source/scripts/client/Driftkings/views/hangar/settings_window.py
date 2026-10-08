@@ -115,8 +115,9 @@ class SettingsView(ViewImpl):
         if result.get('restart'):
             if result.get('restartReason') == 'updater':
                 if not self.controller.restart(reason='updater'):
-                    self.presenter._say('updates.restartBlocked')
-                    self.push()
+                    if self.live and self.presenter is not None:
+                        self.presenter._say('updates.restartBlocked')
+                        self.push()
             else:
                 self.controller.restart()
             return
@@ -212,7 +213,20 @@ class SettingsController(object):
             return False
         if reason == 'updater':
             updater = getattr(self.api, 'updater', None)
-            if updater is None or not updater.claim_restart():
+            if updater is None or not updater.restart_ready():
+                return False
+            try:
+                BigWorld.savePreferences()
+                if not updater.claim_restart():
+                    return False
+                self.close()
+                # The prepared native helper owns relaunch after replacement.
+                # Immediate engine/WGC restart races the install process gate.
+                BigWorld.quit()
+                return True
+            except Exception:
+                updater.revoke_restart()
+                logger.exception('Could not close WoT for coordinated update')
                 return False
         self.close()
         BigWorld.savePreferences()
