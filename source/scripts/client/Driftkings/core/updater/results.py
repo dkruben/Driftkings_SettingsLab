@@ -12,10 +12,6 @@ from Driftkings.core.updater.manifest import Manifest, INTEGER
 from Driftkings.core.updater.versioning import Version, TEXT, normalize_game_version
 
 LOG = logging.getLogger('Driftkings.Updater')
-try:
-    PATH_TEXT = unicode
-except NameError:
-    PATH_TEXT = str
 TICKET_KEYS = frozenset(('schema', 'gameVersion', 'version', 'size', 'sha256',
                          'installedVersion', 'installedSize', 'installedSha256'))
 
@@ -27,19 +23,21 @@ def fingerprint(document):
 def safe_path(path):
     """No creation; reject Windows junctions even under Python 2.7."""
     current = os.path.abspath(path)
+    native_check = False
     while True:
         if os.path.lexists(current):
-            if os.path.islink(current) or getattr(os.lstat(current), 'st_file_attributes', 0) & 0x400:
+            info = os.lstat(current)
+            if os.path.islink(current) or getattr(info, 'st_file_attributes', 0) & 0x400:
                 raise ValueError('Receipt reparse path rejected')
-            if os.name == 'nt':
-                import ctypes
-                attributes = ctypes.windll.kernel32.GetFileAttributesW(PATH_TEXT(current))
-                if attributes == -1 or attributes & 0x400:
-                    raise ValueError('Receipt attributes unavailable or reparse path')
+            if os.name == 'nt' and not hasattr(info, 'st_file_attributes'):
+                native_check = True
         parent = os.path.dirname(current)
         if parent == current:
             break
         current = parent
+    if native_check:
+        from Driftkings.core.updater.windows_files import safe_path as windows_safe_path
+        windows_safe_path(path)
     return path
 
 
@@ -175,9 +173,8 @@ class Results(object):
                     os.fsync(output.fileno())
                 safe_path(receipt)
                 if os.name == 'nt':
-                    import ctypes
-                    if not ctypes.windll.kernel32.MoveFileExW(PATH_TEXT(temporary), PATH_TEXT(receipt), 9):
-                        raise OSError('Notification receipt replacement failed')
+                    from Driftkings.core.updater.windows_files import replace_receipt
+                    replace_receipt(temporary, receipt)
                 else:
                     os.rename(temporary, receipt)
             finally:

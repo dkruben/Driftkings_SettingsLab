@@ -1,15 +1,18 @@
 """Owned post-restart receipts: require both a valid result and installed bytes."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'source/scripts/client'))
 from Driftkings.core.updater.results import Results
 from test_updater_download import package, manifest
+from Driftkings.core.updater import windows_files
 
 
 class ResultTests(unittest.TestCase):
@@ -135,6 +138,39 @@ class ResultTests(unittest.TestCase):
         old = self.reader.result_stamp(str(self.ready))
         self.result('prepared', helperPid=67890)
         self.assertNotEqual(self.reader.result_stamp(str(self.ready)), old)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows native file validation')
+    def test_windows_validation_rejects_junction_and_handles_path_as_data(self):
+        folder = self.root / "unicode-\u00e1-'-$()-folder"
+        folder.mkdir()
+        windows_files.safe_path(str(folder / 'not-created.json'))
+        junction = self.root / 'junction'
+        windows_files.run('$target=' + windows_files.literal(str(folder)) +
+                          '; $link=' + windows_files.literal(str(junction)) +
+                          '; New-Item -ItemType Junction -Path $link -Value $target | Out-Null')
+        try:
+            with self.assertRaises(OSError):
+                windows_files.safe_path(str(junction / 'not-created.json'))
+        finally:
+            junction.rmdir()
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows atomic receipt replacement')
+    def test_windows_replacement_failure_preserves_previous_receipt(self):
+        report = self.scan()[0]
+        self.reader.acknowledge(report)
+        receipt = self.stage / 'notified.json'
+        previous = receipt.read_bytes()
+        report['fingerprint'] = 'a' * 64
+        with patch.object(windows_files, 'run', side_effect=OSError('unavailable')):
+            with self.assertRaises(OSError):
+                self.reader.acknowledge(report)
+        self.assertEqual(receipt.read_bytes(), previous)
+        self.assertFalse(list(self.stage.glob('notice-*')))
+
+    def test_missing_windows_validator_fails_closed(self):
+        with patch.object(windows_files.os.path, 'isfile', return_value=False):
+            with self.assertRaises(OSError):
+                windows_files.safe_path(str(self.stage))
 
 
 if __name__ == '__main__': unittest.main()

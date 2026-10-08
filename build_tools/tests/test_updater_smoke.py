@@ -26,6 +26,25 @@ from Driftkings.core.updater.results import Results
 
 
 class UpdaterSmokeTests(unittest.TestCase):
+    def test_receipt_path_validation_without_ctypes(self):
+        try:
+            import __builtin__ as builtins
+        except ImportError:
+            import builtins
+        from Driftkings.core.updater.results import safe_path
+        original = builtins.__import__
+        def importing(name, *args, **kwargs):
+            if name in ('ctypes', '_ctypes'):
+                raise ImportError('WoT fixture has no _ctypes')
+            return original(name, *args, **kwargs)
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), u'../../build/no-ctypes-\u00e1-receipt.json'))
+        builtins.__import__ = importing
+        try:
+            self.assertEqual(safe_path(path), path)
+            self.assertFalse(os.path.exists(path))
+        finally:
+            builtins.__import__ = original
+
     def test_post_restart_receipt_python27_windows_paths_and_deduplication(self):
         import shutil
         fixtures = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../build/updater-tests'))
