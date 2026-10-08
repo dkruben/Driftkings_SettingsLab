@@ -54,9 +54,9 @@ class PreviewTests(unittest.TestCase):
         class Config:
             ID = 'SixthSense'
             i18n = {}
-            data = {'enabled': True, 'sixthSenseSound': 'SixthSense_06'}
+            data = {'enabled': True, 'userSound': False, 'sixthSenseSound': 'SixthSense_06'}
             def createTemplate(self):
-                return {'column1': [{'type': 'Dropdown', 'varName': 'sixthSenseSound',
+                return {'column1': [{'type': 'CheckBox', 'varName': 'userSound'}, {'type': 'Dropdown', 'varName': 'sixthSenseSound',
                                     'options': [{'label': e} for e in SIXTH_SENSE_EVENTS],
                                     'optionValues': list(SIXTH_SENSE_EVENTS)}]}
         class Sound:
@@ -79,12 +79,14 @@ class PreviewTests(unittest.TestCase):
             presenter = Presenter(api)
             mod = api.registry.mods['legacy.SixthSense']
             field = next(c.id for c in mod.controls if c.type == 'dropdown')
+            self.assertNotIn(field, presenter.session.disabled(mod.id))
             def action(kind, **kwargs):
                 return presenter.handle(dict(action=kind, mod=mod.id, **kwargs))
             action('set', key=field, value=2)
             action('button', key='soundPreview')
             self.assertEqual(played[-1].event, 'SixthSense_03')
             self.assertEqual(config.data['sixthSenseSound'], 'SixthSense_06')
+            self.assertFalse(config.data['userSound'])
             action('set', key=field, value=4)
             self.assertFalse(played[-1].active)
             action('button', key='soundPreview')

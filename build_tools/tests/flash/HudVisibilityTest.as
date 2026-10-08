@@ -121,6 +121,33 @@ package {
                 check(field.getCharBoundaries(current).y >= field.getCharBoundaries(previous).bottom - 1,
                       "InfoPanel text lines do not overlap: " + line);
             }
+            var marks:OverlayElement=new OverlayElement('MarksOnGunBattle','label',function(...args):void{});
+            var marksData:Object={mode:'detailed',scale:1,marks:'★★☆',percent:'86.43%',currentPercent:'86.35%',progress:.8643,
+                delta:{text:'▲ +0.08%',direction:'positive'},combined:'2840',target:'3120',damage:'2500',assist:'340',labels:{},
+                targets:[{percent:65,text:'1900'},{percent:85,text:'2600'},{percent:95,text:'3120'}],
+                tokens:{background:0x121518,border:0xffffff,text:0xe8e4da,muted:0x969ba3,positive:0x67c56a,negative:0xe05454,accent:0xd98219,backgroundAlpha:.75,borderAlpha:.1}};
+            marks.apply({width:300,height:185,text:'legacy custom',marks:marksData,background:false},0);
+            check(!marks.getChildAt(0).visible,'modern card hides legacy label');
+            var capture:BitmapData=new BitmapData(300,185,true,0);capture.draw(marks);
+            var captureFile:FileStream=new FileStream();captureFile.open(new File(File.applicationDirectory.nativePath).resolvePath('marks-battle.argb'),FileMode.WRITE);
+            captureFile.writeInt(300);captureFile.writeInt(185);captureFile.writeBytes(capture.getPixels(capture.rect));captureFile.close();capture.dispose();
+            for each(var screen:Array in [[1920,1080],[2560,1440],[3440,1440],[3840,2160]]) {
+                marks.apply({x:20,y:-20,alignX:'left',alignY:'bottom'},0);marks.layout(screen[0],screen[1]);
+                check(marks.x==20 && marks.y==screen[1]-205,'Marks anchor respects viewport '+screen[0]);
+            }
+            marksData.scale=1.5;marks.apply({width:450,height:277.5,marks:marksData},0);
+            check(Math.abs(marks.getChildAt(1).scaleX-1.5)<.001,'Marks respects existing percentage scale');
+            marksData.scale=1;marks.apply({width:300,height:185,marks:marksData},0);
+
+            var marksFields:* = marks.getChildAt(1);
+            check(marksFields.numChildren >= 7,'detailed card fields render');
+            var children:int=marksFields.numChildren;
+            marksData.percent='95.00%';marksData.progress=.95;marksData.delta={text:'— 0.00%',direction:'zero'};
+            marks.apply({marks:marksData},0);check(marksFields.numChildren==children,'modern update reuses text fields');
+            marks.apply({marks:null},0);check(marks.getChildAt(0).visible,'legacy format remains available');
+            check(TextField(marks.getChildAt(0)).text=='legacy custom','legacy custom format preserved');
+            marks.dispose();
+
             var hull:int = field.text.indexOf("120");
             check(field.getCharBoundaries(hull).x >= 65, "InfoPanel armor first column uses tabstop");
             check(field.getCharBoundaries(hull + 4).x >= 105, "InfoPanel armor second column uses tabstop");

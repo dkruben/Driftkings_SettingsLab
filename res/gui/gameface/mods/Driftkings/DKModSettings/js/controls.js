@@ -4,6 +4,7 @@
     var DK = window.DK = window.DK || {};
 
     function handled(event) {
+        if (event && event.keyCode !== undefined && event.preventDefault) { event.preventDefault(); }
         if (event && event.stopPropagation) { event.stopPropagation(); }
         if (typeof viewEnv !== 'undefined' && typeof viewEnv.setEventHandled === 'function') { viewEnv.setEventHandled(); }
     }
@@ -53,21 +54,8 @@
         result = Math.max(def.min, Math.min(def.max, result));
         return parseFloat(result.toFixed(decimals(def.step)));
     }
-    var HEX = /^#?([0-9a-fA-F]{6})$/;
-    function normalizeHex(text) {
-        var match = HEX.exec(String(text || '').trim());
-        return match ? '#' + match[1].toUpperCase() : null;
-    }
-    function hexToRgb(hex) {
-        var value = parseInt(hex.slice(1), 16);
-        return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
-    }
-    function rgbToHex(rgb) {
-        return '#' + rgb.map(function (channel) {
-            var text = Math.round(channel).toString(16).toUpperCase();
-            return text.length < 2 ? '0' + text : text;
-        }).join('');
-    }
+    var normalizeHex = DK.colors.normalizeColor;
+    var hexToRgb = DK.colors.hexToRgb, rgbToHex = DK.colors.rgbToHex;
 
     /* Popup and tooltip layer, positioned from the anchor's client rectangle. */
     var activeDrags = [];
@@ -76,10 +64,11 @@
     function closePopup() {
         if (!layer.popup) { return false; }
         cancelDrags();
-        var callback = layer.onClose;
+        var callback = layer.onClose, origin = layer.anchor;
         if (layer.popup.parentNode) { layer.popup.parentNode.removeChild(layer.popup); }
         layer.popup = layer.anchor = layer.onClose = null;
         document.removeEventListener('mousedown', outside);
+        DK.modal.focus(origin);
         if (callback) { callback(); }
         return true;
     }
@@ -154,7 +143,7 @@
                 state.disabled = !!info.disabled;
                 setClass(r.node, 'is-disabled', state.disabled);
                 setClass(r.node, 'is-changed', !!info.changed);
-                if (r.node.querySelectorAll) { var inputs = r.node.querySelectorAll('input,textarea,button'); for (var i = 0; i < inputs.length; i++) { inputs[i].disabled = state.disabled; } }
+                if (r.node.querySelectorAll) { var inputs = r.node.querySelectorAll('input,textarea,button,[tabindex]'); for (var i = 0; i < inputs.length; i++) { inputs[i].disabled = state.disabled; if (inputs[i]._dkTab === undefined) { inputs[i]._dkTab = inputs[i].tabIndex; } inputs[i].tabIndex = state.disabled ? -1 : inputs[i]._dkTab; } }
             }
         };
     }
@@ -196,10 +185,12 @@
         }
         box.tabIndex = 0;
         box.addEventListener('keydown', function (event) {
-            if (api.state.disabled || [37,38,39,40].indexOf(event.keyCode) < 0) { return; }
+            if (api.state.disabled || [13,27,35,36,38,40].indexOf(event.keyCode) < 0) { return; }
             handled(event);
+            if (event.keyCode === 27) { closePopup(); return; }
+            if (event.keyCode === 13) { box.click(); return; }
             var index = def.options.map(function (option) { return option.value; }).indexOf(value);
-            index = Math.max(0, Math.min(def.options.length - 1, index + (event.keyCode === 37 || event.keyCode === 38 ? -1 : 1)));
+            index = event.keyCode === 36 ? 0 : event.keyCode === 35 ? def.options.length - 1 : Math.max(0, Math.min(def.options.length - 1, index + (event.keyCode === 38 ? -1 : 1)));
             value = def.options[index].value; label.textContent = def.options[index].label; ctx.commit(def.id, value);
         });
         box.addEventListener('click', function (event) {
@@ -208,7 +199,7 @@
             if (layer.anchor === box) { closePopup(); return; }
             var list = el('div');
             def.options.forEach(function (option, index) {
-                var item = el('div', 'dk-option' + (option.value === value ? ' is-selected' : ''), option.label, list);
+                var item = el('button', 'dk-option' + (option.value === value ? ' is-selected' : ''), option.label, list);
                 var source = def.preview && def.preview.images && def.preview.images[index];
                 if (source) {
                     item.textContent = '';
@@ -218,6 +209,14 @@
                     icon.addEventListener('error', function () { icon.style.visibility = 'hidden'; });
                     el('span', null, option.label, item);
                 }
+                item.addEventListener('keydown', function (event) {
+                    if (event.keyCode === 27) { handled(event); closePopup(); return; }
+                    if ([35,36,38,40].indexOf(event.keyCode) < 0) { return; }
+                    handled(event);
+                    var next = event.keyCode === 36 ? 0 : event.keyCode === 35 ? def.options.length-1 : Math.max(0, Math.min(def.options.length-1, index+(event.keyCode === 38 ? -1 : 1)));
+                    value = def.options[next].value; label.textContent = def.options[next].label;
+                    DK.modal.focus(list.children[next]); ctx.commit(def.id, value);
+                });
                 item.addEventListener('click', function () {
                     closePopup();
                     if (option.value !== value) {
@@ -239,7 +238,7 @@
         var text = el('input', 'dk-slider-value', null, wrap);
         text.type = 'text';
         if (def.unit) { el('span', 'dk-unit', def.unit, wrap); }
-        var widget = {value: def.min, disabled: false, dragging: false};
+        var widget = {track: track, value: def.min, disabled: false, dragging: false};
         widget.render = function () {
             var ratio = (widget.value - def.min) / (def.max - def.min);
             ratio = Math.max(0, Math.min(1, ratio));
@@ -264,11 +263,11 @@
         });
         track.tabIndex = 0;
         track.addEventListener('keydown', function (event) {
-            if (widget.disabled || [35,36,37,38,39,40].indexOf(event.keyCode) < 0) { return; }
+            if (widget.disabled || [33,34,35,36,37,38,39,40].indexOf(event.keyCode) < 0) { return; }
             handled(event);
             if (event.preventDefault) { event.preventDefault(); }
             commitValue(event.keyCode === 36 ? def.min : event.keyCode === 35 ? def.max : widget.value +
-                (event.keyCode === 37 || event.keyCode === 40 ? -def.step : def.step));
+                (event.keyCode === 37 || event.keyCode === 40 || event.keyCode === 34 ? -1 : 1) * def.step * (event.keyCode === 33 || event.keyCode === 34 ? 10 : event.shiftKey ? 5 : 1));
         });
         function fromEvent(event) {
             var rect = track.getBoundingClientRect();
@@ -354,62 +353,115 @@
     }
 
     function color(def, ctx) {
-        var r = row(def), api = base(r), value = '#FFFFFF';
+        var r = row(def), api = base(r), value = '#FFFFFF', alpha = 100;
+        var meta = def.metadata || {}, hasAlpha = !!(meta.allowAlpha && meta.alphaKey);
         var wrap = el('div', 'dk-color', null, r.input);
-        var swatch = el('div', 'dk-color-swatch', null, wrap), input = textInput('text', {maxLength: 7});
-        wrap.appendChild(input);
-        function show(hex) {
-            swatch.style.backgroundColor = hex;
-            if (document.activeElement !== input) { input.value = hex; }
-        }
-        function send(hex) {
-            show(hex);
-            if (hex !== value) { value = hex; ctx.commit(def.id, value); }
-        }
+        var swatch = el('button', 'dk-color-swatch', null, wrap), input = textInput('text', {maxLength: 8});
+        swatch.type = 'button'; wrap.appendChild(input);
+        function show() { swatch.style.backgroundColor = value; if (document.activeElement !== input) { input.value = value; } }
         onCommit(input, function () {
             if (api.state.disabled) { return; }
             var hex = normalizeHex(input.value);
             if (!hex) { flashInvalid(input); input.value = value; return; }
-            input.value = hex; send(hex);
+            if (hex !== value) { value = hex; show(); ctx.commit(def.id, hex); }
         });
-        swatch.addEventListener('click', function () {
+        function open() {
             if (api.state.disabled) { return; }
-            if (layer.anchor === swatch) { closePopup(); return; }
-            var panel = el('div', 'dk-color-popup'), rgb = hexToRgb(value), widgets = [];
-            var preview = el('div', 'dk-color-preview');
-            preview.style.backgroundColor = value;
-            if (def.presets && def.presets.length) {
-                el('div', 'dk-color-title', ctx.labels.presets, panel);
-                var presets = el('div', 'dk-presets', null, panel);
-                def.presets.forEach(function (preset) {
-                    var item = el('div', 'dk-preset', null, presets);
-                    item.style.backgroundColor = preset.value;
-                    item.addEventListener('mouseenter', function () { showTip(item, preset.label + '  ' + preset.value); });
-                    item.addEventListener('mouseleave', hideTip);
-                    item.addEventListener('click', function () {
-                        hideTip(); rgb = hexToRgb(preset.value); sync(); send(preset.value);
-                    });
-                });
+            var draft = value, draftAlpha = alpha, position = DK.colors.spectrumPosition(value), x = position.x, y = position.y;
+            var panel = el('div', 'dk-color-picker'), area = el('div', 'dk-spectrum', null, panel);
+            area.tabIndex = 0; area.setAttribute('aria-label', ctx.labels['color.area'] || 'Color spectrum');
+            var canvas = el('canvas', 'dk-spectrum-canvas', null, area), cursor = el('div', 'dk-spectrum-cursor', null, area);
+            canvas.width = 256; canvas.height = 192;
+            try {
+                var paint = canvas.getContext && canvas.getContext('2d');
+                if (paint) {
+                    var pixels = paint.createImageData(256,192);
+                    for (var py=0; py<192; py++) { for (var px=0; px<256; px++) {
+                        var rgb = hexToRgb(DK.colors.spectrum(px/255,py/191)), offset=(py*256+px)*4;
+                        pixels.data[offset]=rgb[0]; pixels.data[offset+1]=rgb[1]; pixels.data[offset+2]=rgb[2]; pixels.data[offset+3]=255;
+                    } }
+                    paint.putImageData(pixels,0,0);
+                } else { canvas.style.display='none'; }
+            } catch (ignore) { canvas.style.display='none'; }
+            var previews = el('div', 'dk-color-comparison', null, panel);
+            function preview(label) {
+                var box=el('div', '', null, previews); el('div','dk-color-title',label,box);
+                return el('div','dk-color-preview dk-checker',null,box);
             }
-            el('div', 'dk-color-title', 'RGB', panel);
-            ['R', 'G', 'B'].forEach(function (name, index) {
-                var line = el('div', 'dk-channel', null, panel);
-                el('div', 'dk-channel-name', name, line);
-                var widget = sliderWidget(line, {min: 0, max: 255, step: 1}, function (channel) {
-                    rgb[index] = channel; var hex = rgbToHex(rgb); preview.style.backgroundColor = hex; show(hex); if (ctx.preview) { ctx.preview(def.id, hex); }
-                }, function () { send(rgbToHex(rgb)); });
-                widgets.push(widget);
+            var current=preview(ctx.labels['color.current'] || 'Current'), next=preview(ctx.labels['color.new'] || 'New');
+            var currentFill=el('div','dk-preview-fill',null,current), nextFill=el('div','dk-preview-fill',null,next);
+            currentFill.style.backgroundColor=value; currentFill.style.opacity=alpha/100;
+            el('div','dk-color-title','HEX',panel);
+            var hexInput=textInput('text',{maxLength:8}); panel.appendChild(hexInput);
+            var alphaWidget=null, alphaLabel=null, alphaLine=null;
+            function render() {
+                cursor.style.left=(x*100)+'%'; cursor.style.top=(y*100)+'%';
+                nextFill.style.backgroundColor=draft; nextFill.style.opacity=draftAlpha/100;
+                hexInput.value=draft;
+                if (alphaLabel) { alphaLabel.textContent=Math.round(draftAlpha)+'%'; }
+                if (alphaLine) { alphaLine.style.backgroundImage='linear-gradient(to right, transparent, '+draft+')'; }
+            }
+            function select(e) {
+                var rect=area.getBoundingClientRect(); x=Math.max(0,Math.min(1,(e.clientX-rect.left)/Math.max(1,rect.width)));
+                y=Math.max(0,Math.min(1,(e.clientY-rect.top)/Math.max(1,rect.height))); draft=DK.colors.spectrum(x,y); render();
+            }
+            function stop() { document.removeEventListener('mousemove',select); document.removeEventListener('mouseup',stop); }
+            area.addEventListener('mousedown',function(e) { handled(e); DK.modal.focus(area); select(e); document.addEventListener('mousemove',select); document.addEventListener('mouseup',stop); });
+            area.addEventListener('keydown',function(e) {
+                if ([37,38,39,40].indexOf(e.keyCode)<0) { return; } handled(e);
+                var step=e.shiftKey ? 0.05 : 0.005;
+                x=Math.max(0,Math.min(1,x+(e.keyCode===37?-step:e.keyCode===39?step:0)));
+                y=Math.max(0,Math.min(1,y+(e.keyCode===38?-step:e.keyCode===40?step:0)));
+                draft=DK.colors.spectrum(x,y); render();
             });
-            panel.appendChild(preview);
-            function sync() {
-                widgets.forEach(function (widget, index) { widget.value = rgb[index]; widget.render(); });
-                preview.style.backgroundColor = rgbToHex(rgb);
+            function readHex() { var hex=normalizeHex(hexInput.value); if (!hex) { flashInvalid(hexInput); return false; } draft=hex; position=DK.colors.spectrumPosition(draft); x=position.x; y=position.y; render(); return true; }
+            onCommit(hexInput,readHex);
+            if (hasAlpha) {
+                el('div','dk-color-title','Alpha',panel);
+                var alphaHost=el('div','dk-alpha dk-checker',null,panel);
+                alphaWidget=sliderWidget(alphaHost,{min:0,max:100,step:1},function(n){ draftAlpha=n; render(); },function(){});
+                alphaLine=alphaHost.querySelectorAll('.dk-slider-rail')[0];
+                alphaWidget.track.setAttribute('aria-label', 'Alpha');
+                alphaLabel=el('div','dk-alpha-value',null,panel);
+                alphaWidget.value=draftAlpha; alphaWidget.render();
             }
-            sync();
-            openPopup(swatch, panel, function () { show(value); });
-        });
-        api.update = function (next) { value = normalizeHex(next) || value; show(value); };
+            if (def.presets) {
+                var presets=el('div','dk-presets',null,panel);
+                def.presets.forEach(function(p) { var btn=el('button','dk-preset',null,presets); btn.style.backgroundColor=p.value; btn.title=p.label;
+                    btn.addEventListener('click',function(){ draft=normalizeHex(p.value); position=DK.colors.spectrumPosition(draft); x=position.x; y=position.y; render(); }); });
+            }
+            var actions=el('div','dk-modal-actions',null,panel);
+            el('button','dk-btn',ctx.labels.cancel || 'Cancel',actions).addEventListener('click',function(){DK.modal.close(false);});
+            el('button','dk-btn dk-primary',ctx.labels.apply || 'Apply',actions).addEventListener('click',function(){if(readHex()){DK.modal.close(true);}});
+            render(); DK.modal.open(panel,{origin:swatch, cleanup:function(){stop(); if(alphaWidget){alphaWidget.dispose();}}, apply:function(){
+                if(draft!==value || draftAlpha!==alpha) {
+                    value=draft; alpha=draftAlpha; show();
+                    ctx.commit(def.id,draft,hasAlpha ? DK.colors.alphaFromUi(draftAlpha,meta.alphaScale) : undefined);
+                }
+            }});
+        }
+        swatch.addEventListener('click',open);
+        api.dispose=function(){if(DK.modal.isOpen()){DK.modal.close(false);}};
+        api.update=function(next){value=normalizeHex(next)||value; show();};
+        var info=api.info;
+        api.info=function(state){info(state); if(hasAlpha && state.values){var n=DK.colors.alphaToUi(state.values[meta.alphaKey],meta.alphaScale); alpha=n===null?100:n;}};
         return api;
+    }
+
+    function stepper(def, ctx) {
+        var r=row(def), api=base(r), value=def.min, input=textInput('text',def); r.input.appendChild(input);
+        function commit(n){if(api.state.disabled){return;} n=snap(n,def); if(n!==value){value=n;input.value=String(n);ctx.commit(def.id,n);}}
+        onCommit(input,function(){var n=Number(input.value);if(String(input.value).trim() && isFinite(n) && n>=def.min && n<=def.max){commit(n);}else{flashInvalid(input);input.value=String(value);}});
+        input.addEventListener('keydown',function(e){if(api.state.disabled || [35,36,38,40].indexOf(e.keyCode)<0){return;} handled(e);commit(e.keyCode===36?def.min:e.keyCode===35?def.max:value+(e.keyCode===38?1:-1)*def.step*(e.shiftKey?10:1));});
+        [-1,1].forEach(function(direction){el('button','dk-btn dk-step',direction<0?'−':'+',r.input).addEventListener('click',function(){commit(value+direction*def.step);});});
+        api.update=function(n){value=n;if(document.activeElement!==input){input.value=String(n);}}; return api;
+    }
+    function radio(def,ctx){
+        var r=row(def),api=base(r),value=null,buttons=[];
+        function choose(index){if(api.state.disabled){return;}index=Math.max(0,Math.min(def.options.length-1,index));value=def.options[index].value;render();DK.modal.focus(buttons[index]);ctx.commit(def.id,value);}
+        function render(){buttons.forEach(function(b,i){setClass(b,'is-selected',def.options[i].value===value);});}
+        def.options.forEach(function(option,i){var b=el('button','dk-btn dk-radio',option.label,r.input);buttons.push(b);b.addEventListener('click',function(){choose(i);});b.addEventListener('keydown',function(e){if([13,32,35,36,37,39].indexOf(e.keyCode)<0 || api.state.disabled){return;}handled(e);choose(e.keyCode===36?0:e.keyCode===35?buttons.length-1:i+(e.keyCode===37?-1:e.keyCode===39?1:0));});});
+        api.update=function(n){value=n;render();};return api;
     }
 
     function hotkey(def, ctx) {
@@ -458,7 +510,7 @@
     var factories = {
         'switch': function (def, ctx) { return toggle(def, ctx, 'switch'); },
         checkbox: function (def, ctx) { return toggle(def, ctx, 'checkbox'); },
-        dropdown: dropdown, slider: slider, number: slider, text: text, password: password,
+        dropdown: dropdown, slider: slider, number: stepper, text: text, password: password,
         color: color, button: button, hotkey: hotkey, multiselect: multiselect, textarea: text, file: text, directory: text
     };
 
@@ -508,7 +560,16 @@
     DK.controls = {
         create: function (def, ctx) {
             var factory = factories[def.type];
+            if (def.metadata && def.metadata.sourceType === 'NumericStepper') { factory = stepper; }
+            if (def.metadata && def.metadata.sourceType === 'RadioButtonGroup' && def.options.length <= 5) { factory = radio; }
             var api = factory ? factory(def, ctx) : staticNode(def);
+            var timing = def.metadata && def.metadata.applyTiming;
+            if (['live', 'battle', 'view', 'restart'].indexOf(timing) >= 0) {
+                var labels = (ctx && ctx.labels) || {};
+                var badge = el('div', 'dk-apply-timing dk-apply-timing--' + timing,
+                    (timing === 'restart' ? '↻ ' : '• ') + (labels['timing.' + timing] || {live: 'Immediate', battle: 'Next battle', view: 'Next view opening', restart: 'Requires restart'}[timing]), api.node);
+                badge.title = labels['applyTiming.' + timing] || '';
+            }
             if (def.preview && def.preview.kind === 'image') {
                 setClass(api.node, 'dk-media-row', true);
                 var preview = el('div', 'dk-image-preview', null, api.node);
@@ -530,11 +591,14 @@
                 };
             } else if (def.preview && def.preview.kind === 'audio') {
                 setClass(api.node, 'dk-media-row', true);
+                setClass(api.node, 'dk-audio-row', true);
                 var actions = el('div', 'dk-audio-actions', null, api.node);
                 ['play', 'stop'].forEach(function (action) {
                     var button = el('button', 'dk-btn', ctx.labels['sound.' + action], actions);
                     button.type = 'button';
-                    button.addEventListener('click', function () { if (!api.state.disabled) { ctx.action(def.preview[action]); } });
+                    // Audition is independent of enabling the sound in battle.
+                    // Python validates the preview action against the session.
+                    button.addEventListener('click', function () { ctx.action(def.preview[action]); });
                 });
             }
             return api;

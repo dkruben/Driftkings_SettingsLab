@@ -34,7 +34,7 @@ class SourceLayoutTests(unittest.TestCase):
     def test_presentation_hooks_still_imported_for_registration(self):
         for scope,name in (('components','battle_efficiency'),('lobby','hangar_options')):
             path=CLIENT/'Driftkings'/scope/(name+'.py')
-            tree=ast.parse(path.read_text(encoding='utf-8'))
+            tree=ast.parse(path.read_text(encoding='utf-8-sig'))
             self.assertTrue(any(isinstance(n,ast.ImportFrom) and n.module=='Driftkings.views.hangar' and
                                 any(a.name==name+'_hooks' for a in n.names) for n in tree.body))
 

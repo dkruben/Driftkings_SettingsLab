@@ -34,11 +34,12 @@
         fields.vehicle = element('div', 'vehicle', card);
         var main = element('div', 'main', card);
         fields.percent = element('div', 'percent', main);
-        var marks = element('div', 'marks', main);
-        fields.marks = [65, 85, 95].map(function (limit) { return element('span', 'mark', marks, limit + '%'); });
+        fields.delta = element('div', 'delta', main);
+        var marks = element('div', 'marks', card);
+        fields.marks = [65, 85, 95].map(function (limit) { var star=element('span', 'mark', marks, '☆');star.title=limit+'%';return star; });
         fields.bar = element('div', 'bar', card);
         fields.fill = element('div', 'fill', fields.bar);
-        [65, 85, 95].forEach(function (limit) { element('i', 'tick', fields.bar).style.left = limit + '%'; });
+        [65, 85, 95].forEach(function (limit) { element('i', 'tick', fields.bar).style.left = limit + '%'; var label=element('span','milestone',fields.bar,limit);label.style.left=limit+'%'; });
         fields.target = element('div', 'target', card);
         var secondary = element('div', 'secondary', card);
         fields.average = element('div', 'detail', secondary);
@@ -116,7 +117,8 @@
         card.style.minHeight = number(cfg.height, 260, 160, 700) + 'rem';
         var bg = color(cfg.backgroundColor, '#0c0f14');
         card.style.backgroundColor = 'rgba(' + parseInt(bg.slice(1, 3), 16) + ',' + parseInt(bg.slice(3, 5), 16) + ',' + parseInt(bg.slice(5, 7), 16) + ',' + number(cfg.backgroundAlpha, .94, 0, 1) + ')';
-        card.style.borderColor = color(cfg.outlineColor, '#4b515b');
+        var outline=color(cfg.outlineColor, '#ffffff');
+        card.style.borderColor = 'rgba('+parseInt(outline.slice(1,3),16)+','+parseInt(outline.slice(3,5),16)+','+parseInt(outline.slice(5,7),16)+',.10)';
         card.style.color = color(cfg.titleColor, '#f5f1e8');
         fields.eyebrow.style.color = color(cfg.headerColor, '#c7a86a');
         fields.target.style.color = fields.fill.style.backgroundColor = color(cfg.accentColor, '#e2c07a');
@@ -129,15 +131,19 @@
         var percent = number(target.percent, 0, 0, 100);
         fields.percent.textContent = eligible ? percent.toFixed(2) + '%' : '--';
         fields.bar.style.display = eligible ? 'block' : 'none';
-        fields.fill.style.width = percent + '%';
+        fields.fill.style.width = data.progress !== undefined ? number(data.progress,0,0,1)*100+'%' : percent+'%';
+        fields.delta.textContent = eligible && data.delta ? data.delta.text : '—';
+        fields.delta.className = 'dk-hangar-marks__delta dk-hangar-marks__delta--' + (data.delta ? data.delta.direction : 'unknown');
+        fields.delta.title = label('trend','Observed trend') + ' / ' + ((data.recent || {}).battles || 0) + ' ' + label('observedBattles','battles observed');
         fields.marks.forEach(function (badge, i) {
-            var earned = data.earnedMarks > i;
+            var earned = (data.displayMarks === undefined ? data.earnedMarks : data.displayMarks) > i;
+            badge.textContent=earned ? '★' : '☆';
             var near = target.mark === i + 1 && !target.achieved && target.gap <= number(cfg.starAnimationWindow, 5, 0, 100);
             badge.style.display = eligible ? 'block' : 'none';
             badge.className = 'dk-hangar-marks__mark' + (earned ? ' dk-hangar-marks__mark--earned' : '') + (near ? ' dk-hangar-marks__mark--near' : '');
             badge.style.color = earned ? color(cfg['starColor' + [65, 85, 95][i]], '#e2c07a') : color(cfg.mutedColor, '#8c919a');
         });
-        fields.target.textContent = data.state !== 'data' ? data.message : !eligible ? label('tierLimit', 'Marks available from tier V') :
+        fields.target.textContent = data.thirdAchieved && eligible ? '✓ ' + label('thirdAchieved', '3rd MARK ACHIEVED') : data.state !== 'data' ? data.message : !eligible ? label('tierLimit', 'Marks available from tier V') :
             label('mark', 'Mark') + ' ' + target.mark + ' / ' + target.threshold + '%  |  ' + (target.achieved ? label('achieved', 'Achieved') : Number(target.gap).toFixed(2) + ' ' + label('remaining', 'pp remaining'));
         fields.average.textContent = eligible ? label('average', 'Combined EMA') + ': ' + data.average + '  |  ' + label('estimate', 'Goal estimate') + ': ' + data.estimate : '';
         var recent = data.recent || {};

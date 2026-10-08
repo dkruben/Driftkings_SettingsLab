@@ -15,7 +15,7 @@ def install(api):
         return api.mod(CORE_ID)
     from Driftkings.settings.panel import VERSION
     mod = api.register_mod(CORE_ID, name=T('core.name'), version=VERSION, author=u'DriftKingsMods',
-                           description=T('core.description'), icon='gear', order=-1000, config_file='dk_settings')
+                           description=T('core.description'), icon='gear', order=-1000, config_file='dk_settings', category='system')
     languages = [('auto', T('core.language.auto'))] + list(locales.LANGUAGES)
     mod.add_section(T('core.general'))
     mod.add_dropdown('language', T('core.language'), values=languages, default='auto')

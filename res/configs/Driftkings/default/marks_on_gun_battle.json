@@ -105,5 +105,11 @@
     "battleMessage{assistTrack}": "<img src=\"img://gui/maps/icons/library/efficiency/48x48/immobilized.png\" width=\"16\" height=\"16\" vspace=\"-5\"/>",
     "battleMessage{assistSpam}": "<img src=\"img://gui/maps/icons/library/efficiency/48x48/stun.png\" width=\"16\" height=\"16\" vspace=\"-5\"/>",
     "UI": 10,
-    "colorRating": 0
+    "colorRating": 0,
+    "displayMode": 0,
+    "showMarks": true,
+    "showDelta": true,
+    "showDamage": true,
+    "showProgress": true,
+    "showTargets": true
 }

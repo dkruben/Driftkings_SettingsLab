@@ -25,6 +25,9 @@ class MarksOnGunBattleSettings(ComponentSettings):
         return (
             [
                 options(MARKS_ON_GUN_BATTLE.COLOR_RATING, [table['ScaleColor'] for table in color_tables]),
+                options('displayMode', [self.i18n['UI_marks_' + mode] for mode in ('legacy', 'compact', 'normal', 'detailed')]),
+                control('showMarks'), control('showDelta'), control('showDamage'),
+                control('showProgress'), control('showTargets'),
                 control(MARKS_ON_GUN_BATTLE.SHOW_IN_STATISTIC),
                 control(MARKS_ON_GUN_BATTLE.SHOW_IN_REPLAY),
                 control(MARKS_ON_GUN_BATTLE.SHOW_IN_BATTLE),

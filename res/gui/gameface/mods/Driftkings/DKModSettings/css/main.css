@@ -157,3 +157,32 @@ textarea { font-family: Warhelios; font-size: 15rem; color: #e8e4da; }
 .dk-installed-row { padding: 9rem 0; border-bottom: 1rem solid #454135; }
 
 .dk-theme-reset { position: absolute; right: 16rem; top: 58rem; min-width: 100rem; height: 28rem; font-size: 12rem; }
+
+/* Categorized settings shell; existing widget renderers and UI units are retained. */
+.dk-window { border-radius: 6rem; }
+.dk-header { height: 62rem; }
+.dk-sidebar-area { flex-direction: column; background: rgba(0,0,0,.18); }
+.dk-sidebar-search { padding: 16rem 12rem 12rem; border-bottom: 1rem solid rgba(255,255,255,.08); }
+.dk-sidebar-search .dk-search { width: 100%; margin: 0; }
+.dk-sidebar-scroll-area { position: relative; display: flex; flex: 1 1 auto; min-height: 0; }
+.dk-nav-category { padding: 18rem 14rem 7rem; font-size: 11rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1rem; color: #a9a59a; }
+.dk-nav-item { width: 100%; height: auto; min-height: 60rem; padding-top: 9rem; padding-bottom: 9rem; background: transparent; border: 0; border-left: 3rem solid transparent; text-align: left; }
+.dk-nav-details { flex: 1 1 auto; min-width: 0; }
+.dk-nav-status { font-size: 10rem; color: #a9a59a; margin-top: 4rem; white-space: normal; }
+.dk-nav-item.is-warning .dk-nav-status { color: #f2c14e; }
+.dk-nav-item.is-error .dk-nav-status { color: #ff9b85; }
+.dk-nav-item.is-off .dk-nav-name { color: #a9a59a; }
+.dk-mod-header { padding-top: 24rem; padding-bottom: 18rem; }
+.dk-mod-name { font-size: 26rem; font-weight: bold; }
+.dk-mod-status { margin-top: 12rem; font-size: 12rem; color: #cfcfcf; }
+.dk-mod-dependencies { margin-top: 6rem; font-size: 11rem; color: #a9a59a; }
+.dk-section { padding: 16rem 0 8rem; border-bottom: 1rem solid rgba(255,255,255,.1); }
+.dk-row { flex-wrap: wrap; }
+.dk-apply-timing { flex: 0 0 100%; font-size: 11rem; color: #a9a59a; margin-top: 6rem; }
+.dk-apply-timing--restart { color: #f2c14e; }
+.dk-footer .dk-unsaved { margin-left: 12rem; margin-right: 4rem; max-width: 150rem; font-size: 11rem; }
+.dk-window.is-narrow .dk-sidebar-area .dk-sidebar { width: 100%; }
+.dk-window.is-narrow .dk-sidebar-search .dk-search { width: 100%; }
+.dk-window.is-narrow .dk-footer .dk-unsaved.is-visible { display: block; max-width: 100rem; font-size: 10rem; }
+
+.dk-compatibility-warnings { color:#c9ab72;font-size:12rem;line-height:1.4;white-space:pre-line;margin-top:5rem; }

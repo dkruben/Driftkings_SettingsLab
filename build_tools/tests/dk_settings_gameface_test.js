@@ -11,12 +11,16 @@ class Element {
     constructor(tag) {
         this.tagName = tag.toUpperCase(); this.children = []; this.parentNode = null; this.listeners = {};
         this.style = {}; this.className = ''; this.ownText = ''; this.value = ''; this.disabled = false;
-        this.scrollTop = 0; this.type = ''; this.placeholder = ''; this.title = '';
+        this.tabIndex = ['BUTTON','INPUT','TEXTAREA','SELECT'].includes(this.tagName) ? 0 : -1; this.scrollTop = 0; this.type = ''; this.placeholder = ''; this.title = '';
     }
     set textContent(value) { this.ownText = String(value); this.children.forEach(c => { c.parentNode = null; }); this.children = []; }
     get textContent() { return this.ownText + this.children.map(c => c.textContent).join(''); }
     appendChild(child) { if (child.parentNode) { child.parentNode.removeChild(child); } child.parentNode = this; this.children.push(child); return child; }
     removeChild(child) { const i = this.children.indexOf(child); if (i >= 0) { this.children.splice(i, 1); } child.parentNode = null; return child; }
+    setAttribute(name,value) { this[name] = value; }
+    click() { this.fire('click'); }
+    focus() { if (!this.disabled) { this.ownerDocument.activeElement = this; } }
+    querySelectorAll(selector) { return this.all().slice(1).filter(n => selector.split(',').some(s => s[0] === '.' ? n.has(s.slice(1)) : s === '[tabindex]' ? n.tabIndex >= 0 || n._dkTab !== undefined : n.tagName.toLowerCase() === s)); }
     get firstChild() { return this.children[0] || null; }
     addEventListener(type, fn) { (this.listeners[type] = this.listeners[type] || []).push(fn); }
     removeEventListener(type, fn) { const list = this.listeners[type] || []; const i = list.indexOf(fn); if (i >= 0) { list.splice(i, 1); } }
@@ -36,7 +40,7 @@ function context(extra) {
     const document = {
         body, activeElement: null,
         getElementById: id => nodes[id],
-        createElement: tag => new Element(tag),
+        createElement: tag => { const n = new Element(tag); n.ownerDocument = document; return n; },
         documentElement: new Element('html'),
         addEventListener: (t, f) => documentListeners.addEventListener(t, f),
         removeEventListener: (t, f) => documentListeners.removeEventListener(t, f)
@@ -64,7 +68,7 @@ const ctx = context({
         getClientSizeRem: () => ({width: 1600, height: 900}), remToPx: () => 1.5, resizeViewRem: (w, h) => resized.push([w, h])
     }
 });
-['js/bridge.js', 'js/controls.js', 'js/app.js'].forEach(name => vm.runInContext(read(name), ctx, {filename: name}));
+['js/bridge.js', 'js/colors.js', 'js/modal.js', 'js/controls.js', 'js/app.js'].forEach(name => vm.runInContext(read(name), ctx, {filename: name}));
 const app = ctx.nodes['dk-app'];
 const labels = {title: 'DK MOD SETTINGS', apply: 'Apply', cancel: 'Cancel', reset: 'Reset', saveApply: 'Save & Apply',
     unsaved: 'Unsaved', on: 'ON', off: 'OFF', secretSet: 'Saved (hidden)', secretEmpty: 'Not set', clearSecret: 'Clear',
@@ -181,8 +185,8 @@ assert.strictEqual(sent.length, 0);
 
 // Legacy numeric definitions also render sliders, with precise input and no stepper.
 const numberRow = row('Size'), numberInput = numberRow.all().find(n => n.tagName === 'INPUT');
-assert.strictEqual(numberRow.find('dk-step').length, 0);
-numberRow.find('dk-slider-track')[0].fire('keydown', {keyCode: 39});
+assert.strictEqual(numberRow.find('dk-step').length, 2);
+numberInput.fire('keydown', {keyCode: 38});
 assert.deepStrictEqual(sent.pop(), {mod: 'dk.demo', key: 'size', value: 4, action: 'set'});
 numberInput.value = '99'; numberInput.fire('keydown', {keyCode: 13});
 assert.strictEqual(sent.length, 0);
@@ -216,8 +220,10 @@ hex.value = '#zz'; hex.fire('keydown', {keyCode: 13});
 assert.strictEqual(sent.length, 0);
 push(null, state());
 colorRow.find('dk-color-swatch')[0].fire('click');
-assert.strictEqual(ctx.document.body.find('dk-channel').length, 3);
+assert.strictEqual(ctx.document.body.find('dk-spectrum').length, 1);
 ctx.document.body.find('dk-preset')[0].fire('click');
+assert.strictEqual(sent.length, 0, 'preset edits only the local draft');
+ctx.document.body.find('dk-modal-actions')[0].children[1].fire('click');
 assert.deepStrictEqual(sent.pop(), {mod: 'dk.demo', key: 'accent', value: '#3D8FD9', action: 'set'});
 ctx.documentListeners.fire('mousedown', {target: app});
 assert.strictEqual(ctx.document.body.find('dk-popup').length, 0, 'outside click closes popups');
@@ -325,12 +331,121 @@ picture.fire('error'); assert.strictEqual(picture.style.display,'none');
 assert.strictEqual(row('Icon').find('dk-preview-missing')[0].style.display,'block');
 button('Play').fire('click'); assert.deepStrictEqual(sent.pop(),{mod:'dk.demo',key:'soundPreview',action:'button'});
 button('Stop').fire('click'); assert.deepStrictEqual(sent.pop(),{mod:'dk.demo',key:'soundStop',action:'button'});
+push(null,state({values:{'dk.demo':{image:1,sound:0,precision:1.1}},disabled:{'dk.demo':['sound']}}));
+button('Play').fire('click'); assert.deepStrictEqual(sent.pop(),{mod:'dk.demo',key:'soundPreview',action:'button'});
+button('Stop').fire('click'); assert.deepStrictEqual(sent.pop(),{mod:'dk.demo',key:'soundStop',action:'button'});
+push(null,state({values:{'dk.demo':{image:1,sound:0,precision:1.1}}}));
 const precise = row('Precision').find('dk-slider-value')[0];
 precise.value='2,3'; precise.fire('blur');
 assert.deepStrictEqual(sent.pop(),{mod:'dk.demo',key:'precision',value:2.3,action:'set'});
 push(schema,state());
 
+
+// Pure color boundaries, prefixes and all alpha scales.
+['#D98219','D98219','0xD98219','0xd98219','#d98219'].forEach(c=>assert.strictEqual(ctx.DK.colors.normalizeColor(c),'#D98219'));
+['',null,'#12345','0xZZZZZZ','#D9821900'].forEach(c=>assert.strictEqual(ctx.DK.colors.parseColor(c),null));
+assert.strictEqual(ctx.DK.colors.formatColor('#123456','0xD98219'),'0x123456');
+assert.strictEqual(ctx.DK.colors.formatColor('#123456','D98219'),'123456');
+assert.strictEqual(ctx.DK.colors.rgbToHex(ctx.DK.colors.hexToRgb('#D98219')),'#D98219');
+['percent','normalized','byte'].forEach(scale=>[0,50,85,100].forEach(ui=>{
+ const physical=ctx.DK.colors.alphaFromUi(ui,scale), roundtrip=ctx.DK.colors.alphaToUi(physical,scale);
+ assert(Math.abs(roundtrip-ui)<0.2); assert(physical>=0);
+}));
+assert.strictEqual(ctx.DK.colors.alphaFromUi(NaN,'byte'),null);
+assert.strictEqual(ctx.DK.colors.alphaFromUi(50,'byte'),128);
+
+// A legacy color picker keeps all edits local until Apply; Escape restores focus.
+push(schema,state()); sent.length=0;
+let origin=row('Accent').find('dk-color-swatch')[0];origin.focus();origin.fire('click');
+let spectrum=ctx.document.body.find('dk-spectrum')[0];
+let hexDraft=ctx.document.body.find('dk-color-picker')[0].all().find(n=>n.tagName==='INPUT');
+assert.strictEqual(ctx.document.body.find('dk-spectrum-canvas')[0].style.display,'none', 'CSS fallback without Canvas');
+assert.strictEqual(ctx.document.activeElement,spectrum);
+ctx.documentListeners.fire('keydown',{keyCode:9});assert.strictEqual(ctx.document.activeElement,hexDraft);
+ctx.documentListeners.fire('keydown',{keyCode:9,shiftKey:true});assert.strictEqual(ctx.document.activeElement,spectrum);
+const initialDraft=hexDraft.value;
+spectrum.fire('keydown',{keyCode:40}); const smallDraft=hexDraft.value;
+assert.notStrictEqual(smallDraft,initialDraft); spectrum.fire('keydown',{keyCode:40,shiftKey:true});assert.notStrictEqual(hexDraft.value,smallDraft);
+assert.strictEqual(sent.length,0);
+ctx.documentListeners.fire('keydown',{keyCode:27});assert.strictEqual(ctx.DK.modal.isOpen(),false);assert.strictEqual(ctx.document.activeElement,origin);assert.strictEqual(sent.length,0);
+origin.fire('click');ctx.document.body.find('dk-modal-actions')[0].children[0].fire('click');assert.strictEqual(sent.length,0);
+const createElement=ctx.document.createElement; let draws=0;
+ctx.document.createElement=tag=>{const n=createElement(tag);if(tag==='canvas'){n.getContext=()=>({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData:()=>draws++});}return n;};
+origin.fire('click');spectrum=ctx.document.body.find('dk-spectrum')[0];
+assert.strictEqual(draws,1);spectrum.fire('mousedown',{clientX:180,clientY:112});ctx.documentListeners.fire('mousemove',{clientX:200,clientY:115});ctx.documentListeners.fire('mouseup',{});
+assert.strictEqual(draws,1,'drag never redraws spectrum');assert.strictEqual(sent.length,0);
+ctx.DK.modal.close(false);ctx.document.createElement=createElement;
+assert.strictEqual((ctx.documentListeners.listeners.mousemove || []).length,0);
+// Alpha is explicit and sent with color in a single bridge action.
+const alphaSchema=JSON.parse(JSON.stringify(schema));
+alphaSchema.mods[0].controls.find(c=>c.id==='accent').metadata={allowAlpha:true,alphaScale:'normalized',alphaKey:'opacity'};
+alphaSchema.mods[0].controls.push({id:'opacity',type:'number',label:'Opacity',default:0.5,min:0,max:1,step:0.01});
+alphaSchema.mods[0].controls.push({id:'mode',type:'dropdown',label:'Mode',metadata:{sourceType:'RadioButtonGroup'},options:[{value:0,label:'A'},{value:1,label:'B'}]});
+push(alphaSchema,state({values:{'dk.demo':Object.assign({},values,{opacity:0.5,mode:0})}}));sent.length=0;
+origin=row('Accent').find('dk-color-swatch')[0];origin.fire('click');
+let picker=ctx.document.body.find('dk-color-picker')[0],alphaTrack=picker.find('dk-slider-track')[0];
+alphaTrack.fire('keydown',{keyCode:39,shiftKey:true});assert.strictEqual(picker.find('dk-alpha-value')[0].textContent,'55%');assert.strictEqual(sent.length,0);
+assert.strictEqual(picker.find('dk-preview-fill')[1].style.opacity,0.55);
+picker.find('dk-modal-actions')[0].children[1].fire('click');assert.deepStrictEqual(sent.pop(),{action:'set',mod:'dk.demo',key:'accent',value:'#D98219',alpha:0.55});
+// Widget navigation stays local; native text cursor keys are untouched.
+row('Volume').find('dk-slider-track')[0].fire('keydown',{keyCode:37,shiftKey:true});assert.strictEqual(sent.pop().value,55);
+row('Volume').find('dk-slider-track')[0].fire('keydown',{keyCode:36});assert.strictEqual(sent.pop().value,0);
+row('Volume').find('dk-slider-track')[0].fire('keydown',{keyCode:33});assert.strictEqual(sent.pop().value,50);
+row('Size').all().find(n=>n.tagName==='INPUT').fire('keydown',{keyCode:38,shiftKey:true});assert.strictEqual(sent.pop().value,10);
+row('Language').find('dk-dropdown')[0].fire('keydown',{keyCode:35});assert.strictEqual(sent.pop().value,'pt');
+row('Mode').find('dk-radio')[0].fire('keydown',{keyCode:39});assert.strictEqual(sent.pop().value,1);
+let prevented=0;[37,39,35,36].forEach(keyCode=>row('Name').all().find(n=>n.tagName==='INPUT').fire('keydown',{keyCode,preventDefault:()=>prevented++}));assert.strictEqual(prevented,0);
+push(null,state({disabled:{'dk.demo':['enabled','volume','accent','size','mode']}}));
+['Enable','Volume','Accent','Size','Mode'].forEach(label=>row(label).all().filter(n=>n.disabled).forEach(n=>assert.strictEqual(n.tabIndex,-1)));
+row('Volume').find('dk-slider-track')[0].fire('keydown',{keyCode:39});assert.strictEqual(sent.length,0);
+push(schema,state());
+
+// External warnings patch the header without becoming dependencies or disabled state.
+push(schema,state());sent.length=0;
+const warningRow=row('Volume');
+push(null,state({compatibilityWarnings:{'dk.demo':[{code:'external.XVM.PlayerPanelPro',level:'warning',text:'<b>XVM</b> may overlap.'}]}}));
+assert.strictEqual(app.find('dk-compatibility-warnings')[0].textContent,'⚠ <b>XVM</b> may overlap.');
+assert.strictEqual(row('Volume'),warningRow);
+assert.strictEqual(row('Volume').find('dk-slider-track')[0].tabIndex,0);
+assert.strictEqual(sent.length,0);
+push(null,state());assert.strictEqual(app.find('dk-compatibility-warnings')[0].style.display,'none');
+
 // Selecting another mod rebuilds the content area.
+// Optional metadata and category grouping remain presentation-only.
+const categorized = JSON.parse(JSON.stringify(schema));
+categorized.labels['category.battle'] = 'Battle';
+categorized.labels['category.system'] = 'System';
+categorized.labels['timing.battle'] = 'Next battle';
+categorized.labels['status.disabled'] = 'Off';
+categorized.mods[0].category = 'battle';
+categorized.mods[1].category = 'system';
+categorized.mods[0].dependencies = [{id: 'available', installed: true}, {id: 'missing', installed: false}];
+categorized.mods[0].controls.find(c => c.id === 'volume').metadata = {sourceType: 'NumericStepper', applyTiming: 'battle'};
+push(categorized, state({status: {'dk.demo': {status:'active', enabled:false, restartRequired:true}}}));
+assert.deepStrictEqual(app.find('dk-nav-category').map(n => n.textContent), ['Battle', 'System']);
+assert(app.find('dk-nav-status')[0].textContent.includes('Off'));
+assert(app.find('dk-nav-status')[0].textContent.includes('Restart required'));
+assert(app.find('dk-nav-status')[0].textContent.includes('missing'));
+assert(app.find('dk-mod-dependencies')[0].textContent.includes('available'));
+assert(row('Volume').find('dk-apply-timing')[0].textContent.includes('Next battle'));
+const beforeNav = app.find('dk-nav-item')[0], beforeRow = row('Volume');
+push(null, state({values: {'dk.demo': Object.assign({}, values, {volume:35})}, status:{'dk.demo':{status:'configError',enabled:true}}}));
+assert.strictEqual(app.find('dk-nav-item')[0], beforeNav);
+assert.strictEqual(row('Volume'), beforeRow);
+assert(beforeNav.has('is-error'));
+searchInput.value = 'volume'; searchInput.fire('input');
+assert.strictEqual(app.find('dk-nav-group')[1].style.display, 'none');
+searchInput.value = 'battle'; searchInput.fire('input');
+assert.strictEqual(app.find('dk-nav-item')[0].style.display, 'flex');
+searchInput.value = ''; searchInput.fire('input');
+const custom = JSON.parse(JSON.stringify(categorized));
+custom.mods[0].category = 'Tools'; delete custom.mods[1].category;
+push(custom,state());
+assert.deepStrictEqual(app.find('dk-nav-category').map(n=>n.textContent), ['General','Tools']);
+// Return to the unextended schema: no badge and all original controls still render.
+push(schema,state());
+assert.strictEqual(app.find('dk-apply-timing').length,0);
+assert.strictEqual(rows().length,8);
 app.find('dk-nav-item')[1].fire('click');
 assert.deepStrictEqual(sent.pop(), {mod: 'dk.settings', action: 'select'});
 push(null, state({selected: 'dk.settings'}));

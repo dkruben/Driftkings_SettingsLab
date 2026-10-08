@@ -19,6 +19,9 @@ from gui.shared.gui_items.dossier.achievements.mark_on_gun import MarkOnGunAchie
 from helpers import getFullClientVersion
 from gui.impl.lobby.hangar.presenters.crew_presenter import CrewPresenter
 
+from Driftkings.core.marks_calculator import ceil_damage, ceil_damage_tens, combined_damage
+from Driftkings.views.marks_model import battle_model
+
 from Driftkings._constants import GLOBAL, MARKS_ON_GUN_BATTLE
 from Driftkings.common import loadJson, checkKeys, getPlayer, sendPanelMessage, getStatisticColor, getMoeDamageColor, getComparisonColor
 from Driftkings.common.utils.achievement_dossiers import getAchievementDossier
@@ -524,7 +527,7 @@ class Worker(object):
             return
         assists = (self.RADIO_ASSIST, self.TRACK_ASSIST, self.STUN_ASSIST)
         assistCurrent = ASSIST_NAMES[assists.index(max(assists))]
-        EDn = self.battleDamage + max(assists)
+        EDn = combined_damage(self.battleDamage, *assists)
         k = 0.0198019801980198022206547392443098942749202251434326171875  # 2 / (100.0 + 1)
         EMA = k * EDn + (1 - k) * self.movingAvgDamage
         p0, d0, p1, d1, t0, t1 = self.values
@@ -568,6 +571,12 @@ class Worker(object):
         self.formatStrings['assistCurrent'] = self.formatStrings[assistCurrent] if max(assists) else self.formatStrings['assistTrack']
         g_flash.setVisible(True)
         g_flash.set_text(self.battleMessage.format(**self.formatStrings).format(color=self.formatStrings['color']))
+        if settings_service.getComponentDict(config).get('displayMode', 0):
+            labels = dict((key[9:], value) for key, value in config.i18n.items() if key.startswith('UI_marks_'))
+            payload = battle_model(self.damageRating, nextMark, self.battleDamage, max(assists), EDn,
+                                   damage, nextMarkOfGun, getattr(self, 'gunLevel', 0),
+                                   self.battleDamageRatingIndex[4:7], unknown, labels)
+            g_flash.set_marks(payload)
 
     @staticmethod
     def isAvailable():
@@ -666,7 +675,7 @@ class Worker(object):
 
     @staticmethod
     def getNormalizeDigits(value):
-        return int(math.ceil(value))
+        return ceil_damage(value)
 
     @staticmethod
     def calcPercent(ema, start, end, d, p):
@@ -677,7 +686,7 @@ class Worker(object):
 
     @staticmethod
     def getNormalizeDigitsCoeff(value):
-        return int(math.ceil(math.ceil(value / 10.0)) * 10)
+        return ceil_damage_tens(value)
 
     def calcStatistics(self, p, d):
         pC = math.floor(p) + 1

@@ -28,7 +28,7 @@ def install():
         def _initialize(self):
             super(MarksModel, self)._initialize()
             self._addStringProperty('payload', '{}')
-            attach_assets(self, _component().FEATURE, styles=[_component().ASSETS + 'marks.css'], scripts=[_component().ASSETS + 'marks.js'])
+            attach_assets(self, _component().FEATURE, styles=['coui://gui/gameface/mods/Driftkings/shared/marks_tokens.css', _component().ASSETS + 'marks.css'], scripts=[_component().ASSETS + 'marks.js'])
 
     class MarksView(ViewImpl):
         def __init__(self, resource_id):

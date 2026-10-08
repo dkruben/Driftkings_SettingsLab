@@ -28,7 +28,7 @@
   "nickOffsetXRight": 0,
   "nickMinWidth": 46,
   "nickMaxWidth": 158,
-  "nickFormatLeft": "<font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{name%.{{anonym?10|12}}s~..}}</font>{{anonym? <font face='$FieldFont' size='19'>*</font>}} <font alpha='#A0'>{{clan}}</font>",
+  "nickFormatLeft": "<font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{name%.{{anonym?10|12}}s~..}}</font>{{anonym?<font face='$FieldFont' size='19'>*</font>}} <font alpha='#A0'>{{clan}}</font>",
   "nickFormatRight": "<font alpha='#A0'>{{clan}}</font> <font color='{{c:xr}}' alpha='{{alive?#FF|#80}}'>{{name%.12s~..}}</font>",
   "nickShadowLeft": null,
   "nickShadowRight": null,

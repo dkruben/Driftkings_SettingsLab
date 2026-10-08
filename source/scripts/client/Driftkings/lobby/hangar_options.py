@@ -405,3 +405,4 @@ def fini():
 
 
 # Import registers the presentation hooks with the current component owner.
+from Driftkings.views.hangar import hangar_options_hooks

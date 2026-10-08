@@ -49,8 +49,11 @@ class SettingsAPI(object):
     # Mod author API --------------------------------------------------------
     def register_mod(self, mod_id=None, name=None, version=u'', author=u'', description=u'', icon=None, order=None, config_file=None, id=None, category=None, dependencies=None):
         handle = self.registry.register_mod(mod_id, name, version, author, description, icon, order, config_file, id)
-        handle._mod.category = category
         handle._mod.dependencies = list(dependencies or [])
+        previous_revision = self.registry.revision
+        handle.set_category(category)
+        if dependencies and self.registry.revision == previous_revision:
+            self.registry._notify_structure()
         return handle
 
     def register_sound_mod(self, mod_id, bank, events, loaded=None, volume=None, **metadata):

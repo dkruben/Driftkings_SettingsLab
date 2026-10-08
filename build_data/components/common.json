@@ -23,7 +23,6 @@
         "res/scripts/client/Driftkings/common/utils/events/player_avatar.pyc": "build/scripts/client/Driftkings/common/utils/events/player_avatar.pyc",
         "res/scripts/client/Driftkings/common/utils/__init__.pyc": "build/scripts/client/Driftkings/common/utils/__init__.pyc",
         "res/scripts/client/Driftkings/common/utils/abstract.pyc": "build/scripts/client/Driftkings/common/utils/abstract.pyc",
-        "res/scripts/client/Driftkings/common/utils/analytics.pyc": "build/scripts/client/Driftkings/common/utils/analytics.pyc",
         "res/scripts/client/Driftkings/common/utils/chat.pyc": "build/scripts/client/Driftkings/common/utils/chat.pyc",
         "res/scripts/client/Driftkings/common/utils/colorRatting.pyc": "build/scripts/client/Driftkings/common/utils/colorRatting.pyc",
         "res/scripts/client/Driftkings/common/utils/game.pyc": "build/scripts/client/Driftkings/common/utils/game.pyc",

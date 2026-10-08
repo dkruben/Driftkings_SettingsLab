@@ -2,6 +2,7 @@
 """Control definitions: declaration checks, value validation and UI descriptions."""
 import math
 import re
+import copy
 
 from Driftkings.core.keycodes import valid_key_code
 
@@ -25,6 +26,28 @@ SECRET_TYPES = ('password',)
 
 class DefinitionError(ValueError):
     """Raised to the mod author when a declaration is invalid."""
+
+
+def check_metadata(value):
+    """Optional presentation hints; never persisted or used to apply values."""
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise DefinitionError('metadata must be a dictionary')
+    if set(value) - set(('sourceType', 'applyTiming', 'allowAlpha', 'alphaScale', 'alphaKey', 'allowModifierOnly')):
+        raise DefinitionError('Unknown control metadata')
+    if 'applyTiming' in value and value['applyTiming'] not in ('live', 'battle', 'view', 'restart'):
+        raise DefinitionError('Invalid applyTiming metadata')
+    if 'sourceType' in value and not is_text(value['sourceType']):
+        raise DefinitionError('sourceType must be text')
+    for key in ('allowAlpha', 'allowModifierOnly'):
+        if key in value and type(value[key]) is not bool:
+            raise DefinitionError(key + ' must be bool')
+    if 'alphaScale' in value and value['alphaScale'] not in ('percent', 'normalized', 'byte'):
+        raise DefinitionError('Invalid alphaScale')
+    if 'alphaKey' in value and (not is_text(value['alphaKey']) or not ID_PATTERN.match(value['alphaKey'])):
+        raise DefinitionError('Invalid alphaKey')
+    return copy.deepcopy(value)
 
 
 def is_text(value):
@@ -86,10 +109,10 @@ class Control(object):
     """One declared setting or layout element of a registered mod."""
     __slots__ = ('id', 'type', 'label', 'description', 'default', 'order', 'depends_on', 'enabled',
                  'visible', 'keywords', 'options', 'minimum', 'maximum', 'step', 'unit', 'max_length',
-                 'placeholder', 'callback', 'text', 'presets', 'column', 'tab', 'preview')
+                 'placeholder', 'callback', 'text', 'presets', 'column', 'tab', 'preview', 'metadata')
 
     def __init__(self, kind, control_id, label=None, default=None, description=None, order=None,
-                 depends_on=None, enabled=True, visible=True, keywords=None, column=-1, tab=None):
+                 depends_on=None, enabled=True, visible=True, keywords=None, column=-1, tab=None, metadata=None):
         if kind not in VALUE_TYPES + STATIC_TYPES:
             raise DefinitionError('Unknown control type: %r' % (kind,))
         if not is_text(control_id) or not ID_PATTERN.match(control_id):
@@ -117,6 +140,7 @@ class Control(object):
         self.presets = None
         self.default = default
         self.preview = None
+        self.metadata = check_metadata(metadata)
 
     @property
     def has_value(self):
@@ -230,6 +254,8 @@ class Control(object):
             data['dependsOn'] = self.depends_on
         if self.preview:
             data['preview'] = self.preview
+        if self.metadata:
+            data['metadata'] = copy.deepcopy(self.metadata)
         return data
 
     def search_text(self, language):

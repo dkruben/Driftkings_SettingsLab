@@ -21,6 +21,18 @@ def plain(value):
     return re.sub(r'<[^>]*>|\{/?(?:HEADER|BODY|NOTE|ATTENTION)\}', '', value).strip()
 
 
+def template_category(config):
+    """Classify by template origin, not by a hardcoded list of components."""
+    explicit = getattr(config, 'SETTINGS_CATEGORY', None)
+    if explicit:
+        return explicit
+    module = type(config).__module__.split('.')
+    if 'templates' in module:
+        scope = module[module.index('templates') + 1:]
+        return {'battle': 'battle', 'lobby': 'hangar', 'components': 'general'}.get(scope[0] if scope else '', 'general')
+    return 'system' if type(config).__module__ == 'Driftkings.settings.profiles' else 'general'
+
+
 class TemplateAdapter(object):
     def __init__(self, api, registry):
         self.api, self.registry = api, registry
@@ -64,11 +76,13 @@ class TemplateAdapter(object):
         data = self.registry.describe(key)
         mod_id = 'legacy.' + key
         mod = ModDefinition(mod_id, plain(data['title']), '', 'DriftKingsMods', '', 'puzzle', 1000, None)
+        mod.category = template_category(config)
+        mod.restart_key = key
         config = self.registry.entries[key][0]
         mod.name = plain(config.i18n.get('UI_description', data['title']))
         if ':' in key:
             mod.name += ' / ' + key.split(':', 1)[1]
-        names, originals, timings = {}, {}, {}
+        names, originals, timings, alpha_paths = {}, {}, {}, {}
         kinds = {
             'CheckBox': 'checkbox',
             'Dropdown': 'dropdown',
@@ -89,10 +103,20 @@ class TemplateAdapter(object):
             control_id = 'field_' + hashlib.sha1(plain(source).encode('utf-8')).hexdigest()[:16] if source is not None else 'layout_' + str(index)
             if source is not None and source in names:
                 continue
-            control = Control(kind, control_id, plain(item.get('text', source)), description=plain(item.get('tooltip')), column=item.get('column', -1), tab=plain(item.get('tab')) or None)
+            control = Control(kind, control_id, plain(item.get('text', source)), description=plain(item.get('tooltip')), column=item.get('column', -1), tab=plain(item.get('tab')) or None,
+                              metadata={'sourceType': item['type']})
+            hints = item.get('metadata', {})
+            if hints:
+                from Driftkings.settings.panel.controls import check_metadata
+                metadata = dict(hints)
+                alpha_path = metadata.pop('alphaPath', None)
+                if alpha_path is not None:
+                    alpha_paths[control_id] = alpha_path
+                control.metadata.update(check_metadata(metadata))
             if source is not None:
                 timing = application_timing(config.ID, item.get('path', [source]))
                 timings[source] = timing
+                control.metadata['applyTiming'] = timing
                 hint = self.api.strings.get('applyTiming.' + timing, '')
                 control.description = '\n'.join(value for value in (control.description, hint) if value)
                 if self.api.in_battle and timing != LIVE:
@@ -136,6 +160,12 @@ class TemplateAdapter(object):
                 button.callback = self._button(key, source, mod, control_id)
                 mod.controls.append(button)
                 mod.index[button.id] = button
+        for color_key, alpha_path in alpha_paths.items():
+            # Resolve only explicitly declared fields, never infer/migrate JSON.
+            alpha_key = names.get(alpha_path)
+            if alpha_key is None or mod.index[alpha_key].type not in ('slider', 'number'):
+                raise ValueError('alphaPath must name a declared numeric field')
+            mod.index[color_key].metadata['alphaKey'] = alpha_key
         if key == 'SixthSense' and 'sixthSenseSound' in names:
             from Driftkings.settings.panel.locales import translations
             mod.category = translations('sound.name')
@@ -154,6 +184,10 @@ class TemplateAdapter(object):
                 mod.index[button.id] = button
         for child, parents in option_dependencies(config.ID, data['controls']).items():
             for parent, accepted in parents.items():
+                # The selector is also used for auditioning before enabling
+                # the sound in battle. This does not change userSound itself.
+                if key == 'SixthSense' and child == 'sixthSenseSound' and parent == 'userSound':
+                    continue
                 mod.index[names[child]].depends_on[names[parent]] = accepted
         mod.saved = copy.deepcopy(mod.values)
         self.initial.setdefault(key, copy.deepcopy(data['values']))
@@ -202,11 +236,13 @@ class TemplateAdapter(object):
                 self._register(key)
                 fresh = self.api.registry.mods[mod_id]
                 old.name = fresh.name
+                old.category = fresh.category
                 for control in old.controls:
                     updated = fresh.index.get(control.id)
                     if updated is not None:
                         control.label, control.description = updated.label, updated.description
                         control.tab = updated.tab
+                        control.metadata = copy.deepcopy(updated.metadata)
                         if control.options is not None:
                             control.options = updated.options
             except Exception:

@@ -59,8 +59,15 @@ class Presenter(object):
         if self.selected not in mods:
             ordered = self.registry.ordered()
             self.selected = ordered[0].id if ordered else None
-        values, secrets, changed, disabled, status = {}, {}, {}, {}, {}
+        values, secrets, changed, disabled, status, compatibility_warnings = {}, {}, {}, {}, {}, {}
+        from Driftkings.core.mod_compatibility import compatibility, CONFIRMED_CONFLICT
         for mod_id, mod in mods.items():
+            component = mod.restart_key.split(':', 1)[0]
+            warnings = compatibility.warnings_for(component)
+            for warning in warnings:
+                key = 'compatibility.confirmed' if warning['status'] == CONFIRMED_CONFLICT else 'compatibility.possible'
+                warning['text'] = self.api.strings.get(key, warning['text']).format(integration=warning['integration'], component=component)
+            compatibility_warnings[mod_id] = warnings
             current = self.session.values(mod_id)
             for control in mod.value_controls():
                 if control.secret:
@@ -71,7 +78,8 @@ class Presenter(object):
             values[mod_id] = current
             changed[mod_id] = self.session.changed_keys(mod_id)
             disabled[mod_id] = self.session.disabled(mod_id)
-            status[mod_id] = {'status': mod.status, 'enabled': bool(current.get(getattr(mod, 'enabled_key', 'enabled'), True))}
+            status[mod_id] = {'status': mod.status, 'enabled': bool(current.get(getattr(mod, 'enabled_key', 'enabled'), True)),
+                              'restartRequired': mod.restart_key in self.api.restart_required}
         previews = {}
         if self.selected in mods:
             for control in mods[self.selected].value_controls():
@@ -81,7 +89,7 @@ class Presenter(object):
                 images = control.preview.get('images')
                 path = images[value] if images is not None and isinstance(value, int) and 0 <= value < len(images) else '' if images is not None else value
                 previews[control.id] = self.image_previews.resolve(path)
-        return {'selected': self.selected, 'previews': previews, 'values': values, 'secrets': secrets, 'changed': changed,
+        return {'selected': self.selected, 'compatibilityWarnings': compatibility_warnings, 'previews': previews, 'values': values, 'secrets': secrets, 'changed': changed,
                 'disabled': disabled, 'status': status, 'pending': self.session.pending_apply(),
                 'unsaved': self.session.unsaved(), 'confirm': self.confirming, 'message': self.message,
                 'restartPrompt': self.restart_prompt, 'restartRequired': sorted(self.api.restart_required),
@@ -149,7 +157,42 @@ class Presenter(object):
         mod_id = self._require_mod(data)
         if 'value' not in data:
             raise ValueError('Missing value')
-        self.session.set(mod_id, data.get('key'), data['value'])
+        if 'alpha' not in data:
+            self.session.set(mod_id, data.get('key'), data['value'])
+        else:
+            mod = self.registry.mods[mod_id]
+            control = mod.index.get(data.get('key'))
+            if control is None or control.type != 'color' or not control.metadata.get('allowAlpha'):
+                raise ValueError('Alpha is not enabled')
+            alpha_key = control.metadata.get('alphaKey')
+            alpha_control = mod.index.get(alpha_key)
+            if alpha_key == control.id or alpha_control is None or alpha_control.type not in ('slider', 'number'):
+                raise ValueError('Invalid alpha association')
+            changes = [(control.id, control.validate(data['value'])),
+                       (alpha_key, alpha_control.validate(data['alpha']))]
+            disabled = self.session.disabled(mod_id)
+            if any(key in disabled for key, value in changes):
+                raise ValueError('Setting is disabled')
+            scale_max = {'percent': 100, 'normalized': 1, 'byte': 255}[control.metadata.get('alphaScale', 'percent')]
+            if not 0 <= data['alpha'] <= scale_max:
+                raise ValueError('Alpha outside its scale')
+            changes = [(key, value) for key, value in changes if self.session.value(mod_id, key) != value]
+            # Reuse the first snapshot produced by EditSession.set. Keep its
+            # existing history limit, including when two sets cross that limit.
+            previous_history = self.session.history[:]
+            first = None
+            try:
+                for key, value in changes:
+                    self.session.set(mod_id, key, value)
+                    if first is None:
+                        first = self.session.history[-1]
+                if first is not None:
+                    self.session.history = (previous_history + [first])[-50:]
+            except Exception:
+                if first is not None:
+                    self.session.drafts = first
+                self.session.history = previous_history
+                raise
         preview = self.registry.mods[mod_id].index[data['key']].preview
         if preview and preview.get('kind') == 'audio':
             from Driftkings.settings.panel.sound import sound_manager

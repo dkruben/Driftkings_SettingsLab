@@ -15,16 +15,16 @@
         "alignY": "bottom"
     },
     "card": {
-        "backgroundColor": 1052948,
-        "backgroundAlpha": 0.94,
-        "outlineColor": 2829619,
-        "headerColor": "#C7A86A",
-        "titleColor": "#F5F1E8",
-        "mutedColor": "#8E949F",
-        "lineColor": "#262A31",
-        "accentColor": "#E2C07A",
+        "backgroundColor": 1185048,
+        "backgroundAlpha": 0.75,
+        "outlineColor": 16777215,
+        "headerColor": "#D98219",
+        "titleColor": "#E8E4DA",
+        "mutedColor": "#969BA3",
+        "lineColor": "#969BA3",
+        "accentColor": "#D98219",
         "accentSoftColor": "#3A2B17",
-        "warningColor": "#F3B14B"
+        "warningColor": "#E05454"
     },
     "goalSelection": 0,
     "compactMode": false,

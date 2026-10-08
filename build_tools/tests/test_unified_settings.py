@@ -129,6 +129,11 @@ class UnifiedSettingsTests(unittest.TestCase):
                         control_names = {source: field for field, source in adapter.mapping['legacy.' + component][1].items()}
                         for parent, children in HANDLER_VALUES.get(component, {}).items():
                             for child in children:
+                                if component == 'SixthSense' and parent == 'userSound' and child == 'sixthSenseSound':
+                                    sound_control = adapted.index[control_names[child]]
+                                    self.assertEqual(sound_control.preview['kind'], 'audio')
+                                    self.assertNotIn(control_names[parent], sound_control.depends_on)
+                                    continue
                                 accepted = children[child] if isinstance(children, dict) else (True,)
                                 source = next(c for c in description['controls'] if c.get('varName') == parent)
                                 choices = source.get('optionValues')

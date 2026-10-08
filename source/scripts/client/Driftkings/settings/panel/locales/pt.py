@@ -106,3 +106,16 @@ STRINGS.update({
 STRINGS['sound.eventMissing'] = u'O evento Wwise não está disponível neste contexto do jogo.'
 
 STRINGS['resetTheme'] = u'Repor tema'
+
+STRINGS.update({
+    'category.general': u'Geral', 'category.battle': u'Batalha',
+    'category.hangar': u'Hangar', 'category.system': u'Sistema',
+    'status.enabled': u'Ativo', 'status.disabled': u'Desligado',
+    'status.restart': u'Requer reinício', 'status.available': u'Componente disponível',
+    'status.unavailable': u'Indisponível', 'status.unknown': u'Estado indisponível',
+    'timing.live': u'Aplicação imediata', 'timing.battle': u'Próxima batalha',
+    'timing.view': u'Ao abrir novamente a vista', 'timing.restart': u'Requer reinício',
+    'color.area': u'Espectro de cor', 'color.current': u'Cor atual', 'color.new': u'Nova cor',
+    'compatibility.possible': u'{integration} detetado; pode sobrepor-se a {component}.',
+    'compatibility.confirmed': u'{integration}: funcionalidade sobreposta ativa; pode interferir com {component}.',
+})

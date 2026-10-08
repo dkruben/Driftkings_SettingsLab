@@ -9,6 +9,7 @@
         "res/scripts/client/Driftkings/ui/utils/timers.pyc": "build/scripts/client/Driftkings/ui/utils/timers.pyc",
         "res/scripts/client/Driftkings/ui/utils/vehicle_cache.pyc": "build/scripts/client/Driftkings/ui/utils/vehicle_cache.pyc",
         "res/scripts/client/Driftkings/ui/gameface.pyc": "build/scripts/client/Driftkings/ui/gameface.pyc",
-        "res/gui/gameface/mods/Driftkings/shared/bootstrap.js": "res/gui/gameface/mods/Driftkings/shared/bootstrap.js"
+        "res/gui/gameface/mods/Driftkings/shared/bootstrap.js": "res/gui/gameface/mods/Driftkings/shared/bootstrap.js",
+        "res/gui/gameface/mods/Driftkings/shared/marks_tokens.css": "res/gui/gameface/mods/Driftkings/shared/marks_tokens.css"
     }
 }

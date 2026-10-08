@@ -293,3 +293,4 @@ def fini():
     if g_flash is not None:
         g_flash.destroy()
         g_flash = None
+from Driftkings.views.hangar import battle_efficiency_hooks

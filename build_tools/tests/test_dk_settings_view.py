@@ -166,6 +166,25 @@ class ViewTests(unittest.TestCase):
         self.assertIsNot(model.props[0], schema)
         self.assertIn('dk.late', model.props[0])
 
+    def test_metadata_refresh_keeps_drafts_and_then_returns_to_state_only_updates(self):
+        model = self.open()
+        self.send(action='set', mod='dk.demo', key='volume', value=20)
+        presenter = self.view.presenter
+        history = list(presenter.session.history)
+        old_schema = model.props[0]
+        self.api.mod('dk.demo').set_control_metadata('volume', {'applyTiming': 'view'})
+        self.assertNotEqual(model.props[0], old_schema)
+        description = next(mod for mod in json.loads(model.props[0])['mods'] if mod['id'] == 'dk.demo')
+        self.assertEqual(description['controls'][0]['metadata'], {'applyTiming': 'view'})
+        self.assertIs(self.view.presenter, presenter)
+        self.assertEqual(presenter.session.value('dk.demo', 'volume'), 20)
+        self.assertEqual(presenter.session.history, history)
+        schema = model.props[0]
+        self.send(action='set', mod='dk.demo', key='volume', value=30)
+        self.assertIs(model.props[0], schema)
+        self.api.mod('dk.demo').set_category('battle')
+        self.assertNotEqual(model.props[0], schema)
+
     def test_rejects_oversized_and_malformed_requests(self):
         model = self.open()
         state = model.props[1]
@@ -235,8 +254,18 @@ class ViewTests(unittest.TestCase):
         self.assertEqual(self.view.presenter.session.value('dk.settings', 'openKey'), [[30]])
         self.assertIsNone(json.loads(self.view.model.props[1])['capture'])
 
+    def test_modifier_alone_is_rejected_without_explicit_metadata(self):
+        self.open()
+        self.send(action='capture', mod='dk.settings', key='openKey')
+        previous = self.view.presenter.session.value('dk.settings', 'openKey')
+        self.controller.onKey(types.SimpleNamespace(key=29, isKeyDown=lambda: True))
+        self.controller.onKey(types.SimpleNamespace(key=29, isKeyDown=lambda: False))
+        self.assertEqual(self.view.presenter.session.value('dk.settings', 'openKey'), previous)
+        self.assertIsNotNone(self.view.presenter.capture)
+
     def test_modifier_alone_can_be_assigned_on_release(self):
         self.open()
+        self.api.registry.mods['dk.settings'].index['openKey'].metadata['allowModifierOnly'] = True
         self.send(action='capture', mod='dk.settings', key='openKey')
         self.controller.onKey(types.SimpleNamespace(key=29, isKeyDown=lambda: True))
         self.assertIsNotNone(self.view.presenter.capture)

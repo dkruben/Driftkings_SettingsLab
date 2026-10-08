@@ -230,6 +230,8 @@ class SettingsController(object):
                 if event.key == getattr(Keys, 'KEY_LEFTMOUSE', 256):
                     return
                 is_modifier = any(event.key in group for group in modifiers)
+                if is_modifier and not presenter.registry.mods[capture['mod']].index[capture['key']].metadata.get('allowModifierOnly', False):
+                    return
                 if is_modifier and event.isKeyDown():
                     self._modifierCapture = (capture, event.key)
                     return

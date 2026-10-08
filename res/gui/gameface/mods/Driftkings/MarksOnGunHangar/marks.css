@@ -30,3 +30,18 @@
 .dk-hangar-marks__footer {margin-top: 7rem; font-size: 10rem; color: #8c919a;}
 .dk-hangar-marks--compact .dk-hangar-marks__secondary {display: none;}
 @keyframes dk-hangar-marks-glow {0%, 100% {opacity: .6;} 50% {opacity: 1;}}
+
+/* Phases 8–11: existing card and compact toggle, clearer hierarchy. */
+.dk-hangar-marks { border-radius:6rem;background:rgba(18,21,24,.75);border-color:rgba(255,255,255,.1);color:#E8E4DA;box-shadow:0 4rem 16rem rgba(0,0,0,.25); }
+.dk-hangar-marks__vehicle { font-size:18rem;margin-bottom:10rem; }
+.dk-hangar-marks__percent { font-size:34rem;line-height:38rem; }
+.dk-hangar-marks__delta { font-size:16rem;white-space:nowrap;margin-left:12rem; }
+.dk-hangar-marks__marks { display:flex;margin:4rem 0 9rem; }
+.dk-hangar-marks__mark { border:0;padding:0 4rem 0 0;margin:0;font-size:20rem;line-height:22rem; }
+.dk-hangar-marks__mark--earned { background:transparent; }
+.dk-hangar-marks__bar { height:5rem;margin-bottom:25rem; }
+.dk-hangar-marks__fill { height:5rem;background:#D98219; }
+.dk-hangar-marks__milestone { position:absolute;top:8rem;font-size:9rem;color:#969BA3;transform:translateX(-50%); }
+.dk-hangar-marks__target { line-height:17rem; }
+.dk-hangar-marks__detail { font-size:12rem;line-height:18rem; }
+.dk-hangar-marks--compact .dk-hangar-marks__secondary,.dk-hangar-marks--compact .dk-hangar-marks__stats,.dk-hangar-marks--compact .dk-hangar-marks__footer,.dk-hangar-marks--compact .dk-hangar-marks__target { display:none; }

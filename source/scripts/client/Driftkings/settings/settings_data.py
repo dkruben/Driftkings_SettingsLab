@@ -177,7 +177,7 @@ DEFAULTS = {
         ],
         INFO_PANEL.SHOW_FOR: 0,
         INFO_PANEL.TEXT_LOCK: False,
-        INFO_PANEL.TEXT_POSITION: {GLOBAL.X: -110, GLOBAL.Y: 150, GLOBAL.ALIGN_X: GLOBAL.CENTER, GLOBAL.ALIGN_Y: GLOBAL.CENTER, GLOBAL.WIDTH: 250, GLOBAL.HEIGHT: 250},
+        INFO_PANEL.TEXT_POSITION: {GLOBAL.X: -110, GLOBAL.Y: 150, 'alignX': GLOBAL.CENTER, 'alignY': GLOBAL.CENTER, GLOBAL.WIDTH: 250, GLOBAL.HEIGHT: 250},
         INFO_PANEL.TEXT_FORMAT: {GLOBAL.FONT: '$FieldFont', GLOBAL.SIZE: 14, GLOBAL.COLOR: '#FCFCFC', GLOBAL.ALIGN: GLOBAL.LEFT, GLOBAL.LEADING: 0},
         INFO_PANEL.TEXT_SHADOW: {GLOBAL.ALPHA: 0.8, GLOBAL.ANGLE: 90, GLOBAL.BLUR_X: 5, GLOBAL.BLUR_Y: 5, GLOBAL.COLOR: '#000000', GLOBAL.DISTANCE: 1, GLOBAL.QUALITY: 2, GLOBAL.STRENGTH: 2},
         INFO_PANEL.BACKGROUND_ENABLED: False,
@@ -201,6 +201,8 @@ DEFAULTS = {
         MAIN_GUN.TEXT_POSITION: {GLOBAL.ALIGN_X: GLOBAL.LEFT, GLOBAL.ALIGN_Y: GLOBAL.TOP, GLOBAL.X: 200, GLOBAL.Y: 200}
     },
     MARKS_ON_GUN_BATTLE.ID: {
+        'displayMode': 0, 'showMarks': True, 'showDelta': True,
+        'showDamage': True, 'showProgress': True, 'showTargets': True,
         GLOBAL.ENABLED: True,
         MARKS_ON_GUN_BATTLE.COLOR_RATING: 0,
         MARKS_ON_GUN_BATTLE.BUTTON_SHOW: ['KEY_NUMPAD9', ['KEY_LALT', 'KEY_RALT']],
@@ -217,8 +219,8 @@ DEFAULTS = {
         MARKS_ON_GUN_BATTLE.PANEL_SIZE: {'widthAlt': 183.0, 'heightAlt': 80.0, 'widthNormal': 183.0, 'heightNormal': 50.0},
         MARKS_ON_GUN_BATTLE.PANEL: {
             GLOBAL.INDEX: 10000, GLOBAL.X: 230.0, GLOBAL.Y: -226.0, GLOBAL.WIDTH: 183.0,
-            GLOBAL.HEIGHT: 50.0, GLOBAL.DRAG: True, GLOBAL.BORDER: True, GLOBAL.ALIGN_X: GLOBAL.LEFT,
-            GLOBAL.ALIGN_Y: GLOBAL.BOTTOM, GLOBAL.VISIBLE: True, GLOBAL.ALPHA: 1.0,
+            GLOBAL.HEIGHT: 50.0, GLOBAL.DRAG: True, GLOBAL.BORDER: True, 'alignX': GLOBAL.LEFT,
+            'alignY': GLOBAL.BOTTOM, GLOBAL.VISIBLE: True, GLOBAL.ALPHA: 1.0,
             GLOBAL.SHADOW: {GLOBAL.DISTANCE: GLOBAL.ZERO, GLOBAL.ANGLE: GLOBAL.ZERO, GLOBAL.COLOR: GLOBAL.ZERO, GLOBAL.ALPHA: 90, GLOBAL.BLUR_X: GLOBAL.ONE, GLOBAL.BLUR_Y: GLOBAL.ONE, GLOBAL.STRENGTH: 3000, GLOBAL.QUALITY: GLOBAL.ONE}
         },
         MARKS_ON_GUN_BATTLE.BATTLE_MESSAGE: '<font size="14">{currentMarkOfGun}</font> <font size="10">{damageCurrentPercent}</font><font size="14"> ~ {c_nextMarkOfGun}</font> <font size="10">{c_damageNextPercent}</font><BR><font size="20">{c_battleMarkOfGun}{status}</font><font size="14">{c_damageCurrent}</font>',
@@ -872,7 +874,7 @@ DEFAULTS = {
         MARKS_ON_GUN_HANGAR.COLOR_RATING: 0,
         MARKS_ON_GUN_HANGAR.STAR_ANIMATION_WINDOW: 5.0,
         MARKS_ON_GUN_HANGAR.PANEL: {GLOBAL.X: 215.0, GLOBAL.Y: -246.0, GLOBAL.WIDTH: 362.0, GLOBAL.HEIGHT: 186.0, GLOBAL.ALIGN_X: GLOBAL.LEFT, GLOBAL.ALIGN_Y: GLOBAL.BOTTOM},
-        MARKS_ON_GUN_HANGAR.CARD: {'backgroundColor': 790292, 'backgroundAlpha': 0.88, 'outlineColor': 7239555, 'headerColor': '#C7A86A', 'titleColor': '#F5F1E8', 'mutedColor': '#8C919A', 'lineColor': '#4B515B', 'accentColor': '#E2C07A', 'accentSoftColor': '#4A3319', 'warningColor': '#F3B14B'}
+        MARKS_ON_GUN_HANGAR.CARD: {'backgroundColor': 0x121518, 'backgroundAlpha': 0.75, 'outlineColor': 0xFFFFFF, 'headerColor': '#D98219', 'titleColor': '#E8E4DA', 'mutedColor': '#969BA3', 'lineColor': '#969BA3', 'accentColor': '#D98219', 'accentSoftColor': '#4A3319', 'warningColor': '#E05454'}
     },
     MARKS_ON_GUN_TECH_TREE.ID: {
         GLOBAL.ENABLED: True,

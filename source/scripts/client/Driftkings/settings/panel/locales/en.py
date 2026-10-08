@@ -107,3 +107,16 @@ STRINGS.update({
 STRINGS['sound.eventMissing'] = u'The Wwise event is unavailable in this game context.'
 
 STRINGS['resetTheme'] = u'Reset theme'
+
+STRINGS.update({
+    'category.general': u'General', 'category.battle': u'Battle',
+    'category.hangar': u'Hangar', 'category.system': u'System',
+    'status.enabled': u'Active', 'status.disabled': u'Off',
+    'status.restart': u'Restart required', 'status.available': u'Component available',
+    'status.unavailable': u'Unavailable', 'status.unknown': u'Status unavailable',
+    'timing.live': u'Immediate', 'timing.battle': u'Next battle',
+    'timing.view': u'Next view opening', 'timing.restart': u'Requires restart',
+    'color.area': u'Color spectrum', 'color.current': u'Current color', 'color.new': u'New color',
+    'compatibility.possible': u'{integration} detected; it may overlap with {component}.',
+    'compatibility.confirmed': u'{integration}: overlapping functionality is active and may interfere with {component}.',
+})

@@ -1,7 +1,7 @@
 {
   "textFieldShadow": {
     "enabled": true,
-    "color": "0x000000",
+    "color": "#000000",
     "alpha": 80,
     "blur": 2,
     "strength": 2,
@@ -20,7 +20,7 @@
       "x": 140,
       "y": 15,
       "align": "right",
-      "format": "<font size='12' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
+      "format": "<font face='mono' size='12' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
       "shadow": "$ref:textFieldShadow"
     },
     {
@@ -34,21 +34,21 @@
       "x": 140,
       "y": 30,
       "align": "right",
-      "format": "<b><font face='$FieldFont' size='12' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
+      "format": "<b><font face='mono' size='12' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow"
     },
     {
       "x": 0,
       "y": 33,
       "alpha": "{{v.hitsRatio?100|0}}",
-      "format": "<font face='$FieldFont' size='14' color='#00AAFF'>&#x25CE;</font>",
+      "format": "<font face='mono' size='14' color='#00AAFF'>&#x25CE;</font>",
       "shadow": "$ref:textFieldShadow"
     },
     {
       "x": 15,
       "y": 35,
       "align": "left",
-      "format": "<b><font face='mono' size='11' color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~ %}}</font></b>",
+      "format": "<b><font face='mono' size='11'color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow"
     },
     {
@@ -62,7 +62,7 @@
       "x": 19,
       "y": 63,
       "align": "left",
-      "format": "<font size='12' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}} {{v.tfb?{{v.wn8expd%d}}|}}</font>",
+      "format": "<font face='mono' size='12' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
       "shadow": "$ref:textFieldShadow"
     },
     {

@@ -5,7 +5,7 @@ import re
 
 from Driftkings.settings.panel import logger
 from Driftkings.settings.panel.controls import (Control, DefinitionError, DEFAULT_COLOR_PRESETS, check_text, is_number,
-                                                is_text, options_list, resolve_text)
+                                                is_text, options_list, resolve_text, check_metadata)
 from Driftkings.settings.panel.storage import ConfigReadError
 
 MOD_ID_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$')
@@ -54,6 +54,14 @@ class ModHandle(object):
     def remove_listener(self, callback):
         if callback in self._mod.listeners:
             self._mod.listeners.remove(callback)
+
+    def set_category(self, category):
+        self._registry.set_category(self.id, category)
+        return self
+
+    def set_control_metadata(self, control_id, metadata):
+        self._registry.set_control_metadata(self.id, control_id, metadata)
+        return self
 
     # Value controls -------------------------------------------------------
     def add_switch(self, id, label=None, default=False, **options):
@@ -133,7 +141,7 @@ class ModHandle(object):
         tooltip = common.pop('tooltip', None)
         if tooltip is not None and common.get('description') is None:
             common['description'] = tooltip
-        known = ('description', 'order', 'depends_on', 'enabled', 'visible', 'keywords', 'column', 'tab')
+        known = ('description', 'order', 'depends_on', 'enabled', 'visible', 'keywords', 'column', 'tab', 'metadata')
         unknown = sorted(set(common) - set(known))
         if unknown:
             raise DefinitionError('%s: unknown option(s) %s' % (control_id, ', '.join(unknown)))
@@ -168,6 +176,7 @@ class ModDefinition(object):
         self.error = None
         self.external_apply = None
         self.category = None
+        self.restart_key = mod_id
         self.dependencies = []
         self._auto = 0
 
@@ -291,6 +300,20 @@ class ModRegistry(object):
                 callback()
             except Exception:
                 logger.exception('Settings window update failed')
+
+    def set_category(self, mod_id, category):
+        category = check_text(category, 'category') if category is not None else None
+        mod = self.mods[mod_id]
+        if mod.category != category:
+            mod.category = category
+            self._notify_structure()
+
+    def set_control_metadata(self, mod_id, control_id, metadata):
+        metadata = check_metadata(metadata)
+        control = self.mods[mod_id].index[control_id]
+        if control.metadata != metadata:
+            control.metadata = metadata
+            self._notify_structure()
 
     # Values ------------------------------------------------------------------
     def _load(self, mod):

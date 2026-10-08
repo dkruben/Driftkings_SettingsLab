@@ -5,7 +5,7 @@ from items import vehicles
 from vehicle_systems.CompoundAppearance import CompoundAppearance
 
 from Driftkings._constants import BATTLE_STAT, GLOBAL
-from Driftkings.common import Analytics, getPlayer, getEntity, replaceMacros, logError, getComparisonColor
+from Driftkings.common import getPlayer, getEntity, replaceMacros, logError, getComparisonColor
 from Driftkings.core.battle_events import battleEvents
 from Driftkings.core.hooks import override
 from Driftkings.settings.service import settings_service, affects
@@ -15,7 +15,6 @@ from Driftkings.views.battle.battle_stat import _startFlash
 
 g_flash = None
 config = ConfigInterface()
-statistic_mod = Analytics(config.ID, config.version)
 
 
 class TanksStatistic:

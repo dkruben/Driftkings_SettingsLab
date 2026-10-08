@@ -28,6 +28,7 @@ class Flash(object):
         self.active = False
         self.name = {}
         self.data = {}
+        self._lastMarks = None
 
     def startBattle(self):
         if self.active:
@@ -37,6 +38,7 @@ class Flash(object):
         if BattleReplay.isPlaying() and not settings_service.getComponentDict(_component().config)[MARKS_ON_GUN_BATTLE.SHOW_IN_REPLAY]:
             return
         self.active = True
+        self._lastMarks = None
         self.data = self.setup()
         overlays.updated += self.__updatePosition
         self.createObject(ElementType.LABEL, self.data[ElementType.LABEL])
@@ -126,6 +128,9 @@ class Flash(object):
         if settings_service.getComponentDict(_component().config)[MARKS_ON_GUN_BATTLE.UI] == 11:
             height = 130.0 if not _component().worker.altMode else 130.0
             width = 160.0 if not _component().worker.altMode else 160.0
+        mode = settings_service.getComponentDict(_component().config).get('displayMode', 0)
+        if mode:
+            width, height = {1: (220, 114), 2: (260, 122), 3: (300, 185)}.get(mode, (260, 122))
         if h is not None and w is not None:
             height = h
             width = w
@@ -162,13 +167,29 @@ class Flash(object):
         return text
 
     def set_text(self, text):
-        txt = '<font face="%s" color="#FFFFFF" vspace="-3" align="baseline" >%s</font>' % (settings_service.getComponentDict(_component().config)[MARKS_ON_GUN_BATTLE.FONT], text)
+        txt = '<font face="%s" color="#FFFFFF" vspace="-3" align="baseline" >%s</font>' % (settings_service.getComponentDict(_component().config)[GLOBAL.FONT], text)
         self.updateObject(ElementType.LABEL, {'text': self.textRepSize(txt)})
+
+    def set_marks(self, payload):
+        settings = settings_service.getComponentDict(_component().config)
+        mode = settings.get('displayMode', 0)
+        if not mode:
+            return
+        payload = dict(payload)
+        payload['mode'] = {1: 'compact', 2: 'normal', 3: 'detailed'}.get(mode, 'normal')
+        payload['scale'] = settings[MARKS_ON_GUN_BATTLE.BATTLE_MESSAGE_SIZE_IN_PERCENT] / 100.0
+        payload['background'] = settings[MARKS_ON_GUN_BATTLE.BACKGROUND]
+        for key in ('showMarks', 'showDelta', 'showDamage', 'showProgress', 'showTargets'):
+            payload[key] = bool(settings.get(key, True))
+        if payload == self._lastMarks:
+            return
+        self._lastMarks = payload
+        self.updateObject(ElementType.LABEL, {'marks': payload, 'background': False})
 
     def setVisible(self, status):
         data = {'visible': status}
         self.updateObject(ElementType.LABEL, data)
-        if settings_service.getComponentDict(_component().config)[MARKS_ON_GUN_BATTLE.UI] in (5, 6, 7, 8, 11):
+        if settings_service.getComponentDict(_component().config).get('displayMode', 0) or settings_service.getComponentDict(_component().config)[MARKS_ON_GUN_BATTLE.UI] in (5, 6, 7, 8, 11):
             data = {'background': False}
         else:
             data = {'background': settings_service.getComponentDict(_component().config)[MARKS_ON_GUN_BATTLE.BACKGROUND]}

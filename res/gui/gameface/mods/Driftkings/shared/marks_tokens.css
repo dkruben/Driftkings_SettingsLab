@@ -1,0 +1,7 @@
+/* Shared Marks presentation tokens. Literal declarations support older Gameface. */
+:root { --marks-bg:rgba(18,21,24,.75);--marks-border:rgba(255,255,255,.10);--marks-text:#E8E4DA;--marks-muted:#969BA3;--marks-positive:#67C56A;--marks-negative:#E05454;--marks-accent:#D98219;--marks-progress:#D98219;--marks-milestone:#969BA3; }
+.dk-hangar-marks,.dk-tech-marks { color:#E8E4DA;font-family:"Warhelios",Arial,sans-serif; }
+.dk-hangar-marks__delta--positive { color:#67C56A; }
+.dk-hangar-marks__delta--negative { color:#E05454; }
+.dk-hangar-marks__delta--zero,.dk-hangar-marks__delta--unknown { color:#969BA3; }
+.dk-tech-marks__symbol { color:#D98219;font-size:11rem;margin-right:5rem; }

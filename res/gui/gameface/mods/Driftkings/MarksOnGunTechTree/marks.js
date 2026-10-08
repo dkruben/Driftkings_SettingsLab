@@ -70,6 +70,8 @@
                 badge.style.fontSize = number(data.fontSize, 14, 9, 24) + 'rem';
                 if (data.showPercent && stats.tier >= 5) {
                     var percent = document.createElement('span');
+                    percent.className='dk-tech-marks__percent';
+                    var mark=document.createElement('span');mark.className='dk-tech-marks__symbol';mark.textContent='★';badge.appendChild(mark);
                     percent.textContent = number(stats.percent, 0, 0, 100).toFixed(2) + '%';
                     percent.style.color = color(stats);
                     badge.appendChild(percent);

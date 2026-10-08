@@ -1,7 +1,7 @@
 {
   "textFieldShadow": {
     "enabled": true,
-    "color": "0x000000",
+    "color": "#000000",
     "alpha": 80,
     "blur": 2,
     "strength": 2,
@@ -15,7 +15,7 @@
       "layer": "substrate",
       "width": 160,
       "height": 35,
-      "bgColor": "0x0A0A0A"
+      "bgColor": "#0A0A0A"
     },
     {
       "enabled": true,

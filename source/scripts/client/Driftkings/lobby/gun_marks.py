@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
 import math
+from Driftkings.core.marks_calculator import ceil_damage, ceil_damage_tens, combined_damage
+from Driftkings.views.marks_model import delta_model
 
 import BigWorld
 from CurrentVehicle import g_currentVehicle
@@ -123,11 +125,11 @@ class MarksOnGunData(object):
 
     @staticmethod
     def _normalizeDigits(value):
-        return int(math.ceil(value))
+        return ceil_damage(value)
 
     @staticmethod
     def _normalizeDigitsCoeff(value):
-        return int(math.ceil(math.ceil(value / 10.0)) * 10)
+        return ceil_damage_tens(value)
 
     @staticmethod
     def _calcPercent(ema, start, end, damage, percent):
@@ -270,7 +272,7 @@ class MarksOnGunData(object):
         track = self._safe(ProfileUtils.getValueOrUnavailable(random_stats._getAvgValue(random_stats.getBattlesCountVer2, random_stats.getDamageAssistedTrack)))
         radio = self._safe(ProfileUtils.getValueOrUnavailable(random_stats._getAvgValue(random_stats.getBattlesCountVer2, random_stats.getDamageAssistedRadio)))
         stun = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgDamageAssistedStun()))
-        current_damage = int(avg_damage + max(track, radio, stun))
+        current_damage = int(combined_damage(avg_damage, track, radio, stun))
 
         wn8 = self._calculate_wn8(vehicle, random_stats, winrate)
         mastery = self._get_mastery_info(dossier)
@@ -380,6 +382,10 @@ class MarksOnGunData(object):
         result.update({
             'state': 'data', 'vehicle': unicode(data['vehicleName']), 'tier': data['tier'],
             'target': target, 'recent': recent,
+            'delta': delta_model(recent.get('delta')),
+            'progress': target['percent'] / 100.0,
+            'displayMarks': max(max(0, min(3, int(finite(data['earnedMarks'])))), sum(data['damageRating'] >= limit for limit in THRESHOLDS)),
+            'thirdAchieved': bool(target['eligible'] and (data['damageRating'] >= 95 or data['earnedMarks'] >= 3)),
             'earnedMarks': max(0, min(3, int(finite(data['earnedMarks'])))),
             'average': self._format_int(data['movingAvgDamage']),
             'estimate': '~' + self._format_int(target['estimate']) if target['estimate'] is not None else '--',

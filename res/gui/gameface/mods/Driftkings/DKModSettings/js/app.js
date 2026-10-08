@@ -6,9 +6,13 @@
     var KNOWN_ICONS = ['puzzle', 'gear', 'globe', 'chart', 'bars', 'speaker', 'palette'];
     var ui = {}, schema = null, state = null, mods = {}, controls = {}, rendered = null;
     var query = '', activeTab = '', profileSelection = '', profileDialog = null;
-    var toastTimer = null, lastMessage = 0, lastAccent = null, disposed = false;
+    var toastTimer = null, lastMessage = 0, lastAccent = null, disposed = false, confirmFocused = false;
 
     function labels() { return (schema && schema.labels) || {}; }
+    function categoryLabel(category) {
+        category = category || 'general';
+        return labels()['category.' + category] || {general: 'General', battle: 'Battle', hangar: 'Hangar', system: 'System'}[category] || category;
+    }
     function send(action, data) { DK.bridge.send(action, data); }
 
     function build() {
@@ -20,24 +24,28 @@
         logo.src = ICONS + 'gear.svg';
         ui.title = el('div', 'dk-title', null, header);
         el('div', 'dk-spacer', null, header);
-        ui.search = el('input', 'dk-search', null, header);
-        ui.search.type = 'text';
-        ui.search.addEventListener('input', function () { query = ui.search.value.toLowerCase(); filter(); });
-        ui.unsaved = el('div', 'dk-unsaved', null, header);
         ui.close = el('button', 'dk-close', '×', header);
         ui.close.type = 'button';
         ui.close.addEventListener('click', function () { send('close'); });
 
         var body = el('div', 'dk-body', null, win);
         var sidebarArea = el('div', 'dk-sidebar-area', null, body);
-        ui.sidebar = el('div', 'dk-sidebar', null, sidebarArea);
-        ui.sidebarScroll = DK.dom.scrollbar(ui.sidebar, sidebarArea);
+        var searchArea = el('div', 'dk-sidebar-search', null, sidebarArea);
+        ui.search = el('input', 'dk-search', null, searchArea);
+        ui.search.type = 'text';
+        ui.search.addEventListener('input', function () { query = ui.search.value.toLowerCase(); filter(); });
+        var sidebarScrollArea = el('div', 'dk-sidebar-scroll-area', null, sidebarArea);
+        ui.sidebar = el('div', 'dk-sidebar', null, sidebarScrollArea);
+        ui.sidebarScroll = DK.dom.scrollbar(ui.sidebar, sidebarScrollArea);
         var content = el('div', 'dk-content', null, body);
         var head = ui.modHeader = el('div', 'dk-mod-header', null, content);
         ui.installed = footerButton(head, showInstalled, 'dk-installed-button');
         ui.modName = el('div', 'dk-mod-name', null, head);
         ui.modMeta = el('div', 'dk-mod-meta', null, head);
         ui.modDescription = el('div', 'dk-mod-description', null, head);
+        ui.modStatus = el('div', 'dk-mod-status', null, head);
+        ui.modDependencies = el('div', 'dk-mod-dependencies', null, head);
+        ui.compatibilityWarnings = el('div', 'dk-compatibility-warnings', null, head);
         ui.banner = el('div', 'dk-banner', null, head);
         ui.themeReset = footerButton(head, function () { send('reset_theme'); }, 'dk-theme-reset');
         ui.tabs = el('div', 'dk-tabs', null, content);
@@ -50,13 +58,14 @@
         ui.undo = footerButton(footer, function () { send('undo'); });
         ui.profiles = footerButton(footer, showProfiles);
         el('div', 'dk-spacer', null, footer);
+        ui.unsaved = el('div', 'dk-unsaved', null, footer);
         ui.cancel = footerButton(footer, function () { send('cancel'); });
         ui.apply = footerButton(footer, function () { send('apply'); });
         ui.save = footerButton(footer, function () { send('save'); }, 'is-primary');
 
         ui.toast = el('div', 'dk-toast', null, win);
         ui.overlay = el('div', 'dk-overlay', null, win);
-        var dialog = el('div', 'dk-dialog', null, ui.overlay);
+        var dialog = ui.dialog = el('div', 'dk-dialog', null, ui.overlay);
         ui.dialogTitle = el('div', 'dk-dialog-title', null, dialog);
         ui.dialogText = el('div', 'dk-dialog-text', null, dialog);
         var actions = el('div', 'dk-dialog-actions', null, dialog);
@@ -75,6 +84,7 @@
     }
     function onKey(event) {
         if (event.keyCode !== 27) { return; }
+        if (DK.modal.isOpen()) { return; }
         if (state && state.capture) { return; }
         if (profileDialog) { closeProfiles(); return; }
         if (DK.layer.close()) { return; }
@@ -102,17 +112,35 @@
         ui.confirmStay.textContent = text.confirmStay; ui.confirmDiscard.textContent = text.confirmDiscard;
         ui.confirmSave.textContent = text.confirmSave;
         ui.sidebar.textContent = '';
-        ui.nav = {};
+        ui.nav = {}; ui.navStatus = {}; ui.groups = [];
+        var grouped = {}, categoryOrder = ['general', 'battle', 'hangar', 'system'];
         schema.mods.forEach(function (mod) {
+            var category = mod.category || 'general';
+            var key = '$' + category;
+            if (!grouped[key]) { grouped[key] = []; }
+            grouped[key].push(mod);
+            if (categoryOrder.indexOf(category) < 0) { categoryOrder.push(category); }
+        });
+        categoryOrder.forEach(function (category) {
+            var items = grouped['$' + category];
+            if (!items) { return; }
+            var group = el('div', 'dk-nav-group', null, ui.sidebar);
+            el('div', 'dk-nav-category', categoryLabel(category), group);
+            ui.groups.push({node: group, ids: items.map(function (mod) { return mod.id; })});
+            items.forEach(function (mod) {
             mods[mod.id] = mod;
-            var item = el('div', 'dk-nav-item', null, ui.sidebar);
+            var item = el('button', 'dk-nav-item', null, group);
+            item.type = 'button';
             icon(item, mod);
-            el('div', 'dk-nav-name', mod.name, item);
+            var details = el('div', 'dk-nav-details', null, item);
+            el('div', 'dk-nav-name', mod.name, details);
+            ui.navStatus[mod.id] = el('div', 'dk-nav-status', null, details);
             el('div', 'dk-nav-dot', null, item);
             item.addEventListener('click', function () {
                 if (!state || state.selected !== mod.id) { send('select', {mod: mod.id}); }
             });
             ui.nav[mod.id] = item;
+            });
         });
         if (state) { onState(state); }
         filter();
@@ -128,22 +156,26 @@
         ui.themeReset.style.display = modId === 'dk.settings' ? 'block' : 'none';
         if (!mod) {
             ui.modName.textContent = ''; ui.modMeta.textContent = ''; ui.modDescription.textContent = '';
+            ui.modDependencies.textContent = '';
             el('div', 'dk-empty', text.noMods, ui.controls);
             return;
         }
         ui.modName.textContent = mod.name;
-        var meta = mod.category ? [mod.category] : [];
+        var meta = mod.category ? [categoryLabel(mod.category)] : [];
         if (mod.version) { meta.push((text.version || 'Version') + ' ' + mod.version); }
         if (mod.author) { meta.push((text.author || 'Author') + ' ' + mod.author); }
         ui.modMeta.textContent = meta.join('   •   ');
         ui.modDescription.textContent = mod.description || '';
         if (mod.soundBank) { ui.modDescription.textContent += ' • ' + text['sound.bank'] + ': ' + mod.soundBank; }
         (mod.dependencies || []).forEach(function (dependency) { if (!dependency.installed) { ui.modDescription.textContent += ' • ' + text.dependencyMissing + ': ' + dependency.id; } });
+        ui.modDependencies.textContent = (mod.dependencies || []).map(function (dependency) {
+            return (dependency.installed ? '✓ ' + (text['status.available'] || 'Component available') : '! ' + (text.dependencyMissing || 'Missing dependency')) + ': ' + dependency.id;
+        }).join(' • ');
         if (!mod.controls.length) { el('div', 'dk-empty', text.noControls, ui.controls); }
         var context = {
             labels: text,
             preview: function (key, value) { if (modId === 'dk.settings') { state.theme[key] = value; theme(state.theme); layout(); } },
-            commit: function (key, value) { send('set', {mod: modId, key: key, value: value}); },
+            commit: function (key, value, alpha) { var payload = {mod: modId, key: key, value: value}; if (alpha !== undefined) { payload.alpha = alpha; } send('set', payload); },
             capture: function (key) { send('capture', {mod: modId, key: key}); },
             action: function (key) { send('button', {mod: modId, key: key}); }
         };
@@ -173,6 +205,21 @@
 
     function contains(list, key) { return !!list && list.indexOf(key) >= 0; }
 
+    function statusText(id) {
+        var text = labels(), mod = mods[id], current = (state.status || {})[id] || {}, parts = [];
+        if (current.status === 'configError') { parts.push('! ' + (text.statusConfigError || 'Configuration error')); }
+        else if (current.status === 'error') { parts.push('! ' + (text.statusError || 'Error')); }
+        else if (current.status && current.status !== 'active') { parts.push('! ' + (text['status.unavailable'] || 'Unavailable')); }
+        else if (current.status === 'active' || current.enabled !== undefined) {
+            parts.push(current.enabled === false ? (text['status.disabled'] || text.off || 'Off') : '✓ ' + (text['status.enabled'] || text.on || 'Active'));
+        } else { parts.push(text['status.unknown'] || 'Status unavailable'); }
+        (mod.dependencies || []).forEach(function (dependency) {
+            if (!dependency.installed) { parts.push('! ' + (text.dependencyMissing || 'Missing dependency') + ': ' + dependency.id); }
+        });
+        if (current.restartRequired || contains(state.restartRequired, id)) { parts.push('↻ ' + (text['status.restart'] || 'Restart required')); }
+        return parts.join(' • ');
+    }
+
     function onState(next) {
         state = next;
         if (!schema) { return; }
@@ -185,7 +232,7 @@
         Object.keys(controls).forEach(function (key) {
             var control = controls[key];
             control.info({disabled: contains(disabled, key), changed: contains(changed, key),
-                          secretSet: contains(secrets, key), keyNames: state.keyNames || {}, capture: state.capture && state.capture.mod === modId && state.capture.key === key});
+                          values: state.values[modId], secretSet: contains(secrets, key), keyNames: state.keyNames || {}, capture: state.capture && state.capture.mod === modId && state.capture.key === key});
             if (Object.prototype.hasOwnProperty.call(values, key)) { control.update(values[key]); }
             if (control.previewUpdate) { control.previewUpdate((state.previews || {})[key] || ''); }
         });
@@ -193,8 +240,18 @@
             var item = ui.nav[id];
             setClass(item, 'is-selected', id === modId);
             setClass(item, 'is-changed', (state.changed[id] || []).length > 0);
-            setClass(item, 'is-error', state.status[id] && state.status[id].status !== 'active');
+            var current = (state.status || {})[id] || {};
+            var missing = (mods[id].dependencies || []).some(function (dependency) { return !dependency.installed; });
+            setClass(item, 'is-error', !!current.status && current.status !== 'active');
+            setClass(item, 'is-off', current.enabled === false);
+            setClass(item, 'is-warning', missing || !!current.restartRequired || contains(state.restartRequired, id));
+            ui.navStatus[id].textContent = statusText(id);
+            item.title = mods[id].name + ' — ' + statusText(id);
         });
+        ui.modStatus.textContent = mods[modId] ? statusText(modId) : '';
+        var warnings = (state.compatibilityWarnings || {})[modId] || [];
+        ui.compatibilityWarnings.textContent = warnings.map(function (warning) { return '⚠ ' + warning.text; }).join('\n');
+        ui.compatibilityWarnings.style.display = warnings.length ? '' : 'none';
         var status = state.status[modId] && state.status[modId].status, text = labels();
         ui.banner.textContent = status === 'configError' ? text.statusConfigError : status === 'error' ? text.statusError : '';
         setClass(ui.banner, 'is-visible', status === 'configError' || status === 'error');
@@ -215,7 +272,13 @@
         ui.confirmDiscard.style.display = state.restartPrompt ? 'none' : '';
         ui.confirmSave.disabled = !!(state.restartPrompt && state.inBattle);
         ui.profiles.disabled = !!state.inBattle;
-        setClass(ui.overlay, 'is-visible', !!(state.confirm || state.restartPrompt));
+        var showDialog = !!(state.confirm || state.restartPrompt);
+        setClass(ui.overlay, 'is-visible', showDialog);
+        if (showDialog && !confirmFocused) {
+            closeProfiles(); DK.layer.close();
+            DK.modal.bind(ui.dialog, {cancel: function () { send(state.restartPrompt ? 'restart' : 'confirm', {choice: state.restartPrompt ? 'later' : 'stay'}); }});
+        } else if (!showDialog && confirmFocused) { DK.modal.close(null); }
+        confirmFocused = showDialog;
         toast(state.message);
     }
 
@@ -280,7 +343,7 @@
     }
 
     function matches(def) {
-        return !query || [def.name, def.label, def.category, def.description, (def.keywords || []).join(' ')].join(' ').toLowerCase().indexOf(query) >= 0;
+        return !query || [def.name, def.label, def.category, def.category !== undefined || def.name !== undefined ? categoryLabel(def.category) : '', def.description, (def.keywords || []).join(' ')].join(' ').toLowerCase().indexOf(query) >= 0;
     }
     function filter() {
         Object.keys(ui.nav || {}).forEach(function (id) {
@@ -292,10 +355,13 @@
             var visible = (!activeTab || !def.tab || def.tab === activeTab) && (matches(mods[rendered]) || matches(def));
             control.node.style.display = visible ? '' : 'none';
         });
+        (ui.groups || []).forEach(function (group) {
+            group.node.style.display = group.ids.some(function (id) { return ui.nav[id].style.display !== 'none'; }) ? '' : 'none';
+        });
         setTimeout(function () { if (!disposed) { ui.sidebarScroll(); ui.controlScroll(); } }, 0);
     }
     function closeProfiles() {
-        if (profileDialog) { profileDialog.root.parentNode.removeChild(profileDialog.root); profileDialog = null; }
+        if (profileDialog) { DK.modal.close(null); if (profileDialog.root.parentNode) { profileDialog.root.parentNode.removeChild(profileDialog.root); } profileDialog = null; }
     }
     function showInstalled() {
         closeProfiles();
@@ -311,6 +377,7 @@
         if (state.diagnostics) { var debug = el('textarea', 'dk-text dk-profile-json', null, panel); debug.readOnly = true; debug.value = JSON.stringify(state.diagnostics, null, 2); }
         footerButton(panel, closeProfiles).textContent = text.close;
         profileDialog = {root: root};
+        DK.modal.bind(panel, {cancel: closeProfiles});
     }
     function showProfiles() {
         if (profileDialog) { closeProfiles(); return; }
@@ -336,6 +403,7 @@
         footerButton(bottom, function () { action('export'); }).textContent = text.profileExport;
         footerButton(bottom, function () { action('import', {text: area.value}); }).textContent = text.profileImport;
         footerButton(bottom, closeProfiles).textContent = text.close;
+        DK.modal.bind(panel, {cancel: closeProfiles});
     }
 
     function dispose() {
@@ -346,7 +414,7 @@
         window.removeEventListener('resize', layout);
         window.removeEventListener('unload', dispose);
         Object.keys(controls).forEach(function (key) { if (controls[key].dispose) { controls[key].dispose(); } });
-        closeProfiles(); DK.layer.close(); DK.layer.hideTip();
+        closeProfiles(); DK.modal.close(null); DK.layer.close(); DK.layer.hideTip();
         DK.bridge.dispose();
     }
 

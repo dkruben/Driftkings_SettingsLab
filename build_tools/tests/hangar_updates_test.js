@@ -102,4 +102,22 @@ tree.mutate([{target:card,addedNodes:[name]}]);assert.equal(tree.body.querySelec
 tree.show(false);assert.equal(tree.body.querySelectorAll('.dk-tech-marks').length,0);assert.equal(name.style.color,'white');
 tree.show(true);assert.equal(tree.body.querySelectorAll('.dk-tech-marks').length,1);
 tree.window.__dkTechMarks.dispose();assert.equal(name.style.color,'white');assert.equal(tree.stats().subscriptions,0);
+// Modern Marks hierarchy: awards, achievement, signed delta, vehicle switch and stable DOM.
+const marksData={config:{visible:true,compactMode:false},state:'data',vehicle:'IS-3',earnedMarks:3,displayMarks:3,thirdAchieved:true,
+ target:{eligible:true,percent:95.2,mark:3,threshold:95,achieved:true},progress:.952,
+ delta:{text:'▲ +0.14%',direction:'positive'},recent:{delta:.14,battles:1},average:'2 846',estimate:'~2 840'};
+const marks=harness('MarksOnGunHangar/marks.js','DriftkingsMarksOnGunHangar',marksData);
+assert.equal(marks.body.querySelector('.dk-hangar-marks__percent').textContent,'95.20%');
+assert.equal(marks.body.querySelector('.dk-hangar-marks__delta').textContent,'▲ +0.14%');
+assert(marks.body.querySelector('.dk-hangar-marks__target').textContent.includes('3rd MARK ACHIEVED'));
+assert(!marks.body.querySelector('.dk-hangar-marks__target').textContent.includes('95%'));
+assert.deepStrictEqual(marks.body.querySelectorAll('.dk-hangar-marks__mark').map(n=>n.textContent),['★','★','★']);
+const cardIdentity=marks.body.childNodes[0],marksBefore=marks.stats();marks.notify();assert.deepStrictEqual(marks.stats(),marksBefore);
+marksData.config.compactMode=true;marks.update(marksData);assert(marks.body.childNodes[0].className.includes('--compact'));
+marksData.vehicle='T-34';marksData.earnedMarks=1;marksData.displayMarks=1;marksData.thirdAchieved=false;marksData.target.percent=65;marksData.delta={text:'▼ -0.11%',direction:'negative'};
+marks.update(marksData);assert.strictEqual(marks.body.childNodes[0],cardIdentity);assert.equal(marks.body.querySelector('.dk-hangar-marks__vehicle').textContent,'T-34');
+assert.equal(marks.body.querySelector('.dk-hangar-marks__delta').textContent,'▼ -0.11%');
+assert.deepStrictEqual(marks.body.querySelectorAll('.dk-hangar-marks__mark').map(n=>n.textContent),['★','☆','☆']);
+marks.window.__dkHangarMarks.dispose();
+
 console.log('Hangar updates: 4 interfaces, 1000 unrelated notifications each, visibility, resize, midnight and cleanup OK.');

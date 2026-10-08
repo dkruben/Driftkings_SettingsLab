@@ -17,7 +17,7 @@ from helpers import getClientVersion
 from wg_async import wg_await, wg_async
 
 from Driftkings._constants import BANKS_LOADER
-from Driftkings.common import remDups, Analytics, events, curCV
+from Driftkings.common import remDups, events, curCV
 from Driftkings.settings.service import settings_service
 from Driftkings.settings.templates.components.sound_banks import BanksLoaderSettings as Settings
 
@@ -416,7 +416,6 @@ class BanksLoaderController(object):
 
 _config = Settings()
 controller = BanksLoaderController(_config)
-statistic_mod = Analytics(_config.ID, _config.version)
 
 
 def init():

@@ -18,6 +18,7 @@ public class OverlayElement extends Sprite {
     private var kind:String;
     private var moved:Function;
     private var label:TextField;
+    private var marksCard:MarksCard;
     private var loader:Loader;
     private var imagePath:String = '';
     private var fallback:Boolean = false;
@@ -81,6 +82,14 @@ public class OverlayElement extends Sprite {
         } else {
             boxWidth = props.width != null ? Number(props.width) : (loader && loader.content ? loader.content.width : 0);
             boxHeight = props.height != null ? Number(props.height) : (loader && loader.content ? loader.content.height : 0);
+        }
+        if (props.marks != null && label != null) {
+            label.visible=false;
+            if(marksCard == null) { marksCard=new MarksCard();addChild(marksCard); }
+            marksCard.visible=true;marksCard.render(props.marks,boxWidth,boxHeight);
+        } else {
+            if(label != null) label.visible=true;
+            if(marksCard != null) marksCard.visible=false;
         }
         if (kind == 'image') {
             var path:String = props.image == null ? '' : String(props.image);

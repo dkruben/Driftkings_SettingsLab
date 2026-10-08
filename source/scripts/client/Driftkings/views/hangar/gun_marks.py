@@ -66,7 +66,7 @@ def install_gameface():
             super(MarksModel, self)._initialize()
             self._addStringProperty('payload', '{}')
             self.onSavePosition = self._addCommand('onSavePosition')
-            attach_assets(self, _component().FEATURE, styles=[_component().ASSETS + 'marks.css'], scripts=[_component().ASSETS + 'marks.js'])
+            attach_assets(self, _component().FEATURE, styles=['coui://gui/gameface/mods/Driftkings/shared/marks_tokens.css', _component().ASSETS + 'marks.css'], scripts=[_component().ASSETS + 'marks.js'])
 
     class MarksView(ViewComponent):
         def __init__(self, parent, resource_id):
