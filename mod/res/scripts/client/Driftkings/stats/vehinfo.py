@@ -5,15 +5,16 @@ Handles loading, processing and calculation of various tank statistics.
 """
 import json
 import os
-import urllib2
-from contextlib import closing
+import threading
 
 import ResMgr
 import nations
 from items import vehicles
 
 from Driftkings.common import callback, logError
+from Driftkings.core import xvm_scales
 from Driftkings.core.cache import cache_directory
+from Driftkings.core.safe_download import download_json
 from Driftkings.stats import __CORE_NAME__
 
 _FLAVOR = 'wg'
@@ -21,7 +22,7 @@ HOST = 'https://static.modxvm.com/'
 URL_WN8 = HOST + 'wn8-data-exp/json/%s/wn8exp.json' % _FLAVOR
 URL_XTE = HOST + 'xte.json'
 URL_XTDB = HOST + 'xtdb.json'
-URL_XVM_SCALE = HOST + '/xvmscales-%s.json' % _FLAVOR
+URL_XVM_SCALE = HOST + 'xvmscales-%s.json' % _FLAVOR
 VEHICLE_TYPE_XML_PATH = 'scripts/item_defs/vehicles/'
 VEHICLE_CLASS_TAGS = frozenset(('lightTank', 'mediumTank', 'heavyTank', 'SPG', 'AT-SPG'))
 
@@ -43,8 +44,6 @@ UNKNOWN_VEHICLE_DATA = {
     'isReserved': False
 }
 
-XVM_SCALE_TO_SUP_CACHE = [str(i) for i in xrange(1, 100)]
-
 
 class ScaleValues(object):
 
@@ -57,15 +56,43 @@ class ScaleValues(object):
         self.xvmScale_data = {}
         self.xtdb_data = {}
         self.config_path = cache_directory('stats')
-        self.settings = {'onlineUpdateData': True, 'showExpectedTankValuesMessage': True}
-        self._initialize_callbacks()
+        self.settings = {'onlineUpdateData': True}
+        self._download = None
         self.init()
+        # Cached files load immediately and offline; refreshing them never blocks the client thread.
+        self._loadAll()
+        if self.settings.get('onlineUpdateData', True):
+            self._startDownload()
 
-    def _initialize_callbacks(self):
-        callback(0, self._loadXvmScaleData)
-        callback(0, self._loadWn8Data)
-        callback(0, self._loadXteData)
-        callback(0, self._loadXtdbData)
+    def _loadAll(self):
+        self._loadXvmScaleData()
+        self._loadWn8Data()
+        self._loadXteData()
+        self._loadXtdbData()
+
+    def _startDownload(self):
+        sources = ((URL_XVM_SCALE, 'xvmScales.json'), (URL_WN8, 'wn8exp.json'),
+                   (URL_XTE, 'xte.json'), (URL_XTDB, 'xtdb.json'))
+        refreshed = []
+
+        def worker():
+            for url, name in sources:
+                if download_json(url, os.path.join(self.config_path, name)):
+                    refreshed.append(name)
+
+        self._download = (threading.Thread(target=worker, name='Driftkings.Stats.Download'), refreshed)
+        self._download[0].daemon = True
+        self._download[0].start()
+        callback(1.0, self._pollDownload)
+
+    def _pollDownload(self):
+        thread, refreshed = self._download
+        if thread.is_alive():
+            callback(1.0, self._pollDownload)
+            return
+        self._download = None
+        if refreshed:
+            self._loadAll()
 
     def init(self):
         res = [UNKNOWN_VEHICLE_DATA]
@@ -105,35 +132,8 @@ class ScaleValues(object):
             'isReserved': False
         }
 
-    @staticmethod
-    def XvmScaleToSup(x=None):
-        if x is None:
-            return None
-        return XVM_SCALE_TO_SUP_CACHE[min(100, x) - 1] if x > 0 else 0.0
-
-    @staticmethod
-    def loadJsonData(url, local_path):
-        if not os.path.exists(local_path):
-            try:
-                with open(local_path, 'w') as f:
-                    json.dump({'key': 'value'}, f)
-            except IOError as e:
-                logError(__CORE_NAME__, 'Error creating initial JSON file {}: {}', local_path, e)
-                return
-        try:
-            with closing(urllib2.urlopen(url, timeout=10)) as response:
-                data = response.read()
-                with open(local_path, 'wb') as f:
-                    f.write(data)
-        except (urllib2.URLError, urllib2.HTTPError) as e:
-            logError(__CORE_NAME__, 'Error retrieving data from {}: {}', url, e)
-        except IOError as e:
-            logError(__CORE_NAME__, 'Error writing data to {}: {}', local_path, e)
-
     def _loadXvmScaleData(self):
         xvmScales_path = os.path.join(self.config_path, 'xvmScales.json')
-        if self.settings.get('onlineUpdateData', True):
-            self.loadJsonData(URL_XVM_SCALE, xvmScales_path)
         try:
             with open(xvmScales_path, 'r') as xvm_scale:
                 self.xvmScale_data = json.load(xvm_scale)
@@ -143,8 +143,6 @@ class ScaleValues(object):
 
     def _loadWn8Data(self):
         wn8_cache = os.path.join(self.config_path, 'wn8exp.json')
-        if self.settings.get('onlineUpdateData', True):
-            self.loadJsonData(URL_WN8, wn8_cache)
         try:
             with open(wn8_cache) as origExpectedValuesJson:
                 origExpectedValues = json.load(origExpectedValuesJson)
@@ -162,8 +160,6 @@ class ScaleValues(object):
 
     def _loadXteData(self):
         xte_path = os.path.join(self.config_path, 'xte.json')
-        if self.settings.get('onlineUpdateData', True):
-            self.loadJsonData(URL_XTE, xte_path)
         try:
             with open(xte_path) as xte_scale:
                 self.xte_data = json.load(xte_scale)
@@ -180,8 +176,6 @@ class ScaleValues(object):
 
     def _loadXtdbData(self):
         xtdb_path = os.path.join(self.config_path, 'xtdb.json')
-        if self.settings.get('onlineUpdateData', True):
-            self.loadJsonData(URL_XTDB, xtdb_path)
         try:
             with open(xtdb_path) as xtdb_scale:
                 self.xtdb_data = json.load(xtdb_scale)
@@ -196,15 +190,6 @@ class ScaleValues(object):
 
     def getVehicleInfoDataArray(self):
         return list(self.vehicleInfoData.values()) if self.vehicleInfoData is not None else []
-
-    def resetReserve(self):
-        if self.vehicleInfoData is not None:
-            for vinfo in self.vehicleInfoData.values():
-                vinfo['isReserved'] = False
-
-    def updateReserve(self, vehCD, isReserved):
-        if self.vehicleInfoData is not None and vehCD in self.vehicleInfoData:
-            self.vehicleInfoData[vehCD]['isReserved'] = isReserved
 
     def getXvmScaleData(self, rating):
         if self.xvmScale_data is None:
@@ -222,66 +207,24 @@ class ScaleValues(object):
         return self.xtdb_data.get(str(vehCD))
 
     def calculateXvmScale(self, rating, value):
-        data = self.getXvmScaleData(rating)
-        if data is None:
-            return -1
-        for i, v in enumerate(data):
-            if v > value:
-                return i
-        return 100
+        return xvm_scales.rank(self.getXvmScaleData(rating), value)
 
     def calculateXTE(self, vehCD, dmg_per_battle, frg_per_battle):
-        data = self.getXteData(vehCD)
-        if data is None:
-            return -1
-        if data['td'] == data['ad'] or data['tf'] == data['af']:
-            return -1
-        CD = 3.0  # Damage coefficient
-        CF = 1.0  # Frag coefficient
-        avgD = float(data['ad'])  # Average damage
-        topD = float(data['td'])  # Top damage
-        avgF = float(data['af'])  # Average frags
-        topF = float(data['tf'])  # Top frags
-        dD = dmg_per_battle - avgD
-        dF = frg_per_battle - avgF
-        minD = avgD * 0.4
-        minF = avgF * 0.4
-        if dmg_per_battle >= avgD:
-            d = 1 + dD / (topD - avgD)
-        else:
-            d = 1 + dD / (avgD - minD)
-
-        if frg_per_battle >= avgF:
-            f = 1 + dF / (topF - avgF)
-        else:
-            f = 1 + dF / (avgF - minF)
-        d = max(0, d)
-        f = max(0, f)
-        t = (d * CD + f * CF) / (CD + CF) * 1000.0
-        for i, v in enumerate(data['x']):
-            if v > t:
-                return i
-        return 100
+        return xvm_scales.xte(self.getXteData(vehCD), dmg_per_battle, frg_per_battle)
 
     def calculateXTDB(self, vehCD, dmg_per_battle):
-        data = self.getXtdbData(vehCD)
-        if data is None:
-            return -1
-        for i, v in enumerate(data['x']):
-            if v > dmg_per_battle:
-                return i
-        return 100
-
-    def getXtdbDataArray(self, vehCD):
-        data = self.getXtdbData(vehCD)
-        return data['x'] if data is not None else []
+        return xvm_scales.xtdb(self.getXtdbData(vehCD), dmg_per_battle)
 
 
 try:
     scaleValuesInstance = ScaleValues()
-    getVehicleInfoData = scaleValuesInstance.getVehicleInfoData
-    calculateXvmScale = scaleValuesInstance.calculateXvmScale
-    calculateXTDB = scaleValuesInstance.calculateXTDB
-    calculateXTE = scaleValuesInstance.calculateXTE
-except ImportError as error:
-    logError(__CORE_NAME__, 'Scale not imported: {}', error)
+except Exception as error:
+    # A failure here must not take every component that imports Driftkings.stats down with it.
+    logError(__CORE_NAME__, 'Scale data unavailable: {}', error)
+    scaleValuesInstance = ScaleValues.__new__(ScaleValues)
+    scaleValuesInstance.vehicleInfoData = {UNKNOWN_VEHICLE_DATA['vehCD']: UNKNOWN_VEHICLE_DATA}
+    scaleValuesInstance.xvmScale_data = scaleValuesInstance.xte_data = scaleValuesInstance.xtdb_data = {}
+getVehicleInfoData = scaleValuesInstance.getVehicleInfoData
+calculateXvmScale = scaleValuesInstance.calculateXvmScale
+calculateXTDB = scaleValuesInstance.calculateXTDB
+calculateXTE = scaleValuesInstance.calculateXTE

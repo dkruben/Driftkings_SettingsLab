@@ -2,8 +2,6 @@
 """Vehicle data and rating calculations for the unified Driftkings package."""
 __CORE_NAME__ = 'Driftkings.stats'
 
-__all__ = ('getVehicleInfoData', 'calculateXvmScale', 'calculateXTDB', 'calculateXTE',
-           'xvm_stat', 'scaleValuesInstance')
+__all__ = ('getVehicleInfoData', 'calculateXvmScale', 'calculateXTDB', 'calculateXTE', 'scaleValuesInstance')
 
 from Driftkings.stats.vehinfo import getVehicleInfoData, calculateXvmScale, calculateXTDB, calculateXTE, scaleValuesInstance
-from Driftkings.stats.xvm_stats import xvm_stat
