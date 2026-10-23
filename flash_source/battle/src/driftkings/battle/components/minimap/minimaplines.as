@@ -80,14 +80,15 @@ package driftkings.battle.components.minimap
             if (step > 0) mapgeometry.marks(g, length, step, tint, alpha, 1.5 / Math.max(0.0001, mapscale.scaleOf(shape)));
         }
 
-        // The view point entry is rotated with the hull: local -y is forward.
+        // The view point entry is rotated with the hull: local -y is forward. The line spans
+        // the map diagonal, so the native entries mask cuts it at the minimap edge.
         public function hull(point:ViewPointMinimapEntry, options:Object):void
         {
             var lines:Object = options.lines;
             if (!lines.hull || !point.visible) return;
             var stored:Object = layer.overlay(point, point, 0);
             var shape:Sprite = stored.shape;
-            var length:Number = scale.metres(shape, Number(lines.length));
+            var length:Number = scale.metres(shape, scale.width * Math.SQRT2);
             var step:Number = Number(lines.marks) > 0 ? scale.metres(shape, Number(lines.marks)) : 0;
             var key:String = [Math.round(length * 10), Math.round(step * 10)].join(":");
             if (stored.key == key) return;
