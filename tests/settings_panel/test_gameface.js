@@ -1,4 +1,6 @@
 /* UI cache regressions. No game, browser or third-party packages required. */
+require('./test_settings_window.js');
+require('./test_ratings.js');
 require('./test_main_gun.js');
 require('./test_flash_text.js');
 require('./test_profile_ratings.js');

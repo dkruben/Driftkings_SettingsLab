@@ -57,3 +57,56 @@ class PlayerRatingsTests(RuntimeTest):
         for battles, hp, damage in ((0, 100, 100), (-1, 100, 100), (2, 0, 100), (2, -1, 100), (2, 100, None)):
             self.assertEqual(ratio({'battles': battles, 'damage_dealt': damage}, hp), u'\u2014')
         self.assertEqual(ratio({'battles': 4, 'damage_dealt': 6000}, 1000), 1.5)
+
+    def test_expected_values_recover_when_download_arrives(self):
+        api = self.api
+        calculator = api['CalculatorRating']
+        vehicle = {'level': 8, 'vClass': 'heavyTank'}
+        scales = module(wn8_revision=0, getVehicleInfoDataArray=lambda: [vehicle])
+        api['scaleValuesInstance'] = scales
+        api['getVehicleInfoData'] = lambda ident: vehicle
+        self.assertIsNone(calculator.getExpectedWn8(1))
+        vehicle.update(wn8expDamage=1000, wn8expFrag=1, wn8expSpot=1, wn8expDef=1, wn8expWinRate=50)
+        scales.wn8_revision += 1
+        self.assertEqual(calculator.getExpectedWn8(1)['expDamage'], 1000)
+        vehicle['wn8expDamage'] = 1200
+        scales.wn8_revision += 1
+        self.assertEqual(calculator.getExpectedWn8(1)['expDamage'], 1200)
+
+    def test_fallback_counts_only_valid_samples_and_refreshes(self):
+        api = self.api
+        vehicle = {'level': 8, 'vClass': 'heavyTank'}
+        sample = dict(vehicle, wn8expDamage=1000, wn8expFrag=1, wn8expSpot=1, wn8expDef=1, wn8expWinRate=50)
+        scales = module(wn8_revision=0, getVehicleInfoDataArray=lambda: [vehicle, sample])
+        api['scaleValuesInstance'] = scales
+        api['getVehicleInfoData'] = lambda ident: vehicle
+        calculator = api['CalculatorRating']
+        self.assertEqual(calculator.getExpectedWn8(1)['expDamage'], 1000)
+        sample['wn8expDamage'] = 1200
+        scales.wn8_revision += 1
+        self.assertEqual(calculator.getExpectedWn8(1)['expDamage'], 1200)
+        sample['vClass'] = 'mediumTank'
+        scales.wn8_revision += 1
+        self.assertEqual(calculator.getExpectedWn8(1)['expDamage'], 1200)
+
+    def test_statistics_download_is_bounded_and_closes_response(self):
+        api = self.api
+        closed, pending = [], [b'1234', b'5678']
+        api['urllib2'] = module(urlopen=lambda *args, **kwargs: module(
+            read=lambda amount: pending.pop(0) if pending else b'', close=lambda: closed.append(True)))
+        api['MAX_STATS_RESPONSE'] = 5
+        self.assertRaises(IOError, api['Events'].read_response, 'test', 1)
+        self.assertEqual(closed, [True])
+        api['MAX_STATS_RESPONSE'] = 100
+        pending[:] = [b'{}']
+        self.assertEqual(api['Events'].read_response('test', 1), b'{}')
+        self.assertEqual(closed, [True, True])
+
+    def test_statistics_download_checks_deadline_after_read_and_closes(self):
+        api = self.api
+        closed, clock = [], iter([0, 0, 31])
+        api['time'] = module(time=lambda: next(clock))
+        api['urllib2'] = module(urlopen=lambda *args, **kwargs: module(
+            read=lambda amount: b'{}', close=lambda: closed.append(True)))
+        self.assertRaises(IOError, api['Events'].read_response, 'test', 1)
+        self.assertEqual(closed, [True])

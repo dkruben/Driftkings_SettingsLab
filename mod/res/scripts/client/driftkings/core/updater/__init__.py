@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Public updater API; implementations live in responsibility-specific modules."""
+# Retained public dependency exports; covered by the compatibility tests.
 import logging
 import os
 import threading

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from driftkings.logger import get_logger
 LOG = get_logger('driftkings.battle.battle_preferences')
-from driftkings.common.utils import events
 import math
 from collections import defaultdict
 from functools import partial
@@ -35,7 +34,7 @@ from driftkings._constants import BATTLE_PREFERENCES, GLOBAL
 from driftkings.common.utils.wgutils import getPlayer, square_position, isReplay
 from driftkings.core.callbacks import callback
 from driftkings.core.fog_package import FogPackageController
-from driftkings.core.hooks import override, on_event
+from driftkings.core.hooks import override
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
 from driftkings.views.battle.debug_panel import DebugPanelView

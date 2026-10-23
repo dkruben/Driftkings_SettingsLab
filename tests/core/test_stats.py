@@ -102,13 +102,38 @@ class StatsTests(RuntimeTest):
 
     def test_schema_validators(self):
         v = self.api
-        self.assertTrue(v['valid_wn8']({'data': [{'IDNum': 1}]}))
+        self.assertTrue(v['valid_wn8']({'data': [dict(IDNum=1, expDamage=1000, expSpot=1, expWinRate=50, expDef=1, expFrag=1)]}))
         for bad in ({}, {'data': []}, {'data': {}}, []):
             self.assertFalse(v['valid_wn8'](bad))
         self.assertTrue(v['valid_scaled_vehicles']({'1': {'x': [1, 2]}}))
         for bad in ({'1': {'x': [2, 1]}}, {'1': 5}, {}):
             self.assertFalse(v['valid_scaled_vehicles'](bad))
         self.assertFalse(v['valid_xvm_scales']({'xwn8': 'text'}))
+
+    def test_invalid_records_preserve_last_cache(self):
+        original = {'data': [dict(IDNum=1, expDamage=1000, expSpot=1, expWinRate=50, expDef=1, expFrag=1)]}
+        path = os.path.join(self.directory, 'wn8exp.json')
+        with open(path, 'wb') as stream:
+            stream.write(json.dumps(original).encode('utf-8'))
+        for record in ({}, dict(original['data'][0], expDamage=0), dict(original['data'][0], expFrag=float('nan'))):
+            self.response = json.dumps({'data': [record]}).encode('utf-8')
+            self.assertFalse(self.scale.loadJsonData('test', path, self.api['valid_wn8']))
+            with open(path, 'rb') as stream:
+                self.assertEqual(json.load(stream), original)
+        self.assertFalse(self.api['valid_xvm_scales']({'xwn8': [1, 2], 'xeff': 'invalid'}))
+        self.assertFalse(self.api['valid_scaled_vehicles']({'1': {'x': [1, 2]}, '2': {'x': [2, 1]}}))
+        self.assertTrue(self.api['valid_xvm_scales']({'xwn8': [1, 2], 'info': {'version': 1}}))
+
+    def test_wn8_loading_advances_revision(self):
+        path = os.path.join(self.directory, 'wn8exp.json')
+        record = dict(IDNum=1, expDamage=1000, expSpot=1, expWinRate=50, expDef=1, expFrag=1)
+        with open(path, 'wb') as stream:
+            stream.write(json.dumps({'data': [record]}).encode('utf-8'))
+        self.scale.vehicleInfoData[1] = {}
+        revision = self.scale.wn8_revision
+        self.scale._loadWn8Data()
+        self.assertEqual(self.scale.wn8_revision, revision + 1)
+        self.assertEqual(self.scale.vehicleInfoData[1]['wn8expDamage'], 1000)
 
     def test_downloads_run_off_the_client_thread_and_are_applied_by_polling(self):
         calls = []

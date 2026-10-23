@@ -62,6 +62,17 @@ class StatisticsRequestTests(RuntimeTest):
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.settings)),
             'driftkings.stats.vehinfo': module(calculateXvmScale=lambda metric, value: value,
                                                getVehicleInfoData=lambda value: None, scaleValuesInstance=object())})
+        class ImmediateThread(object):
+            def __init__(self, target, args):
+                self.target, self.args = target, args
+
+            def setDaemon(self, value):
+                pass
+
+            def start(self):
+                self.target(*self.args)
+
+        api['threading'] = module(Thread=ImmediateThread)
         self.api = api
         self.stats = api['Statistics']()
         self.requests = []

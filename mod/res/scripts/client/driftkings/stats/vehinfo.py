@@ -31,7 +31,10 @@ except NameError:
 
 
 def finite_number(value):
-    return isinstance(value, integer_types + (float,)) and not (math.isnan(value) or math.isinf(value))
+    try:
+        return not isinstance(value, bool) and isinstance(value, integer_types + (float,)) and not (math.isnan(value) or math.isinf(value))
+    except OverflowError:
+        return False
 
 
 def valid_scale(values):
@@ -41,8 +44,11 @@ def valid_scale(values):
 
 
 def _scale_documents(document, field=None):
-    values = document.values() if field is None else [item.get(field) for item in document.values() if isinstance(item, dict)]
-    return any(valid_scale(value) for value in values)
+    entries = [value for key, value in document.items() if key.startswith('x')] if field is None else [
+        value for key, value in document.items() if key.isdigit()]
+    if field is None:
+        return bool(entries) and all(valid_scale(value) for value in entries)
+    return bool(entries) and all(isinstance(value, dict) and valid_scale(value.get(field)) for value in entries)
 
 
 def valid_xvm_scales(document):
@@ -50,7 +56,20 @@ def valid_xvm_scales(document):
 
 
 def valid_wn8(document):
-    return isinstance(document, dict) and isinstance(document.get('data'), list) and bool(document['data'])
+    if not isinstance(document, dict) or not isinstance(document.get('data'), list) or not document['data']:
+        return False
+    seen = set()
+    for record in document['data']:
+        if not isinstance(record, dict):
+            return False
+        ident = record.get('IDNum')
+        if isinstance(ident, bool) or not isinstance(ident, integer_types) or ident <= 0 or ident in seen:
+            return False
+        seen.add(ident)
+        if not all(finite_number(record.get(key)) and record[key] > 0 for key in (
+                'expDamage', 'expSpot', 'expWinRate', 'expDef', 'expFrag')):
+            return False
+    return True
 
 
 def valid_scaled_vehicles(document):
@@ -98,6 +117,7 @@ class ScaleValues(object):
         self.modsGroup = 'driftkings'
         self.vehicleInfoData = None
         self.wn8_data = {}
+        self.wn8_revision = 0
         self.xte_data = {}
         self.xvmScale_data = {}
         self.xtdb_data = {}
@@ -277,6 +297,7 @@ class ScaleValues(object):
                     vinfo.update(values)
             except (KeyError, ValueError, TypeError, OverflowError):
                 LOG.exception('Ignored invalid WN8 vehicle record')
+        self.wn8_revision += 1
 
     def _loadXteData(self):
         self.xte_data = self._readCache('xte.json')

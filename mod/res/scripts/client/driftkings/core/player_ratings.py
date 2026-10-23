@@ -9,6 +9,7 @@ import threading
 import time
 import urllib
 import urllib2
+from contextlib import closing
 from Queue import Queue, Empty
 from xml.sax.saxutils import escape
 
@@ -35,6 +36,8 @@ RETRY_SECONDS = 60
 FAILED_RETRY_SECONDS = 5
 # Upper bound on cached accounts; each one holds the full vehicle list.
 CACHE_LIMIT = 300
+MAX_STATS_RESPONSE = 16 * 1024 * 1024
+STATS_DEADLINE = 30.0
 NUMERIC = ('wn8', 'winrate', 'battles', 'kb', 'wgr', 'eff', 'xwn8', 'xeff',
            't_battles', 't_winrate', 'spg_battles', 'spg_percent', 'mark_of_mastery', 'tdv')
 
@@ -223,6 +226,25 @@ class Events(object):
     _apiErrors = set()
 
     @staticmethod
+    def read_response(url, timeout):
+        deadline = time.time() + STATS_DEADLINE
+        chunks, total = [], 0
+        with closing(urllib2.urlopen(url, timeout=min(timeout, STATS_DEADLINE))) as response:
+            while True:
+                if time.time() >= deadline:
+                    raise IOError('Statistics response deadline exceeded')
+                chunk = response.read(min(65536, MAX_STATS_RESPONSE - total + 1))
+                if time.time() >= deadline:
+                    raise IOError('Statistics response deadline exceeded')
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > MAX_STATS_RESPONSE:
+                    raise IOError('Statistics response exceeds size limit')
+                chunks.append(chunk)
+        return b''.join(chunks)
+
+    @staticmethod
     def request(region, request, **kwargs):
         if region not in Events.SUPPORTED_REGIONS:
             LOG.warning(('Unsupported region for stats request: {}').format(region))
@@ -231,7 +253,7 @@ class Events(object):
         api = 'api.worldoftanks.%s' % region
         url = 'https://%s/%s/?%s' % (api, request, urllib.urlencode(kwargs))
         try:
-            response = json.loads(urllib2.urlopen(url, timeout=settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE]['requestTimeout']).read().decode('utf-8-sig'))
+            response = json.loads(Events.read_response(url, settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE]['requestTimeout']).decode('utf-8-sig'))
             if response.get('status') == 'error':
                 error = response.get('error') or {}
                 signature = (region, request, error.get('code'), error.get('message'))
@@ -258,6 +280,7 @@ class Events(object):
 
 class CalculatorRating(object):
     _wn8Cache = {}
+    _wn8Revision = None
 
     @staticmethod
     def _expectedFromVehicleData(vehicleData):
@@ -265,13 +288,19 @@ class CalculatorRating(object):
             return None
         if not all(vehicleData.get(key) is not None for key in ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')):
             return None
-        return {
-            'expDamage': float(vehicleData['wn8expDamage']),
-            'expFrag': float(vehicleData['wn8expFrag']),
-            'expSpot': float(vehicleData['wn8expSpot']),
-            'expDef': float(vehicleData['wn8expDef']),
-            'expWinRate': float(vehicleData['wn8expWinRate'])
-        }
+        try:
+            expected = {
+                'expDamage': float(vehicleData['wn8expDamage']),
+                'expFrag': float(vehicleData['wn8expFrag']),
+                'expSpot': float(vehicleData['wn8expSpot']),
+                'expDef': float(vehicleData['wn8expDef']),
+                'expWinRate': float(vehicleData['wn8expWinRate'])
+            }
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if not all(value > 0 and not math.isnan(value) and not math.isinf(value) for value in expected.values()):
+            return None
+        return expected
 
     @staticmethod
     def eff(avgDmg, avgDef, avgCap, avgSpot, avgTier, avgFrag):
@@ -295,6 +324,10 @@ class CalculatorRating(object):
 
     @staticmethod
     def getExpectedWn8(tankId):
+        revision = getattr(scaleValuesInstance, 'wn8_revision', None)
+        if revision != CalculatorRating._wn8Revision:
+            CalculatorRating._wn8Cache.clear()
+            CalculatorRating._wn8Revision = revision
         expected = CalculatorRating._wn8Cache.get(tankId)
         if expected is not None:
             return expected
@@ -313,13 +346,13 @@ class CalculatorRating(object):
         for vData in scaleValuesInstance.getVehicleInfoDataArray():
             tank_level = vData.get('level', 0)
             if tank_level == level:
+                expected = CalculatorRating._expectedFromVehicleData(vData)
+                if expected is None:
+                    continue
                 values[2] += 1
                 tank_class_tag = vData.get('vClass', '')
                 if tank_class_tag == target_class_tag:
                     values[3] += 1
-                expected = CalculatorRating._expectedFromVehicleData(vData)
-                if expected is None:
-                    continue
                 for key in expected:
                     values[0][key] = values[0].get(key, 0) + expected.get(key, 0)
                     if tank_class_tag == target_class_tag:

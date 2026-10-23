@@ -134,9 +134,9 @@ python build_tools/check_undefined_names.py
 npm ci --ignore-scripts
 npm run lint
 npm test
-node tests/settings_panel/test_settings_window.js
-node tests/settings_panel/test_ratings.js
 ```
+
+`npm test` runs all current Gameface regression suites, including the settings window and ratings helpers.
 
 `tests/core` and `tests/settings_panel` also run on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image. Tests load real production modules through `tests/core/support.py` with the engine stubbed at the import boundary, so avoid importing `BigWorld`, `gui.*` or `Avatar` from code you want to test.
 

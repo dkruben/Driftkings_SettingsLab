@@ -1,19 +1,16 @@
 {
   "schema_version": 1,
-  "version": "0.1.2",
-  "channel": "stable",
+  "version": "0.1.3-beta.1",
+  "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
   "package_id": "driftkings.unified",
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "Include the Windows installer for supported Wargaming installations (EU, NA and ASIA); verify the selected game root and version.",
-    "Fix unavailable target geometry and add a configurable native-target indicator color.",
-    "Improve statistics cache preservation and rating validation without changing valid-input formulas.",
-    "Consolidate battle Gameface lifecycle, Flash text rendering and numeric conversion; preserve feature-specific settings.",
-    "Use explicit imports and owned hooks, remove unused constants and replace legacy logging with visible exception reports.",
-    "Centralize recoverable file publication and preserve strict updater path and JSON validation.",
-    "In-game validation completed: refactored panels and automatic-update installation tested and confirmed working."
+    "Fix WN8 fallback averages and refresh expected-value caches after data updates.",
+    "Reject invalid statistics downloads while preserving the last usable cache; bound and close player-statistics responses.",
+    "Enable validation for develop, run every Gameface regression suite and make retry tests deterministic.",
+    "Remove the inactive hangar-efficiency panel and improve clock error diagnostics."
   ]
 }

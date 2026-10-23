@@ -6,7 +6,9 @@ Modpack for Wargaming World of Tanks: battle overlays, hangar improvements and a
 
 [Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) · **[Download the stable release](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)** · [All releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
 
-Current version: **0.1.2**, for **WoT 2.4.1.0**. Stable release.
+Latest stable version: **0.1.2**, for **WoT 2.4.1.0**.
+
+The `develop` branch prepares **0.1.3-beta.1**. This beta has not been published; the download links above refer to the stable release.
 
 ## Included mods and functions
 
@@ -62,7 +64,7 @@ The names below match the settings labels. The module column identifies the corr
 
 The integrated settings window (`settings_window`) provides controls, profiles, themes and update settings, including stable/beta channels. Gameface folders and native resource files use the corresponding presentation-module names under `mod/res/gui/gameface/mods/driftkings/` and `mod/res/gui/gen_resources/`.
 
-The archived `hangar_efficiency` panel is inactive and is not compiled or included in the modpack.
+The retired `hangar_efficiency` panel has been removed; its history remains available in Git.
 
 ## Installation
 

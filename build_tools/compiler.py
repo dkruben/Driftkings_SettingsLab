@@ -2,7 +2,6 @@
 import argparse
 import ast
 from datetime import datetime, timezone
-import hashlib
 import importlib.util
 import json
 import os
