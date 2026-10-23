@@ -1,8 +1,8 @@
 {
-  "backgroundAlpha": 55,
+  "backgroundAlpha": 60,
   "cellType": "normal",
   "colorRating": 0,
-  "edgeFadeAlpha": 78,
+  "edgeFadeAlpha": 60,
   "enableLockBackground": false,
   "enabled": true,
   "filters": {
@@ -23,7 +23,7 @@
     }
   },
   "filtersPadding": {
-    "horizontal": 11,
+    "horizontal": 10,
     "vertical": 13
   },
   "hideBuySlot": true,
@@ -43,12 +43,12 @@
     "italy"
   ],
   "rows": 2,
-  "scrollingSpeed": 1,
+  "scrollingSpeed": 1.0,
   "showIcons": true,
   "showTotalSlots": true,
   "showUsedSlots": true,
   "slotBackgroundAlpha": 100,
-  "slotBorderAlpha": 89,
+  "slotBorderAlpha": 80,
   "slotSelectedBorderAlpha": 100,
   "sorting_criteria": [
     "nation",

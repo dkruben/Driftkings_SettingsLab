@@ -9,7 +9,7 @@ from support import Event, RuntimeTest, Settings, game_source, module, stub
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 with open(os.path.join(ROOT, 'res', 'configs', 'driftkings', 'default', 'aiming_reticles.json'), 'rb') as stream:
     DEFAULTS = json.loads(stream.read().decode('utf-8-sig'))
-MarkerInfo = collections.namedtuple('MarkerInfo', ('size', 'dualAccSize'))
+MarkerInfo = collections.namedtuple('MarkerInfo', ('size', 'dualAccSize', 'position', 'direction', 'sizeOffset'))
 MODES = module(ARCADE='arcade', STRATEGIC='strategic', SNIPER='sniper', ARTY='arty')
 
 
@@ -69,10 +69,45 @@ class AimingReticlesTests(RuntimeTest):
         self.assertEqual(self.factory._GUN_MARKER_LINKAGES, {'native': 'linkage'})
 
     def test_marker_size_is_corrected_only_in_the_aiming_modes(self):
-        sizes = []
-        native = lambda handler, info, support, relax: sizes.append(info.size)
-        update = self.hooks.get('AvatarInputHandler', 'updateClientGunMarker')
-        update(native, module(ctrlModeName='arcade'), MarkerInfo(271.0, 0.0), None, 0)
-        update(native, module(ctrlModeName='arty'), MarkerInfo(271.0, 0.0), None, 0)
-        self.assertAlmostEqual(sizes[0], 200.0)
-        self.assertEqual(sizes[1], 271.0)
+        original = MarkerInfo(271.0, 135.5, (1, 2, 3), (0, 0, 1), 7)
+        for name in ('updateClientGunMarker', 'updateServerGunMarker', 'updateDualAccGunMarker'):
+            received = []
+            native = lambda handler, info, support, relax: received.append((info, support, relax))
+            update = self.hooks.get('AvatarInputHandler', name)
+            for mode in ('arcade', 'strategic', 'arty', 'sniper', 'postmortem'):
+                update(native, module(ctrlModeName=mode), original, 'support', 0.1)
+                info, support, relax = received[-1]
+                expected = 271.0 if mode == 'postmortem' else 200.0
+                self.assertAlmostEqual(info.size, expected)
+                self.assertAlmostEqual(info.dualAccSize, expected / 2)
+                self.assertEqual((info.position, info.direction, info.sizeOffset), (original.position, original.direction, 7))
+                self.assertEqual((support, relax), ('support', 0.1))
+
+    def test_spg_cone_matches_corrected_diameter_and_keeps_native_side_effects(self):
+        calls, angles = [], []
+        controller = module(_gunRotator=module(dispersionAngle=0.1355),
+                            _dataProvider=module(setupConicDispersion=angles.append))
+        self.api['BattleReplay'] = module(g_replayCtrl=module(isPlaying=False))
+        update = self.hooks.get('_SPGGunMarkerController', '_updateDispersionData')
+        native = lambda instance: calls.append('native') or 'result'
+        self.assertEqual(update(native, controller), 'result')
+        self.assertEqual(calls, ['native'])
+        self.assertAlmostEqual(angles[-1], 0.1)
+        self.reticle.reticleScaleFactor = 1
+        update(native, controller)
+        self.assertEqual(len(angles), 1)
+        self.assertEqual(len(calls), 2)
+
+    def test_spg_cone_uses_replay_angle_and_falls_back_for_missing_recording(self):
+        angles = []
+        controller = module(_gunRotator=module(dispersionAngle=0.1355),
+                            _dataProvider=module(setupConicDispersion=angles.append))
+        recorded = [0.271, 0.0]
+        self.api['BattleReplay'] = module(g_replayCtrl=module(
+            isPlaying=True, isClientReady=True, getSPGGunMarkerParams=lambda: recorded))
+        update = self.hooks.get('_SPGGunMarkerController', '_updateDispersionData')
+        update(lambda instance: None, controller)
+        self.assertAlmostEqual(angles[-1], 0.2)
+        recorded[:] = [-1.0, -1.0]
+        update(lambda instance: None, controller)
+        self.assertAlmostEqual(angles[-1], 0.1)

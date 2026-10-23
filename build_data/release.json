@@ -8,6 +8,8 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
+    "Adopt the revised in-game settings as defaults; align carousel statistic columns and icon rows with consistent font aliases.",
+    "Apply reticle-size correction consistently to artillery trajectory view and ballistic dispersion contours, preserving native impact positions and replay data.",
     "Fix WN8 fallback averages and refresh expected-value caches after data updates.",
     "Reject invalid statistics downloads while preserving the last usable cache; bound and close player-statistics responses.",
     "Enable validation for develop, run every Gameface regression suite and make retry tests deterministic.",

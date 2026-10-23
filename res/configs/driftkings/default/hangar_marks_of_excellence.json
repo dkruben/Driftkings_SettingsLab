@@ -6,27 +6,27 @@
     "titleColor": "#E8E4DA"
   },
   "colorRating": 0,
-  "compactMode": false,
+  "compactMode": true,
   "enabled": true,
+  "gameface": {
+    "scale": 0.55,
+    "showAdvancedStatistics": true,
+    "showDamageStatistics": true,
+    "showHistory": true,
+    "showMilestones": true,
+    "showProgress": true,
+    "showVehicleInfo": true
+  },
   "goalSelection": 0,
   "historyBattles": 10,
   "panel": {
-    "alignX": "left",
-    "alignY": "top",
-    "x": 20.0,
-    "y": 20.0
+    "alignX": "right",
+    "alignY": "center",
+    "x": -43.0,
+    "y": 97.0
   },
   "showInHangar": true,
   "showInStatistic": true,
   "showTooltipTargets": true,
-  "textLock": false,
-  "gameface": {
-    "scale": 1.0,
-    "showVehicleInfo": true,
-    "showProgress": true,
-    "showDamageStatistics": true,
-    "showMilestones": true,
-    "showHistory": true,
-    "showAdvancedStatistics": true
-  }
+  "textLock": false
 }

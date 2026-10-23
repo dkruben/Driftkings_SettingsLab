@@ -9,6 +9,7 @@ import VehicleGunRotator
 import aih_constants
 from account_helpers.settings_core.settings_constants import GRAPHICS, SPGAim
 from aih_constants import CTRL_MODE_NAME, GUN_MARKER_FLAG, GUN_MARKER_TYPE
+from AvatarInputHandler.gun_marker_ctrl import _SPGGunMarkerController
 from constants import AIMING_MODE, ARENA_PERIOD, SERVER_TICK_LENGTH
 from gui.Scaleform.daapi.view.battle.shared import SharedPage
 from gui.Scaleform.daapi.view.battle.shared.crosshair import CrosshairPanelContainer, gm_factory
@@ -276,23 +277,40 @@ def _scaleGunMarkerInfo(gunMarkerInfo):
         dualAccSize=gunMarkerInfo.dualAccSize / reticle.reticleScaleFactor)
 
 
+@override(_SPGGunMarkerController, '_updateDispersionData')
+def new_SPGGunMarkerController_updateDispersionData(original, self):
+    # Let the client retain its replay recording and playback side effects.
+    result = original(self)
+    if reticle.reticleScaleFactor != 1:
+        dispersionAngle = self._gunRotator.dispersionAngle
+        replay = BattleReplay.g_replayCtrl
+        if replay.isPlaying and replay.isClientReady:
+            recordedAngle, recordedSize = replay.getSPGGunMarkerParams()
+            if recordedAngle != -1.0 and recordedSize != -1.0:
+                dispersionAngle = recordedAngle
+        # SPG contours are projected from a ballistic cone, not only from the
+        # marker diameter. Both must use the same correction on sloped terrain.
+        self._dataProvider.setupConicDispersion(dispersionAngle / reticle.reticleScaleFactor)
+    return result
+
+
 @override(AvatarInputHandler.AvatarInputHandler, 'updateClientGunMarker')
 def new_AvatarInputHandler_updateClientGunMarker(func, self, gunMarkerInfo, supportMarkersInfo, relaxTime):
-    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.SNIPER):
+    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     return func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
 
 
 @override(AvatarInputHandler.AvatarInputHandler, 'updateServerGunMarker')
 def new_AvatarInputHandler_updateServerGunMarker(func, self, gunMarkerInfo, supportMarkersInfo, relaxTime):
-    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.SNIPER):
+    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     return func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
 
 
 @override(AvatarInputHandler.AvatarInputHandler, 'updateDualAccGunMarker')
 def new_AvatarInputHandler_updateDualAccGunMarker(func, self, gunMarkerInfo, supportMarkersInfo, relaxTime):
-    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.SNIPER):
+    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
 

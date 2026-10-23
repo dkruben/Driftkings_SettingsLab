@@ -29,3 +29,26 @@ cleanup();
 nodes.forEach(function (node) { assert.strictEqual(node.style.opacity,'1'); assert.strictEqual(node.style.visibility,'visible'); });
 delete global.getComputedStyle;
 console.log('Native carousel field visibility and restoration: passed');
+
+// Explicit-width labels align their contents as well as their anchor box.
+var layers = [];
+function element() { return {style:{}, children:[], appendChild:function(child) { this.children.push(child); child.parentNode=this; }}; }
+var previewDocument = {createElement:element, createTextNode:function(text) { return {text:text}; }};
+var previewCard = {clientWidth:210,clientHeight:140,querySelectorAll:function() { return []; },
+    appendChild:function(child) { layers.push(child); child.parentNode=this; },
+    insertBefore:function(child) { layers.push(child); child.parentNode=this; }};
+global.getComputedStyle = function() { return {position:'relative'}; };
+layout.mount(previewCard,{width:210,height:140,fields:{},extraFields:['left','center','right'].map(function(align) {
+    return {layer:'top',align:align,width:80,height:20,x:100,y:10,fontSize:16,alpha:100,
+        format:"<font face='mono'>1234</font>",shadow:{enabled:false}};
+})},previewDocument,{});
+var aligned = layers[1].children;
+assert.deepStrictEqual(aligned.map(function(n) { return n.style.justifyContent; }),['flex-start','center','flex-end']);
+assert.deepStrictEqual(aligned.map(function(n) { return n.style.textAlign; }),['left','center','right']);
+assert.strictEqual(aligned[2].style.transform,'translateX(-100%)');
+assert.strictEqual(aligned[2].children[0].children[0].style.fontFamily,'monospace');
+var nativeFont=element();
+layout.richText(nativeFont,"<font face='$FieldFont'>native</font>",previewDocument,{},true);
+assert.strictEqual(nativeFont.children[0].style.fontFamily,'inherit');
+delete global.getComputedStyle;
+console.log('Carousel fixed-width text alignment and font aliases: passed');

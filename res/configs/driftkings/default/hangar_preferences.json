@@ -1,4 +1,7 @@
 {
+  "accountManager": {
+    "enabled": true
+  },
   "allowChannelButtonBlinking": true,
   "allowExchangeXPInTechTree": true,
   "autoLogin": true,
@@ -12,20 +15,20 @@
   "enabled": true,
   "fieldMail": true,
   "hideBtnCounters": false,
-  "lootBoxesWidget": false,
+  "lootBoxesWidget": true,
   "lowAmmoPercentage": 20,
   "premiumTime": false,
   "showAchievementPopups": false,
   "showAchievementRewardWindow": true,
   "showBattleCount": true,
   "showBattlePassWidget": true,
-  "showButton": true,
+  "showButton": false,
   "showButtonCounters": true,
   "showBuyPremiumButton": true,
   "showDailyQuestWidget": true,
-  "showEventBanner": true,
+  "showEventBanner": false,
   "showEventTournamentWidget": true,
-  "showGeneralChatButton": false,
+  "showGeneralChatButton": true,
   "showHangarPrestigeWidget": false,
   "showPopUpMessages": false,
   "showPremiumShopButton": true,
@@ -33,11 +36,8 @@
   "showProgressiveDecalsWindow": true,
   "showPromoPremVehicle": true,
   "showRankedBattleResults": false,
-  "showReferralButton": false,
+  "showReferralButton": true,
   "showUnreadCounter": true,
   "showWotPlusButton": false,
-  "showXpToUnlockVeh": false,
-  "accountManager": {
-    "enabled": true
-  }
+  "showXpToUnlockVeh": false
 }

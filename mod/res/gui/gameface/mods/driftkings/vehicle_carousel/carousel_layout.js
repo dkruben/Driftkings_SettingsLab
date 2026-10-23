@@ -70,7 +70,7 @@
                     if(key==='color') node.style.color=color(val,'#FFFFFF');
                     if(key==='size' && /^\d{1,2}$/.test(val)) node.style.fontSize=Math.max(8,Math.min(40,Number(val)))+'px';
                     // Flash's default font alias inherits the native Gameface font.
-                    if(key==='face' && val!=='$FieldFont' && /^[\w $,-]{1,60}$/.test(val)) node.style.fontFamily=val==='mono'?'Consolas,monospace':val;
+                    if(key==='face' && /^[\w $,-]{1,60}$/.test(val)) node.style.fontFamily=val==='$FieldFont'?'inherit':val==='mono'?'monospace':val;
                     if(key==='alpha' && /^#[0-9a-f]{2}$/i.test(val)) node.style.opacity=parseInt(val.slice(1),16)/255;
                     else if(key==='alpha' && /^\d{1,3}$/.test(val)) node.style.opacity=Math.min(100,Number(val))/100;
                 }
@@ -115,6 +115,8 @@
                 node.style.left=field.x+'px'; node.style.top=field.y+'px'; node.style.fontSize=field.fontSize+'px';
                 node.style.color=color(field.color,'#FFFFFF'); node.style.opacity=field.alpha/100;
                 node.style.transform=field.align==='right'?'translateX(-100%)':field.align==='center'?'translateX(-50%)':'';
+                node.style.justifyContent=field.align==='right'?'flex-end':field.align==='center'?'center':'flex-start';
+                node.style.textAlign=field.align;
                 if(field.width) node.style.width=field.width+'px';
                 if(field.height) node.style.height=field.height+'px';
                 if(field.bgColor) node.style.backgroundColor=color(field.bgColor,'transparent');

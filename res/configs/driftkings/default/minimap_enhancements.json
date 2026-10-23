@@ -35,19 +35,19 @@
       "mode": "client",
       "thickness": 1
     },
-    "view": {
-      "alpha": 90,
-      "dash": 0,
-      "gap": 5,
-      "mode": "client",
-      "thickness": 1
-    },
     "shell": {
       "alpha": 60,
       "color": "FF6666",
       "dash": 0,
       "gap": 5,
       "mode": "on",
+      "thickness": 1
+    },
+    "view": {
+      "alpha": 90,
+      "dash": 0,
+      "gap": 5,
+      "mode": "client",
       "thickness": 1
     }
   },
@@ -142,7 +142,7 @@
     "x": 5,
     "y": 5
   },
-  "minimapSchema": 0,
+  "minimapSchema": 1,
   "nearby": {
     "alpha": 90,
     "color": "FF3020",

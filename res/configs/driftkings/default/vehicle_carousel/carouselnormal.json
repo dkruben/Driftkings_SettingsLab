@@ -1,88 +1,83 @@
 {
   "extraFields": [
     {
-      "alpha": "{{v.battles?100|0}}",
-      "format": "<img src='gui/maps/driftkings/carroucel/battles.png' width='16' height='16'>",
+      "align": "right",
+      "format": "<img src='gui/maps/driftkings/carroucel/battles.png' width='16' height='16'> <font face='mono' size='16' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
       "shadow": "$ref:textFieldShadow",
-      "x": 160,
-      "y": 32
+      "x": 197,
+      "y": 26,
+      "height": 20,
+      "alpha": "{{v.battles?100|0}}"
     },
     {
       "align": "right",
-      "format": "<font face='mono' size='16' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
+      "format": "<img src='gui/maps/driftkings/carroucel/wins.png' width='16' height='16'> <b><font face='mono' size='16' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
-      "x": 190,
-      "y": 30
-    },
-    {
-      "alpha": "{{v.winrate?100|0}}",
-      "format": "<img src='gui/maps/driftkings/carroucel/wins.png' width='16' height='16'>",
-      "shadow": "$ref:textFieldShadow",
-      "x": 140,
-      "y": 56
-    },
-    {
-      "align": "right",
-      "format": "<b><font face='mono' size='16' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
-      "shadow": "$ref:textFieldShadow",
-      "x": 190,
-      "y": 53
+      "x": 197,
+      "y": 46,
+      "height": 20,
+      "alpha": "{{v.winrate?100|0}}"
     },
     {
       "alpha": "{{v.hitsRatio?100|0}}",
       "format": "<img src='gui/maps/driftkings/carroucel/shooter.png' width='18' height='18'>",
       "shadow": "$ref:textFieldShadow",
-      "x": 2,
-      "y": 91
+      "x": 8,
+      "y": 90,
+      "height": 20
     },
     {
       "align": "left",
       "format": "<b><font face='mono' size='16' color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
-      "x": 24,
-      "y": 90
+      "x": 30,
+      "y": 90,
+      "height": 20
     },
     {
-      "alpha": "{{v.tfb?100|0}}",
+      "alpha": "{{v.tdb?100|0}}",
       "format": "<img src='gui/maps/driftkings/carroucel/damage.png' width='20' height='20'>",
       "shadow": "$ref:textFieldShadow",
-      "x": 0,
-      "y": 109
+      "x": 8,
+      "y": 110,
+      "height": 20
     },
     {
       "align": "left",
-      "format": "<font face='mono' size='16' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
+      "format": "<font face='mono' size='16' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font face='mono' size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
       "shadow": "$ref:textFieldShadow",
-      "x": 19,
-      "y": 110
+      "x": 30,
+      "y": 110,
+      "height": 20
     },
     {
       "align": "right",
-      "format": "[{{v.battletiermin}}-{{v.battletiermax}}]",
+      "format": "<font face='mono' size='12'>[{{v.battletiermin}}-{{v.battletiermax}}]</font>",
       "shadow": "$ref:textFieldShadow",
-      "x": 152,
-      "y": 63
+      "x": 197,
+      "y": 69
     },
     {
       "format": "<img src='{{icon:mastery}}' width='26' height='26'>",
       "shadow": "$ref:textFieldShadow",
-      "x": 8,
-      "y": 25
+      "x": 10,
+      "y": 28
     },
     {
       "alpha": "{{v.marksOnGun?100|0}}",
       "format": "<img src='{{icon:marksOnGun}}' width='16' height='16'>",
-      "height": 14,
-      "width": 14,
-      "x": 140,
-      "y": 45
+      "height": 20,
+      "width": 10,
+      "x": 10,
+      "y": 53
     },
     {
-      "align": "right",
-      "format": "<font size='16' color='{{v.c_damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
+      "align": "left",
+      "format": "<font face='mono' size='16' color='{{v.c_damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
       "shadow": "$ref:textFieldShadow",
-      "x": 140,
-      "y": 45
+      "x": 30,
+      "y": 53,
+      "height": 20
     },
     {
       "bgColor": "#060100",
@@ -121,7 +116,7 @@
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1
+      "scale": 1.0
     },
     "crystalsBorder": {
       "alpha": 100,
@@ -132,14 +127,14 @@
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1
+      "scale": 1.0
     },
     "favorite": {
       "alpha": 100,
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1.0
+      "scale": 0.8
     },
     "flag": {
       "alpha": 100,
@@ -153,7 +148,7 @@
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1.0,
+      "scale": 0.9,
       "shadow": {},
       "textFormat": {}
     },
@@ -171,14 +166,14 @@
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1
+      "scale": 0.8
     },
     "level": {
       "alpha": 100,
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1.0
+      "scale": 0.8
     },
     "price": {
       "alpha": 100,
@@ -188,17 +183,17 @@
     },
     "progressionPoints": {
       "alpha": 100,
-      "dx": 0,
-      "dy": 0,
+      "dx": -1,
+      "dy": -4,
       "enabled": true,
-      "scale": 1.0
+      "scale": 0.9
     },
     "rentInfo": {
       "alpha": 100,
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1,
+      "scale": 1.0,
       "shadow": {},
       "textFormat": {}
     },
@@ -215,14 +210,14 @@
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1.0
+      "scale": 0.8
     },
     "tankName": {
       "alpha": 100,
       "dx": 0,
       "dy": 0,
       "enabled": true,
-      "scale": 1.0,
+      "scale": 0.8,
       "shadow": {},
       "textFormat": {}
     },
@@ -235,10 +230,10 @@
     },
     "xp": {
       "alpha": 100,
-      "dx": 0,
-      "dy": 0,
+      "dx": -2,
+      "dy": -4,
       "enabled": true,
-      "scale": 1.0
+      "scale": 0.8
     }
   },
   "gap": 10,
