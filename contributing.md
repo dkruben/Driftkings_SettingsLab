@@ -11,6 +11,12 @@ This guide explains how the code is organised and how to make a change safely. F
 - Prefer **pure, engine-free modules** for logic (see `core/gun_stats.py`, `core/carousel*.py`, `core/high_caliber.py`). They can be tested without the game.
 - Regenerate `settings/default_values.py` with the defaults tool and `shared/bootstrap.js` with the UI catalogue tool. The compiler generates the packaged `component_list.py` from enabled manifests; keep the checked-in component list aligned with those manifests.
 
+## Branches and release channels
+
+- `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
+- `main` is the stable release branch. Prepare stable releases there after integrating the validated changes from `develop`.
+- Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
+
 ## Repository layout
 
 | Path | Contents |
