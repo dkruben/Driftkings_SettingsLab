@@ -69,6 +69,11 @@ package driftkings.battle.components.minimap
             refresh();
         }
 
+        public function as_minimapCamera(strategic:Boolean):void
+        {
+            artilleryAim.setStrategic(strategic);
+        }
+
         public function as_minimapVehicle(value:Object):void
         {
             vehicles[value.id] = value;

@@ -2,6 +2,9 @@
 from driftkings._constants import GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.settings.service import settings_service
 """Presentation adapter for MinimapPlugins; gameplay state stays in its component."""
+from aih_constants import CTRL_MODE_NAME
+from gui.battle_control.avatar_getter import getInputHandler
+
 from driftkings.common.utils.wgutils import isXvmInstalled
 from driftkings.common.utils.game import checkKeys
 from driftkings.core.callbacks import callback, cancelCallback
@@ -9,6 +12,9 @@ from driftkings.meta.battle.minimap import MinimapMeta
 from driftkings.ui.common.events import g_events
 
 from importlib import import_module
+
+# The client updates its strategic camera entry, which carries the artillery reticle, only in these modes.
+STRATEGIC_MODES = (CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY)
 
 
 def _component():
@@ -26,6 +32,10 @@ class MinimapEnhancementsView(MinimapMeta):
         # noinspection PyProtectedMember
         super(MinimapEnhancementsView, self)._populate()
         g_events.onAltKey += self.onAltKey
+        handler = getInputHandler()
+        if handler is not None and hasattr(handler, 'onCameraChanged'):
+            handler.onCameraChanged += self.onCameraChanged
+            self.onCameraChanged(getattr(handler, 'ctrlModeName', None))
         _component().VIEWS.add(self)
         _component().controller.activate()
         self.onAltKey(_component().controller.minimapZoom)
@@ -45,6 +55,9 @@ class MinimapEnhancementsView(MinimapMeta):
         if not _component().VIEWS:
             _component().controller.deactivate()
         g_events.onAltKey -= self.onAltKey
+        handler = getInputHandler()
+        if handler is not None and hasattr(handler, 'onCameraChanged'):
+            handler.onCameraChanged -= self.onCameraChanged
         # noinspection PyProtectedMember
         super(MinimapEnhancementsView, self)._dispose()
 
@@ -86,6 +99,9 @@ class MinimapEnhancementsView(MinimapMeta):
                        showVehicleTypes=settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.SHOW_VEHICLE_TYPES]
                        )
         self.as_minimapPresentationS(options)
+
+    def onCameraChanged(self, ctrlMode, _=None):
+        self.as_minimapCameraS(ctrlMode in STRATEGIC_MODES)
 
     def onVehicleData(self, payload):
         if not isXvmInstalled():
