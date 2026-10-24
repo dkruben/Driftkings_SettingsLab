@@ -61,6 +61,7 @@ def default_services():
         ServiceSpec('battle_views', runtime_service('driftkings.views:BattleViews'), ('settings', 'battle_events', 'callbacks'), 'interface'),
         ServiceSpec('settings_panel', runtime_service('driftkings.settings:SettingsService'), ('settings', 'keyboard', 'window_views'), 'interface'),
         ServiceSpec('updater', runtime_service('driftkings.core.updater:UpdaterService'), ('settings_panel', 'callbacks'), 'interface'),
+        ServiceSpec('analytics', runtime_service('driftkings.core.analytics:AnalyticsService'), ('settings_panel', 'callbacks'), 'interface'),
     )
 
 

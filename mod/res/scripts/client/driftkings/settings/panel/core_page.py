@@ -38,6 +38,8 @@ def install(api):
     mod.add_switch('autoCheckUpdates', T('updates.autoCheck'), default=True)
     mod.add_dropdown('updateChannel', T('updates.channel'),
                      values=[('stable', T('updates.stable')), ('beta', T('updates.beta'))], default='stable')
+    mod.add_section(T('core.analytics'))
+    mod.add_switch('analytics', T('core.analytics.enabled'), default=False, description=T('core.analytics.tip'))
 
     tab = None
     for control in mod._mod.controls:

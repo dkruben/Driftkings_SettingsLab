@@ -86,6 +86,10 @@ Designed for Wargaming World of Tanks **EU, NA and ASIA** clients, for **WoT 2.4
 
 Version 0.1.2 is the stable release, with in-game validation completed for the panels and automatic-update installation.
 
+## Anonymous statistics (optional)
+
+Driftkings can send anonymous usage statistics to Google Analytics. It is **off by default** and is enabled in **Settings → Anonymous statistics**. When on, it sends a random installation ID, the mod and game versions, the realm, a heartbeat while the game is open and the type and source location (file, line, function) of errors logged by the mod. It never sends player names, accounts, error messages or file paths. Turning the switch off stops all sending and deletes the installation ID (`mods/configs/driftkings/analytics_id`). Replays are not counted. Builds without a configured Measurement ID and API secret in `core/analytics.py` do not send anything, even with the switch on.
+
 ## Languages
 
 Settings translations: Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese. Translation corrections are welcome. Bundled translations are editable UTF-8 `.yml` files in `mod/res/mods/driftkings/text/`; see [contributing.md](contributing.md#translation-resources) for the format and JSON override paths.
