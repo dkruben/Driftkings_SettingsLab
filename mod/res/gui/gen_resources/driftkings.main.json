@@ -1,0 +1,11 @@
+[
+  {
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/driftkings/main/clock.html",
+    "parameters": {
+      "entrance": "main",
+      "impl": "gameface"
+    },
+    "id": "R.mods.driftkings.main.clock"
+  }
+]

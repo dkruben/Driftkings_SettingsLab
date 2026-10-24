@@ -10,8 +10,9 @@ class HangarPreferencesSettings(SectionDefinition):
     TRANSLATED_TITLE = True
 
     def normalize_loaded(self, values):
-        # Retired presets; retain personal clock text and position.
-        for key in ('clockStyle', 'clockSeconds', 'clock24Hour', 'customClockFormat', 'text', 'panel'):
+        # Retired presets and the clock, which moved to the main section.
+        for key in ('clockStyle', 'clockSeconds', 'clock24Hour', 'customClockFormat', 'text', 'panel',
+                    'clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText'):
             values.pop(key, None)
         return values
 
@@ -22,12 +23,6 @@ class HangarPreferencesSettings(SectionDefinition):
         return (
             [
                 control(HANGAR_PREFERENCES.AUTO_LOGIN),
-                control(HANGAR_PREFERENCES.CLOCK),
-                control(HANGAR_PREFERENCES.CLOCK_BACKGROUND),
-                slider(HANGAR_PREFERENCES.CLOCK_X, -3840, 3840, 1),
-                slider(HANGAR_PREFERENCES.CLOCK_Y, -2160, 2160, 1),
-                slider(HANGAR_PREFERENCES.CLOCK_SCALE, 50, 200, 5),
-                control(HANGAR_PREFERENCES.CUSTOM_CLOCK_TEXT, 'TextArea'),
                 control(HANGAR_PREFERENCES.ALLOW_EXCHANGE_XPIN_TECH_TREE),
                 control(HANGAR_PREFERENCES.ALLOW_CHANNEL_BUTTON_BLINKING),
                 control(HANGAR_PREFERENCES.SHOW_XP_TO_UNLOCK_VEH),

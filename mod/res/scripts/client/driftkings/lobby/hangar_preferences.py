@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from driftkings.logger import get_logger
 LOG = get_logger('driftkings.lobby.hangar_preferences')
-from driftkings.interface_catalog import gameface_spec
 from driftkings.core.hooks import on_event
 from driftkings.common.utils import events
 import gui.shared.tooltips.vehicle as tooltips
@@ -39,8 +38,7 @@ from driftkings.core.hooks import override, overrideMethod, overrideClassMethod
 from driftkings.settings.service import settings_service, affects
 from driftkings.core.settings_controller import SettingsController
 from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings as Settings
-from driftkings.views.hangar.hangar_preferences import ClockController
-from driftkings.views.hangar.hangar_preferences import install_clock_gameface, install_header_options
+from driftkings.views.hangar.hangar_preferences import install_header_options
 
 
 class HangarOptionsController(SettingsController):
@@ -402,25 +400,16 @@ def new__setItemField(func, self, clientID, key, value):
     return func(self, clientID, key, value)
 
 
-# Hangar clock: one Gameface child per hangar, no global Flash timer.
-FEATURE = 'DriftkingsHangarClock'
-RESOURCE = gameface_spec(FEATURE)['resource']
-
-
-g_clockController = ClockController()
 def init():
     controller.start()
     try:
-        install_clock_gameface()
         install_header_options()
-        g_clockController.start()
     except Exception:
-        LOG.error('Gameface clock integration unavailable; rebuild the Driftkings UI resources')
+        LOG.error('Gameface header options unavailable; rebuild the Driftkings UI resources')
 
 
 def fini():
     controller.stop()
-    g_clockController.stop()
 
 
 # Import registers the presentation hooks with the current component owner.

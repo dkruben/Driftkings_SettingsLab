@@ -39,14 +39,15 @@ class RetiredDefaultsTests(RuntimeTest):
         with open(os.path.join(ROOT, 'res/configs/driftkings/default', name + '.json'), 'rb') as stream:
             return json.load(stream)
 
-    def test_clock_load_and_apply_preserve_custom_format_position_and_unrelated_settings(self):
+    def test_hangar_drops_retired_and_moved_clock_options_but_keeps_unrelated_settings(self):
         definition = self.definition('settings/definitions/lobby/hangar_preferences.py',
                                      'HangarPreferencesSettings', 'HANGAR_PREFERENCES')
-        active = {'enabled': False, 'clock': True, 'clockBackground': True, 'clockScale': 125,
-                  'clockX': -456, 'clockY': 123, 'customClockText': u'<font>%I:%M %p — %A</font>',
-                  'accountManager': {'enabled': True}, 'personalOption': {'keep': [1, 2]}}
+        active = {'enabled': False, 'accountManager': {'enabled': True}, 'personalOption': {'keep': [1, 2]}}
+        # The clock moved to the main section; the loader carries these values there.
         legacy = dict(active, clockStyle=4, clockSeconds=True, clock24Hour=False,
-                      customClockFormat=False, text='old', panel={'x': 999})
+                      customClockFormat=False, text='old', panel={'x': 999},
+                      clock=True, clockBackground=True, clockScale=125, clockX=-456, clockY=123,
+                      customClockText=u'<font>%I:%M %p — %A</font>')
         for normalize in (definition.normalize_loaded, lambda values: definition.normalize_changes(values, {})):
             values = normalize(copy.deepcopy(legacy))
             self.assertEqual(values, active)
@@ -65,6 +66,10 @@ class RetiredDefaultsTests(RuntimeTest):
     def test_canonical_defaults_contain_current_options_only(self):
         hangar = self.defaults('hangar_preferences')
         self.assertFalse(set(hangar).intersection(('clockStyle', 'clockSeconds', 'clock24Hour', 'customClockFormat')))
-        self.assertTrue(all(key in hangar for key in
-                            ('clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText', 'accountManager')))
+        clock = ('clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText')
+        self.assertIn('accountManager', hangar)
+        self.assertFalse(set(hangar).intersection(clock))
+        main = self.defaults('main')
+        self.assertFalse(set(main).intersection(clock[1:]))
+        self.assertEqual(sorted(main['clock']), ['enabled', 'formats'])
         self.assertEqual(self.defaults('autoaim_target_indicator'), {'enabled': True, 'color': '#F98600'})

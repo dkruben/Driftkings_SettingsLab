@@ -57,7 +57,8 @@ The names below match the settings labels. The module column identifies the corr
 | Marks of Excellence in the tech tree | `tech_tree_marks_of_excellence` | Adds gun-mark information to supported tech-tree vehicle displays. |
 | Crew management | `crew_management` | Supports automatic crew return and adds crew details, progression, remaining XP and estimated battles in supported crew screens and tooltips. |
 | Service record ratings | `profile_ratings` | Colors native overview, statistics and vehicle profiles; shows player/vehicle WN8, with independent switches, palettes and editable survival/received-damage limits. |
-| Hangar preferences | `hangar_preferences` | Configures the hangar clock, header buttons, widgets, notifications and other garage convenience options. |
+| Hangar preferences | `hangar_preferences` | Configures header buttons, widgets, notifications and other garage convenience options. |
+| General settings | `main` | Holds options that apply to the whole mod, starting with the hangar clock. `clock.enabled` switches the clock and `clock.formats` lists its fields (position, text, shadow and background image) in `main.json`; the section's own switch turns all general options off. Earlier clock settings are converted from Hangar preferences. |
 | AccountManager | `account_manager` | Provides the account-management interface, controlled through Hangar preferences. |
 | Clan reward collection | `clan_reward_collection` | Collects eligible clan rewards automatically when the option is enabled. |
 | Sound bank loader | `sound_bank_loader` | Loads the mod's custom sound banks. |
@@ -78,7 +79,7 @@ For guided setup, download `Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe` from the sta
 
 The defaults are the author's selected mod configurations. Existing personal JSON files take precedence. The in-game updater preserves those configurations; missing settings use packaged defaults.
 
-An optional Windows installer is built from the same compiler output. Its 29 component choices change JSON configuration only, never the installed WOTMOD/dependency set. Existing profiles are preserved on reinstall. Explicit `/RESETCONFIG=1` backs up configurations before resetting them. Branding and component previews are optional and can be added later.
+An optional Windows installer is built from the same compiler output. Its 30 component choices change JSON configuration only, never the installed WOTMOD/dependency set. Existing profiles are preserved on reinstall. Explicit `/RESETCONFIG=1` backs up configurations before resetting them. Branding and component previews are optional and can be added later.
 
 The installer creates user-media folders `mods/configs/driftkings/sixthsense/` (default custom icon: `SixthSenseIcon.png`) and `mods/configs/driftkings/images/`, with short READMEs. Uninstall preserves these folders and their contents. Images accept packaged `gui/maps/driftkings/...` resources or custom files in `mods/configs/driftkings/...`; select the paths in the mod settings. These user files are not optional installer payloads.
 

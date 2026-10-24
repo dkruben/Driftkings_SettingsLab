@@ -76,12 +76,16 @@
     {
       "path": "default/hangar_preferences.json",
       "source_sha256": "7a514224cf02cc639df62cb8cfd3dc0c345155d2e3fe998d7a6268f4088ebe56",
-      "sha256": "dda738461ac76a6a7faec62700bf6fd6f81049dd8f1aaa04b3748ecea218312b"
+      "sha256": "22a932e58fbf1a387e267b1691e9fefb8069308127905291533e9afe918b7538"
     },
     {
       "path": "default/high_caliber_progress.json",
       "source_sha256": "8462bfbb8c2b5846c725b6da68225540eb5a6a9c386e1f762d65e16866e841db",
       "sha256": "a3cd128d1f40e5c8c14f26ec1db72d759abc3150fe4a4d73d9a4876329fa48e5"
+    },
+    {
+      "path": "default/main.json",
+      "sha256": "12fe772b77d7f0dcc5ab77fc23af93763d943448fb415b21271d3123eb06c60d"
     },
     {
       "path": "default/minimap_enhancements.json",

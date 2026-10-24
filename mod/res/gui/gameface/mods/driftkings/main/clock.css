@@ -3,5 +3,6 @@
 
 .dk-clock-custom__field { line-height:1.15; }
 
-.dk-clock-custom__content { display:flex; flex-shrink:0; }
-.dk-clock-custom__content--background { padding:8px 12px; background-image:url('coui://gui/maps/driftkings/clock/clockbg.png'); background-repeat:no-repeat; background-size:100% 100%; }
+/* One Flash text line per row; a negative leading overlaps the rows. */
+.dk-clock-custom__content { display:flex; flex-direction:column; flex-shrink:0; }
+.dk-clock-custom__line { display:flex; flex-direction:row; align-items:flex-end; flex-shrink:0; }

@@ -392,15 +392,9 @@ class HANGAR_PREFERENCES(object):
     LOOT_BOXES_WIDGET = 'lootBoxesWidget'
     HIDE_BTN_COUNTERS = 'hideBtnCounters'
     FIELD_MAIL = 'fieldMail'
-    CLOCK = 'clock'
-    CLOCK_BACKGROUND = 'clockBackground'
-    CLOCK_X = 'clockX'
-    CLOCK_Y = 'clockY'
-    CLOCK_SCALE = 'clockScale'
     SHOW_BATTLE_PASS_WIDGET = 'showBattlePassWidget'
     BLOCK_VEHICLE_IF_LOW_AMMO = 'blockVehicleIfLowAmmo'
     LOW_AMMO_PERCENTAGE = 'lowAmmoPercentage'
-    CUSTOM_CLOCK_TEXT = 'customClockText'
 
 
 class HANGAR_MARKS_OF_EXCELLENCE(object):
@@ -428,6 +422,13 @@ class TECH_TREE_MARKS_OF_EXCELLENCE(object):
     BADGE_OFFSET_X = 'badgeOffsetX'
     BADGE_OFFSET_Y = 'badgeOffsetY'
     BADGE_FONT_SIZE = 'badgeFontSize'
+
+
+class MAIN(object):
+    NAME = 'main'
+    # {'enabled': bool, 'formats': [field, ...]}; each field is positioned on the screen.
+    CLOCK = 'clock'
+    FORMATS = 'formats'
 
 
 class SOUND_BANK_LOADER(object):
@@ -461,8 +462,6 @@ HANDLER_VALUES = {
         CREW_MANAGEMENT.CREW_RETURN_BY_DEFAULT, CREW_MANAGEMENT.AUTO_RETURN_DELAY,
         CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES)},
     HANGAR_PREFERENCES.NAME: {
-        HANGAR_PREFERENCES.CLOCK: (HANGAR_PREFERENCES.CLOCK_X, HANGAR_PREFERENCES.CLOCK_Y,
-                              HANGAR_PREFERENCES.CLOCK_SCALE, HANGAR_PREFERENCES.CLOCK_BACKGROUND, HANGAR_PREFERENCES.CUSTOM_CLOCK_TEXT),
         HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO: (HANGAR_PREFERENCES.LOW_AMMO_PERCENTAGE,)},
     MINIMAP_ENHANCEMENTS.NAME: {
         MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS: (MINIMAP_ENHANCEMENTS.LAST_POSITION_DURATION,

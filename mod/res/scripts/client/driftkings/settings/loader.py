@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Python defaults, selected profile and per-feature JSON persistence."""
 import copy
+import json
 from driftkings.logger import get_logger
 import math
 import os
@@ -49,6 +50,57 @@ def validate_types(defaults, values, path=''):
                 raise ValueError('Expected text: ' + name)
         elif isinstance(default, (tuple, list)) and not isinstance(value, (tuple, list)):
             raise ValueError('Expected a list: ' + name)
+
+
+# The earlier flat clock options, first in hangar_preferences and briefly in main.
+OLD_CLOCK_OPTIONS = ('clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText')
+OLD_CLOCK_TEXT = ("<font face='$FieldFont'><textformat leading='-38'><font size='36'>%H:%M</font><br></textformat>"
+                  "<textformat rightMargin='85' leading='-2'>%A<br><font size='15'>%d %b %Y</font></textformat></font>")
+# Comments allowed in hand-written clock JSON; quoted strings are kept as written.
+JSON_COMMENTS = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n]*|/\*[\s\S]*?\*/')
+
+
+def clock_formats(text, x, y):
+    """Clock fields from an earlier text: a JSON list of fields, or one text field at the old position."""
+    parsed = text if isinstance(text, (dict, list)) else None
+    if parsed is None and isinstance(text, string_types):
+        clean = JSON_COMMENTS.sub(lambda match: match.group(1) or '', text)
+        if clean.strip()[:1] in ('{', '['):
+            try:
+                parsed = json.loads(clean)
+            except ValueError:
+                return None
+    if parsed is not None:
+        formats = parsed.get('formats') if isinstance(parsed, dict) else parsed
+        return formats if isinstance(formats, list) else None
+    if not isinstance(text, string_types) or not text.strip():
+        return None
+    return [{'x': x, 'y': y, 'screenHAlign': 'right', 'width': 240, 'height': 100,
+             'textFormat': {'align': 'right'}, 'format': text}]
+
+
+def migrate_main_options(values, hangar_path):
+    """Convert earlier clock options into main's clock object; hangar_preferences.json is never rewritten.
+
+    An untouched shipped clock keeps the current default fields; scale and background are retired.
+    """
+    if isinstance(values.get('clock'), dict):
+        return values
+    old = dict((key, values.pop(key)) for key in OLD_CLOCK_OPTIONS if key in values)
+    if not old and os.path.isfile(hangar_path):
+        hangar = read_object(hangar_path)
+        old = dict((key, hangar[key]) for key in OLD_CLOCK_OPTIONS if key in hangar)
+    clock = {}
+    if type(old.get('clock')) is bool:
+        clock['enabled'] = old['clock']
+    text, x, y = old.get('customClockText'), old.get('clockX', -100), old.get('clockY', 80)
+    if not (text == OLD_CLOCK_TEXT and x == -100 and y == 80):
+        formats = clock_formats(text, x, y)
+        if formats is not None:
+            clock['formats'] = formats
+    if clock:
+        values['clock'] = clock
+    return values
 
 
 def migrate_values(component, values):
@@ -251,6 +303,9 @@ class SettingsLoader(object):
         recover_file(path)
         if os.path.isfile(path):
             values = migrate_values(component, read_object(path))
+            if component == 'main':
+                # The installer may create main.json with only its switch.
+                values = migrate_main_options(values, self.path('hangar_preferences'))
         else:
             old_path = self.previous_path(component)
             values = read_object(old_path) if old_path else None
@@ -266,6 +321,8 @@ class SettingsLoader(object):
                 previous = self.path('hangar_preferences')
                 if os.path.isfile(previous):
                     values = migrate_profile_options(read_object(previous))
+            if component == 'main':
+                values = migrate_main_options(values or {}, self.path('hangar_preferences'))
             values = migrate_values(component, {} if values is None else values)
             validate_types(defaults, values, component)
             values = merge(defaults, values)

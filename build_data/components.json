@@ -289,33 +289,13 @@
       ],
       "assets": [
         {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_preferences/clock.css",
-          "target": "res/gui/gameface/mods/driftkings/hangar_preferences/clock.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_preferences/clock.js",
-          "target": "res/gui/gameface/mods/driftkings/hangar_preferences/clock.js",
-          "generator": null
-        },
-        {
           "source": "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.js",
           "target": "res/gui/gameface/mods/driftkings/hangar_preferences/header_options.js",
           "generator": null
         },
         {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_preferences/clock.html",
-          "target": "res/gui/gameface/mods/driftkings/hangar_preferences/clock.html",
-          "generator": null
-        },
-        {
           "source": "mod/res/gui/gen_resources/driftkings.hangar_preferences.json",
           "target": "res/gui/gen_resources/driftkings.hangar_preferences.json",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/maps/driftkings/clock/clockbg.png",
-          "target": "res/gui/maps/driftkings/clock/clockbg.png",
           "generator": null
         },
         {
@@ -341,6 +321,41 @@
         {
           "source": "mod/res/gui/gen_resources/driftkings.high_caliber_gameface.json",
           "target": "res/gui/gen_resources/driftkings.high_caliber_gameface.json",
+          "generator": null
+        }
+      ]
+    },
+    "main": {
+      "kind": "feature",
+      "enabled": true,
+      "entrypoint": "components.main",
+      "config_files": [
+        "default/main.json"
+      ],
+      "assets": [
+        {
+          "source": "mod/res/gui/gameface/mods/driftkings/main/clock.css",
+          "target": "res/gui/gameface/mods/driftkings/main/clock.css",
+          "generator": null
+        },
+        {
+          "source": "mod/res/gui/gameface/mods/driftkings/main/clock.js",
+          "target": "res/gui/gameface/mods/driftkings/main/clock.js",
+          "generator": null
+        },
+        {
+          "source": "mod/res/gui/gameface/mods/driftkings/main/clock.html",
+          "target": "res/gui/gameface/mods/driftkings/main/clock.html",
+          "generator": null
+        },
+        {
+          "source": "mod/res/gui/gen_resources/driftkings.main.json",
+          "target": "res/gui/gen_resources/driftkings.main.json",
+          "generator": null
+        },
+        {
+          "source": "mod/res/gui/maps/driftkings/clock/clockbg.png",
+          "target": "res/gui/maps/driftkings/clock/clockbg.png",
           "generator": null
         }
       ]

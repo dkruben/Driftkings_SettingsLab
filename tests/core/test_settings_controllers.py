@@ -60,26 +60,28 @@ class SettingsControllerTests(RuntimeTest):
 
     def test_clock_refreshes_after_connect_and_after_disconnect(self):
         common = source('views/hangar/common.py', {'driftkings.core.settings_controller': module(SettingsController=self.base)})
-        current = {'text': 'first'}
-        service = module(getComponentDict=lambda config: {self.constants.HANGAR_PREFERENCES.CUSTOM_CLOCK_TEXT: current['text']})
-        controller = self.controller('views/hangar/hangar_preferences.py', 'ClockController', {
-            'HangarController': common['HangarController'], 'settings_service': service,
-            '_component': lambda: module(config=object())})
+        changes = []
+        controller = self.controller('views/hangar/main.py', 'ClockController', {
+            'HangarController': common['HangarController'], 'MAIN': self.constants.MAIN, 'GLOBAL': self.constants.GLOBAL,
+            'affects': lambda values, *options: changes.append(options) or True})
         class Parent(object):
             pass
         parent = Parent()
         def refresh():
-            self.events.append(('refresh', controller.active, controller.clockText, len(self.listeners)))
+            self.events.append(('refresh', controller.active, len(self.listeners)))
         child = module(refresh=refresh)
         controller.views[parent] = child
         controller.start()
         controller.start()
         controller.stop()
         controller.stop()
-        self.assertEqual(self.events, [('connect', True), ('refresh', True, 'first', 1),
-                                       ('disconnect', False), ('refresh', False, 'first', 0)])
-        current['text'] = 'second'
+        self.assertEqual(self.events, [('connect', True), ('refresh', True, 1),
+                                       ('disconnect', False), ('refresh', False, 0)])
+        # Clock fields are live: any change under main.clock republishes them.
+        del self.events[:]
         controller.start()
-        self.assertEqual(controller.clockText, 'second')
+        controller.onSettingsChanged(None, {'clock': {'formats': []}})
+        self.assertEqual(changes, [('enabled', 'clock')])
+        self.assertEqual(self.events[-1], ('refresh', True, 1))
         controller.stop()
         self.assertEqual(self.listeners, [])

@@ -1,0 +1,36 @@
+{
+  "clock": {
+    "enabled": true,
+    "formats": [
+      {
+        "x": 4,
+        "y": 93,
+        "screenHAlign": "right",
+        "format": "<img src='gui/maps/driftkings/clock/clockbg.png'>"
+      },
+      {
+        "x": -10,
+        "y": 80,
+        "width": 200,
+        "height": 50,
+        "screenHAlign": "right",
+        "shadow": {
+          "enabled": true,
+          "distance": 0,
+          "angle": 0,
+          "color": "#000000",
+          "alpha": 70,
+          "blur": 4,
+          "strength": 2
+        },
+        "textFormat": {
+          "align": "right",
+          "valign": "bottom",
+          "color": "#959688"
+        },
+        "format": "<font face='$FieldFont'><textformat leading='-38'><font size='36'>%H:%M</font><br></textformat><textformat rightMargin='85' leading='-2'>%A<br><font size='15'>%d %b %Y</font></textformat></font>"
+      }
+    ]
+  },
+  "enabled": true
+}

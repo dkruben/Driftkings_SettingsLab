@@ -52,88 +52,121 @@
         });
     }
 
-    function formatText(value, now) {
-        var macro = /\{\{py:xvm\.formatDate\((['"])(.*?)\1\)\}\}/g;
-        // No Python evaluation: only the documented date macro is recognized.
-        if (macro.test(value)) {
-            macro.lastIndex = 0;
-            return value.replace(macro, function(all, q, fmt) {
-                return dateFormat(fmt, now);
-            });
-        }
-        return dateFormat(value, now);
-    }
-
     function clockColor(value, fallback) {
         value = String(value || '').replace(/^0x/i, '#');
         return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
     }
 
     function clockImage(src) {
-        if (src === 'xvm://res/icons/clock/clockbg.png') return 'coui://gui/maps/driftkings/clock/clockbg.png';
+        // Only packaged game resources, such as gui/maps/driftkings/clock/clockbg.png.
         return /^(?:coui:\/\/)?gui\/[a-zA-Z0-9_./-]+\.(png|dds|webp)$/i.test(src) && src.indexOf('..') < 0 ? src.replace(/^(?!coui:\/\/)/, 'coui://') : '';
     }
 
-    function richClock(parent, html) {
-        var stack = [parent],
-            current = parent;
+    // Flash HTML text is laid out line by line: each <br> ends a line, and the enclosing
+    // <textformat> gives that line its margins and the leading added after it. A negative
+    // leading pulls the next line up, which puts the date beside the time.
+    function richClock(parent, html, align) {
+        var base = {size: 15, color: '', face: '', bold: false, italic: false, leading: 0, leftMargin: 0, rightMargin: 0},
+            stack = [base],
+            style = base,
+            line = null;
+
+        function inherit(attrs, type) {
+            var next = {};
+            for (var key in style) next[key] = style[key];
+            if (attrs.color) next.color = clockColor(attrs.color, '#959688');
+            if (attrs.size) next.size = bounded(attrs.size, 15, 6, 120);
+            if (attrs.face) next.face = attrs.face === '$FieldFont' ? 'Arial, sans-serif' : attrs.face.replace(/[^a-zA-Z0-9 ,_-]/g, '');
+            if (type === 'b') next.bold = true;
+            if (type === 'i') next.italic = true;
+            if (type === 'textformat') {
+                if (attrs.leading !== undefined) next.leading = bounded(attrs.leading, 0, -120, 120);
+                if (attrs.leftmargin !== undefined) next.leftMargin = bounded(attrs.leftmargin, 0, -1000, 1000);
+                if (attrs.rightmargin !== undefined) next.rightMargin = bounded(attrs.rightmargin, 0, -1000, 1000);
+            }
+            return next;
+        }
+
+        function open() {
+            if (line) return line;
+            line = {node: document.createElement('div'), size: 0, style: style};
+            line.node.className = 'dk-clock-custom__line';
+            line.node.style.justifyContent = align === 'right' ? 'flex-end' : align === 'center' ? 'center' : 'flex-start';
+            line.node.style.marginLeft = style.leftMargin + 'px';
+            line.node.style.marginRight = style.rightMargin + 'px';
+            parent.appendChild(line.node);
+            return line;
+        }
+
+        function close(empty) {
+            if (!line && !empty) return;
+            var current = open(),
+                height = Math.round((current.size || style.size) * 1.15);
+            // A minimum, not a fixed height: an <img> without a size attribute must grow its line.
+            current.node.style.minHeight = height + 'px';
+            current.node.style.lineHeight = height + 'px';
+            // Leading belongs to the line it follows; it may overlap the next one.
+            current.node.style.marginBottom = style.leading + 'px';
+            line = null;
+        }
+
+        function append(node, size) {
+            var current = open();
+            current.size = Math.max(current.size, size);
+            current.node.appendChild(node);
+        }
+
         html.split(/(<[^>]*>)/g).forEach(function(part) {
             if (!part) return;
             if (/^<\/(font|textformat|b|i)>$/i.test(part)) {
                 if (stack.length > 1) stack.pop();
-                current = stack[stack.length - 1];
+                style = stack[stack.length - 1];
                 return;
             }
             if (/^<br\s*\/?>$/i.test(part)) {
-                current.appendChild(document.createElement('br'));
+                close(true);
                 return;
             }
-            if (/^<tab\s*\/?>$/i.test(part)) {
-                var tab = document.createElement('span');
-                tab.textContent = '\u00a0\u00a0\u00a0\u00a0';
-                current.appendChild(tab);
-                return;
-            }
-            var tag = /^<(font|textformat|b|i|img)(\s[^>]*)?>$/i.exec(part);
+            var tag = /^<(font|textformat|b|i|img|tab)(\s[^>]*)?\/?>$/i.exec(part);
             if (tag) {
                 var attrs = {},
                     match, re = /([a-z]+)\s*=\s*(['"])(.*?)\2/gi;
                 while ((match = re.exec(tag[2] || ''))) attrs[match[1].toLowerCase()] = match[3];
-                var type = tag[1].toLowerCase(),
-                    child = document.createElement(type === 'img' ? 'img' : 'span');
+                var type = tag[1].toLowerCase();
                 if (type === 'img') {
                     var src = clockImage(attrs.src || '');
                     if (!src) return;
-                    child.src = src;
-                    child.alt = '';
+                    var image = document.createElement('img');
+                    image.src = src;
+                    image.alt = '';
+                    ['width', 'height'].forEach(function(k) {
+                        if (attrs[k]) image.style[k] = bounded(attrs[k], 0, 0, 4096) + 'px';
+                    });
+                    append(image, attrs.height ? bounded(attrs.height, 0, 0, 4096) / 1.15 : style.size);
+                    return;
                 }
-                if (attrs.color) child.style.color = clockColor(attrs.color, '#959688');
-                if (attrs.size) child.style.fontSize = bounded(attrs.size, 15, 6, 120) + 'px';
-                if (attrs.face) child.style.fontFamily = attrs.face === '$FieldFont' ? 'Arial, sans-serif' : attrs.face.replace(/[^a-zA-Z0-9 ,_-]/g, '');
-                if (type === 'b') child.style.fontWeight = 'bold';
-                if (type === 'i') child.style.fontStyle = 'italic';
-                if (type === 'textformat') {
-                    child.style.display = 'block';
-                    child.style.marginRight = bounded(attrs.rightmargin, 0, -1000, 1000) + 'px';
-                    // Flash negative leading cannot be applied as a collapsing CSS margin.
-                    child.style.marginBottom = bounded(attrs.leading, 0, 0, 120) + 'px';
+                if (type === 'tab') {
+                    var tab = document.createElement('span');
+                    tab.textContent = '\u00a0\u00a0\u00a0\u00a0';
+                    append(tab, style.size);
+                    return;
                 }
-                ['width', 'height'].forEach(function(k) {
-                    if (attrs[k]) child.style[k] = bounded(attrs[k], 0, 0, 4096) + 'px';
-                });
-                current.appendChild(child);
-                if (type !== 'img') {
-                    stack.push(child);
-                    current = child;
-                }
+                style = inherit(attrs, type);
+                stack.push(style);
                 return;
             }
             if (part.charAt(0) !== '<') {
-                var textNode = document.createElement('span');
-                textNode.textContent = part;
-                current.appendChild(textNode);
+                var text = document.createElement('span');
+                text.textContent = part;
+                text.style.fontSize = style.size + 'px';
+                if (style.color) text.style.color = style.color;
+                if (style.face) text.style.fontFamily = style.face;
+                if (style.bold) text.style.fontWeight = 'bold';
+                if (style.italic) text.style.fontStyle = 'italic';
+                append(text, style.size);
             }
         });
+        close(false);
     }
 
     function shadowStyle(shadow, color) {
@@ -166,29 +199,9 @@
             document.body.appendChild(policy);
         }
         policy.textContent = cfg.hidePrestige ? '[class*="Information_prestige_"] { display:none; }' : '';
-        var source = String(cfg.customClockText || ''),
-            formats;
-        try {
-            var clean = source.replace(/("(?:\\.|[^"\\])*")|\/\/[^\r\n]*|\/\*[\s\S]*?\*\//g, function(all, quoted) {
-                return quoted || '';
-            });
-            var parsed = JSON.parse(clean);
-            formats = Array.isArray(parsed) ? parsed : parsed.formats;
-            if (!Array.isArray(formats) || formats.length > 32) throw new Error('Invalid clock formats');
-        } catch (e) {
-            if (/^\s*[\[{]/.test(source)) return;
-            formats = [{
-                x: cfg.clockX,
-                y: cfg.clockY,
-                screenHAlign: 'right',
-                width: 240,
-                height: 100,
-                textFormat: {
-                    align: 'right'
-                },
-                format: source
-            }];
-        }
+        // main.json clock.formats: each field is placed on the screen and drawn on its own.
+        var formats = cfg.formats;
+        if (!Array.isArray(formats) || formats.length > 32) return;
         custom = document.createElement('div');
         custom.className = 'dk-clock-custom';
         document.body.appendChild(custom);
@@ -210,7 +223,7 @@
             var content = document.createElement('div');
             content.className = 'dk-clock-custom__content';
             content.style.alignSelf = tf.align === 'right' ? 'flex-end' : tf.align === 'center' ? 'center' : 'flex-start';
-            if (cfg.clockBackground) content.classList.add('dk-clock-custom__content--background');
+            content.style.alignItems = content.style.alignSelf;
             field.appendChild(content);
             custom.appendChild(field);
             customFields.push({
@@ -224,14 +237,13 @@
 
     function tickCustom(now) {
         if (!custom) return false;
-        var scale = bounded(cfg.clockScale, 100, 50, 200) / 100;
         customFields.forEach(function(entry) {
             var def = entry.def,
                 field = entry.node,
-                html = formatText(def.format, now);
+                html = dateFormat(def.format, now);
             if (entry.last !== html) {
                 while (entry.content.firstChild) entry.content.removeChild(entry.content.firstChild);
-                richClock(entry.content, html);
+                richClock(entry.content, html, (def.textFormat || {}).align);
                 entry.last = html;
             }
             var width = bounded(def.width, 0, 0, 4096),
@@ -239,12 +251,10 @@
                 x = bounded(def.x, 0, -4096, 4096);
             field.style.width = width ? width + 'px' : 'auto';
             field.style.height = height ? height + 'px' : 'auto';
-            field.style.transform = 'scale(' + scale + ')';
-            field.style.transformOrigin = 'top left';
             var left = def.screenHAlign === 'right' ?
-                window.innerWidth - (width || field.offsetWidth) * scale :
+                window.innerWidth - (width || field.offsetWidth) :
                 def.screenHAlign === 'center' ?
-                    (window.innerWidth - (width || field.offsetWidth) * scale) / 2 : 0;
+                    (window.innerWidth - (width || field.offsetWidth)) / 2 : 0;
             field.style.left = (left + x) + 'px';
             field.style.top = bounded(def.y, 0, -2160, 2160) + 'px';
         });

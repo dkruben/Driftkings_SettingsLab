@@ -1,15 +1,6 @@
 [
   {
     "type": "Layout",
-    "path": "coui://gui/gameface/mods/driftkings/hangar_preferences/clock.html",
-    "parameters": {
-      "entrance": "main",
-      "impl": "gameface"
-    },
-    "id": "R.mods.driftkings.hangar_preferences.clock"
-  },
-  {
-    "type": "Layout",
     "path": "coui://gui/gameface/mods/driftkings/hangar_preferences/header_options.html",
     "parameters": {
       "entrance": "main",

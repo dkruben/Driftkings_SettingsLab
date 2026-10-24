@@ -35,10 +35,10 @@
         "DriftkingsHangarClock": {
             "owner": "__dkHangarClock",
             "scripts": [
-                "coui://gui/gameface/mods/driftkings/hangar_preferences/clock.js"
+                "coui://gui/gameface/mods/driftkings/main/clock.js"
             ],
             "styles": [
-                "coui://gui/gameface/mods/driftkings/hangar_preferences/clock.css"
+                "coui://gui/gameface/mods/driftkings/main/clock.css"
             ]
         },
         "DriftkingsHangarHeaderOptions": {
