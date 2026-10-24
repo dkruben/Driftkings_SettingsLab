@@ -28,8 +28,8 @@ LOG = get_logger('Driftkings.Analytics')
 
 # Fill in before a release. The API secret ships inside the mod, so it is public
 # by nature: GA4 accepts writes only, but anyone could send fake events with it.
-MEASUREMENT_ID = ''
-API_SECRET = ''
+MEASUREMENT_ID = 'G-B7Z425MJ3L'
+API_SECRET = 'SD2sbCSKQACB-ILu408-EA'
 
 ENDPOINT = 'https://www.google-analytics.com/mp/collect?measurement_id=%s&api_secret=%s'
 SETTINGS = 'dk.settings'
