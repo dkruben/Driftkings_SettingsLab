@@ -13,6 +13,10 @@
     "Fix WN8 fallback averages and refresh expected-value caches after data updates.",
     "Reject invalid statistics downloads while preserving the last usable cache; bound and close player-statistics responses.",
     "Enable validation for develop, run every Gameface regression suite and make retry tests deterministic.",
-    "Remove the inactive hangar-efficiency panel and improve clock error diagnostics."
+    "Remove the inactive hangar-efficiency panel and improve clock error diagnostics.",
+    "Center the minimap artillery aim in the camera frame at a fixed size and show it only in artillery and strategic modes.",
+    "Extend the minimap hull direction line to the map edge and document the {{cellsize}} map-size macro.",
+    "Add General settings and move the hangar clock there: clock.enabled and a list of positioned fields (text, shadow and background image) replace the size, background and single-format options; earlier clock settings are converted automatically.",
+    "Lay out clock text line by line like Flash, so negative leading places the weekday and date beside the time."
   ]
 }
