@@ -26,6 +26,7 @@ class StatsTests(RuntimeTest):
         })
         self.api['open'] = lambda *args, **kwargs: open(*args, **kwargs)
         self.scale = self.api['scaleValuesInstance']
+        self.scale._inHangar = lambda: True
         self.api['LOG'] = module(exception=lambda *args: None, warning=lambda *args: None)
 
     def download(self, url, timeout):
@@ -135,6 +136,36 @@ class StatsTests(RuntimeTest):
         self.assertEqual(self.scale.wn8_revision, revision + 1)
         self.assertEqual(self.scale.vehicleInfoData[1]['wn8expDamage'], 1000)
 
+    def test_invalid_local_wn8_preserves_active_table_and_revision(self):
+        record = dict(IDNum=1, expDamage=1000, expSpot=1, expWinRate=50, expDef=1, expFrag=1)
+        path = os.path.join(self.directory, 'wn8exp.json')
+        self.scale.vehicleInfoData[1] = {}
+        with open(path, 'w') as stream:
+            json.dump({'data': [record]}, stream)
+        self.scale._loadWn8Data()
+        revision = self.scale.wn8_revision
+        with open(path, 'w') as stream:
+            json.dump({'data': [dict(record, expDamage=-1)]}, stream)
+        self.scale._loadWn8Data()
+        self.assertEqual(self.scale.wn8_revision, revision)
+        self.assertEqual(self.scale.vehicleInfoData[1]['wn8expDamage'], 1000)
+
+    def test_replacement_wn8_removes_obsolete_vehicle_expectations(self):
+        self.scale.vehicleInfoData[1] = {'wn8expDamage': 999, 'level': 6}
+        self.scale.vehicleInfoData[2] = {}
+        record = dict(IDNum=2, expDamage=1000, expSpot=1, expWinRate=50, expDef=1, expFrag=1)
+        with open(os.path.join(self.directory, 'wn8exp.json'), 'w') as stream:
+            json.dump({'data': [record]}, stream)
+        self.scale._loadWn8Data()
+        self.assertNotIn('wn8expDamage', self.scale.vehicleInfoData[1])
+        self.assertEqual(self.scale.vehicleInfoData[1]['level'], 6)
+        self.assertEqual(self.scale.vehicleInfoData[2]['wn8expDamage'], 1000)
+
+    def test_download_rejects_read_that_finishes_after_deadline(self):
+        clock = iter([0, 0, 31])
+        self.api['time'] = module(time=lambda: next(clock))
+        self.assertRaises(IOError, self.scale.download, 'test', 30)
+
     def test_downloads_run_off_the_client_thread_and_are_applied_by_polling(self):
         calls = []
         self.api['callback'] = lambda delay, method: calls.append(method)
@@ -172,6 +203,70 @@ class StatsTests(RuntimeTest):
         self.assertEqual(self.scale.calculateXTDB(1, 200), 100)
         self.scale.xtdb_data = {'1': {'x': [200, 100]}}
         self.assertEqual(self.scale.calculateXTDB(1, 150), -1)
+
+    def test_refresh_waits_for_hangar_and_selects_only_due_table(self):
+        now = 200000.0
+        self.api['time'] = module(time=lambda: now)
+        started = []
+        self.api['threading'] = module(Thread=lambda **kwargs: module(
+            start=lambda: started.append(self.scale._downloadSources), daemon=False))
+        for name, url, validate in self.scale.SOURCES:
+            with open(os.path.join(self.directory, name), 'wb') as stream:
+                stream.write(b'{}')
+            self.scale._refreshState[name] = {'success': now - 100, 'retry': 0}
+        self.scale._startDownloads()
+        self.assertEqual(started, [])
+        self.scale._refreshState['wn8exp.json']['success'] = now - 86400
+        self.scale._inHangar = lambda: False
+        self.scale._startDownloads()
+        self.assertEqual(started, [])
+        self.scale._inHangar = lambda: True
+        self.scale._startDownloads()
+        self.assertEqual([s[0] for s in started[0]], ['wn8exp.json'])
+
+    def test_failure_backoff_is_persisted_and_blocks_early_retry(self):
+        now = 200000.0
+        self.api['time'] = module(time=lambda: now)
+        self.scale._updates.put(('wn8exp.json', False, now))
+        self.scale._pollDownloads()
+        self.assertEqual(self.scale._refreshState['wn8exp.json']['retry'], now + 1800)
+        self.scale._refreshState = {}
+        self.scale._loadRefreshState()
+        self.assertEqual(self.scale._refreshState['wn8exp.json']['retry'], now + 1800)
+        self.scale.SOURCES = tuple(s for s in self.scale.SOURCES if s[0] == 'wn8exp.json')
+        started = []
+        self.api['threading'] = module(Thread=lambda **kwargs: module(start=lambda: started.append(True)))
+        self.scale._startDownloads()
+        self.assertEqual(started, [])
+        self.api['time'] = module(time=lambda: now + 1800)
+        self.scale._startDownloads()
+        self.assertEqual(started, [True])
+
+    def test_completed_download_is_applied_only_after_returning_to_hangar(self):
+        applied = []
+        self.scale.APPLY = {'wn8exp.json': lambda instance: applied.append(True)}
+        self.scale._updates.put(('wn8exp.json', True, 12345))
+        self.scale._inHangar = lambda: False
+        self.scale._pollDownloads()
+        self.assertEqual(applied, [])
+        self.assertFalse(self.scale._updates.empty())
+        self.scale._inHangar = lambda: True
+        self.scale._pollDownloads()
+        self.assertEqual(applied, [True])
+        self.assertEqual(self.scale._refreshState['wn8exp.json']['success'], 12345)
+
+    def test_invalid_local_cache_is_refreshed_even_with_recent_success(self):
+        now = 200000.0
+        self.api['time'] = module(time=lambda: now)
+        self.scale.SOURCES = tuple(s for s in self.scale.SOURCES if s[0] == 'wn8exp.json')
+        with open(os.path.join(self.directory, 'wn8exp.json'), 'wb') as stream:
+            stream.write(b'{}')
+        self.scale._refreshState['wn8exp.json'] = {'success': now - 1}
+        self.scale._loadWn8Data()
+        started = []
+        self.api['threading'] = module(Thread=lambda **kwargs: module(start=lambda: started.append(True)))
+        self.scale._startDownloads()
+        self.assertEqual(started, [True])
 
     def test_player_aliases_none_ratings_and_missing_hp(self):
         self.scale.vehicleInfoData[1] = {'level': 6}

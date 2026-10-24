@@ -3,6 +3,28 @@ from support import RuntimeTest, Settings, game_source, module
 
 
 class AccountWN8Tests(RuntimeTest):
+    def test_client_legacy_modes_are_removed_from_totals_and_vehicle_weights(self):
+        api = self.load('core.profile_ratings')
+        def stats(battles, wins, damage, frags, spots, defense, vehicles=None):
+            return module(getBattlesCount=lambda: battles, getWinsCount=lambda: wins,
+                          getDamageDealt=lambda: damage, getFragsCount=lambda: frags,
+                          getSpottedEnemiesCount=lambda: spots, getCapturePoints=lambda: 0,
+                          getDroppedCapturePoints=lambda: defense, getVehicles=lambda: vehicles)
+        empty = stats(0, 0, 0, 0, 0, 0)
+        historical = stats(10, 5, 500, 5, 5, 5)
+        vehicle = module(getRandomStats=lambda: stats(110, 55, 100500, 105, 105, 105),
+                         getClanStats=lambda: historical, getCompanyStats=lambda: empty)
+        account = module(getRandomStats=lambda: stats(110, 55, 100500, 105, 105, 105, {1: (110, 55, 0)}),
+                         getClanStats=lambda: historical, getCompanyStats=lambda: empty)
+        clean = api.pure_random_stats(account, vehicle_dossier=lambda ident: vehicle)
+        self.assertEqual(clean.getBattlesCount(), 100)
+        self.assertEqual(clean.getVehicles(), {1: (100, 50, 0)})
+        self.assertEqual(clean.getAvgDamage(), 1000)
+        expected = lambda ident: dict(wn8expDamage=1000, wn8expFrag=1, wn8expSpot=1, wn8expDef=1, wn8expWinRate=50)
+        self.assertEqual(api.account_wn8(clean, expected), 1565)
+        self.assertIsNone(api.pure_random_stats(account, vehicle_dossier=lambda ident: None))
+        self.assertIsNone(api.vehicle_wn8(None, 1, expected))
+
     def setUp(self):
         super(AccountWN8Tests, self).setUp()
         self.calculate = self.load('core.profile_ratings').account_wn8

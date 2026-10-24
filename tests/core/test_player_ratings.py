@@ -102,6 +102,36 @@ class PlayerRatingsTests(RuntimeTest):
         self.assertEqual(api['Events'].read_response('test', 1), b'{}')
         self.assertEqual(closed, [True, True])
 
+    def test_api_statistics_pair_random_account_and_vehicle_counts(self):
+        api = self.api
+        requests = []
+        def request(region, endpoint, **kwargs):
+            requests.append((endpoint, kwargs))
+            if endpoint == 'wot/account/info':
+                return {'511': {'statistics': {'random': {'battles': 10}, 'all': {'battles': 90}}}}
+            return {'511': [{'tank_id': 1, 'mark_of_mastery': 3,
+                             'random': {'battles': 10, 'wins': 6, 'damage_dealt': 10000},
+                             'all': {'battles': 90, 'wins': 80, 'damage_dealt': 900000}}]}
+        api['g_event'] = module(userRegion=lambda account: 'eu', request=request)
+        stats = api['Statistics']()
+        info, tanks = stats.fetchPlayerStats(['511'])
+        self.assertEqual(info['511']['statistics']['random']['battles'], 10)
+        self.assertEqual(tanks['511'][0]['statistics']['battles'], 10)
+        self.assertEqual(tanks['511'][0]['damageStats']['damage_dealt'], 10000)
+        self.assertEqual(tanks['511'][0]['mark_of_mastery'], 3)
+        self.assertEqual(requests[0][1]['extra'], 'statistics.random')
+        self.assertEqual(requests[1][0], 'wot/tanks/stats')
+        self.assertEqual(requests[1][1]['extra'], 'random')
+        self.assertEqual(requests[1][1]['account_id'], '511')
+        self.assertNotIn('statistics.all', requests[0][1]['fields'])
+
+    def test_api_vehicle_failure_is_not_cached_as_empty_statistics(self):
+        api = self.api
+        api['g_event'] = module(userRegion=lambda account: 'eu', request=lambda *args, **kwargs: None)
+        info, tanks = api['Statistics']().fetchPlayerStats(['511'])
+        self.assertEqual(info, {})
+        self.assertEqual(tanks, {})
+
     def test_statistics_download_checks_deadline_after_read_and_closes(self):
         api = self.api
         closed, clock = [], iter([0, 0, 31])

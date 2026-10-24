@@ -3,6 +3,72 @@
 import math
 
 
+def pure_random_stats(dossier, vehicle_id=None, vehicle_dossier=None):
+    """Client a15x15 includes legacy clan/company counters; API random does not.
+
+    Read cached dossiers only. Never invent per-vehicle weights when another
+    player's vehicle dossiers have not been received by the client.
+    """
+    base = dossier.getRandomStats()
+    excluded = [getattr(dossier, method)() for method in ('getClanStats', 'getCompanyStats')
+                if hasattr(dossier, method)]
+    if not any(stats.getBattlesCount() for stats in excluded):
+        return base
+    methods = ('getBattlesCount', 'getWinsCount', 'getDamageDealt', 'getFragsCount',
+               'getSpottedEnemiesCount', 'getCapturePoints', 'getDroppedCapturePoints')
+    values = {}
+    for method in methods:
+        value = getattr(base, method)() - sum(getattr(stats, method)() for stats in excluded)
+        if value < 0:
+            return None
+        values[method] = value
+    count = values['getBattlesCount']
+    if not count:
+        return None
+    if vehicle_id is not None:
+        vehicles = {vehicle_id: (count, values['getWinsCount'], 0)}
+    else:
+        if vehicle_dossier is None:
+            from gui.shared.personality import ServicesLocator
+            player_id = dossier.getPlayerDBID()
+            vehicle_dossier = lambda ident: ServicesLocator.itemsCache.items.getVehicleDossier(ident, player_id)
+        vehicles = {}
+        for ident, record in base.getVehicles().items():
+            if not record[0]:
+                continue
+            item = vehicle_dossier(ident)
+            if item is None:
+                return None
+            stats = pure_random_stats(item, ident)
+            if stats is not None and stats.getBattlesCount():
+                vehicles[ident] = (stats.getBattlesCount(), stats.getWinsCount(), 0)
+        if sum(record[0] for record in vehicles.values()) != count:
+            return None
+
+    class RandomStats(object):
+        def __getattr__(self, name):
+            if name in values:
+                return lambda: values[name]
+            return getattr(base, name)
+
+        def getVehicles(self):
+            return vehicles
+
+        def getAvgDamage(self):
+            return float(values['getDamageDealt']) / count
+
+        def getAvgFrags(self):
+            return float(values['getFragsCount']) / count
+
+        def getAvgEnemiesSpotted(self):
+            return float(values['getSpottedEnemiesCount']) / count
+
+        def getWinsEfficiency(self):
+            return float(values['getWinsCount']) / count
+
+    return RandomStats()
+
+
 def parse_thresholds(text, maximum):
     values = [float(item.strip()) for item in text.split(',')]
     if (len(values) != 5 or any(math.isnan(value) or math.isinf(value) or value <= 0 or value > maximum for value in values)
@@ -13,6 +79,8 @@ def parse_thresholds(text, maximum):
 
 def vehicle_wn8(stats, vehicle_id, expected):
     """Use the same WN8 formula and validation for a single vehicle dossier."""
+    if stats is None:
+        return None
     class VehicleStats(object):
         def getVehicles(self):
             return {vehicle_id: (stats.getBattlesCount(),)}
@@ -24,6 +92,8 @@ def vehicle_wn8(stats, vehicle_id, expected):
 
 
 def account_wn8(stats, expected):
+    if stats is None:
+        return None
     battles = stats.getBattlesCount()
     if not battles:
         return None

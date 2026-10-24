@@ -249,7 +249,7 @@ class Events(object):
         if region not in Events.SUPPORTED_REGIONS:
             LOG.warning(('Unsupported region for stats request: {}').format(region))
             return None
-        kwargs['application_id'] = '14f9ad61272e03b7a446433e732d6b7f'
+        kwargs['application_id'] = 'e4063b2b8eb85a484dfff9bb84822256'
         api = 'api.worldoftanks.%s' % region
         url = 'https://%s/%s/?%s' % (api, request, urllib.urlencode(kwargs))
         try:
@@ -436,7 +436,10 @@ class Statistics(object):
             self._localAccount, self._localStats = str(dbID), None
         try:
             items = cache.items
-            stats = items.getAccountDossier().getRandomStats()
+            from driftkings.core.profile_ratings import pure_random_stats
+            stats = pure_random_stats(items.getAccountDossier())
+            if stats is None:
+                raise ValueError('Incomplete random-only vehicle dossiers')
             values = dict((key, getattr(stats, method)()) for key, method in (
                 ('battles', 'getBattlesCount'), ('wins', 'getWinsCount'),
                 ('damage_dealt', 'getDamageDealt'), ('frags', 'getFragsCount'),
@@ -455,7 +458,7 @@ class Statistics(object):
                 for tank in tanks:
                     if tank['tank_id'] in damage:
                         tank['damageStats'] = damage[tank['tank_id']]
-            info = {'statistics': {'all': values}, 'global_rating': items.stats.globalRating,
+            info = {'statistics': {'random': values}, 'global_rating': items.stats.globalRating,
                     'client_language': 'en'}
             self._localStats = {'info': info, 'tanks': tanks}
         except Exception as error:
@@ -481,9 +484,11 @@ class Statistics(object):
                 break
             if dbID not in info or not info[dbID] or not tanks.get(dbID):
                 continue
+            if any(tank.get('tank_id') == tankID and 'damageStats' in tank for tank in tanks[dbID]):
+                continue
             detail = g_event.request(g_event.userRegion(int(dbID)), 'wot/tanks/stats',
                                      account_id=dbID, tank_id=tankID,
-                                     fields='tank_id,all.damage_dealt,all.battles')
+                                     extra='random', fields='tank_id,random.damage_dealt,random.battles')
             entries = detail.get(dbID) if isinstance(detail, dict) else None
             for entry in entries or []:
                 if entry.get('tank_id') != tankID:
@@ -491,7 +496,7 @@ class Statistics(object):
                 updated = [dict(tank) for tank in tanks[dbID]]
                 for tank in updated:
                     if tank.get('tank_id') == tankID:
-                        tank['damageStats'] = entry.get('all', {})
+                        tank['damageStats'] = entry.get('random', {})
                 self._responses.put((generation, [], {dbID: info[dbID]}, {dbID: updated}))
 
     def fetchPlayerStats(self, databaseIDs):
@@ -500,15 +505,23 @@ class Statistics(object):
             regions.setdefault(g_event.userRegion(int(databaseID)), []).append(databaseID)
         dataInfo, dataTanks = {}, {}
         for region in regions:
-            accountFields = ['client_language', 'global_rating', 'statistics.all.battles', 'statistics.all.wins', 'statistics.all.damage_dealt', 'statistics.all.frags', 'statistics.all.spotted', 'statistics.all.capture_points', 'statistics.all.dropped_capture_points']
-            tankFields = ['statistics.battles', 'mark_of_mastery', 'statistics.wins', 'tank_id']
+            accountFields = ['client_language', 'global_rating', 'statistics.random.battles', 'statistics.random.wins', 'statistics.random.damage_dealt', 'statistics.random.frags', 'statistics.random.spotted', 'statistics.random.capture_points', 'statistics.random.dropped_capture_points']
+            tankFields = ['random.battles', 'mark_of_mastery', 'random.wins', 'random.damage_dealt', 'tank_id']
             regionAccounts = ','.join(regions[region])
-            infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts, fields=','.join(accountFields))
+            infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts, extra='statistics.random', fields=','.join(accountFields))
             if infoResponse:
                 dataInfo.update(infoResponse)
-            tanks_response = g_event.request(region, 'wot/account/tanks', account_id=regionAccounts, fields=','.join(tankFields))
-            if tanks_response:
-                dataTanks.update(tanks_response)
+            # tanks/stats accepts one account per request. Keep its random
+            # counts paired with the account's random totals, never all-mode data.
+            for databaseID in regions[region]:
+                tanks_response = g_event.request(region, 'wot/tanks/stats', account_id=databaseID,
+                                                 extra='random', fields=','.join(tankFields))
+                if tanks_response and databaseID in tanks_response:
+                    entries = tanks_response[databaseID]
+                    dataTanks[databaseID] = None if entries is None else [
+                        {'tank_id': entry['tank_id'], 'mark_of_mastery': entry.get('mark_of_mastery', 0),
+                         'statistics': entry['random'], 'damageStats': entry['random']}
+                        for entry in entries if entry.get('random') is not None]
         return dataInfo, dataTanks
 
     def applyPlayerStats(self, dataInfo, dataTanks, updateCache=True):
@@ -573,14 +586,14 @@ class Statistics(object):
                 if dbID not in dataTanks and cachedData['tanks'] is not None:
                     dataTanks[dbID] = cachedData['tanks']
         if hasStats and dbID in dataInfo and dbID in dataTanks and dataInfo[dbID] is not None and dataTanks[dbID] is not None:
-            battles = dataInfo[dbID]['statistics']['all']['battles']
+            battles = dataInfo[dbID]['statistics']['random']['battles']
             if battles > 0 and battles >= settings[TEAM_PANELS.PERFORMANCE]['minBattlesToShow']:
-                wins = dataInfo[dbID]['statistics']['all']['wins']
-                avgDmg = dataInfo[dbID]['statistics']['all']['damage_dealt'] / float(battles)
-                avgFrags = dataInfo[dbID]['statistics']['all']['frags'] / float(battles)
-                avgSpot = dataInfo[dbID]['statistics']['all']['spotted'] / float(battles)
-                avgCap = dataInfo[dbID]['statistics']['all']['capture_points'] / float(battles)
-                avgDef = dataInfo[dbID]['statistics']['all']['dropped_capture_points'] / float(battles)
+                wins = dataInfo[dbID]['statistics']['random']['wins']
+                avgDmg = dataInfo[dbID]['statistics']['random']['damage_dealt'] / float(battles)
+                avgFrags = dataInfo[dbID]['statistics']['random']['frags'] / float(battles)
+                avgSpot = dataInfo[dbID]['statistics']['random']['spotted'] / float(battles)
+                avgCap = dataInfo[dbID]['statistics']['random']['capture_points'] / float(battles)
+                avgDef = dataInfo[dbID]['statistics']['random']['dropped_capture_points'] / float(battles)
                 winrate = wins * 100.0 / float(battles)
                 playerInfo['wgr'] = dataInfo[dbID]['global_rating']
                 playerInfo['battles'] = battles

@@ -86,6 +86,9 @@ MAX_DOWNLOAD = 16 * 1024 * 1024
 READ_CHUNK = 64 * 1024
 SOCKET_TIMEOUT = 10
 DOWNLOAD_DEADLINE = 30.0
+UPDATE_INTERVAL = 24 * 60 * 60
+RETRY_INTERVAL = 30 * 60
+HANGAR_CHECK_INTERVAL = 30.0
 VEHICLE_TYPE_XML_PATH = 'scripts/item_defs/vehicles/'
 VEHICLE_CLASS_TAGS = frozenset(('lightTank', 'mediumTank', 'heavyTank', 'SPG', 'AT-SPG'))
 
@@ -125,6 +128,9 @@ class ScaleValues(object):
         self.settings = {'onlineUpdateData': True, 'showExpectedTankValuesMessage': True}
         self._updates = Queue()
         self._downloading = False
+        self._refreshState = {}
+        self._invalidCaches = set()
+        self._downloadSources = None
         self.init()
         self._initialize_callbacks()
 
@@ -188,6 +194,8 @@ class ScaleValues(object):
                 if time.time() > limit:
                     raise IOError('download deadline exceeded')
                 chunk = response.read(READ_CHUNK)
+                if time.time() > limit:
+                    raise IOError('download deadline exceeded')
                 if not chunk:
                     break
                 total += len(chunk)
@@ -224,18 +232,24 @@ class ScaleValues(object):
                 data = json.loads(stream.read().decode('utf-8-sig'))
             if not isinstance(data, dict):
                 raise ValueError('Expected a JSON object')
+            validate = next((validate for name, url, validate in self.SOURCES if name == filename), None)
+            if validate is not None and not validate(data):
+                raise ValueError('Unexpected cached document structure')
             return data
         except (IOError, OSError, ValueError):
+            if any(name == filename for name, url, validate in self.SOURCES):
+                self._invalidCaches.add(filename)
             LOG.exception('Could not load statistics cache %s', path)
             return {}
 
     def _downloadAll(self):
         """Worker thread body: refresh every cache file, return the names that changed."""
         updated = []
-        for filename, url, validate in self.SOURCES:
-            if self.loadJsonData(url, os.path.join(self.config_path, filename), validate):
+        for filename, url, validate in self._downloadSources or self.SOURCES:
+            success = self.loadJsonData(url, os.path.join(self.config_path, filename), validate)
+            self._updates.put((filename, success, time.time()))
+            if success:
                 updated.append(filename)
-                self._updates.put(filename)
         return updated
 
     def _runDownloads(self):
@@ -247,8 +261,26 @@ class ScaleValues(object):
             self._downloading = False
 
     def _startDownloads(self):
-        if self._downloading or not self.settings.get('onlineUpdateData', True):
+        if (self._downloading or not self._updates.empty() or not self._inHangar()
+                or not self.settings.get('onlineUpdateData', True)):
             return
+        now = time.time()
+        due = []
+        for source in self.SOURCES:
+            name = source[0]
+            state = self._refreshState.get(name, {})
+            success = state.get('success', 0)
+            retry = state.get('retry', 0)
+            if retry > now and retry <= now + RETRY_INTERVAL:
+                continue
+            if (name in self._invalidCaches or not os.path.isfile(os.path.join(self.config_path, name))
+                    or success <= 0 or success > now or now - success >= UPDATE_INTERVAL):
+                due.append(source)
+        if not due:
+            return
+        # Recheck the client state before every table, rather than downloading
+        # all four after a single hangar check. Workers never access game objects.
+        self._downloadSources = due[:1]
         self._downloading = True
         worker = threading.Thread(target=self._runDownloads, name='Driftkings.StatsDownload')
         worker.daemon = True
@@ -256,31 +288,84 @@ class ScaleValues(object):
             worker.start()
         except Exception:
             self._downloading = False
+            self._refreshState.setdefault(due[0][0], {})['retry'] = time.time() + RETRY_INTERVAL
+            self._saveRefreshState()
             LOG.exception('Could not start statistics download worker')
             return
         callback(0.5, self._pollDownloads)
 
     def _pollDownloads(self):
         """Client thread: apply files published by the worker, never touching the network."""
+        if not self._inHangar():
+            callback(HANGAR_CHECK_INTERVAL, self._pollDownloads)
+            return
         while True:
             try:
-                filename = self._updates.get_nowait()
+                filename, success, finished = self._updates.get_nowait()
             except Empty:
                 break
-            self.APPLY[filename](self)
+            state = self._refreshState.setdefault(filename, {})
+            if success:
+                state.update(success=finished, retry=0)
+                self.APPLY[filename](self)
+                self._invalidCaches.discard(filename)
+            else:
+                state['retry'] = finished + RETRY_INTERVAL
+            self._saveRefreshState()
         if self._downloading or not self._updates.empty():
             callback(0.5, self._pollDownloads)
 
     def _loadAll(self):
+        self._loadRefreshState()
         for filename in ('xvmScales.json', 'wn8exp.json', 'xte.json', 'xtdb.json'):
             self.APPLY[filename](self)
+        self._checkUpdates()
+
+    @staticmethod
+    def _inHangar():
+        try:
+            import BigWorld
+            from gui.shared.personality import ServicesLocator
+            player = BigWorld.player()
+            return (player is not None and bool(getattr(player, 'databaseID', None))
+                    and getattr(player, 'arena', None) is None and ServicesLocator.itemsCache.isSynced())
+        except Exception:
+            return False
+
+    def _checkUpdates(self):
         self._startDownloads()
+        callback(HANGAR_CHECK_INTERVAL, self._checkUpdates)
+
+    def _loadRefreshState(self):
+        data = self._readCache('refresh-state.json')
+        self._refreshState = {}
+        for filename, url, validate in self.SOURCES:
+            entry = data.get(filename)
+            if isinstance(entry, dict) and all(
+                    finite_number(entry.get(key, 0)) and entry.get(key, 0) >= 0 for key in ('success', 'retry')):
+                self._refreshState[filename] = entry
+
+    def _saveRefreshState(self):
+        try:
+            atomicWrite(os.path.join(self.config_path, 'refresh-state.json'),
+                        json.dumps(self._refreshState).encode('utf-8'))
+        except (IOError, OSError):
+            LOG.exception('Could not save statistics refresh times')
 
     def _loadXvmScaleData(self):
-        self.xvmScale_data = self._readCache('xvmScales.json')
+        data = self._readCache('xvmScales.json')
+        if data:
+            self.xvmScale_data = data
 
     def _loadWn8Data(self):
-        self.wn8_data = self._readCache('wn8exp.json')
+        data = self._readCache('wn8exp.json')
+        if not data:
+            return
+        self.wn8_data = data
+        # A replacement table must not retain expectations for removed vehicles.
+        for vehicle in self.getVehicleInfoDataArray():
+            for key in ('wn8expDamage', 'wn8expSpot', 'wn8expWinRate', 'wn8expDef', 'wn8expFrag'):
+                vehicle.pop(key, None)
         records = self.wn8_data.get('data', [])
         if not isinstance(records, list):
             LOG.warning('Ignored invalid WN8 records')
@@ -300,7 +385,13 @@ class ScaleValues(object):
         self.wn8_revision += 1
 
     def _loadXteData(self):
-        self.xte_data = self._readCache('xte.json')
+        data = self._readCache('xte.json')
+        if not data:
+            return
+        self.xte_data = data
+        for vehicle in self.getVehicleInfoDataArray():
+            for key in ('avgdmg', 'topdmg', 'avgfrg', 'topfrg'):
+                vehicle.pop(key, None)
         for key, values in self.xte_data.items():
             try:
                 vinfo = self.getVehicleInfoData(int(key))
@@ -314,7 +405,9 @@ class ScaleValues(object):
                 LOG.exception('Ignored invalid XTE vehicle record %s', key)
 
     def _loadXtdbData(self):
-        self.xtdb_data = self._readCache('xtdb.json')
+        data = self._readCache('xtdb.json')
+        if data:
+            self.xtdb_data = data
 
     SOURCES = (('xvmScales.json', URL_XVM_SCALE, valid_xvm_scales),
                ('wn8exp.json', URL_WN8, valid_wn8),

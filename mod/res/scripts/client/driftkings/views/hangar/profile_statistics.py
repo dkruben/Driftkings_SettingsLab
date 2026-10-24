@@ -2,7 +2,7 @@
 """Format the native Flash statistics and vehicle dossier fields."""
 from driftkings.common.utils.colorratting import getStatisticColor, getRatingColors, getColor
 from driftkings.core.hooks import override
-from driftkings.core.profile_ratings import account_wn8, vehicle_wn8, parse_thresholds
+from driftkings.core.profile_ratings import account_wn8, vehicle_wn8, parse_thresholds, pure_random_stats
 from driftkings.settings.service import settings_service
 from driftkings.logger import get_logger
 
@@ -97,13 +97,14 @@ def install():
     def vehicle_dossier(original, view, vehicle_id, database_id):
         vehicle = view.itemsCache.items.getItemByCD(vehicle_id)
         hp = vehicle.descriptor.maxHealth if vehicle is not None else None
-        vehicle_context.append((vehicle_id, hp, view._battlesType))
+        dossier = view.itemsCache.items.getVehicleDossier(vehicle_id, database_id)
+        vehicle_context.append((vehicle_id, hp, view._battlesType, dossier))
         try:
             result = original(view, vehicle_id, database_id)
             if enabled('vehicle') and view._battlesType == PROFILE_DROPDOWN_KEYS.ALL:
                 dossier = view.itemsCache.items.getVehicleDossier(vehicle_id, database_id)
                 if dossier is not None:
-                    value = vehicle_wn8(dossier.getRandomStats(), vehicle_id, getVehicleInfoData)
+                    value = vehicle_wn8(pure_random_stats(dossier, vehicle_id), vehicle_id, getVehicleInfoData)
                     if value is not None:
                         scale = settings_service.getComponentDict('profile_ratings').get('colorScale', 0)
                         view._dkVehicleColors.setdefault(vehicle_id, {})['vehicleTF'] = int(
@@ -152,7 +153,9 @@ def install():
                 or not settings.get('showVehicleWN8', True)
                 or vehicle_context[-1][2] != PROFILE_DROPDOWN_KEYS.ALL or not result):
             return result
-        value = vehicle_wn8(stats, vehicle_context[-1][0], getVehicleInfoData)
+        ident = vehicle_context[-1][0]
+        dossier = vehicle_context[-1][3]
+        value = vehicle_wn8(pure_random_stats(dossier, ident) if dossier else None, ident, getVehicleInfoData)
         if value is None and not settings.get('showUnavailableWN8', True):
             return result
         text = colored(str(value), 'wn8', value, 'vehicle') if value is not None else '--'
@@ -173,7 +176,7 @@ def install():
             result[index]['text'] = colored(result[index]['text'], metric, value)
         settings = settings_service.getComponentDict('profile_ratings')
         if settings.get('enabled', True) and settings.get('showPlayerWN8', True):
-            value = account_wn8(dossier.getRandomStats(), getVehicleInfoData)
+            value = account_wn8(pure_random_stats(dossier), getVehicleInfoData)
             if value is None and not settings.get('showUnavailableWN8', True):
                 return tuple(result)
             text = colored(str(value), 'wn8', value) if value is not None else '--'
@@ -202,7 +205,7 @@ def install():
             if view._battlesType == PROFILE_DROPDOWN_KEYS.ALL:
                 dossier = view.itemsCache.items.getVehicleDossier(row['id'], view._userID)
                 if dossier is not None:
-                    value = vehicle_wn8(dossier.getRandomStats(), row['id'], getVehicleInfoData)
+                    value = vehicle_wn8(pure_random_stats(dossier, row['id']), row['id'], getVehicleInfoData)
                     if value is not None:
                         values['vehicleTF'] = color('wn8', value)
             view._dkVehicleColors[row['id']] = values
