@@ -8,6 +8,10 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
+    "Calculate battle-panel WN8 from random-battle account and vehicle statistics; exclude legacy clan and company battles from local hangar WN8 totals and vehicle weights.",
+    "Update the Wargaming API application ID used for player statistics.",
+    "Refresh each statistics table every 24 hours, persist refresh times across restarts and retry failed updates after 30 minutes. Start downloads and apply refreshed tables only in the hangar; defer application of in-flight downloads until returning from battle.",
+    "Validate local statistics caches, preserve active tables when cached data is invalid, remove obsolete vehicle expectations on table replacement and enforce download deadlines after reads.",
     "Adopt the revised in-game settings as defaults; align carousel statistic columns and icon rows with consistent font aliases.",
     "Apply reticle-size correction consistently to artillery trajectory view and ballistic dispersion contours, preserving native impact positions and replay data.",
     "Fix WN8 fallback averages and refresh expected-value caches after data updates.",
