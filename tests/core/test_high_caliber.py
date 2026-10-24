@@ -179,24 +179,6 @@ class HighCaliberTests(RuntimeTest):
         self.assertEqual(value['remaining'], 0)
         self.assertEqual(self.project(0, 0, 0, True, False, True, None)['progress'], 0)
 
-    def test_old_presentation_settings_are_removed_without_losing_preferences(self):
-        schema = source('settings/controls_schema.py', {})
-        definition = source('settings/definitions/battle/high_caliber_progress.py', {
-            'driftkings._constants': self.constants,
-            'driftkings.settings.controls_schema': module(control=schema['control'], field=schema['field']),
-            'driftkings.settings.definitions.base': module(SectionDefinition=object),
-        })['HighCaliberProgressSettings']()
-        old = dict(self.settings, renderer='legacy', format='{mainGun}', shadow={'enabled': True})
-        old['background'] = dict(alpha=42, image='custom.png', width=123, height=45)
-        old['mainGun'] = dict(dynamic=False, enabled=True, format='custom', mainGunIcon='custom.png',
-                              mainGunDoneIcon='done.png', mainGunFailureIcon='failed.png')
-        result = definition.normalize_loaded(old)
-        self.assertFalse(any(key in result for key in ('renderer', 'format', 'shadow')))
-        self.assertEqual(result['background'], {'alpha': 42})
-        self.assertEqual(result['mainGun'], {'dynamic': False, 'enabled': True})
-        self.assertEqual(result['textPosition'], self.settings['textPosition'])
-        self.assertEqual(result['gameface'], self.settings['gameface'])
-        self.assertEqual(definition.normalize_changes(result, {}), result)
 
     def test_gameface_lifecycle_visibility_position_and_localized_payload(self):
         class Model(object):

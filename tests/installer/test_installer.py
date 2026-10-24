@@ -153,7 +153,7 @@ class GeneratorTests(unittest.TestCase):
         script = (self.root / 'generated/components.generated.iss').read_text(encoding='utf-8-sig')
         line = next(line for line in script.splitlines() if 'Name: "hangar\\clan_reward_collection"' in line)
         self.assertNotIn('owner_choice', line)
-        path.write_text(json.dumps({'presets': [{'key': 'bad', 'labels': {'en': 'Bad', 'pt': 'Inválido'}, 'disabled': ['unknown']}]}))
+        path.write_text(json.dumps({'presets': [{'key': 'bad', 'labels': {'en': 'Bad', 'pt': 'InvÃ¡lido'}, 'disabled': ['unknown']}]}))
         with self.assertRaisesRegex(ValueError, 'Unknown or duplicate disabled'):
             definitions(self.root)
 
@@ -259,7 +259,7 @@ class GeneratorTests(unittest.TestCase):
         self.assertEqual(value, expected)
         self.assertEqual(path.read_bytes(), original)
 
-    def test_runtime_loader_removes_previous_settings_after_migration(self):
+    def test_runtime_loader_ignores_and_preserves_old_settings(self):
         client = ROOT / 'mod/res/scripts/client/driftkings'
         def load(relative, dependencies=None):
             dependencies = dependencies or {}
@@ -289,20 +289,13 @@ class GeneratorTests(unittest.TestCase):
         (kept / 'readme.txt').write_text('user file')
         defaults = json.loads((ROOT / 'res/configs/driftkings/default/clan_reward_collection.json').read_text())
         settings = loader.SettingsLoader(str(folder), settings=object())
-        settings.discard_removed()
         value = settings.load('clan_reward_collection', defaults)
-        self.assertFalse(value['enabled'])
+        self.assertEqual(value, defaults)
         self.assertTrue((profile / 'clan_reward_collection.json').is_file())
-        self.assertFalse((profile / 'auto_claim_clan.json').exists())
-        self.assertFalse((profile / 'safe_shot.json').exists())
+        self.assertTrue((profile / 'auto_claim_clan.json').is_file())
+        self.assertTrue((profile / 'safe_shot.json').is_file())
         self.assertTrue((profile / 'own_notes.json').is_file())
-        # A previous folder holding anything but settings documents is left alone.
-        (profile / 'vehicle_carousel').mkdir()
-        settings.discard_previous('vehicle_carousel')
         self.assertTrue((kept / 'readme.txt').is_file())
-        (kept / 'readme.txt').unlink()
-        settings.discard_previous('vehicle_carousel')
-        self.assertFalse(kept.exists())
 
 
 class AssetTests(unittest.TestCase):

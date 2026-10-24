@@ -10,7 +10,6 @@ from driftkings.settings.settings_data import PROFILES, defaults as component_de
 from driftkings.settings.store import merge, JsonDocuments, read_object as read_json
 
 FILES = ('general.json', 'playerspanel.json', 'battleloading.json', 'statisticform.json') + tuple('panel%s.json' % name.lower() for name in PROFILES)
-LEGACY_FILES = ('panelLong.json', 'panelFull.json')
 GENERAL = ('schemaVersion', 'enabled', 'statsEnabled', 'colorScale', 'rating', 'performance', 'hpEnabled', 'hpVisibility', 'hpKey', 'spottedEnabled')
 try:
     string_types = (basestring,)
@@ -136,37 +135,20 @@ def validate(data):
     return warnings
 
 class PlayerPanelStore(JsonDocuments):
-    def __init__(self, directory, legacy_root=None):
-        super(PlayerPanelStore, self).__init__(directory, FILES + LEGACY_FILES)
+    def __init__(self, directory):
+        super(PlayerPanelStore, self).__init__(directory, FILES)
 
     def load(self):
         self.recover()
         initial=defaults()
-        general=os.path.join(self.directory,FILES[0])
-        # Old geometry used different semantics. Preserve it for reference, then
-        # start the explicitly requested new implementation with coherent defaults.
-        old=os.path.isfile(general) and read_json(general).get('schemaVersion') != 2
-        if old:
-            for name in FILES:
-                path=os.path.join(self.directory,name)
-                if os.path.isfile(path) and not os.path.isfile(path+'.v1'):
-                    with open(path,'rb') as source, open(path+'.v1','wb') as backup:
-                        backup.write(source.read())
-            previous=read_json(general)
-            for key in ('rating','colorScale','statsEnabled','performance'):
-                if key in previous: initial[key]=previous[key]
         parts=[]
-        obsolete_loading=False
         for name,default in zip(FILES,split(initial)):
             path=os.path.join(self.directory,name)
-            saved=read_json(path) if not old and os.path.isfile(path) else {}
-            if name=='general.json' and 'hpVisibility' not in saved and saved.get('hpEnabled') is False:
-                saved['hpVisibility']='never'
-            if name=='battleloading.json': obsolete_loading='tips' in saved
+            saved=read_json(path) if os.path.isfile(path) else {}
             parts.append(merge(default,saved))
         data=join(parts)
         for message in validate(data): get_logger('Driftkings.PlayerPanelPro').warning('Configuration: %s',message)
-        missing=[(os.path.join(self.directory,name),value) for name,value in zip(FILES,split(data)) if old or not os.path.isfile(os.path.join(self.directory,name)) or name=='battleloading.json' and obsolete_loading]
+        missing=[(os.path.join(self.directory,name),value) for name,value in zip(FILES,split(data)) if not os.path.isfile(os.path.join(self.directory,name))]
         self.publish(missing)
         return data
 

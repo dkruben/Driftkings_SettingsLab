@@ -8,17 +8,7 @@ class HighCaliberProgressSettings(SectionDefinition):
     NAME = HIGH_CALIBER_PROGRESS.NAME
 
     TRANSLATED_TITLE = True
-    def normalize_loaded(self, values):
-        for key in ('renderer', 'format', 'shadow'):
-            values.pop(key, None)
-        for key in ('height', 'width', 'image'):
-            values.get('background', {}).pop(key, None)
-        for key in ('format', 'mainGunIcon', 'mainGunDoneIcon', 'mainGunFailureIcon'):
-            values.get('mainGun', {}).pop(key, None)
-        return values
 
-    def normalize_changes(self, values, changes):
-        return self.normalize_loaded(values)
 
     def getControlColumns(self):
         labels = self.i18n

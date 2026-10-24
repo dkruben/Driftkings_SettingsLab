@@ -89,7 +89,7 @@ panel.title: "Driftkings settings"
 
 Use double-quoted values with JSON escapes: `\n` for a newline, `\"` for a quote and `\\` for a literal backslash. Keep HTML, macros and intentional whitespace inside the quotes. The reader also accepts simple unquoted text and YAML single-quoted strings, but it does not implement full YAML nesting, tags, anchors or multiline blocks. Comments go on their own lines. Duplicate or conflicting keys are rejected.
 
-Existing user overrides remain JSON: `mods/configs/driftkings/i18n/<code>.json` for component sections and `mods/configs/driftkings/locales/<code>.json` for panel strings. The English fallback, language aliases and migration of older component overrides remain available. Do not reintroduce per-language Python modules or copy translations into frontend scripts.
+Existing user overrides remain JSON: `mods/configs/driftkings/i18n/<code>.json` for component sections and `mods/configs/driftkings/locales/<code>.json` for panel strings. The English fallback and language aliases remain available. Older component override folders are not imported. Do not reintroduce per-language Python modules or copy translations into frontend scripts.
 
 ### Gameface resources and naming
 

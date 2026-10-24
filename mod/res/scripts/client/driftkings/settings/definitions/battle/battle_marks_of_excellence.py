@@ -13,7 +13,6 @@ class BattleMarksOfExcellenceSettings(SectionDefinition):
     def normalize_changes(self, values, changes):
         panel = values.get(BATTLE_MARKS_OF_EXCELLENCE.PANEL)
         if panel is not None:
-            panel.pop('text', None)
             for key in ('x', 'y', 'alpha', 'height', 'width'):
                 if key in panel:
                     panel[key] = float(panel[key])

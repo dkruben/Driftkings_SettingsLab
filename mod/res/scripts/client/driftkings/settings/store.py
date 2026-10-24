@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Atomic JSON writer and reader for importing the previous central document."""
+"""Atomic JSON documents and recoverable multi-file transactions."""
 import copy
 import json
 import os
@@ -88,19 +88,6 @@ class SettingsStore(object):
     def __init__(self, path):
         self.path = os.path.abspath(path)
 
-    def read(self):
-        recover_file(self.path)
-        if not os.path.exists(self.path):
-            return {'version': 1, 'components': {}}
-        with open(self.path, 'rb') as stream:
-            document = json.loads(stream.read().decode('utf-8-sig'))
-        if not isinstance(document, dict) or document.get('version') != 1:
-            raise ValueError('Unsupported Driftkings settings document')
-        sections = document.get('components')
-        if not isinstance(sections, dict) or any(not isinstance(value, dict) for value in sections.values()):
-            raise ValueError('Invalid Driftkings component settings')
-        return document
-
     def write(self, document):
         content = json.dumps(document, ensure_ascii=False, indent=4, sort_keys=True).encode('utf-8')
         directory = os.path.dirname(self.path)
@@ -117,38 +104,9 @@ class SettingsStore(object):
             if os.path.exists(temporary):
                 os.remove(temporary)
 
-    def load(self, component, defaults, legacy=None):
-        document = self.read()
-        sections = document['components']
-        if component not in sections:
-            values = legacy() if legacy is not None else {}
-            if not isinstance(values, dict):
-                raise ValueError('Invalid legacy settings for ' + component)
-            sections[component] = merge(defaults, values)
-            self.write(document)
-        return merge(defaults, sections[component])
-
-    def save(self, component, values):
-        if not isinstance(values, dict):
-            raise ValueError('Component settings must be a dictionary')
-        document = self.read()
-        document['components'][component] = merge(document['components'].get(component, {}), values)
-        self.write(document)
-        return copy.deepcopy(values)
-
 
 def load_config(config, loader=None, defaults=None):
-    from driftkings.settings.sections import previous_name
-    def legacy():
-        from driftkings.common.config.json_reader import JSONLoader
-        path = os.path.join(config.configPath, previous_name(config.NAME) + '.json')
-        if not os.path.isfile(path):
-            return {}
-        text, _, success = JSONLoader.json_file_read(path, False)
-        if not success:
-            raise IOError('Could not read legacy settings: ' + path)
-        return JSONLoader.json_loads(text)
     if loader is None:
         from driftkings.settings.loader import settings_loader
         loader = settings_loader
-    return loader.load(config.NAME, config.data if defaults is None else defaults, legacy)
+    return loader.load(config.NAME, config.data if defaults is None else defaults)

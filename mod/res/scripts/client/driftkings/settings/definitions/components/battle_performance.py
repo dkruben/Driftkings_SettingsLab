@@ -9,12 +9,6 @@ class BattlePerformanceSettings(SectionDefinition):
 
     TRANSLATED_TITLE = True
 
-    def normalize_loaded(self, values):
-        # Upgrade only the original shipped Flash template; keep custom macros.
-        from driftkings.settings.default_values import DEFAULTS
-        if values.get(BATTLE_PERFORMANCE.BATTLE_RESULTS_FORMAT) == "<textformat leading='-2' tabstops='[0, 300]'>\t<font color='#FFFFFF' size='15'>{mapName} - {battleType}    WN8:<font color='{c:wn8}'>{wn8}</font>|=|EFF:<font color='{c:eff}'>{eff}</font>|=|Xte:<font color='{c:xte}'>{xte}</font></font></textformat>":
-            values[BATTLE_PERFORMANCE.BATTLE_RESULTS_FORMAT] = DEFAULTS[self.NAME][BATTLE_PERFORMANCE.BATTLE_RESULTS_FORMAT]
-        return values
 
     def getControlColumns(self):
         x_color_key = 'UI_setting_colorRatting_'

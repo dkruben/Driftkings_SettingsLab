@@ -8,7 +8,9 @@ Modpack for Wargaming World of Tanks: battle overlays, hangar improvements and a
 
 Latest stable version: **0.1.2**, for **WoT 2.4.1.0**.
 
-The `develop` branch prepares **0.1.3-beta.1**. This beta has not been published; the download links above refer to the stable release.
+The `develop` branch carries **[0.1.3-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.1)** for testing. The download links above refer to the stable release.
+
+This beta requires a clean configuration: remove the old `mods/configs/driftkings` folder before starting the game, then configure the mod again in the hangar. Old configurations, interface preferences, translations and caches are no longer imported or cleaned up automatically. Back up any personal images or sounds before removing the folder.
 
 ## Included mods and functions
 
@@ -58,7 +60,7 @@ The names below match the settings labels. The module column identifies the corr
 | Crew management | `crew_management` | Supports automatic crew return and adds crew details, progression, remaining XP and estimated battles in supported crew screens and tooltips. |
 | Service record ratings | `profile_ratings` | Colors native overview, statistics and vehicle profiles; shows player/vehicle WN8, with independent switches, palettes and editable survival/received-damage limits. |
 | Hangar preferences | `hangar_preferences` | Configures header buttons, widgets, notifications and other garage convenience options. |
-| General settings | `main` | Holds options that apply to the whole mod, starting with the hangar clock. `clock.enabled` switches the clock and `clock.formats` lists its fields (position, text, shadow and background image) in `main.json`; the section's own switch turns all general options off. Earlier clock settings are converted from Hangar preferences. |
+| General settings | `main` | Holds options that apply to the whole mod, starting with the hangar clock. `clock.enabled` switches the clock. The hangar settings panel exposes each clock field in its own tab: position, dimensions, screen/text alignment, Flash HTML text or background image, text color and shadow. These controls save to `clock.formats` in `main.json`; the section's own switch turns all general options off. |
 | AccountManager | `account_manager` | Provides the account-management interface, controlled through Hangar preferences. |
 | Clan reward collection | `clan_reward_collection` | Collects eligible clan rewards automatically when the option is enabled. |
 | Sound bank loader | `sound_bank_loader` | Loads the mod's custom sound banks. |

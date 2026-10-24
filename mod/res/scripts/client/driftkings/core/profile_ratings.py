@@ -11,15 +11,6 @@ def parse_thresholds(text, maximum):
     return values
 
 
-def migrate_profile_options(legacy):
-    result = {'enabled': legacy.get('enabled', True)}
-    if 'profileRatingColors' in legacy:
-        result.update((key, legacy['profileRatingColors']) for key in ('summaryColors', 'statisticsColors', 'vehicleColors'))
-    if 'showProfileWN8' in legacy:
-        result.update((key, legacy['showProfileWN8']) for key in ('showPlayerWN8', 'showVehicleWN8'))
-    return result
-
-
 def vehicle_wn8(stats, vehicle_id, expected):
     """Use the same WN8 formula and validation for a single vehicle dossier."""
     class VehicleStats(object):

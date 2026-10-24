@@ -10,9 +10,3 @@ class ServerTurretSyncSettings(SectionDefinition):
     TRANSLATED_TITLE = True
     COLUMNS = ((control(SERVER_TURRET_SYNC.SERVER_TURRET),
                 control(SERVER_TURRET_SYNC.ACTIVATE_MESSAGE)), ())
-
-    def normalize_loaded(self, values):
-        for key in ('fixAccuracyInMove', 'fixWheelCruiseControl', 'autoActivateWheelMode',
-                    'maxWheelMode', 'buttonAutoMode', 'buttonMaxMode'):
-            values.pop(key, None)
-        return values

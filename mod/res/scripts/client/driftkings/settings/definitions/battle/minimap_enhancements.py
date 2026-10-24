@@ -14,12 +14,6 @@ class MinimapEnhancementsSettings(SectionDefinition):
     TRANSLATED_TITLE = True
 
     def normalize_loaded(self, values):
-        values[MINIMAP_ENHANCEMENTS.ARTILLERY_AIM].pop('color', None)
-        policy.migrate_artillery_aim(values)
-        if not values.get(MINIMAP_ENHANCEMENTS.MINIMAP_SCHEMA):
-            for item in values[MINIMAP_ENHANCEMENTS.CIRCLES].values():
-                item['alpha'] = values[GLOBAL.ALPHA]
-            values[MINIMAP_ENHANCEMENTS.MINIMAP_SCHEMA] = 1
         policy.validate(values)
         return values
 

@@ -96,7 +96,6 @@ class SettingsService(object):
         from helpers import getClientLanguage
         from driftkings.settings.hotkeys import processHotKeys
         from driftkings.settings.settings_data import defaults, default_keys
-        from driftkings.settings.sections import previous_name
         from driftkings.core.hooks import hooks
         section.runtime_owner = hooks.current
         section.manager = self
@@ -105,7 +104,7 @@ class SettingsService(object):
         processHotKeys(section.data, section.defaultKeys, 'read')
         section.i18n = {}
         section.lang = str(getClientLanguage()).lower()
-        section.configPath = './mods/configs/driftkings/%s/' % previous_name(section.NAME)
+        section.configPath = './mods/configs/driftkings/%s/' % section.NAME
         section.loadLang()
         # Register only fully loaded sections; a failed load leaves no panel entry.
         restore(section.data, self._read(section))
@@ -122,8 +121,7 @@ class SettingsService(object):
     def _storage(self, section):
         if section.STORAGE_CLASS is None:
             return None
-        return self._loader().split_store(section.NAME, section.STORAGE_CLASS,
-                                          section.STORAGE_FILES, section.configPath)
+        return self._loader().split_store(section.NAME, section.STORAGE_CLASS)
 
     def _read(self, section):
         from driftkings.settings.hotkeys import processHotKeys

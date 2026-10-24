@@ -149,16 +149,10 @@ class MinimapPolicyTests(RuntimeTest):
         self.assertEqual(health(2000, 1500)['hpPercent'], '--')
         self.assertEqual(health(10, 0)['maxHp'], '--')
 
-    def test_visibility_modes_and_artillery_aim_migration(self):
+    def test_visibility_modes_and_artillery_aim_choices(self):
         visible = self.policy.visible
         self.assertEqual([visible('client', True), visible('client', False), visible('on', False), visible('off', True)],
                          [True, False, True, False])
-        data = {'artilleryAim': {'src': 'gui/maps/driftkings/minimap/minimapaim.png'}}
-        self.policy.migrate_artillery_aim(data)
-        self.assertEqual(data['artilleryAim']['src'], self.policy.ARTILLERY_AIMS[0])
-        custom = {'artilleryAim': {'src': 'gui/maps/custom.png'}}
-        self.policy.migrate_artillery_aim(custom)
-        self.assertEqual(custom['artilleryAim']['src'], 'gui/maps/custom.png')
         self.assertEqual(self.policy.artillery_aim_choices('gui/maps/custom.png')[-1], 'gui/maps/custom.png')
         self.assertEqual(len(self.policy.artillery_aim_choices(self.policy.ARTILLERY_AIMS[3])), 7)
 
@@ -194,7 +188,7 @@ class MinimapStoreTests(RuntimeTest):
         self.assertNotIn('labels', self.read('minimap.json'))
         self.assertEqual(data, defaults())
 
-    def test_saved_values_survive_a_reload_and_old_aim_is_migrated(self):
+    def test_saved_values_survive_a_reload_without_rewriting_resource_paths(self):
         self.store.load(defaults())
         changed = defaults()
         changed['lastPositionDuration'] = 30
@@ -211,7 +205,7 @@ class MinimapStoreTests(RuntimeTest):
         self.assertEqual(data['lastPositionDuration'], 30)
         self.assertEqual(data['lostMarker']['style'], 'grey')
         self.assertEqual(data['labels']['normal'], u'{{name}}')
-        self.assertTrue(data['artilleryAim']['src'].endswith('minimapaim_0.png'))
+        self.assertEqual(data['artilleryAim']['src'], 'gui/maps/driftkings/minimap/minimapaim.png')
 
     def test_invalid_values_are_never_published(self):
         self.store.load(defaults())

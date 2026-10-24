@@ -9,15 +9,6 @@ class HangarPreferencesSettings(SectionDefinition):
 
     TRANSLATED_TITLE = True
 
-    def normalize_loaded(self, values):
-        # Retired presets and the clock, which moved to the main section.
-        for key in ('clockStyle', 'clockSeconds', 'clock24Hour', 'customClockFormat', 'text', 'panel',
-                    'clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText'):
-            values.pop(key, None)
-        return values
-
-    def normalize_changes(self, values, changes):
-        return self.normalize_loaded(values)
 
     def getControlColumns(self):
         return (

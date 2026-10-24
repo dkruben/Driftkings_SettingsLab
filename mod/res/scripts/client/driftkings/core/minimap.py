@@ -12,13 +12,6 @@ NEARBY_RANGES = ('view', 'shell', 'distance')
 ARTILLERY_AIMS = tuple('gui/maps/driftkings/minimap/minimapaim_%d.png' % i for i in range(7))
 
 
-def migrate_artillery_aim(data):
-    """The original PNG was renamed to _0; leave custom resource paths intact."""
-    aim = data['artilleryAim']
-    if aim.get('src') == 'gui/maps/driftkings/minimap/minimapaim.png':
-        aim['src'] = ARTILLERY_AIMS[0]
-
-
 def artillery_aim_choices(current):
     paths = list(ARTILLERY_AIMS)
     if current not in paths:
@@ -269,5 +262,3 @@ def validate(data):
 def numeric(value, lo, hi):
     if type(value) not in (int, float) or not lo <= value <= hi:
         raise ValueError('Minimap number outside %s..%s' % (lo, hi))
-
-

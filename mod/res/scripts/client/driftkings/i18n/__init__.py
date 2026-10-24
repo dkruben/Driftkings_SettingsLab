@@ -7,8 +7,8 @@ import os
 
 from driftkings.i18n.resources import resources
 from driftkings.locale_support import language_code
-from driftkings.settings.sections import previous_name, section_name, section_aliases
-from driftkings.settings.store import SettingsStore, merge, recover_file
+from driftkings.settings.sections import section_name
+from driftkings.settings.store import merge, recover_file
 
 LOG = get_logger('driftkings.i18n')
 
@@ -36,22 +36,6 @@ def client_text(value):
     return value
 
 
-def canonical_sections(document):
-    # Older overrides keep their original file and section names on disk.
-    # Explicit canonical sections take precedence if both spellings exist.
-    result = {}
-    for canonical in (False, True):
-        for name, values in document.items():
-            if (section_name(name) == name) == canonical:
-                section = section_name(name)
-                values = dict(values)
-                # Retire copied internal identifiers as display titles; keep custom titles.
-                if values.get('UI_description') in section_aliases(section):
-                    values.pop('UI_description', None)
-                result[section] = merge(result.get(section, {}), values)
-    return result
-
-
 class TranslationCatalog(object):
     def __init__(self, root='./mods/configs/driftkings'):
         self.root = os.path.abspath(root)
@@ -63,22 +47,6 @@ class TranslationCatalog(object):
             return copy.deepcopy(english)
         return merge(english, resources.load(language)['TEXT'])
 
-    def migrate(self, language, components, path):
-        sections = {}
-        for component in components:
-            legacy = os.path.join(self.root, previous_name(component), 'i18n', language + '.json')
-            if not os.path.isfile(legacy):
-                continue
-            try:
-                with open(legacy, 'rb') as stream:
-                    value = json.loads(stream.read().decode('utf-8-sig'))
-                if not isinstance(value, dict):
-                    raise ValueError('Expected an object')
-                sections[component] = value
-            except (ValueError, IOError) as error:
-                # Do not mark migration complete when a source could not be read.
-                raise ValueError('Could not import translations from %s: %s' % (legacy, error))
-        SettingsStore(path).write(sections)
 
     def read(self, language):
         language = language_code(language)
@@ -86,11 +54,11 @@ class TranslationCatalog(object):
         try:
             recover_file(path)
             if not os.path.isfile(path):
-                self.migrate(language, self.bundled(language), path)
+                return self.bundled(language)
             stat = os.stat(path)
             signature = (stat.st_mtime, stat.st_size)
             if language not in self.cache or self.cache[language][0] != signature:
-                overrides = canonical_sections(read_catalog(path))
+                overrides = read_catalog(path)
                 self.cache[language] = (signature, merge(self.bundled(language), overrides))
             return self.cache[language][1]
         except (ValueError, IOError, OSError):

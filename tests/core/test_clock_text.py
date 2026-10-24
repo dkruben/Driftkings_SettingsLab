@@ -2,7 +2,8 @@ import json
 import os
 import shutil
 import tempfile
-from support import RuntimeTest
+import copy
+from support import RuntimeTest, source, module
 
 
 class MainClockSettingsTests(RuntimeTest):
@@ -53,47 +54,54 @@ class MainClockSettingsTests(RuntimeTest):
         self.assertEqual(stored['clock']['formats'], self.FORMATS)
         self.assertFalse(stored['enabled'])
 
-    def test_plain_hangar_clock_text_becomes_one_field_at_its_position(self):
-        self.write(self.HANGAR_CLOCK, self.hangar)
-        clock = self.main()
-        self.assertFalse(clock['enabled'])
-        self.assertEqual(clock['formats'], [{'x': -456, 'y': 123, 'screenHAlign': 'right', 'width': 240, 'height': 100,
-                                             'textFormat': {'align': 'right'}, 'format': '%H:%M'}])
-        stored = self.read()
-        self.assertNotIn('clockScale', stored)
-        self.assertNotIn('lowAmmoPercentage', stored)
-        # The previous file is left as it was.
-        self.assertEqual(self.read(self.hangar), self.HANGAR_CLOCK)
 
-    def test_hangar_clock_definitions_keep_their_fields(self):
-        text = '// personal clock\n' + json.dumps({'formats': self.FORMATS})
-        for value in (text, {'formats': self.FORMATS}, self.FORMATS):
-            self.write(dict(self.HANGAR_CLOCK, customClockText=value), self.hangar)
-            if os.path.isfile(self.path):
-                os.remove(self.path)
-            self.assertEqual(self.main()['formats'], self.FORMATS)
+    def test_disabled_hangar_does_not_override_explicit_main_clock(self):
+        self.write(dict(self.HANGAR_CLOCK, enabled=False), self.hangar)
+        self.write({'enabled': True, 'clock': {'enabled': True, 'formats': self.FORMATS}})
+        self.assertTrue(self.main()['enabled'])
 
-    def test_untouched_shipped_clock_takes_the_new_default_fields(self):
-        self.write({'clock': True, 'clockX': -100, 'clockY': 80, 'customClockText': self.api.OLD_CLOCK_TEXT}, self.hangar)
-        self.assertEqual(self.main(), self.defaults['clock'])
-
-    def test_installer_created_main_file_still_receives_the_previous_clock(self):
-        self.write(self.HANGAR_CLOCK, self.hangar)
-        self.write({'enabled': True})
-        self.assertEqual(self.main()['formats'][0]['x'], -456)
-
-    def test_flat_clock_options_in_main_are_converted_before_hangar_ones(self):
-        self.write(self.HANGAR_CLOCK, self.hangar)
-        self.write({'clock': True, 'clockX': 10, 'customClockText': {'formats': self.FORMATS}})
-        clock = self.main()
-        self.assertTrue(clock['enabled'])
-        self.assertEqual(clock['formats'], self.FORMATS)
-
-    def test_unreadable_clock_json_falls_back_to_the_default_fields(self):
-        self.write(dict(self.HANGAR_CLOCK, customClockText='{"formats": ['), self.hangar)
-        self.assertEqual(self.main()['formats'], self.defaults['clock']['formats'])
 
     def test_clock_must_stay_an_object_with_a_list_of_fields(self):
         self.api.validate_types(self.defaults, {'clock': {'enabled': False, 'formats': []}})
         for values in ({'clock': {'formats': 'text'}}, {'clock': {'enabled': 1}}):
             self.assertRaises(ValueError, self.api.validate_types, self.defaults, values)
+
+    def test_panel_edits_sparse_clock_fields_and_persists_nested_values(self):
+        api = source('settings/definitions/components/main.py', {
+            'driftkings.settings.definitions.base': module(SectionDefinition=object)})
+        config = api['MainSettings']()
+        config.data = config.normalize_loaded(copy.deepcopy(self.defaults))
+        parser = self.load('core.locale_catalog').parse_catalog
+        path = os.path.join(os.path.dirname(__file__), '../../mod/res/mods/driftkings/text/pt.yml')
+        with open(path, 'rb') as stream:
+            catalog = parser(stream.read())['TEXT']
+        config.i18n = dict(catalog['common'], **catalog['main'])
+        config.getSettingsDefaults = lambda: config.normalize_loaded(copy.deepcopy(self.defaults))
+        service = self.load('settings.service').settings_service
+        original = service.apply
+        self.addCleanup(setattr, service, 'apply', original)
+        def apply(section, values):
+            candidate = section.normalize_changes(values, values)
+            section.data = self.loader.save('main', candidate)
+        service.apply = apply
+        registry = self.load('settings.registry').SettingsRegistry()
+        registry.register(config)
+        description = registry.describe('main')
+        values = description['values']
+        prefix = 'clock.formats.'
+        self.assertEqual(len(values), 34)  # two switches and 16 properties per field
+        values[prefix + '0.x'] = 42
+        values[prefix + '0.shadow.enabled'] = True
+        values[prefix + '0.shadow.alpha'] = 55
+        values[prefix + '1.format'] = '<font size="28">%H:%M:%S</font>'
+        values[prefix + '1.textFormat.color'] = '#aabbcc'
+        values[prefix + '1.screenHAlign'] = 1
+        registry.apply('main', values)
+        stored = self.main()['formats']
+        self.assertEqual(stored[0]['x'], 42)
+        self.assertTrue(stored[0]['shadow']['enabled'])
+        self.assertEqual(stored[0]['shadow']['alpha'], 55)
+        self.assertEqual(stored[1]['format'], values[prefix + '1.format'])
+        self.assertEqual(stored[1]['textFormat']['color'], '#aabbcc')
+        self.assertEqual(stored[1]['screenHAlign'], 'center')
+        self.assertEqual(stored[0]['format'], self.defaults['clock']['formats'][0]['format'])

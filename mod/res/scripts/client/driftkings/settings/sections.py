@@ -115,14 +115,3 @@ def section_name(value):
 def previous_name(value):
     name = section_name(value)
     return PREVIOUS_NAMES.get(name, name)
-
-
-def previous_sections(value):
-    name = section_name(value)
-    return tuple(old for old, new in PREVIOUS_SECTIONS.items() if new == name)
-
-
-def section_aliases(value):
-    name = section_name(value)
-    return (name,) + previous_sections(name) + (previous_name(name),) + tuple(
-        key for key, section in COMPONENT_NAMES.items() if section == name)

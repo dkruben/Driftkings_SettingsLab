@@ -24,11 +24,3 @@ class RepairControlsSettings(SectionDefinition):
                 control(REPAIR_CONTROLS.REPAIR_DEVICES)
             ]
         )
-
-    def normalize_loaded(self, values):
-        for key in ('autoRepair', 'timerMin', 'timerMax'):
-            values.pop(key, None)
-        return values
-
-    def normalize_changes(self, values, changes):
-        return self.normalize_loaded(values)

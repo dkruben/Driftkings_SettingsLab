@@ -24,19 +24,6 @@ class CameraSettingsTests(RuntimeTest):
             'driftkings.settings.definitions.battle.third_person_zoom': module(ThirdPersonZoomSettings=object),
         })
 
-    def test_legacy_values_migrate_once_preserving_explicit_new_values(self):
-        old = dict(enabled=True, min=12, max=350, scrollSensitivity=9, startDeadDist=70,
-                   postmortem={'max': 200}, strategic={'useClientDefaults': True})
-        self.policy.migrate(old)
-        self.assertEqual(old['arcade'], {'min': 12, 'max': 350, 'scrollSensitivity': 9, 'startDist': 70})
-        self.assertEqual(old['postmortem']['max'], 200)
-        self.assertEqual(old['postmortem']['startDist'], 70)
-        self.assertNotIn('min', old)
-        previous = copy.deepcopy(old)
-        self.assertEqual(self.policy.migrate(old), previous)
-        clamped = self.policy.migrate({'min': 100, 'max': 200, 'startDeadDist': 60})
-        self.assertEqual(clamped['arcade']['startDist'], 100)
-        self.assertEqual(clamped['postmortem']['startDist'], 100)
 
     def test_defaults_keep_arcade_and_native_artillery(self):
         self.policy.validate(self.values)
@@ -100,16 +87,3 @@ class CameraSettingsTests(RuntimeTest):
         self.api['new_create_arcade'](lambda *args: None, camera)
         self.assertEqual(camera._baseCfg['distRange'], (2, 25))
         self.assertEqual(camera._cfg, {'startDist': 12})
-
-    def test_loader_migrates_before_merging_defaults_and_drops_dynamic_zoom(self):
-        loader = source('settings/loader.py', {
-            'driftkings.settings.settings_data': module(SettingsData=object, user_settings={}, part_name=lambda name: name),
-            'driftkings.settings.default_values': module(SELECTOR={}),
-            'driftkings.settings.sections': module(previous_name=None, previous_sections=None, section_aliases=None),
-            'driftkings.settings.store': module(SettingsStore=object, merge=None, recover_file=None, read_object=None),
-        })
-        old = loader['migrate_values']('third_person_zoom', {'min': 15, 'max': 250})
-        self.assertEqual(old['arcade']['min'], 15)
-        self.assertEqual(old['postmortem']['max'], 250)
-        sniper = loader['migrate_values']('sniper_camera', {'enabled': True, 'dynamicZoom': {'enabled': True}})
-        self.assertEqual(sniper, {'enabled': True})

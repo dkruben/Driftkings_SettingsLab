@@ -34,12 +34,8 @@ class SniperCameraSettings(SectionDefinition):
         ))
         return columns
 
-    def normalize_loaded(self, values):
-        values.pop('dynamicZoom', None)
-        return values
 
     def normalize_changes(self, values, changes):
-        self.normalize_loaded(values)
         steps = values['zoomSteps']['steps']
         if not isinstance(steps, list) or len(steps) < 4:
             raise ValueError('Zoom requires at least four levels')

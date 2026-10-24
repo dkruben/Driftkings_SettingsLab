@@ -44,7 +44,8 @@ def calendar_names():
 
 
 class ClockController(HangarController):
-    SETTINGS_SECTION = MAIN
+    # The payload also owns the prestige policy from Hangar preferences.
+    SETTINGS_SECTION = None
 
     def start(self):
         if not self.active:
@@ -57,7 +58,9 @@ class ClockController(HangarController):
             self.onApplySettings()
 
     def onSettingsChanged(self, component, changes):
-        if affects(changes, GLOBAL.ENABLED, MAIN.CLOCK):
+        if ((component == MAIN.NAME and affects(changes, GLOBAL.ENABLED, MAIN.CLOCK)) or
+                (component == HANGAR_PREFERENCES.NAME and affects(
+                    changes, GLOBAL.ENABLED, HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET))):
             self.onApplySettings()
 
     def onApplySettings(self, changes=None):

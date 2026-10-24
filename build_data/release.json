@@ -16,7 +16,9 @@
     "Remove the inactive hangar-efficiency panel and improve clock error diagnostics.",
     "Center the minimap artillery aim in the camera frame at a fixed size and show it only in artillery and strategic modes.",
     "Extend the minimap hull direction line to the map edge and document the {{cellsize}} map-size macro.",
-    "Add General settings and move the hangar clock there: clock.enabled and a list of positioned fields (text, shadow and background image) replace the size, background and single-format options; earlier clock settings are converted automatically.",
+    "Add General settings and move the hangar clock there: clock.enabled and a list of positioned fields (text, shadow and background image) replace the size, background and single-format options. Configure the clock fields in the hangar settings panel.",
+    "CLEAN CONFIGURATION REQUIRED: back up personal images and sounds, remove the old mods/configs/driftkings folder before first launch, and configure the mod again in the hangar. Older settings and caches are no longer imported or cleaned up automatically.",
+    "Refresh the prestige widget visibility when Hangar preferences are enabled, disabled or changed.",
     "Lay out clock text line by line like Flash, so negative leading places the weekday and date beside the time."
   ]
 }

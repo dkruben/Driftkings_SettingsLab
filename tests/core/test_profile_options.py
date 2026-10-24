@@ -12,25 +12,6 @@ class ProfileOptionsTests(RuntimeTest):
         with open(path, 'rb') as stream:
             self.defaults = json.loads(stream.read().decode('utf-8-sig'))
 
-    def test_old_profile_switches_migrate_once_per_selected_profile(self):
-        loader_type = self.load('settings.loader').SettingsLoader
-        folder = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, folder)
-        for profile in ('default', 'personal'):
-            directory = os.path.join(folder, profile)
-            os.makedirs(directory)
-            old_path = os.path.join(directory, 'hangar_preferences.json')
-            with open(old_path, 'w') as stream:
-                json.dump({'enabled': True, 'profileRatingColors': False, 'showProfileWN8': False}, stream)
-            loader = loader_type(folder, settings=object())
-            loader._active = profile
-            values = loader.load('profile_ratings', self.defaults)
-            for key in ('summaryColors', 'statisticsColors', 'vehicleColors', 'showPlayerWN8', 'showVehicleWN8'):
-                self.assertFalse(values[key])
-            self.assertTrue(values['enabled'])
-            with open(old_path, 'w') as stream:
-                json.dump({'enabled': False, 'profileRatingColors': True, 'showProfileWN8': True}, stream)
-            self.assertEqual(loader.load('profile_ratings', self.defaults), values)
 
     def test_threshold_editing_rejects_invalid_limits_without_saving(self):
         api, _ = game_source('settings/definitions/lobby/profile_ratings.py', {

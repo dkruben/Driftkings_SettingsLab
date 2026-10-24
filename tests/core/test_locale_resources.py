@@ -21,13 +21,13 @@ class LocaleResourceTests(RuntimeTest):
         self.panel = self.load('i18n.panel')
 
     def test_parser_preserves_unicode_html_whitespace_paths_and_nested_values(self):
-        value = u'  Vitória: <font color="{c:wn8}">{wn8}</font>\nC:\\mods\\text  '
+        value = u'  VitÃ³ria: <font color="{c:wn8}">{wn8}</font>\nC:\\mods\\text  '
         document = self.parser(('\ufeff# comment\ncommon.label: ' + json.dumps(value) +
                                 '\npenetration_indicator.UI_colors.green: "#60CB00"\n'
-                                'panel.page.title: "Definições"\n').encode('utf-8'))
+                                'panel.page.title: "DefiniÃ§Ãµes"\n').encode('utf-8'))
         self.assertEqual(document['TEXT']['common']['label'], value)
         self.assertEqual(document['TEXT']['penetration_indicator']['UI_colors']['green'], '#60CB00')
-        self.assertEqual(document['PANEL']['page.title'], u'Definições')
+        self.assertEqual(document['PANEL']['page.title'], u'DefiniÃ§Ãµes')
         self.assertEqual(self.parser("common.label: 'It''s ready'\n")['TEXT']['common']['label'], "It's ready")
 
     def test_parser_rejects_duplicate_conflicting_and_malformed_entries(self):
@@ -92,7 +92,7 @@ class LocaleResourceTests(RuntimeTest):
             resources.load('en')
         self.assertNotIn('en', resources.cache)
 
-    def test_legacy_component_json_still_migrates_into_the_unified_override(self):
+    def test_old_component_overrides_are_ignored_and_left_untouched(self):
         root = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, root)
         folder = os.path.join(root, 'MainGun', 'i18n')
@@ -102,8 +102,8 @@ class LocaleResourceTests(RuntimeTest):
         with open(legacy, 'wb') as stream:
             stream.write(original)
         result = self.catalog.TranslationCatalog(root).read('pt')
-        self.assertEqual(result['high_caliber_progress']['UI_custom'], u'Legado')
-        self.assertTrue(os.path.isfile(os.path.join(root, 'i18n', 'pt.json')))
+        self.assertNotIn('UI_custom', result['high_caliber_progress'])
+        self.assertFalse(os.path.exists(os.path.join(root, 'i18n', 'pt.json')))
         with open(legacy, 'rb') as stream:
             self.assertEqual(stream.read(), original)
 

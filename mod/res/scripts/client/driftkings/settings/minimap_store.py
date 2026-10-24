@@ -23,7 +23,7 @@ class MinimapStore(JsonDocuments):
 
     def load(self, initial):
         from driftkings.settings.loader import validate_types
-        from driftkings.core.minimap import validate, migrate_artillery_aim
+        from driftkings.core.minimap import validate
         self.recover()
         data = {}
         for name, defaults in zip(FILES, split(initial)):
@@ -32,8 +32,6 @@ class MinimapStore(JsonDocuments):
             part = merge(defaults, read_object(path)) if os.path.isfile(path) else defaults
             validate_types(defaults, part, name)
             data.update(part)
-        data['artilleryAim'].pop('color', None)
-        migrate_artillery_aim(data)
         validate(data)
         if any(not os.path.isfile(os.path.join(self.directory, name)) for name in FILES):
             self.save(data)

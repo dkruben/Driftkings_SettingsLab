@@ -12,29 +12,6 @@ from driftkings.settings.panel.storage import ConfigStore, ConfigReadError
 CONFIG_ROOT = './mods/configs/driftkings/.settings'
 
 
-def migrate_preferences(destination, previous_root):
-    """Copy old preferences/snapshots once, preserving originals and newer files."""
-    import os
-    import re
-    for folder in ('', 'profiles', 'locales'):
-        previous = ConfigStore(os.path.join(previous_root, folder))
-        target = ConfigStore(os.path.join(destination, folder))
-        if not os.path.isdir(previous.root):
-            continue
-        names = ['dk_settings'] if not folder else [
-            name[:-5] for name in os.listdir(previous.root)
-            if re.match(r'^[A-Za-z0-9_-]{1,64}\.json\Z', name)]
-        for name in names:
-            if os.path.exists(target.path(name)):
-                continue
-            try:
-                document = previous.read(name)
-                if document:
-                    target.write(name, document)
-            except (ConfigReadError, IOError, OSError) as error:
-                logger.warning('Could not migrate settings %s/%s: %s', folder, name, error)
-
-
 class SettingsAPI(object):
     def __init__(self, root=CONFIG_ROOT):
         self.root = root
@@ -94,9 +71,6 @@ class SettingsAPI(object):
     # Framework -------------------------------------------------------------
     def start(self, client_language='en'):
         self.client_language = client_language
-        # Preserve existing interface preferences; never touch the old files.
-        if self.root == CONFIG_ROOT:
-            migrate_preferences(self.root, './mods/configs/DriftKingsMods')
         from driftkings.settings.panel import core_page
         core_page.install(self)
         self.started = True

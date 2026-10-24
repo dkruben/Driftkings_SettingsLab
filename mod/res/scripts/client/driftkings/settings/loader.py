@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Python defaults, selected profile and per-feature JSON persistence."""
 import copy
-import json
 from driftkings.logger import get_logger
 import math
 import os
@@ -10,7 +9,6 @@ import shutil
 import tempfile
 
 from driftkings.settings.default_values import SELECTOR
-from driftkings.settings.sections import previous_name, previous_sections, section_aliases
 from driftkings.settings.settings_data import SettingsData, user_settings, part_name
 from driftkings.settings.store import SettingsStore, merge, recover_file, read_object
 
@@ -22,8 +20,6 @@ except NameError:
     number_types = (int, float)
 
 LOG = get_logger('Driftkings.Settings')
-# Features removed from the mod; their files are never read again.
-REMOVED_SECTIONS = ('safe_shot',)
 
 
 def validate_types(defaults, values, path=''):
@@ -50,73 +46,6 @@ def validate_types(defaults, values, path=''):
                 raise ValueError('Expected text: ' + name)
         elif isinstance(default, (tuple, list)) and not isinstance(value, (tuple, list)):
             raise ValueError('Expected a list: ' + name)
-
-
-# The earlier flat clock options, first in hangar_preferences and briefly in main.
-OLD_CLOCK_OPTIONS = ('clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText')
-OLD_CLOCK_TEXT = ("<font face='$FieldFont'><textformat leading='-38'><font size='36'>%H:%M</font><br></textformat>"
-                  "<textformat rightMargin='85' leading='-2'>%A<br><font size='15'>%d %b %Y</font></textformat></font>")
-# Comments allowed in hand-written clock JSON; quoted strings are kept as written.
-JSON_COMMENTS = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n]*|/\*[\s\S]*?\*/')
-
-
-def clock_formats(text, x, y):
-    """Clock fields from an earlier text: a JSON list of fields, or one text field at the old position."""
-    parsed = text if isinstance(text, (dict, list)) else None
-    if parsed is None and isinstance(text, string_types):
-        clean = JSON_COMMENTS.sub(lambda match: match.group(1) or '', text)
-        if clean.strip()[:1] in ('{', '['):
-            try:
-                parsed = json.loads(clean)
-            except ValueError:
-                return None
-    if parsed is not None:
-        formats = parsed.get('formats') if isinstance(parsed, dict) else parsed
-        return formats if isinstance(formats, list) else None
-    if not isinstance(text, string_types) or not text.strip():
-        return None
-    return [{'x': x, 'y': y, 'screenHAlign': 'right', 'width': 240, 'height': 100,
-             'textFormat': {'align': 'right'}, 'format': text}]
-
-
-def migrate_main_options(values, hangar_path):
-    """Convert earlier clock options into main's clock object; hangar_preferences.json is never rewritten.
-
-    An untouched shipped clock keeps the current default fields; scale and background are retired.
-    """
-    if isinstance(values.get('clock'), dict):
-        return values
-    old = dict((key, values.pop(key)) for key in OLD_CLOCK_OPTIONS if key in values)
-    if not old and os.path.isfile(hangar_path):
-        hangar = read_object(hangar_path)
-        old = dict((key, hangar[key]) for key in OLD_CLOCK_OPTIONS if key in hangar)
-    clock = {}
-    if type(old.get('clock')) is bool:
-        clock['enabled'] = old['clock']
-    text, x, y = old.get('customClockText'), old.get('clockX', -100), old.get('clockY', 80)
-    if not (text == OLD_CLOCK_TEXT and x == -100 and y == 80):
-        formats = clock_formats(text, x, y)
-        if formats is not None:
-            clock['formats'] = formats
-    if clock:
-        values['clock'] = clock
-    return values
-
-
-def migrate_values(component, values):
-    """Normalize legacy representation before validating against current defaults."""
-    if component == 'third_person_zoom':
-        from driftkings.core.camera_settings import migrate
-        values = migrate(values)
-    elif component == 'sniper_camera':
-        values.pop('dynamicZoom', None)
-    if component == 'hangar_marks_of_excellence':
-        card = values.get('card')
-        if isinstance(card, dict):
-            color = card.get('backgroundColor')
-            if isinstance(color, number_types) and not isinstance(color, bool) and 0 <= color <= 0xFFFFFF and int(color) == color:
-                card['backgroundColor'] = '#%06X' % int(color)
-    return values
 
 
 class SettingsLoader(object):
@@ -177,8 +106,8 @@ class SettingsLoader(object):
                     continue
                 entries = os.listdir(folder)
                 # Python 2 list comprehensions leak their variables; keep the folder name intact.
-                known = [section + '.json' for key in self.settings.configs for section in (key,) + previous_sections(key)]
-                if any(key in entries for key in known) or any(key in entries for section in ('team_panels', 'vehicle_carousel', 'minimap_enhancements') for key in (section,) + previous_sections(section)):
+                known = [section + '.json' for section in self.settings.configs]
+                if any(key in entries for key in known) or any(section in entries for section in ('team_panels', 'vehicle_carousel', 'minimap_enhancements')):
                     names.add(name)
         return sorted(names)
 
@@ -210,134 +139,23 @@ class SettingsLoader(object):
     def path(self, component):
         return os.path.join(self.directory(self.active), part_name(component) + '.json')
 
-    def previous_path(self, component, directory=False):
-        profile = self.directory(self.active)
-        for name in previous_sections(component) + (previous_name(component),):
-            path = os.path.join(profile, name + ('' if directory else '.json'))
-            if directory:
-                if os.path.isdir(path):
-                    return path
-            else:
-                recover_file(path)
-                if os.path.isfile(path):
-                    return path
-        return None
-
-    def migrate_directory(self, component, target, factory, defaults=None):
-        source = self.previous_path(component, directory=True)
-        if source is None:
-            return False
-        profile = self.directory(self.active)
-        staging = tempfile.mkdtemp(prefix='.rename-', dir=profile)
-        try:
-            # Recover transactions before copying; never move/remove the old profile.
-            factory(source).recover()
-            for directory, dirs, files in os.walk(source):
-                dirs[:] = [name for name in dirs if not os.path.islink(os.path.join(directory, name))]
-                for name in files:
-                    path = os.path.join(directory, name)
-                    if not name.endswith('.json') or os.path.islink(path):
-                        continue
-                    destination = os.path.join(staging, os.path.relpath(path, source))
-                    SettingsStore(destination).write(read_object(path))
-            store = factory(staging)
-            if defaults is None:
-                store.load()
-            else:
-                store.load(defaults)
-            os.rename(staging, target)
-        finally:
-            if os.path.isdir(staging):
-                shutil.rmtree(staging)
-        return True
-
-    def discard_previous(self, component):
-        """Remove the renamed files and folders of a component once its own store exists."""
-        profile = self.directory(self.active)
-        if not (os.path.isfile(self.path(component)) or os.path.isdir(os.path.join(profile, component))):
-            return
-        for name in previous_sections(component) + (previous_name(component),):
-            if name == component:
-                continue
-            path = os.path.join(profile, name)
-            try:
-                for document in (path + '.json', path + '.json.previous'):
-                    if os.path.isfile(document) and not os.path.islink(document):
-                        os.remove(document)
-                if name in previous_sections(component) and os.path.isdir(path) and not os.path.islink(path):
-                    remove_settings_folder(path)
-            except (IOError, OSError, ValueError):
-                LOG.warning('Could not remove previous settings %s', path, exc_info=True)
-
-    def discard_removed(self):
-        profile = self.directory(self.active)
-        for name in REMOVED_SECTIONS:
-            path = os.path.join(profile, name + '.json')
-            try:
-                if os.path.isfile(path) and not os.path.islink(path):
-                    os.remove(path)
-            except (IOError, OSError):
-                LOG.warning('Could not remove settings of a removed feature %s', path, exc_info=True)
-
-    def load(self, component, defaults, legacy=None):
+    def load(self, component, defaults):
         component = part_name(component)
-        values = self._load(component, defaults, legacy)
-        # Migrated and written: the previous copy is no longer a needed backup.
-        self.discard_previous(component)
-        return values
-
-    def _load(self, component, defaults, legacy=None):
         if component not in self.defaults:
             self.defaults[component] = copy.deepcopy(defaults)
         defaults = self.defaults[component]
         if component == 'minimap_enhancements':
             from driftkings.settings.minimap_store import MinimapStore
-            directory = os.path.join(self.directory(self.active), part_name(component))
-            if not os.path.isdir(directory):
-                self.migrate_directory(component, directory, MinimapStore, defaults)
-            if os.path.isdir(directory):
-                MinimapStore(directory).recover()
-                if os.path.isfile(os.path.join(directory, 'minimap.json')):
-                    return MinimapStore(directory).load(defaults)
+            directory = os.path.join(self.directory(self.active), component)
+            return MinimapStore(directory).load(defaults)
         path = self.path(component)
         recover_file(path)
-        if os.path.isfile(path):
-            values = migrate_values(component, read_object(path))
-            if component == 'main':
-                # The installer may create main.json with only its switch.
-                values = migrate_main_options(values, self.path('hangar_preferences'))
-        else:
-            old_path = self.previous_path(component)
-            values = read_object(old_path) if old_path else None
-            if values is None and self.active == 'default':
-                central = SettingsStore(os.path.join(self.root, 'driftkings.json')).read()['components']
-                values = central.get(component)
-                if values is None:
-                    values = next((central[name] for name in section_aliases(component) if name in central), None)
-                if values is None:
-                    values = legacy() if legacy else {}
-            if component == 'profile_ratings' and not values:
-                from driftkings.core.profile_ratings import migrate_profile_options
-                previous = self.path('hangar_preferences')
-                if os.path.isfile(previous):
-                    values = migrate_profile_options(read_object(previous))
-            if component == 'main':
-                values = migrate_main_options(values or {}, self.path('hangar_preferences'))
-            values = migrate_values(component, {} if values is None else values)
-            validate_types(defaults, values, component)
-            values = merge(defaults, values)
-            SettingsStore(path).write(values)
+        values = read_object(path) if os.path.isfile(path) else {}
         validate_types(defaults, values, component)
-        if component == 'minimap_enhancements':
-            from driftkings.settings.minimap_store import MinimapStore
-            # Keep the previous single file untouched as a migration backup.
-            initial = merge(defaults, values)
-            if not initial.get('minimapSchema'):
-                for item in initial['circles'].values():
-                    item['alpha'] = initial['alpha']
-                initial['minimapSchema'] = 1
-            return MinimapStore(directory).load(initial)
-        return merge(defaults, values)
+        result = merge(defaults, values)
+        if not os.path.isfile(path):
+            SettingsStore(path).write(result)
+        return result
 
     def save(self, component, values):
         component = part_name(component)
@@ -354,56 +172,9 @@ class SettingsLoader(object):
         SettingsStore(path).write(candidate)
         return copy.deepcopy(candidate)
 
-    def split_store(self, component, factory, files, legacy_directory):
-        component = part_name(component)
-        store = self._split_store(component, factory, files, legacy_directory)
-        self.discard_previous(component)
-        return store
-
-    def _split_store(self, component, factory, files, legacy_directory):
+    def split_store(self, component, factory):
         target = os.path.join(self.directory(self.active), part_name(component))
-        def create(directory, migrating=False):
-            if component == 'team_panels':
-                return factory(directory, legacy_root=self.root if migrating and self.active == 'default' else False)
-            return factory(directory)
-        if os.path.isdir(target):
-            return create(target)
-        if self.migrate_directory(component, target, create):
-            return create(target)
-        profile = self.directory(self.active)
-        if not os.path.isdir(profile):
-            os.makedirs(profile)
-        staging = tempfile.mkdtemp(prefix='.settings-', dir=profile)
-        try:
-            if self.active == 'default':
-                migration_files = tuple(files) + (('.transaction.json',) if component == 'team_panels' else ())
-                if component == 'team_panels':
-                    from driftkings.settings.team_panel_store import LEGACY_FILES
-                    migration_files += LEGACY_FILES
-                for name in migration_files:
-                    source = os.path.join(legacy_directory, name)
-                    recover_file(source)
-                    if os.path.isfile(source):
-                        SettingsStore(os.path.join(staging, name)).write(read_object(source))
-            # Use each feature's own validator and existing split-file migration.
-            create(staging, True).load()
-            os.rename(staging, target)
-        finally:
-            if os.path.isdir(staging):
-                shutil.rmtree(staging)
-        return create(target)
-
-
-def remove_settings_folder(path):
-    """Delete a previous settings folder only when it holds nothing but JSON documents."""
-    for directory, dirs, files in os.walk(path):
-        for name in dirs + files:
-            if os.path.islink(os.path.join(directory, name)):
-                raise ValueError('Link in previous settings folder')
-        for name in files:
-            if not (name.endswith('.json') or name.endswith('.json.previous')):
-                raise ValueError('Unexpected file in previous settings folder: ' + name)
-    shutil.rmtree(path)
+        return factory(target)
 
 
 settings_loader = SettingsLoader('./mods/configs/driftkings', user_settings)

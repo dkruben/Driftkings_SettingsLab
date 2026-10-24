@@ -80,8 +80,28 @@ class SettingsControllerTests(RuntimeTest):
         # Clock fields are live: any change under main.clock republishes them.
         del self.events[:]
         controller.start()
-        controller.onSettingsChanged(None, {'clock': {'formats': []}})
+        controller.onSettingsChanged(self.constants.MAIN.NAME, {'clock': {'formats': []}})
         self.assertEqual(changes, [('enabled', 'clock')])
         self.assertEqual(self.events[-1], ('refresh', True, 1))
+        controller.stop()
+        self.assertEqual(self.listeners, [])
+
+    def test_clock_observes_hangar_prestige_and_ignores_other_sections(self):
+        common = source('views/hangar/common.py', {'driftkings.core.settings_controller': module(SettingsController=self.base)})
+        service = self.load('settings.service')
+        controller = self.controller('views/hangar/main.py', 'ClockController', {
+            'HangarController': common['HangarController'], 'MAIN': self.constants.MAIN,
+            'GLOBAL': self.constants.GLOBAL, 'affects': service.affects})
+        refreshed = []
+        controller.onApplySettings = lambda: refreshed.append(True)
+        controller.start()
+        self.assertIsNone(self.listeners[0][1])
+        refreshed[:] = []
+        for key in ('enabled', self.constants.HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET):
+            controller.onSettingsChanged(self.constants.HANGAR_PREFERENCES.NAME, {key: False})
+        self.assertEqual(len(refreshed), 2)
+        controller.onSettingsChanged('vehicle_health', {'enabled': False})
+        controller.onSettingsChanged(self.constants.HANGAR_PREFERENCES.NAME, {'lowAmmoPercentage': 20})
+        self.assertEqual(len(refreshed), 2)
         controller.stop()
         self.assertEqual(self.listeners, [])
