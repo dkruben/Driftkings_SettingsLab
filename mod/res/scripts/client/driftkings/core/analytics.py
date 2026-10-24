@@ -104,7 +104,8 @@ class Sender(object):
 
     def __init__(self, url, client_id, opener_factory=None):
         self.url = url
-        self.client_id = client_id
+        # Keep the stored random identity, but use GA4's numeric wire format.
+        self.client_id = '%d.%d' % (int(client_id[:16], 16), int(client_id[16:], 16))
         self.opener_factory = opener_factory or verified_opener
         self.queue = Queue(BACKLOG)
         self.closed = threading.Event()

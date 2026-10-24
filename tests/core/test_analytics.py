@@ -112,7 +112,14 @@ class AnalyticsTests(RuntimeTest):
         for measurement, secret in (('', ''), ('G-TEST123456', ''), ('', SECRET), ('UA-1234-1', SECRET),
                                     (MEASUREMENT, 'bad secret&x=1'), (MEASUREMENT, 'short')):
             self.assertFalse(configured(measurement, secret))
-        self.assertFalse(configured())    # the shipped constants are empty until the maintainer sets them
+        original = self.module.MEASUREMENT_ID, self.module.API_SECRET
+        try:
+            self.module.MEASUREMENT_ID, self.module.API_SECRET = '', ''
+            self.assertFalse(configured())
+            self.module.MEASUREMENT_ID, self.module.API_SECRET = MEASUREMENT, SECRET
+            self.assertTrue(configured())
+        finally:
+            self.module.MEASUREMENT_ID, self.module.API_SECRET = original
 
     def test_off_by_default_stores_and_sends_nothing(self):
         service = self.service()
@@ -140,7 +147,8 @@ class AnalyticsTests(RuntimeTest):
         with open(self.identity(), 'rb') as stream:
             stored = stream.read().decode('ascii')
         self.assertTrue(re.match(r'\A[0-9a-f]{32}\Z', stored))
-        self.assertEqual(body['client_id'], stored)
+        self.assertEqual(body['client_id'], '%d.%d' % (int(stored[:16], 16), int(stored[16:], 16)))
+        self.assertTrue(re.match(r'\A[0-9]+\.[0-9]+\Z', body['client_id']))
         event = body['events'][0]
         self.assertEqual(event['name'], 'mod_loaded')
         self.assertEqual(event['params'], {'mod_version': '1.0.0', 'session_id': 1700000000, 'engagement_time_msec': 100,
