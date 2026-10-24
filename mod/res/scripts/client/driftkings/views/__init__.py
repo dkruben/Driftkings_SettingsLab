@@ -2,7 +2,7 @@
 """Publish our battle package; the client owns view registration and lifecycle."""
 import weakref
 
-from driftkings.interface_catalog import FLASH_LIBRARY, FLASH_COMPONENTS
+from driftkings.interface_catalog import FLASH_COMPONENTS, FLASH_LIBRARY
 
 BATTLE_COMPONENTS = {}
 BATTLE_HANDLERS = weakref.WeakSet()
@@ -30,7 +30,7 @@ class BattleViews(object):
             return
         if self.registration is None:
             from driftkings.core.hud_visibility import hudVisibility
-            from driftkings.views.battle.overlay import ALIAS, OverlayView, OverlayConfig
+            from driftkings.views.battle.overlay import ALIAS, OverlayConfig, OverlayView
             self.visibility = hudVisibility
             self.registration = BattlePackageRegistration()
             self.register(ALIAS, OverlayView, OverlayConfig())

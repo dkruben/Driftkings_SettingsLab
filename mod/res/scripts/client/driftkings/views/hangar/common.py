@@ -51,8 +51,10 @@ def publish_card(view, payload):
 
 def install_card(component, view_type, owner):
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
+
     from driftkings.core.hooks import override
-    from driftkings.ui.gameface import INVALID_RES_ID, resource_id as resolve_resource
+    from driftkings.ui.gameface import INVALID_RES_ID
+    from driftkings.ui.gameface import resource_id as resolve_resource
 
     def get_children(original, parent, *args, **kwargs):
         children = dict(original(parent, *args, **kwargs))

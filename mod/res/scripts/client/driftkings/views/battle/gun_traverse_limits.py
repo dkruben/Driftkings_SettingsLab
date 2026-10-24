@@ -3,9 +3,8 @@
 from account_helpers.settings_core import settings_constants
 from gui.shared.personality import ServicesLocator
 
-from driftkings._constants import GUN_TRAVERSE_LIMITS, GLOBAL
-from driftkings.core.overlay import Align, ElementType
-from driftkings.core.overlay import overlays
+from driftkings._constants import GLOBAL, GUN_TRAVERSE_LIMITS
+from driftkings.core.overlay import Align, ElementType, overlays
 from driftkings.settings.service import settings_service
 
 

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Opt-in bounded aggregates. No payloads, timers, subscriptions or engine imports."""
-from driftkings.logger import get_logger
 import math
 from timeit import default_timer
+
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Performance')
 

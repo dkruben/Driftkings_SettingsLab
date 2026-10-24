@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-import re
 from math import degrees
-from nations import NAMES
+import re
 from xml.sax.saxutils import escape
-from gui.shared.gui_items.Vehicle import getIconPath, getContourIconPath
+
+from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
+from nations import NAMES
 
 from driftkings._constants import GLOBAL, TARGET_INFORMATION
 from driftkings.common.utils.game import checkKeys
@@ -13,8 +13,9 @@ from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.gun_stats import damage_per_minute, reload_with_equipment
 from driftkings.core.vehicle_images import resolve_vehicle_images
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.target_information import TargetInformationSettings as Settings
-from driftkings.settings.service import settings_service, affects
+from driftkings.settings.service import affects, settings_service
 from driftkings.views.battle.target_information import Flash
 
 COMPARE_MACROS = ['compareDelim', 'compareColor']

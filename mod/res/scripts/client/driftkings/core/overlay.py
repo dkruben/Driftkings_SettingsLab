@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Owned battle scene. State survives a late Flash load or view recreation."""
-from driftkings.logger import get_logger
 from copy import deepcopy
+
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Overlay')
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Settings logging compatibility facade using the shared mod format."""
-from driftkings.logger import get_logger
 import sys
+
+from driftkings.logger import get_logger
 
 CHANNEL = 'Driftkings.Settings'
 _fallback = get_logger(CHANNEL)

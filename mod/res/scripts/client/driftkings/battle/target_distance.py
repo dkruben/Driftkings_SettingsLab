@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.battle.target_distance')
 from AvatarInputHandler import AvatarInputHandler
 from gui.Scaleform.daapi.view.battle.shared.markers2d.vehicle_plugins import VehicleMarkerPlugin
 
 from driftkings._constants import GLOBAL
 from driftkings.core.hooks import override
-from driftkings.settings.service import settings_service
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.target_distance import TargetDistanceSettings as Settings
-from driftkings.views.battle.target_distance import DistanceMarkerController, DistanceMarkerView, ALIAS
+from driftkings.settings.service import settings_service
+from driftkings.views.battle.target_distance import ALIAS, DistanceMarkerController, DistanceMarkerView
+
+LOG = get_logger('driftkings.battle.target_distance')
 
 g_distanceMarker = None
 config = Settings()

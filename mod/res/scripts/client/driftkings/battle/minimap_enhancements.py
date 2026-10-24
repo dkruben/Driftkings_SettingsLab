@@ -1,29 +1,30 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.battle.minimap_enhancements')
-import weakref
 from math import degrees
+import weakref
 
-import BigWorld
 from account_helpers.settings_core import settings_constants
+import BigWorld
 from gui.Scaleform.daapi.view.battle.shared.minimap import plugins
 from gui.Scaleform.daapi.view.battle.shared.minimap.component import MinimapComponent
-from gui.Scaleform.daapi.view.battle.shared.minimap.settings import CIRCLE_TYPE, CIRCLE_STYLE, VIEW_RANGE_CIRCLES_AS3_DESCR
+from gui.Scaleform.daapi.view.battle.shared.minimap.settings import (CIRCLE_STYLE, CIRCLE_TYPE,
+                                                                     VIEW_RANGE_CIRCLES_AS3_DESCR)
 from helpers import dependency
 from skeletons.gui.battle_session import IBattleSessionProvider
 
-from driftkings._constants import BATTLE_ALIASES
-from driftkings._constants import GLOBAL, MINIMAP_ENHANCEMENTS
+from driftkings._constants import BATTLE_ALIASES, GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.common.utils.formatting import hexToDecimal
-from driftkings.common.utils.wgutils import isXvmInstalled, getBattleTypes
 from driftkings.common.utils.game import checkKeys
+from driftkings.common.utils.wgutils import getBattleTypes, isXvmInstalled
 from driftkings.core import minimap as policy
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.core.keyboard import keyboard
+from driftkings.logger import get_logger
+from driftkings.settings.definitions.battle.minimap_enhancements import MinimapEnhancementsSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
-from driftkings.settings.definitions.battle.minimap_enhancements import MinimapEnhancementsSettings as Settings
+
+LOG = get_logger('driftkings.battle.minimap_enhancements')
 
 PERSONAL = weakref.WeakSet()
 VEHICLES = weakref.WeakSet()

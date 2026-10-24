@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from driftkings.stats.vehinfo import calculateXTE, calculateXTDB, calculateXvmScale, getVehicleInfoData
+from driftkings.stats.vehinfo import calculateXTDB, calculateXTE, calculateXvmScale, getVehicleInfoData
 
 
 class _Stat(object):

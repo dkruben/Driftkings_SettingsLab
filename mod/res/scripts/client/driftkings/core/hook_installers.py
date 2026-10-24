@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Internal descriptor-aware hook installation; public declarations use core.hooks."""
-import inspect
 from functools import partial, wraps
+import inspect
 
 from driftkings.core.introspection import find_attr_name
 

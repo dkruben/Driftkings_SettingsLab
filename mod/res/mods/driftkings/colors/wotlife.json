@@ -1,0 +1,284 @@
+{
+  "def": {
+    "colorRating": {
+      "very_bad": "#000000",
+      "bad": "#CD3333",
+      "b_average": "#D77900",
+      "normal": "#D7B600",
+      "good": "#6D9521",
+      "very_good": "#4C762E",
+      "great": "#4A92B7",
+      "unique": "#83579D",
+      "s_unique": "#5A3175",
+      "nocolor": "#CCCCCC",
+      "average": "#D7B600",
+      "above_average": "#6D9521",
+      "below_average": "#D77900",
+      "unicum": "#83579D",
+      "super_unicum": "#5A3175"
+    },
+    "colorHP": {
+      "very_low": "#FF0000",
+      "low": "#DD4444",
+      "average": "#FFCC22",
+      "above_average": "#FCFCFC"
+    }
+  },
+  "colors": {
+    "colorRating": "${def.colorRating}",
+    "colorHP": "${def.colorHP}",
+    "dmg_kind": {
+      "attack": "#FFAA55",
+      "fire": "#FF6655",
+      "ramming": "#00CCCC",
+      "world_collision": "#998855",
+      "death_zone": "#CCCCCC",
+      "drowning": "#CCCCCC",
+      "other": "#CCCCCC"
+    },
+    "spotted": {
+      "neverSeen": "#000000",
+      "lost": "#D9D9D9",
+      "spotted": "#FFBB00",
+      "dead": "#FFFFFF",
+      "neverSeen_arty": "#000000",
+      "lost_arty": "#D9D9D9",
+      "spotted_arty": "#FFBB00",
+      "dead_arty": "#FFFFFF"
+    },
+    "hp": [
+      {"value": 201, "color": "${def.colorHP.very_low}"},
+      {"value": 401, "color": "${def.colorHP.low}"},
+      {"value": 1001, "color": "${def.colorHP.average}"},
+      {"value": 9999, "color": "${def.colorHP.above_average}"}
+    ],
+    "hp_ratio": [
+      {"value": 10, "color": "${def.colorHP.very_low}"},
+      {"value": 25, "color": "${def.colorHP.low}"},
+      {"value": 50, "color": "${def.colorHP.average}"},
+      {"value": 101, "color": "${def.colorHP.above_average}"}
+    ],
+    "x": [
+      {"value": 16.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 33.5, "color": "${def.colorRating.bad}"},
+      {"value": 52.5, "color": "${def.colorRating.normal}"},
+      {"value": 75.5, "color": "${def.colorRating.good}"},
+      {"value": 92.5, "color": "${def.colorRating.very_good}"},
+      {"value": 999, "color": "${def.colorRating.unique}"}
+    ],
+    "eff": [
+      {"value": 610, "color": "${def.colorRating.very_bad}"},
+      {"value": 850, "color": "${def.colorRating.bad}"},
+      {"value": 1145, "color": "${def.colorRating.normal}"},
+      {"value": 1475, "color": "${def.colorRating.good}"},
+      {"value": 1775, "color": "${def.colorRating.very_good}"},
+      {"value": 9999, "color": "${def.colorRating.unique}"}
+    ],
+    "wtr": [
+      {"value": 2631, "color": "${def.colorRating.very_bad}"},
+      {"value": 4464, "color": "${def.colorRating.bad}"},
+      {"value": 6249, "color": "${def.colorRating.normal}"},
+      {"value": 8141, "color": "${def.colorRating.good}"},
+      {"value": 9460, "color": "${def.colorRating.very_good}"},
+      {"value": 99999, "color": "${def.colorRating.unique}"}
+    ],
+    "wn8": [
+      {"value": 300, "color": "${def.colorRating.very_bad}"},
+      {"value": 600, "color": "${def.colorRating.bad}"},
+      {"value": 900, "color": "${def.colorRating.b_average}"},
+      {"value": 1250, "color": "${def.colorRating.normal}"},
+      {"value": 1600, "color": "${def.colorRating.good}"},
+      {"value": 1900, "color": "${def.colorRating.very_good}"},
+      {"value": 2350, "color": "${def.colorRating.great}"},
+      {"value": 2900, "color": "${def.colorRating.unique}"},
+      {"value": 99999, "color": "${def.colorRating.s_unique}"}
+    ],
+    "wgr": [
+      {"value": 2000, "color": "${def.colorRating.very_bad}"},
+      {"value": 4000, "color": "${def.colorRating.bad}"},
+      {"value": 6000, "color": "${def.colorRating.normal}"},
+      {"value": 8000, "color": "${def.colorRating.good}"},
+      {"value": 10000, "color": "${def.colorRating.very_good}"},
+      {"value": 20000, "color": "${def.colorRating.unique}"}
+    ],
+    "e": [
+      {"value": 3, "color": "${def.colorRating.very_bad}"},
+      {"value": 6, "color": "${def.colorRating.bad}"},
+      {"value": 7, "color": "${def.colorRating.normal}"},
+      {"value": 8, "color": "${def.colorRating.good}"},
+      {"value": 9, "color": "${def.colorRating.very_good}"},
+      {"value": 20, "color": "${def.colorRating.unique}"}
+    ],
+    "winrate": [
+      {"value": 45, "color": "${def.colorRating.very_bad}"},
+      {"value": 47, "color": "${def.colorRating.bad}"},
+      {"value": 49, "color": "${def.colorRating.b_average}"},
+      {"value": 52, "color": "${def.colorRating.normal}"},
+      {"value": 54, "color": "${def.colorRating.good}"},
+      {"value": 56, "color": "${def.colorRating.very_good}"},
+      {"value": 60, "color": "${def.colorRating.great}"},
+      {"value": 65, "color": "${def.colorRating.unique}"},
+      {"value": 101, "color": "${def.colorRating.s_unique}"}
+    ],
+    "kb": [
+      {"value": 2, "color": "${def.colorRating.very_bad}"},
+      {"value": 5, "color": "${def.colorRating.bad}"},
+      {"value": 9, "color": "${def.colorRating.normal}"},
+      {"value": 14, "color": "${def.colorRating.good}"},
+      {"value": 20, "color": "${def.colorRating.very_good}"},
+      {"value": 999, "color": "${def.colorRating.unique}"}
+    ],
+    "avglvl": [
+      {"value": 2, "color": "${def.colorRating.very_bad}"},
+      {"value": 3, "color": "${def.colorRating.bad}"},
+      {"value": 5, "color": "${def.colorRating.normal}"},
+      {"value": 7, "color": "${def.colorRating.good}"},
+      {"value": 9, "color": "${def.colorRating.very_good}"},
+      {"value": 11, "color": "${def.colorRating.unique}"}
+    ],
+    "t_battles": [
+      {"value": 100, "color": "${def.colorRating.very_bad}"},
+      {"value": 250, "color": "${def.colorRating.bad}"},
+      {"value": 500, "color": "${def.colorRating.normal}"},
+      {"value": 1000, "color": "${def.colorRating.good}"},
+      {"value": 1800, "color": "${def.colorRating.very_good}"},
+      {"value": 99999, "color": "${def.colorRating.unique}"}
+    ],
+    "tdb": [
+      {"value": 500, "color": "${def.colorRating.very_bad}"},
+      {"value": 1000, "color": "${def.colorRating.normal}"},
+      {"value": 1800, "color": "${def.colorRating.good}"},
+      {"value": 2500, "color": "${def.colorRating.very_good}"},
+      {"value": 3000, "color": "${def.colorRating.unique}"}
+    ],
+    "tdv": [
+      {"value": 0.6, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.8, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.3, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "tfb": [
+      {"value": 0.6, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.8, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.3, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "tsb": [
+      {"value": 0.6, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.8, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.3, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "wn8effd": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.7, "color": "${def.colorRating.bad}"},
+      {"value": 0.9, "color": "${def.colorRating.normal}"},
+      {"value": 1.2, "color": "${def.colorRating.good}"},
+      {"value": 1.9, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "dmg_ratio_player": [
+      {"value": 16.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 33.5, "color": "${def.colorRating.bad}"},
+      {"value": 49.5, "color": "${def.colorRating.normal}"},
+      {"value": 66.5, "color": "${def.colorRating.good}"},
+      {"value": 83.5, "color": "${def.colorRating.very_good}"},
+      {"value": 999, "color": "${def.colorRating.unique}"}
+    ],
+    "damageRating": [
+      {"value": 64.99, "color": "${def.colorRating.very_bad}"},
+      {"value": 84.99, "color": "${def.colorRating.normal}"},
+      {"value": 94.99, "color": "${def.colorRating.good}"},
+      {"value": 100, "color": "${def.colorRating.unique}"}
+    ],
+    "hitsRatio": [
+      {"value": 47.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 60.5, "color": "${def.colorRating.bad}"},
+      {"value": 68.5, "color": "${def.colorRating.normal}"},
+      {"value": 74.5, "color": "${def.colorRating.good}"},
+      {"value": 78.5, "color": "${def.colorRating.very_good}"},
+      {"value": 100, "color": "${def.colorRating.unique}"}
+    ],
+    "survival": [
+      {"value": 20, "color": "${def.colorRating.very_bad}"},
+      {"value": 30, "color": "${def.colorRating.bad}"},
+      {"value": 40, "color": "${def.colorRating.normal}"},
+      {"value": 50, "color": "${def.colorRating.good}"},
+      {"value": 60, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "damageReceivedHP": [
+      {"value": 0.25, "color": "${def.colorRating.unique}"},
+      {"value": 0.5, "color": "${def.colorRating.very_good}"},
+      {"value": 0.75, "color": "${def.colorRating.good}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.25, "color": "${def.colorRating.bad}"},
+      {"value": 1e+30, "color": "${def.colorRating.very_bad}"}
+    ],
+    "mog": [
+      {"value": 0.0, "color": "#FFFFFF"},
+      {"value": 20.0, "color": "${def.colorRating.very_bad}"},
+      {"value": 40.0, "color": "${def.colorRating.bad}"},
+      {"value": 55.0, "color": "${def.colorRating.normal}"},
+      {"value": 65.0, "color": "${def.colorRating.good}"},
+      {"value": 85.0, "color": "${def.colorRating.very_good}"},
+      {"value": 95.0, "color": "${def.colorRating.unique}"},
+      {"value": 100.0, "color": "${def.colorRating.s_unique}"}
+    ],
+    "damageRatio": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.75, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.5, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "damageHP": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.75, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.5, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "relativePerformance": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.75, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.5, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "diff": [
+      {"value": 0, "color": "${def.colorRating.very_bad}"},
+      {"value": 0, "color": "${def.colorRating.normal}"},
+      {"value": 1e+30, "color": "${def.colorRating.good}"}
+    ],
+    "wn7": [
+      {"value": 500, "color": "${def.colorRating.very_bad}"},
+      {"value": 700, "color": "${def.colorRating.bad}"},
+      {"value": 900, "color": "${def.colorRating.b_average}"},
+      {"value": 1100, "color": "${def.colorRating.normal}"},
+      {"value": 1350, "color": "${def.colorRating.good}"},
+      {"value": 1550, "color": "${def.colorRating.very_good}"},
+      {"value": 1850, "color": "${def.colorRating.great}"},
+      {"value": 2050, "color": "${def.colorRating.unique}"},
+      {"value": 99999, "color": "${def.colorRating.s_unique}"}
+    ]
+  },
+  "sources": {
+    "wn8": "https://wot-life.com/",
+    "wn7": "https://wot-life.com/",
+    "winrate": "https://wot-life.com/",
+    "colors": "https://wot-life.com/css/main.min.css",
+    "snapshot_date": "2026-10-24",
+    "other_metrics": "Inherited Driftkings adaptations, mapped to WoT-Life colours; not published WoT-Life scales.",
+    "wn8effd": "XVM damage efficiency limits mapped to WoT-Life colours: https://gitlab.com/xvm/xvm/-/blob/master/release/configs/default_wg/colors.xc"
+  }
+}

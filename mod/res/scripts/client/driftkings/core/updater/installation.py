@@ -4,7 +4,7 @@ import os
 import threading
 
 from driftkings.core.updater.shared import LOG
-from driftkings.core.updater.state import ERROR, READY, INSTALLING
+from driftkings.core.updater.state import ERROR, INSTALLING, READY
 
 
 class InstallMixin(object):

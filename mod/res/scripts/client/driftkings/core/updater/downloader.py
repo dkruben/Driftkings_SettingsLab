@@ -10,7 +10,7 @@ import threading
 import xml.etree.ElementTree as ET
 import zipfile
 
-from driftkings.core.updater.https_transport import TransferError, CHUNK
+from driftkings.core.updater.https_transport import CHUNK, TransferError
 from driftkings.core.updater.manifest import Manifest
 
 

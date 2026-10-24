@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 import glob
-from driftkings.logger import get_logger
 import os
-import zipfile
 from xml.etree import ElementTree
+import zipfile
 
 import BigWorld
-import ResMgr
 from frameworks.wulf import WindowLayer
 from gui.impl.dialogs import dialogs
 from gui.impl.dialogs.builders import WarningDialogBuilder
 from gui.impl.pub.dialog_window import DialogButtons as DButtons
 from gui.shared.personality import ServicesLocator as SL
 from helpers import getClientVersion
-from wg_async import wg_await, wg_async
+import ResMgr
+from wg_async import wg_async, wg_await
 
 from driftkings._constants import SOUND_BANK_LOADER
 from driftkings.common.utils import events
 from driftkings.common.utils.iter import remDups
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.sound_bank_loader import SoundBankLoaderSettings as Settings
 from driftkings.settings.service import settings_service
 

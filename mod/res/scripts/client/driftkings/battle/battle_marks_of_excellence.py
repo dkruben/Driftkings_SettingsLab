@@ -1,30 +1,32 @@
 # -*- coding: utf-8 -*-
-import BattleReplay
 import datetime
-from CurrentVehicle import g_currentVehicle
-from Vehicle import Vehicle
-from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK
-from gui.Scaleform.daapi.view.lobby.profile.ProfileUtils import ProfileUtils
-from gui.impl.lobby.hangar.presenters.crew_presenter import CrewPresenter
-from gui.shared.gui_items.dossier.achievements.mark_on_gun import MarkOnGunAchievement
 
-from driftkings._constants import GLOBAL, BATTLE_MARKS_OF_EXCELLENCE
-from driftkings._constants import MARK_THRESHOLDS, MARK_LEVELS, MARKS_MIN_TIER
+import BattleReplay
+from CurrentVehicle import g_currentVehicle
+from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK
+from gui.impl.lobby.hangar.presenters.crew_presenter import CrewPresenter
+from gui.Scaleform.daapi.view.lobby.profile.ProfileUtils import ProfileUtils
+from gui.shared.gui_items.dossier.achievements.mark_on_gun import MarkOnGunAchievement
+from Vehicle import Vehicle
+
+from driftkings._constants import BATTLE_MARKS_OF_EXCELLENCE, GLOBAL, MARK_LEVELS, MARK_THRESHOLDS, MARKS_MIN_TIER
 from driftkings.common.config.json_reader import loadJson
 from driftkings.common.utils import events
 from driftkings.common.utils.achievement_dossiers import getAchievementDossier
-from driftkings.common.utils.colorratting import getStatisticColor, getMoeDamageColor
+from driftkings.common.utils.colorratting import getMoeDamageColor, getStatisticColor
 from driftkings.common.utils.game import checkKeys, sendPanelMessage
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
 from driftkings.core.cache import cache_directory
 from driftkings.core.callbacks import callback
-from driftkings.core.hooks import override, on_event
+from driftkings.core.hooks import on_event, override
 from driftkings.core.keyboard import keyboard
-from driftkings.core.marks_calculator import ceil_damage, combined_damage, statistics, battle_estimate, battle_target, battle_curve, valid_calibration, replay_calibration
-from driftkings.game_constants import DAMAGE_EVENTS, BATTLE_EVENT_TYPE
-from driftkings.settings.definitions.battle.battle_marks_of_excellence import BattleMarksOfExcellenceSettings as Settings
+from driftkings.core.marks_calculator import (battle_curve, battle_estimate, battle_target, ceil_damage,
+                                              combined_damage, replay_calibration, statistics, valid_calibration)
+from driftkings.game_constants import BATTLE_EVENT_TYPE, DAMAGE_EVENTS
+from driftkings.settings.definitions.battle.battle_marks_of_excellence import \
+    BattleMarksOfExcellenceSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.views.battle.battle_marks_of_excellence import BattleMarksAdapter
 from driftkings.views.marks_model import compact_model

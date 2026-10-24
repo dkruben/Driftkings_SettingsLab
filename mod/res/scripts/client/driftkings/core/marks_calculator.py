@@ -2,8 +2,9 @@
 """Only arithmetic proven identical in the existing Battle/Hangar paths."""
 import math
 
-from driftkings._constants import MARK_LEVELS, MARKS_MIN_TIER, MarksStatistics, BattleCurve
+from driftkings._constants import BattleCurve, MARK_LEVELS
 from driftkings._constants import MARK_THRESHOLDS as THRESHOLDS
+from driftkings._constants import MARKS_MIN_TIER, MarksStatistics
 from driftkings.common.utils.numbers import finite_number
 
 

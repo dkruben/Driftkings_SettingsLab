@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """Owned data bridge for annotations beside native crew slots."""
-from driftkings.logger import get_logger
 import sys
 import weakref
+
 from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
-from driftkings._constants import GLOBAL, CREW_MANAGEMENT
+from driftkings._constants import CREW_MANAGEMENT, GLOBAL
 from driftkings.interface_catalog import gameface_spec
 from driftkings.lobby.crew_progression import collect_rows
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.crew_progression_model import progression_kinds, progression_lines
 from driftkings.views.hangar.common import HangarController, install_card, publish_card
@@ -72,6 +73,7 @@ def install(config):
     _installed = True
     from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
+
     from driftkings.ui.gameface import attach_assets
 
     class CrewModel(ViewModel):

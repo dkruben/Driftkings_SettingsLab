@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import copy
+
 from driftkings._constants import TARGET_DISTANCE
-from driftkings.settings.controls_schema import control, slider, options
+from driftkings.settings.controls_schema import control, options, slider
 from driftkings.settings.definitions.base import SectionDefinition
 
 

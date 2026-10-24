@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Product SemVer precedence and separate four-part client versions (Python 2.7)."""
-import re
 from functools import total_ordering
+import re
 
 try:
     TEXT = (basestring,)

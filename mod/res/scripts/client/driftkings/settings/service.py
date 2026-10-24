@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Shared settings access and notifications after successful application."""
 import copy
-from driftkings.logger import get_logger
 
-from driftkings.settings.settings_data import user_settings, part_name
+from driftkings.logger import get_logger
+from driftkings.settings.settings_data import part_name, user_settings
 from driftkings.settings.store import merge
 
 LOG = get_logger('Driftkings.Settings')
@@ -94,9 +94,10 @@ class SettingsService(object):
     def initialize(self, section):
         """Own section setup and persistence; definitions never initialize a UI builder."""
         from helpers import getClientLanguage
-        from driftkings.settings.hotkeys import processHotKeys
-        from driftkings.settings.settings_data import defaults, default_keys
+
         from driftkings.core.hooks import hooks
+        from driftkings.settings.hotkeys import processHotKeys
+        from driftkings.settings.settings_data import default_keys, defaults
         section.runtime_owner = hooks.current
         section.manager = self
         section.defaultKeys = default_keys(section.NAME)
@@ -183,6 +184,7 @@ class SettingsService(object):
 
     def getSettingDictByAliasBattle(self, alias):
         from driftkings.views import BATTLE_COMPONENTS
+
         # Registration already links the alias to its config; no second map.
         config = BATTLE_COMPONENTS[alias][1]
         if config is None:

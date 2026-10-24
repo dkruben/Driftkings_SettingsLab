@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.battle.battle_statistics')
-from driftkings.core.battle_policy import battle_policy
 from helpers.CallbackDelayer import CallbackDelayer
 from items import vehicles
 from vehicle_systems.CompoundAppearance import CompoundAppearance
 
 from driftkings._constants import BATTLE_STATISTICS, GLOBAL
-from driftkings.game_constants import SHELL_TYPES
-from driftkings.common.utils.wgutils import getPlayer, getEntity
-from driftkings.common.utils.formatting import replaceMacros
 from driftkings.common.utils.colorratting import getComparisonColor
+from driftkings.common.utils.formatting import replaceMacros
+from driftkings.common.utils.wgutils import getEntity, getPlayer
 from driftkings.core.battle_events import battleEvents
+from driftkings.core.battle_policy import battle_policy
 from driftkings.core.hooks import override
-from driftkings.settings.service import settings_service, affects
+from driftkings.game_constants import SHELL_TYPES
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.battle_statistics import BattleStatisticsSettings as Settings
+from driftkings.settings.service import affects, settings_service
 from driftkings.ui import g_events
 from driftkings.views.battle.battle_statistics import _startFlash
+
+LOG = get_logger('driftkings.battle.battle_statistics')
 
 g_flash = None
 config = Settings()

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Explicit composition, dependency gating and reverse-order cleanup."""
-import importlib
-from driftkings.logger import get_logger
 from collections import namedtuple
+import importlib
+
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Loader')
 # Garage and login components; a replay never shows those screens, so they are not imported.

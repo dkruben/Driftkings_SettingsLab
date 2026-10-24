@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """Version 2: XVM-shaped JSON, shared references, atomic multi-file saves."""
 import copy
-from driftkings.logger import get_logger
 import os
 
 from driftkings.core.keycodes import valid_key_code
+from driftkings.logger import get_logger
 from driftkings.settings.panel_validation import macro_issues
-from driftkings.settings.settings_data import PROFILES, defaults as component_defaults
-from driftkings.settings.store import merge, JsonDocuments, read_object as read_json
+from driftkings.settings.settings_data import defaults as component_defaults
+from driftkings.settings.settings_data import PROFILES
+from driftkings.settings.store import JsonDocuments, merge
+from driftkings.settings.store import read_object as read_json
 
 FILES = ('general.json', 'playerspanel.json', 'battleloading.json', 'statisticform.json') + tuple('panel%s.json' % name.lower() for name in PROFILES)
 GENERAL = ('schemaVersion', 'enabled', 'statsEnabled', 'colorScale', 'rating', 'performance', 'hpEnabled', 'hpVisibility', 'hpKey', 'spottedEnabled')

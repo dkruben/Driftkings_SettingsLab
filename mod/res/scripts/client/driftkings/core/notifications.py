@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import BigWorld
 import re
-from notification.NotificationsCollection import NotificationsCollection
+
+import BigWorld
 from notification.actions_handlers import NotificationsActionsHandlers
+from notification.NotificationsCollection import NotificationsCollection
 
 from driftkings.core.hooks import override
 

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-from driftkings._constants import GLOBAL, HANGAR_MARKS_OF_EXCELLENCE
-from driftkings._constants import MARK_THRESHOLDS
+from driftkings._constants import GLOBAL, HANGAR_MARKS_OF_EXCELLENCE, MARK_THRESHOLDS
 
 """Presentation adapter for MarksOnGunHangar; gameplay state stays in its component."""
-from driftkings.views.marks_model import moved_panel, number_locale
-from driftkings.settings.service import settings_service, affects
-from driftkings.common.utils.colorratting import getStatisticColor
+from importlib import import_module
 import weakref
+
 from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
-from driftkings.views.hangar.common import HangarController, install_card, card_payload, publish_card
 
-from importlib import import_module
+from driftkings.common.utils.colorratting import getStatisticColor
+from driftkings.settings.service import affects, settings_service
+from driftkings.views.hangar.common import card_payload, HangarController, install_card, publish_card
+from driftkings.views.marks_model import moved_panel, number_locale
 
 
 def _component():
@@ -69,6 +69,7 @@ class MarksOnGunHangarController(HangarController):
 def install_gameface():
     from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
+
     from driftkings.ui.gameface import attach_assets
 
     class MarksModel(ViewModel):

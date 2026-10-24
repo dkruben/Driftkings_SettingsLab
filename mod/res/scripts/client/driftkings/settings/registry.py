@@ -2,11 +2,11 @@
 """Section metadata and validation shared by the owned settings panel."""
 import copy
 import json
-from driftkings.logger import get_logger
 import math
 import re
 
 from driftkings.core.keycodes import valid_key_code
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Settings.Validation')
 

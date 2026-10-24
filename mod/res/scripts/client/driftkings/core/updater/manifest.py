@@ -5,7 +5,7 @@ import re
 
 from driftkings.core.updater.endpoints import official_release_url
 from driftkings.core.updater.inventory import Inventory
-from driftkings.core.updater.versioning import Version, TEXT, normalize_game_version, game_key
+from driftkings.core.updater.versioning import game_key, normalize_game_version, TEXT, Version
 
 MAX_MANIFEST = 64 * 1024
 MAX_PACKAGE = 64 * 1024 * 1024

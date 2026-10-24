@@ -1,19 +1,8 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.lobby.hangar_preferences')
-from driftkings.core.hooks import on_event
-from driftkings.common.utils import events
-import gui.shared.tooltips.vehicle as tooltips
 from CurrentVehicle import g_currentVehicle
-from HeroTank import HeroTank
-from gui.Scaleform.daapi.view.lobby.rankedBattles.ranked_battles_results import RankedBattlesResults
-from gui.Scaleform.daapi.view.lobby.techtree.techtree_dp import _TechTreeDataProvider
-from gui.Scaleform.locale.MENU import MENU
-from gui.Scaleform.locale.RES_ICONS import RES_ICONS
-from gui.Scaleform.locale.STORAGE import STORAGE
+from gui.game_control.achievements_earning_controller import EarningAnimationCommand, RewardScreenCommand
 from gui.game_control.AwardController import ProgressiveItemsRewardHandler
 from gui.game_control.PromoController import PromoController
-from gui.game_control.achievements_earning_controller import EarningAnimationCommand, RewardScreenCommand
 from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
 from gui.impl.lobby.page.session_stats_presenter import SessionStatsPresenter
 from gui.impl.lobby.user_missions.hangar_widget.presenters.battle_pass_presenter import BattlePassPresenter
@@ -22,23 +11,34 @@ from gui.prb_control.entities.base.actions_validator import CurrentVehicleAction
 from gui.prb_control.items import ValidationResult
 from gui.prb_control.settings import PREBATTLE_RESTRICTION
 from gui.promo.hangar_teaser_widget import TeaserViewer
+from gui.Scaleform.daapi.view.lobby.rankedBattles.ranked_battles_results import RankedBattlesResults
+from gui.Scaleform.daapi.view.lobby.techtree.techtree_dp import _TechTreeDataProvider
+from gui.Scaleform.locale.MENU import MENU
+from gui.Scaleform.locale.RES_ICONS import RES_ICONS
+from gui.Scaleform.locale.STORAGE import STORAGE
 from gui.shared.gui_items.Vehicle import Vehicle
 from gui.shared.tooltips import getUnlockPrice
+import gui.shared.tooltips.vehicle as tooltips
 from helpers import dependency, i18n
+from HeroTank import HeroTank
 from messenger.gui.Scaleform.data.ChannelsCarouselHandler import ChannelsCarouselHandler
 from messenger.gui.Scaleform.lobby_entry import LobbyEntry
 from notification.NotificationListView import NotificationListView
 from vehicle_systems.tankStructure import ModelStates
 
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES
+from driftkings.common.utils import events
 from driftkings.common.utils.wgutils import isReplay
-from driftkings.core.introspection import find_attr_name
 from driftkings.core.callbacks import callback
-from driftkings.core.hooks import override, overrideMethod, overrideClassMethod
-from driftkings.settings.service import settings_service, affects
+from driftkings.core.hooks import on_event, override, overrideClassMethod, overrideMethod
+from driftkings.core.introspection import find_attr_name
 from driftkings.core.settings_controller import SettingsController
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings as Settings
+from driftkings.settings.service import affects, settings_service
 from driftkings.views.hangar.hangar_preferences import install_header_options
+
+LOG = get_logger('driftkings.lobby.hangar_preferences')
 
 
 class HangarOptionsController(SettingsController):

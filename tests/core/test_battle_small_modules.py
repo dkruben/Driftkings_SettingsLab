@@ -102,6 +102,63 @@ class EntryPointTests(RuntimeTest):
 
 
 class BattlePerformanceWn8Tests(RuntimeTest):
+    def test_diff_keeps_damage_difference_and_uses_same_ratio_colour_in_battle_and_results(self):
+        colors = self.load('common.utils.colorratting')
+        formatting = self.load('common.utils.formatting')
+        expected = {'level': 8, 'wn8expDamage': 1000.0, 'wn8expSpot': 1, 'wn8expFrag': 1,
+                    'wn8expDef': 1, 'wn8expWinRate': 52}
+        settings = {'enabled': True, 'colorRatting': 0, 'format': '{diff}:{c:diff} {wn8effd}:{c:wn8effd}',
+                    'battleResultsFormat': '{diff}:{c:diff} {wn8effd}:{c:wn8effd}'}
+        player = module(arena=module(bonusType=None))
+        api, _ = game_source('components/battle_performance.py', {
+            'driftkings.common.utils.colorratting': colors,
+            'driftkings.common.utils.formatting': formatting,
+            'driftkings.common.utils.wgutils': module(getPlayer=lambda: player),
+            'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected,
+                calculateXvmScale=lambda name, value: 0, calculateXTE=lambda cd, damage, frags: 0),
+            'driftkings.settings.service': Settings(settings).service(),
+            'gui.battle_results.pbs_helpers.common': module(getArenaNameStr=lambda reusable: 'map'),
+            'gui.battle_results.settings': module(PLAYER_TEAM_RESULT=module(WIN=1)),
+        }, real=('driftkings._constants',))
+        bonus = next(iter(api['SUPPORTED_BONUS_TYPES']))
+        player.arena.bonusType = bonus
+        displayed = []
+        api['g_flash'] = module(addText=displayed.append, setVisible=lambda visible: None)
+        api['g_calculator'].registerVInfoData(1)
+        battle = api['g_battleEfficiency']
+        battle.stats['damage'] = 1500
+        battle.startBattle()
+        colour = colors.getStatisticColor('relativePerformance', 1.5)
+        self.assertEqual(displayed[-1], '500:' + colour + ' 1.50:' + colors.getStatisticColor('wn8effd', 1.5))
+        summary = module(vehicle=module(intCD=1), damageDealt=1500, spotted=0, kills=0,
+                         droppedCapturePoints=0, capturePoints=0)
+        reusable = module(common=module(arenaBonusType=bonus, arenaType=module(getGamePlayName=lambda: 'random')),
+            vehicles=module(getVehicleSummarizeInfo=lambda *args: summary), getPlayerInfo=lambda: None,
+            getPersonalTeamResult=lambda: 1)
+        result = api['make_results_payload'](module(reusable=reusable, results={'vehicles': {}}))
+        self.assertEqual(result['html'], displayed[-1])
+        expected['wn8expDamage'] = 0
+        api['g_calculator'].registerVInfoData(1)
+        battle.startBattle()
+        no_data = '--:' + colors.getRatingPaletteColor('nocolor')
+        self.assertTrue(displayed[-1].endswith(no_data))
+        result = api['make_results_payload'](module(reusable=reusable, results={'vehicles': {}}))
+        self.assertEqual(result['html'], displayed[-1])
+
+    def test_damage_efficiency_is_a_ratio_and_rejects_invalid_expected_damage(self):
+        api, _ = game_source('components/battle_performance.py', real=('driftkings._constants',))
+        calculator = api['EfficiencyCalculator']()
+        self.assertIsNone(calculator.damage_efficiency(1000))
+        calculator.vInfoOK = True
+        calculator.expectedValues = {'wn8expDamage': 1000}
+        self.assertEqual(calculator.damage_efficiency(1500), 1.5)
+        self.assertEqual(calculator.damage_efficiency(0), 0)
+        for damage in (None, -1, 'invalid', float('nan'), float('inf')):
+            self.assertIsNone(calculator.damage_efficiency(damage))
+        for expected in (0, -1, None, float('nan'), float('inf')):
+            calculator.expectedValues['wn8expDamage'] = expected
+            self.assertIsNone(calculator.damage_efficiency(1000))
+
     def test_expected_values_below_one_are_not_rounded_up(self):
         expected = {'level': 8, 'wn8expDamage': 1500.0, 'wn8expSpot': 1.2, 'wn8expFrag': 0.9, 'wn8expDef': 0.6, 'wn8expWinRate': 52.0}
         api, _ = game_source('components/battle_performance.py', {

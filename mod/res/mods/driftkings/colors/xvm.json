@@ -1,0 +1,240 @@
+{
+  "def": {
+    "colorRating": {
+      "very_bad": "#FE0E00",
+      "bad": "#FE7903",
+      "normal": "#F8F400",
+      "good": "#60FF00",
+      "very_good": "#02C9B3",
+      "unique": "#D042F3"
+    },
+    "colorHP": {
+      "very_low": "#FF0000",
+      "low": "#DD4444",
+      "average": "#FFCC22",
+      "above_average": "#FCFCFC"
+    }
+  },
+  "colors": {
+    "colorRating": "${def.colorRating}",
+    "colorHP": "${def.colorHP}",
+    "dmg_kind": {
+      "attack": "#FFAA55",
+      "fire": "#FF6655",
+      "ramming": "#00CCCC",
+      "world_collision": "#998855",
+      "death_zone": "#CCCCCC",
+      "drowning": "#CCCCCC",
+      "other": "#CCCCCC"
+    },
+    "spotted": {
+      "neverSeen": "#000000",
+      "lost": "#FF552A",
+      "spotted": "#FFBB00",
+      "dead": "#FFFFFF",
+      "neverSeen_arty": "#000000",
+      "lost_arty": "#D9D9D9",
+      "spotted_arty": "#FFBB00",
+      "dead_arty": "#FFFFFF"
+    },
+    "hp": [
+      {"value": 200, "color": "${def.colorHP.very_low}"},
+      {"value": 400, "color": "${def.colorHP.low}"},
+      {"value": 1000, "color": "${def.colorHP.average}"},
+      {"value": 9999, "color": "${def.colorHP.above_average}"}
+    ],
+    "hp_ratio": [
+      {"value": 10.4, "color": "${def.colorHP.very_low}"},
+      {"value": 25.4, "color": "${def.colorHP.low}"},
+      {"value": 50.4, "color": "${def.colorHP.average}"},
+      {"value": 100, "color": "${def.colorHP.above_average}"}
+    ],
+    "x": [
+      {"value": 16.4, "color": "${def.colorRating.very_bad}"},
+      {"value": 33.4, "color": "${def.colorRating.bad}"},
+      {"value": 52.4, "color": "${def.colorRating.normal}"},
+      {"value": 75.4, "color": "${def.colorRating.good}"},
+      {"value": 92.4, "color": "${def.colorRating.very_good}"},
+      {"value": 999, "color": "${def.colorRating.unique}"}
+    ],
+    "eff": [
+      {"value": 616, "color": "${def.colorRating.very_bad}"},
+      {"value": 892, "color": "${def.colorRating.bad}"},
+      {"value": 1191, "color": "${def.colorRating.normal}"},
+      {"value": 1554, "color": "${def.colorRating.good}"},
+      {"value": 1890, "color": "${def.colorRating.very_good}"},
+      {"value": 99999, "color": "${def.colorRating.unique}"}
+    ],
+    "wtr": [
+      {"value": 3197, "color": "${def.colorRating.very_bad}"},
+      {"value": 4763, "color": "${def.colorRating.bad}"},
+      {"value": 6725, "color": "${def.colorRating.normal}"},
+      {"value": 9219, "color": "${def.colorRating.good}"},
+      {"value": 10979, "color": "${def.colorRating.very_good}"},
+      {"value": 99999, "color": "${def.colorRating.unique}"}
+    ],
+    "wn8": [
+      {"value": 637, "color": "${def.colorRating.very_bad}"},
+      {"value": 1143, "color": "${def.colorRating.bad}"},
+      {"value": 1774, "color": "${def.colorRating.normal}"},
+      {"value": 2760, "color": "${def.colorRating.good}"},
+      {"value": 3819, "color": "${def.colorRating.very_good}"},
+      {"value": 99999, "color": "${def.colorRating.unique}"}
+    ],
+    "winrate": [
+      {"value": 46.49, "color": "${def.colorRating.very_bad}"},
+      {"value": 48.49, "color": "${def.colorRating.bad}"},
+      {"value": 52.49, "color": "${def.colorRating.normal}"},
+      {"value": 57.49, "color": "${def.colorRating.good}"},
+      {"value": 63.49, "color": "${def.colorRating.very_good}"},
+      {"value": 100, "color": "${def.colorRating.unique}"}
+    ],
+    "kb": [
+      {"value": 2, "color": "${def.colorRating.very_bad}"},
+      {"value": 6, "color": "${def.colorRating.bad}"},
+      {"value": 16, "color": "${def.colorRating.normal}"},
+      {"value": 30, "color": "${def.colorRating.good}"},
+      {"value": 43, "color": "${def.colorRating.very_good}"},
+      {"value": 999, "color": "${def.colorRating.unique}"}
+    ],
+    "avglvl": [
+      {"value": 1, "color": "${def.colorRating.very_bad}"},
+      {"value": 2, "color": "${def.colorRating.bad}"},
+      {"value": 4, "color": "${def.colorRating.normal}"},
+      {"value": 6, "color": "${def.colorRating.good}"},
+      {"value": 8, "color": "${def.colorRating.very_good}"},
+      {"value": 10, "color": "${def.colorRating.unique}"}
+    ],
+    "t_battles": [
+      {"value": 99, "color": "${def.colorRating.very_bad}"},
+      {"value": 249, "color": "${def.colorRating.bad}"},
+      {"value": 499, "color": "${def.colorRating.normal}"},
+      {"value": 999, "color": "${def.colorRating.good}"},
+      {"value": 1799, "color": "${def.colorRating.very_good}"},
+      {"value": 99999, "color": "${def.colorRating.unique}"}
+    ],
+    "tdb": [
+      {"value": 499, "color": "${def.colorRating.very_bad}"},
+      {"value": 749, "color": "${def.colorRating.bad}"},
+      {"value": 999, "color": "${def.colorRating.normal}"},
+      {"value": 1799, "color": "${def.colorRating.good}"},
+      {"value": 2499, "color": "${def.colorRating.very_good}"},
+      {"value": 9999, "color": "${def.colorRating.unique}"}
+    ],
+    "tdv": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.7, "color": "${def.colorRating.bad}"},
+      {"value": 0.9, "color": "${def.colorRating.normal}"},
+      {"value": 1.2, "color": "${def.colorRating.good}"},
+      {"value": 1.9, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "tfb": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.7, "color": "${def.colorRating.bad}"},
+      {"value": 0.9, "color": "${def.colorRating.normal}"},
+      {"value": 1.2, "color": "${def.colorRating.good}"},
+      {"value": 1.9, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "tsb": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.7, "color": "${def.colorRating.bad}"},
+      {"value": 0.9, "color": "${def.colorRating.normal}"},
+      {"value": 1.2, "color": "${def.colorRating.good}"},
+      {"value": 1.9, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "wn8effd": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.7, "color": "${def.colorRating.bad}"},
+      {"value": 0.9, "color": "${def.colorRating.normal}"},
+      {"value": 1.2, "color": "${def.colorRating.good}"},
+      {"value": 1.9, "color": "${def.colorRating.very_good}"},
+      {"value": 15, "color": "${def.colorRating.unique}"}
+    ],
+    "dmg_ratio_player": [
+      {"value": 16.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 33.5, "color": "${def.colorRating.bad}"},
+      {"value": 49.5, "color": "${def.colorRating.normal}"},
+      {"value": 66.5, "color": "${def.colorRating.good}"},
+      {"value": 83.5, "color": "${def.colorRating.very_good}"},
+      {"value": 999, "color": "${def.colorRating.unique}"}
+    ],
+    "damageRating": [
+      {"value": 64.99, "color": "${def.colorRating.very_bad}"},
+      {"value": 84.99, "color": "${def.colorRating.normal}"},
+      {"value": 94.99, "color": "${def.colorRating.good}"},
+      {"value": 100, "color": "${def.colorRating.unique}"}
+    ],
+    "hitsRatio": [
+      {"value": 47.4, "color": "${def.colorRating.very_bad}"},
+      {"value": 60.4, "color": "${def.colorRating.bad}"},
+      {"value": 68.4, "color": "${def.colorRating.normal}"},
+      {"value": 74.4, "color": "${def.colorRating.good}"},
+      {"value": 78.4, "color": "${def.colorRating.very_good}"},
+      {"value": 100, "color": "${def.colorRating.unique}"}
+    ],
+    "survival": [
+      {"value": 20, "color": "${def.colorRating.very_bad}"},
+      {"value": 30, "color": "${def.colorRating.bad}"},
+      {"value": 40, "color": "${def.colorRating.normal}"},
+      {"value": 50, "color": "${def.colorRating.good}"},
+      {"value": 60, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "damageReceivedHP": [
+      {"value": 0.25, "color": "${def.colorRating.unique}"},
+      {"value": 0.5, "color": "${def.colorRating.very_good}"},
+      {"value": 0.75, "color": "${def.colorRating.good}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.25, "color": "${def.colorRating.bad}"},
+      {"value": 1e+30, "color": "${def.colorRating.very_bad}"}
+    ],
+    "mog": [
+      {"value": 0.0, "color": "#FFFFFF"},
+      {"value": 20.0, "color": "${def.colorRating.very_bad}"},
+      {"value": 40.0, "color": "${def.colorRating.bad}"},
+      {"value": 55.0, "color": "${def.colorRating.normal}"},
+      {"value": 65.0, "color": "${def.colorRating.good}"},
+      {"value": 85.0, "color": "${def.colorRating.very_good}"},
+      {"value": 95.0, "color": "${def.colorRating.unique}"},
+      {"value": 100.0, "color": "${def.colorRating.unique}"}
+    ],
+    "damageRatio": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.75, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.5, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "damageHP": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.75, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.5, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "relativePerformance": [
+      {"value": 0.5, "color": "${def.colorRating.very_bad}"},
+      {"value": 0.75, "color": "${def.colorRating.bad}"},
+      {"value": 1.0, "color": "${def.colorRating.normal}"},
+      {"value": 1.5, "color": "${def.colorRating.good}"},
+      {"value": 2.0, "color": "${def.colorRating.very_good}"},
+      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+    ],
+    "diff": [
+      {"value": 0, "color": "${def.colorRating.very_bad}"},
+      {"value": 0, "color": "${def.colorRating.normal}"},
+      {"value": 1e+30, "color": "${def.colorRating.good}"}
+    ]
+  },
+  "sources": {
+    "config": "https://gitlab.com/xvm/xvm/-/blob/master/release/configs/default_wg/colors.xc",
+    "rating_thresholds": "https://static.modxvm.com/xvmscales-wg.json",
+    "snapshot_date": "2026-10-24",
+    "rating_thresholds_note": "Exclusive raw boundaries at array indices 16,33,52,75,92, matching integer X-scale bands. Fixed snapshot, not a live feed."
+  }
+}

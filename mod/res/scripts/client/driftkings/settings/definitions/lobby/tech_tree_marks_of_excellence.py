@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import TECH_TREE_MARKS_OF_EXCELLENCE
 from driftkings.common.utils.colorratting import color_tables
-from driftkings.settings.controls_schema import control, slider, options
+from driftkings.settings.controls_schema import control, options, slider
 from driftkings.settings.definitions.base import SectionDefinition
 
 

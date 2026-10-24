@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-import BigWorld
-import Math
 from AvatarInputHandler.aih_global_binding import CTRL_MODE_NAME
-from VehicleGunRotator import VehicleGunRotator
+import BigWorld
 from gui.shared.gui_items import Vehicle
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
+import Math
+from VehicleGunRotator import VehicleGunRotator
 
 from driftkings._constants import ARTILLERY_BLAST_RADIUS, GLOBAL
 from driftkings.common.utils import events
 from driftkings.common.utils.exceptions import log_exceptions
 from driftkings.common.utils.game import checkKeys, sendPanelMessage
 from driftkings.common.utils.wgutils import getPlayer
-from driftkings.core.hooks import override, on_event
+from driftkings.core.hooks import on_event, override
 from driftkings.core.keyboard import keyboard
 from driftkings.settings.definitions.battle.artillery_blast_radius import ArtilleryBlastRadiusSettings as Settings
 from driftkings.settings.service import settings_service

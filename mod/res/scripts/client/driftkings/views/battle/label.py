@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Position, shadow and lifecycle shared by configurable battle text labels."""
-from driftkings.core.overlay import overlays, ElementType
+from driftkings.core.overlay import ElementType, overlays
 from driftkings.settings.service import settings_service
 
 

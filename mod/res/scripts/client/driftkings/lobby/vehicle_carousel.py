@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from driftkings.common.utils.numbers import finite_number as number
 from driftkings.interface_catalog import gameface_spec
+
 """Configurable own-vehicle statistics on EU Gameface carousel cards."""
-from driftkings.logger import get_logger
 import math
 import weakref
 
@@ -11,17 +11,18 @@ from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 from gui.shared.utils.requesters import REQ_CRITERIA
 
+from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
 from driftkings.common.utils.colorratting import getStatisticColor
-from driftkings.core.hooks import override
+from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core import carousel as layout
 from driftkings.core.carousel_assets import CarouselImages, normalize_icon_paths
-from driftkings.core.carousel_tiers import battle_tiers
 from driftkings.core.carousel_options import STAT_SORT_KEYS
-from driftkings.common.utils.wgutils import getPlayer
-from driftkings.stats.vehinfo import getVehicleInfoData, calculateXvmScale
-from driftkings._constants import VEHICLE_CAROUSEL, GLOBAL
-from driftkings.settings.service import settings_service
+from driftkings.core.carousel_tiers import battle_tiers
+from driftkings.core.hooks import override
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings as Settings
+from driftkings.settings.service import settings_service
+from driftkings.stats.vehinfo import calculateXvmScale, getVehicleInfoData
 from driftkings.views.hangar.vehicle_carousel import CarouselController, get_view_config, install_gameface
 
 LOG = get_logger('Driftkings.CarouselStats')
@@ -240,8 +241,8 @@ def install_carousel_layout():
         g_filterPresenters.discard(presenter)
         return original(presenter, *args, **kwargs)
 
-    from gui.impl.lobby.hangar.presenters.vehicle_inventory_presenter import VehicleInventoryPresenter
     from gui.impl.gen import R
+    from gui.impl.lobby.hangar.presenters.vehicle_inventory_presenter import VehicleInventoryPresenter
     @override(VehicleInventoryPresenter, 'createToolTipContent')
     def tooltip(original, presenter, event, contentID):
         if settings_service.getComponentDict(config)[GLOBAL.ENABLED] and settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['suppressCarouselTooltips'] and contentID == R.views.mono.hangar.vehicle_tooltip():

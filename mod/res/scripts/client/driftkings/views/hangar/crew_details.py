@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Progression summaries owned by native crew personal views and tooltips."""
-from driftkings.logger import get_logger
 import weakref
+
 from gui.shared.personality import ServicesLocator
 
 from driftkings._constants import GLOBAL
@@ -9,6 +9,7 @@ from driftkings.core.crew_progression import nonnegative
 from driftkings.core.hooks import override
 from driftkings.interface_catalog import gameface_spec
 from driftkings.lobby.crew_progression import collect_tankman
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.crew_progression_model import integer, progression_kinds, progression_lines, translated
 from driftkings.views.hangar import crew_progression as hangar_bridge
@@ -79,12 +80,13 @@ def install():
     if _installed:
         return
     from frameworks.wulf import ViewModel
-    from gui.impl.pub.view_component import ViewComponent
     from gui.impl.lobby.crew.barracks_view import BarracksView
-    from gui.impl.lobby.crew.tooltips.tankman_tooltip import TankmanTooltip
     from gui.impl.lobby.crew.container_vews.personal_file.personal_file_view import PersonalFileView
     from gui.impl.lobby.crew.container_vews.service_record.service_record_view import ServiceRecordView
-    from driftkings.ui.gameface import attach_assets, resource_id, INVALID_RES_ID
+    from gui.impl.lobby.crew.tooltips.tankman_tooltip import TankmanTooltip
+    from gui.impl.pub.view_component import ViewComponent
+
+    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID, resource_id
 
     class DetailsModel(ViewModel):
         def __init__(self):

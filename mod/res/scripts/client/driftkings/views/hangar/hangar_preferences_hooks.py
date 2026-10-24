@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES
 from driftkings.settings.service import settings_service
-"""Presentation adapter for HangarOptions; gameplay state stays in its component."""
-from gui.Scaleform.daapi.view.lobby.hangar.Hangar import Hangar
-from gui.Scaleform.daapi.view.lobby.hangar.ammunition_panel import AmmunitionPanel
-from gui.Scaleform.daapi.view.lobby.profile.ProfileTechnique import ProfileTechnique
-from driftkings.core.hooks import override
 
+"""Presentation adapter for HangarOptions; gameplay state stays in its component."""
 from importlib import import_module
+
+from gui.Scaleform.daapi.view.lobby.hangar.ammunition_panel import AmmunitionPanel
+from gui.Scaleform.daapi.view.lobby.hangar.Hangar import Hangar
+from gui.Scaleform.daapi.view.lobby.profile.ProfileTechnique import ProfileTechnique
+
+from driftkings.core.hooks import override
 
 
 def _component():
@@ -55,14 +57,14 @@ def new__updateCarouselEventEntryStateS(func, self, isVisible):
     return func(self, isVisible)
 
 
-# WoT 2.4.1 Gameface equivalents; legacy hooks above remain for old views.
-from gui.impl.lobby.user_missions.hangar_widget.presenters.quests_presenter import QuestsPresenter
-from gui.impl.lobby.user_missions.hangar_widget.presenters.event_banners_presenter import EventBannersPresenter
+from gui.impl.gen import R
 from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
 from gui.impl.lobby.page.prem_shop_presenter import PremShopPresenter
 from gui.impl.lobby.page.referral_program_presenter import ReferralProgramPresenter
+from gui.impl.lobby.user_missions.hangar_widget.presenters.event_banners_presenter import EventBannersPresenter
+# WoT 2.4.1 Gameface equivalents; legacy hooks above remain for old views.
+from gui.impl.lobby.user_missions.hangar_widget.presenters.quests_presenter import QuestsPresenter
 from gui.impl.pub import ViewImpl
-from gui.impl.gen import R
 
 
 def option(key, default=True):

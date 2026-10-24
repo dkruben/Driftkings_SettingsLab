@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
+from collections import namedtuple
 import math
 import re
 import weakref
-from collections import namedtuple
+
 from constants import ARENA_BONUS_TYPE
+from gui.battle_control.battle_constants import PERSONAL_EFFICIENCY_TYPE
 from gui.Scaleform.daapi.view.battle.shared.ribbons_aggregator import RibbonsAggregator
 from gui.Scaleform.daapi.view.battle.shared.ribbons_panel import BattleRibbonsPanel
 from gui.Scaleform.genConsts.BATTLE_EFFICIENCY_TYPES import BATTLE_EFFICIENCY_TYPES
-from gui.battle_control.battle_constants import PERSONAL_EFFICIENCY_TYPE
 
 from driftkings._constants import BATTLE_PERFORMANCE, GLOBAL
 from driftkings.common.utils import events
-from driftkings.common.utils.colorratting import getStatisticColor
+from driftkings.common.utils.colorratting import getRelativePerformanceColor, getStatisticColor
 from driftkings.common.utils.formatting import replaceMacros
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
-from driftkings.core.hooks import override, on_event
+from driftkings.core.hooks import on_event, override
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings as Settings
-from driftkings.settings.service import settings_service, affects
-from driftkings.stats.vehinfo import getVehicleInfoData, calculateXvmScale, calculateXTE
+from driftkings.settings.service import affects, settings_service
+from driftkings.stats.vehinfo import calculateXTE, calculateXvmScale, getVehicleInfoData
 from driftkings.views.battle.battle_performance import _startFlash
 from driftkings.views.hangar.battle_performance import install_results_gameface
 
@@ -103,6 +104,21 @@ class EfficiencyCalculator(object):
         rWIN = ratio(100.0 if isWin else 0, 'wn8expWinRate')
         return rDAMAGE, rSPOT, rFRAG, rDEF, rWIN
 
+    def damage_efficiency(self, damage):
+        """Raw damage / WN8 expected damage; 1.0 means the expected damage was met."""
+        if not self.vInfoOK:
+            return None
+        try:
+            expected = float(self.expectedValues['wn8expDamage'])
+            damage = float(damage)
+            if expected <= 0 or damage < 0 or any(math.isnan(value) or math.isinf(value)
+                                                for value in (damage, expected)):
+                return None
+            ratio = damage / expected
+            return ratio if not math.isinf(ratio) else None
+        except (KeyError, TypeError, ValueError, OverflowError):
+            return None
+
     @staticmethod
     def calculate_wN8(rDAMAGE, rSPOT, rFRAG, rDEF, rWIN):
         rWINc = max(0.0, (rWIN - 0.71) / (1 - 0.71))
@@ -130,8 +146,8 @@ class BattleEfficiency(object):
         self._resetStats()
 
     def _resetStats(self):
-        self._stats = {'frags': 0, 'damage': 0, 'spotted': 0, 'defence': 0, 'capture': 0, 'wn8': 0, 'xwn8': 0, 'eff': 0, 'xeff': 0, 'xte': 0, 'diff': 0, 'dmg': 0}
-        self._colors = {key: getStatisticColor(key, None) for key in ['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'diff', 'dmg']}
+        self._stats = {'frags': 0, 'damage': 0, 'spotted': 0, 'defence': 0, 'capture': 0, 'wn8': 0, 'xwn8': 0, 'eff': 0, 'xeff': 0, 'xte': 0, 'diff': 0, 'dmg': 0, 'wn8effd': None}
+        self._colors = {key: getStatisticColor(key, None) for key in ['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'diff', 'dmg', 'wn8effd']}
 
     def start(self):
         if not self._active:
@@ -166,14 +182,18 @@ class BattleEfficiency(object):
         return self._stats
 
     @staticmethod
-    def read_colors(rating_color, rating_value):
-        return getStatisticColor(rating_color, rating_value, settings_service.getComponentDict(config).get(BATTLE_PERFORMANCE.COLOR_RATTING, 0))
+    def read_colors(rating_color, rating_value, damage=None, expected_damage=None):
+        palette = settings_service.getComponentDict(config).get(BATTLE_PERFORMANCE.COLOR_RATTING, 0)
+        if rating_color == 'diff':
+            return getRelativePerformanceColor(damage, expected_damage, palette)
+        return getStatisticColor(rating_color, rating_value, palette)
 
     def startBattle(self):
         if not settings_service.getComponentDict(config)[GLOBAL.ENABLED] or g_flash is None:
             return
         result = g_calculator.calc(self._stats['damage'], self._stats['spotted'], self._stats['frags'], self._stats['defence'], self._stats['capture'])
         self._stats.update(dict(zip(['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'dmg', 'diff'], result)))
+        self._stats['wn8effd'] = g_calculator.damage_efficiency(self._stats['damage'])
         self.updateFormatString()
 
     def updateFormatString(self):
@@ -185,11 +205,15 @@ class BattleEfficiency(object):
                 g_flash.setVisible(False)
             return
         macro_data = {}
+        expected_damage = g_calculator.expectedValues.get('wn8expDamage') if g_calculator.vInfoOK else None
         for key, value in self._stats.items():
-            macro_data['{%s}' % key] = str(int(value) if isinstance(value, float) else value)
+            if key == 'wn8effd':
+                macro_data['{wn8effd}'] = '--' if value is None else '%.2f' % value
+            else:
+                macro_data['{%s}' % key] = str(int(value) if isinstance(value, float) else value)
             if key in self._colors:
                 color_key = 'x' if key.startswith('x') else key
-                color_value = self.read_colors(color_key, value)
+                color_value = self.read_colors(color_key, value, self._stats['damage'], expected_damage)
                 macro_data['{c:%s}' % key] = str(color_value) if color_value is not None else ''
         format_text = replaceMacros(settings[BATTLE_PERFORMANCE.FORMAT], macro_data)
         if g_flash:
@@ -299,9 +323,12 @@ def make_results_payload(battle_results):
     if not calculator.vInfoOK:
         values = (None, None, None, None, None, summary.damageDealt, None)
     macros = {'{mapName}': getArenaNameStr(reusable), '{battleType}': reusable.common.arenaType.getGamePlayName()}
-    for key, value in zip(RESULT_KEYS, values):
-        macros['{%s}' % key] = '--' if value is None else str(value)
-        macros['{c:%s}' % key] = g_battleEfficiency.read_colors(key, value)
+    expected_damage = calculator.expectedValues.get('wn8expDamage') if calculator.vInfoOK else None
+    result_values = dict(zip(RESULT_KEYS, values))
+    result_values['wn8effd'] = calculator.damage_efficiency(summary.damageDealt)
+    for key, value in result_values.items():
+        macros['{%s}' % key] = '--' if value is None else ('%.2f' % value if key == 'wn8effd' else str(value))
+        macros['{c:%s}' % key] = g_battleEfficiency.read_colors(key, value, summary.damageDealt, expected_damage)
     # Historical templates also advertised this shared X-scale color macro.
     macros['{c:x}'] = macros['{c:xwn8}']
     template = settings_service.getComponentDict(config)[BATTLE_PERFORMANCE.BATTLE_RESULTS_FORMAT]

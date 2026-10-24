@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.views.battle.target_distance')
 from driftkings._constants import TARGET_DISTANCE
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
+
+LOG = get_logger('driftkings.views.battle.target_distance')
 """Presentation adapter for DistanceMarker; gameplay state stays in its component."""
-from driftkings._constants import BATTLE_ALIASES
+from importlib import import_module
+
 import BigWorld
-import GUI
+from Event import Event, EventManager
 import Keys
 import Math
-from Event import EventManager, Event
-from driftkings.core.keyboard import keyboard
-from driftkings.core.hud_visibility import hudVisibility
-from driftkings.meta.battle.distance_marker import DistanceMarkerMeta
 
-from importlib import import_module
+from driftkings._constants import BATTLE_ALIASES
+from driftkings.core.hud_visibility import hudVisibility
+from driftkings.core.keyboard import keyboard
+from driftkings.meta.battle.distance_marker import DistanceMarkerMeta
+import GUI
 
 
 def _component():

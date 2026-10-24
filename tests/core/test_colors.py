@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from support import RuntimeTest
+import json
+import sys
+
+from support import RuntimeTest, module
 
 
 class ColorTests(RuntimeTest):
@@ -7,10 +10,127 @@ class ColorTests(RuntimeTest):
         super(ColorTests, self).setUp()
         self.colors = self.load('common.utils.colorratting')
 
+    def test_historical_site_wn8_scales_and_colours(self):
+        limits = [300, 450, 650, 900, 1200, 1600, 2000, 2450, 2900, 9999]
+        colours = ['#930D0D', '#CD3333', '#CC7A00', '#CCB800', '#849B24',
+                   '#4D7326', '#4099BF', '#3972C6', '#793DB6', '#401070']
+        for palette in (0,):
+            data = self.colors.getRatingColors(palette)
+            self.assertEqual([band['value'] for band in data['wn8']], limits)
+            self.assertEqual([band['color'] for band in data['wn8']], colours)
+            self.assertEqual([band['value'] for band in data['winrate']],
+                             [46, 47, 48, 50, 52, 54, 56, 60, 65, 101])
+
+    def test_wotlife_replaces_third_palette_with_published_bands_and_colours(self):
+        self.assertEqual(self.colors.color_tables[2]['ScaleColor'], 'WoT-Life')
+        data = self.colors.getRatingColors(2)
+        self.assertEqual([band['value'] for band in data['wn8']],
+                         [300, 600, 900, 1250, 1600, 1900, 2350, 2900, 99999])
+        self.assertEqual([band['value'] for band in data['winrate']], [45, 47, 49, 52, 54, 56, 60, 65, 101])
+        self.assertEqual([band['value'] for band in data['wn7']],
+                         [500, 700, 900, 1100, 1350, 1550, 1850, 2050, 99999])
+        self.assertEqual([band['color'] for band in data['wn8']],
+                         ['#000000', '#CD3333', '#D77900', '#D7B600', '#6D9521',
+                          '#4C762E', '#4A92B7', '#83579D', '#5A3175'])
+
+    def test_xvm_rating_snapshot_and_shared_damage_efficiency_limits(self):
+        data = self.colors.getRatingColors(1)
+        for metric, limits in (('wn8', [637, 1143, 1774, 2760, 3819, 99999]),
+                               ('eff', [616, 892, 1191, 1554, 1890, 99999]),
+                               ('wtr', [3197, 4763, 6725, 9219, 10979, 99999])):
+            self.assertEqual([band['value'] for band in data[metric]], limits)
+        self.assertEqual(data['winrate'][-2]['value'], 63.49)
+        for palette in range(3):
+            self.assertEqual([band['value'] for band in self.colors.getRatingColors(palette)['wn8effd']],
+                             [0.5, 0.7, 0.9, 1.2, 1.9, 15])
+
+    def test_relative_damage_uses_expected_damage_and_handles_missing_data(self):
+        api = self.colors
+        for palette in range(3):
+            for ratio in (0, 0.49, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0):
+                expected = api.getStatisticColor('relativePerformance', ratio, palette)
+                self.assertEqual(api.getRelativePerformanceColor(ratio * 1000, 1000, palette), expected)
+                self.assertEqual(api.getRelativePerformanceColor(ratio * 2000, 2000, palette), expected)
+            for damage, reference in ((1, 0), (1, -1), (1, None), (None, 1000), (1, float('nan')),
+                                      (1, float('inf')), (float('inf'), 1000), ('bad', 1000)):
+                self.assertEqual(api.getRelativePerformanceColor(damage, reference, palette),
+                                 api.getRatingPaletteColor('nocolor', palette))
+
+    def test_json_resource_preserves_palette_names_and_moe_thresholds(self):
+        data = self.load('common.utils.color_rating_data')
+        document = data.load_tables()
+        self.assertEqual(document['color_tables'], self.colors.color_tables)
+        for table in document['color_tables']:
+            self.assertEqual([band['value'] for band in table['colors']['mog']], list(data.MOE_LEVELS))
+            self.assertEqual(table['colors']['system'], document['system_colors'])
+
+    def resource_payloads(self):
+        data = self.load('common.utils.color_rating_data')
+        paths = [data.RESOURCE] + [data.RESOURCE_ROOT + item['file']
+            for item in json.loads(data.read_resource().decode('utf-8'))['palettes']]
+        return dict((path, data.read_resource(path)) for path in paths)
+
+    def test_loader_rejects_invalid_json_and_duplicate_palettes(self):
+        data = self.load('common.utils.color_rating_data')
+        with self.assertRaises(ValueError):
+            data.load_tables(lambda path: b'{')
+        resources = self.resource_payloads()
+        document = json.loads(resources[data.RESOURCE].decode('utf-8'))
+        document['palettes'].append(document['palettes'][0])
+        resources[data.RESOURCE] = json.dumps(document).encode('utf-8')
+        with self.assertRaises(ValueError):
+            data.load_tables(resources.__getitem__)
+
+    def test_reference_definitions_control_the_palette_and_reject_broken_links(self):
+        data = self.load('common.utils.color_rating_data')
+        resources = self.resource_payloads()
+        path = data.RESOURCE_ROOT + 'noobmeter.json'
+        document = json.loads(resources[path].decode('utf-8'))
+        document['def']['colorRating']['very_bad'] = '#123456'
+        resources[path] = json.dumps(document).encode('utf-8')
+        colors = data.load_tables(resources.__getitem__)['color_tables'][0]['colors']
+        self.assertEqual(colors['wn8'][0]['color'], '#123456')
+        for reference in ('${def.missing}', '${def.colorRating.very_bad}', '${bad.path}'):
+            document['def']['colorRating']['very_bad'] = reference
+            resources[path] = json.dumps(document).encode('utf-8')
+            with self.assertRaises(ValueError):
+                data.load_tables(resources.__getitem__)
+
+    def test_registry_accepts_an_additional_palette_without_changing_existing_indices(self):
+        data = self.load('common.utils.color_rating_data')
+        resources = self.resource_payloads()
+        document = json.loads(resources[data.RESOURCE].decode('utf-8'))
+        document['palettes'].append({'name': 'Additional', 'file': 'additional.json'})
+        resources[data.RESOURCE] = json.dumps(document).encode('utf-8')
+        resources[data.RESOURCE_ROOT + 'additional.json'] = resources[data.RESOURCE_ROOT + 'xvm.json']
+        loaded = data.load_tables(resources.__getitem__)['color_tables']
+        self.assertEqual(loaded[:3], data.color_tables)
+        self.assertEqual(loaded[3]['ScaleColor'], 'Additional')
+
+    def test_game_reads_the_bundled_resource_through_resmgr(self):
+        data = self.load('common.utils.color_rating_data')
+        resources = self.resource_payloads()
+        previous = sys.modules.get('ResMgr')
+        paths = []
+        def open_section(path):
+            paths.append(path)
+            return module(asBinary=resources[path])
+        sys.modules['ResMgr'] = module(openSection=open_section, isFile=lambda path: path in resources)
+        try:
+            self.assertEqual(data.load_tables()['color_tables'], data.color_tables)
+            self.assertEqual(paths, [data.RESOURCE] + [data.RESOURCE_ROOT + filename
+                for filename in ('noobmeter.json', 'xvm.json', 'wotlife.json')])
+        finally:
+            if previous is None:
+                del sys.modules['ResMgr']
+            else:
+                sys.modules['ResMgr'] = previous
+
     def test_extracted_tables_preserve_legacy_exports_and_shared_identity(self):
         data = self.load('common.utils.color_rating_data')
         self.assertEqual(self.colors.__all__, ('color_tables', 'getRatingColors', 'getColor', 'getStatisticColor',
-                                               'getRatingPaletteColor', 'getComparisonColor', 'getMoeDamageColor'))
+                                               'getRatingPaletteColor', 'getComparisonColor', 'getMoeDamageColor',
+                                               'getRelativePerformanceColor'))
         for name in ('MOE_LEVELS', 'color_tables'):
             self.assertIs(getattr(self.colors, name), getattr(data, name))
 

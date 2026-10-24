@@ -10,8 +10,8 @@ class LifecycleService(object):
     def start(self):
         if self.active:
             return
-        from gui.Scaleform.daapi.view.login.LoginView import LoginView
         from gui.Scaleform.daapi.view.lobby.LobbyView import LobbyView
+        from gui.Scaleform.daapi.view.login.LoginView import LoginView
         override(LoginView, '_populate', self.loginPopulated)
         override(LobbyView, '_populate', self.lobbyPopulated)
         self.active = True

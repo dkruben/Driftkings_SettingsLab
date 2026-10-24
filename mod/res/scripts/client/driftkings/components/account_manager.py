@@ -7,25 +7,25 @@ import weakref
 import zlib
 
 import BigWorld
-from gui import GUI_SETTINGS
 from external_strings_utils import unicode_from_utf8
-from gui.Scaleform.daapi.view.login.LoginView import LoginView
 from gui.Scaleform.daapi.view.login.login_modes.wgc_mode import WgcMode
+from gui.Scaleform.daapi.view.login.LoginView import LoginView
+from helpers import getClientLanguage
 from predefined_hosts import g_preDefinedHosts
 from realm import CURRENT_REALM
-from helpers import getClientLanguage
 from skeletons.gui.app_loader import GuiGlobalSpaceID
 
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES
-from driftkings.common.utils.filesystem import atomicWrite, recoverFile
-from driftkings.core.accounts import AccountService, AccountError
-from driftkings.core.callbacks import callback, cancelCallback
-from driftkings.core.hooks import override, on_event
 from driftkings.common.utils import events
+from driftkings.common.utils.filesystem import atomicWrite, recoverFile
+from driftkings.core.accounts import AccountError, AccountService
+from driftkings.core.callbacks import callback, cancelCallback
+from driftkings.core.hooks import on_event, override
 from driftkings.i18n import catalog
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.settings.settings_data import defaults
+from gui import GUI_SETTINGS
 
 LOG = get_logger('Driftkings.AccountManager')
 

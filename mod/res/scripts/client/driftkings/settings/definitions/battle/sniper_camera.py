@@ -2,7 +2,7 @@
 import math
 
 from driftkings._constants import SNIPER_CAMERA
-from driftkings.settings.controls_schema import control, slider, field
+from driftkings.settings.controls_schema import control, field, slider
 from driftkings.settings.definitions.base import SectionDefinition
 
 

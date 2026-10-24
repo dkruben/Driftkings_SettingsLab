@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Certificate-verified streaming workers; delivery uses existing Core callbacks."""
-from driftkings.logger import get_logger
 import math
 import socket
 import threading
 import time
 
+from driftkings.logger import get_logger
+
 try:
-    from Queue import Queue, Empty
+    from Queue import Empty, Queue
     import urllib2 as http
     from urlparse import urljoin
 except ImportError:

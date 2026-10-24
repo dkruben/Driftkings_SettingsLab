@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from BattleFeedbackCommon import BATTLE_EVENT_TYPE
-from gui.shared.gui_items.Vehicle import getIconPath, getContourIconPath
-from gui.battle_control.controllers.personal_efficiency_ctrl import _AGGREGATED_DAMAGE_EFFICIENCY_TYPES, \
-    _createEfficiencyInfoFromFeedbackEvent
+from gui.battle_control.controllers.personal_efficiency_ctrl import (_AGGREGATED_DAMAGE_EFFICIENCY_TYPES,
+                                                                     _createEfficiencyInfoFromFeedbackEvent)
+from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
 
-from driftkings._constants import GLOBAL, ENEMY_SPOTTING_STATUS
+from driftkings._constants import ENEMY_SPOTTING_STATUS, GLOBAL
 from driftkings.common.utils.game import sendPanelMessage
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents

@@ -5,11 +5,13 @@ from driftkings.settings.service import settings_service
 
 """Gameface roster bridge for the current random TAB."""
 import json
-from driftkings.logger import get_logger
 import math
 import weakref
-from driftkings.core.hooks import override
+
 from driftkings.core.diagnostics import diagnostics
+from driftkings.core.hooks import override
+from driftkings.logger import get_logger
+
 
 class GamefaceLoading(object):
     def __init__(self,owner):
@@ -18,6 +20,7 @@ class GamefaceLoading(object):
         from frameworks.wulf import ViewModel, ViewSettings
         from frameworks.wulf.gui_constants import ShowingStatus
         from gui.impl.pub import ViewImpl
+
         from driftkings.ui.gameface import attach_assets, resource_id
         bridge=self
         class RatingModel(ViewModel):

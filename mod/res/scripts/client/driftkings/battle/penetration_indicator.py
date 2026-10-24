@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.battle.penetration_indicator')
 from AvatarInputHandler.gun_marker_ctrl import _CrosshairShotResults, computePiercingPowerAtDist
 from DestructibleEntity import DestructibleEntity
-from Vehicle import Vehicle
 from gui.Scaleform.daapi.view.battle.shared.crosshair import plugins
 from gui.Scaleform.genConsts.CROSSHAIR_VIEW_ID import CROSSHAIR_VIEW_ID
+from Vehicle import Vehicle
 
-from driftkings._constants import PENETRATION_INDICATOR, GLOBAL, BATTLE_ALIASES
-from driftkings.game_constants import SHELL_TYPES, SHELL_MECHANICS_TYPE
+from driftkings._constants import BATTLE_ALIASES, GLOBAL, PENETRATION_INDICATOR
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
+from driftkings.game_constants import SHELL_MECHANICS_TYPE, SHELL_TYPES
+from driftkings.logger import get_logger
+from driftkings.settings.definitions.battle.penetration_indicator import PenetrationIndicatorSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
-from driftkings.settings.definitions.battle.penetration_indicator import PenetrationIndicatorSettings as Settings
 from driftkings.views.battle.penetration_indicator import ArmorCalculator
+
+LOG = get_logger('driftkings.battle.penetration_indicator')
 
 AS_BATTLE = BATTLE_ALIASES.PENETRATION_INDICATOR
 config = Settings()

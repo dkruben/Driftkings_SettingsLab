@@ -9,7 +9,7 @@ import time
 from driftkings.core.updater.checker import Checker
 from driftkings.core.updater.downloader import Downloader
 from driftkings.core.updater.service import UpdaterService
-from driftkings.core.updater.shared import LOG, INTERVAL
-from driftkings.core.updater.state import State, IDLE, CHECKING, AVAILABLE, ERROR, DOWNLOADING, VERIFYING, READY, \
-    INSTALLING, RESTART_REQUIRED
+from driftkings.core.updater.shared import INTERVAL, LOG
+from driftkings.core.updater.state import (AVAILABLE, CHECKING, DOWNLOADING, ERROR, IDLE, INSTALLING, READY,
+                                           RESTART_REQUIRED, State, VERIFYING)
 from driftkings.core.updater.transport import UnavailableTransport

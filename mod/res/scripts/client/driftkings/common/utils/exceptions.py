@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Exception boundary for callbacks that must not propagate into the client."""
-from driftkings.logger import get_logger
 from functools import wraps
+
+from driftkings.logger import get_logger
 
 
 def log_exceptions(function):

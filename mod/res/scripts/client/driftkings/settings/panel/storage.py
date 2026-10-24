@@ -6,7 +6,8 @@ import re
 import shutil
 import tempfile
 
-from driftkings.settings.store import replace_file as _replace, recover_file as _recover
+from driftkings.settings.store import recover_file as _recover
+from driftkings.settings.store import replace_file as _replace
 
 FILE_PATTERN = re.compile(r'^[A-Za-z0-9_.-]{1,64}\Z')
 MAX_BACKUPS = 3

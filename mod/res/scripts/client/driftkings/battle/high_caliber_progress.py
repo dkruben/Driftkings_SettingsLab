@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
+
 from constants import ARENA_GUI_TYPE
 from gui.battle_control.arena_info import vos_collections
 from gui.battle_control.battle_constants import FEEDBACK_EVENT_ID

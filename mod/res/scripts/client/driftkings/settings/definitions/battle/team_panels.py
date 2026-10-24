@@ -6,7 +6,7 @@ from driftkings._constants import TEAM_PANELS
 from driftkings.settings.controls_schema import field as nested_field
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.service import settings_service
-from driftkings.settings.team_panel_store import PlayerPanelStore, FILES
+from driftkings.settings.team_panel_store import FILES, PlayerPanelStore
 
 
 class TeamPanelsSettings(SectionDefinition):
@@ -35,6 +35,7 @@ class TeamPanelsSettings(SectionDefinition):
 def player_panel_columns(config):
     """Expose the actual v2 keys; no parallel name/layout configuration."""
     import json
+
     from driftkings.settings.settings_data import PROFILES
     columns=[[],[]]
     labels=config.i18n

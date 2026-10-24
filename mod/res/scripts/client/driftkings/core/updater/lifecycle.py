@@ -21,8 +21,8 @@ class LifecycleMixin(object):
             from driftkings.core.updater.https_transport import runtime_transport
             self.checker.transport = runtime_transport()
             self.downloader.transport = self.checker.transport
-            from driftkings.core.updater.installer import Installer
             from driftkings.core.callbacks import callbacks
+            from driftkings.core.updater.installer import Installer
             self.installer = self.installer or Installer(os.getcwd())
             from driftkings.core.updater import windows_files
             if os.name == 'nt':

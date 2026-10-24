@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.views.hangar.main')
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES, MAIN
-from driftkings.settings.service import settings_service, affects
+from driftkings.logger import get_logger
+from driftkings.settings.service import affects, settings_service
+
+LOG = get_logger('driftkings.views.hangar.main')
 """Hangar clock presentation for the main section; its state stays in the component."""
+from importlib import import_module
 import weakref
+
 from helpers import getClientLanguage
+
 from driftkings.core.hooks import override
 from driftkings.views.hangar.common import HangarController, publish_card
-
-from importlib import import_module
 
 
 def _component():
@@ -73,9 +75,11 @@ class ClockController(HangarController):
 
 def install_clock_gameface():
     from frameworks.wulf import ViewModel
-    from gui.impl.pub.view_component import ViewComponent
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
-    from driftkings.ui.gameface import INVALID_RES_ID, attach_assets, resource_id as resolve_resource
+    from gui.impl.pub.view_component import ViewComponent
+
+    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID
+    from driftkings.ui.gameface import resource_id as resolve_resource
 
     class ClockModel(ViewModel):
         def __init__(self):

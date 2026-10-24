@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Minimap presentation policy; no game dependencies."""
 import re
+
 try:
     text_type = unicode
 except NameError:

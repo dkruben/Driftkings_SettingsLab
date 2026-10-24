@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Client-owned enums; keep engine-free constants in _constants."""
-from BattleFeedbackCommon import BATTLE_EVENT_TYPE
 from aih_constants import SHOT_RESULT
+from BattleFeedbackCommon import BATTLE_EVENT_TYPE
 from constants import SHELL_MECHANICS_TYPE, SHELL_TYPES
 
 DAMAGE_EVENTS = frozenset((

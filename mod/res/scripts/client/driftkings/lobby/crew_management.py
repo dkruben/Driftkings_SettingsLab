@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-import BigWorld
+from io import open
 import json
 import os
+
+import BigWorld
 from CurrentVehicle import g_currentVehicle
 from external_strings_utils import unicode_from_utf8
 from gui.Scaleform.daapi.view.lobby.cyberSport.VehicleSelectorPopup import VehicleSelectorPopup
@@ -9,7 +11,6 @@ from gui.shared.gui_items.processors.tankman import TankmanReturn, TankmanUnload
 from gui.shared.utils import decorators
 from gui.shared.utils.requesters import REQ_CRITERIA
 from helpers import dependency
-from io import open
 from skeletons.gui.app_loader import GuiGlobalSpaceID
 from skeletons.gui.shared import IItemsCache
 
@@ -241,6 +242,7 @@ class Crew(object):
 g_crew = Crew()
 
 from driftkings.views.hangar import crew_progression as progression_view
+
 progression_view.install(config)
 
 

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Independent arcade, postmortem and artillery camera configuration."""
-from driftkings.logger import get_logger
+from AvatarInputHandler.control_modes import PostMortemControlMode
 from AvatarInputHandler.DynamicCameras.ArcadeCamera import ArcadeCamera
 from AvatarInputHandler.DynamicCameras.ArtyCamera import ArtyCamera
 from AvatarInputHandler.DynamicCameras.StrategicCamera import StrategicCamera
-from AvatarInputHandler.control_modes import PostMortemControlMode
 
 from driftkings._constants import MinMax
 from driftkings.core.camera_settings import options
 from driftkings.core.hooks import override
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.third_person_zoom import ThirdPersonZoomSettings as Settings
 from driftkings.settings.service import settings_service
 

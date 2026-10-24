@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.views.hangar.hangar_preferences')
-from driftkings.interface_catalog import gameface_spec
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES
-from driftkings.settings.service import settings_service, affects
-"""Presentation adapter for HangarOptions; gameplay state stays in its component."""
-from driftkings.core.hooks import override
+from driftkings.interface_catalog import gameface_spec
+from driftkings.logger import get_logger
+from driftkings.settings.service import affects, settings_service
 
+LOG = get_logger('driftkings.views.hangar.hangar_preferences')
+"""Presentation adapter for HangarOptions; gameplay state stays in its component."""
 from importlib import import_module
+
+from driftkings.core.hooks import override
 
 
 def _component():
@@ -17,10 +18,12 @@ def _component():
 
 def install_header_options():
     import json
+
     from frameworks.wulf import ViewModel
-    from gui.impl.pub.view_component import ViewComponent
     from gui.impl.lobby.page.lobby_header import LobbyHeader
+    from gui.impl.pub.view_component import ViewComponent
     from gui.shared.personality import ServicesLocator
+
     from driftkings.ui.gameface import attach_assets, resource_id
 
     class HeaderOptionsModel(ViewModel):

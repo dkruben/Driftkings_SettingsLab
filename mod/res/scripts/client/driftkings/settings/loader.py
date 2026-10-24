@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """Python defaults, selected profile and per-feature JSON persistence."""
 import copy
-from driftkings.logger import get_logger
 import math
 import os
 import re
 import shutil
 import tempfile
 
+from driftkings.logger import get_logger
 from driftkings.settings.default_values import SELECTOR
-from driftkings.settings.settings_data import SettingsData, user_settings, part_name
-from driftkings.settings.store import SettingsStore, merge, recover_file, read_object
+from driftkings.settings.settings_data import part_name, SettingsData, user_settings
+from driftkings.settings.store import merge, read_object, recover_file, SettingsStore
 
 try:
     string_types = (basestring,)

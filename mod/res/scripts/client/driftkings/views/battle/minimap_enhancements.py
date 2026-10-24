@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.settings.service import settings_service
+
 """Presentation adapter for MinimapPlugins; gameplay state stays in its component."""
+from importlib import import_module
+
 from aih_constants import CTRL_MODE_NAME
 from gui.battle_control.avatar_getter import getInputHandler
 
-from driftkings.common.utils.wgutils import isXvmInstalled
 from driftkings.common.utils.game import checkKeys
+from driftkings.common.utils.wgutils import isXvmInstalled
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.meta.battle.minimap import MinimapMeta
 from driftkings.ui.common.events import g_events
-
-from importlib import import_module
 
 # The client updates its strategic camera entry, which carries the artillery reticle, only in these modes.
 STRATEGIC_MODES = (CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY)

@@ -2,6 +2,7 @@
 import math
 import re
 from xml.sax.saxutils import escape
+
 try:
     text_type = unicode
 except NameError:

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """Carousel PNGs from the resource tree mounted by the client's .wotmod loader."""
 import base64
-from driftkings.logger import get_logger
 import os
 import re
+
+from driftkings.logger import get_logger
 
 RESOURCE_ROOT = 'gui/maps/driftkings/carroucel/'
 ICON_PATH = re.compile(r'gui/maps/driftkings/carroucel/[#a-z0-9_-]+\.png')

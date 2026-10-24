@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import GLOBAL, TEAM_PANELS
-from driftkings.settings.service import settings_service, SettingsChanges, changed_paths, affects
+from driftkings.settings.service import affects, changed_paths, settings_service, SettingsChanges
+
 """Native roster bridge; all three screens share identity, health and macros."""
-from driftkings._constants import BATTLE_ALIASES
-from driftkings.logger import get_logger
+from copy import deepcopy
 import time
 import weakref
-from copy import deepcopy
+
 import BigWorld
-from realm import CURRENT_REALM
-from driftkings.meta.battle.players_panel import PlayersPanelMeta
 from gui.Scaleform.daapi.view.battle.classic.players_panel import PlayersPanel
 from gui.Scaleform.daapi.view.meta.BattleStatisticDataControllerMeta import BattleStatisticDataControllerMeta
-from gui.shared import g_eventBus, events, EVENT_BUS_SCOPE
-from driftkings.core.hooks import override
-from driftkings.core.battle_events import battleEvents
-from driftkings.core.panel_model import Roster
-from driftkings.settings.settings_data import PROFILES, profile_for_mode
+from gui.shared import EVENT_BUS_SCOPE, events, g_eventBus
+from realm import CURRENT_REALM
+
+from driftkings._constants import BATTLE_ALIASES
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.battle_capabilities import battle_capabilities
+from driftkings.core.battle_events import battleEvents
+from driftkings.core.hooks import override
+from driftkings.core.panel_model import Roster
+from driftkings.logger import get_logger
+from driftkings.meta.battle.players_panel import PlayersPanelMeta
+from driftkings.settings.settings_data import profile_for_mode, PROFILES
 
 LOG=get_logger('Driftkings.PlayerPanelPro')
 ALIAS=BATTLE_ALIASES.PLAYERS_PANEL

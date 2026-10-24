@@ -4,6 +4,7 @@
 
 def getViewSettings():
     from gui.Scaleform.framework import ComponentSettings, ScopeTemplates
+
     from driftkings.views import BATTLE_COMPONENTS
     return tuple(ComponentSettings(alias, definition[0], ScopeTemplates.DEFAULT_SCOPE)
                  for alias, definition in sorted(BATTLE_COMPONENTS.items()))

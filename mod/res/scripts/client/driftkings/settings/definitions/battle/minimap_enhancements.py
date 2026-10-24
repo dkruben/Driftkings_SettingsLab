@@ -3,8 +3,9 @@ import json
 
 from driftkings._constants import GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.core import minimap as policy
-from driftkings.settings.controls_schema import color, control, hotkey, slider
+from driftkings.settings.controls_schema import color, control
 from driftkings.settings.controls_schema import field as nested_field
+from driftkings.settings.controls_schema import hotkey, slider
 from driftkings.settings.definitions.base import SectionDefinition
 
 

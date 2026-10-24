@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
-import BigWorld
+from functools import partial
 import math
+
+from account_helpers.settings_core.options import InterfaceScaleSetting
+from aih_constants import CTRL_MODE_NAME
 from Avatar import PlayerAvatar
 from AvatarInputHandler import AvatarInputHandler, MapCaseMode
+from AvatarInputHandler.cameras import FovExtended
 from AvatarInputHandler.DynamicCameras.ArcadeCamera import ArcadeCamera
 from AvatarInputHandler.DynamicCameras.ArtyCamera import ArtyCamera
 from AvatarInputHandler.DynamicCameras.SniperCamera import SniperCamera
 from AvatarInputHandler.DynamicCameras.StrategicCamera import StrategicCamera
-from AvatarInputHandler.cameras import FovExtended
-from Vehicle import Vehicle
-from account_helpers.settings_core.options import InterfaceScaleSetting
-from aih_constants import CTRL_MODE_NAME
-from functools import partial
+import BigWorld
 from gui.Scaleform.daapi.view.battle.shared.crosshair import plugins
+from Vehicle import Vehicle
 
 from driftkings.common.utils import events
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
-from driftkings.core.hooks import override, on_event
+from driftkings.core.hooks import on_event, override
 from driftkings.settings.definitions.battle.gun_traverse_limits import GunTraverseLimitsSettings as Settings
 from driftkings.views.battle.gun_traverse_limits import AimingAnglesView
 

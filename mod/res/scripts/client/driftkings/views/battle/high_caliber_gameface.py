@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """MainGun HUD presentation. All targets and states arrive from the battle component."""
-from driftkings.logger import get_logger
 from importlib import import_module
 
 from driftkings._constants import GLOBAL, HIGH_CALIBER_PROGRESS
 from driftkings.core.hud_visibility import hudVisibility
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.battle.common import BattleCardAdapter
 from driftkings.views.marks_model import moved_panel, number_locale

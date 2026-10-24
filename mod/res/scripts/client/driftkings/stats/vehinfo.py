@@ -3,26 +3,29 @@
 Vehicle information and statistics module for Driftkings.
 Handles loading, processing and calculation of various tank statistics.
 """
+from contextlib import closing
 import json
-from driftkings.logger import get_logger
 import math
 import os
 import threading
 import time
 import urllib2
-from contextlib import closing
+
+from driftkings.logger import get_logger
+
 try:
-    from Queue import Queue, Empty
+    from Queue import Empty, Queue
 except ImportError:
     from queue import Queue, Empty
 
-import ResMgr
-import nations
 from items import vehicles
+import nations
+import ResMgr
 
-from driftkings.core.callbacks import callback
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.core.cache import cache_directory
+from driftkings.core.callbacks import callback
+
 LOG = get_logger('Driftkings.Stats')
 try:
     integer_types = (int, long)

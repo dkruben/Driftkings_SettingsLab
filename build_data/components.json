@@ -166,6 +166,11 @@
       "config_files": [],
       "assets": [
         {
+          "source": "mod/res/mods/driftkings/colors/**",
+          "target": "res/mods/driftkings/colors/**",
+          "generator": null
+        },
+        {
           "source": "licence",
           "target": "licence",
           "generator": null

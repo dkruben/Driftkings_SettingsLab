@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Observable runtime snapshot. Never stored in configuration or profiles."""
 import copy
-from driftkings.logger import get_logger
 
 from driftkings import VERSION
+from driftkings.logger import get_logger
 
 IDLE = 'IDLE'
 CHECKING = 'CHECKING'

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Read-only battle context queries; no subscriptions, hooks or module rules."""
-from driftkings.logger import get_logger
 import sys
 
 from driftkings.core.mod_compatibility import read
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.BattleCapabilities')
 # Battles that update the account statistics: random battles, including the

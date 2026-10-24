@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 """Display a box for the native locked target; never acquire or steer aim."""
+import math
+
+from AvatarInputHandler import cameras
 import BigWorld
 import Math
-from driftkings.logger import get_logger
-import math
-from AvatarInputHandler import cameras
 from Vehicle import Vehicle
 
-from driftkings._constants import GLOBAL, ScreenBounds, AUTOAIM_TARGET_INDICATOR
+from driftkings._constants import AUTOAIM_TARGET_INDICATOR, GLOBAL, ScreenBounds
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.overlay import Align, ElementType, overlays
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.autoaim_target_indicator import AutoaimTargetIndicatorSettings as Settings
 from driftkings.settings.service import settings_service
 

@@ -4,11 +4,11 @@ from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.service import settings_service
 
 """Presentation adapter for BattleEfficiency; gameplay state stays in its component."""
+from importlib import import_module
 import json
 import weakref
-from driftkings.core.hooks import override
 
-from importlib import import_module
+from driftkings.core.hooks import override
 
 
 def _component():
@@ -18,11 +18,13 @@ def _component():
 
 def install_results_gameface():
     from frameworks.wulf import ViewModel
-    from gui.impl.pub.view_component import ViewComponent
     from gui.impl.lobby.battle_results.random_battle_results_view import RandomBattleResultsView
+    from gui.impl.pub.view_component import ViewComponent
     from helpers import dependency
     from skeletons.gui.battle_results import IBattleResultsService
-    from driftkings.ui.gameface import INVALID_RES_ID, attach_assets, resource_id as resolve_resource
+
+    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID
+    from driftkings.ui.gameface import resource_id as resolve_resource
 
     feature = 'driftkingsbattleEfficiency'
     resource = gameface_spec('driftkingsbattleEfficiency')['resource']

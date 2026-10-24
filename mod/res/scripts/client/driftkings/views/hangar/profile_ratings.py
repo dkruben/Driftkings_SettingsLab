@@ -34,9 +34,10 @@ def colors(presenter):
 
 def install():
     from frameworks.wulf import ViewModel
-    from gui.impl.pub.view_component import ViewComponent
     from gui.impl.lobby.achievements.achievements_main_view import AchievementMainView
     from gui.impl.lobby.achievements.summary.summary_view import SummaryView
+    from gui.impl.pub.view_component import ViewComponent
+
     from driftkings.ui.gameface import attach_assets, resource_id
 
     layout_id = resource_id(gameface_spec(FEATURE)['resource'])

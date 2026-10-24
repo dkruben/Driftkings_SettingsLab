@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-import TriggersManager
-from AvatarInputHandler.DynamicCameras.SniperCamera import SniperCamera
-from AvatarInputHandler.control_modes import SniperControlMode
-from PlayerEvents import g_playerEvents
 from aih_constants import CTRL_MODE_NAME
+from AvatarInputHandler.control_modes import SniperControlMode
+from AvatarInputHandler.DynamicCameras.SniperCamera import SniperCamera
 from helpers.bound_effects import ModelBoundEffects
+from PlayerEvents import g_playerEvents
+import TriggersManager
 
 from driftkings._constants import GLOBAL, SNIPER_CAMERA
-from driftkings.common.utils.wgutils import isReplay, getPlayer
+from driftkings.common.utils.wgutils import getPlayer, isReplay
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.settings.definitions.battle.sniper_camera import SniperCameraSettings as Settings

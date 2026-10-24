@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Isolated notifications: a failing consumer cannot prevent other consumers."""
-from driftkings.logger import get_logger
-
 from driftkings.core.diagnostics import diagnostics
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Events')
 

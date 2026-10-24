@@ -2,14 +2,16 @@
 from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
 from driftkings.core import carousel as layout
 from driftkings.core.carousel_options import from_carousel
-from driftkings.settings.service import settings_service, affects
+from driftkings.settings.service import affects, settings_service
+
 """Presentation adapter for CarouselStats; gameplay state stays in its component."""
+from importlib import import_module
 import weakref
+
 from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
-from driftkings.views.hangar.common import HangarController, install_card, card_payload, publish_card
 
-from importlib import import_module
+from driftkings.views.hangar.common import card_payload, HangarController, install_card, publish_card
 
 
 def _component():
@@ -68,6 +70,7 @@ class CarouselController(HangarController):
 def install_gameface():
     from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
+
     from driftkings.ui.gameface import attach_assets
 
     class CarouselModel(ViewModel):

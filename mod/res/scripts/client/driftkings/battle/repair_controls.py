@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import BattleReplay
-import SoundGroups
+from gui.battle_control.battle_constants import DEVICE_STATE_DESTROYED, DEVICE_STATE_NORMAL, VEHICLE_VIEW_STATE
 from gui.Scaleform.genConsts.BATTLE_VIEW_ALIASES import BATTLE_VIEW_ALIASES
-from gui.battle_control.battle_constants import DEVICE_STATE_DESTROYED, VEHICLE_VIEW_STATE, DEVICE_STATE_NORMAL
-from gui.shared import g_eventBus, events, EVENT_BUS_SCOPE
+from gui.shared import EVENT_BUS_SCOPE, events, g_eventBus
 from gui.shared.gui_items import Vehicle
 from gui.shared.personality import ServicesLocator
+import SoundGroups
 
 from driftkings._constants import GLOBAL, REPAIR_CONTROLS
 from driftkings.common.utils.game import checkKeys

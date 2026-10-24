@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from functools import partial
-from gui.Scaleform.daapi.view.battle.shared.damage_log_panel import _LogViewComponent, DamageLogPanel
-from gui.battle_control.battle_constants import PERSONAL_EFFICIENCY_TYPE
 
-from driftkings._constants import GLOBAL, GAME_LOG_MANAGER
+from gui.battle_control.battle_constants import PERSONAL_EFFICIENCY_TYPE
+from gui.Scaleform.daapi.view.battle.shared.damage_log_panel import _LogViewComponent, DamageLogPanel
+
+from driftkings._constants import GAME_LOG_MANAGER, GLOBAL
 from driftkings.core.hooks import override
 from driftkings.settings.definitions.components.game_log_manager import GameLogManagerSettings as Settings
 from driftkings.settings.service import settings_service

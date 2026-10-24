@@ -9,7 +9,7 @@ from driftkings.settings.panel import logger
 from driftkings.settings.panel.controls import Control, text_type
 from driftkings.settings.panel.registry import ModDefinition
 from driftkings.settings.sections import previous_name
-from driftkings.settings.settings_data import BATTLE_EDITABLE, application_timing, LIVE, RESTART
+from driftkings.settings.settings_data import application_timing, BATTLE_EDITABLE, LIVE, RESTART
 
 
 def plain(value):

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Create library components when the client loads a native battle page."""
 import BigWorld
-from driftkings.logger import get_logger
 from frameworks.wulf import WindowLayer
+from gui.app_loader.settings import APP_NAME_SPACE
 from gui.Scaleform.daapi.settings.views import VIEW_ALIAS, VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE
 from gui.Scaleform.framework.package_layout import PackageBusinessHandler
-from gui.app_loader.settings import APP_NAME_SPACE
 from gui.shared import EVENT_BUS_SCOPE
 
 from driftkings.interface_catalog import selected_components, surface_aliases
+from driftkings.logger import get_logger
 from driftkings.views import BATTLE_COMPONENTS, BATTLE_HANDLERS
 
 LOG = get_logger('Driftkings.Views')

@@ -2,7 +2,6 @@
 """Schedule the optional map package; the native worker applies it after exit."""
 import hashlib
 import json
-from driftkings.logger import get_logger
 import os
 import subprocess
 import xml.etree.ElementTree as ET
@@ -11,6 +10,7 @@ import zipfile
 from driftkings._constants import BATTLE_PREFERENCES, GLOBAL
 from driftkings.core.updater.installer import read_resource
 from driftkings.core.updater.versioning import normalize_game_version
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 
 LOG = get_logger('Driftkings.Fog')
@@ -68,6 +68,7 @@ class FogPackageController(object):
     def start(self):
         global _controller
         from helpers import getClientVersion
+
         from driftkings.common.utils import events
         from driftkings.core.callbacks import callbacks
         self.callbacks = callbacks
@@ -114,8 +115,9 @@ class FogPackageController(object):
 
     def remove_stale_sessions(self, age=86400, limit=20):
         """Keep this session and the latest result; a helper still running keeps its files locked."""
-        from driftkings.core.updater.results import remove_flat_directory
         import time
+
+        from driftkings.core.updater.results import remove_flat_directory
         sessions = []
         for name in os.listdir(self.cache):
             folder = os.path.join(self.cache, name)

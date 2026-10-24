@@ -21,13 +21,14 @@ class BattleCardAdapter(object):
     def install(self):
         if self.installed:
             return
-        from gui.impl.battle.random.hud import RandomHUDView
         from frameworks.wulf import ViewModel
+        from gui.impl.battle.random.hud import RandomHUDView
         from gui.impl.pub.view_component import ViewComponent
-        from gui.shared import events, EVENT_BUS_SCOPE
+        from gui.shared import EVENT_BUS_SCOPE, events
+
         from driftkings.core.hooks import override
-        from driftkings.ui.gameface import attach_assets, resource_id
         from driftkings.interface_catalog import gameface_spec
+        from driftkings.ui.gameface import attach_assets, resource_id
         adapter = self
 
         class BattleCardModel(ViewModel):
@@ -142,8 +143,8 @@ class BattleCardAdapter(object):
         self.installed = False
 
     def resourceID(self):
-        from driftkings.ui.gameface import resource_id
         from driftkings.interface_catalog import gameface_spec
+        from driftkings.ui.gameface import resource_id
         return resource_id(gameface_spec(self.feature)['resource'])
 
     def savePosition(self, child, args):

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
 
-from driftkings._constants import VEHICLE_CAROUSEL, GLOBAL
+from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
 from driftkings.common.utils.colorratting import color_tables
 from driftkings.core import carousel as layout
-from driftkings.settings.controls_schema import control, options, caption
+from driftkings.settings.controls_schema import caption, control
 from driftkings.settings.controls_schema import field as nested_field
+from driftkings.settings.controls_schema import options
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_carousel_store import CarouselStore, FILES
 

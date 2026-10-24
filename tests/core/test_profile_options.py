@@ -16,7 +16,8 @@ class ProfileOptionsTests(RuntimeTest):
     def test_threshold_editing_rejects_invalid_limits_without_saving(self):
         api, _ = game_source('settings/definitions/lobby/profile_ratings.py', {
             'driftkings.settings.definitions.base': module(SectionDefinition=object),
-        }, real=('driftkings.core.profile_ratings', 'driftkings.settings.controls_schema'))
+        }, real=('driftkings.core.profile_ratings', 'driftkings.settings.controls_schema',
+                 'driftkings.common.utils.colorratting'))
         config = api['ProfileRatingsSettings']()
         for invalid in ('20,30', '20,20,40,50,60', '20,30,40,50,101', 'nan,30,40,50,60'):
             values = dict(self.defaults, survivalThresholds=invalid)

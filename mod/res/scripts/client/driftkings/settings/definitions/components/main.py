@@ -3,7 +3,6 @@ from driftkings._constants import GLOBAL, MAIN
 from driftkings.settings.controls_schema import field as nested_field
 from driftkings.settings.definitions.base import SectionDefinition
 
-
 FIELD_DEFAULTS = {'x': 0, 'y': 0, 'width': 0, 'height': 0, 'screenHAlign': 'left', 'format': '',
                   'textFormat': {'align': 'left', 'valign': 'top', 'color': '#959688'},
                   'shadow': {'enabled': False, 'distance': 0, 'angle': 0, 'color': '#000000',

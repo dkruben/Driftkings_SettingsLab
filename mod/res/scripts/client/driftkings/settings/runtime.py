@@ -9,8 +9,8 @@ class SettingsRuntime(object):
         pass
 
     def disableOwner(self, owner):
-        from driftkings.settings.service import settings_service
         from driftkings.settings.registry import registry
+        from driftkings.settings.service import settings_service
         for name, section in list(settings_service.settings.configs.items()):
             if getattr(section, 'runtime_owner', None) != owner:
                 continue

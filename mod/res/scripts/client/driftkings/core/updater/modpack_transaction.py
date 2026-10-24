@@ -3,7 +3,7 @@
 import json
 import os
 
-from driftkings.core.updater.inventory import Inventory, file_signature, require
+from driftkings.core.updater.inventory import file_signature, Inventory, require
 from driftkings.core.updater.manifest import bounded_json, MAX_MANIFEST
 from driftkings.core.updater.versioning import Version
 
@@ -99,8 +99,8 @@ def validate_ticket(ticket, manifest):
 
 
 def verify_result(root, ticket, loaded_version, old=False):
-    from driftkings.core.updater.results import safe_path
     from driftkings.core.updater.downloader import validate_package
+    from driftkings.core.updater.results import safe_path
     version = ticket['installedVersion'] if old else ticket['version']
     require(loaded_version == version, 'Loaded version differs from transaction')
     for item in ticket['operations']:

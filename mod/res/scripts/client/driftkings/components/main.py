@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """General (main) settings shared by the whole mod, starting with the hangar clock."""
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.components.main')
 from driftkings.interface_catalog import gameface_spec
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.main import MainSettings as Settings
 from driftkings.views.hangar.main import ClockController, install_clock_gameface
+
+LOG = get_logger('driftkings.components.main')
 
 config = Settings()
 

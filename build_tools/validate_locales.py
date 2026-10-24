@@ -66,7 +66,7 @@ def validate_catalogs(root=ROOT):
 
 
 # Names kept in English on purpose (sound and preset names).
-ENGLISH_NAMES = frozenset(('Super Mario',))
+ENGLISH_NAMES = frozenset(('Super Mario', 'WoT-Life'))
 
 
 def english_prose(root=ROOT):

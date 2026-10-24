@@ -2,15 +2,15 @@
 
 import binascii
 import codecs
+from collections import OrderedDict
 import json
-from driftkings.logger import get_logger
 import os
 import re
 import zlib
-from collections import OrderedDict
 
 from driftkings.common.config.utils import smart_update
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Config')
 

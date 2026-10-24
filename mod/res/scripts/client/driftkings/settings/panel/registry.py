@@ -4,8 +4,8 @@ import copy
 import re
 
 from driftkings.settings.panel import logger
-from driftkings.settings.panel.controls import (Control, DefinitionError, DEFAULT_COLOR_PRESETS, check_text, is_number,
-                                                is_text, options_list, resolve_text, check_metadata)
+from driftkings.settings.panel.controls import (check_metadata, check_text, Control, DEFAULT_COLOR_PRESETS,
+                                                DefinitionError, is_number, is_text, options_list, resolve_text)
 from driftkings.settings.panel.storage import ConfigReadError
 
 MOD_ID_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}\Z')
@@ -117,8 +117,8 @@ class ModHandle(object):
         return self._add('directory', id, label, default, options)
 
     def add_sound_preview(self, id, label=None, event=None, **options):
-        from driftkings.settings.panel.sound import sound_manager
         from driftkings.i18n.panel import translations
+        from driftkings.settings.panel.sound import sound_manager
         self.add_button(id, label or translations('sound.play'), callback=lambda handle: sound_manager.play(event, self.id), **options)
         return self.add_button(id + '_stop', translations('sound.stop'), callback=lambda handle: sound_manager.stop(event), **options)
 

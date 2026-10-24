@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Updater service staging behavior; state is owned by UpdaterService."""
 from driftkings.core.updater.shared import LOG
-from driftkings.core.updater.state import AVAILABLE, ERROR, DOWNLOADING, VERIFYING, READY
+from driftkings.core.updater.state import AVAILABLE, DOWNLOADING, ERROR, READY, VERIFYING
 
 
 class StagingMixin(object):

@@ -2,15 +2,15 @@
 """Bounded local receipts, separate from Installer and profile persistence."""
 import hashlib
 import json
-from driftkings.logger import get_logger
 import os
 import re
 import time
 
 from driftkings import VERSION
-from driftkings.core.updater.installer import read_json, digest, validate_package, write_new
-from driftkings.core.updater.manifest import Manifest, INTEGER
-from driftkings.core.updater.versioning import Version, TEXT, normalize_game_version
+from driftkings.core.updater.installer import digest, read_json, validate_package, write_new
+from driftkings.core.updater.manifest import INTEGER, Manifest
+from driftkings.core.updater.versioning import normalize_game_version, TEXT, Version
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Updater')
 FINAL_STATUSES = frozenset(('installed', 'rolledBack', 'rolled_back', 'cancelled', 'error', 'failed'))

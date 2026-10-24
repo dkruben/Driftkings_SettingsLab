@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """Owned Gameface child of WG 2.4.1 RandomHUDView; no Scaleform overlay."""
-from driftkings.logger import get_logger
 from importlib import import_module
 
-from driftkings._constants import GLOBAL, BATTLE_MARKS_OF_EXCELLENCE
+from driftkings._constants import BATTLE_MARKS_OF_EXCELLENCE, GLOBAL
 from driftkings.core.hud_visibility import hudVisibility
 from driftkings.core.marks_state import marks_state
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.battle.common import BattleCardAdapter
 from driftkings.views.marks_model import moved_panel, number_locale

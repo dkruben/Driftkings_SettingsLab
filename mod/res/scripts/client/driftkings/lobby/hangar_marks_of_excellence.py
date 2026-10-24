@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
 import math
+
 from CurrentVehicle import g_currentVehicle
 from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.Scaleform.daapi.view.lobby.profile.ProfileUtils import ProfileUtils
@@ -10,15 +10,16 @@ from gui.shared.personality import ServicesLocator
 from driftkings._constants import GLOBAL, HANGAR_MARKS_OF_EXCELLENCE, MARKS_MIN_TIER
 from driftkings.common.config.json_reader import loadJson
 from driftkings.common.utils.achievement_dossiers import getAchievementDossier
-from driftkings.common.utils.colorratting import getStatisticColor, getMoeDamageColor
+from driftkings.common.utils.colorratting import getMoeDamageColor, getStatisticColor
 from driftkings.common.utils.exceptions import log_exceptions
 from driftkings.common.utils.numbers import finite_number
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.cache import cache_directory
 from driftkings.core.hooks import override
-from driftkings.core.marks_calculator import ceil_damage, combined_damage, statistics, hangar_goal
+from driftkings.core.marks_calculator import ceil_damage, combined_damage, hangar_goal, statistics
 from driftkings.core.marks_state import marks_state
 from driftkings.interface_catalog import gameface_spec
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import getVehicleInfoData
 from driftkings.views.marks_model import delta_model, milestone_model, number_locale
@@ -82,8 +83,6 @@ def trend(history, vehicle_id, last_battles=10):
 
 
 from driftkings.settings.definitions.lobby.hangar_marks_of_excellence import HangarMarksOfExcellenceSettings as Settings
-
-
 
 
 def read_colors(rating_color, rating_value):
@@ -406,7 +405,8 @@ g_history = ProgressHistory()
 g_data = MarksOnGunData()
 
 
-from driftkings.views.hangar.hangar_marks_of_excellence import MarksOnGunHangarController, get_view_config, install_gameface
+from driftkings.views.hangar.hangar_marks_of_excellence import (get_view_config, install_gameface,
+                                                                MarksOnGunHangarController)
 
 
 @override(MarkOnGunAchievement, 'getUserCondition')

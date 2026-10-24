@@ -48,8 +48,8 @@ class InstallContext(object):
 
 def runtime_context():
     import BattleReplay
-    from helpers import dependency
     from gui.shared.personality import ServicesLocator
+    from helpers import dependency
     from skeletons.gui.app_loader import GuiGlobalSpaceID
     from skeletons.gui.shared.utils import IHangarSpace
     return InstallContext(GuiGlobalSpaceID.LOBBY, ServicesLocator.appLoader, dependency.instance(IHangarSpace), BattleReplay)

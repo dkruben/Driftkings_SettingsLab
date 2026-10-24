@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Feature restrictions, separate from passive external-mod observations."""
-from driftkings.logger import get_logger
-
 from driftkings.core.battle_capabilities import battle_capabilities
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.BattlePolicy')
 # Features that read account progress only run where battles update it.

@@ -16,8 +16,8 @@ class KeyboardService(object):
 
     @staticmethod
     def settingsOpen():
-        from driftkings.settings.registry import registry
         from driftkings.settings.panel import settings
+        from driftkings.settings.registry import registry
         return registry.isOpen or settings.window_open
 
     def subscribe(self, callback, interface=False):

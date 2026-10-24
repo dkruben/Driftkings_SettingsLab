@@ -5,7 +5,7 @@ import os
 
 from driftkings.core.carousel import config_defaults, profile_shadow
 from driftkings.core.carousel_options import from_carousel, SORT_KEYS
-from driftkings.settings.store import merge, recover_file, read_object, JsonDocuments
+from driftkings.settings.store import JsonDocuments, merge, read_object, recover_file
 
 FILES = ('carousel.json', 'carouselnormal.json', 'carouselsmall.json')
 

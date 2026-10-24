@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
 from collections import defaultdict
 from functools import partial
-from SoundGroups import SoundGroups
-from gui.Scaleform.daapi.view.battle.shared.indicators import SixthSenseIndicator
 
-from driftkings._constants import BATTLE_ALIASES
-from driftkings._constants import GLOBAL, SIXTH_SENSE_ALERT
+from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
+from gui.Scaleform.daapi.view.battle.shared.indicators import SixthSenseIndicator
+from SoundGroups import SoundGroups
+
+from driftkings._constants import BATTLE_ALIASES, GLOBAL, SIXTH_SENSE_ALERT
 from driftkings.common.utils.chat import sendChatMessage
 from driftkings.common.utils.wgutils import getPlayer, square_position
 from driftkings.core.callbacks import callback

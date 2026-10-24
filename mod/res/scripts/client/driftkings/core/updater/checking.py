@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Updater service checking behavior; state is owned by UpdaterService."""
 from driftkings import VERSION
-from driftkings.core.updater.shared import INTERVAL
-from driftkings.core.updater.shared import LOG
-from driftkings.core.updater.state import IDLE, CHECKING, AVAILABLE, ERROR, READY, INSTALLING, RESTART_REQUIRED
+from driftkings.core.updater.shared import INTERVAL, LOG
+from driftkings.core.updater.state import AVAILABLE, CHECKING, ERROR, IDLE, INSTALLING, READY, RESTART_REQUIRED
 
 
 class CheckMixin(object):

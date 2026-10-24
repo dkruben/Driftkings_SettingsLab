@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Format the native Flash statistics and vehicle dossier fields."""
-from driftkings.common.utils.colorratting import getStatisticColor, getRatingColors, getColor
+from driftkings.common.utils.colorratting import getColor, getRatingColors, getStatisticColor
 from driftkings.core.hooks import override
-from driftkings.core.profile_ratings import account_wn8, vehicle_wn8, parse_thresholds, pure_random_stats
-from driftkings.settings.service import settings_service
+from driftkings.core.profile_ratings import account_wn8, parse_thresholds, pure_random_stats, vehicle_wn8
 from driftkings.logger import get_logger
+from driftkings.settings.service import settings_service
 
 LOG = get_logger("ProfileStatistics")
 
@@ -84,9 +84,10 @@ def paint_vehicle_list(view):
 def install():
     from gui.Scaleform.daapi.view.lobby.profile import ProfileUtils as fields
     from gui.Scaleform.daapi.view.lobby.profile.profile_statistics_vos import ProfileAllStatisticsVO
-    from gui.Scaleform.daapi.view.lobby.profile.ProfileTechnique import ProfileTechnique
     from gui.Scaleform.daapi.view.lobby.profile.ProfileStatistics import ProfileStatistics
+    from gui.Scaleform.daapi.view.lobby.profile.ProfileTechnique import ProfileTechnique
     from gui.Scaleform.genConsts.PROFILE_DROPDOWN_KEYS import PROFILE_DROPDOWN_KEYS
+
     from driftkings.stats.vehinfo import getVehicleInfoData
 
     # Native dossier rendering is synchronous. A stack keeps nested requests

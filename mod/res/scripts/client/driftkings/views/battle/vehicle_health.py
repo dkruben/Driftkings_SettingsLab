@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Presentation adapter for OwnHealth; gameplay state stays in its component."""
-from PlayerEvents import g_playerEvents
 from aih_constants import CTRL_MODE_NAME
 from constants import ARENA_PERIOD
-from gui.Scaleform.daapi.view.battle.shared.formatters import getHealthPercent, normalizeHealth
 from gui.battle_control import avatar_getter
 from gui.battle_control.battle_constants import VEHICLE_VIEW_STATE
 from gui.battle_control.controllers.prebattle_setups_ctrl import IPrebattleSetupsListener
+from gui.Scaleform.daapi.view.battle.shared.formatters import getHealthPercent, normalizeHealth
+from PlayerEvents import g_playerEvents
 
-from driftkings._constants import VEHICLE_HEALTH, GLOBAL
+from driftkings._constants import GLOBAL, VEHICLE_HEALTH
 from driftkings.common.utils.formatting import percentToRgb
 from driftkings.meta.battle.own_health import OwnHealthMeta
 from driftkings.settings.service import settings_service

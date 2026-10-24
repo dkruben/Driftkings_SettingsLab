@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """Standalone Gameface windows for account selection and editing."""
+from importlib import import_module
 import json
 import re
-from frameworks.wulf import ViewModel, ViewSettings, ViewFlags, WindowFlags, WindowLayer
+
+from frameworks.wulf import ViewFlags, ViewModel, ViewSettings, WindowFlags, WindowLayer
 from gui.impl.gen import R
 from gui.impl.pub import ViewImpl
 from gui.impl.pub.window_impl import WindowImpl
-from importlib import import_module
 
 from driftkings.core.accounts import AccountError, READ_ERROR
 from driftkings.interface_catalog import gameface_spec

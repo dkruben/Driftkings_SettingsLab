@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Bounded file jobs owned by UpdaterService; delivery uses Core callbacks."""
-from driftkings.logger import get_logger
 import threading
+
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Updater')
 

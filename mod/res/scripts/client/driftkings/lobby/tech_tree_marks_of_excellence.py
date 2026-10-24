@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """EU 2.4 Gameface implementation; the legacy NationTreeNode SWF is not used."""
 import json
-from driftkings.logger import get_logger
 import weakref
+
 from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 
@@ -10,9 +10,10 @@ from driftkings._constants import GLOBAL, TECH_TREE_MARKS_OF_EXCELLENCE
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.settings_controller import SettingsController
 from driftkings.interface_catalog import gameface_spec
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.tech_tree_marks_of_excellence import \
     TechTreeMarksOfExcellenceSettings as Settings
-from driftkings.settings.service import settings_service, affects
+from driftkings.settings.service import affects, settings_service
 from driftkings.views.hangar.tech_tree_marks_of_excellence import install
 
 LOG = get_logger('Driftkings.MarksOnGunTechTree')

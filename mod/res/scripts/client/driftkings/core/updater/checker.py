@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """GitHub metadata checks only. Never request the WOTMOD download URL."""
-from driftkings.logger import get_logger
-
 from driftkings.core.updater import endpoints, signature
-from driftkings.core.updater.manifest import Manifest, bounded_json, MAX_MANIFEST
+from driftkings.core.updater.manifest import bounded_json, Manifest, MAX_MANIFEST
 from driftkings.core.updater.versioning import Version
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Updater')
 MAX_RELEASES_RESPONSE = 1024 * 1024

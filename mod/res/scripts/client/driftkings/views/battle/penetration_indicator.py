@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Presentation adapter for ArmorCalculator; gameplay state stays in its component."""
-from aih_constants import CTRL_MODE_NAME
 from collections import defaultdict
+
+from aih_constants import CTRL_MODE_NAME
 from gui.battle_control import avatar_getter
 from helpers import dependency
 from skeletons.gui.battle_session import IBattleSessionProvider

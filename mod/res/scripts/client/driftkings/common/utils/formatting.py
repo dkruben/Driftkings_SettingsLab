@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Small text and colour conversions, independent of the game."""
-import math
 from colorsys import hsv_to_rgb
+import math
+
 
 def percentToRgb(percent, saturation=0.5, brightness=1.0, **__):
     """

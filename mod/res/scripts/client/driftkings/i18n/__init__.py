@@ -2,11 +2,11 @@
 """One catalog per language, with unified optional JSON overrides."""
 import copy
 import json
-from driftkings.logger import get_logger
 import os
 
 from driftkings.i18n.resources import resources
 from driftkings.locale_support import language_code
+from driftkings.logger import get_logger
 from driftkings.settings.sections import section_name
 from driftkings.settings.store import merge, recover_file
 

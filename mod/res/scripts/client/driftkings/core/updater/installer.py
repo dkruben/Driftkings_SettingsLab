@@ -10,9 +10,9 @@ import zipfile
 
 from driftkings import VERSION
 from driftkings.common.utils.filesystem import file_sha256 as digest
-from driftkings.core.updater.downloader import safe_directory, validate_package, validate_download
-from driftkings.core.updater.manifest import Manifest, MAX_MANIFEST, bounded_json
-from driftkings.core.updater.versioning import Version, TEXT, normalize_game_version
+from driftkings.core.updater.downloader import safe_directory, validate_download, validate_package
+from driftkings.core.updater.manifest import bounded_json, Manifest, MAX_MANIFEST
+from driftkings.core.updater.versioning import normalize_game_version, TEXT, Version
 
 HELPER_RESOURCE = 'gui/driftkings/updater/Driftkings.UpdateInstaller.exe'
 INFO_RESOURCE = 'gui/driftkings/updater/helper.json'

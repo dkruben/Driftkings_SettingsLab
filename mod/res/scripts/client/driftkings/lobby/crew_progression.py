@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Read current native crew costs without modifying inventory or training."""
-from driftkings.logger import get_logger
-
 from driftkings.core.crew_progression import progression
+from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.CrewProgression')
 

@@ -92,8 +92,9 @@ class HudVisibility(object):
 
     def installHooks(self):
         # Core service hooks have their own lifecycle, like BattleEvents.
-        from driftkings.core.hooks import override
         from gui.Scaleform.daapi.view.meta.BattlePageMeta import BattlePageMeta
+
+        from driftkings.core.hooks import override
         for method in ('as_setComponentsVisibilityS', 'as_setComponentsVisibilityWithFadeS'):
             override(BattlePageMeta, method, self.nativeVisibility)
         # Gameface can also close via its own lifecycle rather than a TAB key-up.

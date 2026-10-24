@@ -3,7 +3,7 @@
 import copy
 import os
 
-from driftkings.settings.store import merge, recover_file, read_object, JsonDocuments
+from driftkings.settings.store import JsonDocuments, merge, read_object, recover_file
 
 FILES = ('minimap.json', 'minimap_labels.json', 'minimap_circles.json', 'minimap_lines.json')
 SECTIONS = (None, ('labels', 'health', 'lostMarker'), ('circles', 'extraCircles'), ('lines',))
@@ -22,8 +22,8 @@ class MinimapStore(JsonDocuments):
         super(MinimapStore, self).__init__(directory, FILES)
 
     def load(self, initial):
-        from driftkings.settings.loader import validate_types
         from driftkings.core.minimap import validate
+        from driftkings.settings.loader import validate_types
         self.recover()
         data = {}
         for name, defaults in zip(FILES, split(initial)):

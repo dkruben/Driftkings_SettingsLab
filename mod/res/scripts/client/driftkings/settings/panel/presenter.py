@@ -103,10 +103,10 @@ class Presenter(object):
                 'diagnostics': self.diagnostics() if self.registry.get(CORE_ID, 'debug', False) else None}
 
     def diagnostics(self):
+        from driftkings.core.callbacks import callbacks
+        from driftkings.core.diagnostics import diagnostics
         from driftkings.settings.panel import VERSION
         from driftkings.settings.panel.sound import sound_manager
-        from driftkings.core.diagnostics import diagnostics
-        from driftkings.core.callbacks import callbacks
         return {'framework': VERSION, 'registeredMods': len(self.registry.mods),
                 'performance': diagnostics.snapshot(), 'callbacks': callbacks.snapshot(),
                 'viewModel': 'active', 'game': getattr(self.api, 'client_version', ''),
@@ -170,7 +170,9 @@ class Presenter(object):
 
     def _on_manual_update(self, data, result):
         import BigWorld
+
         from driftkings.core.updater.endpoints import REPOSITORY
+
         # Fixed official page, never a URL supplied by the panel or a manifest.
         BigWorld.wg_openWebBrowser('https://github.com/' + REPOSITORY + '/releases')
 
@@ -385,8 +387,9 @@ class Presenter(object):
             self.profiles.delete(name)
         elif action == 'export':
             import json
-            from driftkings.settings.panel.storage import ConfigStore
             import os
+
+            from driftkings.settings.panel.storage import ConfigStore
             exported = self.profiles.export(self.session)
             ConfigStore(os.path.join(self.api.root, 'exports')).write('dk_settings_profile', exported)
             self.profile_text = json.dumps(exported, ensure_ascii=False, indent=2)

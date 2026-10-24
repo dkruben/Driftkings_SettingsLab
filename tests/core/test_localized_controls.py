@@ -15,6 +15,8 @@ class LocalizedControlTests(RuntimeTest):
                                ('driftkings.settings.definitions', 'settings/definitions')):
             sys.modules[name] = module(__path__=[os.path.join(CLIENT, relative)])
         self.defaults = self.load('settings.default_values').DEFAULTS
+        # Load bundled colours before installing the icon-directory-only ResMgr stub.
+        self.load('common.utils.color_rating_data')
         self.schema = self.load('settings.controls_schema')
         self.parser = self.load('core.locale_catalog').parse_catalog
         self.documents = {}

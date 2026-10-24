@@ -1,23 +1,13 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.battle.battle_preferences')
-import math
 from collections import defaultdict
 from functools import partial
+import math
 
-import CommandMapping
-import messenger.gui.Scaleform.view.battle.messenger_view as messenger_view
-from Avatar import PlayerAvatar
-from PlayerEvents import g_playerEvents
 from adisp import adisp_process
+from Avatar import PlayerAvatar
 from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
+import CommandMapping
 from comp7_core.gui.battle_control.controllers.sound_ctrls.comp7_battle_sounds import _EquipmentZoneSoundPlayer
-from gui.Scaleform.daapi.view.battle.shared.damage_log_panel import DamageLogPanel
-from gui.Scaleform.daapi.view.battle.shared.hint_panel import BattleHintPanel
-from gui.Scaleform.daapi.view.battle.shared.hint_panel import plugins as hint_plugins
-from gui.Scaleform.daapi.view.battle.shared.page import SharedPage
-from gui.Scaleform.daapi.view.battle.shared.stats_exchange import BattleStatisticsDataController
-from gui.Scaleform.daapi.view.battle.shared.timers_panel import TimersPanel
 from gui.battle_control.arena_info.arena_vos import VehicleTypeInfoVO
 from gui.battle_control.arena_visitor import _ClientArenaVisitor
 from gui.battle_control.battle_constants import VEHICLE_VIEW_STATE
@@ -26,19 +16,30 @@ from gui.battle_control.controllers.team_bases_ctrl import BattleTeamsBasesContr
 from gui.battle_results.components.common import ShowRateSatisfactionCmp
 from gui.doc_loaders import GuiColorsLoader
 from gui.game_control.special_sound_ctrl import SpecialSoundCtrl
+from gui.Scaleform.daapi.view.battle.shared.damage_log_panel import DamageLogPanel
+from gui.Scaleform.daapi.view.battle.shared.hint_panel import BattleHintPanel
+from gui.Scaleform.daapi.view.battle.shared.hint_panel import plugins as hint_plugins
+from gui.Scaleform.daapi.view.battle.shared.page import SharedPage
+from gui.Scaleform.daapi.view.battle.shared.stats_exchange import BattleStatisticsDataController
+from gui.Scaleform.daapi.view.battle.shared.timers_panel import TimersPanel
 from gui.shared.gui_items.processors.vehicle import VehicleAutoBattleBoosterEquipProcessor
 from messenger.gui.Scaleform.data.contacts_data_provider import _ContactsCategories
+import messenger.gui.Scaleform.view.battle.messenger_view as messenger_view
 from messenger.storage import MessengerStorageDescriptor, UsersStorage
+from PlayerEvents import g_playerEvents
 
 from driftkings._constants import BATTLE_PREFERENCES, GLOBAL
-from driftkings.common.utils.wgutils import getPlayer, square_position, isReplay
+from driftkings.common.utils.wgutils import getPlayer, isReplay, square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.fog_package import FogPackageController
 from driftkings.core.hooks import override
+from driftkings.logger import get_logger
+from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
 from driftkings.views.battle.debug_panel import DebugPanelView
-from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings as Settings
+
+LOG = get_logger('driftkings.battle.battle_preferences')
 
 _cache = set()
 config = Settings()

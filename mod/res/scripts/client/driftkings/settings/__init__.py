@@ -14,8 +14,9 @@ class SettingsService(object):
     def start(self):
         if self.active:
             return
-        from driftkings.settings.profiles import ProfileSettings
         from helpers import getClientLanguage, getClientVersion
+
+        from driftkings.settings.profiles import ProfileSettings
         self.registry.register(ProfileSettings(settings_loader, getClientLanguage()))
         from driftkings.settings.panel import settings
         from driftkings.settings.panel.sections import SectionPanelBinding

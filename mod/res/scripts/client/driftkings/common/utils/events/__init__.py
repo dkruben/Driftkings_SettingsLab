@@ -23,5 +23,6 @@ class ModEvent(object):
         return result
 
 
-from driftkings.common.utils.events import player_avatar, lobby_view, login_view
+from driftkings.common.utils.events import lobby_view, login_view, player_avatar
+
 PlayerAvatar, LobbyView, LoginView = player_avatar, lobby_view, login_view

@@ -15,14 +15,14 @@ import time
 import uuid
 
 try:
-    from Queue import Queue, Empty, Full
+    from Queue import Empty, Full, Queue
     import urllib2 as http
 except ImportError:
     from queue import Queue, Empty, Full
     import urllib.request as http
 
 from driftkings import VERSION
-from driftkings.logger import NAMESPACE, get_logger
+from driftkings.logger import get_logger, NAMESPACE
 
 LOG = get_logger('Driftkings.Analytics')
 
@@ -77,6 +77,7 @@ def default_environment():
         pass
     try:
         from helpers import getClientVersion
+
         from driftkings.core.updater.versioning import normalize_game_version
         version = normalize_game_version(getClientVersion())
         if version:

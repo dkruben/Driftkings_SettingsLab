@@ -1,32 +1,34 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.battle.aiming_reticles')
+from account_helpers.settings_core.settings_constants import GRAPHICS, SPGAim
+import aih_constants
+from aih_constants import CTRL_MODE_NAME, GUN_MARKER_FLAG, GUN_MARKER_TYPE
 import AvatarInputHandler
+from AvatarInputHandler.gun_marker_ctrl import _SPGGunMarkerController
 import BattleReplay
 import BigWorld
-import Math
-import VehicleGunRotator
-import aih_constants
-from account_helpers.settings_core.settings_constants import GRAPHICS, SPGAim
-from aih_constants import CTRL_MODE_NAME, GUN_MARKER_FLAG, GUN_MARKER_TYPE
-from AvatarInputHandler.gun_marker_ctrl import _SPGGunMarkerController
 from constants import AIMING_MODE, ARENA_PERIOD, SERVER_TICK_LENGTH
+from gui.battle_control.battle_constants import CROSSHAIR_VIEW_ID
 from gui.Scaleform.daapi.view.battle.shared import SharedPage
 from gui.Scaleform.daapi.view.battle.shared.crosshair import CrosshairPanelContainer, gm_factory
-from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_components import DefaultGunMarkerComponent, SPGGunMarkerComponent
-from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_components import GunMarkersComponents
+from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_components import (DefaultGunMarkerComponent,
+                                                                            GunMarkersComponents, SPGGunMarkerComponent)
 from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_factory import _GunMarkersFactory
-from gui.Scaleform.daapi.view.battle.shared.crosshair.plugins import _SETTINGS_KEYS, _SETTINGS_VIEWS, _SETTINGS_KEY_TO_VIEW_ID
+from gui.Scaleform.daapi.view.battle.shared.crosshair.plugins import (_SETTINGS_KEY_TO_VIEW_ID, _SETTINGS_KEYS,
+                                                                      _SETTINGS_VIEWS)
 from gui.Scaleform.genConsts.GUN_MARKER_VIEW_CONSTANTS import GUN_MARKER_VIEW_CONSTANTS
-from gui.battle_control.battle_constants import CROSSHAIR_VIEW_ID
 from helpers import dependency
+import Math
 from skeletons.account_helpers.settings_core import ISettingsCache, ISettingsCore
+import VehicleGunRotator
 
 from driftkings._constants import AIMING_RETICLES, GLOBAL
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
-from driftkings.settings.service import settings_service, affects
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.aiming_reticles import AimingReticlesSettings as Settings
+from driftkings.settings.service import affects, settings_service
+
+LOG = get_logger('driftkings.battle.aiming_reticles')
 
 CUSTOM_ARCADE_GUN_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.ARCADE_GUN_MARKER_NAME + '-SERVER'
 CUSTOM_SNIPER_GUN_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.SNIPER_GUN_MARKER_NAME + '-SERVER'

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.core.player_ratings')
+from contextlib import closing
 import json
 import math
+from Queue import Empty, Queue
 import re
 import string
 import threading
 import time
 import urllib
 import urllib2
-from contextlib import closing
-from Queue import Queue, Empty
 from xml.sax.saxutils import escape
 
 from gui.battle_control.arena_info.interfaces import IArenaVehiclesController
@@ -23,11 +21,14 @@ from messenger import g_settings
 from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import GLOBAL, TEAM_PANELS
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.common.utils.colorratting import getStatisticColor
+from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import calculateXvmScale, getVehicleInfoData, scaleValuesInstance
+
+LOG = get_logger('driftkings.core.player_ratings')
 
 MISSING = u'\u2014'
 # Accounts with no usable answer (closed profiles, API errors) are retried at this pace.

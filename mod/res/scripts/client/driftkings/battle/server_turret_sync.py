@@ -9,7 +9,7 @@ from driftkings._constants import GLOBAL, SERVER_TURRET_SYNC
 from driftkings.common.utils import events
 from driftkings.common.utils.game import sendPanelMessage
 from driftkings.core.callbacks import callback
-from driftkings.core.hooks import override, on_event
+from driftkings.core.hooks import on_event, override
 from driftkings.settings.definitions.battle.server_turret_sync import ServerTurretSyncSettings as Settings
 from driftkings.settings.service import settings_service
 

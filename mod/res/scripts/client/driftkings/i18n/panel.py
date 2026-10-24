@@ -5,11 +5,12 @@ Add a text/<code>.yml resource and register it in driftkings.locale_support.
 Optional overrides: <config root>/locales/<code>.json (strings only).
 """
 import json
-from driftkings.logger import get_logger
 import os
 
 from driftkings.i18n.resources import resources
-from driftkings.locale_support import LANGUAGES, language_code as normalize
+from driftkings.locale_support import language_code as normalize
+from driftkings.locale_support import LANGUAGES
+from driftkings.logger import get_logger
 
 logger = get_logger('driftkings.i18n.panel')
 try:

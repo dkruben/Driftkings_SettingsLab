@@ -2,13 +2,11 @@
 import math
 
 __all__ = ('color_tables', 'getRatingColors', 'getColor', 'getStatisticColor',
-           'getRatingPaletteColor', 'getComparisonColor', 'getMoeDamageColor')
+           'getRatingPaletteColor', 'getComparisonColor', 'getMoeDamageColor', 'getRelativePerformanceColor')
 
 
 # color_tables stays importable from here for the settings definitions (checked by tests/core/test_colors.py).
-from driftkings.common.utils.color_rating_data import (
-    MOE_LEVELS, color_tables,
-)
+from driftkings.common.utils.color_rating_data import color_tables, MOE_LEVELS
 
 
 def getRatingColors(index=0):
@@ -95,6 +93,18 @@ def getComparisonColor(value, reference, index=0):
     except (TypeError, ValueError, OverflowError):
         difference = None
     return getStatisticColor('diff', difference, index)
+
+
+def getRelativePerformanceColor(value, reference, index=0):
+    """Compare against a positive expected value using the Driftkings ratio scale."""
+    ratio = None
+    try:
+        reference = float(reference)
+        if reference > 0 and not math.isinf(reference):
+            ratio = float(value) / reference
+    except (TypeError, ValueError, OverflowError):
+        pass  # Missing or invalid statistics use the palette's no-data colour.
+    return getStatisticColor('relativePerformance', ratio, index)
 
 
 def getMoeDamageColor(damage, targets, index=0):

@@ -4,12 +4,13 @@
 The window logic lives in driftkings.settings.panel.presenter; this module only moves JSON
 between the Wulf view models and the presenter.
 """
-import BigWorld
-import Keys
 import json
-from frameworks.wulf import ViewModel, ViewSettings, ViewFlags, WindowFlags, WindowLayer
+
+import BigWorld
+from frameworks.wulf import ViewFlags, ViewModel, ViewSettings, WindowFlags, WindowLayer
 from gui.impl.pub import ViewImpl
 from gui.impl.pub.window_impl import WindowImpl
+import Keys
 from skeletons.gui.app_loader import GuiGlobalSpaceID
 
 from driftkings.core.keyboard import keyboard

@@ -75,7 +75,7 @@ class MinimapPolicyTests(RuntimeTest):
         data = self.load('common.utils.color_rating_data')
         for key, table in (('system', data.system_colors), ('vtype', data.vehicle_type_colors),
                            ('totalHP', data.total_hp_colors), ('damage', data.damage_colors)):
-            self.assertTrue(data.noob_meter_colors[key] is data.xvm_colors[key] is data.wot_labs_colors[key] is table, key)
+            self.assertTrue(data.noob_meter_colors[key] is data.xvm_colors[key] is data.wot_life_colors[key] is table, key)
 
     def test_dead_and_lost_options_are_validated(self):
         for section, key, value in (('icons', 'deadAlpha', 150), ('lostMarker', 'desaturate', -1),

@@ -7,7 +7,7 @@ read at registration, the interface language is resolved when the game starts it
 from driftkings.i18n import panel as locales
 from driftkings.settings.panel import logger
 from driftkings.settings.panel.registry import ModRegistry
-from driftkings.settings.panel.storage import ConfigStore, ConfigReadError
+from driftkings.settings.panel.storage import ConfigReadError, ConfigStore
 
 CONFIG_ROOT = './mods/configs/driftkings/.settings'
 

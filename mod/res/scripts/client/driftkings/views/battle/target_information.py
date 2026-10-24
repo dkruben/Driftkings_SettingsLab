@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import TARGET_INFORMATION
+
 """Presentation adapter for InfoPanel; gameplay state stays in its component."""
-from driftkings.settings.service import settings_service, affects
-import GUI
+from importlib import import_module
 import re
 from xml.sax.saxutils import escape
-from driftkings.core.overlay import overlays
-from driftkings.core.overlay import ElementType, Align
-from gui import g_guiResetters
+
 from helpers import dependency
 from skeletons.account_helpers.settings_core import ISettingsCore
 
-from importlib import import_module
+from driftkings.core.overlay import Align, ElementType, overlays
+from driftkings.settings.service import affects, settings_service
+import GUI
+from gui import g_guiResetters
 
 
 def _component():

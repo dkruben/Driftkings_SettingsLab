@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.views.hangar.battle_performance_hooks')
 from driftkings._constants import BATTLE_PERFORMANCE, GLOBAL
+from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
+
+LOG = get_logger('driftkings.views.hangar.battle_performance_hooks')
 """Presentation adapter for BattleEfficiency; gameplay state stays in its component."""
+from importlib import import_module
 import re
+
 from constants import ARENA_BONUS_TYPE
 from gui.Scaleform.daapi.view.battle_results_window import BattleResultsWindow
+
 from driftkings.common.utils.formatting import replaceMacros
 from driftkings.core.hooks import override
-
-from importlib import import_module
 
 
 def _component():

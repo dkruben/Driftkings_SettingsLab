@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import HANGAR_MARKS_OF_EXCELLENCE
-from driftkings.settings.controls_schema import control, metadata, options, slider, field
+from driftkings.common.utils.colorratting import color_tables
+from driftkings.settings.controls_schema import control, field, metadata, options, slider
 from driftkings.settings.definitions.base import SectionDefinition
 
 
@@ -18,14 +19,14 @@ class HangarMarksOfExcellenceSettings(SectionDefinition):
 
     def getControlColumns(self):
         x_color_key = 'UI_setting_colorRating_'
-        x_color_list = ('NoobMeter', 'XVM', 'WotLabs')
+        x_color_list = [table['ScaleColor'] for table in color_tables]
         return (
             [
                 control(HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR),
                 control(HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC),
                 options(HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION, [self.i18n['UI_panel_' + key] for key in ('automatic', 'goal1', 'goal2', 'goal3')]),
                 control(HANGAR_MARKS_OF_EXCELLENCE.COMPACT_MODE),
-                options(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, [self.i18n[x_color_key + x] for x in x_color_list])
+                options(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, [self.i18n.get(x_color_key + x, x) for x in x_color_list])
             ],
             [
                 control(HANGAR_MARKS_OF_EXCELLENCE.SHOW_TOOLTIP_TARGETS),

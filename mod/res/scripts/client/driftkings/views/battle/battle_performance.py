@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import BATTLE_PERFORMANCE
-from driftkings.settings.service import settings_service, affects
+from driftkings.settings.service import affects, settings_service
+
 """Presentation adapter for BattleEfficiency; gameplay state stays in its component."""
 
 
+from importlib import import_module
+
 from driftkings.core.overlay import overlays
 from driftkings.views.battle.label import CachedBattleLabel
-from importlib import import_module
 
 
 def _component():

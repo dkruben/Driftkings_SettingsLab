@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Presentation adapter for DispersionTimer; gameplay state stays in its component."""
-from driftkings.logger import get_logger
-LOG = get_logger('driftkings.views.battle.aiming_countdown')
 from collections import defaultdict
 from math import ceil, log
 
@@ -12,7 +10,10 @@ from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import AIMING_COUNTDOWN
 from driftkings.core.battle_events import battleEvents
+from driftkings.logger import get_logger
 from driftkings.meta.battle.dispersion_timer import DispersionTimerMeta
+
+LOG = get_logger('driftkings.views.battle.aiming_countdown')
 
 
 class DispersionTimer(DispersionTimerMeta):
