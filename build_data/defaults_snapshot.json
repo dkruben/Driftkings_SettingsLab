@@ -199,7 +199,7 @@
     {
       "path": "default/team_panels/playerspanel.json",
       "source_sha256": "6ade42b4be21bcf9e5d385bf88e72b2d56429486a25442d9f39fa0d6040af73a",
-      "sha256": "0537969432640b4efd092a036a0d605508768151baf7f9a2018b4523a7cc36e3"
+      "sha256": "758d890c53b92a49c72649f5907a67407a3089103f0244b478be7bc1628a769b"
     },
     {
       "path": "default/team_panels/statisticform.json",
@@ -235,6 +235,41 @@
       "path": "default/vehicle_health.json",
       "source_sha256": "645517d8333109cfabb14e2a73405d77affe459611bb55a2ebddfbe323de3e22",
       "sha256": "c613427fa69c26a1cca0e5b48c181395d9b4375654d0106514082434d319c15a"
+    },
+    {
+      "path": "default/vehicle_markers/colors.json",
+      "source_sha256": "c2464aabdf2329bf41c2d3d6bf990f65ef8a8c0c1e6e7f724aae04c60605304d",
+      "sha256": "b525ea2229d02ad4610a70f797747a5acb756bec717100f14dc52176d9d9daa5"
+    },
+    {
+      "path": "default/vehicle_markers/damage.json",
+      "source_sha256": "597c062a474df4059350e2c56da051dd292899fb6cc3ad26260551377ff1f791",
+      "sha256": "91fea9ee750c0513aeba6a4ba9b478bfe33f42d9ec12bea9fe4fc58d82a741b6"
+    },
+    {
+      "path": "default/vehicle_markers/fields.json",
+      "source_sha256": "4ff160f06443960b9b879ab4523256a5e73b69ee4db46b8153aabcb9deda5d1b",
+      "sha256": "4ff160f06443960b9b879ab4523256a5e73b69ee4db46b8153aabcb9deda5d1b"
+    },
+    {
+      "path": "default/vehicle_markers/general.json",
+      "source_sha256": "53900a140a4c4006b4fd24d480fb85bdba0a4dab7e1579ae2df8aa1593e55b87",
+      "sha256": "c3e3aaba199c0e8692e38994b46128fe1797b0ab6e45ee809d2184519f3b01e4"
+    },
+    {
+      "path": "default/vehicle_markers/healthbar.json",
+      "source_sha256": "fe3b66c2c6ffa26b4806a917cb5f6a9839e7673dab308d9ab056f54e75bab21c",
+      "sha256": "fe3b66c2c6ffa26b4806a917cb5f6a9839e7673dab308d9ab056f54e75bab21c"
+    },
+    {
+      "path": "default/vehicle_markers/icons.json",
+      "source_sha256": "e6b705e15e77dbeed60bafca457f7bac8bd13e2b977c843e82c315a91a22d8ba",
+      "sha256": "e6b705e15e77dbeed60bafca457f7bac8bd13e2b977c843e82c315a91a22d8ba"
+    },
+    {
+      "path": "default/vehicle_markers/markers.json",
+      "source_sha256": "cbd68f324f4a19977bb47ac623c3b694e554b49e56a56346437697eda45f29df",
+      "sha256": "cbd68f324f4a19977bb47ac623c3b694e554b49e56a56346437697eda45f29df"
     },
     {
       "path": "load.json",

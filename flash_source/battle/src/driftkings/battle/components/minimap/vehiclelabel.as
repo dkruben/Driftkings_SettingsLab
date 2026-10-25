@@ -38,6 +38,13 @@ package driftkings.battle.components.minimap
             return uint(parseInt(value.replace(/^#|^0x/i, ""), 16));
         }
 
+        public static function nativeColor(data:Object):Number
+        {
+            return App.colorSchemeMgr.getRGB(VehicleMinimapEntryConst.TEXT_COLOR_SCHEME_PREFIX +
+                String(data.guiLabel ? data.guiLabel : (data.group == "squad" ? "squadman" : data.group)) +
+                VehicleMinimapEntryConst.TEXT_COLOR_SCHEME_POSTFIX);
+        }
+
         public function update(data:Object, options:Object, native:TextField):void
         {
             if (!data || !native) { visible = false; return; }
@@ -47,9 +54,13 @@ package driftkings.battle.components.minimap
             // Own colours first, then the shared team scheme (per group and state), then the client's.
             var color:uint = labels.customColors ? parseColor(labels[(data.state == "dead" ? "dead" : data.group) + "Color"]) :
                 labels.teamColors && data.color ? parseColor(String(data.color)) :
-                App.colorSchemeMgr.getRGB(VehicleMinimapEntryConst.TEXT_COLOR_SCHEME_PREFIX +
-                    String(data.guiLabel ? data.guiLabel : (data.group == "squad" ? "squadman" : data.group)) +
-                    VehicleMinimapEntryConst.TEXT_COLOR_SCHEME_POSTFIX);
+                nativeColor(data);
+            // Enemy names/HP must follow the native accessible palette, including lost positions.
+            if (options.colorBlind && data.group == "enemy" && data.state != "dead")
+            {
+                var accessible:Number = nativeColor(data);
+                if (!isNaN(accessible)) color = uint(accessible);
+            }
             if (previous != data || settings != options || previousColor != color)
             {
                 previous = data; settings = options; previousColor = color;

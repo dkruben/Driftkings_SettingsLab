@@ -7,7 +7,7 @@ from driftkings.core.panel_macros import partition
 KNOWN=set(('name nick clan clannb veh-id vehicle vehicle-short vehiclename level rlevel vtype vtype-key vtype-l nation '
            'premium special alive ally player anonym ready hp hp-max spotted c:spotted a:spotted c:system sys-color-key '
            'xvm-stat stat-color pp.mode pp.widthLeft pp.widthRight squad-num rankBadgeId bp-stage tk squad selected friend ignored '
-           'muted chatban hasBadges r xr r_size kb t-kb t-hb frags region battletype-key wins battles winrate wn8 eff wgr '
+           'muted chatban hasBadges r xr r_size kb t-kb t-hb frags region colorblind battletype-key wins battles winrate wn8 eff wgr '
            'xwn8 xeff xwgr xwr tdv tdb tfb tsb t-battles t-winrate t-wins').split())
 
 def macro_issues(text,config):

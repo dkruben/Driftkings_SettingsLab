@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+"""Standalone floating damage text schema."""
+import copy
+
+from driftkings.core.vehicle_markers.colors import color
+from driftkings.core.vehicle_markers.fields import DEFAULTS
+from driftkings.core.vehicle_markers.fields import normalize as normalize_fields
+from driftkings.core.vehicle_markers.fields import number
+
+DEFAULTS_DAMAGE = {'enabled': False, 'duration': 2, 'rise': 40, 'maxCount': 4,
+                  'format': "<font size='18' color='{{c:dmg}}'><b>-{{dmg}}</b></font>",
+                  'x': -100, 'y': -95, 'width': 200, 'height': 30,
+                  'colors': {'player': '#FFDD66', 'squad': '#FFAA44', 'other': '#FFFFFF'}}
+
+
+def normalize(options):
+    allowed = set(DEFAULTS) | set(('duration', 'rise', 'maxCount', 'colors'))
+    if not isinstance(options, dict) or set(options) - allowed:
+        raise ValueError('Invalid damageText options')
+    result = copy.deepcopy(DEFAULTS_DAMAGE)
+    result.update(options)
+    number(result['duration'], .1, 10)
+    number(result['rise'], 0, 300)
+    if type(result['maxCount']) is not int or not 1 <= result['maxCount'] <= 12:
+        raise ValueError('damageText.maxCount must be an integer from 1 to 12')
+    colors = options.get('colors', {})
+    if not isinstance(colors, dict) or set(colors) - set(DEFAULTS_DAMAGE['colors']):
+        raise ValueError('Invalid damageText colors')
+    result['colors'] = copy.deepcopy(DEFAULTS_DAMAGE['colors'])
+    result['colors'].update(colors)
+    for value in result['colors'].values(): color(value)
+    style = dict((key, result[key]) for key in DEFAULTS if key in result)
+    normalized = normalize_fields({'enabled': True, 'ally': {'normal': [style]}}, ('dmg', 'c:dmg'))
+    result.update(normalized['ally']['normal'][0])
+    return result

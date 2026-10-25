@@ -14,6 +14,10 @@ class Node {
     }
     get children() { return this.childNodes; }
     get firstChild() { return this.childNodes[0] || null; }
+    get lastChild() { return this.childNodes[this.childNodes.length - 1] || null; }
+    contains(other) { return other === this || this.childNodes.some(child => child.contains(other)); }
+    remove() { if (this.parentNode) { this.parentNode.removeChild(this); } }
+    querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
     get textContent() { return this._text + this.childNodes.map(child => child.textContent).join(''); }
     set textContent(value) { this._text = String(value); this.childNodes.forEach(child => { child.parentNode = null; }); this.childNodes = []; }
     get tabIndex() { return this._tabIndex === undefined ? (/^(BUTTON|INPUT|TEXTAREA)$/.test(this.tagName) ? 0 : -1) : this._tabIndex; }
@@ -74,7 +78,7 @@ vm.createContext(context);
 const catalog = fs.readFileSync(path.join(root, 'mod/res/scripts/client/driftkings/interface_catalog.py'), 'utf8');
 const scripts = catalog.match(/settings_window\/js\/[a-z_]+\.js/g).map(name => name.split('/').pop());
 assert.deepStrictEqual(scripts, ['bridge.js', 'colors.js', 'modal.js', 'dom.js', 'control_kit.js', 'color_picker.js',
-    'controls.js', 'theme.js', 'updater_panel.js', 'profile_dialogs.js', 'app.js']);
+    'controls.js', 'theme.js', 'updater_panel.js', 'profile_dialogs.js', 'vehicle_markers_model.js', 'vehicle_markers_editor.js', 'app.js']);
 const html = fs.readFileSync(path.join(jsRoot, '..', 'window.html'), 'utf8');
 assert.deepStrictEqual(html.match(/js\/[a-z_]+\.js/g).map(name => name.slice(3)), scripts);
 scripts.filter(name => name !== 'bridge.js').forEach(name => {
@@ -162,6 +166,40 @@ DK.profileDialogs.close();
 assert(!DK.profileDialogs.isOpen());
 window_.querySelectorAll('.dk-installed-button')[0].fire('click');
 assert(DK.profileDialogs.isOpen());
+
+// Integrated editor uses the same controls and sends JSON drafts through the normal session.
+const markerValues = {enabled: true, debug: false};
+['general','markers','fields','colors','healthbar','damage','icons'].forEach(name => {
+    Object.assign(markerValues, JSON.parse(fs.readFileSync(path.join(root, 'res/configs/driftkings/default/vehicle_markers', name + '.json'), 'utf8')));
+});
+const markerBindings = {}, markerState = {}, markerCommits = [];
+['enabled','debug','markers','customFields','colors','healthBar','damageText','icons'].forEach(key => {
+    markerBindings[key] = key;
+    markerState[key] = typeof markerValues[key] === 'boolean' ? markerValues[key] : JSON.stringify(markerValues[key]);
+});
+const markerHost = new Node('div');
+const markerEditor = DK.vehicleMarkersEditor.create(markerHost, {preview: {labels:{},bindings:markerBindings,tank:'sample.png'}}, {
+    labels:{on:'On',off:'Off'},commit(key,value) { markerCommits.push([key,value]); }
+});
+markerEditor.update(markerState);
+assert.strictEqual(markerHost.querySelector('.dk-vm-tank').src, 'sample.png');
+assert(markerHost.querySelectorAll('.dk-vm-text').length > 0);
+const originalFieldCount = markerHost.querySelectorAll('.dk-vm-text').length;
+markerHost.querySelectorAll('button').find(node => node.textContent === 'add').fire('click');
+assert.strictEqual(markerHost.querySelectorAll('.dk-vm-text').length, originalFieldCount + 1);
+assert.strictEqual(markerCommits[0][0], 'customFields');
+const formatInput = markerHost.querySelector('textarea');
+formatInput.value = '<b>{{vehicle}} {{hp}}</b>';
+formatInput.fire('input');
+assert.strictEqual(markerCommits.length, 1, 'typing previews without persisting');
+formatInput.fire('blur');
+assert.strictEqual(JSON.parse(markerCommits[1][1]).enemy.normal.slice(-1)[0].format, formatInput.value);
+markerHost.querySelectorAll('button').find(node => node.textContent === 'healthBar').fire('click');
+assert(markerHost.querySelectorAll('.dk-row').some(node => node.getAttribute('data-property') === 'healthBar.color'));
+markerHost.querySelector('.dk-vm-actions').querySelectorAll('button').find(node => node.textContent === 'damage').fire('click');
+assert(markerHost.querySelector('.dk-vm-damage'));
+markerEditor.dispose();
+assert.strictEqual(markerHost.children.length, 0);
 
 DK.app.dispose();
 assert(!DK.profileDialogs.isOpen() && !DK.modal.isOpen() && !DK.layer.isOpen());

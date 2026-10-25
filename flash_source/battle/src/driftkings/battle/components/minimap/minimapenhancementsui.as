@@ -92,6 +92,7 @@ package driftkings.battle.components.minimap
         private function refresh(event:TimerEvent = null):void
         {
             if (!minimap || !minimap.visible || !options || !options.enabled) return;
+            options.colorBlind = App.colorSchemeMgr.getIsColorBlindS();
             labels.removeDetached();
             layer.removeDetached();
             mapSize.position(minimap, options);

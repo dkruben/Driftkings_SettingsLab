@@ -46,7 +46,7 @@
       "bindToIcon": true,
       "enabled": "{{hp>0?true|false}}",
       "height": 14,
-      "src": "img://gui/maps/driftkings/playerpanelpro/hp/hp_alive_{{ally?l|r}}.png",
+      "src": "img://gui/maps/driftkings/playerpanelpro/hp/hp_alive_{{ally?l|{{colorblind?r_cb|r}}}}.png",
       "width": "{{hp-ratio:72}}",
       "x": "{{ally?75|79}}",
       "y": 3

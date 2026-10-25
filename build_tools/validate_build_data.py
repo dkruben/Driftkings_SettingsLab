@@ -4,6 +4,7 @@ import ast
 import fnmatch
 import hashlib
 import json
+import re
 from pathlib import Path, PurePosixPath
 import zipfile
 
@@ -247,6 +248,11 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                 path = input_path(library_manifest.parent, library['name'])
                 require(hashlib.sha256(path.read_bytes()).hexdigest().lower() == library['sha256'].lower(),
                         'Flash library hash mismatch: %s' % library['name'])
+        elif spec['kind'] == 'vehicle_markers':
+            require(input_path(root, spec['entrypoint']).is_file(), 'Missing vehicle marker Flash source')
+            lock = read_json(input_path(root, spec['lock']))
+            require(lock['gameVersion'] == config['game']['version'], 'Vehicle marker version mismatch')
+            require(re.match(r'^[a-f0-9]{64}$', lock['sha256']), 'Invalid marker movie digest')
         elif spec['kind'] == 'gameface_patch':
             require(spec['implementation'] == 'replace_exact', 'Unsupported patch implementation')
             patch = read_json(input_path(root, spec['patch_file']))

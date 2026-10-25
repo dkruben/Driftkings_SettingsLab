@@ -163,6 +163,7 @@
 
     function renderMod(modId) {
         lastFilter = null;
+        if (ui.markerEditor) { ui.markerEditor.dispose(); ui.markerEditor = null; }
         DK.layer.cancelDrags(); DK.layer.close(); DK.layer.hideTip();
         Object.keys(controls).forEach(function (key) { if (controls[key].dispose) { controls[key].dispose(); } });
         controls = {}; rendered = modId; activeTab = '';
@@ -196,6 +197,11 @@
             capture: function (key) { send('capture', {mod: modId, key: key}); },
             action: function (key) { send('button', {mod: modId, key: key}); }
         };
+        if (mod.preview && mod.preview.kind === 'vehicleMarkers' && DK.vehicleMarkersEditor) {
+            ui.markerEditor = DK.vehicleMarkersEditor.create(ui.controls, mod, context);
+            filter(); ui.controls.scrollTop = 0;
+            return;
+        }
         var columns = null, tabs = [];
         mod.controls.forEach(function (def) {
             var control = DK.controls.create(def, context);
@@ -298,6 +304,7 @@
             if (Object.prototype.hasOwnProperty.call(values, key)) { control.update(values[key]); }
             if (control.previewUpdate) { control.previewUpdate((state.previews || {})[key] || ''); }
         });
+        if (ui.markerEditor) { ui.markerEditor.update(values); }
         Object.keys(ui.nav).forEach(function (id) {
             var item = ui.nav[id];
             setClass(item, 'is-selected', id === modId);
@@ -434,6 +441,7 @@
     function showProfiles() { DK.profileDialogs.profiles(dialogContext()); }
 
     function dispose() {
+        if (ui.markerEditor) { ui.markerEditor.dispose(); ui.markerEditor = null; }
         if (disposed) { return; }
         disposed = true;
         if (toastTimer !== null) { clearTimeout(toastTimer); }

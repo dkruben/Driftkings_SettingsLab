@@ -339,7 +339,8 @@ class RatingViews(object):
         contexts={}
         ownID=getattr(player,'playerVehicleID',0)
         self.resolvedRows=0
-        shared=(ownID,getattr(player,'team',0),self.model.mode,self.model.widths,getattr(arena,'guiType',None),CURRENT_REALM,self.model.restricted,
+        colorblind=bool(getattr(self.view,'isColorBlind',lambda: False)())
+        shared=(colorblind,ownID,getattr(player,'team',0),self.model.mode,self.model.widths,getattr(arena,'guiType',None),CURRENT_REALM,self.model.restricted,
                 any(m.get('hasSelectedBadge') for m in self.model.metadata.values()))
         for ident,vehicle in arena.vehicles.items():
             stats=self.stats.getPlayersInfo(vehicle.get('accountDBID',0))
@@ -350,6 +351,7 @@ class RatingViews(object):
             cached=self.contextCache.get(ident)
             if cached is None or cached[0]!=stamp:
                 values=self.model.values(ident,vehicle,stats,ownID,getattr(player,'team',0),data,getStatisticColor)
+                values['colorblind']=colorblind
                 values['frags']=stamp[6]; values['region']=CURRENT_REALM; values['battletype-key']=getattr(arena,'guiType',None)
                 # Vehicle descriptors are engine objects; snapshot the mutable
                 # dictionaries, but keep the immutable descriptor by reference.

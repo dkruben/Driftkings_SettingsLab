@@ -4,6 +4,8 @@
 schema changes only when mods, controls or the language change; state changes on
 every edit, so the view can patch values without rebuilding the DOM.
 """
+import copy
+
 from driftkings.settings.panel import logger
 from driftkings.settings.panel.controls import resolve_text
 from driftkings.settings.panel.session import EditSession, SaveError
@@ -53,6 +55,10 @@ class Presenter(object):
                 'dependencies': self.registry.dependency_status(mod),
                 'controls': [control.describe(language) for control in mod.controls if control.visible],
             })
+        for item in mods:
+            preview = getattr(self.registry.mods[item['id']], 'preview', None)
+            if preview is not None:
+                item['preview'] = copy.deepcopy(preview)
         return {'language': language, 'labels': self.api.strings, 'mods': mods}
 
     def state(self):

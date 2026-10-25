@@ -78,6 +78,9 @@ class SectionPanelBinding(object):
         section, separator, block = key.partition(':')
         mod_id = 'legacy.' + previous_name(section) + separator + block
         mod = ModDefinition(mod_id, plain(data['title']), '', 'DriftKingsMods', '', 'puzzle', 1000, None)
+        mod.preview = copy.deepcopy(data.get('preview'))
+        if mod.preview is not None:
+            mod.preview['bindings'] = {}
         mod.category = section_category(config)
         mod.restart_key = key
         config = self.registry.entries[key][0]
@@ -154,6 +157,10 @@ class SectionPanelBinding(object):
                 value = data['values'][source]
                 if item.get('previewImage') or (isinstance(value, (str, text_type)) and value.lower().endswith(('.png', '.jpg', '.jpeg')) and '{{' not in value):
                     control.preview = {'kind': 'image'}
+            if item.get('maxLength') is not None:
+                control.max_length = item['maxLength']
+            if mod.preview is not None and source is not None:
+                mod.preview['bindings'][source] = control_id
             control.finalize()
             mod.controls.append(control)
             mod.index[control_id] = control
@@ -242,6 +249,7 @@ class SectionPanelBinding(object):
                 fresh = self.api.registry.mods[mod_id]
                 old.name = fresh.name
                 old.category = fresh.category
+                old.preview = copy.deepcopy(fresh.preview)
                 for control in old.controls:
                     updated = fresh.index.get(control.id)
                     if updated is not None:

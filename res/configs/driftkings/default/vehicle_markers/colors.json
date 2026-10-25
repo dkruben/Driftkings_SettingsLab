@@ -1,0 +1,11 @@
+{
+  "colors": {
+    "colorBlind": {
+      "enabled": true,
+      "team": {
+        "enemy": "#C48CFF",
+        "teamKiller": "#66CCFF"
+      }
+    }
+  }
+}

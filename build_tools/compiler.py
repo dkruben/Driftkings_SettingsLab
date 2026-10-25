@@ -147,6 +147,9 @@ def generate(root, config, plan, tools, run):
                         '-output=' + str(destination), str(input_path(root, spec['entrypoint']))]
             run_tool(command, run / 'logs' / (name + '.log'))
             validate_swf(destination.read_bytes())
+        elif spec['kind'] == 'vehicle_markers':
+            from build_tools.vehicle_markers import build as build_vehicle_markers
+            build_vehicle_markers(root, destination, spec, tools, config['game']['root'])
         elif spec['kind'] == 'gameface_patch':
             raw = None
             for package in spec['game_packages']:
@@ -369,7 +372,7 @@ def main():
     parser.add_argument('--game-root', help='Read-only game installation override')
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
     parser.add_argument('--plan', action='store_true', help='Display version, outputs and tool discovery without building')
-    for key in ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc'):
+    for key in ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home'):
         parser.add_argument('--' + key.replace('_', '-'), dest=key)
     args = parser.parse_args()
     try:

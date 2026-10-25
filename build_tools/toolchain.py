@@ -9,7 +9,7 @@ from build_tools.validate_build_data import read_json, require
 def discover(root, overrides):
     local = root / 'build_data/toolchain.local.json'
     settings = read_json(local) if local.exists() else {}
-    keys = ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc')
+    keys = ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home')
     require(not set(settings) - set(keys), 'Unknown local toolchain field')
 
     def configured(key):
@@ -45,11 +45,12 @@ def discover(root, overrides):
     java = Path(os.environ.get('ProgramFiles', 'C:/Program Files')) / 'Java'
     result['java'] = choose('java', sorted(java.glob('jre1.8*/bin/java.exe'), reverse=True) + [shutil.which('java')])
     result['csc'] = choose('csc', [Path(os.environ.get('WINDIR', 'C:/windows')) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'])
+    result['rabcdasm_home'] = choose('rabcdasm_home', [root.parent / 'WoT_Tools/xvm-master/src_build/bin/windows_i686/rabcdasm'], directory=True)
     return result
 
 
 def require_tools(tools):
     require(tools['python27'] or tools['hg'], 'Python 2.7 host missing; set --python27 or --hg')
-    for name in ('flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc'):
+    for name in ('flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home'):
         require(tools[name], 'Missing build dependency: %s; configure toolchain.local.json or --%s' % (name, name.replace('_', '-')))
     require((Path(tools['flex_home']) / 'frameworks/libs/framework.swc').is_file(), 'Missing Flex framework.swc')

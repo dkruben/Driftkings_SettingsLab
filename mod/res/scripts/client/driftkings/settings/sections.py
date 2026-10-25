@@ -2,7 +2,8 @@
 """Descriptive section names, with aliases for existing profiles and translations."""
 import re
 
-LEGACY_NAMES = {'AccountManager': 'account_manager',
+LEGACY_NAMES = {'VehicleMarkers': 'vehicle_markers',
+ 'AccountManager': 'account_manager',
  'AimingAngles': 'gun_traverse_limits',
  'ArcadeZoom': 'third_person_zoom',
  'ArmorCalculator': 'penetration_indicator',
@@ -67,7 +68,8 @@ PREVIOUS_SECTIONS = {'aiming_angles': 'gun_traverse_limits',
  'sixth_sense': 'sixth_sense_alert',
  'spotted_extended_light': 'enemy_spotting_status',
  'zoom_extended': 'sniper_camera'}
-COMPONENT_NAMES = {'AccountManager': 'account_manager',
+COMPONENT_NAMES = {'VehicleMarkers': 'vehicle_markers',
+ 'AccountManager': 'account_manager',
  'AimingCountdown': 'aiming_countdown',
  'AimingReticles': 'aiming_reticles',
  'ArtilleryBlastRadius': 'artillery_blast_radius',

@@ -89,9 +89,11 @@ class SettingsRegistry(object):
                 key = control['varName']
                 for source in (active, defaultValues):
                     source[key] = [list(group) if isinstance(group, (list, tuple)) else [group] for group in source[key]]
-        return {'id': modID, 'title': title, 'controls': controls,
-                'values': active, 'defaults': defaultValues,
-                'labels': dict(config.i18n)}
+        result = {'id': modID, 'title': title, 'controls': controls,
+                  'values': active, 'defaults': defaultValues, 'labels': dict(config.i18n)}
+        if hasattr(config, 'getPanelPreview'):
+            result['preview'] = config.getPanelPreview()
+        return result
 
     def catalog(self):
         return [{'id': key, 'title': key} for key in sorted(self.entries)]

@@ -523,3 +523,7 @@ class BATTLE_ALIASES(object):
 
 class PROFILE_RATINGS(object):
     NAME = 'profile_ratings'
+
+
+class VEHICLE_MARKERS(object):
+    NAME = "vehicle_markers"

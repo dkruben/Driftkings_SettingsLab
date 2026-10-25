@@ -7,6 +7,8 @@ This guide explains how the code is organised and how to make a change safely. F
 - **Client scripts run on Python 2.7** (the World of Tanks client). Write code that is valid on both 2.7 and 3: no f-strings, no type hints, no `nonlocal`, no keyword-only arguments. CI parses every client source with Python 2.7.
 - **Keep Python imports alphabetical in three groups**, separated by a blank line: Python standard libraries, game libraries, then Driftkings modules. Keep conditional and local imports in their existing execution scope. Run `python -m isort mod/res/scripts/client` to apply the client configuration, or add `--check-only` to check it.
 - **Gameface JavaScript is ES5.** `npm run lint` enforces this.
+- Vehicle markers build from a SHA-256-pinned native movie. Configure RABCDAsm with
+  `DK_RABCDASM_HOME` or `--rabcdasm-home`; see `flash_source/vehicle_markers/README.md`.
 - **Use `logging`, never `print`.** Import `get_logger` from `driftkings.logger` and declare `LOG = get_logger('Driftkings.<Area>')`. The shared factory preserves client-owned handlers and output. Use `LOG.exception(...)` inside `except` blocks so the traceback reaches the game log.
 - **Do not swallow exceptions silently.** Catch the narrowest exception type, and either log it or explain in a comment why ignoring it is correct.
 - Prefer **pure, engine-free modules** for logic (see `core/gun_stats.py`, `core/carousel*.py`, `core/high_caliber.py`). They can be tested without the game.
@@ -185,3 +187,14 @@ The existing statistics worker refreshes the public https://tomato.gg/wnx page u
 Tests include golden outputs generated from the publisher's executable JavaScript calculator and HSL colour functions, plus native battle/results, vehicle dossier and cache-preservation coverage. Default templates for new installs include WNX. Existing custom templates are preserved; add the WNX macros explicitly to display it there.
 
 The minimap `mapSize` caption uses HTML in `format` (including font size and colour), percentage `alpha`, `offsetX`/`offsetY` relative to the native map origin, and fixed `width`/`height` in pixels. Its `shadow` object accepts `enabled`, `distance`, `angle`, `color`, percentage `alpha`, `blur` and `strength`. Negative offsets are supported. Legacy `fontSize`/`color` and `x`/`y` are converted on load. Macros `{{width}}`, `{{height}}` and `{{cellsize}}` still expand in the HTML.
+
+The minimap checks the native colorblind flag on its refresh and uses the native enemy text
+scheme for enemy names/HP and lost-position tint when enabled. Normal and destroyed colours
+keep their configured behaviour. Roster templates expose `{{colorblind}}` (boolean), usable
+inside conditions; toggling the game option invalidates the affected cached outputs.
+An alternative HP image can be selected, for example:
+`img://gui/maps/driftkings/playerpanelpro/hp/hp_alive_{{ally?l|{{colorblind?r_cb|r}}}}.png`.
+The shipped `hp_alive_r_cb.png` is selected only for enemy rows in colorblind mode.
+The normal left/right images remain selected otherwise. The author supplied all three
+HP textures at 72 x 24 pixels; their displayed height remains 14 pixels as requested.
+The HP background and positioning remain the existing configuration.

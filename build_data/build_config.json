@@ -158,6 +158,12 @@
       "implementation": "replace_exact",
       "required": true,
       "patch_file": "build_data/patches/crew_tooltip_2.4.1.json"
+    },
+    "vehicle_markers_flash": {
+      "kind": "vehicle_markers",
+      "entrypoint": "flash_source/vehicle_markers/DriftkingsVehicleMarkersFlash.as",
+      "lock": "flash_source/vehicle_markers/native-lock.json",
+      "output": "build/flash/driftkings_vehicle_markers.swf"
     }
   }
 }

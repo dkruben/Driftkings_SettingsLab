@@ -726,6 +726,27 @@
           "generator": null
         }
       ]
+    },
+    "vehicle_markers": {
+      "kind": "feature",
+      "enabled": true,
+      "entrypoint": "battle.vehicle_markers",
+      "config_files": [
+        "default/vehicle_markers/general.json",
+        "default/vehicle_markers/markers.json",
+        "default/vehicle_markers/fields.json",
+        "default/vehicle_markers/colors.json",
+        "default/vehicle_markers/healthbar.json",
+        "default/vehicle_markers/damage.json",
+        "default/vehicle_markers/icons.json"
+      ],
+      "assets": [
+        {
+          "source": "build/flash/driftkings_vehicle_markers.swf",
+          "target": "res/gui/flash/battleVehicleMarkersApp.swf",
+          "generator": "vehicle_markers_flash"
+        }
+      ]
     }
   }
 }

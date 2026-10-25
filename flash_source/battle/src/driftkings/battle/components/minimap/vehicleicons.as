@@ -33,13 +33,19 @@ package driftkings.battle.components.minimap
             if (data) layered.push({entry:entry, rank:rank(state)});
             var icons:Object = options.icons;
             var size:Number = Number(state == "dead" ? icons.deadScale : state == "lost" ? icons.lostScale : icons.scale);
+            var tint:int = options.lostMarker.style == "tint" && data && data.lostColor ? vehiclelabel.parseColor(String(data.lostColor)) : -1;
+            if (options.colorBlind && data && data.group == "enemy")
+            {
+                var accessible:Number = vehiclelabel.nativeColor(data);
+                if (!isNaN(accessible)) tint = int(accessible);
+            }
             for each (var name:String in ICONS)
             {
                 var alpha:Number = DEAD_ICONS.indexOf(name) >= 0 ? Number(icons.deadAlpha) : Number(icons.alpha);
                 style(entry[name] as DisplayObject, size,
                     options.showVehicleTypes ? alpha * (data ? Number(data.alpha) / 100 : 1) : 0,
                     state == "lost" ? Number(options.lostMarker.desaturate) : 0,
-                    options.lostMarker.style == "tint" && data && data.lostColor ? vehiclelabel.parseColor(String(data.lostColor)) : -1);
+                    tint);
             }
         }
 

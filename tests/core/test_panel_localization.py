@@ -102,6 +102,35 @@ class PanelLocalizationTests(RuntimeTest):
                                       {'templates': {}}, 'Left')
         self.assertEqual(result['format'], 'Unknown')
 
+    def test_default_hp_image_selects_existing_assets_for_all_team_and_colorblind_states(self):
+        import json
+        with open(os.path.join(ROOT, 'res/configs/driftkings/default/team_panels/playerspanel.json'), 'rb') as stream:
+            document = json.loads(stream.read().decode('utf-8'))
+        field = document['templates']['hpBar']
+        self.assertEqual(field['height'], 14)
+        macros = self.load('core.panel_macros').Macros
+        for ally, blind, filename in ((True, False, 'hp_alive_l.png'), (True, True, 'hp_alive_l.png'),
+                                      (False, False, 'hp_alive_r.png'), (False, True, 'hp_alive_r_cb.png')):
+            path = macros({'ally': ally, 'colorblind': blind}).render(field['src'], html=False)
+            self.assertTrue(path.endswith('/' + filename), path)
+            self.assertTrue(os.path.isfile(os.path.join(ROOT, 'mod/res', path[len('img://'):])))
+
+    def test_colorblind_image_macro_updates_all_cached_screens_when_mode_changes(self):
+        for key in ('loading', 'tab'):
+            self.data[key]['format'] = '{{colorblind?purple|red}}'
+        self.data['profiles']['large']['format'] = '{{colorblind?purple|red}}'
+        self.data['profiles']['large']['extraFieldsLeft'] = [{'src': 'hp_{{colorblind?cb|normal}}.png'}]
+        blind = [False]
+        self.view.view = module(isColorBlind=lambda: blind[0])
+        first = self.view.rows()[0]
+        self.assertEqual(first['panels']['large']['fields'][0]['src'], 'hp_normal.png')
+        for mode in (True, False):
+            blind[0] = mode
+            row = self.view.rows()[0]
+            for screen in (row['panels']['large'], row['loading'], row['tab']):
+                self.assertEqual(screen['format'], 'purple' if mode else 'red')
+            self.assertEqual(row['panels']['large']['fields'][0]['src'], 'hp_cb.png' if mode else 'hp_normal.png')
+
     def test_settings_are_reread_only_after_a_change_signal(self):
         first = self.view.rows()[0]['panels']['large']['format']
         self.data['profiles']['large']['format'] = 'Changed'
