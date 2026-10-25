@@ -4,6 +4,7 @@ Vehicle information and statistics module for Driftkings.
 Handles loading, processing and calculation of various tank statistics.
 """
 from contextlib import closing
+import errno
 import json
 import math
 import os
@@ -247,10 +248,12 @@ class ScaleValues(object):
             if validate is not None and not validate(data):
                 raise ValueError('Unexpected cached document structure')
             return data
-        except (IOError, OSError, ValueError):
+        except (IOError, OSError, ValueError) as error:
             if any(name == filename for name, url, validate in self.SOURCES):
                 self._invalidCaches.add(filename)
-            LOG.exception('Could not load statistics cache %s', path)
+            # A new installation has no cache yet; the hangar worker will fetch it.
+            if getattr(error, 'errno', None) != errno.ENOENT:
+                LOG.exception('Could not load statistics cache %s', path)
             return {}
 
     def _downloadAll(self):

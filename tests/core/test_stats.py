@@ -268,6 +268,22 @@ class StatsTests(RuntimeTest):
         self.assertEqual(applied, [True])
         self.assertEqual(self.scale._refreshState['wn8exp.json']['success'], 12345)
 
+    def test_missing_cache_is_silent_but_still_scheduled_for_download(self):
+        errors = []
+        self.api['LOG'] = module(exception=lambda *args: errors.append(args))
+        self.assertEqual(self.scale._readCache('wnxexp.json'), {})
+        self.assertEqual(errors, [])
+        self.assertIn('wnxexp.json', self.scale._invalidCaches)
+        self.scale.SOURCES = tuple(s for s in self.scale.SOURCES if s[0] == 'wnxexp.json')
+        started = []
+        self.api['threading'] = module(Thread=lambda **kwargs: module(start=lambda: started.append(True)))
+        self.scale._startDownloads()
+        self.assertEqual(started, [True])
+        with open(os.path.join(self.directory, 'wnxexp.json'), 'wb') as stream:
+            stream.write(b'{}')
+        self.assertEqual(self.scale._readCache('wnxexp.json'), {})
+        self.assertEqual(len(errors), 1)
+
     def test_invalid_local_cache_is_refreshed_even_with_recent_success(self):
         now = 200000.0
         self.api['time'] = module(time=lambda: now)

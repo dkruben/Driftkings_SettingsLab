@@ -27,6 +27,7 @@
     "Add the Tomato.gg colour palette and WNX calculation for battle efficiency, battle results and the vehicle carousel, including assistance damage, formatting macros and WNX sorting.",
     "Refresh WNX expected values through the existing daily hangar statistics worker and persistent cache; preserve valid cached data on download failure and show unavailable ratings as --.",
     "Preserve customized rating thresholds and colours while fixing palette definition references; reproduce the Tomato.gg continuous colour scale.",
-    "Configure minimap map-size captions with HTML formatting, opacity, offsets, dimensions and a configurable shadow; migrate legacy font, colour and position settings."
+    "Configure minimap map-size captions with HTML formatting, opacity, offsets, dimensions and a configurable shadow; migrate legacy font, colour and position settings.",
+    "Treat missing statistics caches as a normal first-start state and schedule downloads without an error traceback; retain diagnostics for corrupt or unreadable caches."
   ]
 }
