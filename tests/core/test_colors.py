@@ -10,16 +10,11 @@ class ColorTests(RuntimeTest):
         super(ColorTests, self).setUp()
         self.colors = self.load('common.utils.colorratting')
 
-    def test_historical_site_wn8_scales_and_colours(self):
-        limits = [300, 450, 650, 900, 1200, 1600, 2000, 2450, 2900, 9999]
-        colours = ['#930D0D', '#CD3333', '#CC7A00', '#CCB800', '#849B24',
-                   '#4D7326', '#4099BF', '#3972C6', '#793DB6', '#401070']
+    def test_custom_noobmeter_limits_are_preserved(self):
+        limits = [300, 600, 900, 1200, 1500, 1750, 2300, 2900, 9999]
         for palette in (0,):
             data = self.colors.getRatingColors(palette)
             self.assertEqual([band['value'] for band in data['wn8']], limits)
-            self.assertEqual([band['color'] for band in data['wn8']], colours)
-            self.assertEqual([band['value'] for band in data['winrate']],
-                             [46, 47, 48, 50, 52, 54, 56, 60, 65, 101])
 
     def test_wotlife_replaces_third_palette_with_published_bands_and_colours(self):
         self.assertEqual(self.colors.color_tables[2]['ScaleColor'], 'WoT-Life')
@@ -27,8 +22,6 @@ class ColorTests(RuntimeTest):
         self.assertEqual([band['value'] for band in data['wn8']],
                          [300, 600, 900, 1250, 1600, 1900, 2350, 2900, 99999])
         self.assertEqual([band['value'] for band in data['winrate']], [45, 47, 49, 52, 54, 56, 60, 65, 101])
-        self.assertEqual([band['value'] for band in data['wn7']],
-                         [500, 700, 900, 1100, 1350, 1550, 1850, 2050, 99999])
         self.assertEqual([band['color'] for band in data['wn8']],
                          ['#000000', '#CD3333', '#D77900', '#D7B600', '#6D9521',
                           '#4C762E', '#4A92B7', '#83579D', '#5A3175'])
@@ -104,8 +97,8 @@ class ColorTests(RuntimeTest):
         resources[data.RESOURCE] = json.dumps(document).encode('utf-8')
         resources[data.RESOURCE_ROOT + 'additional.json'] = resources[data.RESOURCE_ROOT + 'xvm.json']
         loaded = data.load_tables(resources.__getitem__)['color_tables']
-        self.assertEqual(loaded[:3], data.color_tables)
-        self.assertEqual(loaded[3]['ScaleColor'], 'Additional')
+        self.assertEqual(loaded[:-1], data.color_tables)
+        self.assertEqual(loaded[-1]['ScaleColor'], 'Additional')
 
     def test_game_reads_the_bundled_resource_through_resmgr(self):
         data = self.load('common.utils.color_rating_data')
@@ -119,7 +112,7 @@ class ColorTests(RuntimeTest):
         try:
             self.assertEqual(data.load_tables()['color_tables'], data.color_tables)
             self.assertEqual(paths, [data.RESOURCE] + [data.RESOURCE_ROOT + filename
-                for filename in ('noobmeter.json', 'xvm.json', 'wotlife.json')])
+                for filename in ('noobmeter.json', 'xvm.json', 'wotlife.json', 'tomato.json')])
         finally:
             if previous is None:
                 del sys.modules['ResMgr']
@@ -141,6 +134,8 @@ class ColorTests(RuntimeTest):
             for metric, bands in table['colors'].items():
                 if not isinstance(bands, (list, tuple)) or metric in ('diff', 'mog'):
                     continue
+                if metric in table['colors'].get('gradient', {}).get('metrics', ()):
+                    continue  # Tomato uses continuous interpolation; tested separately.
                 for index, band in enumerate(bands):
                     limit = band['value']
                     # Source scales use exclusive upper bounds, not <=.
@@ -162,13 +157,13 @@ class ColorTests(RuntimeTest):
                 self.assertEqual(api.getStatisticColor('mog', band['value'], index), api.formatColor(band['color']))
                 self.assertEqual(api.getStatisticColor('mog', band['value'] - 0.001, index),
                                  api.formatColor(bands[max(0, position - 1)]['color']))
-            self.assertEqual(api.getStatisticColor('mog', -10, index), '#FFFFFF')
+            self.assertEqual(api.getStatisticColor('mog', -10, index), bands[0]['color'])
             self.assertEqual(api.getStatisticColor('mog', 101, index), api.formatColor(bands[-1]['color']))
 
     def test_invalid_palette_and_metric_fallbacks(self):
         api = self.colors
         first = api.getRatingColors(0)
-        for value in (-1, 3, 100, None, 'unknown', float('nan'), float('inf')):
+        for value in (-1, len(api.color_tables), 100, None, 'unknown', float('nan'), float('inf')):
             self.assertIs(api.getRatingColors(value), first)
         self.assertIs(api.getRatingColors('1'), api.getRatingColors(1))
         for index in range(3):

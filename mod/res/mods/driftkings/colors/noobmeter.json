@@ -1,21 +1,16 @@
 {
   "def": {
-    "colorRating": {
-      "very_bad": "#930D0D",
-      "bad": "#CD3333",
-      "b_average": "#CC7A00",
-      "normal": "#CCB800",
-      "above_average": "#849B24",
-      "good": "#4D7326",
-      "very_good": "#4099BF",
-      "great": "#3972C6",
-      "unique": "#793DB6",
-      "s_unique": "#401070",
-      "nocolor": "#CCCCCC",
-      "average": "#CCB800",
-      "below_average": "#CC7A00",
-      "unicum": "#793DB6",
-      "super_unicum": "#401070"
+     "colorRating": {
+       "nocolor": "#CCCCCC",
+       "very_bad": "#BB0000",
+       "bad": "#FF0000",
+       "b_average": "#FF6600",
+       "normal": "#F8F400",
+       "good": "#99CC00",
+       "very_good": "#00CC00",
+       "great": "#66BBFF",
+       "unique": "#CC66CC",
+       "s_unique": "#FF00FF"
     },
     "colorHP": {
       "very_low": "#FF0000",
@@ -81,16 +76,15 @@
       {"value": 99999, "color": "${def.colorRating.unique}"}
     ],
     "wn8": [
-      {"value": 300, "color": "${def.colorRating.very_bad}"},
-      {"value": 450, "color": "${def.colorRating.bad}"},
-      {"value": 650, "color": "${def.colorRating.b_average}"},
-      {"value": 900, "color": "${def.colorRating.normal}"},
-      {"value": 1200, "color": "${def.colorRating.above_average}"},
-      {"value": 1600, "color": "${def.colorRating.good}"},
-      {"value": 2000, "color": "${def.colorRating.very_good}"},
-      {"value": 2450, "color": "${def.colorRating.great}"},
-      {"value": 2900, "color": "${def.colorRating.unique}"},
-      {"value": 9999, "color": "${def.colorRating.s_unique}"}
+      { "value": 300,  "color": "${def.colorRating.very_bad}"},
+      { "value": 600,  "color": "${def.colorRating.bad}"},
+      { "value": 900,  "color": "${def.colorRating.b_average}"},
+      { "value": 1200, "color": "${def.colorRating.normal}"},
+      { "value": 1500, "color": "${def.colorRating.good}"},
+      { "value": 1750, "color": "${def.colorRating.very_good}"},
+      { "value": 2300, "color": "${def.colorRating.great}"},
+      { "value": 2900, "color": "${def.colorRating.unique}"},
+      { "value": 9999, "color": "${def.colorRating.s_unique}"}
     ],
     "wgr": [
       {"value": 2020, "color": "${def.colorRating.very_bad}"},
@@ -109,16 +103,15 @@
       {"value": 20, "color": "${def.colorRating.unique}"}
     ],
     "winrate": [
-      {"value": 46, "color": "${def.colorRating.very_bad}"},
-      {"value": 47, "color": "${def.colorRating.bad}"},
-      {"value": 48, "color": "${def.colorRating.b_average}"},
-      {"value": 50, "color": "${def.colorRating.normal}"},
-      {"value": 52, "color": "${def.colorRating.above_average}"},
-      {"value": 54, "color": "${def.colorRating.good}"},
-      {"value": 56, "color": "${def.colorRating.very_good}"},
-      {"value": 60, "color": "${def.colorRating.great}"},
-      {"value": 65, "color": "${def.colorRating.unique}"},
-      {"value": 101, "color": "${def.colorRating.s_unique}"}
+      { "value": 43,  "color": "${def.colorRating.very_bad}"},
+      { "value": 45,  "color": "${def.colorRating.bad}"},
+      { "value": 47,  "color": "${def.colorRating.b_average}"},
+      { "value": 51,  "color": "${def.colorRating.normal}"},
+      { "value": 53,  "color": "${def.colorRating.good}"},
+      { "value": 55,  "color": "${def.colorRating.very_good}"},
+      { "value": 59,  "color": "${def.colorRating.great}"},
+      { "value": 93,  "color": "${def.colorRating.unique}"},
+      { "value": 101, "color": "${def.colorRating.s_unique}"}
     ],
     "kb": [
       {"value": 2, "color": "${def.colorRating.very_bad}"},
@@ -213,8 +206,8 @@
       {"value": 30, "color": "${def.colorRating.bad}"},
       {"value": 40, "color": "${def.colorRating.normal}"},
       {"value": 50, "color": "${def.colorRating.good}"},
-      {"value": 60, "color": "${def.colorRating.very_good}"},
-      {"value": 1e+30, "color": "${def.colorRating.unique}"}
+      {"value": 60, "color": "${def.colorRating.unique}"},
+      {"value": 1e+30, "color": "${def.colorRating.s_unique}"}
     ],
     "damageReceivedHP": [
       {"value": 0.25, "color": "${def.colorRating.unique}"},
@@ -225,7 +218,7 @@
       {"value": 1e+30, "color": "${def.colorRating.very_bad}"}
     ],
     "mog": [
-      {"value": 0.0, "color": "#FFFFFF"},
+      {"value": 0.0, "color": "${def.colorRating.nocolor}"},
       {"value": 20.0, "color": "${def.colorRating.very_bad}"},
       {"value": 40.0, "color": "${def.colorRating.bad}"},
       {"value": 55.0, "color": "${def.colorRating.normal}"},
@@ -263,13 +256,5 @@
       {"value": 0, "color": "${def.colorRating.normal}"},
       {"value": 1e+30, "color": "${def.colorRating.good}"}
     ]
-  },
-  "sources": {
-    "wn8": "https://web.archive.org/web/20220205161509/https://www.noobmeter.com/calculatorDescriptions",
-    "colors": "https://web.archive.org/web/20191209070021/https://www.noobmeter.com/static/style/rating-colors.css?r885",
-    "winrate": "https://web.archive.org/web/20181220174656/https://wotlabs.net/",
-    "winrate_note": "WoTLabs historical fallback; original NoobMeter win-rate thresholds not verified.",
-    "other_metrics": "Inherited Driftkings adaptations; not verified as official website scales.",
-    "wn8effd": "XVM scale mapped to this palette: https://gitlab.com/xvm/xvm/-/blob/master/release/configs/default_wg/colors.xc"
   }
 }

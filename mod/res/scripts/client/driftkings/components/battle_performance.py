@@ -17,6 +17,8 @@ from driftkings.common.utils.formatting import replaceMacros
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event, override
+from driftkings.core.wnx import calculate as calculate_wnx
+from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings as Settings
 from driftkings.settings.service import affects, settings_service
@@ -148,6 +150,8 @@ class BattleEfficiency(object):
     def _resetStats(self):
         self._stats = {'frags': 0, 'damage': 0, 'spotted': 0, 'defence': 0, 'capture': 0, 'wn8': 0, 'xwn8': 0, 'eff': 0, 'xeff': 0, 'xte': 0, 'diff': 0, 'dmg': 0, 'wn8effd': None}
         self._colors = {key: getStatisticColor(key, None) for key in ['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'diff', 'dmg', 'wn8effd']}
+        self._stats.update(assist=0, stun=0, wnx=None)
+        self._colors['wnx'] = None
 
     def start(self):
         if not self._active:
@@ -194,6 +198,10 @@ class BattleEfficiency(object):
         result = g_calculator.calc(self._stats['damage'], self._stats['spotted'], self._stats['frags'], self._stats['defence'], self._stats['capture'])
         self._stats.update(dict(zip(['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'dmg', 'diff'], result)))
         self._stats['wn8effd'] = g_calculator.damage_efficiency(self._stats['damage'])
+        self._stats['wnx'] = calculate_wnx(self._stats['damage'], self._stats['frags'],
+            self._stats['spotted'], self._stats.get('assist', 0) + self._stats.get('stun', 0),
+            get_wnx_expected(g_calculator.vehCD))
+        self._colors['wnx'] = None
         self.updateFormatString()
 
     def updateFormatString(self):
@@ -209,6 +217,8 @@ class BattleEfficiency(object):
         for key, value in self._stats.items():
             if key == 'wn8effd':
                 macro_data['{wn8effd}'] = '--' if value is None else '%.2f' % value
+            elif key == 'wnx':
+                macro_data['{wnx}'] = '--' if value is None else str(int(math.floor(value + .5)))
             else:
                 macro_data['{%s}' % key] = str(int(value) if isinstance(value, float) else value)
             if key in self._colors:
@@ -231,6 +241,7 @@ def new_onAppearanceReady(self, vehicle):
         return
     if vehicle.id == self.playerVehicleID:
         g_calculator.registerVInfoData(vehicle.typeDescriptor.type.compactDescr)
+        g_battleEfficiency.startBattle()
 
 
 class _EfficiencyListener(object):
@@ -256,8 +267,17 @@ class _EfficiencyListener(object):
     def onTotalEfficiencyUpdated(diff):
         if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
             return
+        changed = False
         if PERSONAL_EFFICIENCY_TYPE.DAMAGE in diff:
             g_battleEfficiency.stats['damage'] = diff[PERSONAL_EFFICIENCY_TYPE.DAMAGE]
+            changed = True
+        if PERSONAL_EFFICIENCY_TYPE.ASSIST_DAMAGE in diff:
+            g_battleEfficiency.stats['assist'] = diff[PERSONAL_EFFICIENCY_TYPE.ASSIST_DAMAGE]
+            changed = True
+        if PERSONAL_EFFICIENCY_TYPE.STUN in diff:
+            g_battleEfficiency.stats['stun'] = diff[PERSONAL_EFFICIENCY_TYPE.STUN]
+            changed = True
+        if changed:
             g_battleEfficiency.startBattle()
 
 
@@ -326,8 +346,15 @@ def make_results_payload(battle_results):
     expected_damage = calculator.expectedValues.get('wn8expDamage') if calculator.vInfoOK else None
     result_values = dict(zip(RESULT_KEYS, values))
     result_values['wn8effd'] = calculator.damage_efficiency(summary.damageDealt)
+    assistance = getattr(summary, 'damageAssisted', None)
+    stun = getattr(summary, 'damageAssistedStun', None)
+    result_values['wnx'] = calculate_wnx(summary.damageDealt, summary.kills, summary.spotted,
+        assistance + stun if assistance is not None and stun is not None else None,
+        get_wnx_expected(summary.vehicle.intCD))
     for key, value in result_values.items():
         macros['{%s}' % key] = '--' if value is None else ('%.2f' % value if key == 'wn8effd' else str(value))
+        if key == 'wnx' and value is not None:
+            macros['{wnx}'] = str(int(math.floor(value + .5)))
         macros['{c:%s}' % key] = g_battleEfficiency.read_colors(key, value, summary.damageDealt, expected_damage)
     # Historical templates also advertised this shared X-scale color macro.
     macros['{c:x}'] = macros['{c:xwn8}']

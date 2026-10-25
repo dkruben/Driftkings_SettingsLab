@@ -22,14 +22,14 @@ class MinimapStore(JsonDocuments):
         super(MinimapStore, self).__init__(directory, FILES)
 
     def load(self, initial):
-        from driftkings.core.minimap import validate
+        from driftkings.core.minimap import migrate_map_size, validate
         from driftkings.settings.loader import validate_types
         self.recover()
         data = {}
         for name, defaults in zip(FILES, split(initial)):
             path = os.path.join(self.directory, name)
             recover_file(path)
-            part = merge(defaults, read_object(path)) if os.path.isfile(path) else defaults
+            part = merge(defaults, migrate_map_size(read_object(path))) if os.path.isfile(path) else defaults
             validate_types(defaults, part, name)
             data.update(part)
         validate(data)

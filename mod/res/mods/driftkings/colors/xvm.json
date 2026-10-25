@@ -1,6 +1,7 @@
 {
   "def": {
     "colorRating": {
+      "nocolor": "#CCCCCC",
       "very_bad": "#FE0E00",
       "bad": "#FE7903",
       "normal": "#F8F400",
@@ -192,7 +193,7 @@
       {"value": 1e+30, "color": "${def.colorRating.very_bad}"}
     ],
     "mog": [
-      {"value": 0.0, "color": "#FFFFFF"},
+      {"value": 0.0, "color": "${def.colorRating.nocolor}"},
       {"value": 20.0, "color": "${def.colorRating.very_bad}"},
       {"value": 40.0, "color": "${def.colorRating.bad}"},
       {"value": 55.0, "color": "${def.colorRating.normal}"},
@@ -230,11 +231,5 @@
       {"value": 0, "color": "${def.colorRating.normal}"},
       {"value": 1e+30, "color": "${def.colorRating.good}"}
     ]
-  },
-  "sources": {
-    "config": "https://gitlab.com/xvm/xvm/-/blob/master/release/configs/default_wg/colors.xc",
-    "rating_thresholds": "https://static.modxvm.com/xvmscales-wg.json",
-    "snapshot_date": "2026-10-24",
-    "rating_thresholds_note": "Exclusive raw boundaries at array indices 16,33,52,75,92, matching integer X-scale bands. Fixed snapshot, not a live feed."
   }
 }

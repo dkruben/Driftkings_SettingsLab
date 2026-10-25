@@ -1,9 +1,9 @@
 {
-  "battleResultsFormat": "<font face='PFDINMax' color='#EDE6D9' alpha='#80'>WN8: <font color='{c:wn8}'>{wn8}</font> | EFF: <font color='{c:eff}'>{eff}</font> | XTE: <font color='{c:xte}'>{xte}</font></font>",
+  "battleResultsFormat": "<font face='PFDINMax' color='#EDE6D9' alpha='#80'>WNX: <font color='{c:wnx}'>{wnx}</font> | WN8: <font color='{c:wn8}'>{wn8}</font> | EFF: <font color='{c:eff}'>{eff}</font> | XTE: <font color='{c:xte}'>{xte}</font></font>",
   "battleResultsWindow": true,
   "colorRatting": 0,
   "enabled": true,
-  "format": "WN8: <font color='{c:wn8}'>{wn8}</font> EFF: <font color='{c:eff}'>{eff}</font> DIFF: <font color='{c:diff}'>{diff}</font>",
+  "format": "WNX: <font color='{c:wnx}'>{wnx}</font> WN8: <font color='{c:wn8}'>{wn8}</font> EFF: <font color='{c:eff}'>{eff}</font> DIFF: <font color='{c:diff}'>{diff}</font>",
   "position": {
     "x": 125,
     "y": 36

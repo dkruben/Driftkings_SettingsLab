@@ -19,6 +19,8 @@ from driftkings.core.carousel_assets import CarouselImages, normalize_icon_paths
 from driftkings.core.carousel_options import STAT_SORT_KEYS
 from driftkings.core.carousel_tiers import battle_tiers
 from driftkings.core.hooks import override
+from driftkings.core.wnx import calculate as calculate_wnx
+from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings as Settings
 from driftkings.settings.service import settings_service
@@ -125,6 +127,13 @@ def collect(vehicle):
     values['mastery'] = int(rank) if rank in (1, 2, 3, 4) else 0
     values['wn8effd'] = ratio(values['avgDamage'], values['wn8expd'])
     values.update(ratings(values, expected, vehicle.level))
+    assist_values = [number(getattr(stats, method)()) for method in
+                     ('getDamageAssistedRadio', 'getDamageAssistedTrack', 'getDamageAssistedStun')]
+    assistance = ratio(sum(assist_values), stats.getBattlesCountVer2()) if None not in assist_values else None
+    values['wnx'] = calculate_wnx(values['avgDamage'], values['avgFrags'], values['avgSpotted'],
+                                  assistance, get_wnx_expected(vehicle.intCD)) if battles else None
+    if values['wnx'] is not None:
+        values['wnx'] = int(math.floor(values['wnx'] + .5))
     return values
 
 

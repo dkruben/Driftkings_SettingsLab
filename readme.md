@@ -21,7 +21,7 @@ The names below match the settings labels. The module column identifies the corr
 | Mod | Module | Function |
 | --- | --- | --- |
 | Team panels and battle loading | `team_panels` | Customizes player panels, the team statistics screen and battle-loading information, including player ratings. |
-| Battle performance | `battle_performance` | Calculates battle efficiency ratings such as WN8, EFF and XTE. Adds configurable macro text to the native results information line, with automatic UI sizing, spacing and vertical separators. |
+| Battle performance | `battle_performance` | Calculates battle efficiency ratings such as WNX, WN8, EFF and XTE. Adds configurable macro text to the native results information line, with automatic UI sizing, spacing and vertical separators. |
 | Battle statistics | `battle_statistics` | Compares team statistics and displays an estimated team-strength comparison. Estimates are not a guarantee of the battle outcome. |
 | Marks of Excellence in battle | `battle_marks_of_excellence` | Displays estimated gun-mark progress and combined damage during battle in a movable Gameface panel. |
 | High Caliber progress | `high_caliber_progress` | Tracks damage, the current High Caliber target, remaining damage and eligibility in a Gameface panel. Reaching the displayed target does not guarantee the server award. |
@@ -90,6 +90,14 @@ The installer creates user-media folders `mods/configs/driftkings/sixthsense/` (
 Designed for Wargaming World of Tanks **EU, NA and ASIA** clients, for **WoT 2.4.1.0**. All included features have been tested in-game and confirmed working across these regions, including live battles, replays, Gameface panel dragging and the in-game updater. Mir Tankov/RU is outside scope.
 
 Version 0.1.2 is the stable release, with in-game validation completed for the panels and automatic-update installation.
+
+## WNX and Tomato.gg colours
+
+Choose **Tomato.gg** in a feature's colour-table setting to use the published [Tomato.gg reference](https://tomato.gg/wnx). Existing palettes remain selectable.
+
+WNX is calculated for your own battle, battle results and carousel vehicles, including assistance damage. Use `{wnx}` / `{c:wnx}` in battle/results templates, or `{{v.wnx}}` / `{{v.c_wnx}}` on carousel cards. New default battle templates include WNX; add these macros to an existing custom template. The carousel also supports sorting by `wnx`. Missing data displays `--`.
+
+Expected values refresh daily in the hangar, retaining the last valid cache if a download fails. Without a valid cache, WNX displays `--` until a download succeeds. The bundled colour scale is a snapshot from 25 October 2026. These additions require in-game validation; existing service-record and player-panel WN8 displays are unchanged.
 
 ## Anonymous statistics (optional)
 

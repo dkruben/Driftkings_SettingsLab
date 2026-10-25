@@ -102,6 +102,51 @@ class EntryPointTests(RuntimeTest):
 
 
 class BattlePerformanceWn8Tests(RuntimeTest):
+    def test_wnx_live_assistance_and_results_use_the_same_formula_and_template(self):
+        colors = self.load('common.utils.colorratting')
+        wnx = self.load('core.wnx')
+        expected = dict(damage=1000, frags=.8, spots=.9, assist=250)
+        targets = [expected]
+        settings = {'enabled': True, 'colorRatting': 3, 'format': '{wnx}:{c:wnx}',
+                    'battleResultsFormat': '{wnx}:{c:wnx}'}
+        player = module(arena=module(bonusType=None))
+        api, _ = game_source('components/battle_performance.py', {
+            'driftkings.common.utils.colorratting': colors,
+            'driftkings.common.utils.formatting': self.load('common.utils.formatting'),
+            'driftkings.common.utils.wgutils': module(getPlayer=lambda: player),
+            'driftkings.core.wnx': module(calculate=wnx.calculate, get_expected=lambda ident: targets[0]),
+            'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda ident: {
+                'level': 8, 'wn8expDamage': 1000, 'wn8expSpot': 1, 'wn8expFrag': 1,
+                'wn8expDef': 1, 'wn8expWinRate': 52}, calculateXvmScale=lambda *args: 0,
+                calculateXTE=lambda *args: 0),
+            'driftkings.settings.service': Settings(settings).service(),
+            'gui.battle_results.pbs_helpers.common': module(getArenaNameStr=lambda reusable: 'map'),
+            'gui.battle_results.settings': module(PLAYER_TEAM_RESULT=module(WIN=1)),
+        }, real=('driftkings._constants',))
+        bonus = next(iter(api['SUPPORTED_BONUS_TYPES']))
+        player.arena.bonusType = bonus
+        displayed = []
+        api['g_flash'] = module(addText=displayed.append, setVisible=lambda value: None)
+        api['g_calculator'].registerVInfoData(1)
+        battle = api['g_battleEfficiency']
+        battle.stats.update(frags=1, spotted=1)
+        kind = api['PERSONAL_EFFICIENCY_TYPE']
+        api['_EfficiencyListener'].onTotalEfficiencyUpdated({kind.DAMAGE: 1000, kind.ASSIST_DAMAGE: 500, kind.STUN: 100})
+        value = wnx.calculate(1000, 1, 1, 600, expected)
+        self.assertAlmostEqual(battle.stats['wnx'], value)
+        self.assertNotIn('{wnx}', displayed[-1])
+        summary = module(vehicle=module(intCD=1), damageDealt=1000, kills=1, spotted=1,
+                         damageAssisted=500, damageAssistedStun=100, droppedCapturePoints=0, capturePoints=0)
+        reusable = module(common=module(arenaBonusType=bonus, arenaType=module(getGamePlayName=lambda: 'random')),
+            vehicles=module(getVehicleSummarizeInfo=lambda *args: summary), getPlayerInfo=lambda: None,
+            getPersonalTeamResult=lambda: 1)
+        results = module(reusable=reusable, results={'vehicles': {}})
+        self.assertEqual(api['make_results_payload'](results)['html'], displayed[-1])
+        targets[0] = None
+        battle.startBattle()
+        self.assertEqual(displayed[-1], '--:#CCCCCC')
+        self.assertEqual(api['make_results_payload'](results)['html'], displayed[-1])
+
     def test_diff_keeps_damage_difference_and_uses_same_ratio_colour_in_battle_and_results(self):
         colors = self.load('common.utils.colorratting')
         formatting = self.load('common.utils.formatting')
@@ -112,6 +157,7 @@ class BattlePerformanceWn8Tests(RuntimeTest):
         player = module(arena=module(bonusType=None))
         api, _ = game_source('components/battle_performance.py', {
             'driftkings.common.utils.colorratting': colors,
+            'driftkings.core.wnx': self.load('core.wnx'),
             'driftkings.common.utils.formatting': formatting,
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: player),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected,

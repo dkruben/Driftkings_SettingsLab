@@ -43,6 +43,17 @@ class MinimapPolicyTests(RuntimeTest):
         self.assertEqual(data['lines']['marks'], 100)
         self.assertEqual(data['circles']['shell']['mode'], 'on')
 
+    def test_html_map_size_and_shadow_validation(self):
+        data = defaults()
+        self.policy.validate(data)
+        self.assertIn('<font', data['mapSize']['format'])
+        for key, value in (('alpha', 101), ('width', 0), ('offsetX', -301), ('shadow', False)):
+            broken = defaults()
+            broken['mapSize'][key] = value
+            self.assertRaises(ValueError, self.policy.validate, broken)
+        data['mapSize']['shadow']['color'] = 'invalid'
+        self.assertRaises(ValueError, self.policy.validate, data)
+
     def test_invalid_new_options_are_rejected(self):
         for section, key, value in (('lines', 'hull', 'yes'), ('lines', 'marks', 600), ('lines', 'hullColor', 'green')):
             data = defaults()
@@ -187,6 +198,19 @@ class MinimapStoreTests(RuntimeTest):
         self.assertEqual(set(self.read('minimap_lines.json')), set(('lines',)))
         self.assertNotIn('labels', self.read('minimap.json'))
         self.assertEqual(data, defaults())
+
+    def test_legacy_map_caption_keeps_text_style_and_offsets(self):
+        self.store.load(defaults())
+        data = self.read('minimap.json')
+        data['mapSize'] = dict(enabled=True, color='FFCC66', fontSize=11,
+                               format='{{cellsize}}0 m', x=5, y=-5)
+        with open(os.path.join(self.root, 'minimap.json'), 'wb') as stream:
+            stream.write(json.dumps(data).encode('utf-8'))
+        size = self.store.load(defaults())['mapSize']
+        self.assertEqual(size['format'], '<font size="11" color="#FFCC66">{{cellsize}}0 m</font>')
+        self.assertEqual((size['offsetX'], size['offsetY']), (5, -5))
+        self.assertNotIn('fontSize', size)
+        self.assertEqual(size['width'], 100)
 
     def test_saved_values_survive_a_reload_without_rewriting_resource_paths(self):
         self.store.load(defaults())

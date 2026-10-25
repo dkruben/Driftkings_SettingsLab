@@ -25,6 +25,9 @@ import ResMgr
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.core.cache import cache_directory
 from driftkings.core.callbacks import callback
+from driftkings.core.wnx import parse_reference_page
+from driftkings.core.wnx import set_reference as set_wnx_reference
+from driftkings.core.wnx import valid_reference as valid_wnx
 
 LOG = get_logger('Driftkings.Stats')
 try:
@@ -85,6 +88,7 @@ URL_WN8 = HOST + 'wn8-data-exp/json/%s/wn8exp.json' % _FLAVOR
 URL_XTE = HOST + 'xte.json'
 URL_XTDB = HOST + 'xtdb.json'
 URL_XVM_SCALE = HOST + 'xvmscales-%s.json' % _FLAVOR
+URL_WNX = 'https://tomato.gg/wnx'
 MAX_DOWNLOAD = 16 * 1024 * 1024
 READ_CHUNK = 64 * 1024
 SOCKET_TIMEOUT = 10
@@ -212,7 +216,11 @@ class ScaleValues(object):
         """Keep the last valid cache if a download or publication fails. Safe to call off the client thread."""
         try:
             data = ScaleValues.download(url)
-            document = json.loads(data.decode('utf-8-sig'))
+            if url == URL_WNX:
+                document = parse_reference_page(data)
+                data = json.dumps(document).encode('utf-8')
+            else:
+                document = json.loads(data.decode('utf-8-sig'))
             if not isinstance(document, dict) or not document:
                 raise ValueError('Expected a non-empty JSON object')
             if validate is not None and not validate(document):
@@ -282,7 +290,7 @@ class ScaleValues(object):
         if not due:
             return
         # Recheck the client state before every table, rather than downloading
-        # all four after a single hangar check. Workers never access game objects.
+        # all tables after a single hangar check. Workers never access game objects.
         self._downloadSources = due[:1]
         self._downloading = True
         worker = threading.Thread(target=self._runDownloads, name='Driftkings.StatsDownload')
@@ -320,7 +328,7 @@ class ScaleValues(object):
 
     def _loadAll(self):
         self._loadRefreshState()
-        for filename in ('xvmScales.json', 'wn8exp.json', 'xte.json', 'xtdb.json'):
+        for filename, url, validate in self.SOURCES:
             self.APPLY[filename](self)
         self._checkUpdates()
 
@@ -412,12 +420,18 @@ class ScaleValues(object):
         if data:
             self.xtdb_data = data
 
+    def _loadWnxData(self):
+        document = self._readCache('wnxexp.json')
+        if document:
+            set_wnx_reference(document)
+
     SOURCES = (('xvmScales.json', URL_XVM_SCALE, valid_xvm_scales),
                ('wn8exp.json', URL_WN8, valid_wn8),
                ('xte.json', URL_XTE, valid_scaled_vehicles),
-               ('xtdb.json', URL_XTDB, valid_scaled_vehicles))
+               ('xtdb.json', URL_XTDB, valid_scaled_vehicles),
+               ('wnxexp.json', URL_WNX, valid_wnx))
     APPLY = {'xvmScales.json': _loadXvmScaleData, 'wn8exp.json': _loadWn8Data,
-             'xte.json': _loadXteData, 'xtdb.json': _loadXtdbData}
+             'xte.json': _loadXteData, 'xtdb.json': _loadXtdbData, 'wnxexp.json': _loadWnxData}
 
     def getVehicleInfoData(self, vehCD):
         if not isinstance(vehCD, integer_types):

@@ -2,8 +2,8 @@
 """Supported options for the EU Gameface carousel integration."""
 import copy
 
-SORT_KEYS = ('nation', 'type', 'level', 'premium', 'battles', 'winRate', 'markOfMastery', 'damageRating', 'marksOnGun', 'battlePassPoints', 'wn8', 'avgDamage')
-STAT_SORT_KEYS = ('battles', 'winRate', 'markOfMastery', 'damageRating', 'marksOnGun', 'wn8', 'avgDamage')
+SORT_KEYS = ('nation', 'type', 'level', 'premium', 'battles', 'winRate', 'markOfMastery', 'damageRating', 'marksOnGun', 'battlePassPoints', 'wn8', 'avgDamage', 'wnx')
+STAT_SORT_KEYS = ('battles', 'winRate', 'markOfMastery', 'damageRating', 'marksOnGun', 'wn8', 'avgDamage', 'wnx')
 
 
 def defaults():

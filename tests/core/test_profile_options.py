@@ -27,3 +27,5 @@ class ProfileOptionsTests(RuntimeTest):
         valid = dict(self.defaults, survivalThresholds='10, 20, 35, 50, 70', receivedDamageThresholds='10,25,50,100,200')
         self.assertEqual(config.normalize_changes(valid, valid), valid)
         self.assertEqual(config.NAME, 'profile_ratings')
+        self.assertEqual(config.normalize_loaded(dict(self.defaults, colorScale=3))['colorScale'], 3)
+        self.assertEqual(config.getControlColumns()[0][3]['options'][-1]['label'], 'Tomato.gg')

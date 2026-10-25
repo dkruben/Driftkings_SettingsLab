@@ -7,6 +7,7 @@ __all__ = ('color_tables', 'getRatingColors', 'getColor', 'getStatisticColor',
 
 # color_tables stays importable from here for the settings definitions (checked by tests/core/test_colors.py).
 from driftkings.common.utils.color_rating_data import color_tables, MOE_LEVELS
+from driftkings.core.tomato_colors import color as gradient_color
 
 
 def getRatingColors(index=0):
@@ -34,6 +35,8 @@ def getColor(data, ratting_color, value=None, kwargs=None):
                'avgDamage': 'tdb', 'avgFrags': 'tfb', 'avgSpotted': 'tsb',
                'marks': 'mog', 'battles': 'kb'}
     category = ratting_color if ratting_color in data else aliases.get(ratting_color, ratting_color)
+    if category == 'wnx' and 'wnx' not in data:
+        category = 'wn8'  # Existing palettes reuse their own rating bands for WNX.
     if value is None and kwargs is not None:
         category, value = 'x', kwargs
     if value is None:
@@ -49,6 +52,9 @@ def getColor(data, ratting_color, value=None, kwargs=None):
     bands = data.get(category)
     if not isinstance(bands, (list, tuple)) or not bands:
         return None
+    gradient = data.get('gradient', {})
+    if category in gradient.get('metrics', ()):
+        return gradient_color(bands, gradient['hsl'], value)
     if category == 'diff':
         return formatColor(bands[0 if value < 0 else 2 if value > 0 else 1]['color'])
     if category == 'mog':

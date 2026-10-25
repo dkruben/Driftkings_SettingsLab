@@ -112,6 +112,9 @@ htmlcov/
 !/tests/core/
 /tests/core/*
 !/tests/core/*.py
+!/tests/core/fixtures/
+/tests/core/fixtures/*
+!/tests/core/fixtures/wnx_reference.json
 
 # Build-time installer generation and media validation tests.
 !/tests/installer/

@@ -65,6 +65,19 @@ class StatsTests(RuntimeTest):
         self.scale._loadXvmScaleData()
         self.assertEqual(self.scale.xvmScale_data, {'xwn8': [5, 10]})
 
+    def test_wnx_public_page_is_normalized_and_failure_keeps_the_last_valid_cache(self):
+        self.response = ''.join('{tank_id:%d,name:"Tank",expected_damage:1000,expected_frags:0.8,'
+            'expected_spots:0.9,expected_assistance:250}' % ident for ident in range(1, 501)).encode('utf-8')
+        path = os.path.join(self.directory, 'wnxexp.json')
+        self.assertTrue(self.scale.loadJsonData(self.api['URL_WNX'], path, self.api['valid_wnx']))
+        with open(path, 'rb') as stream:
+            previous = stream.read()
+        self.assertEqual(len(json.loads(previous.decode('utf-8'))['data']), 500)
+        self.response = b'<html>markup changed</html>'
+        self.assertFalse(self.scale.loadJsonData(self.api['URL_WNX'], path, self.api['valid_wnx']))
+        with open(path, 'rb') as stream:
+            self.assertEqual(stream.read(), previous)
+
     def test_valid_download_and_publish_failure(self):
         path = os.path.join(self.directory, 'xvmScales.json')
         self.assertTrue(self.scale.loadJsonData('test', path))

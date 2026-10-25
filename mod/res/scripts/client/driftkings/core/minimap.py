@@ -129,6 +129,21 @@ def stroke(value):
     numeric(value.get('gap'), 1, 100)
 
 
+def migrate_map_size(data):
+    """Convert legacy caption styling before merging the new defaults."""
+    size = data.get('mapSize')
+    if not isinstance(size, dict):
+        return data
+    if 'color' in size or 'fontSize' in size:
+        template = size.get('format', '{{width}} x {{height}} m')
+        size['format'] = '<font size="%s" color="#%s">%s</font>' % (
+            size.pop('fontSize', 11), str(size.pop('color', 'FFFFFF')).lstrip('#'), template)
+    for old, new in (('x', 'offsetX'), ('y', 'offsetY')):
+        if old in size:
+            size.setdefault(new, size.pop(old))
+    return data
+
+
 def validate(data):
     for name in ('labels', 'circles', 'lines', 'presentation', 'artilleryAim'):
         if not isinstance(data.get(name), dict):
@@ -222,9 +237,8 @@ def validate(data):
     for key in ('allyColor', 'enemyColor', 'squadColor'):
         color(data['lostMarker'].get(key))
     color(data['icons'].get('selfColor'))
-    color(data['mapSize'].get('color'))
     numeric(labels.get('compactLength'), 4, 40)
-    for section in ('labels', 'health', 'mapSize'):
+    for section in ('labels', 'health'):
         for key in ('x', 'y'):
             numeric(data[section].get(key), -300, 300)
     for key in ('scale', 'selfScale'):
@@ -238,8 +252,21 @@ def validate(data):
     numeric(hp.get('width'), 10, 100)
     numeric(hp.get('height'), 1, 10)
     numeric(hp.get('fontSize'), 8, 24)
-    numeric(data['mapSize'].get('fontSize'), 8, 24)
-    if not isinstance(data['mapSize'].get('format'), (str, text_type)) or len(data['mapSize']['format']) > 128:
+    size = data['mapSize']
+    for key in ('offsetX', 'offsetY'):
+        numeric(size.get(key), -300, 300)
+    numeric(size.get('alpha'), 0, 100)
+    for key in ('width', 'height'):
+        numeric(size.get(key), 1, 1000)
+    shadow = size.get('shadow')
+    if not isinstance(shadow, dict) or type(shadow.get('enabled')) is not bool:
+        raise ValueError('Invalid map size shadow')
+    for key, low, high in (('distance', 0, 100), ('angle', -360, 360), ('alpha', 0, 100),
+                           ('blur', 0, 100), ('strength', 0, 100)):
+        numeric(shadow.get(key), low, high)
+    shadow_color = shadow.get('color')
+    color(shadow_color[2:] if isinstance(shadow_color, (str, text_type)) and shadow_color.startswith('0x') else shadow_color)
+    if not isinstance(data['mapSize'].get('format'), (str, text_type)) or len(data['mapSize']['format']) > 1024:
         raise ValueError('Invalid map size format')
     stroke(data['lines'])
     numeric(data['lines'].get('length'), 50, 1500)

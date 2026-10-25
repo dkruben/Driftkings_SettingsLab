@@ -140,9 +140,8 @@ class MinimapEnhancementsSettings(SectionDefinition):
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.NEARBY, 'color', 'ColorChoice'))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.NEARBY, GLOBAL.ALPHA, 'Slider', 0, 100))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, GLOBAL.ENABLED))
-        for key, low, high in (('x', -300, 300), ('y', -300, 300), ('fontSize', 8, 24)):
+        for key, low, high in (('offsetX', -300, 300), ('offsetY', -300, 300), ('alpha', 0, 100), ('width', 1, 1000), ('height', 1, 1000)):
             columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, key, 'Slider', low, high))
-        columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, 'color', 'ColorChoice'))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, 'format', 'TextInput'))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, 'geometry'))
         for key, low, high in (('length', 50, 1500), ('thickness', 1, 5), ('dash', 0, 100), ('gap', 1, 100)):

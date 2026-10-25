@@ -31,7 +31,7 @@
     {
       "path": "default/battle_performance.json",
       "source_sha256": "79ab8b919f68e0255cfb6c94ae856ab8da6c6b789a2738f638391c4a433719ed",
-      "sha256": "f0e24cd9b243accbc00783be65a345daf3f948c0e3619f2d7fe255b86e27febb"
+      "sha256": "a0e90f66fd0c633ac2712366ca875fef97bacb3f18d9823ea955d9864ad612bd"
     },
     {
       "path": "default/battle_preferences.json",
@@ -90,12 +90,12 @@
     {
       "path": "default/minimap_enhancements.json",
       "source_sha256": "dfaa52eb85cb1a534dec7230085819638293ffd3220ac3ed81a87ac6869acb41",
-      "sha256": "a517c78de0f17c58854ce7b2cd3716b47c8d46e4184bacd6db94b5dbdc34d27c"
+      "sha256": "1224f1432012b08257e23fe083f733bf0327f3c75332ca46915df05615b7b1af"
     },
     {
       "path": "default/minimap_enhancements/minimap.json",
       "source_sha256": "de64e128582a012f20414e5aab72e09f8462db98ad1a2c17b0aabb2448d0dd33",
-      "sha256": "9cf6fda9cfdde0ba0f9530d3d81b89aec604227b8f11ff84e994f0404339c70f"
+      "sha256": "59a30d4fc952e5c0da70ef56ea24186db26124fdbfbb89859dcc2e9d4c6ec482"
     },
     {
       "path": "default/minimap_enhancements/minimap_circles.json",

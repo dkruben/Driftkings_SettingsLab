@@ -23,6 +23,10 @@
     "Add General settings and move the hangar clock there: clock.enabled and a list of positioned fields (text, shadow and background image) replace the size, background and single-format options. Configure the clock fields in the hangar settings panel.",
     "CLEAN CONFIGURATION REQUIRED: back up personal images and sounds, remove the old mods/configs/driftkings folder before first launch, and configure the mod again in the hangar. Older settings and caches are no longer imported or cleaned up automatically.",
     "Refresh the prestige widget visibility when Hangar preferences are enabled, disabled or changed.",
-    "Lay out clock text line by line like Flash, so negative leading places the weekday and date beside the time."
+    "Lay out clock text line by line like Flash, so negative leading places the weekday and date beside the time.",
+    "Add the Tomato.gg colour palette and WNX calculation for battle efficiency, battle results and the vehicle carousel, including assistance damage, formatting macros and WNX sorting.",
+    "Refresh WNX expected values through the existing daily hangar statistics worker and persistent cache; preserve valid cached data on download failure and show unavailable ratings as --.",
+    "Preserve customized rating thresholds and colours while fixing palette definition references; reproduce the Tomato.gg continuous colour scale.",
+    "Configure minimap map-size captions with HTML formatting, opacity, offsets, dimensions and a configurable shadow; migrate legacy font, colour and position settings."
   ]
 }
