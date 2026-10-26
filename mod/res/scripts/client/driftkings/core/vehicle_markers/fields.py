@@ -5,11 +5,7 @@ import math
 import re
 
 from driftkings.core.vehicle_markers.expressions import validate as validate_expression
-
-try:
-    string_types = (basestring,)
-except NameError:
-    string_types = (str,)
+from driftkings.common.utils.compat import string_types
 
 SHADOW = {'enabled': True, 'distance': 0, 'angle': 0, 'color': '0x000000',
           'alpha': 80, 'blur': 3, 'strength': 2}

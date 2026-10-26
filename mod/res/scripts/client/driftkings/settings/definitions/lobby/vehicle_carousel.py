@@ -9,6 +9,7 @@ from driftkings.settings.controls_schema import field as nested_field
 from driftkings.settings.controls_schema import options
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_carousel_store import CarouselStore, FILES
+from driftkings.common.utils.compat import string_types
 
 
 class VehicleCarouselSettings(SectionDefinition):
@@ -77,7 +78,7 @@ class VehicleCarouselSettings(SectionDefinition):
                 for key in (GLOBAL.ENABLED,'format','color','bgColor','src','x','y','width','height','fontSize','iconSize','alpha','align','layer'):
                     if key not in item: continue
                     kind='CheckBox' if key==GLOBAL.ENABLED else 'TextInput'
-                    if key in ('x','y','width','height','fontSize','iconSize','alpha') and not isinstance(item[key], basestring):
+                    if key in ('x','y','width','height','fontSize','iconSize','alpha') and not isinstance(item[key], string_types):
                         lo,hi={'x':(-600,600),'y':(-400,400),'width':(0,600),'height':(0,400),'fontSize':(8,40),'iconSize':(8,80),'alpha':(0,100)}[key]
                         target.append(nested(path+[key],str(i+1)+': '+tr(key),'Slider',lo,hi))
                     elif key=='align': target.append(nested(path+[key],str(i+1)+': '+tr(key),'Dropdown',choices=[('left',tr('left')),('center',tr('center')),('right',tr('right'))]))

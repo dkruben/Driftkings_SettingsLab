@@ -9,9 +9,9 @@ their alignment, damage text 200x100 boxes and vehicle distance 100x100 boxes.
 import copy
 import re
 
-from driftkings.core.vehicle_markers.fields import string_types
 from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
 from driftkings.core.vehicle_markers.references import resolve
+from driftkings.common.utils.compat import string_types
 
 STATE_KEYS = ('markersAliveNormal', 'markersAliveExtended', 'markersDeadNormal', 'markersDeadExtended')
 FILES = ('markers.json',) + tuple(key + '.json' for key in STATE_KEYS)

@@ -8,9 +8,10 @@ import time
 
 from driftkings import VERSION
 from driftkings.core.updater.installer import digest, read_json, validate_package, write_new
-from driftkings.core.updater.manifest import INTEGER, Manifest
-from driftkings.core.updater.versioning import normalize_game_version, TEXT, Version
+from driftkings.core.updater.manifest import Manifest
+from driftkings.core.updater.versioning import normalize_game_version, Version
 from driftkings.logger import get_logger
+from driftkings.common.utils.compat import integer_types, string_types
 
 LOG = get_logger('Driftkings.Updater')
 FINAL_STATUSES = frozenset(('installed', 'rolledBack', 'rolled_back', 'cancelled', 'error', 'failed'))
@@ -99,17 +100,17 @@ class Results(object):
             from driftkings.core.updater.modpack_transaction import validate_ticket
             return validate_ticket(ticket, manifest)
         if (not isinstance(ticket, dict) or set(ticket) != TICKET_KEYS or
-                type(ticket['schema']) not in INTEGER or ticket['schema'] != 1 or
+                type(ticket['schema']) not in integer_types or ticket['schema'] != 1 or
                 normalize_game_version(ticket['gameVersion']) != ticket['gameVersion'] or
                 not manifest.compatible(ticket['gameVersion']) or ticket['version'] != manifest.version.text or
                 ticket['size'] != manifest.size or ticket['sha256'] != manifest.sha256 or
                 Version(ticket['installedVersion']) >= manifest.version):
             raise ValueError('Invalid local ticket')
         for key in ('size', 'installedSize'):
-            if type(ticket[key]) not in INTEGER or not 0 < ticket[key] <= 64 * 1024 * 1024:
+            if type(ticket[key]) not in integer_types or not 0 < ticket[key] <= 64 * 1024 * 1024:
                 raise ValueError('Invalid ticket size')
         for key in ('sha256', 'installedSha256'):
-            if not isinstance(ticket[key], TEXT) or re.match(r'\A[0-9a-f]{64}\Z', ticket[key]) is None:
+            if not isinstance(ticket[key], string_types) or re.match(r'\A[0-9a-f]{64}\Z', ticket[key]) is None:
                 raise ValueError('Invalid ticket hash')
         return ticket
 
@@ -182,9 +183,9 @@ class Results(object):
             try:
                 result = read_json(safe_path(os.path.join(folder, 'result.json')))
                 if (not isinstance(result, dict) or set(result) != set(('schema', 'status', 'error', 'helperPid')) or
-                        type(result['schema']) not in INTEGER or result['schema'] != 1 or
-                        type(result['helperPid']) not in INTEGER or result['helperPid'] <= 0 or
-                        result['error'] is not None and (not isinstance(result['error'], TEXT) or len(result['error']) > 256)):
+                        type(result['schema']) not in integer_types or result['schema'] != 1 or
+                        type(result['helperPid']) not in integer_types or result['helperPid'] <= 0 or
+                        result['error'] is not None and (not isinstance(result['error'], string_types) or len(result['error']) > 256)):
                     raise ValueError('Invalid result schema')
                 status = {'installed': 'installed', 'rolledBack': 'rolled_back', 'rolled_back': 'rolled_back',
                           'cancelled': 'cancelled', 'error': 'failed', 'failed': 'failed'}.get(result['status'])
@@ -223,7 +224,7 @@ class Results(object):
             return None
         release = read_json(safe_path(release_path))
         version = release.get('version') if isinstance(release, dict) else None
-        return version if isinstance(version, TEXT) else None
+        return version if isinstance(version, string_types) else None
 
     def _abandoned(self, folder, now):
         """A folder without ticket or release: a reported outcome or an old interrupted download."""

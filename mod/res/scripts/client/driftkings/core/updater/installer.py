@@ -12,7 +12,8 @@ from driftkings import VERSION
 from driftkings.common.utils.filesystem import file_sha256 as digest
 from driftkings.core.updater.downloader import safe_directory, validate_download, validate_package
 from driftkings.core.updater.manifest import bounded_json, Manifest, MAX_MANIFEST
-from driftkings.core.updater.versioning import normalize_game_version, TEXT, Version
+from driftkings.core.updater.versioning import normalize_game_version, Version
+from driftkings.common.utils.compat import string_types
 
 HELPER_RESOURCE = 'gui/driftkings/updater/Driftkings.UpdateInstaller.exe'
 INFO_RESOURCE = 'gui/driftkings/updater/helper.json'
@@ -293,7 +294,7 @@ class Installer(object):
                 ticket['sha256'] != manifest.sha256 or ticket['installedVersion'] != installed or
                 not isinstance(ticket['installedSize'], int) or isinstance(ticket['installedSize'], bool) or
                 not 0 < ticket['installedSize'] <= 64 * 1024 * 1024 or
-                not isinstance(ticket['installedSha256'], TEXT) or
+                not isinstance(ticket['installedSha256'], string_types) or
                 re.match(r'\A[0-9a-f]{64}\Z', ticket['installedSha256']) is None):
             raise ValueError('Interrupted transaction does not match current update')
         helper = safe_file(os.path.join(folder, 'Driftkings.UpdateInstaller.exe'))

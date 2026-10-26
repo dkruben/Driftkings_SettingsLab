@@ -10,14 +10,10 @@ from driftkings.settings.settings_data import defaults as component_defaults
 from driftkings.settings.settings_data import PROFILES
 from driftkings.settings.store import JsonDocuments, merge
 from driftkings.settings.store import read_object as read_json
+from driftkings.common.utils.compat import string_types
 
 FILES = ('general.json', 'playerspanel.json', 'battleloading.json', 'statisticform.json') + tuple('panel%s.json' % name.lower() for name in PROFILES)
 GENERAL = ('schemaVersion', 'enabled', 'statsEnabled', 'colorScale', 'rating', 'performance', 'hpEnabled', 'hpVisibility', 'hpKey', 'spottedEnabled')
-try:
-    string_types = (basestring,)
-except NameError:
-    string_types = (str,)
-
 def defaults():
     return component_defaults('team_panels')
 

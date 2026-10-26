@@ -17,6 +17,7 @@ from driftkings.core.hud_visibility import hudVisibility
 from driftkings.core.keyboard import keyboard
 from driftkings.meta.battle.distance_marker import DistanceMarkerMeta
 import GUI
+from driftkings.common.utils.compat import string_types
 
 
 def _component():
@@ -27,7 +28,7 @@ def _component():
 def serializeConfigParams():
     settings = settings_service.getComponentDict(_component().config)
     textColor = settings[TARGET_DISTANCE.TEXT_COLOR]
-    if isinstance(textColor, basestring):
+    if isinstance(textColor, string_types):
         if textColor.startswith('#'):
             textColor = textColor[1:]
         hex_color = '0x' + textColor

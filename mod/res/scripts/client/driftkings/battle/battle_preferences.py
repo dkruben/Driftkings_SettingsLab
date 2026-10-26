@@ -266,22 +266,18 @@ def _getAttackerName(vehicleName):
 
 
 # add enemy name to damage log
-@override(DamageLogPanel, '_addToTopLog')
-def new__addToTopLog(func, self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg=None):
-    settings = settings_service.getComponentDict(config)
-    if not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.ADD_ENEMY_NAME]:
+def _withEnemyName(method):
+    def hook(func, self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg=None):
+        settings = settings_service.getComponentDict(config)
+        if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.ADD_ENEMY_NAME]:
+            vehicleName = vehicleName + ' | ' + _getAttackerName(vehicleName)
         return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg)
-    attackerName = _getAttackerName(vehicleName)
-    return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName + ' | ' + attackerName, shellTypeStr, shellTypeBG, shellModeImg)
+    hook.__name__ = 'new_' + method
+    return override(DamageLogPanel, method)(hook)
 
 
-@override(DamageLogPanel, '_addToBottomLog')
-def new__addToBottomLog(func, self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg=None):
-    settings = settings_service.getComponentDict(config)
-    if not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.ADD_ENEMY_NAME]:
-        return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg)
-    attackerName = _getAttackerName(vehicleName)
-    return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName + ' | ' + attackerName, shellTypeStr, shellTypeBG, shellModeImg)
+new__addToTopLog = _withEnemyName('_addToTopLog')
+new__addToBottomLog = _withEnemyName('_addToBottomLog')
 
 
 # Vehicle Boosters
