@@ -33,8 +33,8 @@
         var life=button(selectors,label('alive'),function () { sample.state=sample.state==='alive'?'dead':'alive'; life.textContent=label(sample.state); selected=0; clearEffects(); buildForm(); draw(); });
         var mode=button(selectors,label('normal'),function () { sample.alt=!sample.alt; mode.textContent=label(sample.alt?'extended':'normal'); selected=0; clearEffects(); buildForm(); draw(); });
         var blind=button(selectors,label('colorBlind'),function () { sample.blind=!sample.blind; DK.dom.setClass(blind,'is-active',sample.blind); draw(); });
-        button(selectors,label('indicators'),function () { sample.indicators=!sample.indicators; draw(); });
-        button(selectors,label('turretMarkers'),function () { var states=['','high','low','unknown']; sample.turret=states[(states.indexOf(sample.turret || '')+1)%states.length]; draw(); });
+        var indicators=button(selectors,label('indicators'),function () { sample.indicators=!sample.indicators; DK.dom.setClass(indicators,'is-active',!!sample.indicators); draw(); });
+        var turret=button(selectors,label('turretMarkers'),function () { var states=['','high','low','unknown']; sample.turret=states[(states.indexOf(sample.turret || '')+1)%states.length]; DK.dom.setClass(turret,'is-active',!!sample.turret); draw(); });
         var stats=button(selectors,label('ratingType'),function () { sample.statsAvailable=sample.statsAvailable===false; DK.dom.setClass(stats,'is-active',sample.statsAvailable); draw(); });
         DK.dom.setClass(stats,'is-active',true);
         ['player','squad','anonym'].forEach(function (key) {
@@ -47,14 +47,14 @@
             });
             roleButtons[key]=toggle;
         });
-        function sampleHealth(key,value) { sample.hp=value; draw(); }
-        var hp=DK.controls.create({id:'sampleHp',type:'slider',label:label('health'),min:0,max:100,step:1,metadata:{}},
-                                 {labels:context.labels,preview:sampleHealth,commit:sampleHealth});
-        preview.appendChild(hp.node); hp.update(sample.hp); hp.info({disabled:false,changed:false,values:{}});
-        function sampleDistance(key,value) { sample.distance=value; draw(); }
-        var distance=DK.controls.create({id:'sampleDistance',type:'slider',label:label('distance'),min:0,max:1500,step:1,metadata:{}},
-                                       {labels:context.labels,preview:sampleDistance,commit:sampleDistance});
-        preview.appendChild(distance.node); distance.update(sample.distance); distance.info({disabled:false,changed:false,values:{}});
+        // The sample sliders live in the preview column and are not part of the saved settings.
+        function sampleSlider(id,title,max,field) {
+            function change(key,value) { sample[field]=value; draw(); }
+            var api=DK.controls.create({id:id,type:'slider',label:title,min:0,max:max,step:1,metadata:{}},{labels:context.labels,preview:change,commit:change});
+            preview.appendChild(api.node); api.update(sample[field]); api.info({disabled:false,changed:false,values:{}});
+            return api;
+        }
+        var hp=sampleSlider('sampleHp',label('health'),100,'hp'), distance=sampleSlider('sampleDistance',label('distance'),1500,'distance');
         var stage=node('div','dk-vm-stage',null,preview), tank=node('img','dk-vm-tank',null,stage);
         tank.src=mod.preview.tank; tank.alt='T32';
         var marker=node('div','dk-vm-marker',null,stage), effects=node('div','dk-vm-effects',null,stage);
@@ -182,15 +182,20 @@
             var title=labels['tpl_'+key] || (value && typeof value.name==='string' && value.name) || key;
             return title===key?key:title+' ('+key+')';
         }
+        // A closed group with a title button; returns the element to fill.
+        function collapsible(owner,title) {
+            var details=node('div','dk-vm-details',null,owner), body;
+            button(details,title,function () { body.style.display=body.style.display==='none'?'block':'none'; });
+            body=node('div','',null,details); body.style.display='none';
+            return body;
+        }
         function objectForm(owner,path,object,defaults) {
             var source=M.merge(defaults || {},object || {});
             Object.keys(source).forEach(function (key) {
                 var value=source[key], next=path.concat([key]);
                 if (Array.isArray(value)) { arrayForm(owner,next,value); }
                 else if (value && typeof value==='object') {
-                    var details=node('div','dk-vm-details',null,owner), body;
-                    button(details,path[path.length-1]==='def'?templateTitle(key,value):label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
-                    body=node('div','',null,details); body.style.display='none'; objectForm(body,next,value);
+                    objectForm(collapsible(owner,path[path.length-1]==='def'?templateTitle(key,value):label(key)),next,value);
                 } else { widget(owner,next,value); }
             });
         }
@@ -298,9 +303,7 @@
             }
             if (section==='icons') {
                 ['vehicleIcon','levelIcon','contourIcon','actionMarker','hoverMarker','vehicleStatusMarker','damageIndicator'].forEach(function (key) {
-                    var details=node('div','dk-vm-details',null,form), body;
-                    button(details,label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
-                    body=node('div','',null,details); body.style.display='none'; scoped(body,key);
+                    scoped(collapsible(form,label(key)),key);
                 });
                 return;
             }

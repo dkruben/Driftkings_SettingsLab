@@ -117,6 +117,14 @@ button('remove').fire('click');
 saved = commits[commits.length - 1];
 assert.deepStrictEqual(JSON.parse(saved[1]).colors.hp.map(band => band.value), [25, 50, 75, 100]);
 
+// Each collapsible group starts with its title button and keeps its content closed below it.
+const groups = parent.querySelectorAll('.dk-vm-details');
+assert(groups.length > 0);
+groups.forEach(group => {
+    assert.strictEqual(group.childNodes[0].tagName, 'BUTTON');
+    assert.strictEqual(group.childNodes[1].style.display, 'none');
+});
+
 // Editing a limit of a list that only exists as a default stores an array, not an object keyed by index.
 const fresh = DK.vehicleMarkersEditor.create(new Node('div'), {preview: {labels: {}, bindings, palettes: null, tank: 'tank.png'}},
     {labels: {}, commit: (key, value) => commits.push([key, value]), preview() {}});
@@ -153,5 +161,16 @@ assert.doesNotThrow(() => guarded.update(Object.assign({}, values, {markersAlive
 assert(/circular/i.test(damaged.querySelectorAll('.dk-vm-error')[0].textContent), 'the error box explains the reference problem');
 assert.doesNotThrow(() => damaged.querySelectorAll('button').filter(node => node.textContent === 'damage')[0].fire('click'));
 assert.doesNotThrow(() => damaged.querySelectorAll('button').filter(node => node.textContent === 'general')[0].fire('click'));
+
+// The sample toggles show whether they are on.
+const isOn = node => node.className.split(' ').indexOf('is-active') >= 0;
+const indicators = button('indicators');
+assert(!isOn(indicators));
+indicators.fire('click');
+assert(isOn(indicators), 'indicators on');
+indicators.fire('click');
+assert(!isOn(indicators), 'indicators off');
+const turret = button('turretMarkers');
+[true, true, true, false].forEach(expected => { turret.fire('click'); assert.strictEqual(isOn(turret), expected); });
 
 console.log('Vehicle marker editor: colour limits, slider limits and invalid references passed');
