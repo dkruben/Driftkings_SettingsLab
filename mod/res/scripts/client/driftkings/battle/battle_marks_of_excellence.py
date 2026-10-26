@@ -28,7 +28,7 @@ from driftkings.game_constants import BATTLE_EVENT_TYPE, DAMAGE_EVENTS
 from driftkings.settings.definitions.battle.battle_marks_of_excellence import \
     BattleMarksOfExcellenceSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.views.battle.battle_marks_of_excellence import BattleMarksAdapter
+from driftkings.gameface.batalha.battle_marks_of_excellence import BattleMarksAdapter
 from driftkings.views.marks_model import compact_model
 
 

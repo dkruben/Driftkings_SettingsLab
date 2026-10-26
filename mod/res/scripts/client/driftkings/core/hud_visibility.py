@@ -75,21 +75,6 @@ class HudVisibility(object):
             self.hooked = True
         battleEvents.ended.connect(self.reset)
 
-    def gamefaceShown(self, original, view, *args, **kwargs):
-        result = original(view, *args, **kwargs)
-        if self.active:
-            self.block(view, True)
-        return result
-
-    def gamefaceHidden(self, original, view, *args, **kwargs):
-        try:
-            return original(view, *args, **kwargs)
-        finally:
-            wasShown = view in self.blockers
-            self.block(view, False)
-            if wasShown:
-                self.block('native', False)
-
     def installHooks(self):
         # Core service hooks have their own lifecycle, like BattleEvents.
         from gui.Scaleform.daapi.view.meta.BattlePageMeta import BattlePageMeta
@@ -97,15 +82,8 @@ class HudVisibility(object):
         from driftkings.core.hooks import override
         for method in ('as_setComponentsVisibilityS', 'as_setComponentsVisibilityWithFadeS'):
             override(BattlePageMeta, method, self.nativeVisibility)
-        # Gameface can also close via its own lifecycle rather than a TAB key-up.
-        try:
-            from gui.impl.battle.battle_page.tab_view import TabView
-        except ImportError:
-            TabView = None
-        if TabView is not None:
-            override(TabView, '_onShown', self.gamefaceShown)
-            override(TabView, '_onHidden', self.gamefaceHidden)
-            override(TabView, '_finalize', self.gamefaceHidden)
+        from driftkings.gameface.batalha.hud_visibility import install
+        install(self)
 
     def stop(self):
         if not self.active:

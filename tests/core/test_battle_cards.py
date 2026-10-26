@@ -187,7 +187,7 @@ class BattleCardTests(RuntimeTest):
                 number_locale=lambda language: {'decimalSeparator': '.', 'groupSeparator': ','}),
             'BattleReplay': module(isPlaying=lambda: True),
         })
-        adapter = source('views/battle/battle_marks_of_excellence.py', deps)['BattleMarksAdapter']()
+        adapter = source('gameface/batalha/battle_marks_of_excellence.py', deps)['BattleMarksAdapter']()
         adapter.install()
         adapter.startBattle()
         self.assertFalse(adapter.active)

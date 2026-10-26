@@ -99,7 +99,7 @@ class RatingViews(object):
         override(PlayersPanel,'as_setPanelModeS',self.nativeMode)
         override(PlayersPanel,'setInitialMode',self.initialMode)
         override(PlayersPanel,'tryToSetPanelModeByMouse',self.nativeHover)
-        from driftkings.views.battle.panel_gameface import GamefaceLoading
+        from driftkings.gameface.batalha.panel_gameface import GamefaceLoading
         if not hasattr(self, 'gameface'):
             self.gameface=GamefaceLoading(self)
         self.refresh()

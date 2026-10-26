@@ -10,7 +10,7 @@ from support import CLIENT
 class GamefaceEventsTests(unittest.TestCase):
     def test_literal_event_extensions_contain_pairs_not_a_flat_command_and_handler(self):
         checked = 0
-        for folder, dirs, files in os.walk(os.path.join(CLIENT, 'views')):
+        for folder, dirs, files in os.walk(CLIENT):
             for name in files:
                 if not name.endswith('.py'):
                     continue
