@@ -40,7 +40,7 @@ class CameraSettingsTests(RuntimeTest):
             with self.assertRaises(ValueError):
                 self.policy.validate(values)
 
-    def test_artillery_keeps_actual_native_values_not_hardcoded_xvm_values(self):
+    def test_artillery_keeps_actual_native_values_not_hardcoded_reference_values(self):
         camera = module(_baseCfg={})
         def original(camera):
             camera._baseCfg.update(distRange=(66, 177), scrollSensitivity=7, other='keep')

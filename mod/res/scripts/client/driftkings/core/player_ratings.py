@@ -26,7 +26,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
-from driftkings.stats.vehinfo import calculateXvmScale, getVehicleInfoData, scaleValuesInstance
+from driftkings.stats.vehinfo import calculateRatingScale, getVehicleInfoData, scaleValuesInstance
 
 LOG = get_logger('driftkings.core.player_ratings')
 
@@ -99,7 +99,7 @@ def format_rating(template, info, vehicle, available, scale=0):
     colors['xr'] = colors['r']
     colors['system'] = values.get('_systemColor', '96FF00' if values.get('ally') else 'F50800')
     colors['spotted'] = {'lost': 'D9D9D9', 'spotted': 'FFBB00', 'dead': 'FFFFFF'}.get(values.get('spotted'), '000000')
-    values['xvm-stat'] = available
+    values['stat-available'] = available
     values['anonym'] = bool(vehicle.get('isAnonymized', False))
     values['r_size'] = {'xwn8': 2, 'xeff': 2, 'winrate': 2, 'wgr': 5}.get(rating, 4)
     values['c'] = colors
@@ -313,14 +313,14 @@ class CalculatorRating(object):
     def xeff(eff):
         if not eff:
             return 0
-        value = calculateXvmScale('eff', eff)
+        value = calculateRatingScale('eff', eff)
         return value if value >= 0 else 0
 
     @staticmethod
     def xwn8(wn8):
         if not wn8:
             return 0
-        value = calculateXvmScale('wn8', wn8)
+        value = calculateRatingScale('wn8', wn8)
         return value if value >= 0 else 0
 
     @staticmethod

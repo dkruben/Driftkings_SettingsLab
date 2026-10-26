@@ -167,7 +167,7 @@ assert(!DK.profileDialogs.isOpen());
 window_.querySelectorAll('.dk-installed-button')[0].fire('click');
 assert(DK.profileDialogs.isOpen());
 
-// Integrated editor edits the XVM files and sends JSON drafts through the normal session.
+// Integrated editor edits the marker files and sends JSON drafts through the normal session.
 const markerDir = path.join(root, 'res/configs/driftkings/default/vehicle_markers');
 const markerFile = name => JSON.parse(fs.readFileSync(path.join(markerDir, name + '.json'), 'utf8'));
 const markerGeneral = markerFile('markers').markers;

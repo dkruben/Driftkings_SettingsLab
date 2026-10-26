@@ -12,15 +12,15 @@ CONFIRMED_CONFLICT = 'CONFIRMED_CONFLICT'
 UNKNOWN = 'UNKNOWN'
 
 MODULES = {
-    'XVM': ('xvm_main', 'xvm_battle', 'xvm_battle_minimap'),
+    'ExternalMarkers': ('xvm_main', 'xvm_battle', 'xvm_battle_minimap'),
     'ModsListAPI': ('gui.modsListApi',),
     'OpenWGGameface': ('openwg_gameface',),
     'BattleObserver': ('gui.mods.mod_armagomen_battle_observer',
                        'armagomen.battle_observer.battle.minimap'),
 }
 FEATURES = {
-    'team_panels': ('XVM',),
-    'minimap_enhancements': ('XVM', 'BattleObserver')
+    'team_panels': ('ExternalMarkers',),
+    'minimap_enhancements': ('ExternalMarkers', 'BattleObserver')
 }
 
 
@@ -64,7 +64,7 @@ class CompatibilityManager(object):
         # ABSENT means not observed in the loaded runtime, not a disk inventory.
         return self.status(name) == PRESENT
 
-    def _xvm_active(self, feature):
+    def _external_markers_active(self, feature):
         module_name, path = {
             'team_panels': ('xvm_battle', 'playersPanel.enabled'),
             'minimap_enhancements': ('xvm_battle_minimap', 'minimap.enabled'),
@@ -73,7 +73,7 @@ class CompatibilityManager(object):
             return None
         module = self.module(module_name)
         config = self.module('xvm_main.config')
-        # Some XVM loaders expose config on the already-loaded package.
+        # Some external loaders expose config on the already-loaded package.
         if config is None:
             config = read(self.module('xvm_main'), 'config')
         loaded, getter = read(module, 'owg_module_loaded'), read(config, 'get')
@@ -93,7 +93,7 @@ class CompatibilityManager(object):
         state = self.status(integration)
         if state != PRESENT:
             return state
-        active = self._xvm_active(feature) if integration == 'XVM' else None
+        active = self._external_markers_active(feature) if integration == 'ExternalMarkers' else None
         # Battle Observer imports are evidence of potential overlap only. They
         # do not prove that an instance/settings are active in this battle.
         if active is False:

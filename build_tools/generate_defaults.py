@@ -89,7 +89,7 @@ def assemble(root=ROOT):
             data['carousel'] = {key: value for key, value in general.items() if key not in data}
             data['carousel'].update(normal=get(prefix + 'carouselnormal.json'), small=get(prefix + 'carouselsmall.json'))
         elif identifier == 'vehicle_markers':
-            # XVM layout: markers.json (its enabled is the section switch) and four state files.
+            # Marker layout: markers.json (its enabled is the section switch) and four state files.
             markers = dict(get('default/vehicle_markers/markers.json')['markers'])
             data = {'enabled': markers.pop('enabled'), 'markers': markers}
             for name in ('markersAliveNormal', 'markersAliveExtended', 'markersDeadNormal', 'markersDeadExtended'):

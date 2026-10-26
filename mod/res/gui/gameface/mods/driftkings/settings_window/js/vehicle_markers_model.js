@@ -70,7 +70,7 @@
     var field = {name:'',textFormat:font,enabled:true,format:'<font size="13" color="{{c:team}}">{{vehicle}}</font>',x:-100,y:-65,width:200,height:25,alpha:100,align:'center',shadow:shadow};
     function ratingField(alt) {
         return merge(field,{name:'Rating',format:alt?'{{r}}':'\u2022',x:alt?-100:-65,y:alt?-115:-25,width:alt?200:28,height:25,
-            alpha:alt?100:'{{xvm-stat?100|0}}',align:alt?'center':'right',textFormat:{font:'$FieldFont',size:alt?13:17,color:'{{c:xr}}'}});
+            alpha:alt?100:'{{stat-available?100|0}}',align:alt?'center':'right',textFormat:{font:'$FieldFont',size:alt?13:17,color:'{{c:xr}}'}});
     }
     var defaults = {
         enabled:true,debug:false,markers:{enabled:true},customFields:{enabled:true,ally:{},enemy:{},dead:{}},
@@ -132,7 +132,7 @@
     function text(template, config, sample, damage) {
         var hp = sample.state === 'dead' || sample.group === 'dead' ? 0 : Math.round(1550*sample.hp/100);
         var values = {vehicle:'T32',name:sample.name || 'DriftKings',hp:hp,maxHp:1550,hpPercent:Math.round(hp/1550*100),level:8,'c:team':teamColor(config,sample),'c:hp':hpColor(config,{hp:hp/1550*100})};
-        var ratings=config.ratingValues || {wn8:2000,wnx:1800,eff:1400,xwn8:75,xeff:65,battles:15000,winrate:55,'xvm-stat':true};
+        var ratings=config.ratingValues || {wn8:2000,wnx:1800,eff:1400,xwn8:75,xeff:65,battles:15000,winrate:55,'stat-available':true};
         Object.keys(ratings).forEach(function (key) { values[key]=ratings[key]; });
         if (!config.ratingValues) {
             var selected=config.ratingType || 'wn8'; values.r=values[selected]; values.xr=values['x'+selected];
@@ -140,11 +140,12 @@
         }
         if (sample.statsAvailable===false || sample.anonym) {
             ['wn8','wnx','eff','xwn8','xeff','wgr','winrate','battles','kb','r','xr'].forEach(function (key) { values[key]=null; values['c:'+key]=config.colors.team.unknown; });
-            values['xvm-stat']=false;
+            values['stat-available']=false;
         }
         values['stock-turret']=!!sample.turret; values['turret-vulnerability']=sample.turret || 'none';
         values.turret=sample.turret==='high'?config.turretMarkers.highVulnerability:sample.turret==='low'?config.turretMarkers.lowVulnerability:sample.turret==='unknown'?config.turretMarkers.unknown:'';
-        values['a:r']=values['xvm-stat']?100:0;
+        values['a:r']=values['stat-available']?100:0;
+        values['xvm-stat']=values['stat-available']; // Legacy profile macro.
         values.nick=sample.name || 'DriftKings'; values.clan='[DK]';
         values['hp-max']=values.maxHp; values['hp-ratio']=values.hpPercent; values['c:system']=values['c:team'];
         values.distance=values.dist=sample.distance===undefined?350:sample.distance;
@@ -179,10 +180,10 @@
         }
         return result;
     }
-    /* XVM files (markers.json wiring + four state files), mirrored from core/vehicle_markers/xvm.py. */
+    /* marker files (markers.json wiring + four state files), mirrored from core/vehicle_markers/schema.py. */
     var STATE_KEYS=['markersAliveNormal','markersAliveExtended','markersDeadNormal','markersDeadExtended'];
     var WIRING=/^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$/;
-    var XVM_GLYPHS={'&#x115;':'\u2022'};
+    var PRIVATE_FONT_GLYPHS={'&#x115;':'\u2022'};
     function wiring(raw,team,state,mode) {
         var value=(((raw.markers || {})[team] || {})[state] || {})[mode];
         if (value && typeof value==='object') { return {inline:true,path:['markers',team,state,mode]}; }
@@ -190,7 +191,7 @@
         if (!match) { throw new Error('Invalid marker wiring: '+team+'.'+state+'.'+mode); }
         return {key:match[1],part:match[2],path:[match[1],match[2]]};
     }
-    function xvmBlock(raw,documents,team,state,mode) {
+    function markerBlock(raw,documents,team,state,mode) {
         var link=wiring(raw,team,state,mode);
         if (link.inline) { return resolve(raw.markers[team][state][mode]); }
         if (!documents[link.key]) {
@@ -214,7 +215,7 @@
         if (valign==='bottom') { y-=height; } else if (valign==='center') { y-=height/2; }
         var textFormat=pick(options.textFormat || {},['font','size','color','bold','italic']), format=get(options,'format',defaultFormat || '');
         if (textFormat.font==='xvm' || textFormat.font==='XVMSymbol') {
-            Object.keys(XVM_GLYPHS).forEach(function (glyph) { format=format.split(glyph).join(XVM_GLYPHS[glyph]); });
+            Object.keys(PRIVATE_FONT_GLYPHS).forEach(function (glyph) { format=format.split(glyph).join(PRIVATE_FONT_GLYPHS[glyph]); });
             textFormat.font='$FieldFont';
         }
         var result={name:get(options,'name',''),enabled:get(options,'enabled',true),format:format,x:x,y:y,width:width,height:height,
@@ -268,7 +269,7 @@
             ['markers','customFields','healthBar','damageText','icons'].forEach(function (name) { result[name][team]={alive:{},dead:{}}; });
             ['alive','dead'].forEach(function (state) {
                 ['normal','extended'].forEach(function (mode) {
-                    var options=xvmBlock(raw,documents,team,state,mode);
+                    var options=markerBlock(raw,documents,team,state,mode);
                     result.markers[team][state][mode]={vehicleName:false,playerName:false,hp:'hidden',healthBar:false,
                         vehicleIcon:!!(options.contourIcon || {}).enabled,levelIcon:!!(options.levelIcon || {}).enabled,damage:true};
                     if (!enabled) { return; }

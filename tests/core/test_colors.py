@@ -26,7 +26,10 @@ class ColorTests(RuntimeTest):
                          ['#000000', '#CD3333', '#D77900', '#D7B600', '#6D9521',
                           '#4C762E', '#4A92B7', '#83579D', '#5A3175'])
 
-    def test_xvm_rating_snapshot_and_shared_damage_efficiency_limits(self):
+    def test_rating_snapshot_and_shared_damage_efficiency_limits(self):
+        tables = self.load('common.utils.color_rating_data').color_tables
+        self.assertEqual([table['ScaleColor'] for table in tables],
+                         ['NoobMeter', 'Driftkings', 'WoT-Life', 'Tomato.gg'])
         data = self.colors.getRatingColors(1)
         for metric, limits in (('wn8', [637, 1143, 1774, 2760, 3819, 99999]),
                                ('eff', [616, 892, 1191, 1554, 1890, 99999]),
@@ -95,7 +98,7 @@ class ColorTests(RuntimeTest):
         document = json.loads(resources[data.RESOURCE].decode('utf-8'))
         document['palettes'].append({'name': 'Additional', 'file': 'additional.json'})
         resources[data.RESOURCE] = json.dumps(document).encode('utf-8')
-        resources[data.RESOURCE_ROOT + 'additional.json'] = resources[data.RESOURCE_ROOT + 'xvm.json']
+        resources[data.RESOURCE_ROOT + 'additional.json'] = resources[data.RESOURCE_ROOT + 'driftkings.json']
         loaded = data.load_tables(resources.__getitem__)['color_tables']
         self.assertEqual(loaded[:-1], data.color_tables)
         self.assertEqual(loaded[-1]['ScaleColor'], 'Additional')
@@ -112,7 +115,7 @@ class ColorTests(RuntimeTest):
         try:
             self.assertEqual(data.load_tables()['color_tables'], data.color_tables)
             self.assertEqual(paths, [data.RESOURCE] + [data.RESOURCE_ROOT + filename
-                for filename in ('noobmeter.json', 'xvm.json', 'wotlife.json', 'tomato.json')])
+                for filename in ('noobmeter.json', 'driftkings.json', 'wotlife.json', 'tomato.json')])
         finally:
             if previous is None:
                 del sys.modules['ResMgr']

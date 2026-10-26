@@ -107,7 +107,7 @@
       "enabled": true,
       "x": -20,
       "y": -20,
-      "alpha": "{{xvm-stat?100|0}}",
+      "alpha": "{{stat-available?100|0}}",
       "align": "right",
       "textFormat": {
         "font": "XVMSymbol",

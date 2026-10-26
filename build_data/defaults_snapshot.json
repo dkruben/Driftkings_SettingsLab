@@ -164,7 +164,7 @@
     {
       "path": "default/team_panels/battleloading.json",
       "source_sha256": "679d099a47730a88f8c074acc73404c5f05cf5a95c06ad9a4e1237251981f828",
-      "sha256": "d69c859a5268ae2a2e8eefc8771400a5c760241bf911b4d88db25010d7a24d8f"
+      "sha256": "7f066c5f3b2cec0068a96fcf31dc827d5af26fde3b921f280ec1f42e7c0ac5e7"
     },
     {
       "path": "default/team_panels/general.json",
@@ -174,7 +174,7 @@
     {
       "path": "default/team_panels/panellarge.json",
       "source_sha256": "5ef252f56c2cbec9c3a7c94493345daaadfa7a0ffd23d6b2db366d8f31b57489",
-      "sha256": "f158f3ccf9372df5c0d957d753546804f9096842c3df4fbfd4640a29e3814a6f"
+      "sha256": "b86340fa6305c887e3127cdd27657ed6ad35f2e3f79cb72de6bdc01eb652cb6d"
     },
     {
       "path": "default/team_panels/panelmedium.json",
@@ -194,7 +194,7 @@
     {
       "path": "default/team_panels/panelshort.json",
       "source_sha256": "79165485c68c907fd96026f4725d8189dddd49fe7bd7838b52b7b2c26c1ed9d6",
-      "sha256": "239768ba439e47228df5381e265fde73a6d737c46598af700f60d84fbd4d8742"
+      "sha256": "58e1a74eff6c630cf84e08ed3610660749e7d907920b8b47be4d4b9a589fd49a"
     },
     {
       "path": "default/team_panels/playerspanel.json",
@@ -204,7 +204,7 @@
     {
       "path": "default/team_panels/statisticform.json",
       "source_sha256": "b3231bd35a8d4c6a4f1863bcc321fe0d32722a48fdaf950978dd79dd130426f8",
-      "sha256": "df8c8b9d33c5eb00493c606f5020e39377f8d1a3bd838be942067074d2f36495"
+      "sha256": "1427b1ae83d8f795df2e4d35edd66e4f44287418d15f0927a8b2f1f5c3b31a88"
     },
     {
       "path": "default/tech_tree_marks_of_excellence.json",
@@ -246,7 +246,7 @@
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "03280135f6c538ce4c6c1caf258153b4e95d447744654a931994bd90a31ee077"
+      "sha256": "ca444beb0c23a220043235162191281f5f648e3f4128d9f5379327833758d92b"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",

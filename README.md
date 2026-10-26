@@ -112,7 +112,7 @@ For custom media, use `mods/configs/driftkings/images/` and `mods/configs/driftk
 
 ### Ratings and palettes
 
-Choose from **NoobMeter, XVM, WoT-Life and Tomato.gg** palettes. WNX includes assistance damage for your own battle, results and carousel vehicles; missing data displays `--`. Expected values refresh daily in the hangar and retain the last valid cache if a download fails.
+Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX includes assistance damage for your own battle, results and carousel vehicles; missing data displays `--`. Expected values refresh daily in the hangar and retain the last valid cache if a download fails.
 
 The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c_wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
 

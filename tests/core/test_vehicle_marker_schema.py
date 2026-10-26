@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""XVM-style marker files map onto the runtime profiles with XVM's own geometry."""
+"""Structured marker files map onto the runtime profiles with fixed-box geometry."""
 import copy
 import json
 import os
@@ -9,23 +9,23 @@ from support import ROOT, RuntimeTest
 DIRECTORY = os.path.join(ROOT, 'res', 'configs', 'driftkings', 'default', 'vehicle_markers')
 
 
-class VehicleMarkersXvmTests(RuntimeTest):
+class VehicleMarkerSchemaTests(RuntimeTest):
     def setUp(self):
-        super(VehicleMarkersXvmTests, self).setUp()
-        self.xvm = self.load('core.vehicle_markers.xvm')
+        super(VehicleMarkerSchemaTests, self).setUp()
+        self.schema = self.load('core.vehicle_markers.schema')
         documents = {}
-        for name in self.xvm.FILES:
+        for name in self.schema.FILES:
             with open(os.path.join(DIRECTORY, name), 'rb') as stream:
                 documents[name] = json.loads(stream.read().decode('utf-8'))
         self.documents = documents
-        self.data = self.xvm.join(documents)
+        self.data = self.schema.join(documents)
 
     def profiles(self, data=None):
         prepared = self.load('core.vehicle_markers.config').prepare(copy.deepcopy(data or self.data))
         return prepared['customFields']['profiles']
 
-    def test_files_follow_xvm_layout_without_xmqp(self):
-        self.assertEqual(sorted(os.listdir(DIRECTORY)), sorted(self.xvm.FILES))
+    def test_files_follow_marker_layout_without_xmqp(self):
+        self.assertEqual(sorted(os.listdir(DIRECTORY)), sorted(self.schema.FILES))
         markers = self.documents['markers.json']['markers']
         self.assertEqual(markers['enemy']['dead']['extended'], '${markersDeadExtended.json:enemy}')
         text = json.dumps(self.documents)
@@ -36,7 +36,7 @@ class VehicleMarkersXvmTests(RuntimeTest):
         self.assertEqual(normal['enemy']['textFields'], ['${def.tankName}', '${def.tankHp}', '${def.rating}', '${def.position}'])
         self.assertEqual(normal['ally']['damageText'], {'$ref': {'path': 'def.damageText'}})
 
-    def test_defaults_keep_xvm_layout_and_eu_customizations(self):
+    def test_defaults_keep_marker_layout_and_eu_customizations(self):
         normal = self.documents['markersAliveNormal.json']
         self.assertEqual(normal['ally']['healthBar']['width'], 70)
         self.assertEqual(normal['ally']['healthBar']['damage']['color'], '{{c:dmg}}')
@@ -45,7 +45,7 @@ class VehicleMarkersXvmTests(RuntimeTest):
         self.assertEqual(normal['def']['tankName']['format'], '{{vehicle}}{{turret}}')
         self.assertEqual(self.documents['markersAliveExtended.json']['def']['hpPercent']['format'], '{{hp-ratio}}% / {{hp-max}}')
 
-    def test_text_fields_use_xvm_boxes_anchored_by_alignment(self):
+    def test_text_fields_use_marker_boxes_anchored_by_alignment(self):
         profile = self.profiles()['enemy']['alive']['normal']
         names = [field['name'] for field in profile['fields']]
         # The EU layout disables the distance field in normal mode.
@@ -85,7 +85,7 @@ class VehicleMarkersXvmTests(RuntimeTest):
         self.assertFalse(dead['healthBar']['enabled'])
         self.assertEqual(dead['fields'], [])
 
-    def test_icons_follow_xvm_positions(self):
+    def test_icons_follow_marker_positions(self):
         icons = self.profiles()['enemy']['alive']['normal']['icons']
         self.assertEqual((icons['class']['containerX'], icons['class']['containerY']), (0, -16))
         self.assertFalse(icons['class']['showSpeaker'])
@@ -132,9 +132,9 @@ class VehicleMarkersXvmTests(RuntimeTest):
         self.assertIsNone(prepared['customFields']['profiles']['ally']['alive']['normal']['fields'])
 
     def test_general_settings_split_and_join_without_loss(self):
-        files = dict(self.xvm.split(self.data))
+        files = dict(self.schema.split(self.data))
         self.assertEqual(files['markers.json'], self.documents['markers.json'])
-        self.assertEqual(self.xvm.join(files), self.data)
+        self.assertEqual(self.schema.join(files), self.data)
 
     def test_flash_never_uses_replace_callbacks(self):
         # Scaleform inserts the callback's source text instead of calling it.
@@ -147,26 +147,26 @@ class VehicleMarkersXvmTests(RuntimeTest):
                     self.assertIsNone(re.search(r'\.replace\([^\n]*,\s*function\b', text), name)
 
     def test_null_options_are_unset_like_missing_ones(self):
-        # XVM treats null as "not set"; the settings window preview does the same, so the battle must agree.
-        xvm = self.xvm
-        self.assertEqual(xvm.health_bar({'x': None, 'y': None, 'width': None, 'height': None, 'alpha': None,
-                                         'border': None, 'fill': None, 'damage': None}, False), xvm.health_bar({}, False))
-        self.assertEqual(xvm.health_bar({'border': {'alpha': None, 'size': None}, 'fill': {'alpha': None},
-                                         'damage': {'alpha': None, 'fade': None}}, True), xvm.health_bar({}, True))
+        # The schema treats null as "not set"; the settings window preview does the same, so the battle must agree.
+        schema = self.schema
+        self.assertEqual(schema.health_bar({'x': None, 'y': None, 'width': None, 'height': None, 'alpha': None,
+                                         'border': None, 'fill': None, 'damage': None}, False), schema.health_bar({}, False))
+        self.assertEqual(schema.health_bar({'border': {'alpha': None, 'size': None}, 'fill': {'alpha': None},
+                                         'damage': {'alpha': None, 'fade': None}}, True), schema.health_bar({}, True))
         nulls = dict((key, None) for key in ('x', 'y', 'offsetX', 'offsetY', 'alpha', 'enabled'))
-        self.assertEqual(xvm.icons({'vehicleIcon': nulls, 'damageIndicator': dict(nulls, showText=None),
+        self.assertEqual(schema.icons({'vehicleIcon': nulls, 'damageIndicator': dict(nulls, showText=None),
                                     'levelIcon': None, 'hoverMarker': {'glow': None}}),
-                         xvm.icons({'levelIcon': {'enabled': False}}))
+                         schema.icons({'levelIcon': {'enabled': False}}))
         field = dict((key, None) for key in ('x', 'y', 'width', 'height', 'align', 'alpha', 'enabled', 'format', 'name'))
-        self.assertEqual(xvm.text_field(field), xvm.text_field({}))
-        self.assertEqual(xvm.damage_text(dict(field, speed=None, maxRange=None, damageMessage=None, blowupMessage=None)),
-                         xvm.damage_text({}))
+        self.assertEqual(schema.text_field(field), schema.text_field({}))
+        self.assertEqual(schema.damage_text(dict(field, speed=None, maxRange=None, damageMessage=None, blowupMessage=None)),
+                         schema.damage_text({}))
         data = copy.deepcopy(self.data)
         data['markersAliveNormal']['ally'] = {'textFields': None}
-        self.assertEqual(xvm.adapt(data)['customFields']['ally']['alive']['normal'], [])
+        self.assertEqual(schema.adapt(data)['customFields']['ally']['alive']['normal'], [])
 
     def test_private_font_aliases_use_client_glyphs_and_preserve_custom_text(self):
         for font in ('xvm', 'XVMSymbol'):
-            field = self.xvm.text_field({'format': '&#x115; <b>!</b>', 'textFormat': {'font': font}})
+            field = self.schema.text_field({'format': '&#x115; <b>!</b>', 'textFormat': {'font': font}})
             self.assertEqual(field['format'], u'\u2022 <b>!</b>')
             self.assertEqual(field['textFormat']['font'], '$FieldFont')

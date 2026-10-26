@@ -58,7 +58,7 @@ def _scale_documents(document, field=None):
     return bool(entries) and all(isinstance(value, dict) and valid_scale(value.get(field)) for value in entries)
 
 
-def valid_xvm_scales(document):
+def valid_rating_scales(document):
     return isinstance(document, dict) and _scale_documents(document)
 
 
@@ -88,7 +88,7 @@ HOST = 'https://static.modxvm.com/'
 URL_WN8 = HOST + 'wn8-data-exp/json/%s/wn8exp.json' % _FLAVOR
 URL_XTE = HOST + 'xte.json'
 URL_XTDB = HOST + 'xtdb.json'
-URL_XVM_SCALE = HOST + 'xvmscales-%s.json' % _FLAVOR
+URL_RATING_SCALE = HOST + 'xvmscales-%s.json' % _FLAVOR
 URL_WNX = 'https://tomato.gg/wnx'
 MAX_DOWNLOAD = 16 * 1024 * 1024
 READ_CHUNK = 64 * 1024
@@ -118,7 +118,7 @@ UNKNOWN_VEHICLE_DATA = {
     'isReserved': False
 }
 
-XVM_SCALE_TO_SUP_CACHE = [str(i) for i in range(1, 101)]
+RATING_SCALE_LABELS = [str(i) for i in range(1, 101)]
 
 
 class ScaleValues(object):
@@ -130,7 +130,7 @@ class ScaleValues(object):
         self.wn8_data = {}
         self.wn8_revision = 0
         self.xte_data = {}
-        self.xvmScale_data = {}
+        self.rating_scale_data = {}
         self.xtdb_data = {}
         self.config_path = cache_directory('stats')
         self.settings = {'onlineUpdateData': True, 'showExpectedTankValuesMessage': True}
@@ -185,12 +185,12 @@ class ScaleValues(object):
         }
 
     @staticmethod
-    def XvmScaleToSup(x=None):
+    def ratingScaleToLabel(x=None):
         if x is None:
             return None
         if not finite_number(x):
             return None
-        return XVM_SCALE_TO_SUP_CACHE[min(100, max(1, int(x))) - 1] if x > 0 else 0.0
+        return RATING_SCALE_LABELS[min(100, max(1, int(x))) - 1] if x > 0 else 0.0
 
     @staticmethod
     def download(url, deadline=DOWNLOAD_DEADLINE):
@@ -237,9 +237,13 @@ class ScaleValues(object):
             return False
 
     def _readCache(self, filename):
+        from driftkings.core.legacy_names import CACHE_ALIASES
         path = os.path.join(self.config_path, filename)
         try:
             recoverFile(path)
+            if not os.path.isfile(path) and filename in CACHE_ALIASES:
+                path = os.path.join(self.config_path, CACHE_ALIASES[filename])
+                recoverFile(path)
             with open(path, 'rb') as stream:
                 data = json.loads(stream.read().decode('utf-8-sig'))
             if not isinstance(data, dict):
@@ -351,10 +355,11 @@ class ScaleValues(object):
         callback(HANGAR_CHECK_INTERVAL, self._checkUpdates)
 
     def _loadRefreshState(self):
+        from driftkings.core.legacy_names import CACHE_ALIASES
         data = self._readCache('refresh-state.json')
         self._refreshState = {}
         for filename, url, validate in self.SOURCES:
-            entry = data.get(filename)
+            entry = data.get(filename, data.get(CACHE_ALIASES.get(filename)))
             if isinstance(entry, dict) and all(
                     finite_number(entry.get(key, 0)) and entry.get(key, 0) >= 0 for key in ('success', 'retry')):
                 self._refreshState[filename] = entry
@@ -366,10 +371,10 @@ class ScaleValues(object):
         except (IOError, OSError):
             LOG.exception('Could not save statistics refresh times')
 
-    def _loadXvmScaleData(self):
-        data = self._readCache('xvmScales.json')
+    def _loadRatingScaleData(self):
+        data = self._readCache('ratingScales.json')
         if data:
-            self.xvmScale_data = data
+            self.rating_scale_data = data
 
     def _loadWn8Data(self):
         data = self._readCache('wn8exp.json')
@@ -428,12 +433,12 @@ class ScaleValues(object):
         if document:
             set_wnx_reference(document)
 
-    SOURCES = (('xvmScales.json', URL_XVM_SCALE, valid_xvm_scales),
+    SOURCES = (('ratingScales.json', URL_RATING_SCALE, valid_rating_scales),
                ('wn8exp.json', URL_WN8, valid_wn8),
                ('xte.json', URL_XTE, valid_scaled_vehicles),
                ('xtdb.json', URL_XTDB, valid_scaled_vehicles),
                ('wnxexp.json', URL_WNX, valid_wnx))
-    APPLY = {'xvmScales.json': _loadXvmScaleData, 'wn8exp.json': _loadWn8Data,
+    APPLY = {'ratingScales.json': _loadRatingScaleData, 'wn8exp.json': _loadWn8Data,
              'xte.json': _loadXteData, 'xtdb.json': _loadXtdbData, 'wnxexp.json': _loadWnxData}
 
     def getVehicleInfoData(self, vehCD):
@@ -453,10 +458,10 @@ class ScaleValues(object):
         if self.vehicleInfoData is not None and vehCD in self.vehicleInfoData:
             self.vehicleInfoData[vehCD]['isReserved'] = isReserved
 
-    def getXvmScaleData(self, rating):
-        if self.xvmScale_data is None:
+    def getRatingScaleData(self, rating):
+        if self.rating_scale_data is None:
             return None
-        return self.xvmScale_data.get('x{}'.format(rating))
+        return self.rating_scale_data.get('x{}'.format(rating))
 
     def getXteData(self, vehCD):
         if self.xte_data is None:
@@ -468,8 +473,8 @@ class ScaleValues(object):
             return None
         return self.xtdb_data.get(str(vehCD))
 
-    def calculateXvmScale(self, rating, value):
-        data = self.getXvmScaleData(rating)
+    def calculateRatingScale(self, rating, value):
+        data = self.getRatingScaleData(rating)
         if not valid_scale(data) or not finite_number(value):
             return -1
         for i, v in enumerate(data):
@@ -529,7 +534,7 @@ class ScaleValues(object):
 try:
     scaleValuesInstance = ScaleValues()
     getVehicleInfoData = scaleValuesInstance.getVehicleInfoData
-    calculateXvmScale = scaleValuesInstance.calculateXvmScale
+    calculateRatingScale = scaleValuesInstance.calculateRatingScale
     calculateXTDB = scaleValuesInstance.calculateXTDB
     calculateXTE = scaleValuesInstance.calculateXTE
 except ImportError:

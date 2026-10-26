@@ -4,7 +4,7 @@
     var DK=window.DK=window.DK || {}, M=DK.vehicleMarkerModel;
     function create(parent, mod, context) {
         var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, arrays={}, section='textFields', selected=0;
-        // XVM files edited by this form: markers.json and the four state files.
+        // marker files edited by this form: markers.json and the four state files.
         var ROOTS=['markers'].concat(M.STATE_KEYS);
         var FIELD={name:'',enabled:true,x:0,y:-36,alpha:100,align:'center',format:'{{vehicle}}',
             textFormat:{font:'$FieldFont',size:13,color:null,bold:false,italic:false},
@@ -130,7 +130,7 @@
                 if (key==='scale') { def.min=0.25; def.step=0.05; }
                 if (value===null) { def.type='text'; def.label += ' (auto)'; }
                 if (key==='maxCount') { def.min=1; def.max=12; }
-                // Paths start with the XVM file key (markersAliveNormal...), so containers are looked up anywhere in the path.
+                // Paths start with the marker file key (markersAliveNormal...), so containers are looked up anywhere in the path.
                 // The limits below match the validation in core/vehicle_markers (healthbar.py, damage.py).
                 var inBar=path.indexOf('healthBar')>=0, inBorder=path.indexOf('border')>=0;
                 if (key==='size') { def.min=1; def.max=100; }
@@ -183,7 +183,7 @@
                 }
             }
         }
-        // XVM template keys (def.tankName...) shown with a translated name and the key itself.
+        // Marker template keys (def.tankName...) shown with a translated name and the key itself.
         function templateTitle(key,value) {
             var title=labels['tpl_'+key] || (value && typeof value.name==='string' && value.name) || key;
             return title===key?key:title+' ('+key+')';
@@ -276,7 +276,7 @@
                 var add=button(bar,label('add'),function () { push(M.clone(FIELD)); }); add.disabled=list.length>=12;
                 var rating=button(bar,label('addRating'),function () {
                     push(sample.alt?M.merge(FIELD,{name:'Rating',y:-51,format:'{{r}}',textFormat:{color:'{{c:xr}}'}})
-                                   :M.merge(FIELD,{name:'Rating',x:-32,y:-21,align:'right',alpha:'{{xvm-stat?100|0}}',format:'&#x115;',
+                                   :M.merge(FIELD,{name:'Rating',x:-32,y:-21,align:'right',alpha:'{{stat-available?100|0}}',format:'&#x115;',
                                                    textFormat:{font:'xvm',size:17,color:'{{c:xr|#999999}}'},shadow:{blur:2,strength:1}}));
                 }); rating.disabled=list.length>=12;
                 var templates=node('input','',null,bar); templates.type='text'; templates.placeholder=label('def');
@@ -383,7 +383,7 @@
                 var style=iconOptions.enabled?iconOptions[kind]:{enabled:true,scale:1,alpha:100,deadAlpha:40,x:null,y:null};
                 if (!style.enabled || !visible) { return; }
                 var value=node('div','dk-vm-icon dk-vm-icon-'+kind,text,marker);
-                // XVM places the class icon through its container; native icons keep their default spot.
+                // The layout places the class icon through its container; native icons keep their default spot.
                 if (style.containerX!==undefined && style.containerX!==null) { x=style.containerX; y=style.containerY+12; }
                 value.style.left=(style.x===null || style.x===undefined?x:style.x)+'rem'; value.style.top=(style.y===null || style.y===undefined?y:style.y)+'rem';
                 value.style.color=M.teamColor(config,sample); value.style.opacity=style.alpha/100*(sample.state==='dead'?style.deadAlpha/100:1);

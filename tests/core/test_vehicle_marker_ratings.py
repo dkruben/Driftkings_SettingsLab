@@ -43,7 +43,7 @@ class MarkerRatingsTests(RuntimeTest):
                 result = api.values(stats, rating, scale)
                 self.assertEqual(result['r'], stats[rating])
                 self.assertEqual(result['c:xr'], colors.getStatisticColor(rating, stats[rating], scale))
-                self.assertTrue(result['xvm-stat'])
+                self.assertTrue(result['stat-available'])
                 self.assertEqual(result['a:r'], 100)
         self.assertIsNone(api.values(stats, 'wnx')['xr'])
 
@@ -53,7 +53,7 @@ class MarkerRatingsTests(RuntimeTest):
                                            ({'battles': 1000, 'wn8': 2000}, 1, True)):
             result = api.values(stats, 'wn8', 0, minimum, anonymous)
             self.assertIsNone(result['r'])
-            self.assertFalse(result['xvm-stat'])
+            self.assertFalse(result['stat-available'])
             self.assertEqual(result['a:r'], 0)
         self.assertEqual(api.values({'battles': 1000, 'wn8': 0})['r'], 0)
         self.assertIsNone(api.values({'battles': 1000, 'wn8': float('nan')})['r'])
@@ -110,13 +110,13 @@ class MarkerRatingsTests(RuntimeTest):
         del stats['stun_assisted_damage']
         self.assertIsNone(api.account_from_tanks(tanks, 10))
 
-    def test_xvm_field_properties_and_opacity_are_validated(self):
+    def test_rating_field_properties_and_opacity_are_validated(self):
         fields = self.load('core.vehicle_markers.fields')
-        field = {'name': 'Rating', 'format': '{{r}}', 'alpha': '{{xvm-stat?100|0}}',
+        field = {'name': 'Rating', 'format': '{{r}}', 'alpha': '{{stat-available?100|0}}',
                  'textFormat': {'font': '$FieldFont', 'size': 17, 'color': '{{c:xr|#999999}}', 'bold': True}}
         normalized = fields.normalize({'enabled': True, 'ally': {'normal': [field]}})['ally']['normal'][0]
         self.assertTrue(normalized['textFormat']['bold'])
-        self.assertEqual(normalized['alpha'], '{{xvm-stat?100|0}}')
+        self.assertEqual(normalized['alpha'], '{{stat-available?100|0}}')
         field['textFormat']['color'] = '{{c:unknown}}'
         with self.assertRaises(ValueError):
             fields.normalize({'enabled': True, 'ally': {'normal': [field]}})

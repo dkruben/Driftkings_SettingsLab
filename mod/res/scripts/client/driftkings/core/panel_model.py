@@ -107,7 +107,7 @@ class Roster(object):
             'a:spotted':100 if state in ('spotted','lost') and data[TEAM_PANELS.SPOTTED_ENABLED] else 0,
             'c:system':'#FFDD33' if own else ('#96FF00' if ally else '#F50800'),
             'sys-color-key':'player' if own else ('ally' if ally else 'enemy'),
-            'xvm-stat':'stat' if available else '', 'pp.mode':('none','short','medium','medium2','large').index(self.mode),
+            'stat-available':'stat' if available else '', 'pp.mode':('none','short','medium','medium2','large').index(self.mode),
             'pp.widthLeft':self.widths[0],'pp.widthRight':self.widths[1],
             'squad-num':vehicle.get('prebattleID') or None,
             'rankBadgeId':vehicle.get('rankBadgeId'), 'bp-stage':vehicle.get('bpStage'),
@@ -149,15 +149,15 @@ class Roster(object):
         values['stat-color']='stat' if available else ''
         if self.restricted:
             for key in STATISTICS: values[key]=None
-            values['xvm-stat']=''
+            values['stat-available']=''
         return values
 
     def screen(self,settings,values,data,side,dependencies=None):
         macros=Macros(values,data,self.translations,dependencies)
-        if dependencies is not None: dependencies.update(('xvm-stat','stat-color'))
+        if dependencies is not None: dependencies.update(('stat-available','stat-color'))
         result=macros.resolve(settings)
         # In event modes the numbers are hidden, but the player still has statistics.
-        available=truth(values['xvm-stat']) or truth(values.get('stat-color'))
+        available=truth(values['stat-available']) or truth(values.get('stat-color'))
         result['enabled']=bool(settings.get('enabled',True) and (available or settings.get('showUnavailable',True)))
         fields=[]
         entries=settings.get('extraFields'+side,[])
@@ -181,7 +181,7 @@ class Roster(object):
                 try: hotkey=int(hotkey)
                 except (ValueError,TypeError,OverflowError): hotkey=None
             if hotkey is not None:
-                # Left/right ALT are interchangeable in the default XVM fields.
+                # Left/right ALT are interchangeable in the default marker fields.
                 codes=(56,184) if int(hotkey)==56 else (int(hotkey),)
                 active=any(code in (self.keys if truth(field.get('onHold',False)) else self.toggled) for code in codes)
                 if truth(field.get('visibleOnHotKey',True)) != active: continue

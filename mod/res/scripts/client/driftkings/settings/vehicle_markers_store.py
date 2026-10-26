@@ -4,7 +4,7 @@ import os
 
 from driftkings.core.vehicle_markers.config import prepare
 from driftkings.core.vehicle_markers.references import defaults as merge_defaults
-from driftkings.core.vehicle_markers.xvm import FILES, join, legacy_general, split
+from driftkings.core.vehicle_markers.schema import FILES, join, legacy_general, split
 from driftkings.settings.store import JsonDocuments, read_object, recover_file
 
 # The earlier feature-split layout; only its general switches are carried over.
@@ -28,7 +28,7 @@ class VehicleMarkersStore(JsonDocuments):
         return documents
 
     def convert_legacy(self):
-        """Publish XVM files from the seven-file layout once; the old files are kept as .v2.bak."""
+        """Publish marker files from the seven-file layout once; the old files are kept as .v2.bak."""
         if os.path.isfile(self.path(FILES[1])) or not os.path.isfile(self.path('general.json')):
             return None
         legacy = self.read(LEGACY_FILES)

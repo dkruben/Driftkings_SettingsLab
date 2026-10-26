@@ -183,7 +183,7 @@ package driftkings.battle.components.ratings
             styleRow(item,cfg,state,globals,left,side);
             if (cfg.fixedPosition && row.fixedIndex>=0 && row.index>=0)
                 state.setValue(item,"y",state.base(item,"y")+(int(row.fixedIndex)-int(row.index))*25);
-            // XVM's mirrored icons bind to the registration point on
+            // Mirrored icons bind to the registration point on
             // both sides. width is an atlas bound, not an extra offset.
             var edge:Number=item.vehicleIcon.x;
             record.extra.draw(item as DisplayObjectContainer,"panel:"+row.id,cfg.fields,left,edge,0,-item.x);

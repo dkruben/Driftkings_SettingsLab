@@ -22,7 +22,7 @@ from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.stats.vehinfo import calculateXTE, calculateXvmScale, getVehicleInfoData
+from driftkings.stats.vehinfo import calculateXTE, calculateRatingScale, getVehicleInfoData
 from driftkings.views.battle.battle_performance import _startFlash
 from driftkings.views.hangar.battle_performance import install_results_gameface
 
@@ -130,12 +130,12 @@ class EfficiencyCalculator(object):
         rDEFc = max(0.0, min(rDAMAGEc + 0.1, max(0.0, (rDEF - 0.10) / (1 - 0.10))))
 
         WN8 = int(980 * rDAMAGEc + 210 * rDAMAGEc * rFRAGc + 155 * rFRAGc * rSPOTc + 75 * rDEFc * rFRAGc + 145 * min(1.8, rWINc))
-        XWN8 = calculateXvmScale('xwn8', WN8)
+        XWN8 = calculateRatingScale('xwn8', WN8)
         return WN8, XWN8
 
     def calculate_efficiency(self, damage, frags, spotted, capture, defence):
         EFF = int(max(0, int(damage * (10.0 / (self.avgTier + 2)) * (0.23 + 2 * self.avgTier / 100.0) + frags * 250 + spotted * 150 + math.log(capture + 1, 1.732) * 150 + defence * 150)))
-        XEFF = calculateXvmScale('xeff', EFF)
+        XEFF = calculateRatingScale('xeff', EFF)
         return EFF, XEFF
 
     def calculate_XTE(self, damage, frags):

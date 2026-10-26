@@ -98,7 +98,7 @@ class PanelLocalizationTests(RuntimeTest):
                 continue
             text = self.locale(filename[:-4])['TEXT']['team_panels']['UI_panel_destroyed']
             self.assertTrue(text.strip(), filename)
-        result = self.roster().screen({'format': '{{l10n:Unknown}}'}, {'xvm-stat': ''},
+        result = self.roster().screen({'format': '{{l10n:Unknown}}'}, {'stat-available': ''},
                                       {'templates': {}}, 'Left')
         self.assertEqual(result['format'], 'Unknown')
 

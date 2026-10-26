@@ -32,8 +32,8 @@ def values(info, rating='wn8', scale=0, minimum=1, anonymized=False):
     result['r'] = result[rating]
     result['xr'] = result.get({'wn8': 'xwn8', 'eff': 'xeff'}.get(rating, ''))
     result['c:r'] = result['c:xr'] = result['c:' + rating]
-    result['xvm-stat'] = available and result['r'] is not None
-    result['a:r'] = 100 if result['xvm-stat'] else 0
+    result['stat-available'] = available and result['r'] is not None
+    result['a:r'] = 100 if result['stat-available'] else 0
     result['kb'] = result['battles'] / 1000.0 if result['battles'] is not None else None
     result['c:kb'] = result['c:battles']
     return result

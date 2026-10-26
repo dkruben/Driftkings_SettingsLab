@@ -4,8 +4,9 @@ import copy
 import math
 import re
 
-from driftkings.core.vehicle_markers.expressions import validate as validate_expression
 from driftkings.common.utils.compat import string_types
+from driftkings.core.legacy_names import MACRO_ALIASES
+from driftkings.core.vehicle_markers.expressions import validate as validate_expression
 
 SHADOW = {'enabled': True, 'distance': 0, 'angle': 0, 'color': '#000000',
           'alpha': 80, 'blur': 3, 'strength': 2}
@@ -14,11 +15,12 @@ DEFAULTS = {'name': '', 'textFormat': TEXT_FORMAT, 'enabled': True, 'format': '{
             'width': 200, 'height': 25, 'alpha': 100, 'align': 'center', 'shadow': SHADOW}
 MACROS = set(('vehicle', 'name', 'hp', 'maxHp', 'hpPercent', 'level', 'c:team', 'c:hp'))
 MACROS.update(('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb',
-               'xvm-stat', 'a:r', 'nick', 'clan', 'hp-max', 'hp-ratio', 'c:system'))
+               'stat-available', 'a:r', 'nick', 'clan', 'hp-max', 'hp-ratio', 'c:system'))
 MACROS.update('c:' + key for key in ('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb'))
 MACROS.update(('turret', 'stock-turret', 'turret-vulnerability', 'distance', 'dist', 'alive', 'dead', 'ally', 'enemy', 'player', 'squad', 'anonym', 'vtype'))
-# XVM battle macros: {{battletype}} is empty in random battles, {{position}} is the team list order.
+# Marker battle macros: {{battletype}} is empty in random battles, {{position}} is the team list order.
 MACROS.update(('battletype', 'position'))
+MACROS.update(MACRO_ALIASES)
 
 
 def template(value, extra_macros=()):

@@ -9,7 +9,7 @@ from aih_constants import CTRL_MODE_NAME
 from gui.battle_control.avatar_getter import getInputHandler
 
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import isXvmInstalled
+from driftkings.common.utils.wgutils import hasCompetingMarkers
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.meta.battle.minimap import MinimapMeta
 from driftkings.ui.common.events import g_events
@@ -78,7 +78,7 @@ class MinimapEnhancementsView(MinimapMeta):
             self._releaseCallback = None
         if pressed:
             self._releaseCallback = callback(0.1, self._checkRelease)
-        if isXvmInstalled():
+        if hasCompetingMarkers():
             return
         # Epic's segmented map keeps its native positioning; labels still switch.
         options = dict(settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.PRESENTATION])
@@ -105,9 +105,9 @@ class MinimapEnhancementsView(MinimapMeta):
         self.as_minimapCameraS(ctrlMode in STRATEGIC_MODES)
 
     def onVehicleData(self, payload):
-        if not isXvmInstalled():
+        if not hasCompetingMarkers():
             self.as_minimapVehicleS(payload)
 
     def onRanges(self, payload):
-        if not isXvmInstalled():
+        if not hasCompetingMarkers():
             self.as_minimapRangesS(payload)

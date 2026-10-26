@@ -12,7 +12,7 @@
   "player": false,
   "squad": true,
   "anonym": false,
-  "xvm-stat": true,
+  "stat-available": true,
   "turret": "*",
   "turret-vulnerability": "high",
   "vtype": "HT",
@@ -174,11 +174,11 @@
    true
   ],
   [
-   "xvm-stat",
+   "stat-available",
    true
   ],
   [
-   "xvm-stat==true",
+   "stat-available==true",
    true
   ],
   [

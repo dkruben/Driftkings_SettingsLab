@@ -99,7 +99,7 @@ package driftkings.battle.components.ratings
                 record.config = cfg;
                 }
                 var x:Number = nativestate.number(cfg.x), y:Number = rowY + nativestate.number(cfg.y);
-                // XVM mirrors the default, but honors an explicitly set align.
+                // The layout mirrors the default, but honors an explicitly set align.
                 var align:String = cfg.align || (left ? "left" : "right");
                 sprite.x = (nativestate.flag(cfg.bindToIcon) ? edge : screenEdge) + (left ? x : -x) - (align == "right" ? width : align == "center" ? width/2 : 0);
                 sprite.y = y - (cfg.valign == "bottom" ? height : cfg.valign == "center" ? height/2 : 0);

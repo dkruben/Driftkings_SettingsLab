@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from driftkings.stats.vehinfo import calculateXTDB, calculateXTE, calculateXvmScale, getVehicleInfoData
+from driftkings.stats.vehinfo import calculateXTDB, calculateXTE, calculateRatingScale, getVehicleInfoData
 
 
 class _Stat(object):
@@ -26,7 +26,7 @@ class _Stat(object):
             stat['name'] = orig_name
         if 'battles' in stat and 'wins' in stat and stat['battles'] > 0:
             self._calculateGWR(stat)
-            self._calculateXvmScale(stat)
+            self._calculateRatingScale(stat)
             if 'v' in stat:
                 vData = stat['v']
                 if 'id' in vData:
@@ -52,19 +52,19 @@ class _Stat(object):
     def _calculateGWR(stat):
         stat['winrate'] = float(stat['wins']) / float(stat['battles']) * 100.0
 
-    # XVM Scale
+    # Rating scale
     @staticmethod
-    def _calculateXvmScale(stat):
+    def _calculateRatingScale(stat):
         if stat.get('wtr') is not None and stat['wtr'] > 0:
-            stat['xwtr'] = calculateXvmScale('wtr', stat['wtr'])
+            stat['xwtr'] = calculateRatingScale('wtr', stat['wtr'])
         if stat.get('wn8') is not None and stat['wn8'] > 0:
-            stat['xwn8'] = calculateXvmScale('wn8', stat['wn8'])
+            stat['xwn8'] = calculateRatingScale('wn8', stat['wn8'])
         if stat.get('eff') is not None and stat['eff'] > 0:
-            stat['xeff'] = calculateXvmScale('eff', stat['eff'])
+            stat['xeff'] = calculateRatingScale('eff', stat['eff'])
         if stat.get('wgr') is not None and stat['wgr'] > 0:
-            stat['xwgr'] = calculateXvmScale('wgr', stat['wgr'])
+            stat['xwgr'] = calculateRatingScale('wgr', stat['wgr'])
         if stat.get('winrate') is not None and stat['winrate'] > 0:
-            stat['xwr'] = calculateXvmScale('win', stat['winrate'])
+            stat['xwr'] = calculateRatingScale('win', stat['winrate'])
 
     # calculate Vehicle values
     @staticmethod
@@ -121,7 +121,7 @@ class _Stat(object):
     @staticmethod
     def _calculateVXWTR(value):
         if value.get('wtr') is not None and value['wtr'] > 0:
-            value['xwtr'] = calculateXvmScale('wtr', value['wtr'])
+            value['xwtr'] = calculateRatingScale('wtr', value['wtr'])
 
 
-xvm_stat = _Stat()
+rating_stats = _Stat()

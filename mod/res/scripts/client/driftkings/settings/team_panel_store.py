@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Version 2: XVM-shaped JSON, shared references, atomic multi-file saves."""
+"""Version 2: structured JSON, shared references, atomic multi-file saves."""
 import copy
 import os
 

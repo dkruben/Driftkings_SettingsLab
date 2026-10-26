@@ -105,7 +105,7 @@ package driftkings.battle.components.minimap
             visible = active && strategic && ready && entry != null && parent != null &&
                 entry.parent == parent && entry.visible && parent.visible;
             if (!visible) return;
-            // As in XVM, the entry's origin is the camera centre. The container's own scale is
+            // The entry's origin is the camera centre. The container's own scale is
             // small and its ancestors enlarge it, so the scale is measured on the stage instead.
             var origin:Point = parent.localToGlobal(new Point(0, 0));
             var sx:Number = Point.distance(parent.localToGlobal(new Point(1, 0)), origin);

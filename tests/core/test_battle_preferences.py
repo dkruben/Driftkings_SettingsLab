@@ -44,7 +44,7 @@ class BattlePreferencesTests(RuntimeTest):
         return self.hooks.get(spec[0], spec[1])(native, *spec[2:], **kwargs), native
 
     def test_player_identity_is_left_to_the_team_panels(self):
-        # Badges, prestige, clan and anonymous names are options of the team panels, as in XVM.
+        # Badges, prestige, clan and anonymous names are options of the team panels, in the shared settings.
         targets = set(target for target, name in self.hooks.overrides)
         self.assertFalse(targets & set(('VehicleArenaInfoVO', 'PlayerInfoVO')))
 

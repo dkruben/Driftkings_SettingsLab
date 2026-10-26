@@ -14,7 +14,7 @@ package driftkings.vehiclemarkers
     import flash.utils.Dictionary;
     import flash.utils.getTimer;
 
-    /** Native icon and indicator placement (XVM positions); originals are restored before native updates. */
+    /** Native icon and indicator placement (configured positions); originals are restored before native updates. */
     public class VMIcons
     {
         public static var iconOriginals:Dictionary = new Dictionary(true);
@@ -30,7 +30,7 @@ package driftkings.vehiclemarkers
             icon.alpha = options.enabled || visible ? Number(options.alpha) / 100 * (dead ? Number(options.deadAlpha) / 100 : 1) : 0;
         }
 
-        // XVM moves the class icon container (marker.marker) rather than the icon itself.
+        // The layout moves the class icon container (marker.marker) rather than the icon itself.
         public static function applyContainer(container:Object, options:Object):void
         {
             if (!container || !options || options.containerX == null && options.containerY == null) return;
@@ -39,7 +39,7 @@ package driftkings.vehiclemarkers
             if (options.containerY != null) container.y = Number(options.containerY);
         }
 
-        // XVM GraphicsUtil.tint: blend the contour icon towards a colour by amount (0..100).
+        // Contour tint: blend the contour icon towards a colour by amount (0..100).
         public static function applyTint(icon:Object, tint:Object, color:String):void
         {
             if (!icon || !tint || !(Number(tint.amount) > 0)) return;
@@ -51,7 +51,7 @@ package driftkings.vehiclemarkers
                 ((value >> 16) & 0xFF) * amount, ((value >> 8) & 0xFF) * amount, (value & 0xFF) * amount, 0);
         }
 
-        // The hover marker glow is its first child, as XVM uses it.
+        // The hover marker glow is its first child, as the native layout uses it.
         public static function applyGlow(hover:Object, glow:Object):void
         {
             if (!hover || !glow || !(hover is DisplayObjectContainer) || DisplayObjectContainer(hover).numChildren < 1) return;

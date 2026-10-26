@@ -117,7 +117,7 @@ class BattlePerformanceWn8Tests(RuntimeTest):
             'driftkings.core.wnx': module(calculate=wnx.calculate, get_expected=lambda ident: targets[0]),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda ident: {
                 'level': 8, 'wn8expDamage': 1000, 'wn8expSpot': 1, 'wn8expFrag': 1,
-                'wn8expDef': 1, 'wn8expWinRate': 52}, calculateXvmScale=lambda *args: 0,
+                'wn8expDef': 1, 'wn8expWinRate': 52}, calculateRatingScale=lambda *args: 0,
                 calculateXTE=lambda *args: 0),
             'driftkings.settings.service': Settings(settings).service(),
             'gui.battle_results.pbs_helpers.common': module(getArenaNameStr=lambda reusable: 'map'),
@@ -161,7 +161,7 @@ class BattlePerformanceWn8Tests(RuntimeTest):
             'driftkings.common.utils.formatting': formatting,
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: player),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected,
-                calculateXvmScale=lambda name, value: 0, calculateXTE=lambda cd, damage, frags: 0),
+                calculateRatingScale=lambda name, value: 0, calculateXTE=lambda cd, damage, frags: 0),
             'driftkings.settings.service': Settings(settings).service(),
             'gui.battle_results.pbs_helpers.common': module(getArenaNameStr=lambda reusable: 'map'),
             'gui.battle_results.settings': module(PLAYER_TEAM_RESULT=module(WIN=1)),
@@ -208,7 +208,7 @@ class BattlePerformanceWn8Tests(RuntimeTest):
     def test_expected_values_below_one_are_not_rounded_up(self):
         expected = {'level': 8, 'wn8expDamage': 1500.0, 'wn8expSpot': 1.2, 'wn8expFrag': 0.9, 'wn8expDef': 0.6, 'wn8expWinRate': 52.0}
         api, _ = game_source('components/battle_performance.py', {
-            'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected, calculateXvmScale=lambda name, value: 0,
+            'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected, calculateRatingScale=lambda name, value: 0,
                                                calculateXTE=lambda cd, damage, frags: 0),
             'driftkings.settings.service': Settings({'enabled': True}).service(),
         }, real=('driftkings._constants',))

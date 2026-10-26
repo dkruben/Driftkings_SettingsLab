@@ -106,7 +106,7 @@ class MinimapVehiclesTests(RuntimeTest):
             'helpers': module(dependency=module(descriptor=lambda interface: None)),
             'skeletons.gui.battle_session': module(IBattleSessionProvider=object),
             'driftkings.common.utils.formatting': module(hexToDecimal=lambda value: value),
-            'driftkings.common.utils.wgutils': module(isXvmInstalled=lambda: False, getBattleTypes=lambda: ()),
+            'driftkings.common.utils.wgutils': module(hasCompetingMarkers=lambda: False, getBattleTypes=lambda: ()),
             'driftkings.common.utils.game': module(checkKeys=lambda keys: False),
             'driftkings.core': module(minimap=policy),
             'driftkings.core.callbacks': module(callback=lambda delay, function: self.callbacks.append(function) or len(self.callbacks),

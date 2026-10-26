@@ -27,7 +27,7 @@ class CommonUtilsTests(RuntimeTest):
             'BigWorld': module(player=lambda: 'player', target=lambda: 'target', entity=lambda value: value),
             'ResMgr': module(),
         })
-        self.assertIsNone(api['_xvm_installed'])
+        self.assertIsNone(api['_competing_markers_installed'])
         self.assertIsNone(api['_battle_types'])
         self.assertEqual(api['getPlayer'](), 'player')
         self.assertEqual(api['getTarget'](), 'target')
@@ -36,9 +36,9 @@ class CommonUtilsTests(RuntimeTest):
         def find():
             checks.append(True)
             return False
-        api['_findXvm'] = find
-        self.assertFalse(api['isXvmInstalled']())
-        self.assertFalse(api['isXvmInstalled']())
+        api['_findCompetingMarkers'] = find
+        self.assertFalse(api['hasCompetingMarkers']())
+        self.assertFalse(api['hasCompetingMarkers']())
         self.assertEqual(len(checks), 1)
 
     def test_pure_formatting_needs_no_client(self):

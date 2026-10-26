@@ -84,7 +84,7 @@ class WnxTests(RuntimeTest):
             'driftkings.interface_catalog': module(gameface_spec=lambda name: {'resource': 'test'}),
             'driftkings.core.wnx': module(calculate=self.api.calculate, get_expected=lambda ident: self.expected),
             'driftkings.core.carousel_tiers': module(battle_tiers=lambda *args: (8, 10)),
-            'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda ident: {}, calculateXvmScale=lambda *args: 0),
+            'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda ident: {}, calculateRatingScale=lambda *args: 0),
             'gui.shared.personality': module(ServicesLocator=module(itemsCache=module(
                 items=module(getVehicleDossier=lambda ident: dossier)))),
             'driftkings.settings.service': Settings({'colorRating': 3}).service(),

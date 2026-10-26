@@ -88,8 +88,8 @@ class VehicleMarkersTests(RuntimeTest):
         self.assertEqual((result['markers']['colorRating'], result['markers']['ratingType']), (1, 'eff'))
         self.assertEqual(result['markers']['turretMarkers'], {'highVulnerability': '#', 'lowVulnerability': '~'})
         self.assertFalse(result['markers']['colors']['colorBlind']['enabled'])
-        # Layouts come from the XVM defaults, not from the old health bar.
-        self.assertEqual(result['markersAliveNormal'], self.xvm_defaults()['markersAliveNormal'])
+        # Layouts come from the structured defaults, not from the old health bar.
+        self.assertEqual(result['markersAliveNormal'], self.marker_defaults()['markersAliveNormal'])
         for name, content in originals.items():
             with open(os.path.join(directory, name + '.v2.bak'), 'rb') as stream:
                 self.assertEqual(stream.read(), content)
@@ -157,18 +157,18 @@ class VehicleMarkersTests(RuntimeTest):
         self.assertEqual(store.load(), data)
         self.assertEqual(sorted(os.listdir(root)), sorted(store.filenames))
 
-    def xvm_defaults(self):
+    def marker_defaults(self):
         documents = {}
         directory = os.path.join(ROOT, 'res', 'configs', 'driftkings', 'default', 'vehicle_markers')
-        xvm = self.load('core.vehicle_markers.xvm')
-        for name in xvm.FILES:
+        schema = self.load('core.vehicle_markers.schema')
+        for name in schema.FILES:
             with open(os.path.join(directory, name), 'rb') as stream:
                 documents[name] = json.loads(stream.read().decode('utf-8'))
-        return xvm.join(documents)
+        return schema.join(documents)
 
     def defaults(self):
-        # The internal schema produced from the XVM files; validation and Flash consume it.
-        return self.load('core.vehicle_markers.xvm').adapt(self.xvm_defaults())
+        # The internal schema produced from the marker files; validation and Flash consume it.
+        return self.load('core.vehicle_markers.schema').adapt(self.marker_defaults())
 
     def test_canonical_split_defaults_prepare_without_mutating_editable_documents(self):
         raw = self.defaults()
@@ -246,7 +246,7 @@ class VehicleMarkersTests(RuntimeTest):
             self.assertTrue(native[team]['markerBaseHpIndicator'])
 
     def test_referenced_field_survives_store_defaults_and_compiles_overrides(self):
-        data = self.xvm_defaults()
+        data = self.marker_defaults()
         data['markersAliveNormal']['def']['custom'] = {'format': '{{r}}', 'x': -30, 'align': 'left'}
         data['markersAliveNormal']['enemy']['textFields'] = [{'$ref': {'path': 'def.custom'}, 'y': -90}]
         result = self.load('core.vehicle_markers.config').prepare(data)

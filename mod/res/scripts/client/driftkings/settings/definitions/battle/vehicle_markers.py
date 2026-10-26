@@ -3,7 +3,7 @@ from driftkings.common.utils.color_rating_data import color_tables
 from driftkings.core.vehicle_markers.colors import normalize, palette
 from driftkings.core.vehicle_markers.config import prepare
 from driftkings.core.vehicle_markers.ratings import values as rating_values
-from driftkings.core.vehicle_markers.xvm import FILES, STATE_KEYS
+from driftkings.core.vehicle_markers.schema import FILES, STATE_KEYS
 from driftkings.settings.controls_schema import field
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_markers_store import VehicleMarkersStore
@@ -15,7 +15,7 @@ class VehicleMarkersSettings(SectionDefinition):
     STORAGE_FILES = FILES
 
     def normalize_loaded(self, values):
-        # Validate the XVM files as the battle will read them; the files keep their templates.
+        # Validate the marker files as the battle will read them; the files keep their templates.
         prepare(values)
         return values
 
@@ -30,7 +30,7 @@ class VehicleMarkersSettings(SectionDefinition):
         items.append(field(['markers', 'ratingType'], self.i18n['UI_preview_ratingType'], 'Dropdown',
                            choices=('wn8', 'wnx', 'eff'), choice_labels=('WN8', 'WNX', 'EFF'),
                            tooltip=self.i18n['UI_preview_ratingType']))
-        # One editor per XVM file: markers.json, then the four state files.
+        # One editor per marker file: markers.json, then the four state files.
         for key in ('markers',) + STATE_KEYS:
             items.append(field([key], self.i18n['UI_' + key], 'TextArea', jsonValue=True,
                                maxLength=524288, tooltip=self.i18n['UI_' + key + '_tip']))

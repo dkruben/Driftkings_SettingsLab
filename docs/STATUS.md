@@ -25,8 +25,12 @@ Dated reviews retain their original evidence, line references, counts and conclu
 
 - The clock is configured under General settings, in `main.json` through `clock.enabled` and `clock.formats`.
 - HangarEfficiency is removed. Use vehicle carousel statistics, service-record ratings or the relevant Marks of Excellence panel.
-- Vehicle markers use the five-file XVM-style layout without XMQP, team/state/ALT contexts and an editable tank sample. The property column has its own scrollbar.
+- Vehicle markers use the structured five-file layout without XMQP, team/state/ALT contexts and an editable tank sample. The property column has its own scrollbar.
 - ActionScript fields use the client font library. Marker `xvm`/`XVMSymbol` aliases resolve to `$FieldFont`; legacy private glyphs map to a supported bullet. Fixed colours use `#RRGGBB` with existing numeric converters.
 - WN8 uses random-battle statistics; WNX uses its own assistance-aware calculation and expected values. The EU battle overlay defaults to WN8, EFF and DIFF; WNX remains configurable.
 
 For current commands and release procedures, use [CONTRIBUTING.md](../CONTRIBUTING.md). For feature guides and historical reports, use the [project overview](../README.md).
+
+## Naming changes after beta.2
+
+The source branch uses descriptive marker/statistics module names and the **Driftkings** palette at index 1. New templates use `stat-available`; installed profiles and statistics caches retain read compatibility. Original font names, provider URLs, integration IDs and upstream credits are preserved. These source changes do not replace the already-published beta.2 assets.

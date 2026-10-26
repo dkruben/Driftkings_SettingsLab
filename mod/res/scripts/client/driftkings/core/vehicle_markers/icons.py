@@ -9,7 +9,7 @@ INDICATORS = ('actionMarker', 'hoverMarker', 'vehicleStatusMarker', 'damageIndic
 KEYS = ('class', 'level', 'vehicle') + INDICATORS
 
 STYLE = {'enabled': True, 'x': None, 'y': None, 'scale': 1, 'alpha': 100, 'deadAlpha': 40}
-# XVM-only options, per icon: the class icon container position and speaker, contour tint, hover glow.
+# Additional options, per icon: the class icon container position and speaker, contour tint, hover glow.
 EXTRA = {'class': {'containerX': None, 'containerY': None, 'showSpeaker': False},
          'vehicle': {'tint': {'color': '{{c:system}}', 'amount': 0}},
          'hoverMarker': {'glow': {'enabled': True, 'x': None, 'y': None, 'alpha': 100}}}

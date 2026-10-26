@@ -1,7 +1,7 @@
 {
   "palettes": [
     {"name": "NoobMeter", "file": "noobmeter.json"},
-    {"name": "XVM", "file": "xvm.json"},
+    {"name": "Driftkings", "file": "driftkings.json"},
     {"name": "WoT-Life", "file": "wotlife.json"},
     {"name": "Tomato.gg", "file": "tomato.json"}
   ],

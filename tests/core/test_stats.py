@@ -41,18 +41,36 @@ class StatsTests(RuntimeTest):
             return data
         return module(read=read, close=lambda: None)
 
+    def test_legacy_scale_cache_and_refresh_times_remain_readable(self):
+        legacy = os.path.join(self.directory, 'xvmScales.json')
+        original = b'{"xwn8": [100, 200]}'
+        with open(legacy, 'wb') as stream:
+            stream.write(original)
+        self.scale._loadRatingScaleData()
+        self.assertEqual(self.scale.calculateRatingScale('wn8', 150), 1)
+        with open(legacy, 'rb') as stream:
+            self.assertEqual(stream.read(), original)
+        with open(os.path.join(self.directory, 'refresh-state.json'), 'wb') as stream:
+            stream.write(json.dumps({'xvmScales.json': {'success': 1000, 'retry': 0}}).encode('utf-8'))
+        self.scale._loadRefreshState()
+        self.assertEqual(self.scale._refreshState['ratingScales.json']['success'], 1000)
+        with open(os.path.join(self.directory, 'ratingScales.json'), 'wb') as stream:
+            stream.write(b'{"xwn8": [300, 400]}')
+        self.scale._loadRatingScaleData()
+        self.assertEqual(self.scale.calculateRatingScale('wn8', 150), 0)
+
     def test_scale_endpoints_and_invalid_values(self):
-        self.scale.xvmScale_data = {'xwn8': [100, 200]}
+        self.scale.rating_scale_data = {'xwn8': [100, 200]}
         for value, expected in ((0, 0), (99, 0), (100, 1), (199, 1), (200, 100)):
-            self.assertEqual(self.scale.calculateXvmScale('wn8', value), expected)
-        self.assertEqual(self.scale.calculateXvmScale('missing', 100), -1)
+            self.assertEqual(self.scale.calculateRatingScale('wn8', value), expected)
+        self.assertEqual(self.scale.calculateRatingScale('missing', 100), -1)
         for value in (None, float('nan'), float('inf')):
-            self.assertEqual(self.scale.calculateXvmScale('wn8', value), -1)
+            self.assertEqual(self.scale.calculateRatingScale('wn8', value), -1)
         for value, expected in ((None, None), (0, 0.0), (1, '1'), (99, '99'), (100, '100'), (101, '100')):
-            self.assertEqual(self.scale.XvmScaleToSup(value), expected)
+            self.assertEqual(self.scale.ratingScaleToLabel(value), expected)
 
     def test_invalid_download_preserves_existing_cache(self):
-        path = os.path.join(self.directory, 'xvmScales.json')
+        path = os.path.join(self.directory, 'ratingScales.json')
         original = b'{"xwn8": [5, 10]}'
         with open(path, 'wb') as stream:
             stream.write(original)
@@ -62,8 +80,8 @@ class StatsTests(RuntimeTest):
             with open(path, 'rb') as stream:
                 self.assertEqual(stream.read(), original)
         self.failure = IOError('offline')
-        self.scale._loadXvmScaleData()
-        self.assertEqual(self.scale.xvmScale_data, {'xwn8': [5, 10]})
+        self.scale._loadRatingScaleData()
+        self.assertEqual(self.scale.rating_scale_data, {'xwn8': [5, 10]})
 
     def test_wnx_public_page_is_normalized_and_failure_keeps_the_last_valid_cache(self):
         self.response = ''.join('{tank_id:%d,name:"Tank",expected_damage:1000,expected_frags:0.8,'
@@ -79,7 +97,7 @@ class StatsTests(RuntimeTest):
             self.assertEqual(stream.read(), previous)
 
     def test_valid_download_and_publish_failure(self):
-        path = os.path.join(self.directory, 'xvmScales.json')
+        path = os.path.join(self.directory, 'ratingScales.json')
         self.assertTrue(self.scale.loadJsonData('test', path))
         with open(path, 'rb') as stream:
             self.assertEqual(json.load(stream), {'xwn8': [100, 200]})
@@ -91,7 +109,7 @@ class StatsTests(RuntimeTest):
             self.assertEqual(json.load(stream), {'xwn8': [100, 200]})
 
     def test_truncated_oversized_and_invalid_downloads_keep_cache(self):
-        path = os.path.join(self.directory, 'xvmScales.json')
+        path = os.path.join(self.directory, 'ratingScales.json')
         original = b'{"xwn8": [5, 10]}'
         with open(path, 'wb') as stream:
             stream.write(original)
@@ -103,9 +121,9 @@ class StatsTests(RuntimeTest):
         self.response = b'{"xwn8": [1]}' + b' ' * (self.api['MAX_DOWNLOAD'] + 1)
         self.assertFalse(self.scale.loadJsonData('test', path))
         self.response = b'{"xwn8": [3, 1]}'
-        self.assertFalse(self.scale.loadJsonData('test', path, self.api['valid_xvm_scales']))
+        self.assertFalse(self.scale.loadJsonData('test', path, self.api['valid_rating_scales']))
         self.response = b'{"xwn8": [1, 3]}'
-        self.assertTrue(self.scale.loadJsonData('test', path, self.api['valid_xvm_scales']))
+        self.assertTrue(self.scale.loadJsonData('test', path, self.api['valid_rating_scales']))
         with open(path, 'rb') as stream:
             self.assertEqual(json.load(stream), {'xwn8': [1, 3]})
 
@@ -122,7 +140,7 @@ class StatsTests(RuntimeTest):
         self.assertTrue(v['valid_scaled_vehicles']({'1': {'x': [1, 2]}}))
         for bad in ({'1': {'x': [2, 1]}}, {'1': 5}, {}):
             self.assertFalse(v['valid_scaled_vehicles'](bad))
-        self.assertFalse(v['valid_xvm_scales']({'xwn8': 'text'}))
+        self.assertFalse(v['valid_rating_scales']({'xwn8': 'text'}))
 
     def test_invalid_records_preserve_last_cache(self):
         original = {'data': [dict(IDNum=1, expDamage=1000, expSpot=1, expWinRate=50, expDef=1, expFrag=1)]}
@@ -134,9 +152,9 @@ class StatsTests(RuntimeTest):
             self.assertFalse(self.scale.loadJsonData('test', path, self.api['valid_wn8']))
             with open(path, 'rb') as stream:
                 self.assertEqual(json.load(stream), original)
-        self.assertFalse(self.api['valid_xvm_scales']({'xwn8': [1, 2], 'xeff': 'invalid'}))
+        self.assertFalse(self.api['valid_rating_scales']({'xwn8': [1, 2], 'xeff': 'invalid'}))
         self.assertFalse(self.api['valid_scaled_vehicles']({'1': {'x': [1, 2]}, '2': {'x': [2, 1]}}))
-        self.assertTrue(self.api['valid_xvm_scales']({'xwn8': [1, 2], 'info': {'version': 1}}))
+        self.assertTrue(self.api['valid_rating_scales']({'xwn8': [1, 2], 'info': {'version': 1}}))
 
     def test_wn8_loading_advances_revision(self):
         path = os.path.join(self.directory, 'wn8exp.json')
@@ -185,23 +203,23 @@ class StatsTests(RuntimeTest):
         self.scale.config_path = self.directory
         self.response = b'{"xwn8": [100, 200]}'
         # The worker body is synchronous here; the point is that nothing downloads on the client path.
-        self.scale._loadXvmScaleData()
-        self.assertEqual(self.scale.xvmScale_data, {})
+        self.scale._loadRatingScaleData()
+        self.assertEqual(self.scale.rating_scale_data, {})
         updated = self.scale._downloadAll()
-        self.assertEqual(updated, ['xvmScales.json'])  # other sources fail their schema check
+        self.assertEqual(updated, ['ratingScales.json'])  # other sources fail their schema check
         self.assertFalse(self.scale._updates.empty())
         self.scale._downloading = False
         self.scale._pollDownloads()
-        self.assertEqual(self.scale.xvmScale_data, {'xwn8': [100, 200]})
+        self.assertEqual(self.scale.rating_scale_data, {'xwn8': [100, 200]})
         self.assertEqual(calls, [])
 
     def test_offline_start_uses_cache_without_blocking(self):
-        with open(os.path.join(self.directory, 'xvmScales.json'), 'wb') as stream:
+        with open(os.path.join(self.directory, 'ratingScales.json'), 'wb') as stream:
             stream.write(b'{"xwn8": [5, 10]}')
         self.failure = IOError('offline')
         self.assertEqual(self.scale._downloadAll(), [])
-        self.scale._loadXvmScaleData()
-        self.assertEqual(self.scale.xvmScale_data, {'xwn8': [5, 10]})
+        self.scale._loadRatingScaleData()
+        self.assertEqual(self.scale.rating_scale_data, {'xwn8': [5, 10]})
 
     def test_missing_and_degenerate_vehicle_ratings(self):
         self.assertEqual(self.scale.calculateXTE(1, 10, 1), -1)
@@ -299,8 +317,8 @@ class StatsTests(RuntimeTest):
 
     def test_player_aliases_none_ratings_and_missing_hp(self):
         self.scale.vehicleInfoData[1] = {'level': 6}
-        api = source('stats/xvm_stats.py', {'driftkings.stats.vehinfo': module(**self.api)})
-        stats = api['xvm_stat']
+        api = source('stats/ratings.py', {'driftkings.stats.vehinfo': module(**self.api)})
+        stats = api['rating_stats']
         value = {'_id': 5, 'b': 10, 'w': 5, 'wn8': None, 'v': None, 'ver': 1,
                  'vehicles': {'bad': {}, '1': {'b': 10, 'w': 5, 'dmg': 1000}}}
         stats._fix_common(value)

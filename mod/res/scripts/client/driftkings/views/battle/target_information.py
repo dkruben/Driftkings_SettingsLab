@@ -141,7 +141,7 @@ class Flash(object):
 
     def addText(self, text=''):
         self._text = text
-        # XVM-style tab tags are not native TextField HTML tags.
+        # structured tab tags are not native TextField HTML tags.
         text = re.sub(r'<tab\s*/?>', '\t', text, flags=re.IGNORECASE)
         text = re.sub(r'<br\s*/?>', '<br>', text, flags=re.IGNORECASE)
         style = settings_service.getComponentDict(_component().config).get(TARGET_INFORMATION.TEXT_FORMAT, {})

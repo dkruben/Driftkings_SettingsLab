@@ -22,7 +22,7 @@ package driftkings.battle.components.ratings
                 text+=!escaped && payload.time && payload.time.hasOwnProperty(token) ? payload.time[token] : token;
                 escaped=false;
             }
-            // Match XVM's native helpTip anchor. Never use container.width:
+            // Use the native helpTip anchor. Never use container.width:
             // it includes our own overlays and can feed back into their layout.
             var cfg:Object=fields[anchor];
             if (!cfg || cfg.format!==text || cfg.x!==anchor.x || cfg.y!==anchor.y ||

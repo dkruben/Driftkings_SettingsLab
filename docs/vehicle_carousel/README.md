@@ -37,7 +37,7 @@ Disabling a field hides its descendants too. Disabling the mod restores native s
 | `crystalsIcon` | Bonds earning indicator |
 | `coreBorder` | Special-vehicle Battle Pass highlight |
 
-Legacy XVM fields `clanLock`, `price`, `actionPrice`, `infoBuy`, `crystalsBorder`
+Legacy fields `clanLock`, `price`, `actionPrice`, `infoBuy`, `crystalsBorder`
 and `stats` are preserved in existing JSON, but have no independent equivalent in
 this integration and are not exposed as controls. Native Flash `textFormat` and
 `shadow` properties on standard fields are not applied.
@@ -53,7 +53,7 @@ Macros include `battles`, `winRate`, `hitRate`, `avgDamage`, `avgReceived`,
 `avgAssist`, `avgBlocked`, `avgStun`, `avgFrags`, `avgSpotted`, `avgCapture`,
 `avgDefence`, `damageRatio`, `damageHP`, `eff`, `wn8`, `wnx`, `xeff`, `xwn8`, `marks`
 and `mastery`. Missing statistics display `--`. `{{avgDamage:.1f}}` selects one
-decimal. XVM-style `{{v.tdb}}` and related aliases are also supported.
+decimal. Compatible `{{v.tdb}}` and related aliases are also supported.
 
 Built-in PNGs use lowercase paths under `gui/maps/driftkings/carroucel/`.
 Python reads these through ResMgr and delivers image data, including names with `#`.

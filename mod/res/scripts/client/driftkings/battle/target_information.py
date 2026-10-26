@@ -136,7 +136,7 @@ class DataConstants(object):
             if text is None:
                 return None
         while True:
-            # {{i18n:KEY}}; XVM's {{l10n:KEY}} is read the same way.
+            # {{i18n:KEY}}; legacy {{l10n:KEY}} is read the same way.
             starts = [start for start in (text.find('{{i18n:'), text.find('{{l10n:')) if start != -1]
             localizedMacroStart = min(starts) if starts else -1
             if localizedMacroStart == -1:

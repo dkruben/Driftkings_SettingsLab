@@ -24,7 +24,7 @@ language. Do not replace them with a system font or embed a fixed Latin font.
 Fields cloned from native text retain the source field's font settings.
 
 Configuration lives in the active profile's `vehicle_markers` directory and
-follows XVM's `default_wg` marker files, without XMQP: `markers.json` plus
+uses a structured five-file marker layout, without XMQP: `markers.json` plus
 `markersAliveNormal.json`, `markersAliveExtended.json`, `markersDeadNormal.json`
 and `markersDeadExtended.json`. Transactions preserve the five files together.
 
@@ -38,21 +38,21 @@ each team, state and mode to a block of a state file:
            "dead": {"normal": "${markersDeadNormal.json:ally}", "extended": "${markersDeadExtended.json:ally}"}}}}
 ```
 
-Each state file has XVM's `def` templates and complete `ally` and `enemy`
+Each state file has local `def` templates and complete `ally` and `enemy`
 blocks: `vehicleIcon`, `healthBar`, `damageText`, `damageTextPlayer`,
 `damageTextSquadman`, `vehicleDist`, `contourIcon`, `levelIcon`, `actionMarker`,
 `hoverMarker` (with `glow`), `vehicleStatusMarker`, `damageIndicator` and
 `textFields`. Fields and templates reference definitions with `"${def.name}"` or
-`{"$ref": {"path": "def.name"}}`. Geometry follows XVM: text fields are 140x100
+`{"$ref": {"path": "def.name"}}`. Geometry uses fixed boxes: text fields are 140x100
 boxes anchored at `x` by `align`, damage text 200x100 boxes, the distance a
 100x100 box, the class icon moves its container by `x`/`y` plus `offsetX`/
-`offsetY` (XVM itself ignores `maxScale`), and the damage indicator text sits at
+`offsetY` (`maxScale` is unused in this schema), and the damage indicator text sits at
 `x + 14`, `y - 14`. `{{position}}` is the vehicle's place in its team list from
 the first roster and `{{battletype}}` is empty in random battles. XVM's private
 icon font glyph `&#x115;` is drawn as a bullet (U+2022), which every client font library
 contains; `$FieldFont` (ZurichCond) has no square glyph.
 
-`core/vehicle_markers/xvm.py` converts the files to the runtime profiles; the
+`core/vehicle_markers/schema.py` converts the files to the runtime profiles; the
 editor uses the same mapping in `vehicle_markers_model.js`. The earlier
 seven-file layout is converted once: its general switches and colours are kept,
 the layouts start from these defaults, and the old files remain as `.v2.bak`.
@@ -71,7 +71,7 @@ Ratings use the existing shared statistics cache and worker, including when the
 roster itself is hidden. The statistics switch and minimum battle count still
 apply. `ratingType` selects `wn8`, `wnx` or `eff` for `{{r}}` and `{{c:xr}}`;
 the individual metrics and colors are also available. `{{xr}}` is the normalized
-XVM value where the statistics module provides one (WN8/EFF); no normalized WNX
+normalized rating where the statistics module provides one (WN8/EFF); no normalized WNX
 value is invented. Anonymized or unavailable statistics remain unavailable.
 
 The EU-profile alive normal layout shows a coloured `!`, and ALT shows the
@@ -80,8 +80,8 @@ in the runtime and the editor. Legacy `&#x115;` uses a bullet instead of requiri
 XVM's icon font. Existing custom field arrays are preserved: use **Add rating** in the
 editor to insert the normal or ALT preset in any of the eight contexts.
 
-Text fields support XVM-style `name`, `textFormat` (font, size, color, bold,
-italic), `{{xvm-stat?100|0}}` opacity, fallbacks such as `{{r|--}}`, and basic
+Text fields support structured `name`, `textFormat` (font, size, color, bold,
+italic), `{{stat-available?100|0}}` opacity, fallbacks such as `{{r|--}}`, and basic
 numeric formatting (`{{r%d}}`, `{{winrate%.1f}}`). A compatible ALT example is:
 
 ```json
@@ -93,7 +93,7 @@ numeric formatting (`{{r%d}}`, `{{winrate%.1f}}`). A compatible ALT example is:
 Marker statistics travel as a separate packet over the existing native settings
 entry point, intercepted before it can replace native settings. Refreshes only
 update text and formatting, preserving health-bar trails and damage animation.
-No XVM service or second set of network requests is used. Account WNX uses the
+Ratings reuse the shared statistics worker and cache. Account WNX uses the
 existing WNX calculator with random-only vehicle counters and assistance; missing
 expected values or incomplete battle/assistance coverage produce no rating.
 The random vehicle counters are documented in the
@@ -133,7 +133,7 @@ one author's animation does not evict another's. For example, under
 
 `blowupMessage` is used only for the native `explosion` damage type or negative
 health signal, not an ordinary hit reaching zero HP. Killing hits use the
-destroyed context. `{{i18n:blownUp}}` (or XVM's `{{l10n:blownUp}}`) is localized by Driftkings; damage messages
+destroyed context. `{{i18n:blownUp}}` (or the legacy `{{l10n:blownUp}}`) is localized by Driftkings; damage messages
 also accept `{{dmg}}`, `{{dmg-ratio}}`, `{{dmg-kind}}`, `{{dmg-source}}` and
 `{{c:dmg}}`. The editor selects the author and can simulate an ammo-rack explosion.
 
@@ -158,7 +158,7 @@ arithmetic, attributes or function calls. Examples:
 ```
 
 Flags include `alive`, `dead`, `ally`, `enemy`, `player`, `squad`, `anonym` and
-`xvm-stat`; `vtype` uses LT/MT/HT/TD/SPG. Numeric comparisons with unavailable data
+`stat-available`; `vtype` uses LT/MT/HT/TD/SPG. Numeric comparisons with unavailable data
 return false. Opacity results are clamped to 0..100, with invalid numeric results
 hidden. The sample exposes player/platoon/anonymization flags, HP, team, state and
 statistics availability for checking these conditions.
@@ -192,7 +192,7 @@ override properties, or `${def.example}` for a whole value. Resolution is local,
 bounded, rejects cycles/missing paths, and never rewrites saved references.
 The editor can save the selected field as a named template, add linked copies,
 and edit templates in their own tab. Template names use letters, digits, `_`, `-`.
-External XVM file-reference syntax and XMQP are deliberately unsupported.
+External file-reference syntax and XMQP are deliberately unsupported.
 
 These additions compile against the pinned EU 2.4.1 movie. Native event animation,
 stock/top turret variants and edited templates still require replay acceptance.
@@ -204,3 +204,9 @@ The structured property column has a fixed 470 UI-unit viewport and its own scro
 The beta 0.1.3-beta.2 defaults follow the EU profile: normal-mode distance fields are disabled, level and contour icons are enabled, and the normal rating template uses `XVMSymbol` with custom `!` text. Preserve the editable font name and resolve it at the adapter boundary. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
 
 Run `npm test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
+
+## Naming and source attribution
+
+The project palette is named **Driftkings**, retaining index 1 and the existing thresholds/colours. New macros use `{{stat-available}}`; the old macro spelling is accepted only for profile compatibility. Source code lives in `core/vehicle_markers/schema.py`, not a provider-named module.
+
+The layout and rating-scale references were originally adapted from XVM's `default_wg` configuration. This attribution is retained; the `xvm` and `XVMSymbol` font names also remain valid. Provider URLs and external-mod detection identifiers are unchanged where required for interoperability.

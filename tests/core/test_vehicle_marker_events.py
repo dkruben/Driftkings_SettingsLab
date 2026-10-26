@@ -21,9 +21,9 @@ class MarkerEventsTests(RuntimeTest):
         self.assertFalse(result['sources']['other']['enabled'])
         self.assertIn('{{i18n:blownUp}}', result['sources']['player']['blowupMessage'])
         self.assertEqual(options, before)
-        # XVM writes {{l10n:blownUp}}; copied configurations keep working.
-        xvm = normalize({'sources': {'player': {'blowupMessage': '{{l10n:blownUp}} {{dmg}}'}}})
-        self.assertEqual(xvm['sources']['player']['blowupMessage'], '{{l10n:blownUp}} {{dmg}}')
+        # Legacy input accepts {{l10n:blownUp}}; copied configurations keep working.
+        schema = normalize({'sources': {'player': {'blowupMessage': '{{l10n:blownUp}} {{dmg}}'}}})
+        self.assertEqual(schema['sources']['player']['blowupMessage'], '{{l10n:blownUp}} {{dmg}}')
         with self.assertRaises(ValueError):
             normalize({'sources': {'player': {'blowupMessage': '{{unknown}}'}}})
         with self.assertRaises(ValueError):
@@ -65,7 +65,7 @@ class MarkerEventsTests(RuntimeTest):
         self.assertIsNone(api.context(player, lookup, 2, target, False)['distance'])
         self.assertFalse(api.context(player, lookup, 2, {'team': 2, 'prebattleID': 7})['squad'])
 
-    def test_position_and_battle_type_follow_xvm(self):
+    def test_position_and_battle_type_follow_marker_policy(self):
         api = self.load('core.vehicle_markers.context')
         vehicles = {5: {'team': 1}, 2: {'team': 1}, 9: {'team': 2}, 4: {'team': 2}}
         arena = module(vehicles=vehicles, bonusType=1)

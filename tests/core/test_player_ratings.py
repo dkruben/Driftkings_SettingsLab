@@ -45,7 +45,7 @@ class PlayerRatingsTests(RuntimeTest):
                                        callback=lambda *args: None, cancelCallback=lambda *args: None),
             'driftkings.core.hooks': module(override=lambda *args: None),
             'driftkings.settings.service': module(settings_service=object()),
-            'driftkings.stats.vehinfo': module(calculateXvmScale=lambda metric, value: value,
+            'driftkings.stats.vehinfo': module(calculateRatingScale=lambda metric, value: value,
                                       getVehicleInfoData=lambda value: None, scaleValuesInstance=object())})
 
     def test_unavailable_ratings_have_missing_marker_and_neutral_color(self):

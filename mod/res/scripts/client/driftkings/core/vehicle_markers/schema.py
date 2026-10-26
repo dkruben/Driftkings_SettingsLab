@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""XVM-style marker files (markers.json + four state files) and their runtime layout.
+"""structured marker files (markers.json + four state files) and their runtime layout.
 
-markers.json wires each team/state/mode to a block of a state file, as XVM's
-markers.xc does; each state file holds its own "def" templates. XMQP is not
-supported. Geometry follows XVM: text fields are 140x100 boxes anchored at x by
+markers.json wires each team/state/mode to a block of a state file; each state
+file holds its own "def" templates. Geometry uses fixed boxes: text fields are 140x100 boxes anchored at x by
 their alignment, damage text 200x100 boxes and vehicle distance 100x100 boxes.
 """
 import copy
@@ -20,7 +19,7 @@ GENERAL = {'debug': False, 'colorRating': 0, 'ratingType': 'wn8',
            'turretMarkers': {'highVulnerability': '*', 'lowVulnerability': "'"}, 'colors': {}}
 # Glyphs of XVM's private icon font drawn with the client font. The bullet (U+2022) exists in every
 # client font library; the square (U+25A0) is missing from $FieldFont (ZurichCond).
-XVM_GLYPHS = {'&#x115;': u'\u2022'}
+PRIVATE_FONT_GLYPHS = {'&#x115;': u'\u2022'}
 TEXT_STYLE = ('font', 'size', 'color', 'bold', 'italic')
 SHADOW = ('enabled', 'distance', 'angle', 'color', 'alpha', 'blur', 'strength')
 FIELD_SIZE = (140, 100)
@@ -43,7 +42,7 @@ def split(data):
 
 
 def block(data, documents, team, state, mode):
-    """The resolved XVM block shown for one team/state/mode."""
+    """The resolved marker block shown for one team/state/mode."""
     value = data['markers'].get(team, {}).get(state, {}).get(mode)
     if isinstance(value, dict):
         return resolve(value)
@@ -79,7 +78,7 @@ def style(options, keys):
 
 
 def get(options, key, default=None):
-    """XVM treats a null option as unset, exactly like a missing one."""
+    """The schema treats a null option as unset, exactly like a missing one."""
     value = options.get(key)
     return default if value is None else value
 
@@ -98,7 +97,7 @@ def text_field(options, size=FIELD_SIZE, default_format=''):
     fmt = get(options, 'format', default_format)
     textFormat = style(text, TEXT_STYLE)
     if textFormat.get('font') in ('xvm', 'XVMSymbol'):
-        for glyph, replacement in XVM_GLYPHS.items():
+        for glyph, replacement in PRIVATE_FONT_GLYPHS.items():
             fmt = fmt.replace(glyph, replacement)
         textFormat['font'] = '$FieldFont'
     result = {'name': get(options, 'name', ''), 'enabled': get(options, 'enabled', True), 'format': fmt,
@@ -128,7 +127,7 @@ def damage_text(options):
 
 
 def hex_color(value, fallback):
-    """XVM writes 0xRRGGBB; the health bar validates #RRGGBB. Macros pass unchanged."""
+    """Legacy input accepts 0xRRGGBB; the health bar validates #RRGGBB. Macros pass unchanged."""
     if value is None:
         return fallback
     if isinstance(value, string_types) and re.match(r'^0x[0-9A-Fa-f]{6}$', value):
@@ -147,7 +146,7 @@ def health_bar(options, dead):
             'color': hex_color(options.get('color'), '{{c:team}}'),
             'fill': {'alpha': get(part(options, 'fill'), 'alpha', 100)},
             'gradient': {'enabled': lcolor is not None, 'color': hex_color(lcolor, '{{c:hp}}'), 'angle': 0},
-            # XVM draws the substrate and the frame with the same colour and opacity.
+            # The layout draws the substrate and the frame with the same colour and opacity.
             'background': {'color': hex_color(border.get('color'), '#000000'), 'alpha': get(border, 'alpha', 35)},
             'border': {'color': hex_color(border.get('color'), '#000000'), 'alpha': get(border, 'alpha', 35),
                        'width': get(border, 'size', 1)},
@@ -175,7 +174,7 @@ def icons(options):
     indicator = part(options, 'damageIndicator')
     x, y = get(indicator, 'x', 53), get(indicator, 'y', -27)
     return {'enabled': True,
-            # XVM moves the icon container (marker.marker), plus its offset; it ignores maxScale.
+            # The layout moves the icon container (marker.marker), plus its offset; it ignores maxScale.
             'class': {'enabled': get(vehicle, 'enabled', True), 'x': None, 'y': None, 'scale': 1,
                       'alpha': get(vehicle, 'alpha', 100), 'deadAlpha': 100,
                       'containerX': get(vehicle, 'x', 0) + get(vehicle, 'offsetX', 0),
@@ -195,7 +194,7 @@ def icons(options):
 
 
 def adapt(data):
-    """XVM settings -> the internal schema consumed by validation, Python presentation and Flash."""
+    """Marker settings -> the internal schema consumed by validation, Python presentation and Flash."""
     markers = data['markers']
     enabled = data['enabled']
     result = copy.deepcopy(GENERAL)

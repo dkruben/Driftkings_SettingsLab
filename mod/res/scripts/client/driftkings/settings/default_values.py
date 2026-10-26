@@ -36,15 +36,15 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '0351f9c5c999f07b5a07f5a028863
  'default/sound_bank_loader.json': 'edcebe8fcb7cf84052c49d888c98ecdb6a86b6d29ab574f50caca75cf777411f',
  'default/target_distance.json': 'ebd48eb53cc89c8c8fbfad108cb7fe9880708ff2932eda2c3b2fc16277a9c75b',
  'default/target_information.json': '7df9b23a50e8fcf458c4c8ae0d498317e8d9f4250aab38e11e96678199d819a0',
- 'default/team_panels/battleloading.json': '36065083cdb4ca359b31d198b36fcac829009ab0f3181ee4470e68a3c9ee5f23',
+ 'default/team_panels/battleloading.json': '77a3b02605c06d4a4f95ab7f6dbc2482fc389382a50e9077b7004835a630db0e',
  'default/team_panels/general.json': 'fb4c2bb30136024ec63a7ddc6717ab6131301b06a353932eac297be51adaba38',
- 'default/team_panels/panellarge.json': '61189aff57e6494f3e1a429ecbaf67c0d93004bdcaa72ed333e67ba0cf122372',
+ 'default/team_panels/panellarge.json': '453db9ce3364084fe0fe4b29b3266ef9de43df73d8c14e980cb235978d7cd068',
  'default/team_panels/panelmedium.json': '9e4238be4865715c1ef17b2521a69933e9ecfe7ef239cc48a9e37aa2693dd9ba',
  'default/team_panels/panelmedium2.json': 'e1980ade8a085b969cdbeb55a3c5098ad0718bafcf4c63debdd44e19ab4de422',
  'default/team_panels/panelnone.json': 'ec6a955996806d81d90a5c51579c5083688099d332fccc850121e007cee6e669',
- 'default/team_panels/panelshort.json': 'd0868d255e7793fee2d7462af401c6ef73b251578b74e2faf212aa95524888e7',
+ 'default/team_panels/panelshort.json': '14cfc9fb7b1efca3f3b50c8bbbe1191100563f0e8ea71f9175354941a0b2906d',
  'default/team_panels/playerspanel.json': '3b5c0acc850263ec335ba7fae69abe626cf5f661c02d0e7bee150ca3c5363842',
- 'default/team_panels/statisticform.json': 'af8aa22017536a23e4d7a8fb8c779a051388d7f1a78811da19bad36eeabb0a58',
+ 'default/team_panels/statisticform.json': '8d0a689497601c1444821b1bb42a65589fc1a3a47283f8ad3bf3eb7ea95bcccb',
  'default/tech_tree_marks_of_excellence.json': '9b5a79c75e5f188727137b545d8fa1b765afa196271204476a1ecd5cf9466e62',
  'default/third_person_zoom.json': '1ff0d367944ae905d511b944dc1bfd758b8f510c26de37b91b74069ac0d78b09',
  'default/vehicle_carousel/carousel.json': '5e572d8e5375d76d9d887b5bef90fcf4dbedc37162a20aee1a3812937833ec73',
@@ -53,7 +53,7 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '0351f9c5c999f07b5a07f5a028863
  'default/vehicle_health.json': '33692c38eec07ebe05cf5dfa3d5c8ebe532c0d0543717c738ba8316cfd9cb0aa',
  'default/vehicle_markers/markers.json': '8209bdd6371734a1eaa53f500f224dce408d57301e82c641fe79f14f31fe5211',
  'default/vehicle_markers/markersAliveExtended.json': 'def7acca205fcd7e810b28f0af2140d95325c0d781b0397a685c28d5c7076f9e',
- 'default/vehicle_markers/markersAliveNormal.json': '6053c16e987b51107d3cfa6dd2072514d84fd8a8311fc2882035ee70c02ecdb5',
+ 'default/vehicle_markers/markersAliveNormal.json': '65e7a3acc8d50392c140545c14295383305a675be5954782f46174716e616ec7',
  'default/vehicle_markers/markersDeadExtended.json': '45e630f04b4e2cde57107e40bcd595bd2355cba5d5df711bf887c4ac87d85b37',
  'default/vehicle_markers/markersDeadNormal.json': '708419f5cbabf45d0ec06dc7f43546cddf0cc2d00232a2ea6a948d2f8ec343e7',
  'load.json': 'e5cae5ab9397c92ab3988170ff26475e0bf4b4e9c165f7a6cd8b4d016031769c'}
@@ -665,12 +665,13 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                              'extraFieldsRight': [],
                              'formatLeftNick': "{{name%.15s~..}} <font alpha='#A0'>{{clan}}</font>",
                              'formatLeftVehicle': "{{vehicle}}<font face='$FieldFont' "
-                                                  "size='{{xvm-stat?13|0}}'> <font "
+                                                  "size='{{stat-available?13|0}}'> <font "
                                                   "color='{{c:kb}}'>{{kb%2d~k|--k}}</font> <font "
                                                   "color='{{c:xr}}'>{{r}}</font> <font "
                                                   "color='{{c:winrate}}'>{{winrate%2d~%|--%}}</font></font>",
                              'formatRightNick': "<font alpha='#A0'>{{clan}}</font> {{name%.15s~..}} ",
-                             'formatRightVehicle': "<font face='$FieldFont' size='{{xvm-stat?13|0}}'><font "
+                             'formatRightVehicle': "<font face='$FieldFont' "
+                                                   "size='{{stat-available?13|0}}'><font "
                                                    "color='{{c:winrate}}'>{{winrate%2d~%|--%}}</font> <font "
                                                    "color='{{c:xr}}'>{{r}}</font> <font "
                                                    "color='{{c:kb}}'>{{kb%2d~k|--k}}</font> "
@@ -731,20 +732,20 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                         'fragsShadowLeft': None,
                                         'fragsShadowRight': None,
                                         'fragsWidth': 24,
-                                        'nickFormatLeft': "<font face='$FieldFont' size='{{xvm-stat?13|0}}' "
-                                                          "color='{{c:xr}}' "
+                                        'nickFormatLeft': "<font face='$FieldFont' "
+                                                          "size='{{stat-available?13|0}}' color='{{c:xr}}' "
                                                           "alpha='{{alive?#FF|#80}}'>{{r|{{r_size>2?----|--}}}}</font> "
                                                           "<font{{stat-color? color='{{c:r}}'}} "
-                                                          "alpha='{{alive?#FF|#80}}'>{{name%.{{anonym?12|{{xvm-stat?{{r_size>2?10|13}}|15}}}}s~..}}{{anonym? "
+                                                          "alpha='{{alive?#FF|#80}}'>{{name%.{{anonym?12|{{stat-available?{{r_size>2?10|13}}|15}}}}s~..}}{{anonym? "
                                                           "<font face='$FieldFont' "
                                                           "size='13'>*</font>}}</font><font "
                                                           "alpha='#A0'>{{clan}}</font>",
                                         'nickFormatRight': '<font '
                                                            "alpha='#A0'>{{clan}}</font><font{{stat-color? "
                                                            "color='{{c:r}}'}} "
-                                                           "alpha='{{alive?#FF|#80}}'>{{name%.{{xvm-stat?{{r_size>2?10|13}}|15}}s~..}}</font> "
-                                                           "<font face='$FieldFont' size='{{xvm-stat?13|0}}' "
-                                                           "color='{{c:xr}}' "
+                                                           "alpha='{{alive?#FF|#80}}'>{{name%.{{stat-available?{{r_size>2?10|13}}|15}}s~..}}</font> "
+                                                           "<font face='$FieldFont' "
+                                                           "size='{{stat-available?13|0}}' color='{{c:xr}}' "
                                                            "alpha='{{alive?#FF|#80}}'>{{r|{{r_size>2?----|--}}}}</font>",
                                         'nickMaxWidth': 158,
                                         'nickMinWidth': 46,
@@ -929,16 +930,16 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                         'fragsShadowLeft': None,
                                         'fragsShadowRight': None,
                                         'fragsWidth': 24,
-                                        'nickFormatLeft': "<font face='$FieldFont' size='{{xvm-stat?13|0}}' "
-                                                          "color='{{c:xr}}' "
+                                        'nickFormatLeft': "<font face='$FieldFont' "
+                                                          "size='{{stat-available?13|0}}' color='{{c:xr}}' "
                                                           "alpha='{{alive?#FF|#80}}'>{{r}}</font> "
                                                           '{{name%.{{anonym?13|15}}s~..}}{{anonym? <font '
                                                           "face='$FieldFont' size='19'>*</font>}}<font "
                                                           "alpha='#A0'>{{clan}}</font>",
                                         'nickFormatRight': '<font '
                                                            "alpha='#A0'>{{clan}}</font>{{name%.15s~..}} "
-                                                           "<font face='$FieldFont' size='{{xvm-stat?13|0}}' "
-                                                           "color='{{c:xr}}' "
+                                                           "<font face='$FieldFont' "
+                                                           "size='{{stat-available?13|0}}' color='{{c:xr}}' "
                                                            "alpha='{{alive?#FF|#80}}'>{{r}}</font>",
                                         'nickMaxWidth': 158,
                                         'nickMinWidth': 46,
@@ -977,13 +978,14 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                          'formatLeftFrags': '{{frags}}',
                          'formatLeftNick': "{{name%.{{anonym?13|15}}s~..}}{{anonym?<font face='$FieldFont' "
                                            "size='13'><b>*</b></font>}} <font alpha='#A0'>{{clan}}</font>",
-                         'formatLeftVehicle': "{{vehicle}}<font face='$FieldFont' size='{{xvm-stat?13|0}}'> "
-                                              "<font color='{{c:kb}}'>{{kb%2d~k|--k}}</font> <font "
+                         'formatLeftVehicle': "{{vehicle}}<font face='$FieldFont' "
+                                              "size='{{stat-available?13|0}}'> <font "
+                                              "color='{{c:kb}}'>{{kb%2d~k|--k}}</font> <font "
                                               "color='{{c:xr}}'>{{r}}</font> <font "
                                               "color='{{c:winrate}}'>{{winrate%2d~%|--%}}</font></font>",
                          'formatRightFrags': '{{frags}}',
                          'formatRightNick': "<font alpha='#A0'>{{clan}}</font> {{name%.15s~..}} ",
-                         'formatRightVehicle': "<font face='$FieldFont' size='{{xvm-stat?13|0}}'><font "
+                         'formatRightVehicle': "<font face='$FieldFont' size='{{stat-available?13|0}}'><font "
                                                "color='{{c:winrate}}'>{{winrate%2d~%|--%}}</font> <font "
                                                "color='{{c:xr}}'>{{r}}</font> <font "
                                                "color='{{c:kb}}'>{{kb%2d~k|--k}}</font> </font>{{vehicle}}",
@@ -1852,7 +1854,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                  'x': 0,
                                                                  'y': -66},
                                                     'rating': {'align': 'right',
-                                                               'alpha': '{{xvm-stat?100|0}}',
+                                                               'alpha': '{{stat-available?100|0}}',
                                                                'enabled': True,
                                                                'format': "<font color='#EFEFEF'><font "
                                                                          "color='{{c:r}}'><b>!</b></font></font>",

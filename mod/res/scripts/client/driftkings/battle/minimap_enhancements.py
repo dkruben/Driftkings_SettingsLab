@@ -14,7 +14,7 @@ from skeletons.gui.battle_session import IBattleSessionProvider
 from driftkings._constants import BATTLE_ALIASES, GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.common.utils.formatting import hexToDecimal
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import getBattleTypes, isXvmInstalled
+from driftkings.common.utils.wgutils import getBattleTypes, hasCompetingMarkers
 from driftkings.core import minimap as policy
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
@@ -546,7 +546,7 @@ def new_setupPlugins(func, self, arenaVisitor):
     args = func(self, arenaVisitor)
     try:
         allowedMode = arenaVisitor.gui.guiType in getBattleTypes()
-        if not isXvmInstalled() and allowedMode:
+        if not hasCompetingMarkers() and allowedMode:
             # Preserve mode-specific subclasses rather than replacing event logic.
             for key, custom, base in (('vehicles', ArenaVehiclesPlugin, plugins.ArenaVehiclesPlugin),
                                       ('personal', PersonalEntriesPlugin, plugins.PersonalEntriesPlugin)):

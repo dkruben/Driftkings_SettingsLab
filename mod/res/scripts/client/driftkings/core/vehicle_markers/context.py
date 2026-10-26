@@ -2,7 +2,7 @@
 """Public battle identity and current entity positions; never use hidden/last-known positions."""
 from driftkings.core.vehicle_markers.turrets import classify, gun_price
 
-# XVM keeps each vehicle's place in its team list from the first roster; deaths do not reorder it.
+# The layout keeps each vehicle's place in its team list from the first roster; deaths do not reorder it.
 _positions = {'arena': None, 'values': {}}
 
 
@@ -33,7 +33,7 @@ def position(arena, vehicle_id, vehicle):
 
 
 def battle_type(arena):
-    """XVM's {{battletype}}: empty in regular random battles, otherwise the bonus type name."""
+    """{{battletype}}: empty in regular random battles, otherwise the bonus type name."""
     bonus = getattr(arena, 'bonusType', None)
     if bonus in (None, 1):
         return ''

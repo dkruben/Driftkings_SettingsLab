@@ -18,7 +18,7 @@ class HotkeyFieldTests(RuntimeTest):
     def test_non_numeric_hotkey_is_treated_as_no_hotkey(self):
         panels = self.constants.TEAM_PANELS
         data = {panels.TEMPLATES: {}, panels.HP_ENABLED: True}
-        values = {'xvm-stat': 'stat'}
+        values = {'stat-available': 'stat'}
         for code in ('', 'ALT', None):
             settings = {'extraFieldsLeft': [{'id': 'extra', 'format': 'text', 'hotKeyCode': code}]}
             result = self.roster.screen(settings, values, data, 'Left')
@@ -28,9 +28,9 @@ class HotkeyFieldTests(RuntimeTest):
         panels = self.constants.TEAM_PANELS
         data = {panels.TEMPLATES: {}, panels.HP_ENABLED: True}
         settings = {'extraFieldsLeft': [{'format': 'text', 'hotKeyCode': '56', 'onHold': True}]}
-        self.assertEqual(self.roster.screen(settings, {'xvm-stat': ''}, data, 'Left')['fields'], [])
+        self.assertEqual(self.roster.screen(settings, {'stat-available': ''}, data, 'Left')['fields'], [])
         self.roster.key(184, True)
-        self.assertEqual(len(self.roster.screen(settings, {'xvm-stat': ''}, data, 'Left')['fields']), 1)
+        self.assertEqual(len(self.roster.screen(settings, {'stat-available': ''}, data, 'Left')['fields']), 1)
 
 
 class StatisticsRequestTests(RuntimeTest):
@@ -60,7 +60,7 @@ class StatisticsRequestTests(RuntimeTest):
                                                 cancelCallback=lambda handle: None),
             'driftkings.core.hooks': module(override=lambda *args: None),
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.settings)),
-            'driftkings.stats.vehinfo': module(calculateXvmScale=lambda metric, value: value,
+            'driftkings.stats.vehinfo': module(calculateRatingScale=lambda metric, value: value,
                                                getVehicleInfoData=lambda value: None, scaleValuesInstance=object())})
         class ImmediateThread(object):
             def __init__(self, target, args):
@@ -272,12 +272,12 @@ class EventPanelTests(RuntimeTest):
 
     def test_event_mode_keeps_wn8_colour_but_hides_numbers(self):
         normal = self.values()
-        self.assertEqual((normal['r'], normal['xvm-stat'], normal['stat-color']), (2469, 'stat', 'stat'))
+        self.assertEqual((normal['r'], normal['stat-available'], normal['stat-color']), (2469, 'stat', 'stat'))
         self.roster.restricted = True
         event = self.values()
         for key in ('r', 'wn8', 'winrate', 'battles', 'kb', 't-battles', 't-winrate'):
             self.assertIsNone(event[key], key)
-        self.assertEqual((event['xvm-stat'], event['stat-color'], event['c:r']), ('', 'stat', '#5A3175'))
+        self.assertEqual((event['stat-available'], event['stat-color'], event['c:r']), ('', 'stat', '#5A3175'))
         self.assertEqual((event['name'], event['nick']), ('Player', 'Player [CL]'))
 
     def test_event_mode_hides_hp_fields_but_keeps_the_row(self):

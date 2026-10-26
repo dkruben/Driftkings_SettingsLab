@@ -5,7 +5,7 @@ import os
 
 import BigWorld
 
-_xvm_installed = None
+_competing_markers_installed = None
 _battle_types = None
 
 
@@ -25,14 +25,14 @@ def getBattleTypes():
     return _battle_types
 
 
-def isXvmInstalled():
-    global _xvm_installed
-    if _xvm_installed is None:
-        _xvm_installed = _findXvm()
-    return _xvm_installed
+def hasCompetingMarkers():
+    global _competing_markers_installed
+    if _competing_markers_installed is None:
+        _competing_markers_installed = _findCompetingMarkers()
+    return _competing_markers_installed
 
 
-def _findXvm():
+def _findCompetingMarkers():
     import ResMgr
     cwd = os.getcwdu() if hasattr(os, 'getcwdu') else os.getcwd()
     paths = ResMgr.openSection(os.path.join(cwd, 'paths.xml'))
@@ -42,8 +42,8 @@ def _findXvm():
         if './mods/' in section.asString:
             mods = os.path.realpath(os.path.join(cwd, os.path.normpath(section.asString)))
             xfw = os.path.exists(os.path.join(mods, 'com.modxvm.xfw'))
-            xvm = os.path.exists(os.path.join(cwd, 'res_mods', 'mods', 'xfw_packages', 'xvm_main'))
-            return xfw and xvm
+            markers = os.path.exists(os.path.join(cwd, 'res_mods', 'mods', 'xfw_packages', 'xvm_main'))
+            return xfw and markers
     return False
 
 

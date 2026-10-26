@@ -24,7 +24,7 @@ from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.stats.vehinfo import calculateXvmScale, getVehicleInfoData
+from driftkings.stats.vehinfo import calculateRatingScale, getVehicleInfoData
 from driftkings.views.hangar.vehicle_carousel import CarouselController, get_view_config, install_gameface
 
 LOG = get_logger('Driftkings.CarouselStats')
@@ -84,7 +84,7 @@ def ratings(values, expected, tier):
         result['wn8'] = 980*d + 210*d*f + 155*f*s + 75*b*f + 145*min(1.8,w)
     for key in ('eff', 'wn8'):
         if result[key] is not None:
-            scaled = number(calculateXvmScale(key, result[key]))
+            scaled = number(calculateRatingScale(key, result[key]))
             result['x'+key] = scaled if scaled is not None and scaled >= 0 else None
     return result
 
