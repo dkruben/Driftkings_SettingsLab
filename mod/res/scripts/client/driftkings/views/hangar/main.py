@@ -11,7 +11,7 @@ import weakref
 from helpers import getClientLanguage
 
 from driftkings.core.hooks import override
-from driftkings.views.hangar.common import HangarController, publish_card
+from driftkings.gameface.hangar.common import HangarController, publish_card
 
 
 def _component():
@@ -78,8 +78,8 @@ def install_clock_gameface():
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID
-    from driftkings.ui.gameface import resource_id as resolve_resource
+    from driftkings.gameface.core import attach_assets, INVALID_RES_ID
+    from driftkings.gameface.core import resource_id as resolve_resource
 
     class ClockModel(ViewModel):
         def __init__(self):

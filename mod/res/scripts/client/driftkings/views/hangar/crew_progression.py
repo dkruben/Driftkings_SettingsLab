@@ -12,7 +12,7 @@ from driftkings.lobby.crew_progression import collect_rows
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.crew_progression_model import progression_kinds, progression_lines
-from driftkings.views.hangar.common import HangarController, install_card, publish_card
+from driftkings.gameface.hangar.common import HangarController, install_card, publish_card
 
 FEATURE = 'DriftkingsCrewProgression'
 RESOURCE = gameface_spec(FEATURE)['resource']
@@ -74,7 +74,7 @@ def install(config):
     from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.ui.gameface import attach_assets
+    from driftkings.gameface.core import attach_assets
 
     class CrewModel(ViewModel):
         def __init__(self):

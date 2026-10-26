@@ -249,7 +249,7 @@ class HighCaliberTests(RuntimeTest):
             'driftkings.core.hud_visibility': module(hudVisibility=module(
                 attach=lambda obj: attached.append(obj), detach=lambda obj: attached.remove(obj))),
             'driftkings.settings.service': module(settings_service=self.service),
-            'driftkings.views.hangar.common': module(publish_card=publish),
+            'driftkings.gameface.payloads': module(publish_card=publish),
             'driftkings.views.marks_model': module(moved_panel=self.load('views.marks_model').moved_panel,
                                                   finite=lambda value: None if value == 'bad' else float(value),
                                                   number_locale=lambda lang: {'groupSeparator': u'\u00a0'}),
@@ -259,13 +259,13 @@ class HighCaliberTests(RuntimeTest):
             'gui.shared': module(events=module(GameEvent=module(GUI_VISIBILITY=1, SHOW_CURSOR=2, HIDE_CURSOR=3)),
                                  EVENT_BUS_SCOPE=module(BATTLE=1, GLOBAL=2)),
             'driftkings.core.hooks': module(override=override),
-            'driftkings.ui.gameface': ui,
+            'driftkings.gameface.core': ui,
             'driftkings.interface_catalog': module(gameface_spec=lambda feature: {'resource': 'test'}),
             'GUI': module(mcursor=lambda: module(visible=False)),
         }
-        base = source('views/battle/common.py', deps)
+        base = source('gameface/batalha/common.py', deps)
         base['setattr'] = lambda target, name, value: setattr(target, name, value)
-        deps['driftkings.views.battle.common'] = module(BattleCardAdapter=base['BattleCardAdapter'])
+        deps['driftkings.gameface.batalha.common'] = module(BattleCardAdapter=base['BattleCardAdapter'])
         adapter = source('views/battle/high_caliber_gameface.py', deps)['MainGunAdapter']()
         adapter.install()
         adapter.install()

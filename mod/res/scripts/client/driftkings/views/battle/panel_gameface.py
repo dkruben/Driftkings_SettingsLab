@@ -21,7 +21,7 @@ class GamefaceLoading(object):
         from frameworks.wulf.gui_constants import ShowingStatus
         from gui.impl.pub import ViewImpl
 
-        from driftkings.ui.gameface import attach_assets, resource_id
+        from driftkings.gameface.core import attach_assets, resource_id
         bridge=self
         class RatingModel(ViewModel):
             def __init__(self):

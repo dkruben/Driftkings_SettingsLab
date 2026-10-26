@@ -65,7 +65,7 @@ class ProfileRatingTests(RuntimeTest):
             'gui.impl.pub.view_component': module(ViewComponent=ChildBase),
             'gui.impl.lobby.achievements.achievements_main_view': module(AchievementMainView=Main),
             'gui.impl.lobby.achievements.summary.summary_view': module(SummaryView=Summary),
-            'driftkings.ui.gameface': module(attach_assets=lambda *args: None, resource_id=lambda key: 123),
+            'driftkings.gameface.core': module(attach_assets=lambda *args: None, resource_id=lambda key: 123),
             'driftkings.interface_catalog': module(gameface_spec=lambda name: {'resource': 'test'}),
         })
         api['colors'] = lambda current: {'wins': '#00CC00'} if self.settings['enabled'] else {}

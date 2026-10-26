@@ -11,7 +11,7 @@ import weakref
 from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
-from driftkings.views.hangar.common import card_payload, HangarController, install_card, publish_card
+from driftkings.gameface.hangar.common import card_payload, HangarController, install_card, publish_card
 from driftkings.common.utils.compat import string_types
 
 
@@ -72,7 +72,7 @@ def install_gameface():
     from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.ui.gameface import attach_assets
+    from driftkings.gameface.core import attach_assets
 
     class CarouselModel(ViewModel):
         def __init__(self):

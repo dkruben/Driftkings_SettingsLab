@@ -16,8 +16,8 @@ def _component():
 def install():
     from gui.impl.lobby.tech_tree.tech_tree_view import TechTreeView
 
-    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID
-    from driftkings.ui.gameface import resource_id as resolve_resource
+    from driftkings.gameface.core import attach_assets, INVALID_RES_ID
+    from driftkings.gameface.core import resource_id as resolve_resource
     for name in ('_onLoading', '_finalize', '_TechTreeView__fillNodeOverrides', '_TechTreeView__updateNodeOverrides'):
         if not callable(getattr(TechTreeView, name, None)):
             raise RuntimeError('Unsupported TechTreeView API: ' + name)

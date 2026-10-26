@@ -6,7 +6,7 @@ from driftkings._constants import GLOBAL, HIGH_CALIBER_PROGRESS
 from driftkings.core.hud_visibility import hudVisibility
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
-from driftkings.views.battle.common import BattleCardAdapter
+from driftkings.gameface.batalha.common import BattleCardAdapter
 from driftkings.views.marks_model import moved_panel, number_locale
 
 LOG = get_logger('Driftkings.MainGunBattle')

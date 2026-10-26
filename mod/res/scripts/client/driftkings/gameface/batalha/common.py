@@ -3,7 +3,7 @@
 import weakref
 
 from driftkings.settings.service import settings_service
-from driftkings.views.hangar.common import publish_card
+from driftkings.gameface.payloads import publish_card
 
 
 class BattleCardAdapter(object):
@@ -28,7 +28,7 @@ class BattleCardAdapter(object):
 
         from driftkings.core.hooks import override
         from driftkings.interface_catalog import gameface_spec
-        from driftkings.ui.gameface import attach_assets, resource_id
+        from driftkings.gameface.core import attach_assets, resource_id
         adapter = self
 
         class BattleCardModel(ViewModel):
@@ -144,7 +144,7 @@ class BattleCardAdapter(object):
 
     def resourceID(self):
         from driftkings.interface_catalog import gameface_spec
-        from driftkings.ui.gameface import resource_id
+        from driftkings.gameface.core import resource_id
         return resource_id(gameface_spec(self.feature)['resource'])
 
     def savePosition(self, child, args):

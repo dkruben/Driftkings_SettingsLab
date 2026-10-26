@@ -13,7 +13,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.crew_progression_model import integer, progression_kinds, progression_lines, translated
 from driftkings.views.hangar import crew_progression as hangar_bridge
-from driftkings.views.hangar.common import publish_card
+from driftkings.gameface.hangar.common import publish_card
 
 FEATURE = 'DriftkingsCrewDetails'
 RESOURCE = gameface_spec(FEATURE)['resource']
@@ -86,7 +86,7 @@ def install():
     from gui.impl.lobby.crew.tooltips.tankman_tooltip import TankmanTooltip
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID, resource_id
+    from driftkings.gameface.core import attach_assets, INVALID_RES_ID, resource_id
 
     class DetailsModel(ViewModel):
         def __init__(self):

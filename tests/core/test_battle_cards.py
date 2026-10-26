@@ -56,18 +56,18 @@ class BattleCardTests(RuntimeTest):
                             [entry for entry in self.connections if entry[0] != handler]))
         self.deps = {
             'driftkings.settings.service': module(settings_service=module(onModSettingsChanged=signal)),
-            'driftkings.views.hangar.common': module(publish_card=lambda child, payload: self.published.append(payload)),
+            'driftkings.gameface.payloads': module(publish_card=lambda child, payload: self.published.append(payload)),
             'gui.impl.battle.random.hud': module(RandomHUDView=Parent),
             'frameworks.wulf': module(ViewModel=Model),
             'gui.impl.pub.view_component': module(ViewComponent=View),
             'gui.shared': module(events=module(GameEvent=module(GUI_VISIBILITY=1, SHOW_CURSOR=2, HIDE_CURSOR=3)),
                                  EVENT_BUS_SCOPE=module(BATTLE=1, GLOBAL=2)),
             'driftkings.core.hooks': module(override=override),
-            'driftkings.ui.gameface': module(attach_assets=lambda *args: None, resource_id=lambda path: self.resource),
+            'driftkings.gameface.core': module(attach_assets=lambda *args: None, resource_id=lambda path: self.resource),
             'driftkings.interface_catalog': module(gameface_spec=lambda feature: {'resource': 'test'}),
             'GUI': module(mcursor=lambda: module(visible=self.cursor)),
         }
-        base = source('views/battle/common.py', self.deps)
+        base = source('gameface/batalha/common.py', self.deps)
         # Python 2 restricts metadata writes when source() replaces builtins.
         base['setattr'] = lambda target, name, value: setattr(target, name, value)
         self.base = base['BattleCardAdapter']
@@ -178,7 +178,7 @@ class BattleCardTests(RuntimeTest):
         deps.update({
             'importlib': module(import_module=lambda name: component),
             'driftkings._constants': constants,
-            'driftkings.views.battle.common': module(BattleCardAdapter=self.base),
+            'driftkings.gameface.batalha.common': module(BattleCardAdapter=self.base),
             'driftkings.core.marks_state': module(marks_state=state),
             'driftkings.core.hud_visibility': module(hudVisibility=module(
                 attach=lambda adapter: attached.append(adapter), detach=lambda adapter: attached.remove(adapter))),

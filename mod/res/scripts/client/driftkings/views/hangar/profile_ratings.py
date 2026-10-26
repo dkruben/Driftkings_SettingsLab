@@ -38,7 +38,7 @@ def install():
     from gui.impl.lobby.achievements.summary.summary_view import SummaryView
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.ui.gameface import attach_assets, resource_id
+    from driftkings.gameface.core import attach_assets, resource_id
 
     layout_id = resource_id(gameface_spec(FEATURE)['resource'])
 

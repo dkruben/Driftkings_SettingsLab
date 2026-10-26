@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Shared lifecycle for component-owned Gameface hangar cards."""
-import json
 import weakref
 
 from driftkings.core.settings_controller import SettingsController
+from driftkings.gameface.payloads import publish_card
 
 
 class HangarController(SettingsController):
@@ -38,23 +38,12 @@ def card_payload(previous, config_only, visible, config, build):
     return payload
 
 
-def publish_card(view, payload):
-    """Publish only changed output, committing the cache after the transaction."""
-    if view._lastPayload == payload:
-        return False
-    encoded = json.dumps(payload, separators=(',', ':'), allow_nan=False)
-    with view.getViewModel().transaction() as model:
-        model._setString(0, encoded)
-    view._lastPayload = payload
-    return True
-
-
 def install_card(component, view_type, owner):
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
 
     from driftkings.core.hooks import override
-    from driftkings.ui.gameface import INVALID_RES_ID
-    from driftkings.ui.gameface import resource_id as resolve_resource
+    from driftkings.gameface.core import INVALID_RES_ID
+    from driftkings.gameface.core import resource_id as resolve_resource
 
     def get_children(original, parent, *args, **kwargs):
         children = dict(original(parent, *args, **kwargs))

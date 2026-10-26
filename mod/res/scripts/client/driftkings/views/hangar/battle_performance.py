@@ -23,8 +23,8 @@ def install_results_gameface():
     from helpers import dependency
     from skeletons.gui.battle_results import IBattleResultsService
 
-    from driftkings.ui.gameface import attach_assets, INVALID_RES_ID
-    from driftkings.ui.gameface import resource_id as resolve_resource
+    from driftkings.gameface.core import attach_assets, INVALID_RES_ID
+    from driftkings.gameface.core import resource_id as resolve_resource
 
     feature = 'driftkingsbattleEfficiency'
     resource = gameface_spec('driftkingsbattleEfficiency')['resource']

@@ -24,7 +24,7 @@ def install_header_options():
     from gui.impl.pub.view_component import ViewComponent
     from gui.shared.personality import ServicesLocator
 
-    from driftkings.ui.gameface import attach_assets, resource_id
+    from driftkings.gameface.core import attach_assets, resource_id
 
     class HeaderOptionsModel(ViewModel):
         def __init__(self):

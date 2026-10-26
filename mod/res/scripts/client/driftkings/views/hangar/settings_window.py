@@ -19,7 +19,7 @@ from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.panel import core_page, logger
 from driftkings.settings.panel.controls import is_text
 from driftkings.settings.panel.presenter import CORE_ID, MAX_REQUEST, Presenter
-from driftkings.ui.gameface import resource_id
+from driftkings.gameface.core import resource_id
 
 WINDOW_RESOURCE = gameface_spec('DriftkingsDKModSettings')['resource']
 _JSON = {'separators': (',', ':'), 'allow_nan': False}

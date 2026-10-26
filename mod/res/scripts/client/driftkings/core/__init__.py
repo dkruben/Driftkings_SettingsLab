@@ -58,7 +58,7 @@ def default_services():
         ServiceSpec('battle_events', runtime_service('driftkings.core.battle_events:battleEvents', False), ('keyboard', 'lifecycle')),
         ServiceSpec('callbacks', runtime_service('driftkings.core.callbacks:callbacks', False), ('battle_events',)),
         ServiceSpec('notifications', runtime_service('driftkings.core.notifications:NotificationsService'), ('callbacks',)),
-        ServiceSpec('window_views', runtime_service('driftkings.views.hangar.windows:WindowViews'), ('settings', 'callbacks'), 'interface'),
+        ServiceSpec('window_views', runtime_service('driftkings.gameface.registry:WindowViews'), ('settings', 'callbacks'), 'interface'),
         ServiceSpec('battle_views', runtime_service('driftkings.views:BattleViews'), ('settings', 'battle_events', 'callbacks'), 'interface'),
         ServiceSpec('settings_panel', runtime_service('driftkings.settings:SettingsService'), ('settings', 'keyboard', 'window_views'), 'interface'),
         ServiceSpec('updater', runtime_service('driftkings.core.updater:UpdaterService'), ('settings_panel', 'callbacks'), 'interface'),
