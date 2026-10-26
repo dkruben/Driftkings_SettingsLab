@@ -1,6 +1,6 @@
 # Driftkings — comparação XVM WG, configurações e modos
 
-> Atualização de contexto — 26/10/2026: As decisões e evidências abaixo descrevem as etapas de outubro, não o estado integral atual. A beta 0.1.3-beta.2 já foi publicada. Os marcadores usam agora ficheiros XVM-style, contextos por equipa/estado/ALT, estatísticas partilhadas e editor integrado; o âmbito dos modos continua explícito. Referência atual: EU 2.4.1.5498. Os snapshots de auditoria continuam locais. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+> Atualização de contexto — 26/10/2026: As decisões e evidências abaixo descrevem as etapas de outubro, não o estado integral atual. A beta 0.1.3-beta.2 já foi publicada. Os marcadores usam agora ficheiros XVM-style, contextos por equipa/estado/ALT, estatísticas partilhadas e editor integrado; o âmbito dos modos continua explícito. Referência atual: EU 2.4.1.5498. Os snapshots de auditoria continuam locais. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 Data: 2026-10-19. Repositório de partida: `fe55729`. Referência local XVM: `WoT_Tools/Atualizados/XVM`, commit `19b8a78` de 2026-10-15. Cliente fonte consultado: EU `2.4.1.5488`.
 

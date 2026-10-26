@@ -1,6 +1,6 @@
 # Contributing to Driftkings
 
-This guide explains how the code is organised and how to make a change safely. For building and installing, see the [README](README.md). Run all commands below from the repository root. Markdown documentation lives under `docs/`; repository paths in code spans are relative to the repository root.
+This guide explains how the code is organised and how to make a change safely. For building and installing, see the [README](README.md). Run all commands below from the repository root. The README and contribution guide live at the repository root; other Markdown documentation lives under `docs/`; repository paths in code spans are relative to the repository root.
 
 ## Ground rules
 
@@ -8,7 +8,7 @@ This guide explains how the code is organised and how to make a change safely. F
 - **Keep Python imports alphabetical in three groups**, separated by a blank line: Python standard libraries, game libraries, then Driftkings modules. Keep conditional and local imports in their existing execution scope. Run `python -m isort mod/res/scripts/client` to apply the client configuration, or add `--check-only` to check it.
 - **Gameface JavaScript is ES5.** `npm run lint` enforces this.
 - Vehicle markers build from a SHA-256-pinned native movie. Configure RABCDAsm with
-  `DK_RABCDASM_HOME` or `--rabcdasm-home`; see the [vehicle marker guide](vehicle_markers/README.md).
+  `DK_RABCDASM_HOME` or `--rabcdasm-home`; see the [vehicle marker guide](docs/vehicle_markers/README.md).
 - **Use `logging`, never `print`.** Import `get_logger` from `driftkings.logger` and declare `LOG = get_logger('Driftkings.<Area>')`. The shared factory preserves client-owned handlers and output. Use `LOG.exception(...)` inside `except` blocks so the traceback reaches the game log.
 - **Do not swallow exceptions silently.** Catch the narrowest exception type, and either log it or explain in a comment why ignoring it is correct.
 - Prefer **pure, engine-free modules** for logic (see `core/gun_stats.py`, `core/carousel*.py`, `core/high_caliber.py`). They can be tested without the game.
@@ -193,7 +193,7 @@ The publisher rejects dirty builds or a checkout that differs from the recorded 
 - Keep changes focused; one concern per pull request.
 - Describe what changed and how you verified it (tests, replay, live battle).
 - Include `game.log` excerpts when fixing a bug, with personal information removed.
-- Code adapted from other mods must keep its credit and licence (the project is GPL-3.0; see [licence](../licence)).
+- Code adapted from other mods must keep its credit and licence (the project is GPL-3.0; see [licence](licence)).
 
 ### WNX and Tomato.gg
 

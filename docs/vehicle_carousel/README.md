@@ -69,4 +69,4 @@ The 0.1.3-beta.2 defaults follow the author's EU profile. Normal cards use separ
 
 After editing the JSON, regenerate the fallback and snapshot with `python build_tools/generate_defaults.py --write --refresh-snapshot`. Run `npm test` for native-field restoration, fixed-width alignment and font-alias regression coverage. Complete a battle and return to the hangar to verify live dossier updates.
 
-See the [contribution guide](../CONTRIBUTING.md) and [current status](../STATUS.md).
+See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md).

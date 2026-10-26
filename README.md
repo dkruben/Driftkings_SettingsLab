@@ -183,25 +183,25 @@ Dependencies: ModsListAPI by poliroid and OpenWG Gameface.
 
 ## Documentation
 
-All project Markdown files live in `docs/`. Paths shown in code spans are relative to the repository root unless a guide says otherwise. Local research data and scripts are excluded from Git and from the mod packages.
+The project README and contribution guide live at the repository root; feature guides and historical reports live in `docs/`. Paths shown in code spans are relative to the repository root unless a guide says otherwise. Local research data and scripts are excluded from Git and from the mod packages.
 
 ### Development and feature guides
 
 - [Contribution guide](CONTRIBUTING.md): architecture, conventions, tests and release workflow.
-- [Current documentation status](STATUS.md): release baseline and verification limits.
-- [Development references](FONTES_DESENVOLVIMENTO.md): local WoT sources and toolchain inputs.
-- [Vehicle markers](vehicle_markers/README.md): layouts, fonts, ratings, damage and editor.
-- [Hangar clock](hangar_preferences/README.md): General settings and `clock.formats`.
-- [Vehicle carousel](vehicle_carousel/README.md): native fields, macros and statistics.
-- [High Caliber / MainGun](MainGun_Gameface.md): Gameface implementation and behaviour.
-- [Languages](i18n/README.md), [sound banks](audioww/README.md) and [Sixth Sense icons](sixthsense_icons/README.md).
-- [Retired HangarEfficiency](hangar_efficiency/README.md): historical status and replacements.
+- [Current documentation status](docs/STATUS.md): release baseline and verification limits.
+- [Development references](docs/FONTES_DESENVOLVIMENTO.md): local WoT sources and toolchain inputs.
+- [Vehicle markers](docs/vehicle_markers/README.md): layouts, fonts, ratings, damage and editor.
+- [Hangar clock](docs/hangar_preferences/README.md): General settings and `clock.formats`.
+- [Vehicle carousel](docs/vehicle_carousel/README.md): native fields, macros and statistics.
+- [High Caliber / MainGun](docs/MainGun_Gameface.md): Gameface implementation and behaviour.
+- [Languages](docs/i18n/README.md), [sound banks](docs/audioww/README.md) and [Sixth Sense icons](docs/sixthsense_icons/README.md).
+- [Retired HangarEfficiency](docs/hangar_efficiency/README.md): historical status and replacements.
 
 ### Historical reviews and studies
 
 These reports retain their original findings and data dates; their update notes explain the current context.
 
-- [Constants review](analise_constants.md), [XVM/configuration/mode analysis](Analise_XVM_Configs_Modos.md) and [duplication review](plano_duplicacoes.md).
-- [Code review, 20 October](Revisao_Codigo_2026-10-20.md), [translation review, 22 October](Revisao_Traducoes_2026-10-22.md) and [control descriptions, 23 October](Revisao_Descricoes_2026-10-23.md).
-- [WN8 exploratory study](wn8-study/report.md), [WN8 audit](wn8-study/wn8-audit-report.md) and [assistance normalization](wn8-study/normalized-report.md).
-- [Contribution prototype](wn8-study/contribution-report.md), [normalized contribution](wn8-study/contribution-normalized-report.md) and [experimental colour preview](wn8-study/color-preview.md).
+- [Constants review](docs/analise_constants.md), [XVM/configuration/mode analysis](docs/Analise_XVM_Configs_Modos.md) and [duplication review](docs/plano_duplicacoes.md).
+- [Code review, 20 October](docs/Revisao_Codigo_2026-10-20.md), [translation review, 22 October](docs/Revisao_Traducoes_2026-10-22.md) and [control descriptions, 23 October](docs/Revisao_Descricoes_2026-10-23.md).
+- [WN8 exploratory study](docs/wn8-study/report.md), [WN8 audit](docs/wn8-study/wn8-audit-report.md) and [assistance normalization](docs/wn8-study/normalized-report.md).
+- [Contribution prototype](docs/wn8-study/contribution-report.md), [normalized contribution](docs/wn8-study/contribution-normalized-report.md) and [experimental colour preview](docs/wn8-study/color-preview.md).

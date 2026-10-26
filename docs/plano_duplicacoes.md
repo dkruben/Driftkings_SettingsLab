@@ -1,6 +1,6 @@
 # Duplicação de código — revisão e plano
 
-> Atualização de contexto — 26/10/2026: As cinco etapas documentadas abaixo foram integradas. O projeto reutiliza os auxiliares numéricos, ciclo de vida dos painéis, conversor Flash/HTML, controlo de configurações e primitivas de ficheiros. Também partilha `common/utils/compat.py` e auxiliares AS3 de cor/sombra/HUD. As cores fixas usam `#RRGGBB`. Os resultados antigos são históricos; não foi repetida uma pesquisa global de duplicações nesta atualização. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+> Atualização de contexto — 26/10/2026: As cinco etapas documentadas abaixo foram integradas. O projeto reutiliza os auxiliares numéricos, ciclo de vida dos painéis, conversor Flash/HTML, controlo de configurações e primitivas de ficheiros. Também partilha `common/utils/compat.py` e auxiliares AS3 de cor/sombra/HUD. As cores fixas usam `#RRGGBB`. Os resultados antigos são históricos; não foi repetida uma pesquisa global de duplicações nesta atualização. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 Âmbito: Python cliente, ferramentas de build, JavaScript Gameface e fontes ActionScript. Comparação estrutural de funções Python e blocos de texto, seguida de revisão dos candidatos. Traduções, código gerado e tabelas de dados não foram tratados como duplicação de lógica.
 

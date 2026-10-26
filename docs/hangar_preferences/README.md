@@ -23,4 +23,4 @@ Repository paths:
 
 The clock follows hangar visibility. Its text is laid out line by line to support negative leading, matching the supported Flash formatting. Custom images use packaged `gui/maps/driftkings/...` paths or the permitted `mods/configs/driftkings/...` media folders.
 
-Run the clock-text, settings and Gameface suites from the repository root. Check placement, negative leading, visibility transitions and custom-image paths in the target client. See the [contribution guide](../CONTRIBUTING.md) and [current status](../STATUS.md).
+Run the clock-text, settings and Gameface suites from the repository root. Check placement, negative leading, visibility transitions and custom-image paths in the target client. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md).

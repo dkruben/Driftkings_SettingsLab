@@ -1,6 +1,6 @@
 # Cores provisórias do índice de contribuição
 
-> Contexto atualizado em 26/10/2026: estudo histórico com snapshots locais; valores e fórmulas experimentais abaixo não foram recalculados nem adotados como novas métricas do mod. O runtime atual calcula WN8 com estatísticas aleatórias e WNX pela sua fórmula própria. Os scripts, JSON e CSV citados são artefactos locais ignorados pelo Git, necessários para reproduzir o estudo. Ver o [estado atual](../STATUS.md) e as [notas de WNX](../CONTRIBUTING.md#wnx-and-tomatogg).
+> Contexto atualizado em 26/10/2026: estudo histórico com snapshots locais; valores e fórmulas experimentais abaixo não foram recalculados nem adotados como novas métricas do mod. O runtime atual calcula WN8 com estatísticas aleatórias e WNX pela sua fórmula própria. Os scripts, JSON e CSV citados são artefactos locais ignorados pelo Git, necessários para reproduzir o estudo. Ver o [estado atual](../STATUS.md) e as [notas de WNX](../../CONTRIBUTING.md#wnx-and-tomatogg).
 
 Escala ilustrativa escolhida por intervalos face à referência. Não calibrada em percentis, não equivalente a categorias de habilidade WN8, sem garantias de comparabilidade entre classes ou tiers. 1000 é referência, não necessariamente média da população.
 

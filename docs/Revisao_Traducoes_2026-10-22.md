@@ -1,6 +1,6 @@
 # Revisão funcional das traduções — 22/10/2026
 
-> Atualização de contexto — 26/10/2026: Os números de remoções e alterações abaixo descrevem a revisão de 22/10. Os catálogos atuais incluem os controlos posteriores de General/relógio e marcadores: 1491 chaves de componentes e 170 do painel, em 18 idiomas. A validação atual exige cobertura completa; revisão linguística humana continua distinta de cobertura de chaves. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+> Atualização de contexto — 26/10/2026: Os números de remoções e alterações abaixo descrevem a revisão de 22/10. Os catálogos atuais incluem os controlos posteriores de General/relógio e marcadores: 1491 chaves de componentes e 170 do painel, em 18 idiomas. A validação atual exige cobertura completa; revisão linguística humana continua distinta de cobertura de chaves. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 Revisão dos 18 recursos YML contra as definições e o código de runtime.
 Removidas 91 chaves obsoletas por idioma; atualizadas 23 chaves inglesas e as correspondentes traduções; acrescentadas quatro chaves em cada idioma.

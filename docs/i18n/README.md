@@ -2,7 +2,7 @@
 
 The catalogs are UTF-8 `.yml` resources in `mod/res/mods/driftkings/text/<code>.yml`,
 packaged under `res/mods/driftkings/text/` and loaded through the game VFS. The
-format is described in [contribution guide](../CONTRIBUTING.md#translation-resources).
+format is described in [contribution guide](../../CONTRIBUTING.md#translation-resources).
 
 Each catalog holds the component text (`<component>.<key>`) and the settings panel
 text (`panel.<key>`). The loaders are `driftkings/i18n/resources.py` (resources),

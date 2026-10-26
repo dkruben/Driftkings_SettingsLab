@@ -1,6 +1,6 @@
 # MainGun — migração Gameface
 
-Implementação integrada e publicada na beta 0.1.3-beta.2. Comandos e caminhos referem-se à raiz do repositório. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+Implementação integrada e publicada na beta 0.1.3-beta.2. Comandos e caminhos referem-se à raiz do repositório. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 ## Integração e ficheiros
 

@@ -1,6 +1,6 @@
 # Descrições dos controlos — revisão do inglês
 
-> Atualização de contexto — 26/10/2026: A tabela abaixo é o registo histórico da revisão de 23/10, não uma lista de alterações por aprovar. As descrições atuais vivem nos 18 catálogos YML. Os testes percorrem as definições atuais, verificam descrições por idioma e abertura/aplicação de todas as páginas. Totais atuais: 1491 chaves de componentes e 170 do painel; os 506 textos e 1005 controlos abaixo pertencem ao levantamento original. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+> Atualização de contexto — 26/10/2026: A tabela abaixo é o registo histórico da revisão de 23/10, não uma lista de alterações por aprovar. As descrições atuais vivem nos 18 catálogos YML. Os testes percorrem as definições atuais, verificam descrições por idioma e abertura/aplicação de todas as páginas. Totais atuais: 1491 chaves de componentes e 170 do painel; os 506 textos e 1005 controlos abaixo pertencem ao levantamento original. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 Registo do rascunho de 23/10/2026, preparado antes da tradução para os 18 idiomas. Cada texto foi conferido com o código da altura.
 

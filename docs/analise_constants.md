@@ -1,6 +1,6 @@
 # Revisão de _constants.py
 
-> Atualização de contexto — 26/10/2026: A listagem e as contagens abaixo pertencem à revisão original; não foram recalculadas nesta atualização. O relógio atual usa `main.clock.formats`, a compatibilidade Python 2/3 está em `common/utils/compat.py` e o pacote publicado contém 293 módulos Python. Para o código atual, consultar os validadores e testes indicados no guia de contribuição. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+> Atualização de contexto — 26/10/2026: A listagem e as contagens abaixo pertencem à revisão original; não foram recalculadas nesta atualização. O relógio atual usa `main.clock.formats`, a compatibilidade Python 2/3 está em `common/utils/compat.py` e o pacote publicado contém 293 módulos Python. Para o código atual, consultar os validadores e testes indicados no guia de contribuição. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 Registo da análise estática original, com resolução de imports e aliases.
 

@@ -17,7 +17,7 @@ The all-pages settings test opens and applies every current feature definition w
 
 ## Documentation policy
 
-All project Markdown files live under `docs/`, including the [README](README.md), [contribution guide](CONTRIBUTING.md) and feature guides. The Git ignore rules include Markdown only; local JSON/CSV snapshots, study scripts and generated outputs remain excluded. Third-party dependencies and generated build trees keep their own files and are not project documentation.
+The [README](../README.md) and [contribution guide](../CONTRIBUTING.md) live at the repository root. Feature guides and historical reports live under `docs/`. The Git ignore rules include Markdown only; local JSON/CSV snapshots, study scripts and generated outputs remain excluded. Third-party dependencies and generated build trees keep their own files and are not project documentation.
 
 Dated reviews retain their original evidence, line references, counts and conclusions. Update notes distinguish historical findings from the current implementation. No new source audit or statistical study is implied by reorganizing a report. Research prototypes under `wn8-study/` are not additional production ratings; reproduction requires the original local scripts and data.
 
@@ -29,4 +29,4 @@ Dated reviews retain their original evidence, line references, counts and conclu
 - ActionScript fields use the client font library. Marker `xvm`/`XVMSymbol` aliases resolve to `$FieldFont`; legacy private glyphs map to a supported bullet. Fixed colours use `#RRGGBB` with existing numeric converters.
 - WN8 uses random-battle statistics; WNX uses its own assistance-aware calculation and expected values. The EU battle overlay defaults to WN8, EFF and DIFF; WNX remains configurable.
 
-For current commands and release procedures, use [CONTRIBUTING.md](CONTRIBUTING.md). For feature guides and historical reports, use the [documentation index](README.md#documentation).
+For current commands and release procedures, use [CONTRIBUTING.md](../CONTRIBUTING.md). For feature guides and historical reports, use the [documentation index](../README.md#documentation).

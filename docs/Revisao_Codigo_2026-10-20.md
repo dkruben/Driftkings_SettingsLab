@@ -1,6 +1,6 @@
 # Revisão do código: Driftkings_SettingsLab
 
-> Atualização de contexto — 26/10/2026: Os 15 problemas foram registados como corrigidos na revisão original. Esta página mantém essa evidência e as referências de linha da altura. A beta atual é 0.1.3-beta.2 e passou 413 testes core, 27 do painel e 33 do instalador, além das suites Gameface; isto não constitui uma nova auditoria completa de código. Ver o [estado atual](STATUS.md) e o [guia de contribuição](CONTRIBUTING.md).
+> Atualização de contexto — 26/10/2026: Os 15 problemas foram registados como corrigidos na revisão original. Esta página mantém essa evidência e as referências de linha da altura. A beta atual é 0.1.3-beta.2 e passou 413 testes core, 27 do painel e 33 do instalador, além das suites Gameface; isto não constitui uma nova auditoria completa de código. Ver o [estado atual](STATUS.md) e o [guia de contribuição](../CONTRIBUTING.md).
 
 **Data:** 20/10/2026 · **Commit:** `b6afb5c` (beta.5)
 **Âmbito:** Python do mod (core, updater, settings, battle, lobby, views), GameFace JS, AS3, build tools, instalador C#/Inno e workflows do GitHub.
