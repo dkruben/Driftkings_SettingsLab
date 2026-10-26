@@ -8,6 +8,8 @@ from driftkings.core.vehicle_markers.fields import number, string_types
 
 DEFAULTS = {'enabled': False, 'x': -35, 'y': -22, 'width': 70, 'height': 8,
             'alpha': 100, 'color': '{{c:team}}', 'showOnDead': False,
+            'fill': {'alpha': 100},
+            'gradient': {'enabled': False, 'color': '{{c:hp}}', 'angle': 0},
             'background': {'color': '#181818', 'alpha': 80},
             'border': {'color': '#000000', 'alpha': 100, 'width': 1},
             'damage': {'enabled': False, 'color': '#FFDD66', 'alpha': 65, 'delay': .25, 'duration': .75},
@@ -30,14 +32,18 @@ def normalize(options):
     if not isinstance(result['color'], string_types):
         raise ValueError('Invalid bar colour')
     if result['color'] not in ('{{c:hp}}', '{{c:team}}'): color(result['color'])
-    for name in ('background', 'border'):
+    for name in ('fill', 'gradient', 'background', 'border'):
         values = options.get(name, {})
         if not isinstance(values, dict) or set(values) - set(DEFAULTS[name]):
             raise ValueError('Invalid healthBar ' + name)
         result[name] = copy.deepcopy(DEFAULTS[name])
         result[name].update(values)
-        color(result[name]['color'])
-        number(result[name]['alpha'], 0, 100)
+        if 'color' in result[name] and not (name == 'gradient' and result[name]['color'] in ('{{c:hp}}', '{{c:team}}')):
+            color(result[name]['color'])
+        if 'alpha' in result[name]: number(result[name]['alpha'], 0, 100)
+    if type(result['gradient']['enabled']) is not bool:
+        raise ValueError('Gradient enabled must be boolean')
+    number(result['gradient']['angle'], -360, 360)
     number(result['border']['width'], 0, 10)
     if result['border']['width'] * 2 >= min(result['width'], result['height']):
         raise ValueError('Bar border leaves no interior')
@@ -49,7 +55,7 @@ def normalize(options):
     damage = result['damage']
     if type(damage['enabled']) is not bool:
         raise ValueError('Trail enabled must be boolean')
-    color(damage['color'])
+    if damage['color'] != '{{c:dmg}}': color(damage['color'])
     number(damage['alpha'], 0, 100)
     number(damage['delay'], 0, 5)
     number(damage['duration'], .1, 5)

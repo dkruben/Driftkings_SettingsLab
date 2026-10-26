@@ -10,18 +10,81 @@
         });
         return result;
     }
+    function resolve(document) {
+        var budget=100000;
+        function target(path,trail,depth) {
+            if (typeof path!=='string' || !/^def(?:\.[A-Za-z0-9_-]+)+$/.test(path) || trail.indexOf(path)>=0) { throw new Error('Invalid or circular reference: '+path); }
+            var item=document;
+            path.split('.').forEach(function (key) {
+                if (!item || typeof item!=='object' || !Object.prototype.hasOwnProperty.call(item,key)) { throw new Error('Unknown reference: '+path); }
+                item=item[key];
+            });
+            return visit(item,trail.concat([path]),depth+1);
+        }
+        function visit(item,trail,depth) {
+            budget--; if (budget<0 || depth>48) { throw new Error('Reference expansion exceeds limits'); }
+            if (Array.isArray(item)) { return item.map(function (child) { return visit(child,trail,depth+1); }); }
+            if (item && typeof item==='object') {
+                var result={}, pointer=item.$ref;
+                Object.keys(item).forEach(function (key) { if (key!=='$ref') { result[key]=visit(item[key],trail,depth+1); } });
+                if (pointer!==undefined) {
+                    if (typeof pointer==='object') {
+                        if (!pointer || Object.keys(pointer).join()!=='path') { throw new Error('Invalid reference path'); }
+                        pointer=pointer.path;
+                    }
+                    var base=target(pointer,trail,depth);
+                    if (Object.keys(result).length && (!base || typeof base!=='object' || Array.isArray(base))) { throw new Error('Reference overrides require an object'); }
+                    return Object.keys(result).length?merge(base,result):clone(base);
+                }
+                return result;
+            }
+            if (typeof item==='string' && item.slice(0,2)==='${' && item.slice(-1)==='}') { return target(item.slice(2,-1),trail,depth); }
+            return item;
+        }
+        return visit(document,[],0);
+    }
+    function migrate(raw) {
+        var result=clone(raw);
+        if (result.schemaVersion===2) { return result; }
+        ['markers','customFields'].forEach(function (key) {
+            var source=result[key] || {}, converted={enabled:!!source.enabled};
+            ['ally','enemy'].forEach(function (team) {
+                var value=source[team] || {};
+                converted[team]=value.alive || value.dead ? clone(value) : {alive:clone(value),dead:clone(source.dead || {})};
+            });
+            result[key]=converted;
+        });
+        result.schemaVersion=2; return result;
+    }
+    function scoped(source,sample) {
+        var team=sample.group==='dead'?'enemy':sample.group, state=sample.state || (sample.group==='dead'?'dead':'alive');
+        return ((source[team] || {})[state] || {})[sample.alt?'extended':'normal'];
+    }
+    function style(base,source,sample) {
+        var common={};
+        Object.keys(source || {}).forEach(function (key) { if (key!=='ally' && key!=='enemy') { common[key]=source[key]; } });
+        return merge(merge(base,common),scoped(source || {},sample));
+    }
     var shadow = {enabled:true,distance:0,angle:0,color:'0x000000',alpha:80,blur:3,strength:2};
-    var field = {enabled:true,format:'<font size="13" color="{{c:team}}">{{vehicle}}</font>',x:-100,y:-65,width:200,height:25,alpha:100,align:'center',shadow:shadow};
+    var font = {font:'$FieldFont',size:13,color:null,bold:false,italic:false};
+    var field = {name:'',textFormat:font,enabled:true,format:'<font size="13" color="{{c:team}}">{{vehicle}}</font>',x:-100,y:-65,width:200,height:25,alpha:100,align:'center',shadow:shadow};
+    function ratingField(alt) {
+        return merge(field,{name:'Rating',format:alt?'{{r}}':'■',x:alt?-100:-65,y:alt?-115:-25,width:alt?200:28,height:25,
+            alpha:alt?100:'{{xvm-stat?100|0}}',align:alt?'center':'right',textFormat:{font:'$FieldFont',size:alt?13:17,color:'{{c:xr}}'}});
+    }
     var defaults = {
         enabled:true,debug:false,markers:{enabled:true},customFields:{enabled:true,ally:{},enemy:{},dead:{}},
         colors:{team:{ally:'#99CC66',enemy:'#FF7777',squad:'#FFCC66',teamKiller:'#66CCFF',dead:'#AAAAAA',unknown:'#CCCCCC'},hp:[{value:25,color:'#FF5555'},{value:50,color:'#FFAA44'},{value:75,color:'#FFDD66'},{value:100,color:'#99CC66'}],colorBlind:{enabled:true,team:{enemy:'#C48CFF',teamKiller:'#66CCFF'}}},
-        healthBar:{enabled:false,x:-35,y:-22,width:70,height:8,alpha:100,color:'{{c:team}}',showOnDead:false,background:{color:'#181818',alpha:80},border:{color:'#000000',alpha:100,width:1},shadow:shadow,damage:{enabled:false,color:'#FFDD66',alpha:65,delay:0.25,duration:0.75}},
-        damageText:{enabled:false,format:'<font size="18" color="{{c:dmg}}"><b>-{{dmg}}</b></font>',x:-100,y:-100,width:200,height:30,alpha:100,align:'center',shadow:shadow,duration:2,rise:40,maxCount:4,colors:{player:'#FFDD66',squad:'#FFAA44',other:'#FFFFFF'}},
+        def:{},turretMarkers:{highVulnerability:'*',lowVulnerability:"'",unknown:'?'},
+        healthBar:{enabled:false,x:-35,y:-22,width:70,height:8,alpha:100,color:'{{c:team}}',showOnDead:false,fill:{alpha:100},gradient:{enabled:false,color:'{{c:hp}}',angle:0},background:{color:'#181818',alpha:80},border:{color:'#000000',alpha:100,width:1},shadow:shadow,damage:{enabled:false,color:'#FFDD66',alpha:65,delay:0.25,duration:0.75}},
+        damageText:{enabled:false,format:'<font size="18" color="{{c:dmg}}"><b>-{{dmg}}</b></font>',blowupMessage:'<font size="18" color="{{c:dmg}}"><b>{{l10n:blownUp}}\n-{{dmg}}</b></font>',sources:{player:{},squad:{},other:{}},textFormat:font,x:-100,y:-100,width:200,height:30,alpha:100,align:'center',shadow:shadow,duration:2,rise:40,maxCount:4,colors:{player:'#FFDD66',squad:'#FFAA44',other:'#FFFFFF'}},
         icons:{enabled:false,'class':{enabled:true,x:null,y:null,scale:1,alpha:100,deadAlpha:40},level:{enabled:true,x:null,y:null,scale:1,alpha:100,deadAlpha:40},vehicle:{enabled:false,x:-55,y:-18,scale:1,alpha:100,deadAlpha:40}}
     };
+    ['actionMarker','hoverMarker','vehicleStatusMarker','damageIndicator','damageIndicatorText','hitExplosion'].forEach(function (key) { defaults.icons[key]={enabled:true,x:null,y:null,scale:1,alpha:100,deadAlpha:100}; });
     function teamColor(config, sample) {
         var colors = config.colors, teams = colors.team;
         if (sample.blind && colors.colorBlind.enabled) { teams = merge(teams, colors.colorBlind.team); }
+        if (sample.state==='dead') { return teams[sample.group+'Dead'] || teams.dead; }
         return teams[sample.group] || teams.unknown;
     }
     function hpColor(config, sample) {
@@ -30,23 +93,106 @@
         return config.colors.hp[config.colors.hp.length-1].color;
     }
     function escape(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function damageStyle(config,source) {
+        var root=config.damageText, base={};
+        Object.keys(root).forEach(function (key) { if (key!=='sources') { base[key]=root[key]; } });
+        return merge(base,(root.sources || {})[source] || {});
+    }
+    function damageEvent(amount,source,kind,health) { return {amount:amount,source:source,kind:health<0 || kind==='explosion'?'explosion':kind,blowup:health<0 || kind==='explosion'}; }
+    function token(text,values) {
+        text=text.trim();
+        if (text==='true' || text==='false') { return text==='true'; }
+        if (/^-?\d+(?:\.\d+)?$/.test(text)) { return Number(text); }
+        if (text.length>=2 && (text.charAt(0)==='\'' || text.charAt(0)==='"') && text.charAt(text.length-1)===text.charAt(0)) { return text.slice(1,-1); }
+        return values[text];
+    }
+    function truth(value) { return value!==null && value!==undefined && value!==false && value!==0 && value!=='' && value!=='--' && value!=='false' && value!=='0'; }
+    function condition(expression,values) {
+        return expression.split('||').some(function (group) {
+            return group.split('&&').every(function (part) {
+                part=part.trim(); var negate=false;
+                while (part.charAt(0)==='!' && part.slice(0,2)!=='!=') { negate=!negate; part=part.slice(1).trim(); }
+                var match=/^(.*?)\s*(<=|>=|==|!=|<|>)\s*(.*?)$/.exec(part), result;
+                if (!match) { result=truth(token(part,values)); }
+                else {
+                    var left=token(match[1],values), right=token(match[3],values), op=match[2];
+                    if (left===null || left===undefined || right===null || right===undefined) { result=false; }
+                    else if (op==='==') { result=left===right; }
+                    else if (op==='!=') { result=left!==right; }
+                    else if (!isFinite(Number(left)) || !isFinite(Number(right))) { result=false; }
+                    else if (op==='<=') { result=Number(left)<=Number(right); }
+                    else if (op==='>=') { result=Number(left)>=Number(right); }
+                    else if (op==='<') { result=Number(left)<Number(right); }
+                    else { result=Number(left)>Number(right); }
+                }
+                return negate?!result:result;
+            });
+        });
+    }
     function text(template, config, sample, damage) {
-        var hp = sample.group === 'dead' ? 0 : Math.round(1550*sample.hp/100);
+        var hp = sample.state === 'dead' || sample.group === 'dead' ? 0 : Math.round(1550*sample.hp/100);
         var values = {vehicle:'T32',name:sample.name || 'DriftKings',hp:hp,maxHp:1550,hpPercent:Math.round(hp/1550*100),level:8,'c:team':teamColor(config,sample),'c:hp':hpColor(config,{hp:hp/1550*100})};
-        if (damage !== undefined) { values.dmg = damage; values['c:dmg'] = config.damageText.colors.player; }
-        return String(template).replace(/\{\{(.*?)\}\}/g,function (all,key) { return Object.prototype.hasOwnProperty.call(values,key) ? escape(values[key]) : all; });
+        var ratings=config.ratingValues || {wn8:2000,wnx:1800,eff:1400,xwn8:75,xeff:65,battles:15000,winrate:55,'xvm-stat':true};
+        Object.keys(ratings).forEach(function (key) { values[key]=ratings[key]; });
+        if (!config.ratingValues) {
+            var selected=config.ratingType || 'wn8'; values.r=values[selected]; values.xr=values['x'+selected];
+            ['wn8','wnx','eff','r','xr','xwn8','xeff','battles','winrate'].forEach(function (key) { values['c:'+key]='#02C9B3'; });
+        }
+        if (sample.statsAvailable===false || sample.anonym) {
+            ['wn8','wnx','eff','xwn8','xeff','wgr','winrate','battles','kb','r','xr'].forEach(function (key) { values[key]=null; values['c:'+key]=config.colors.team.unknown; });
+            values['xvm-stat']=false;
+        }
+        values['stock-turret']=!!sample.turret; values['turret-vulnerability']=sample.turret || 'none';
+        values.turret=sample.turret==='high'?config.turretMarkers.highVulnerability:sample.turret==='low'?config.turretMarkers.lowVulnerability:sample.turret==='unknown'?config.turretMarkers.unknown:'';
+        values['a:r']=values['xvm-stat']?100:0;
+        values.nick=sample.name || 'DriftKings'; values.clan='[DK]';
+        values['hp-max']=values.maxHp; values['hp-ratio']=values.hpPercent; values['c:system']=values['c:team'];
+        values.distance=values.dist=sample.distance===undefined?350:sample.distance;
+        values.alive=sample.state!=='dead' && sample.group!=='dead'; values.dead=!values.alive;
+        values.ally=sample.group==='ally'; values.enemy=sample.group==='enemy';
+        values.player=!!sample.player; values.squad=!!sample.squad; values.anonym=!!sample.anonym; values.vtype='HT';
+        values.blownUp=values['l10n:blownUp']=config.blownUp || 'Ammo rack';
+        if (damage !== undefined) {
+            var event=typeof damage==='number'?{amount:damage,source:'player',kind:'shot'}:damage;
+            var style=damageStyle(config,event.source || 'player');
+            values.dmg=event.amount; values['c:dmg']=style.colors[event.source || 'player'];
+            values['dmg-ratio']=Math.round(event.amount/1550*100); values['dmg-source']=event.source || 'player';
+            values['dmg-kind']=event.blowup?'explosion':event.kind || 'shot';
+        }
+        var result=String(template);
+        for (var iteration=0;iteration<12 && result.indexOf('{{')>=0;iteration++) {
+            var previous=result;
+            result=result.replace(/\{\{([^{}]*)\}\}/g,function (all,expression) {
+                var question=expression.indexOf('?'), pipe=expression.indexOf('|');
+                if (question>=0) {
+                    var branches=expression.slice(question+1).split('|');
+                    return condition(expression.slice(0,question),values)?branches[0]:(branches[1] || '');
+                }
+                var fallback=pipe>=0?expression.slice(pipe+1):'--', body=pipe>=0?expression.slice(0,pipe):expression;
+                var parts=body.split('%'), value=values[parts[0]];
+                if (value===null || value===undefined) { return fallback; }
+                if (parts[1]==='d') { value=String(Math.round(Number(value))); }
+                else if (parts[1] && /^0?\.[0-3]f$/.test(parts[1])) { value=Number(value).toFixed(Number(parts[1].charAt(parts[1].length-2))); }
+                return escape(value);
+            });
+            if (previous===result) { break; }
+        }
+        return result;
     }
     function state(raw, sample, palettes) {
-        var config=merge(defaults,raw), group=sample.group, mode=sample.alt?'extended':'normal';
+        raw=migrate(resolve(raw));
+        var config=merge(defaults,raw);
+        ['healthBar','damageText','icons'].forEach(function (key) { config[key]=style(defaults[key],raw[key],sample); });
         var palette=palettes && palettes[raw.colorRating || 0];
         if (palette) {
             config.colors=merge(palette.colors,raw.colors);
-            config.damageText.colors=merge(palette.damageColors,(raw.damageText || {}).colors);
+            config.damageText.colors=merge(merge(palette.damageColors,(raw.damageText || {}).colors),(scoped(raw.damageText || {},sample) || {}).colors);
+            config.ratingValues=(palette.ratings || {})[raw.ratingType || 'wn8'];
         }
-        var native=merge({vehicleName:true,playerName:true,hp:'currentAndMax',healthBar:true,vehicleIcon:false,levelIcon:true,damage:true},(config.markers[group] || {})[mode] || {});
-        var fields=(config.customFields[group] || {})[mode];
+        var native=merge({vehicleName:true,playerName:true,hp:'currentAndMax',healthBar:true,vehicleIcon:false,levelIcon:true,damage:true},scoped(config.markers,sample) || {});
+        var fields=scoped(config.customFields,sample);
         return {config:config,native:native,fields:config.customFields.enabled && fields ? fields.map(function (item) { return merge(field,item); }) : null,shown:config.enabled && config.markers.enabled};
     }
-    function validColor(value) { return /^(?:#|0x)[0-9a-f]{6}$/i.test(value) || value === '{{c:hp}}' || value === '{{c:team}}'; }
-    DK.vehicleMarkerModel = {clone:clone,merge:merge,defaults:defaults,field:field,state:state,text:text,teamColor:teamColor,hpColor:hpColor,validColor:validColor};
+    function validColor(value) { return /^(?:#|0x)[0-9a-f]{6}$/i.test(value) || value === '{{c:dmg}}' || value === '{{c:hp}}' || value === '{{c:team}}'; }
+    DK.vehicleMarkerModel = {resolve:resolve,clone:clone,merge:merge,migrate:migrate,defaults:defaults,field:field,ratingField:ratingField,damageStyle:damageStyle,damageEvent:damageEvent,condition:condition,state:state,text:text,teamColor:teamColor,hpColor:hpColor,validColor:validColor};
 }());

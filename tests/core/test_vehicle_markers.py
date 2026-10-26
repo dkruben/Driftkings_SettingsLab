@@ -9,6 +9,98 @@ from support import ROOT, RuntimeTest
 
 
 class VehicleMarkersTests(RuntimeTest):
+    def legacy(self):
+        data = self.defaults()
+        data.pop('schemaVersion')
+        for key in ('markers', 'customFields'):
+            source = data[key]
+            data[key] = {'enabled': source['enabled'], 'ally': source['ally']['alive'],
+                         'enemy': source['enemy']['alive'], 'dead': source['enemy']['dead']}
+        for key in ('healthBar', 'damageText', 'icons'):
+            for team in ('ally', 'enemy'):
+                data[key].pop(team)
+        return data
+
+    def test_eight_contexts_have_independent_fields_native_flags_and_styles(self):
+        data = self.defaults()
+        count = 0
+        for team in ('ally', 'enemy'):
+            for state in ('alive', 'dead'):
+                for mode in ('normal', 'extended'):
+                    count += 1
+                    data['customFields'][team][state][mode] = [{'format': str(count), 'x': count}]
+                    data['markers'][team][state][mode]['playerName'] = count % 2 == 0
+                    data['healthBar'][team][state][mode] = {'x': count, 'border': {'color': '#123456'}}
+                    data['icons'][team][state][mode] = {'level': {'x': count}}
+                    data['damageText'][team][state][mode] = {'rise': count}
+        before = copy.deepcopy(data)
+        result = self.load('core.vehicle_markers.config').prepare(data)
+        count = 0
+        for team in ('ally', 'enemy'):
+            for state in ('alive', 'dead'):
+                for mode in ('normal', 'extended'):
+                    count += 1
+                    profile = result['customFields']['profiles'][team][state][mode]
+                    self.assertEqual(profile['fields'][0]['x'], count)
+                    self.assertEqual(profile['native']['playerName'], count % 2 == 0)
+                    self.assertEqual(profile['healthBar']['x'], count)
+                    self.assertEqual(profile['healthBar']['border']['color'], '#123456')
+                    self.assertEqual(profile['healthBar']['border']['width'], data['healthBar']['border']['width'])
+                    self.assertEqual(profile['icons']['level']['x'], count)
+                    self.assertEqual(profile['damageText']['rise'], count)
+        self.assertEqual(data, before)
+        result['customFields']['profiles']['enemy']['dead']['normal']['healthBar']['x'] = 99
+        self.assertEqual(result['customFields']['profiles']['ally']['dead']['normal']['healthBar']['x'], 3)
+
+    def test_legacy_layout_migration_keeps_values_and_copies_dead_layout_to_each_team(self):
+        old = self.legacy()
+        old['customFields']['enemy']['normal'][0]['x'] = 123
+        old['healthBar']['width'] = 120
+        before = copy.deepcopy(old)
+        layouts = self.load('core.vehicle_markers.layouts')
+        converted = layouts.migrate(old)
+        self.assertEqual(old, before)
+        self.assertEqual(converted['customFields']['enemy']['alive']['normal'][0]['x'], 123)
+        self.assertEqual(converted['customFields']['ally']['dead'], old['customFields']['dead'])
+        converted['customFields']['enemy']['dead']['extended'][0]['x'] = 555
+        self.assertNotEqual(converted['customFields']['ally']['dead']['extended'][0]['x'], 555)
+        self.assertEqual(layouts.migrate(converted), converted)
+        prepared = self.load('core.vehicle_markers.config').prepare(converted)
+        self.assertEqual(prepared['customFields']['profiles']['enemy']['alive']['normal']['healthBar']['width'], 120)
+
+    def test_store_migrates_old_files_together_and_keeps_original_backups(self):
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        api = self.load('settings.vehicle_markers_store')
+        old = self.legacy()
+        old['icons']['level']['x'] = 43
+        originals = {}
+        for name, document in zip(api.FILES, api.split(old)):
+            content = json.dumps(document).encode('utf-8')
+            originals[name] = content
+            with open(os.path.join(directory, name), 'wb') as stream:
+                stream.write(content)
+        store = api.VehicleMarkersStore(directory)
+        result = store.load()
+        self.assertEqual(result['schemaVersion'], 2)
+        self.assertEqual(result['icons']['level']['x'], 43)
+        for name, content in originals.items():
+            with open(os.path.join(directory, name + '.v1.bak'), 'rb') as stream:
+                self.assertEqual(stream.read(), content)
+        self.assertEqual(store.load(), result)
+
+    def test_bad_scope_or_style_is_rejected(self):
+        prepare = self.load('core.vehicle_markers.config').prepare
+        for block in ('markers', 'customFields', 'healthBar', 'damageText', 'icons'):
+            data = self.defaults()
+            data[block]['enemy']['dead']['invalid'] = {}
+            with self.assertRaises(ValueError):
+                prepare(data)
+        data = self.defaults()
+        data['icons']['enemy']['dead']['extended'] = {'level': {'scale': 99}}
+        with self.assertRaises(ValueError):
+            prepare(data)
+
     def test_each_color_rating_uses_shared_team_hp_and_damage_without_copying_them_to_json(self):
         prepare = self.load('core.vehicle_markers.config').prepare
         rating = self.load('common.utils.colorratting')
@@ -44,9 +136,9 @@ class VehicleMarkersTests(RuntimeTest):
         self.addCleanup(shutil.rmtree, root)
         store = self.load('settings.vehicle_markers_store').VehicleMarkersStore(root)
         data = store.load()
-        data['customFields']['enemy']['normal'][0]['x'] = 123
+        data['customFields']['enemy']['alive']['normal'][0]['x'] = 123
         store.save(data)
-        self.assertEqual(store.load()['customFields']['enemy']['normal'][0]['x'], 123)
+        self.assertEqual(store.load()['customFields']['enemy']['alive']['normal'][0]['x'], 123)
         broken = copy.deepcopy(data)
         broken['healthBar']['height'] = 0
         with self.assertRaises(ValueError):
@@ -76,6 +168,7 @@ class VehicleMarkersTests(RuntimeTest):
         self.assertEqual(data['healthBar']['color'], '{{c:team}}')
         self.assertNotEqual(data['colors']['team']['enemy'], data['colors']['team']['ally'])
         self.assertEqual(data['colors']['colorBlind']['team']['enemy'], '#C48CFF')
+        self.assertEqual(data['colors']['colorBlind']['team']['enemyDead'], '#C48CFF')
 
     def test_native_settings_are_copied_and_special_modes_keep_original_markers(self):
         policy = self.load('core.vehicle_markers.presentation')
@@ -113,7 +206,7 @@ class VehicleMarkersTests(RuntimeTest):
     def test_invalid_macros_and_hp_bands_fail_before_installing_hooks(self):
         prepare = self.load('core.vehicle_markers.config').prepare
         data = self.defaults()
-        data['customFields']['enemy']['normal'][0]['format'] = '{{unsupported}}'
+        data['customFields']['enemy']['alive']['normal'][0]['format'] = '{{unsupported}}'
         with self.assertRaises(ValueError):
             prepare(data)
         data = self.defaults()
@@ -129,6 +222,24 @@ class VehicleMarkersTests(RuntimeTest):
                       for team in ('ally', 'enemy', 'dead'))
         changed = apply(native, data['markers'], data['customFields'])
         for team in native:
-            self.assertFalse(changed[team]['markerBaseHpIndicator'])
-            self.assertFalse(changed[team]['markerAltIcon'])
+            self.assertEqual(changed[team], native[team])
+        profile = changed['__vmTest']['profiles']['enemy']['alive']['normal']
+        self.assertTrue(profile['healthBar']['enabled'])
+        self.assertFalse(profile['icons']['vehicle']['enabled'])
+        for team in native:
             self.assertTrue(native[team]['markerBaseHpIndicator'])
+
+    def test_referenced_field_survives_store_defaults_and_compiles_overrides(self):
+        data = self.defaults()
+        data['def'] = {'rating': {'format': '{{r}}', 'x': -30}}
+        data['customFields']['enemy']['alive']['normal'] = [{'$ref': {'path': 'def.rating'}, 'y': -90}]
+        result = self.load('core.vehicle_markers.config').prepare(data)
+        field = result['customFields']['profiles']['enemy']['alive']['normal']['fields'][0]
+        self.assertEqual(field['x'], -30)
+        self.assertEqual(field['y'], -90)
+        root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, root)
+        store = self.load('settings.vehicle_markers_store').VehicleMarkersStore(root)
+        store.save(data)
+        loaded = store.load()
+        self.assertEqual(loaded['customFields']['enemy']['alive']['normal'][0], data['customFields']['enemy']['alive']['normal'][0])

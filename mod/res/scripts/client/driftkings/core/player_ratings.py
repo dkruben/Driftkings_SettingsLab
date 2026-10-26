@@ -39,7 +39,7 @@ FAILED_RETRY_SECONDS = 5
 CACHE_LIMIT = 300
 MAX_STATS_RESPONSE = 16 * 1024 * 1024
 STATS_DEADLINE = 30.0
-NUMERIC = ('wn8', 'winrate', 'battles', 'kb', 'wgr', 'eff', 'xwn8', 'xeff',
+NUMERIC = ('wn8', 'wnx', 'winrate', 'battles', 'kb', 'wgr', 'eff', 'xwn8', 'xeff',
            't_battles', 't_winrate', 'spg_battles', 'spg_percent', 'mark_of_mastery', 'tdv')
 
 
@@ -86,13 +86,13 @@ def format_rating(template, info, vehicle, available, scale=0):
     for key, value in values.items():
         if key.startswith('c_'):
             colors[key[2:]] = str(value).lstrip('#')
-    for metric in ('wn8', 'winrate', 'battles', 'eff', 'wgr', 'xwn8', 'xeff', 't_battles', 't_winrate', 'tdv'):
+    for metric in ('wn8', 'wnx', 'winrate', 'battles', 'eff', 'wgr', 'xwn8', 'xeff', 't_battles', 't_winrate', 'tdv'):
         source = {'t_battles': 'battles', 't_winrate': 'winrate'}.get(metric, metric)
         colors[metric] = getStatisticColor(source, values[metric], scale).lstrip('#') if available and values[metric] != MISSING else 'AAAAAA'
     colors['tBattles'] = colors['t_battles']
     colors['kb'] = colors['battles']
     rating = (info or {}).get('_rating', 'wn8')
-    if rating not in ('wn8', 'eff', 'wgr', 'winrate', 'xwn8', 'xeff'):
+    if rating not in ('wn8', 'wnx', 'eff', 'wgr', 'winrate', 'xwn8', 'xeff'):
         rating = 'wn8'
     values['r'] = values.get(rating, MISSING)
     colors['r'] = colors.get(rating, 'AAAAAA')
@@ -405,6 +405,7 @@ class Statistics(object):
 
     def __init__(self):
         self.playersInfo = {}
+        self._consumers = set()
         self.statsCache = {}
         self.cacheTimestamp = {}
         self._pending = set()
@@ -426,7 +427,7 @@ class Statistics(object):
     def captureOwnStats(self, *args, **kwargs):
         settings = settings_service.getComponentDict(config)
         # Called on the main thread after hangar synchronization. No server requests.
-        if not settings[GLOBAL.ENABLED] or not settings.get(TEAM_PANELS.STATS_ENABLED, True):
+        if not self.enabled():
             return
         player = getPlayer()
         dbID = getattr(player, 'databaseID', None)
@@ -450,6 +451,23 @@ class Statistics(object):
                       'statistics': {'battles': cut.battlesCount, 'wins': cut.wins},
                       'mark_of_mastery': stats.getMarkOfMasteryForVehicle(tankID)}
                      for tankID, cut in stats.getVehicles().items()]
+            for tank in tanks:
+                if not hasattr(items, 'getVehicleDossier'):
+                    continue
+                dossier = items.getVehicleDossier(tank['tank_id'])
+                if dossier is None:
+                    continue
+                random = dossier.getRandomStats()
+                # Legacy clan/company counters must never enter the random-only WNX weights.
+                if random.getBattlesCount() != tank['statistics']['battles']:
+                    continue
+                for key, method in (('damage_dealt', 'getDamageDealt'), ('frags', 'getFragsCount'),
+                                    ('spotted', 'getSpottedEnemiesCount'),
+                                    ('radio_assisted_damage', 'getDamageAssistedRadio'),
+                                    ('track_assisted_damage', 'getDamageAssistedTrack'),
+                                    ('stun_assisted_damage', 'getDamageAssistedStun')):
+                    if hasattr(random, method):
+                        tank['statistics'][key] = getattr(random, method)()
             # Vehicle dossiers already cached by the client; never fetch them here.
             if 'tdv' in json.dumps(settings):
                 damage = {}
@@ -508,6 +526,8 @@ class Statistics(object):
         for region in regions:
             accountFields = ['client_language', 'global_rating', 'statistics.random.battles', 'statistics.random.wins', 'statistics.random.damage_dealt', 'statistics.random.frags', 'statistics.random.spotted', 'statistics.random.capture_points', 'statistics.random.dropped_capture_points']
             tankFields = ['random.battles', 'mark_of_mastery', 'random.wins', 'random.damage_dealt', 'tank_id']
+            tankFields += ['random.' + key for key in ('frags', 'spotted', 'radio_assisted_damage',
+                                                      'track_assisted_damage', 'stun_assisted_damage')]
             regionAccounts = ','.join(regions[region])
             infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts, extra='statistics.random', fields=','.join(accountFields))
             if infoResponse:
@@ -562,6 +582,7 @@ class Statistics(object):
         playerInfo['t_battles'] = 0
         playerInfo['t_winrate'] = 0
         playerInfo['wn8'] = 0
+        playerInfo['wnx'] = None
         playerInfo['eff'] = 0
         playerInfo['xwn8'] = 0
         playerInfo['xeff'] = 0
@@ -612,6 +633,8 @@ class Statistics(object):
                             playerInfo['spg_battles'] += tank['statistics']['battles']
                         playerInfo['t_winrate'] = int(round(tank['statistics']['wins'] * 100.0 / tank['statistics']['battles'], 0))
                 playerInfo['wn8'] = self.wn8(dataTanks[dbID], winrate, avgDmg, avgFrags, avgSpot, avgDef)
+                from driftkings.core.wnx import account_from_tanks
+                playerInfo['wnx'] = account_from_tanks(dataTanks[dbID], battles)
                 playerInfo['xwn8'] = g_calRating.xwn8(playerInfo['wn8'])
                 playerInfo['eff'] = g_calRating.eff(avgDmg, avgDef, avgCap, avgSpot, playerInfo['level'], avgFrags)
                 playerInfo['xeff'] = g_calRating.xeff(playerInfo['eff'])
@@ -682,7 +705,7 @@ class Statistics(object):
     def loadStats(self):
         player = getPlayer()
         arena = getattr(player, 'arena', None)
-        if arena is None or not settings_service.getComponentDict(config)[GLOBAL.ENABLED] or not settings_service.getComponentDict(config).get(TEAM_PANELS.STATS_ENABLED, True):
+        if arena is None or not self.enabled():
             return
         ids = sorted(set(str(pl.get('accountDBID', 0)) for pl in arena.vehicles.values()
                          if pl.get('accountDBID', 0) > 0))
@@ -785,6 +808,17 @@ class Statistics(object):
         provider.onBattleSessionStop += self.detachArena
         self._listening = True
 
+    def enabled(self):
+        settings = settings_service.getComponentDict(config)
+        return bool((settings[GLOBAL.ENABLED] or self._consumers) and settings.get(TEAM_PANELS.STATS_ENABLED, True))
+
+    def acquire(self, owner):
+        self._consumers.add(owner)
+        self.start()
+
+    def release(self, owner):
+        self._consumers.discard(owner)
+
     def stop(self):
         if not self._listening:
             return
@@ -803,5 +837,13 @@ g_event = Events()
 def configure(owner):
     global config, g_stats
     config = owner
-    g_stats = Statistics()
+    if g_stats is None:
+        g_stats = Statistics()
+    return g_stats
+
+
+def shared():
+    if g_stats is None:
+        from driftkings.settings.definitions.battle.team_panels import TeamPanelsSettings
+        configure(TeamPanelsSettings())
     return g_stats

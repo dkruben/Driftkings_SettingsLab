@@ -32,6 +32,34 @@
       "alpha": 65,
       "delay": 0.25,
       "duration": 0.75
+    },
+    "ally": {
+      "alive": {
+        "normal": {},
+        "extended": {}
+      },
+      "dead": {
+        "normal": {},
+        "extended": {}
+      }
+    },
+    "enemy": {
+      "alive": {
+        "normal": {},
+        "extended": {}
+      },
+      "dead": {
+        "normal": {},
+        "extended": {}
+      }
+    },
+    "fill": {
+      "alpha": 100
+    },
+    "gradient": {
+      "enabled": false,
+      "color": "{{c:hp}}",
+      "angle": 0
     }
   }
 }

@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
-"""Standalone floating damage text schema."""
+"""Floating damage defaults and independent author overrides inside each context."""
 import copy
 
 from driftkings.core.vehicle_markers.colors import color
 from driftkings.core.vehicle_markers.fields import DEFAULTS
 from driftkings.core.vehicle_markers.fields import normalize as normalize_fields
-from driftkings.core.vehicle_markers.fields import number
+from driftkings.core.vehicle_markers.fields import number, template
+from driftkings.core.vehicle_markers.layouts import merge
+
+SOURCES = ('player', 'squad', 'other')
+EVENT_MACROS = ('dmg', 'c:dmg', 'dmg-ratio', 'dmg-kind', 'dmg-source', 'blownUp', 'l10n:blownUp')
 
 DEFAULTS_DAMAGE = {'enabled': False, 'duration': 2, 'rise': 40, 'maxCount': 4,
+                  'blowupMessage': "<font size='18' color='{{c:dmg}}'><b>{{l10n:blownUp}}\n-{{dmg}}</b></font>",
                   'format': "<font size='18' color='{{c:dmg}}'><b>-{{dmg}}</b></font>",
                   'x': -100, 'y': -95, 'width': 200, 'height': 30,
                   'colors': {'player': '#FFDD66', 'squad': '#FFAA44', 'other': '#FFFFFF'}}
 
 
-def normalize(options):
-    allowed = set(DEFAULTS) | set(('duration', 'rise', 'maxCount', 'colors'))
+def style(options):
+    allowed = set(DEFAULTS) | set(('duration', 'rise', 'maxCount', 'colors', 'blowupMessage'))
     if not isinstance(options, dict) or set(options) - allowed:
         raise ValueError('Invalid damageText options')
     result = copy.deepcopy(DEFAULTS_DAMAGE)
@@ -30,6 +35,24 @@ def normalize(options):
     result['colors'].update(colors)
     for value in result['colors'].values(): color(value)
     style = dict((key, result[key]) for key in DEFAULTS if key in result)
-    normalized = normalize_fields({'enabled': True, 'ally': {'normal': [style]}}, ('dmg', 'c:dmg'))
+    normalized = normalize_fields({'enabled': True, 'ally': {'normal': [style]}}, EVENT_MACROS)
+    template(result['blowupMessage'], EVENT_MACROS)
     result.update(normalized['ally']['normal'][0])
+    return result
+
+
+def normalize(options):
+    if not isinstance(options, dict):
+        raise ValueError('Invalid damageText options')
+    base = dict((key, value) for key, value in options.items() if key != 'sources')
+    sources = options.get('sources', {})
+    if not isinstance(sources, dict) or set(sources) - set(SOURCES):
+        raise ValueError('Invalid damage authors')
+    result = style(base)
+    result['sources'] = {}
+    for source in SOURCES:
+        override = sources.get(source, {})
+        if not isinstance(override, dict):
+            raise ValueError('Invalid damage author style')
+        result['sources'][source] = style(merge(base, override))
     return result

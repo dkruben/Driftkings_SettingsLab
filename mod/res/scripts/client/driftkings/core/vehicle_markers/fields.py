@@ -4,6 +4,8 @@ import copy
 import math
 import re
 
+from driftkings.core.vehicle_markers.expressions import validate as validate_expression
+
 try:
     string_types = (basestring,)
 except NameError:
@@ -11,9 +13,20 @@ except NameError:
 
 SHADOW = {'enabled': True, 'distance': 0, 'angle': 0, 'color': '0x000000',
           'alpha': 80, 'blur': 3, 'strength': 2}
-DEFAULTS = {'enabled': True, 'format': '{{vehicle}}', 'x': -100, 'y': -65,
+TEXT_FORMAT = {'font': '$FieldFont', 'size': 13, 'color': None, 'bold': False, 'italic': False}
+DEFAULTS = {'name': '', 'textFormat': TEXT_FORMAT, 'enabled': True, 'format': '{{vehicle}}', 'x': -100, 'y': -65,
             'width': 200, 'height': 25, 'alpha': 100, 'align': 'center', 'shadow': SHADOW}
 MACROS = set(('vehicle', 'name', 'hp', 'maxHp', 'hpPercent', 'level', 'c:team', 'c:hp'))
+MACROS.update(('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb',
+               'xvm-stat', 'a:r', 'nick', 'clan', 'hp-max', 'hp-ratio', 'c:system'))
+MACROS.update('c:' + key for key in ('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb'))
+MACROS.update(('turret', 'stock-turret', 'turret-vulnerability', 'distance', 'dist', 'alive', 'dead', 'ally', 'enemy', 'player', 'squad', 'anonym', 'vtype'))
+
+
+def template(value, extra_macros=()):
+    if not isinstance(value, string_types) or len(value) > 2048:
+        raise ValueError('Invalid field HTML format')
+    validate_expression(value, MACROS | set(extra_macros))
 
 
 def number(value, low, high):
@@ -43,14 +56,34 @@ def normalize(options, extra_macros=()):
                 field.update(values)
                 if type(field['enabled']) is not bool or field['align'] not in ('left', 'center', 'right'):
                     raise ValueError('Invalid custom field visibility/alignment')
-                template = field['format']
-                if not isinstance(template, string_types) or len(template) > 2048:
-                    raise ValueError('Invalid field HTML format')
-                if set(re.findall(r'\{\{(.*?)\}\}', template)) - (MACROS | set(extra_macros)):
-                    raise ValueError('Unsupported field macro')
+                template(field['format'], extra_macros)
+                if not isinstance(field['name'], string_types) or len(field['name']) > 128:
+                    raise ValueError('Invalid field name')
+                style = values.get('textFormat', {})
+                if not isinstance(style, dict) or set(style) - set(TEXT_FORMAT):
+                    raise ValueError('Invalid textFormat')
+                field['textFormat'] = dict(TEXT_FORMAT, **style)
+                style = field['textFormat']
+                if not isinstance(style['font'], string_types) or not 1 <= len(style['font']) <= 128:
+                    raise ValueError('Invalid field font')
+                number(style['size'], 1, 100)
+                if type(style['bold']) is not bool or type(style['italic']) is not bool:
+                    raise ValueError('Invalid field font style')
+                if style['color'] is not None:
+                    if not isinstance(style['color'], string_types):
+                        raise ValueError('Invalid font color')
+                    if '{{' in style['color']:
+                        template(style['color'], extra_macros)
+                    elif not re.match(r'^(?:0x|#)[0-9a-fA-F]{6}\Z', style['color']):
+                        raise ValueError('Invalid font color')
                 for key in ('x', 'y'): number(field[key], -1000, 1000)
                 for key in ('width', 'height'): number(field[key], 1, 1000)
-                number(field['alpha'], 0, 100)
+                if isinstance(field['alpha'], string_types):
+                    if '{{' not in field['alpha']:
+                        raise ValueError('Expected opacity number or macro')
+                    template(field['alpha'], extra_macros)
+                else:
+                    number(field['alpha'], 0, 100)
                 shadow = values.get('shadow', {})
                 if not isinstance(shadow, dict) or set(shadow) - set(SHADOW):
                     raise ValueError('Invalid field shadow')

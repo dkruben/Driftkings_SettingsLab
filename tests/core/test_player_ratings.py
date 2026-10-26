@@ -8,6 +8,18 @@ from support import RuntimeTest, module, source
 
 
 class PlayerRatingsTests(RuntimeTest):
+    def test_marker_consumer_uses_stats_even_with_roster_hidden_but_respects_stats_switch(self):
+        self.api['GLOBAL'] = module(ENABLED='enabled')
+        self.api['TEAM_PANELS'] = module(STATS_ENABLED='statsEnabled')
+        settings = {'enabled': False, 'statsEnabled': True}
+        self.api['settings_service'] = module(getComponentDict=lambda config: settings)
+        stats = self.api['Statistics']()
+        self.assertFalse(stats.enabled())
+        stats._consumers.add(object())
+        self.assertTrue(stats.enabled())
+        settings['statsEnabled'] = False
+        self.assertFalse(stats.enabled())
+
     def setUp(self):
         super(PlayerRatingsTests, self).setUp()
         colors = self.load('common.utils.colorratting')

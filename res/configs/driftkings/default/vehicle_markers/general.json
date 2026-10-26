@@ -2,5 +2,13 @@
   "enabled": true,
   "debug": false,
   "colorRating": 0,
-  "targetGameVersion": "2.4.1"
+  "targetGameVersion": "2.4.1",
+  "schemaVersion": 2,
+  "ratingType": "wn8",
+  "def": {},
+  "turretMarkers": {
+    "highVulnerability": "*",
+    "lowVulnerability": "'",
+    "unknown": "?"
+  }
 }

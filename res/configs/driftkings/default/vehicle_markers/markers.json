@@ -2,55 +2,75 @@
   "markers": {
     "enabled": true,
     "ally": {
-      "normal": {
-        "vehicleName": true,
-        "playerName": false,
-        "hp": "currentAndMax",
-        "healthBar": true,
-        "vehicleIcon": false,
-        "levelIcon": true,
-        "damage": true
+      "alive": {
+        "normal": {
+          "vehicleName": true,
+          "playerName": false,
+          "hp": "currentAndMax",
+          "healthBar": true,
+          "vehicleIcon": false,
+          "levelIcon": true,
+          "damage": true
+        },
+        "extended": {
+          "vehicleName": true,
+          "playerName": true,
+          "hp": "percent",
+          "healthBar": true,
+          "vehicleIcon": false
+        }
       },
-      "extended": {
-        "vehicleName": true,
-        "playerName": true,
-        "hp": "percent",
-        "healthBar": true,
-        "vehicleIcon": false
+      "dead": {
+        "normal": {
+          "hp": "hidden",
+          "vehicleName": false,
+          "playerName": false,
+          "healthBar": false,
+          "vehicleIcon": false
+        },
+        "extended": {
+          "hp": "hidden",
+          "vehicleName": true,
+          "playerName": true,
+          "healthBar": false,
+          "vehicleIcon": false
+        }
       }
     },
     "enemy": {
-      "normal": {
-        "vehicleName": true,
-        "playerName": false,
-        "hp": "currentAndMax",
-        "healthBar": true,
-        "vehicleIcon": false,
-        "levelIcon": true,
-        "damage": true
+      "alive": {
+        "normal": {
+          "vehicleName": true,
+          "playerName": false,
+          "hp": "currentAndMax",
+          "healthBar": true,
+          "vehicleIcon": false,
+          "levelIcon": true,
+          "damage": true
+        },
+        "extended": {
+          "vehicleName": true,
+          "playerName": true,
+          "hp": "percent",
+          "healthBar": true,
+          "vehicleIcon": false
+        }
       },
-      "extended": {
-        "vehicleName": true,
-        "playerName": true,
-        "hp": "percent",
-        "healthBar": true,
-        "vehicleIcon": false
-      }
-    },
-    "dead": {
-      "normal": {
-        "hp": "hidden",
-        "vehicleName": false,
-        "playerName": false,
-        "healthBar": false,
-        "vehicleIcon": false
-      },
-      "extended": {
-        "hp": "hidden",
-        "vehicleName": true,
-        "playerName": true,
-        "healthBar": false,
-        "vehicleIcon": false
+      "dead": {
+        "normal": {
+          "hp": "hidden",
+          "vehicleName": false,
+          "playerName": false,
+          "healthBar": false,
+          "vehicleIcon": false
+        },
+        "extended": {
+          "hp": "hidden",
+          "vehicleName": true,
+          "playerName": true,
+          "healthBar": false,
+          "vehicleIcon": false
+        }
       }
     }
   }

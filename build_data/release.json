@@ -31,6 +31,10 @@
     "Treat missing statistics caches as a normal first-start state and schedule downloads without an error traceback; retain diagnostics for corrupt or unreadable caches.",
     "Use the native colorblind enemy palette for minimap names and lost icons; add a live colorblind roster macro and select the new alternate enemy HP texture while preserving the configured 14-pixel display height.",
     "Integrate the tested vehicle markers with separate JSON documents and a tank sample in hangar settings: edit normal/ALT text, positions, health bars, damage, icons and colors with immediate preview. Changes use Apply/Save and take effect next battle; special modes retain native markers.",
-    "Link vehicle marker team, percentage HP and damage colors to the shared colorRating palettes, including the tank sample; preserve explicit marker color overrides."
+    "Link vehicle marker team, percentage HP and damage colors to the shared colorRating palettes, including the tank sample; preserve explicit marker color overrides.",
+    "Separate vehicle marker layouts by team, alive/destroyed state and normal/ALT mode, with independent text, native visibility, health bar, icon and floating-damage styles. Migrate previous JSON settings with original-file backups and edit each context in the tank preview.",
+    "Connect marker ratings to the shared statistics worker and cache. Add XVM-style r/c:xr fields, configurable WN8/WNX/EFF, structured font styles and an Add rating preset with matching preview. Calculate account WNX from complete random-only vehicle statistics and preserve unavailable or anonymized data as missing.",
+    "Add independent floating-damage styles for player, platoon and other authors, plus localized ammo-rack explosion messages. Add live distance, battle-role flags, comparisons and compound marker conditions, with matching editor previews and bounded expression validation.",
+    "Add marker health-bar gradients, independent fill opacity and author-coloured damage trails; configurable native indicators, visible stock-turret macros and local reusable templates, with matching editor controls. XMQP is not included."
   ]
 }

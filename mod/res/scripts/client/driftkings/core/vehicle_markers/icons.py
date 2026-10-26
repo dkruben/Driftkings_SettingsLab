@@ -4,23 +4,27 @@ import copy
 
 from driftkings.core.vehicle_markers.fields import number
 
+INDICATORS = ('actionMarker', 'hoverMarker', 'vehicleStatusMarker', 'damageIndicator', 'damageIndicatorText', 'hitExplosion')
+KEYS = ('class', 'level', 'vehicle') + INDICATORS
+
 STYLE = {'enabled': True, 'x': None, 'y': None, 'scale': 1, 'alpha': 100, 'deadAlpha': 40}
 
 
 def normalize(options):
-    if not isinstance(options, dict) or set(options) - set(('enabled', 'class', 'level', 'vehicle')):
+    if not isinstance(options, dict) or set(options) - set(('enabled',) + KEYS):
         raise ValueError('Invalid icons options')
     enabled = options.get('enabled', False)
     if type(enabled) is not bool:
         raise ValueError('icons.enabled must be boolean')
     result = {'enabled': enabled}
-    for key in ('class', 'level', 'vehicle'):
+    for key in KEYS:
         values = options.get(key, {})
         if not isinstance(values, dict) or set(values) - set(STYLE):
             raise ValueError('Invalid icon style: ' + key)
         style = copy.deepcopy(STYLE)
         if key == 'vehicle':
             style.update(enabled=False, x=-55, y=-18)
+        if key in INDICATORS: style['deadAlpha'] = 100
         style.update(values)
         if type(style['enabled']) is not bool:
             raise ValueError('Icon enabled must be boolean')

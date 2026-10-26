@@ -101,3 +101,22 @@ def calculate_overall(records):
 
 def get_expected(vehicle_id):
     return _expected.get(str(vehicle_id))
+
+
+def account_from_tanks(tanks, battles):
+    """Use random-only counters and require complete weights and assistance coverage."""
+    records, count = [], 0
+    for tank in tanks:
+        stats = tank.get('statistics', {})
+        played = number(stats.get('battles'))
+        if not played:
+            continue
+        expected = get_expected(tank.get('tank_id'))
+        required = [number(stats.get(key)) for key in ('damage_dealt', 'frags', 'spotted',
+                    'radio_assisted_damage', 'track_assisted_damage', 'stun_assisted_damage')]
+        if expected is None or None in required:
+            return None
+        records.append({'battles': played, 'expected': expected, 'damage': required[0],
+                        'frags': required[1], 'spots': required[2], 'assistance': sum(required[3:])})
+        count += played
+    return calculate_overall(records) if count and count == number(battles) else None

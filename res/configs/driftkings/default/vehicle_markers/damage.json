@@ -18,6 +18,32 @@
       "alpha": 80,
       "blur": 3,
       "strength": 2
-    }
+    },
+    "ally": {
+      "alive": {
+        "normal": {},
+        "extended": {}
+      },
+      "dead": {
+        "normal": {},
+        "extended": {}
+      }
+    },
+    "enemy": {
+      "alive": {
+        "normal": {},
+        "extended": {}
+      },
+      "dead": {
+        "normal": {},
+        "extended": {}
+      }
+    },
+    "sources": {
+      "player": {},
+      "squad": {},
+      "other": {}
+    },
+    "blowupMessage": "<font size='18' color='{{c:dmg}}'><b>{{l10n:blownUp}}\n-{{dmg}}</b></font>"
   }
 }

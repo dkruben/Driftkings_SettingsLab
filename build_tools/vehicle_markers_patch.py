@@ -37,22 +37,42 @@ def patch_marker(text):
               '      getlocal0\n'
               '      getproperty         QName(' + PROTECTED + ', "isStickyAndOutOfScreen")\n'
               '      callpropvoid        QName(PackageNamespace(""), "render"), 4\n\n')
-    for name in ('draw', 'setHealth', 'updateHealth', 'updateMarkerSettings'):
+    for name in ('draw', 'setHealth', 'updateHealth', 'updateMarkerSettings', 'updateState', 'updateCriticalLayout'):
         text = patch_method(text, name, render, 5)
+        restore = ('      getlex              ' + HELPER + '\n      getlocal0\n'
+                   '      callpropvoid        QName(PackageNamespace(""), "restoreIcons"), 1\n\n')
+        text = patch_method(text, name, restore, 2, before=True)
     damage = ('      getlex              ' + HELPER + '\n'
               '      getlocal0\n      getlocal0\n'
               '      getproperty         QName(' + PROTECTED + ', "model")\n'
-              '      getlocal1\n      getlocal2\n'
-              '      callpropvoid        QName(PackageNamespace(""), "damage"), 4\n\n')
-    text = patch_method(text, 'updateHealth', damage, 5, before=True)
+              '      getlocal1\n      getlocal2\n      getlocal3\n'
+              '      callpropvoid        QName(PackageNamespace(""), "damage"), 5\n\n')
+    text = patch_method(text, 'updateHealth', damage, 6, before=True)
     reset = ('      getlex              ' + HELPER + '\n      getlocal0\n'
              '      callpropvoid        QName(PackageNamespace(""), "clearTransient"), 1\n\n')
     text = patch_method(text, 'setHealth', reset, 2, before=True)
     guard = ('      getlex              ' + HELPER + '\n'
-             '      callproperty        QName(PackageNamespace(""), "damageEnabled"), 0\n'
+             '      getlocal0\n      getlocal0\n'
+             '      getproperty         QName(' + PROTECTED + ', "model")\n'
+             '      getproperty         QName(PackageNamespace(""), "currHealth")\n'
+             '      callproperty        QName(PackageNamespace(""), "damageEnabled"), 2\n'
              '      iffalse             VMTEST_NATIVE_DAMAGE\n      returnvoid\n'
              'VMTEST_NATIVE_DAMAGE:\n')
-    text = patch_method(text, 'showHitLabelAnim', guard, 1, before=True)
+    text = patch_method(text, 'showHitLabelAnim', guard, 3, before=True)
+    # Resolve every native visibility/layout lookup per vehicle, including destroyed allies/enemies.
+    pattern = r'(?m)^  trait getter [^\n]*, "markerSettings"\)[^\n]*\n.*?^  end ; trait'
+    found = list(re.finditer(pattern, text, re.S))
+    if len(found) != 1:
+        raise ValueError('Expected one native markerSettings getter')
+    match = found[0]
+    block = re.sub(r'maxstack (\d+)', lambda m: 'maxstack ' + str(max(int(m[1]), 4)), match.group(0), count=1)
+    scoped = ('      getlex              ' + HELPER + '\n      swap\n      getlocal0\n      getlocal0\n'
+              '      getproperty         QName(' + PROTECTED + ', "vehicleDestroyed")\n'
+              '      callproperty        QName(PackageNamespace(""), "nativeSettings"), 3\n')
+    if '      returnvalue' not in block:
+        raise ValueError('Missing markerSettings return')
+    block = block.replace('      returnvalue', scoped + '      returnvalue')
+    text = text[:match.start()] + block + text[match.end():]
     clear = ('      getlex              ' + HELPER + '\n      getlocal0\n'
              '      callpropvoid        QName(PackageNamespace(""), "clear"), 1\n\n')
     return patch_method(text, 'onBeforeDispose', clear, 2, before=True)
@@ -60,8 +80,12 @@ def patch_marker(text):
 
 def patch_manager(text):
     code = ('      getlex              ' + HELPER + '\n      getlocal1\n'
+            '      callproperty        QName(PackageNamespace(""), "receiveStats"), 1\n'
+            '      iffalse             VM_RATINGS_NATIVE_SETTINGS\n      returnvoid\n'
+            'VM_RATINGS_NATIVE_SETTINGS:\n'
+            '      getlex              ' + HELPER + '\n      getlocal1\n'
             '      callpropvoid        QName(PackageNamespace(""), "configure"), 1\n\n')
-    text = patch_method(text, 'as_setMarkerSettings', code, 2)
+    text = patch_method(text, 'as_setMarkerSettings', code, 2, before=True)
     blind = ('      getlex              ' + HELPER + '\n      getlocal1\n'
              '      callpropvoid        QName(PackageNamespace(""), "setColorBlind"), 1\n\n')
     # Update the flag before the native UPDATE_COLORS event triggers marker redraws.

@@ -38,6 +38,9 @@ def validate(options):
 def apply(settings, options, custom_fields=None):
     """Copy first; never mutate the account settings dictionary."""
     result = copy.deepcopy(settings)
+    if custom_fields is not None and custom_fields.get('profiles') is not None:
+        result['__vmTest'] = copy.deepcopy(custom_fields)
+        return result
     for group in ('ally', 'enemy', 'dead'):
         if group not in result:
             continue

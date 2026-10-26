@@ -24,6 +24,74 @@
       "scale": 1,
       "alpha": 100,
       "deadAlpha": 40
+    },
+    "ally": {
+      "alive": {
+        "normal": {},
+        "extended": {}
+      },
+      "dead": {
+        "normal": {},
+        "extended": {}
+      }
+    },
+    "enemy": {
+      "alive": {
+        "normal": {},
+        "extended": {}
+      },
+      "dead": {
+        "normal": {},
+        "extended": {}
+      }
+    },
+    "actionMarker": {
+      "enabled": true,
+      "x": null,
+      "y": null,
+      "scale": 1,
+      "alpha": 100,
+      "deadAlpha": 100
+    },
+    "hoverMarker": {
+      "enabled": true,
+      "x": null,
+      "y": null,
+      "scale": 1,
+      "alpha": 100,
+      "deadAlpha": 100
+    },
+    "vehicleStatusMarker": {
+      "enabled": true,
+      "x": null,
+      "y": null,
+      "scale": 1,
+      "alpha": 100,
+      "deadAlpha": 100
+    },
+    "damageIndicator": {
+      "enabled": true,
+      "x": null,
+      "y": null,
+      "scale": 1,
+      "alpha": 100,
+      "deadAlpha": 100
+    },
+    "damageIndicatorText": {
+      "enabled": true,
+      "x": null,
+      "y": null,
+      "scale": 1,
+      "alpha": 100,
+      "deadAlpha": 100
+    },
+    "hitExplosion": {
+      "enabled": true,
+      "x": null,
+      "y": null,
+      "scale": 1,
+      "alpha": 100,
+      "deadAlpha": 100
     }
   }
 }
