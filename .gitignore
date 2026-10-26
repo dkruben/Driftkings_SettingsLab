@@ -116,6 +116,11 @@ htmlcov/
 /tests/core/fixtures/*
 !/tests/core/fixtures/wnx_reference.json
 
+# Shared fixtures read by both the Python and the JavaScript marker tests.
+!/tests/fixtures/
+/tests/fixtures/*
+!/tests/fixtures/vehicle_marker_conditions.json
+
 # Build-time installer generation and media validation tests.
 !/tests/installer/
 /tests/installer/*

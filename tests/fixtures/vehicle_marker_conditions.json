@@ -1,0 +1,205 @@
+{
+ "values": {
+  "hp": 1000,
+  "maxHp": 1550,
+  "hp-ratio": 64,
+  "distance": 350,
+  "dist": 350,
+  "alive": true,
+  "dead": false,
+  "ally": false,
+  "enemy": true,
+  "player": false,
+  "squad": true,
+  "anonym": false,
+  "xvm-stat": true,
+  "turret": "*",
+  "turret-vulnerability": "high",
+  "vtype": "HT",
+  "name": "DriftKings",
+  "level": 8,
+  "r": null
+ },
+ "cases": [
+  [
+   "alive",
+   true
+  ],
+  [
+   "dead",
+   false
+  ],
+  [
+   "!alive",
+   false
+  ],
+  [
+   "!dead",
+   true
+  ],
+  [
+   "!!alive",
+   true
+  ],
+  [
+   "enemy&&alive",
+   true
+  ],
+  [
+   "ally||enemy",
+   true
+  ],
+  [
+   "ally&&enemy",
+   false
+  ],
+  [
+   "ally||dead",
+   false
+  ],
+  [
+   "enemy&&!player",
+   true
+  ],
+  [
+   "squad&&enemy",
+   true
+  ],
+  [
+   "ally&&enemy||alive",
+   true
+  ],
+  [
+   "alive&&enemy&&hp>0||dead",
+   true
+  ],
+  [
+   "dead||ally||player",
+   false
+  ],
+  [
+   "!alive||!enemy",
+   false
+  ],
+  [
+   "!anonym&&alive",
+   true
+  ],
+  [
+   "anonym",
+   false
+  ],
+  [
+   "hp>500",
+   true
+  ],
+  [
+   "hp>=1000",
+   true
+  ],
+  [
+   "hp<1000",
+   false
+  ],
+  [
+   "hp<=1000",
+   true
+  ],
+  [
+   "hp==1000",
+   true
+  ],
+  [
+   "hp!=1000",
+   false
+  ],
+  [
+   "hp-ratio<=50",
+   false
+  ],
+  [
+   "hp-ratio>50&&hp-ratio<=100",
+   true
+  ],
+  [
+   "distance<=500",
+   true
+  ],
+  [
+   "distance>350",
+   false
+  ],
+  [
+   "dist==350",
+   true
+  ],
+  [
+   "distance!=0",
+   true
+  ],
+  [
+   "r",
+   false
+  ],
+  [
+   "r>0",
+   false
+  ],
+  [
+   "r!=0",
+   false
+  ],
+  [
+   "!r",
+   true
+  ],
+  [
+   "turret=='*'",
+   true
+  ],
+  [
+   "turret-vulnerability=='high'",
+   true
+  ],
+  [
+   "turret-vulnerability!='low'",
+   true
+  ],
+  [
+   "vtype=='HT'",
+   true
+  ],
+  [
+   "vtype==\"HT\"",
+   true
+  ],
+  [
+   "xvm-stat",
+   true
+  ],
+  [
+   "xvm-stat==true",
+   true
+  ],
+  [
+   "alive==1",
+   false
+  ],
+  [
+   "alive!=1",
+   true
+  ],
+  [
+   "level>=8&&level<10",
+   true
+  ],
+  [
+   "name=='DriftKings'",
+   true
+  ],
+  [
+   "!hp!=5",
+   false
+  ]
+ ]
+}

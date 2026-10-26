@@ -147,3 +147,22 @@ class VehicleMarkersXvmTests(RuntimeTest):
                     with open(os.path.join(folder, name), 'rb') as stream:
                         text = stream.read().decode('utf-8')
                     self.assertIsNone(re.search(r'\.replace\([^\n]*,\s*function\b', text), name)
+
+    def test_null_options_are_unset_like_missing_ones(self):
+        # XVM treats null as "not set"; the settings window preview does the same, so the battle must agree.
+        xvm = self.xvm
+        self.assertEqual(xvm.health_bar({'x': None, 'y': None, 'width': None, 'height': None, 'alpha': None,
+                                         'border': None, 'fill': None, 'damage': None}, False), xvm.health_bar({}, False))
+        self.assertEqual(xvm.health_bar({'border': {'alpha': None, 'size': None}, 'fill': {'alpha': None},
+                                         'damage': {'alpha': None, 'fade': None}}, True), xvm.health_bar({}, True))
+        nulls = dict((key, None) for key in ('x', 'y', 'offsetX', 'offsetY', 'alpha', 'enabled'))
+        self.assertEqual(xvm.icons({'vehicleIcon': nulls, 'damageIndicator': dict(nulls, showText=None),
+                                    'levelIcon': None, 'hoverMarker': {'glow': None}}),
+                         xvm.icons({'levelIcon': {'enabled': False}}))
+        field = dict((key, None) for key in ('x', 'y', 'width', 'height', 'align', 'alpha', 'enabled', 'format', 'name'))
+        self.assertEqual(xvm.text_field(field), xvm.text_field({}))
+        self.assertEqual(xvm.damage_text(dict(field, speed=None, maxRange=None, damageMessage=None, blowupMessage=None)),
+                         xvm.damage_text({}))
+        data = copy.deepcopy(self.data)
+        data['markersAliveNormal']['ally'] = {'textFields': None}
+        self.assertEqual(xvm.adapt(data)['customFields']['ally']['alive']['normal'], [])

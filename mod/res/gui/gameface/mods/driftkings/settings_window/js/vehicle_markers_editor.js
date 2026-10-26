@@ -3,7 +3,7 @@
     'use strict';
     var DK=window.DK=window.DK || {}, M=DK.vehicleMarkerModel;
     function create(parent, mod, context) {
-        var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, section='textFields', selected=0;
+        var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, arrays={}, section='textFields', selected=0;
         // XVM files edited by this form: markers.json and the four state files.
         var ROOTS=['markers'].concat(M.STATE_KEYS);
         var FIELD={name:'',enabled:true,x:0,y:-36,alpha:100,align:'center',format:'{{vehicle}}',
@@ -33,8 +33,8 @@
         var life=button(selectors,label('alive'),function () { sample.state=sample.state==='alive'?'dead':'alive'; life.textContent=label(sample.state); selected=0; clearEffects(); buildForm(); draw(); });
         var mode=button(selectors,label('normal'),function () { sample.alt=!sample.alt; mode.textContent=label(sample.alt?'extended':'normal'); selected=0; clearEffects(); buildForm(); draw(); });
         var blind=button(selectors,label('colorBlind'),function () { sample.blind=!sample.blind; DK.dom.setClass(blind,'is-active',sample.blind); draw(); });
-        button(selectors,label('indicators'),function () { sample.indicators=!sample.indicators; draw(); });
-        button(selectors,label('turretMarkers'),function () { var states=['','high','low','unknown']; sample.turret=states[(states.indexOf(sample.turret || '')+1)%states.length]; draw(); });
+        var indicators=button(selectors,label('indicators'),function () { sample.indicators=!sample.indicators; DK.dom.setClass(indicators,'is-active',!!sample.indicators); draw(); });
+        var turret=button(selectors,label('turretMarkers'),function () { var states=['','high','low','unknown']; sample.turret=states[(states.indexOf(sample.turret || '')+1)%states.length]; DK.dom.setClass(turret,'is-active',!!sample.turret); draw(); });
         var stats=button(selectors,label('ratingType'),function () { sample.statsAvailable=sample.statsAvailable===false; DK.dom.setClass(stats,'is-active',sample.statsAvailable); draw(); });
         DK.dom.setClass(stats,'is-active',true);
         ['player','squad','anonym'].forEach(function (key) {
@@ -47,14 +47,14 @@
             });
             roleButtons[key]=toggle;
         });
-        function sampleHealth(key,value) { sample.hp=value; draw(); }
-        var hp=DK.controls.create({id:'sampleHp',type:'slider',label:label('health'),min:0,max:100,step:1,metadata:{}},
-                                 {labels:context.labels,preview:sampleHealth,commit:sampleHealth});
-        preview.appendChild(hp.node); hp.update(sample.hp); hp.info({disabled:false,changed:false,values:{}});
-        function sampleDistance(key,value) { sample.distance=value; draw(); }
-        var distance=DK.controls.create({id:'sampleDistance',type:'slider',label:label('distance'),min:0,max:1500,step:1,metadata:{}},
-                                       {labels:context.labels,preview:sampleDistance,commit:sampleDistance});
-        preview.appendChild(distance.node); distance.update(sample.distance); distance.info({disabled:false,changed:false,values:{}});
+        // The sample sliders live in the preview column and are not part of the saved settings.
+        function sampleSlider(id,title,max,field) {
+            function change(key,value) { sample[field]=value; draw(); }
+            var api=DK.controls.create({id:id,type:'slider',label:title,min:0,max:max,step:1,metadata:{}},{labels:context.labels,preview:change,commit:change});
+            preview.appendChild(api.node); api.update(sample[field]); api.info({disabled:false,changed:false,values:{}});
+            return api;
+        }
+        var hp=sampleSlider('sampleHp',label('health'),100,'hp'), distance=sampleSlider('sampleDistance',label('distance'),1500,'distance');
         var stage=node('div','dk-vm-stage',null,preview), tank=node('img','dk-vm-tank',null,stage);
         tank.src=mod.preview.tank; tank.alt='T32';
         var marker=node('div','dk-vm-marker',null,stage), effects=node('div','dk-vm-effects',null,stage);
@@ -98,7 +98,18 @@
             return name && !current.inline ? [current.key,'def',name] : path;
         }
         function pathGet(path) { var value=model; path.forEach(function (key) { value=value && value[key]; }); return value; }
-        function pathSet(path,value) { var target=model; path.slice(0,-1).forEach(function (key) { if (!target[key] || typeof target[key]!=='object') { target[key]={}; } target=target[key]; }); target[path[path.length-1]]=value; }
+        function pathSet(path,value) {
+            var target=model;
+            path.slice(0,-1).forEach(function (key,index) {
+                if (!target[key] || typeof target[key]!=='object') {
+                    // A list shown from defaults must become a real array, not an object keyed by index.
+                    var shown=arrays[path.slice(0,index+1).join('.')];
+                    target[key]=shown?M.clone(shown):{};
+                }
+                target=target[key];
+            });
+            target[path[path.length-1]]=value;
+        }
         function set(path,value,commit) {
             pathSet(path,value); error.textContent=''; if (commit) { save(path[0]); } draw();
         }
@@ -112,17 +123,24 @@
                 if (key==='scale') { def.min=0.25; def.step=0.05; }
                 if (value===null) { def.type='text'; def.label += ' (auto)'; }
                 if (key==='maxCount') { def.min=1; def.max=12; }
+                // Paths start with the XVM file key (markersAliveNormal...), so containers are looked up anywhere in the path.
+                // The limits below match the validation in core/vehicle_markers (healthbar.py, damage.py).
+                var inBar=path.indexOf('healthBar')>=0, inBorder=path.indexOf('border')>=0;
                 if (key==='size') { def.min=1; def.max=100; }
+                if (key==='size' && inBorder) { def.min=0; def.max=10; }
                 if (key==='value') { def.max=Math.max(101,value); def.step=0.1; }
-                if (key==='rise') { def.max=300; }
-                if (key==='duration') { def.min=0.1; def.max=path[0]==='healthBar'?5:10; }
+                if (key==='rise' || key==='maxRange') { def.max=300; }
+                // speed (damage text display time) and fade (health bar damage trail) are seconds.
+                if (key==='speed') { def.min=0.1; def.max=10; def.step=0.1; }
+                if (key==='fade') { def.min=0.1; def.max=5; def.step=0.1; }
+                if (key==='duration') { def.min=0.1; def.max=inBar?5:10; }
                 if (key==='delay') { def.max=5; }
                 if (key==='blur' || key==='strength' || key==='distance') { def.max=100; }
                 if (key==='angle') { def.min=-360; def.max=360; }
                 if (key==='width' || key==='height') {
                     def.min=1; def.max=1000;
-                if (path[0]==='healthBar') { def.min=key==='width'?4:2; def.max=key==='width'?500:100; }
-                    if (path.indexOf('border')>=0) { def.min=0; def.max=10; }
+                    if (inBar) { def.min=key==='width'?4:2; def.max=key==='width'?500:100; }
+                    if (inBorder) { def.min=0; def.max=10; }
                 }
             } else {
                 var long=key==='format' || key==='blowupMessage' || key==='damageMessage';
@@ -164,27 +182,39 @@
             var title=labels['tpl_'+key] || (value && typeof value.name==='string' && value.name) || key;
             return title===key?key:title+' ('+key+')';
         }
+        // A closed group with a title button; returns the element to fill.
+        function collapsible(owner,title) {
+            var details=node('div','dk-vm-details',null,owner), body;
+            button(details,title,function () { body.style.display=body.style.display==='none'?'block':'none'; });
+            body=node('div','',null,details); body.style.display='none';
+            return body;
+        }
         function objectForm(owner,path,object,defaults) {
             var source=M.merge(defaults || {},object || {});
             Object.keys(source).forEach(function (key) {
                 var value=source[key], next=path.concat([key]);
                 if (Array.isArray(value)) { arrayForm(owner,next,value); }
                 else if (value && typeof value==='object') {
-                    var details=node('div','dk-vm-details',null,owner), body;
-                    button(details,path[path.length-1]==='def'?templateTitle(key,value):label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
-                    body=node('div','',null,details); body.style.display='none'; objectForm(body,next,value);
+                    objectForm(collapsible(owner,path[path.length-1]==='def'?templateTitle(key,value):label(key)),next,value);
                 } else { widget(owner,next,value); }
             });
         }
+        // The shown list may come from defaults; the first edit or change copies it into the file.
+        function bandList(path,items) {
+            if (!Array.isArray(pathGet(path))) { pathSet(path,M.clone(items)); }
+            return pathGet(path);
+        }
         function arrayForm(owner,path,items) {
+            arrays[path.join('.')]=items;
             items.forEach(function (item,index) { var box=node('div','dk-vm-array-item',null,owner); objectForm(box,path.concat([index]),item); });
-            if (path[0]==='colors' && path[1]==='hp') {
+            // Health colour bands are stored in markers.json as markers.colors.hp.
+            if (path.length===3 && path[0]==='markers' && path[1]==='colors' && path[2]==='hp') {
                 button(owner,label('addBand'),function () {
-                    var bands=pathGet(path), previous=bands.length>1?bands[bands.length-2].value:0;
+                    var bands=bandList(path,items), previous=bands.length>1?bands[bands.length-2].value:0;
                     if (bands.length>=20 || previous>=99) { return; }
-                    bands.splice(bands.length-1,0,{value:Math.floor((previous+100)/2),color:'#FFDD66'}); save('colors'); buildForm(); draw();
+                    bands.splice(bands.length-1,0,{value:Math.floor((previous+100)/2),color:'#FFDD66'}); save('markers'); buildForm(); draw();
                 });
-                if (items.length>1) { button(owner,label('remove'),function () { pathGet(path).splice(items.length-2,1); save('colors'); buildForm(); draw(); }); }
+                if (items.length>1) { button(owner,label('remove'),function () { bandList(path,items).splice(items.length-2,1); save('markers'); buildForm(); draw(); }); }
             }
         }
         function textFields() {
@@ -197,8 +227,12 @@
             if (target!==path) { node('div','dk-vm-hint',label('shared')+': def.'+target[2],owner); }
             objectForm(owner,target,pathGet(target),defaults);
         }
+        // An invalid reference or a missing block is reported in the error box, like draw() does, and never thrown to the window.
         function buildForm() {
-            widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; form.textContent='';
+            try { renderForm(); } catch (problem) { error.textContent=problem.message; }
+        }
+        function renderForm() {
+            widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; arrays={}; form.textContent='';
             var buttons=tabs.querySelectorAll('button'); for (var t=0;t<buttons.length;t++) { DK.dom.setClass(buttons[t],'is-active',buttons[t].getAttribute('data-section')===section); }
             if (!model.markers) { return; }
             var current;
@@ -269,9 +303,7 @@
             }
             if (section==='icons') {
                 ['vehicleIcon','levelIcon','contourIcon','actionMarker','hoverMarker','vehicleStatusMarker','damageIndicator'].forEach(function (key) {
-                    var details=node('div','dk-vm-details',null,form), body;
-                    button(details,label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
-                    body=node('div','',null,details); body.style.display='none'; scoped(body,key);
+                    scoped(collapsible(form,label(key)),key);
                 });
                 return;
             }
@@ -364,7 +396,9 @@
             var before=sample.hp; sample.hp=sample.explosion?0:Math.max(0,sample.hp-20);
             if (sample.hp<=0) { sample.state='dead'; life.textContent=label('dead'); buildForm(); }
             hp.update(sample.hp); draw();
-            var config=resolved().config, damage=M.damageStyle(config,sample.damageSource), trail=config.healthBar.damage;
+            var current;
+            try { current=resolved(); } catch (problem) { error.textContent=problem.message; return; }
+            var config=current.config, damage=M.damageStyle(config,sample.damageSource), trail=config.healthBar.damage;
             if (trail.enabled && sample.state!=='dead' && before>sample.hp) {
                 var bar=marker.querySelector('.dk-vm-bar');
                 if (bar) {
@@ -372,7 +406,7 @@
                     timers.push(setTimeout(function () { tail.style.transition='width '+trail.duration+'s linear'; tail.style.width='0%'; },trail.delay*1000));
                 }
             }
-            if (!damage.enabled || resolved().native.damage===false) { return; }
+            if (!damage.enabled || current.native.damage===false) { return; }
             var same=[];
             for (var i=0;i<effects.children.length;i++) { if (effects.children[i].getAttribute('data-source')===sample.damageSource) { same.push(effects.children[i]); } }
             while (same.length>=damage.maxCount) { effects.removeChild(same.shift()); }

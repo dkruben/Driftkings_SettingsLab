@@ -9,6 +9,7 @@ their alignment, damage text 200x100 boxes and vehicle distance 100x100 boxes.
 import copy
 import re
 
+from driftkings.core.vehicle_markers.fields import string_types
 from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
 from driftkings.core.vehicle_markers.references import resolve
 
@@ -25,11 +26,6 @@ SHADOW = ('enabled', 'distance', 'angle', 'color', 'alpha', 'blur', 'strength')
 FIELD_SIZE = (140, 100)
 DAMAGE_SIZE = (200, 100)
 DISTANCE_SIZE = (100, 100)
-
-try:
-    STRING = basestring
-except NameError:
-    STRING = str
 
 
 def join(documents):
@@ -51,7 +47,7 @@ def block(data, documents, team, state, mode):
     value = data['markers'].get(team, {}).get(state, {}).get(mode)
     if isinstance(value, dict):
         return resolve(value)
-    match = WIRING.match(value) if isinstance(value, STRING) else None
+    match = WIRING.match(value) if isinstance(value, string_types) else None
     if match is None:
         raise ValueError('Invalid marker wiring: %s.%s.%s' % (team, state, mode))
     key, part = match.groups()
@@ -82,21 +78,33 @@ def style(options, keys):
     return dict((key, options[key]) for key in keys if key in options)
 
 
+def get(options, key, default=None):
+    """XVM treats a null option as unset, exactly like a missing one."""
+    value = options.get(key)
+    return default if value is None else value
+
+
+def part(options, key):
+    """A nested option block; null or a non-object means "not set"."""
+    value = options.get(key)
+    return value if isinstance(value, dict) else {}
+
+
 def text_field(options, size=FIELD_SIZE, default_format=''):
-    width, height = options.get('width', size[0]), options.get('height', size[1])
-    align = options.get('align', 'center')
-    x, y = anchored(options.get('x', 0), options.get('y', 0), align, options.get('valign'), (width, height))
-    text = options.get('textFormat') or {}
-    fmt = options.get('format', default_format)
+    width, height = get(options, 'width', size[0]), get(options, 'height', size[1])
+    align = get(options, 'align', 'center')
+    x, y = anchored(get(options, 'x', 0), get(options, 'y', 0), align, options.get('valign'), (width, height))
+    text = part(options, 'textFormat')
+    fmt = get(options, 'format', default_format)
     textFormat = style(text, TEXT_STYLE)
     if textFormat.get('font') == 'xvm':
         for glyph, replacement in XVM_GLYPHS.items():
             fmt = fmt.replace(glyph, replacement)
         textFormat['font'] = '$FieldFont'
-    result = {'name': options.get('name', ''), 'enabled': options.get('enabled', True), 'format': fmt,
-              'x': x, 'y': y, 'width': width, 'height': height, 'alpha': options.get('alpha', 100),
+    result = {'name': get(options, 'name', ''), 'enabled': get(options, 'enabled', True), 'format': fmt,
+              'x': x, 'y': y, 'width': width, 'height': height, 'alpha': get(options, 'alpha', 100),
               'align': align, 'textFormat': textFormat}
-    if 'shadow' in options:
+    if isinstance(options.get('shadow'), dict):
         result['shadow'] = style(options['shadow'], SHADOW)
     return result
 
@@ -108,13 +116,13 @@ def distance_field(options):
 
 
 def damage_text(options):
-    field = text_field(options, DAMAGE_SIZE, options.get('damageMessage', '{{dmg}}'))
-    field['format'] = options.get('damageMessage', '{{dmg}}')
+    field = text_field(options, DAMAGE_SIZE, get(options, 'damageMessage', '{{dmg}}'))
+    field['format'] = get(options, 'damageMessage', '{{dmg}}')
     field['textFormat'].setdefault('color', None)
     if field['textFormat']['color'] is None:
         field['textFormat']['color'] = '{{c:dmg}}'
-    field.update(duration=options.get('speed', 2), rise=options.get('maxRange', 40), maxCount=4,
-                 blowupMessage=options.get('blowupMessage', '{{i18n:blownUp}}\n{{dmg}}'))
+    field.update(duration=get(options, 'speed', 2), rise=get(options, 'maxRange', 40), maxCount=4,
+                 blowupMessage=get(options, 'blowupMessage', '{{i18n:blownUp}}\n{{dmg}}'))
     field.pop('name')
     return field
 
@@ -123,60 +131,66 @@ def hex_color(value, fallback):
     """XVM writes 0xRRGGBB; the health bar validates #RRGGBB. Macros pass unchanged."""
     if value is None:
         return fallback
-    if isinstance(value, STRING) and re.match(r'^0x[0-9A-Fa-f]{6}$', value):
+    if isinstance(value, string_types) and re.match(r'^0x[0-9A-Fa-f]{6}$', value):
         return '#' + value[2:].upper()
     return value
 
 
 def health_bar(options, dead):
-    border = options.get('border', {})
-    damage = options.get('damage', {})
+    border = part(options, 'border')
+    damage = part(options, 'damage')
     lcolor = options.get('lcolor')
-    return {'enabled': options.get('enabled', True), 'showOnDead': bool(dead and options.get('enabled', True)),
-            'x': options.get('x', -36), 'y': options.get('y', -33),
-            'width': options.get('width', 70), 'height': options.get('height', 12), 'alpha': options.get('alpha', 100),
+    enabled = get(options, 'enabled', True)
+    return {'enabled': enabled, 'showOnDead': bool(dead and enabled),
+            'x': get(options, 'x', -36), 'y': get(options, 'y', -33),
+            'width': get(options, 'width', 70), 'height': get(options, 'height', 12), 'alpha': get(options, 'alpha', 100),
             'color': hex_color(options.get('color'), '{{c:team}}'),
-            'fill': {'alpha': options.get('fill', {}).get('alpha', 100)},
+            'fill': {'alpha': get(part(options, 'fill'), 'alpha', 100)},
             'gradient': {'enabled': lcolor is not None, 'color': hex_color(lcolor, '{{c:hp}}'), 'angle': 0},
             # XVM draws the substrate and the frame with the same colour and opacity.
-            'background': {'color': hex_color(border.get('color'), '#000000'), 'alpha': border.get('alpha', 35)},
-            'border': {'color': hex_color(border.get('color'), '#000000'), 'alpha': border.get('alpha', 35),
-                       'width': border.get('size', 1)},
-            'damage': {'enabled': True, 'color': hex_color(damage.get('color'), '{{c:dmg}}'), 'alpha': damage.get('alpha', 80),
-                       'delay': 0, 'duration': damage.get('fade', 1)},
+            'background': {'color': hex_color(border.get('color'), '#000000'), 'alpha': get(border, 'alpha', 35)},
+            'border': {'color': hex_color(border.get('color'), '#000000'), 'alpha': get(border, 'alpha', 35),
+                       'width': get(border, 'size', 1)},
+            'damage': {'enabled': True, 'color': hex_color(damage.get('color'), '{{c:dmg}}'), 'alpha': get(damage, 'alpha', 80),
+                       'delay': 0, 'duration': get(damage, 'fade', 1)},
             'shadow': {'enabled': False}}
 
 
+def author(options, key):
+    """Damage text of one author; a block that is not set falls back to the general damageText."""
+    return options[key] if isinstance(options.get(key), dict) else part(options, 'damageText')
+
+
 def position(options, defaults=None):
-    result = {'enabled': options.get('enabled', True), 'x': options.get('x'), 'y': options.get('y'),
-              'scale': 1, 'alpha': options.get('alpha', 100), 'deadAlpha': 100}
+    result = {'enabled': get(options, 'enabled', True), 'x': options.get('x'), 'y': options.get('y'),
+              'scale': 1, 'alpha': get(options, 'alpha', 100), 'deadAlpha': 100}
     result.update(defaults or {})
     return result
 
 
 def icons(options):
-    vehicle = options.get('vehicleIcon', {})
-    contour = options.get('contourIcon', {})
-    hover = options.get('hoverMarker', {})
-    indicator = options.get('damageIndicator', {})
-    x, y = indicator.get('x', 53), indicator.get('y', -27)
+    vehicle = part(options, 'vehicleIcon')
+    contour = part(options, 'contourIcon')
+    hover = part(options, 'hoverMarker')
+    indicator = part(options, 'damageIndicator')
+    x, y = get(indicator, 'x', 53), get(indicator, 'y', -27)
     return {'enabled': True,
             # XVM moves the icon container (marker.marker), plus its offset; it ignores maxScale.
-            'class': {'enabled': vehicle.get('enabled', True), 'x': None, 'y': None, 'scale': 1,
-                      'alpha': vehicle.get('alpha', 100), 'deadAlpha': 100,
-                      'containerX': vehicle.get('x', 0) + vehicle.get('offsetX', 0),
-                      'containerY': vehicle.get('y', -16) + vehicle.get('offsetY', 0),
+            'class': {'enabled': get(vehicle, 'enabled', True), 'x': None, 'y': None, 'scale': 1,
+                      'alpha': get(vehicle, 'alpha', 100), 'deadAlpha': 100,
+                      'containerX': get(vehicle, 'x', 0) + get(vehicle, 'offsetX', 0),
+                      'containerY': get(vehicle, 'y', -16) + get(vehicle, 'offsetY', 0),
                       'showSpeaker': bool(vehicle.get('showSpeaker', False))},
-            'level': position(options.get('levelIcon', {'enabled': False})),
-            'vehicle': position(contour, {'enabled': contour.get('enabled', False),
+            'level': position(part(options, 'levelIcon') if options.get('levelIcon') is not None else {'enabled': False}),
+            'vehicle': position(contour, {'enabled': get(contour, 'enabled', False),
                                           'tint': {'color': contour.get('color') or '{{c:system}}',
-                                                   'amount': contour.get('amount', 0)}}),
-            'actionMarker': position(options.get('actionMarker', {})),
-            'hoverMarker': position(hover, {'glow': copy.deepcopy(hover.get('glow', {'enabled': True}))}),
-            'vehicleStatusMarker': position(options.get('vehicleStatusMarker', {})),
+                                                   'amount': get(contour, 'amount', 0)}}),
+            'actionMarker': position(part(options, 'actionMarker')),
+            'hoverMarker': position(hover, {'glow': copy.deepcopy(hover['glow'] if isinstance(hover.get('glow'), dict) else {'enabled': True})}),
+            'vehicleStatusMarker': position(part(options, 'vehicleStatusMarker')),
             'damageIndicator': position(indicator),
             'hitExplosion': position(indicator),
-            'damageIndicatorText': position(indicator, {'enabled': bool(indicator.get('enabled', True) and indicator.get('showText', True)),
+            'damageIndicatorText': position(indicator, {'enabled': bool(get(indicator, 'enabled', True) and get(indicator, 'showText', True)),
                                                         'x': x + 14, 'y': y - 14})}
 
 
@@ -196,24 +210,24 @@ def adapt(data):
         for state in STATES:
             for mode in MODES:
                 options = block(data, documents, team, state, mode)
-                level = options.get('levelIcon', {})
-                contour = options.get('contourIcon', {})
+                level = part(options, 'levelIcon')
+                contour = part(options, 'contourIcon')
                 result['markers'][team][state][mode] = {
                     'vehicleName': False, 'playerName': False, 'hp': 'hidden', 'healthBar': False,
                     'vehicleIcon': bool(contour.get('enabled', False)), 'levelIcon': bool(level.get('enabled', False)),
                     'damage': True}
                 if not enabled:
                     continue
-                fields = [text_field(item) for item in options.get('textFields', []) if isinstance(item, dict)]
-                distance = options.get('vehicleDist', {})
+                fields = [text_field(item) for item in (options.get('textFields') or []) if isinstance(item, dict)]
+                distance = part(options, 'vehicleDist')
                 if distance.get('enabled'):
                     fields.append(distance_field(distance))
                 result['customFields'][team][state][mode] = fields
-                result['healthBar'][team][state][mode] = health_bar(options.get('healthBar', {}), state == 'dead')
-                other = damage_text(options.get('damageText', {}))
+                result['healthBar'][team][state][mode] = health_bar(part(options, 'healthBar'), state == 'dead')
+                other = damage_text(part(options, 'damageText'))
                 result['damageText'][team][state][mode] = dict(other, sources={
-                    'player': damage_text(options.get('damageTextPlayer', options.get('damageText', {}))),
-                    'squad': damage_text(options.get('damageTextSquadman', options.get('damageText', {}))),
+                    'player': damage_text(author(options, 'damageTextPlayer')),
+                    'squad': damage_text(author(options, 'damageTextSquadman')),
                     'other': {}})
                 result['icons'][team][state][mode] = icons(options)
     return result
