@@ -97,8 +97,10 @@ test/
 .coverage
 htmlcov/
 
-# Local project documentation
-/docs/
+# Project Markdown documentation; keep local research data and scripts excluded.
+/docs/**
+!/docs/**/
+!/docs/**/*.md
 
 # Pure settings-panel regression tests are part of the source project.
 !/tests/

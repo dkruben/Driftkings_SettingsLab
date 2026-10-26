@@ -120,11 +120,11 @@ Driftkings can send anonymous usage statistics to Google Analytics. It is **off 
 
 ## Languages
 
-Settings translations: Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese. Translation corrections are welcome. Bundled translations are editable UTF-8 `.yml` files in `mod/res/mods/driftkings/text/`; see [contributing.md](contributing.md#translation-resources) for the format and JSON override paths.
+Settings translations: Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese. Translation corrections are welcome. Bundled translations are editable UTF-8 `.yml` files in `mod/res/mods/driftkings/text/`; see [contribution guide](CONTRIBUTING.md#translation-resources) for the format and JSON override paths.
 
 ## Build from source
 
-This repository contains the compiler, runtime sources, defaults and required resource inputs. Generated packages, Python bytecode, caches and local tests are excluded from Git. Download compiled packages from Releases.
+All commands below run from the repository root. This repository contains the compiler, runtime sources, defaults and required resource inputs. Generated packages, Python bytecode, caches and local tests are excluded from Git. Download compiled packages from Releases.
 
 On Windows, configure Python 3.10+, Python 2.7, Java/Flex, playerglobal and game SWCs, RABCDAsm and the .NET C# compiler. Inno Setup 6.7.1+ is required to compile the Windows installer. Game and reference directories are external read-only inputs.
 
@@ -167,6 +167,7 @@ This imports those notes into the signed changelog, rebuilds the mod and install
 | `build_data` | Build contracts, components, targets and release metadata |
 | `build_tools` | Compiler, validators and release tooling |
 | `res` | Canonical defaults, dependencies and resource sources |
+| `docs` | Documentation, feature guides and historical audits |
 
 ## Image paths
 
@@ -179,3 +180,28 @@ Overlay images and custom Sixth Sense icons accept `gui/maps/driftkings/...` res
 [Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) with the mod version, game version/realm, reproduction steps and relevant `game.log` excerpts. Remove personal information before sharing logs.
 
 Dependencies: ModsListAPI by poliroid and OpenWG Gameface.
+
+## Documentation
+
+All project Markdown files live in `docs/`. Paths shown in code spans are relative to the repository root unless a guide says otherwise. Local research data and scripts are excluded from Git and from the mod packages.
+
+### Development and feature guides
+
+- [Contribution guide](CONTRIBUTING.md): architecture, conventions, tests and release workflow.
+- [Current documentation status](STATUS.md): release baseline and verification limits.
+- [Development references](FONTES_DESENVOLVIMENTO.md): local WoT sources and toolchain inputs.
+- [Vehicle markers](vehicle_markers/README.md): layouts, fonts, ratings, damage and editor.
+- [Hangar clock](hangar_preferences/README.md): General settings and `clock.formats`.
+- [Vehicle carousel](vehicle_carousel/README.md): native fields, macros and statistics.
+- [High Caliber / MainGun](MainGun_Gameface.md): Gameface implementation and behaviour.
+- [Languages](i18n/README.md), [sound banks](audioww/README.md) and [Sixth Sense icons](sixthsense_icons/README.md).
+- [Retired HangarEfficiency](hangar_efficiency/README.md): historical status and replacements.
+
+### Historical reviews and studies
+
+These reports retain their original findings and data dates; their update notes explain the current context.
+
+- [Constants review](analise_constants.md), [XVM/configuration/mode analysis](Analise_XVM_Configs_Modos.md) and [duplication review](plano_duplicacoes.md).
+- [Code review, 20 October](Revisao_Codigo_2026-10-20.md), [translation review, 22 October](Revisao_Traducoes_2026-10-22.md) and [control descriptions, 23 October](Revisao_Descricoes_2026-10-23.md).
+- [WN8 exploratory study](wn8-study/report.md), [WN8 audit](wn8-study/wn8-audit-report.md) and [assistance normalization](wn8-study/normalized-report.md).
+- [Contribution prototype](wn8-study/contribution-report.md), [normalized contribution](wn8-study/contribution-normalized-report.md) and [experimental colour preview](wn8-study/color-preview.md).

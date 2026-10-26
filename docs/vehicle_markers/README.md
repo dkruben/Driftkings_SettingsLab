@@ -74,9 +74,10 @@ the individual metrics and colors are also available. `{{xr}}` is the normalized
 XVM value where the statistics module provides one (WN8/EFF); no normalized WNX
 value is invented. Anonymized or unavailable statistics remain unavailable.
 
-The default alive normal layout shows a colored bullet, and ALT shows the
-selected rating. The square uses the client font rather than requiring XVM's
-icon font. Existing custom field arrays are preserved: use **Add rating** in the
+The EU-profile alive normal layout shows a coloured `!`, and ALT shows the
+selected rating. Both `xvm` and `XVMSymbol` font aliases resolve to `$FieldFont`
+in the runtime and the editor. Legacy `&#x115;` uses a bullet instead of requiring
+XVM's icon font. Existing custom field arrays are preserved: use **Add rating** in the
 editor to insert the normal or ALT preset in any of the eight contexts.
 
 Text fields support XVM-style `name`, `textFormat` (font, size, color, bold,
@@ -169,7 +170,7 @@ Health bars accept `fill.alpha` independently of `alpha`, and
 `gradient: {"enabled": true, "color": "{{c:hp}}", "angle": 0}`. The primary
 `color` is the first gradient endpoint. The damage trail accepts `{{c:dmg}}`;
 it snapshots the event author's colour even when floating damage is disabled.
-Defaults retain opaque flat filling. Replay seeks clear event snapshots.
+Current defaults use flat filling; `fill.alpha` controls the configured fill opacity. Replay seeks clear event snapshots.
 
 The scoped `icons` tree also accepts `actionMarker`, `hoverMarker`,
 `vehicleStatusMarker`, `damageIndicator`, `damageIndicatorText`, and
@@ -185,7 +186,7 @@ compares stock/top turret health and available gun prices from client resources;
 unknown data is never treated as a top or stock turret. Equal-health alternate
 turrets and top turrets have no vulnerability symbol. No external service is used.
 
-`general.json` can contain reusable objects under `def`. Other JSON documents
+Each state file can contain reusable objects under `def`. Its fields
 can use `{"$ref":{"path":"def.example"},"x":20}` to inherit a definition and
 override properties, or `${def.example}` for a whole value. Resolution is local,
 bounded, rejects cycles/missing paths, and never rewrites saved references.
@@ -195,3 +196,11 @@ External XVM file-reference syntax and XMQP are deliberately unsupported.
 
 These additions compile against the pinned EU 2.4.1 movie. Native event animation,
 stock/top turret variants and edited templates still require replay acceptance.
+
+## Property scrolling and current defaults
+
+The structured property column has a fixed 470 UI-unit viewport and its own scrollbar through `DK.dom.scrollbar`. Wheel events stay in that column; dragging reaches the final property. The scrollbar refreshes after tab/group changes and resize, hides when content fits, and removes deferred updates and resize listeners on disposal.
+
+The beta 0.1.3-beta.2 defaults follow the EU profile: normal-mode distance fields are disabled, level and contour icons are enabled, and the normal rating template uses `XVMSymbol` with custom `!` text. Preserve the editable font name and resolve it at the adapter boundary. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
+
+Run `npm test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.

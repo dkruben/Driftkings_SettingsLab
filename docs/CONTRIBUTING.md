@@ -1,6 +1,6 @@
 # Contributing to Driftkings
 
-This guide explains how the code is organised and how to make a change safely. For building and installing, see the [README](readme.md).
+This guide explains how the code is organised and how to make a change safely. For building and installing, see the [README](README.md). Run all commands below from the repository root. Markdown documentation lives under `docs/`; repository paths in code spans are relative to the repository root.
 
 ## Ground rules
 
@@ -8,17 +8,20 @@ This guide explains how the code is organised and how to make a change safely. F
 - **Keep Python imports alphabetical in three groups**, separated by a blank line: Python standard libraries, game libraries, then Driftkings modules. Keep conditional and local imports in their existing execution scope. Run `python -m isort mod/res/scripts/client` to apply the client configuration, or add `--check-only` to check it.
 - **Gameface JavaScript is ES5.** `npm run lint` enforces this.
 - Vehicle markers build from a SHA-256-pinned native movie. Configure RABCDAsm with
-  `DK_RABCDASM_HOME` or `--rabcdasm-home`; see `flash_source/vehicle_markers/README.md`.
+  `DK_RABCDASM_HOME` or `--rabcdasm-home`; see the [vehicle marker guide](vehicle_markers/README.md).
 - **Use `logging`, never `print`.** Import `get_logger` from `driftkings.logger` and declare `LOG = get_logger('Driftkings.<Area>')`. The shared factory preserves client-owned handlers and output. Use `LOG.exception(...)` inside `except` blocks so the traceback reaches the game log.
 - **Do not swallow exceptions silently.** Catch the narrowest exception type, and either log it or explain in a comment why ignoring it is correct.
 - Prefer **pure, engine-free modules** for logic (see `core/gun_stats.py`, `core/carousel*.py`, `core/high_caliber.py`). They can be tested without the game.
 - Regenerate `settings/default_values.py` with the defaults tool and `shared/bootstrap.js` with the UI catalogue tool. The compiler generates the packaged `component_list.py` from enabled manifests; keep the checked-in component list aligned with those manifests.
+- Write fixed colours as `#RRGGBB`. Reuse `colorutils.parse`, `nativestate.color` or `VMState.rgb` where ActionScript needs a numeric colour. Keep bit masks and format-compatibility parsers separate from colour literals.
+- Owned ActionScript text fields use `embedFonts = true` with the client's `$FieldFont`/`$TitleFont` aliases. Fields copied from native text retain its font settings. The marker adapters map `xvm` and `XVMSymbol` to the client font in both Python and Gameface; keep their mappings equivalent.
 
 ## Branches and release channels
 
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
 - `main` is the stable release branch. Prepare stable releases there after integrating the validated changes from `develop`.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
+- Published versions: beta `0.1.3-beta.2` and stable `0.1.2`, targeting WoT `2.4.1.0`. Source reference: EU `2.4.1.5498`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
 
 ## Repository layout
 
@@ -33,6 +36,7 @@ This guide explains how the code is organised and how to make a change safely. F
 | `installer` | Windows installer script and the native C# helper |
 | `build_data`, `build_tools` | Build contracts, validators, compiler and release tooling |
 | `tests` | Portable tests (`core`, `settings_panel`, `installer`) |
+| `docs` | Project overview, contribution guide, feature guides and dated audit reports; research data/scripts remain local |
 
 Inside the client package:
 
@@ -74,6 +78,10 @@ Hooks are declared at import time and **owned by their component**. They are onl
 - Defaults live as JSON under `res/configs/driftkings/default/`. After editing them run `python build_tools/generate_defaults.py --write` (and `--refresh-snapshot` for intentional default changes). CI runs `--check`.
 - A component's settings class lives in `settings/definitions/<area>/<name>.py` and extends `SectionDefinition`. Read values through `settings_service.getComponentDict(config)` and react to changes with `affects(changes, ...)`.
 - Names and menu text come from `mod/res/mods/driftkings/text/<code>.yml`. Add and translate new keys in **all 18 languages**, preserving formatting placeholders, then run `python build_tools/validate_locales.py`. English is the runtime fallback; CI requires complete translations.
+
+The beta defaults follow the author's active EU profile. The settings window starts at 140% scale and 94% opacity. Preserve personal profiles when applying updates; a default change is not permission to overwrite installed settings, caches or media. Update the canonical JSON, generated Python fallback and defaults snapshot together.
+
+When changing a settings declaration, verify that it opens and applies without changes through `SettingsRegistry`. `test_current_defaults_open_and_apply_through_every_settings_page` checks this for every current feature definition, including nested JSON and hotkeys. For the marker editor, also check the property scrollbar, wheel propagation, tab/group changes and resize; reuse `DK.dom.scrollbar` and dispose resize listeners and deferred updates.
 
 ### Colour resources
 
@@ -155,7 +163,9 @@ npm test
 
 `tests/core` and `tests/settings_panel` also run on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image. Tests load real production modules through `tests/core/support.py` with the engine stubbed at the import boundary, so avoid importing `BigWorld`, `gui.*` or `Avatar` from code you want to test.
 
-The current modpack has been tested in-game on Wargaming EU, NA and ASIA, including live battles, replays, Gameface panels and the in-game updater. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
+The stable release has prior in-game validation; beta `0.1.3-beta.2` passed package verification and GitHub Actions. Its latest marker/font/layout changes still need visual confirmation in game. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
+
+The release baseline has 413 Core tests and 27 settings-panel tests on both Python 2.7 and Python 3, plus 33 installer tests on Python 3 and the Gameface regression suites. Counts describe this baseline, not a fixed requirement for later changes.
 
 ## Signing releases
 
@@ -167,12 +177,23 @@ The updater authenticates `release.json` with an Ed25519 signature. **Signature 
 
 Clients that predate this feature do not verify signatures; they must update once to get the check.
 
+### Build and publish a new beta
+
+1. Update `build_data/release.json`, the runtime `VERSION` and the README version/download links. Record the changes in the changelog. Commit and push to `develop`, then build from a clean checkout.
+2. Run `python build_tools/compiler.py --mode release --channel beta`. This compiles and verifies the package without installing or publishing it.
+3. Compile and attach the installer: `python build_tools/build_installer.py --artifacts build/releases/beta/<version> --compile --attach-to-release`. Inno Setup 6.7.1+ is required.
+4. Sign with `python build_tools/sign_release.py build/releases/beta/<version> --key <private-key-file>` and preview with `python build_tools/publish_release.py build/releases/beta/<version>`.
+5. After GitHub Actions passes for the built commit, add `--publish` to create a draft with the verified assets. Check the uploaded filenames, sizes and SHA-256 digests against the local inventory, then publish it as a prerelease. `--publish --live` publishes directly when that is the intended workflow.
+6. Verify the public manifest/signature and tag commit. Keep the stable release as GitHub's latest stable release. Documentation edits after publication do not require replacing release assets.
+
+The publisher rejects dirty builds or a checkout that differs from the recorded source revision. A release includes the installer, distribution ZIP, defaults, dependencies, WOTMOD, modpack manifest, signed updater manifest, build report and checksums. Never publish the private signing seed.
+
 ## Pull requests
 
 - Keep changes focused; one concern per pull request.
 - Describe what changed and how you verified it (tests, replay, live battle).
 - Include `game.log` excerpts when fixing a bug, with personal information removed.
-- Code adapted from other mods must keep its credit and licence (the project is GPL-3.0; see `licence`).
+- Code adapted from other mods must keep its credit and licence (the project is GPL-3.0; see [licence](../licence)).
 
 ### WNX and Tomato.gg
 
@@ -184,7 +205,7 @@ Battle efficiency and battle results support `{wnx}` and `{c:wnx}`. The carousel
 
 The existing statistics worker refreshes the public https://tomato.gg/wnx page under the same daily hangar-only policy as other statistical references, stores normalized JSON as `wnxexp.json`, and applies it on the client thread. The parser extracts numeric fields only and never executes downloaded JavaScript. A malformed, partial or changed page is rejected; the last valid cache remains available. Without a valid cache, WNX displays `--` until a download succeeds. No Tomato API key is required. The colour reference is a shipped snapshot, not an automatic live colour-scale update.
 
-Tests include golden outputs generated from the publisher's executable JavaScript calculator and HSL colour functions, plus native battle/results, vehicle dossier and cache-preservation coverage. Default templates for new installs include WNX. Existing custom templates are preserved; add the WNX macros explicitly to display it there.
+Tests include golden outputs generated from the publisher's executable JavaScript calculator and HSL colour functions, plus native battle/results, vehicle dossier and cache-preservation coverage. The EU-profile battle overlay defaults to WN8, EFF and DIFF; WNX remains available through its macros. Existing custom templates are preserved.
 
 The minimap `mapSize` caption uses HTML in `format` (including font size and colour), percentage `alpha`, `offsetX`/`offsetY` relative to the native map origin, and fixed `width`/`height` in pixels. Its `shadow` object accepts `enabled`, `distance`, `angle`, `color`, percentage `alpha`, `blur` and `strength`. Negative offsets are supported. Legacy `fontSize`/`color` and `x`/`y` are converted on load. Macros `{{width}}`, `{{height}}` and `{{cellsize}}` still expand in the HTML.
 
@@ -196,5 +217,4 @@ An alternative HP image can be selected, for example:
 `img://gui/maps/driftkings/playerpanelpro/hp/hp_alive_{{ally?l|{{colorblind?r_cb|r}}}}.png`.
 The shipped `hp_alive_r_cb.png` is selected only for enemy rows in colorblind mode.
 The normal left/right images remain selected otherwise. The author supplied all three
-HP textures at 72 x 24 pixels; their displayed height remains 14 pixels as requested.
-The HP background and positioning remain the existing configuration.
+HP textures at 72 x 24 pixels; the current EU-profile default displays the HP image at 24 pixels high. Its configured position and dimensions remain editable.
