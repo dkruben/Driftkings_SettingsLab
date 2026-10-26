@@ -1,4 +1,4 @@
-![WoT Version](https://img.shields.io/badge/WoT-2.4.1.0-red.svg)
+[![WoT Version](https://img.shields.io/badge/WoT-2.4.1.0-red.svg)](https://worldoftanks.eu/)
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
