@@ -1,7 +1,7 @@
 {
-  "backGroundEnabled": true,
+  "backGroundEnabled": false,
   "background": {
-    "alpha": 88
+    "alpha": 80
   },
   "enabled": true,
   "mainGun": {
@@ -12,12 +12,12 @@
   "textPosition": {
     "alignX": "left",
     "alignY": "top",
-    "x": 200,
-    "y": 200
+    "x": 0.0,
+    "y": 446.0
   },
   "gameface": {
     "scale": 1.0,
-    "accentColor": "#E4B866",
+    "accentColor": "#FFCD4F",
     "showPercentage": true,
     "showProgress": true,
     "showSecondary": true

@@ -97,7 +97,7 @@ def text_field(options, size=FIELD_SIZE, default_format=''):
     text = part(options, 'textFormat')
     fmt = get(options, 'format', default_format)
     textFormat = style(text, TEXT_STYLE)
-    if textFormat.get('font') == 'xvm':
+    if textFormat.get('font') in ('xvm', 'XVMSymbol'):
         for glyph, replacement in XVM_GLYPHS.items():
             fmt = fmt.replace(glyph, replacement)
         textFormat['font'] = '$FieldFont'

@@ -3,7 +3,7 @@
     "damageText": {
       "enabled": true,
       "x": 0,
-      "y": -67,
+      "y": -66,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -105,13 +105,13 @@
     "rating": {
       "name": "Rating",
       "enabled": true,
-      "x": -32,
-      "y": -37,
+      "x": -20,
+      "y": -20,
       "alpha": "{{xvm-stat?100|0}}",
       "align": "right",
       "textFormat": {
-        "font": "xvm",
-        "size": 17,
+        "font": "XVMSymbol",
+        "size": 14,
         "color": "{{c:xr|#999999}}",
         "bold": false,
         "italic": false
@@ -125,7 +125,7 @@
         "blur": 2,
         "strength": 1
       },
-      "format": "&#x115;"
+      "format": "<font color='#EFEFEF'><font color='{{c:r}}'><b>!</b></font></font>"
     },
     "position": {
       "name": "position",
@@ -167,7 +167,7 @@
     "healthBar": {
       "enabled": true,
       "x": -36,
-      "y": -33,
+      "y": -31,
       "alpha": 100,
       "color": null,
       "lcolor": null,
@@ -203,7 +203,7 @@
       }
     },
     "vehicleDist": {
-      "enabled": true,
+      "enabled": false,
       "x": 0,
       "y": -81,
       "alpha": 100,
@@ -226,17 +226,17 @@
       }
     },
     "contourIcon": {
-      "enabled": false,
+      "enabled": true,
       "x": 6,
-      "y": -65,
+      "y": -70,
       "alpha": 100,
       "color": null,
       "amount": 0
     },
     "levelIcon": {
-      "enabled": false,
+      "enabled": true,
       "x": 0,
-      "y": -21,
+      "y": -58,
       "alpha": 100
     },
     "actionMarker": {
@@ -248,12 +248,12 @@
     "hoverMarker": {
       "enabled": true,
       "x": 0,
-      "y": -88,
+      "y": -92,
       "alpha": 100,
       "glow": {
         "enabled": true,
         "x": 0,
-        "y": 85,
+        "y": 150,
         "alpha": 50
       }
     },
@@ -327,9 +327,9 @@
       }
     },
     "vehicleDist": {
-      "enabled": true,
+      "enabled": false,
       "x": 0,
-      "y": -81,
+      "y": -84,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -350,17 +350,17 @@
       }
     },
     "contourIcon": {
-      "enabled": false,
+      "enabled": true,
       "x": 6,
-      "y": -65,
+      "y": -70,
       "alpha": 100,
       "color": null,
       "amount": 0
     },
     "levelIcon": {
-      "enabled": false,
+      "enabled": true,
       "x": 0,
-      "y": -21,
+      "y": -58,
       "alpha": 100
     },
     "actionMarker": {
@@ -372,12 +372,12 @@
     "hoverMarker": {
       "enabled": true,
       "x": 0,
-      "y": -88,
+      "y": -92,
       "alpha": 100,
       "glow": {
         "enabled": true,
         "x": 0,
-        "y": 85,
+        "y": 150,
         "alpha": 50
       }
     },

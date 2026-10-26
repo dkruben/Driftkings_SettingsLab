@@ -7,7 +7,6 @@ import os
 from support import ROOT, RuntimeTest
 
 DIRECTORY = os.path.join(ROOT, 'res', 'configs', 'driftkings', 'default', 'vehicle_markers')
-XVM = 'E:/Wot_Mods_/Drift_Kings_ModPack/WoT_Tools/xvm-master/release/configs/default_wg'
 
 
 class VehicleMarkersXvmTests(RuntimeTest):
@@ -37,21 +36,20 @@ class VehicleMarkersXvmTests(RuntimeTest):
         self.assertEqual(normal['enemy']['textFields'], ['${def.tankName}', '${def.tankHp}', '${def.rating}', '${def.position}'])
         self.assertEqual(normal['ally']['damageText'], {'$ref': {'path': 'def.damageText'}})
 
-    def test_values_match_the_xvm_default_configuration(self):
-        if not os.path.isdir(XVM):
-            self.skipTest('XVM reference configuration is not available')
+    def test_defaults_keep_xvm_layout_and_eu_customizations(self):
         normal = self.documents['markersAliveNormal.json']
         self.assertEqual(normal['ally']['healthBar']['width'], 70)
         self.assertEqual(normal['ally']['healthBar']['damage']['color'], '{{c:dmg}}')
-        self.assertEqual(normal['def']['rating']['format'], '&#x115;')
+        self.assertEqual(normal['def']['rating']['textFormat']['font'], 'XVMSymbol')
+        self.assertIn('<b>!</b>', normal['def']['rating']['format'])
         self.assertEqual(normal['def']['tankName']['format'], '{{vehicle}}{{turret}}')
         self.assertEqual(self.documents['markersAliveExtended.json']['def']['hpPercent']['format'], '{{hp-ratio}}% / {{hp-max}}')
 
     def test_text_fields_use_xvm_boxes_anchored_by_alignment(self):
         profile = self.profiles()['enemy']['alive']['normal']
         names = [field['name'] for field in profile['fields']]
-        # default_wg shows the distance in alive markers without Alt.
-        self.assertEqual(names, ['Tank name', 'Tank HP', 'Rating', 'position', 'Vehicle distance'])
+        # The EU layout disables the distance field in normal mode.
+        self.assertEqual(names, ['Tank name', 'Tank HP', 'Rating', 'position'])
         tank = profile['fields'][0]
         self.assertEqual((tank['x'], tank['y'], tank['width'], tank['height']), (-70, -51, 140, 100))
         # The HP text sits inside the bar (-33..-21) and the tank name just above it.
@@ -60,9 +58,9 @@ class VehicleMarkersXvmTests(RuntimeTest):
         self.assertTrue(bar['y'] - 3 <= profile['fields'][1]['y'] <= bar['y'])
         self.assertLessEqual(tank['y'] + 15, bar['y'])
         rating = profile['fields'][2]
-        # align right at x=-32: the box ends at the anchor; XVM's icon glyph uses the client font.
-        self.assertEqual((rating['x'], rating['align']), (-172, 'right'))
-        self.assertEqual(rating['format'], u'\u2022')
+        # The right-aligned box ends at the configured anchor; use the client font.
+        self.assertEqual((rating['x'], rating['align']), (-160, 'right'))
+        self.assertIn('<b>!</b>', rating['format'])
         self.assertEqual(rating['textFormat']['font'], '$FieldFont')
         self.assertEqual(rating['textFormat']['color'], '{{c:xr|#999999}}')
         self.assertEqual(profile['fields'][3]['shadow']['color'], '{{c:system}}')
@@ -70,14 +68,14 @@ class VehicleMarkersXvmTests(RuntimeTest):
     def test_damage_health_bar_and_native_flags(self):
         profile = self.profiles()['ally']['alive']['normal']
         damage = profile['damageText']
-        self.assertEqual((damage['x'], damage['y'], damage['width']), (-100, -67, 200))
+        self.assertEqual((damage['x'], damage['y'], damage['width']), (-100, -66, 200))
         self.assertEqual((damage['duration'], damage['rise']), (2, 40))
         self.assertEqual(damage['format'], '{{dmg}}')
         self.assertEqual(damage['textFormat']['color'], '{{c:dmg}}')
         for source in ('player', 'squad', 'other'):
             self.assertTrue(damage['sources'][source]['enabled'])
         bar = profile['healthBar']
-        self.assertEqual((bar['x'], bar['y'], bar['width'], bar['height']), (-36, -33, 70, 12))
+        self.assertEqual((bar['x'], bar['y'], bar['width'], bar['height']), (-36, -31, 70, 12))
         self.assertEqual(bar['border'], {'color': '#000000', 'alpha': 35, 'width': 1})
         self.assertEqual((bar['fill']['alpha'], bar['damage']['color'], bar['damage']['duration']), (50, '{{c:dmg}}', 1))
         self.assertFalse(bar['gradient']['enabled'])
@@ -91,9 +89,9 @@ class VehicleMarkersXvmTests(RuntimeTest):
         icons = self.profiles()['enemy']['alive']['normal']['icons']
         self.assertEqual((icons['class']['containerX'], icons['class']['containerY']), (0, -16))
         self.assertFalse(icons['class']['showSpeaker'])
-        self.assertFalse(icons['level']['enabled'])
-        self.assertEqual((icons['actionMarker']['y'], icons['hoverMarker']['y']), (-86, -88))
-        self.assertEqual(icons['hoverMarker']['glow'], {'enabled': True, 'x': 0, 'y': 85, 'alpha': 50})
+        self.assertTrue(icons['level']['enabled'])
+        self.assertEqual((icons['actionMarker']['y'], icons['hoverMarker']['y']), (-86, -92))
+        self.assertEqual(icons['hoverMarker']['glow'], {'enabled': True, 'x': 0, 'y': 150, 'alpha': 50})
         self.assertEqual((icons['damageIndicator']['x'], icons['damageIndicator']['y']), (53, -27))
         self.assertEqual((icons['damageIndicatorText']['x'], icons['damageIndicatorText']['y']), (67, -41))
         self.assertEqual(icons['vehicle']['tint'], {'color': '{{c:system}}', 'amount': 0})
@@ -108,7 +106,7 @@ class VehicleMarkersXvmTests(RuntimeTest):
         profile = self.profiles(data)['enemy']['alive']['normal']
         distance = profile['fields'][-1]
         self.assertEqual(distance['format'], '{{alive&&distance?{{distance}}m|}}')
-        self.assertEqual((distance['x'], distance['y'], distance['width']), (-50, -81, 100))
+        self.assertEqual((distance['x'], distance['y'], distance['width']), (-50, -84, 100))
         self.assertEqual((profile['icons']['class']['containerX'], profile['icons']['class']['containerY']), (4, -18))
         self.assertTrue(profile['icons']['class']['showSpeaker'])
         self.assertFalse(profile['icons']['damageIndicatorText']['enabled'])
@@ -166,3 +164,9 @@ class VehicleMarkersXvmTests(RuntimeTest):
         data = copy.deepcopy(self.data)
         data['markersAliveNormal']['ally'] = {'textFields': None}
         self.assertEqual(xvm.adapt(data)['customFields']['ally']['alive']['normal'], [])
+
+    def test_private_font_aliases_use_client_glyphs_and_preserve_custom_text(self):
+        for font in ('xvm', 'XVMSymbol'):
+            field = self.xvm.text_field({'format': '&#x115; <b>!</b>', 'textFormat': {'font': font}})
+            self.assertEqual(field['format'], u'\u2022 <b>!</b>')
+            self.assertEqual(field['textFormat']['font'], '$FieldFont')

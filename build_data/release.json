@@ -45,6 +45,8 @@
     "Use the shared client font library for ActionScript marker, minimap, overlay and HUD text; preserve $FieldFont/$TitleFont aliases and fall back to $FieldFont when a marker font is empty. Guard missing marker shadow options.",
     "Remove unnecessary damage-log hook renaming that prevents the battle-preferences tests from loading under Python 2.7.",
     "Standardize fixed colours as #RRGGBB across ActionScript, Python, Gameface and default JSON settings; reuse existing numeric colour converters, update the distance-marker payload and regenerate canonical defaults.",
-    "Add an independent scrollbar to the vehicle-marker property editor, with mouse-wheel and drag support, refresh it when tabs, groups or window size change, and cover scrolling to the final property with a regression test."
+    "Add an independent scrollbar to the vehicle-marker property editor, with mouse-wheel and drag support, refresh it when tabs, groups or window size change, and cover scrolling to the final property with a regression test.",
+    "Adopt the active EU profile's clock, panel positions, carousel fields, minimap and marker layouts as project defaults; set the settings window to 140% scale and 94% opacity, normalize colour and image paths and regenerate fallback defaults.",
+    "Support the XVMSymbol marker-font alias through the client font in battle and the editor preview; verify that every settings page opens and applies its current defaults without changes."
   ]
 }

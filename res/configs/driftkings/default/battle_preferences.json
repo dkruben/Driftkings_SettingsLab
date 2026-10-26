@@ -1,11 +1,11 @@
 {
   "addEnemyName": true,
   "clipLoad": true,
-  "color": "f930f8",
+  "color": "F930F8",
   "directivesOnlyFromStorage": false,
   "disableSoundCommander": false,
   "enabled": true,
-  "removeFog": false,
+  "removeFog": true,
   "format": "<font face='$FieldFont' size='16' color='#F5CBA7'><p align='left'>%H:%M:%S</p></font>",
   "hideHint": true,
   "inBattle": true,

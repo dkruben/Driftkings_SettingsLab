@@ -188,9 +188,9 @@ function markerButton(text) { return markerHost.querySelectorAll('button').find(
 function markerRow(property) { return markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property') === property); }
 function lastDraft() { return JSON.parse(markerCommits[markerCommits.length-1][1]); }
 assert.strictEqual(markerHost.querySelector('.dk-vm-tank').src, 'sample.png');
-// Enemy, alive, without Alt: tank name, HP, rating, position and distance, as in XVM default_wg.
+// EU layout: enemy, alive, without Alt shows tank name, HP, rating and position.
 const originalFieldCount = markerHost.querySelectorAll('.dk-vm-text').length;
-assert.strictEqual(originalFieldCount, 5);
+assert.strictEqual(originalFieldCount, 4);
 markerButton('add').fire('click');
 assert.strictEqual(markerHost.querySelectorAll('.dk-vm-text').length, originalFieldCount + 1);
 assert.strictEqual(markerCommits[0][0], 'markersAliveNormal');

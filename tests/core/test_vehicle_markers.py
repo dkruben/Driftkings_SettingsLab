@@ -230,7 +230,7 @@ class VehicleMarkersTests(RuntimeTest):
         with self.assertRaises(ValueError):
             prepare(data)
 
-    def test_custom_bar_suppresses_native_bar_and_contour_without_touching_account(self):
+    def test_custom_bar_and_contour_preserve_account_preferences(self):
         data = self.load('core.vehicle_markers.config').prepare(self.defaults())
         apply = self.load('core.vehicle_markers.presentation').apply
         native = dict((team, {'markerBaseHpIndicator': True, 'markerAltHpIndicator': True,
@@ -241,7 +241,7 @@ class VehicleMarkersTests(RuntimeTest):
             self.assertEqual(changed[team], native[team])
         profile = changed['__vmTest']['profiles']['enemy']['alive']['normal']
         self.assertTrue(profile['healthBar']['enabled'])
-        self.assertFalse(profile['icons']['vehicle']['enabled'])
+        self.assertTrue(profile['icons']['vehicle']['enabled'])
         for team in native:
             self.assertTrue(native[team]['markerBaseHpIndicator'])
 

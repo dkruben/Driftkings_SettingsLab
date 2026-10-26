@@ -27,9 +27,9 @@ def install(api):
     from driftkings.settings.panel.themes import THEMES
     for key in ('background', 'textColor', 'secondary', 'border', 'hover'):
         mod.add_color(key, T('core.' + key), default=THEMES['wot'][key], depends_on={'theme': 'custom'})
-    mod.add_slider('opacity', T('core.opacity'), min_value=20, max_value=100, default=96, unit='%')
+    mod.add_slider('opacity', T('core.opacity'), min_value=20, max_value=100, default=94, unit='%')
     mod.add_slider('sidebarOpacity', T('core.sidebarOpacity'), min_value=0, max_value=100, default=35, unit='%')
-    mod.add_slider('uiScale', T('core.uiScale'), min_value=80, max_value=140, default=100, step=10, unit='%')
+    mod.add_slider('uiScale', T('core.uiScale'), min_value=80, max_value=140, default=140, step=10, unit='%')
     mod.add_slider('fontSize', T('core.fontSize'), min_value=12, max_value=20, default=15)
     mod.add_slider('sectionFontSize', T('core.sectionFontSize'), min_value=14, max_value=26, default=18)
     mod.add_section(T('core.diagnostics'))

@@ -1,83 +1,88 @@
 {
   "extraFields": [
     {
-      "align": "right",
-      "format": "<img src='gui/maps/driftkings/carroucel/battles.png' width='16' height='16'> <font face='mono' size='16' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
+      "format": "<img src='gui/maps/driftkings/carroucel/battles.png' width='16' height='16'>",
       "shadow": "$ref:textFieldShadow",
-      "x": 197,
+      "x": 145,
       "y": 26,
-      "height": 20,
       "alpha": "{{v.battles?100|0}}"
     },
     {
       "align": "right",
-      "format": "<img src='gui/maps/driftkings/carroucel/wins.png' width='16' height='16'> <b><font face='mono' size='16' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
+      "format": "<font face='mono' size='16' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
+      "shadow": "$ref:textFieldShadow",
+      "x": 198,
+      "y": 26
+    },
+    {
+      "alpha": "{{v.winrate?100|0}}",
+      "format": "<img src='gui/maps/driftkings/carroucel/wins.png' width='16' height='16'>",
+      "shadow": "$ref:textFieldShadow",
+      "x": 145,
+      "y": 50
+    },
+    {
+      "align": "right",
+      "format": "<b><font face='PFDINMax' size='16' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
       "x": 197,
-      "y": 46,
-      "height": 20,
-      "alpha": "{{v.winrate?100|0}}"
+      "y": 46
     },
     {
       "alpha": "{{v.hitsRatio?100|0}}",
       "format": "<img src='gui/maps/driftkings/carroucel/shooter.png' width='18' height='18'>",
       "shadow": "$ref:textFieldShadow",
       "x": 8,
-      "y": 90,
-      "height": 20
+      "y": 91
     },
     {
       "align": "left",
-      "format": "<b><font face='mono' size='16' color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
+      "format": "<b><font face='PFDINMax' size='16' color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
       "x": 30,
-      "y": 90,
-      "height": 20
+      "y": 90
     },
     {
-      "alpha": "{{v.tdb?100|0}}",
       "format": "<img src='gui/maps/driftkings/carroucel/damage.png' width='20' height='20'>",
       "shadow": "$ref:textFieldShadow",
       "x": 8,
-      "y": 110,
-      "height": 20
+      "y": 109,
+      "alpha": "{{v.tfb?100|0}}"
     },
     {
-      "align": "left",
-      "format": "<font face='mono' size='16' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font face='mono' size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
+      "format": "<font face='PFDINMax' size='16' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
       "shadow": "$ref:textFieldShadow",
       "x": 30,
       "y": 110,
-      "height": 20
+      "align": "left"
     },
     {
+      "format": "<font face='PFDINMax'>[{{v.battletiermin}}-{{v.battletiermax}}]</font>",
+      "x": 195,
+      "y": 69,
       "align": "right",
-      "format": "<font face='mono' size='12'>[{{v.battletiermin}}-{{v.battletiermax}}]</font>",
-      "shadow": "$ref:textFieldShadow",
-      "x": 197,
-      "y": 69
+      "shadow": "$ref:textFieldShadow"
     },
     {
       "format": "<img src='{{icon:mastery}}' width='26' height='26'>",
       "shadow": "$ref:textFieldShadow",
-      "x": 10,
-      "y": 28
+      "x": 8,
+      "y": 33
     },
     {
-      "alpha": "{{v.marksOnGun?100|0}}",
-      "format": "<img src='{{icon:marksOnGun}}' width='16' height='16'>",
-      "height": 20,
+      "height": 10,
       "width": 10,
       "x": 10,
-      "y": 53
+      "y": 70,
+      "alpha": "{{v.marksOnGun?100|0}}",
+      "format": "<img src='{{icon:marksOnGun}}' width='16' height='16'>"
     },
     {
-      "align": "left",
-      "format": "<font face='mono' size='16' color='{{v.c_damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
-      "shadow": "$ref:textFieldShadow",
-      "x": 30,
-      "y": 53,
-      "height": 20
+      "format": "<font face='PFDINMax' size='16' color='{{v.c_damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
+      "x": 68,
+      "y": 65,
+      "align": "right",
+      "shadow": "$ref:textFieldShadow"
     },
     {
       "bgColor": "#060100",

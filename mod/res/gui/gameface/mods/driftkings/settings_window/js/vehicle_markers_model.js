@@ -213,7 +213,7 @@
         if (align==='right') { x-=width; } else if (align==='center') { x-=width/2; }
         if (valign==='bottom') { y-=height; } else if (valign==='center') { y-=height/2; }
         var textFormat=pick(options.textFormat || {},['font','size','color','bold','italic']), format=get(options,'format',defaultFormat || '');
-        if (textFormat.font==='xvm') {
+        if (textFormat.font==='xvm' || textFormat.font==='XVMSymbol') {
             Object.keys(XVM_GLYPHS).forEach(function (glyph) { format=format.split(glyph).join(XVM_GLYPHS[glyph]); });
             textFormat.font='$FieldFont';
         }

@@ -3,7 +3,7 @@
   "battleResultsWindow": true,
   "colorRatting": 0,
   "enabled": true,
-  "format": "WNX: <font color='{c:wnx}'>{wnx}</font> WN8: <font color='{c:wn8}'>{wn8}</font> EFF: <font color='{c:eff}'>{eff}</font> DIFF: <font color='{c:diff}'>{diff}</font>",
+  "format": "WN8: <font color='{c:wn8}'>{wn8}</font> EFF: <font color='{c:eff}'>{eff}</font> DIFF: <font color='{c:diff}'>{diff}</font>",
   "position": {
     "x": 125,
     "y": 36

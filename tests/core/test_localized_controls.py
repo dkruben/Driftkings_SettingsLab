@@ -111,6 +111,42 @@ class LocalizedControlTests(RuntimeTest):
         self.assertEqual(self.schema.nested_description(['minimap', 'x'], labels), 'Generic')
         self.assertEqual(self.schema.nested_description(['unknown'], labels), '')
 
+    def test_current_defaults_open_and_apply_through_every_settings_page(self):
+        self.text = self.documents['en']
+        metadata = self.load('settings.settings_data')
+        key_names = set()
+        def collect(value):
+            if isinstance(value, (list, tuple)):
+                for item in value:
+                    collect(item)
+            elif isinstance(value, (str, type(u''))):
+                key_names.add(value)
+        for name, keys in metadata.HOTKEY_FIELDS.items():
+            for key in keys:
+                collect(self.defaults[name][key])
+        previous = sys.modules.get('Keys')
+        sys.modules['Keys'] = module(**dict((key, index + 1) for index, key in enumerate(sorted(key_names))))
+        self.addCleanup(self.restore_external, 'Keys', previous)
+        process = self.load('settings.hotkeys').processHotKeys
+        registry = self.load('settings.registry').SettingsRegistry()
+        service = sys.modules['driftkings.settings.service'].settings_service
+        def apply(config, changes):
+            updated = copy.deepcopy(config.data)
+            updated.update(changes)
+            if hasattr(config, 'normalize_changes'):
+                updated = config.normalize_changes(updated, changes)
+            config.data = updated
+        service.apply = apply
+        for definition in self.definitions:
+            config = definition()
+            if hasattr(config, 'normalize_loaded'):
+                config.data = config.normalize_loaded(config.data)
+            process(config.data, metadata.default_keys(config.NAME), 'read')
+            registry.register(config)
+            before = registry.describe(config.NAME)
+            after = registry.apply(config.NAME, copy.deepcopy(before['values']))
+            self.assertEqual(before['values'], after['values'], config.NAME)
+
     def test_distance_choices_and_team_tabs_use_each_selected_language(self):
         for code, text in self.documents.items():
             self.text = text

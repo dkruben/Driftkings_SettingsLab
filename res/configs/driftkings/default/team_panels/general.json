@@ -8,7 +8,7 @@
       184
     ]
   ],
-  "hpVisibility": "hold",
+  "hpVisibility": "always",
   "performance": {
     "cacheEnabled": true,
     "cacheExpiry": 3600,

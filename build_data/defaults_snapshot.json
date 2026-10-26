@@ -6,7 +6,7 @@
     {
       "path": "default/aiming_countdown.json",
       "source_sha256": "a5dd6b8ea94bea0337bc49b18d184284ca37d5c61eac869d3755c1db8f235e91",
-      "sha256": "86a27ff57d61d5e61d3f97882cceefa37bbcd28d22a8b9ba4389315dfedf779b"
+      "sha256": "3c362874eb0b2515f171b94f01c5e727eb30b85bb42d0197d32f151daff69c4f"
     },
     {
       "path": "default/aiming_reticles.json",
@@ -26,17 +26,17 @@
     {
       "path": "default/battle_marks_of_excellence.json",
       "source_sha256": "36fab7807469e846f1aa2887a1ba8b94d41facf22e23763087c056dc2123c2a0",
-      "sha256": "195a5b0bb39d4c22e01e7616c3e0185fdaae3bf83ed156bcf9cecfc659822d2a"
+      "sha256": "f6625568e2e2a3b67030b363c13679afcc13b36e919f1245997706fa05f0ef04"
     },
     {
       "path": "default/battle_performance.json",
       "source_sha256": "79ab8b919f68e0255cfb6c94ae856ab8da6c6b789a2738f638391c4a433719ed",
-      "sha256": "a0e90f66fd0c633ac2712366ca875fef97bacb3f18d9823ea955d9864ad612bd"
+      "sha256": "c5e03a7d9c689fde4a5fbb21f022a9030ab2fa0e06b33970046e2566a5c90f0e"
     },
     {
       "path": "default/battle_preferences.json",
       "source_sha256": "353c0981c97751352ac897a1b18599ae23fb8e54aada1a4b350fd678cf58bd01",
-      "sha256": "c5b688dcda713ce74faab3bc4e651a7c928f5d9fafd7d9392aa2d2633a487125"
+      "sha256": "144c213f71efaf3d7f470f98f56fe9eac7ff7480bbccd6b117bc9f6b6a984361"
     },
     {
       "path": "default/battle_statistics.json",
@@ -71,7 +71,7 @@
     {
       "path": "default/hangar_marks_of_excellence.json",
       "source_sha256": "9adecf9063cb8036d592739f95ffcb1b5ce10d30d72b653d1c4227abab2533e5",
-      "sha256": "3708b42e82b0e8244ff8913d84675805307a450d43ba4cfd06d549d593d81594"
+      "sha256": "12ab8eed656716b5d1958eea1fb230f2ed3da6dd504cd6c5e2b23953692b12ec"
     },
     {
       "path": "default/hangar_preferences.json",
@@ -81,11 +81,11 @@
     {
       "path": "default/high_caliber_progress.json",
       "source_sha256": "8462bfbb8c2b5846c725b6da68225540eb5a6a9c386e1f762d65e16866e841db",
-      "sha256": "a3cd128d1f40e5c8c14f26ec1db72d759abc3150fe4a4d73d9a4876329fa48e5"
+      "sha256": "16b4de3f3bc7310ab982945ac69e2d492a1cdf4263b46e84c6bcc72711088e96"
     },
     {
       "path": "default/main.json",
-      "sha256": "12fe772b77d7f0dcc5ab77fc23af93763d943448fb415b21271d3123eb06c60d"
+      "sha256": "345066b42ecf3dd8ccf81a589449671589a130fb2b74b18aa8f7d8f4daa374f1"
     },
     {
       "path": "default/minimap_enhancements.json",
@@ -95,7 +95,7 @@
     {
       "path": "default/minimap_enhancements/minimap.json",
       "source_sha256": "de64e128582a012f20414e5aab72e09f8462db98ad1a2c17b0aabb2448d0dd33",
-      "sha256": "cf0cdaa512441c15a0e4eb462ae1654e0a13a4c6e8c2ccf4a4bdb319d7364d76"
+      "sha256": "b88582a626aaa9d1df9480cbd264716aec3b0ded86c1b5850a90bbde46911c51"
     },
     {
       "path": "default/minimap_enhancements/minimap_circles.json",
@@ -134,12 +134,12 @@
     {
       "path": "default/shell_flight_time.json",
       "source_sha256": "760f1a256c7a8bc8c2a076b9bd4f8e3d3e0b545cdea829200dc833254bed6db7",
-      "sha256": "c70584db53cc8e554374b55060f45617ba742fed16a5b7537656fbfea6f41c3c"
+      "sha256": "368fa406826980fc322b80afb7a581dbd29262e10969ab7bd9ef17b2df789f89"
     },
     {
       "path": "default/sixth_sense_alert.json",
       "source_sha256": "463d8bbbc411dd90fb39397db58ced158c4e83a8f2567c0853b954fa438dadf2",
-      "sha256": "20ca3543810759ddeb470ce5474e5cad235a46379aa7b3710711e0115fa1efc3"
+      "sha256": "122252fd3995a11045aa7d88db8fd7ba6279f313d431ae4ea66e6df7c3514502"
     },
     {
       "path": "default/sniper_camera.json",
@@ -169,7 +169,7 @@
     {
       "path": "default/team_panels/general.json",
       "source_sha256": "4282256bab3117b02fe294346bb815b28de275790df644d5b43075624258bf98",
-      "sha256": "4f1be66310d01cb41a597d3e2284eaf90e007adfc97e401738a4b107cf245d11"
+      "sha256": "7b0422c3206b76ec58f658cb5d4e2f6aec61157f177c32483405fb398f55bbe5"
     },
     {
       "path": "default/team_panels/panellarge.json",
@@ -199,7 +199,7 @@
     {
       "path": "default/team_panels/playerspanel.json",
       "source_sha256": "6ade42b4be21bcf9e5d385bf88e72b2d56429486a25442d9f39fa0d6040af73a",
-      "sha256": "758d890c53b92a49c72649f5907a67407a3089103f0244b478be7bc1628a769b"
+      "sha256": "5e543231af7b4f171bc437d3d9da0597ba44321d4341124323b8ef282c9c6c9e"
     },
     {
       "path": "default/team_panels/statisticform.json",
@@ -224,7 +224,7 @@
     {
       "path": "default/vehicle_carousel/carouselnormal.json",
       "source_sha256": "86d8fccfbfc61ed70d22c4426b287223f38a533e84c72da93b9bb581306c3f13",
-      "sha256": "8d1d7f4fd01e6dcc512565ebf900cacd8cc08a3733d447ffeb2b212e0cb77ffe"
+      "sha256": "460107e0c914063fa35ef30f81722e377abdeef288fb1c027d04c7c56f7104ee"
     },
     {
       "path": "default/vehicle_carousel/carouselsmall.json",
@@ -242,11 +242,11 @@
     },
     {
       "path": "default/vehicle_markers/markersAliveExtended.json",
-      "sha256": "1983f10306b89f60a3622c2ea9f458eb878a2631270dcb5ac3065745f0ea16bf"
+      "sha256": "26b53d1745af5ffbaa3d1087ef0bfd47b88ef5e465fceec3623624452388d69c"
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "bb7feb4de65ad7340bb06d1d986b6ef1b73408984d1c84a797614e3623d8875d"
+      "sha256": "03280135f6c538ce4c6c1caf258153b4e95d447744654a931994bd90a31ee077"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",

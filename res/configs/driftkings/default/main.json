@@ -3,10 +3,26 @@
     "enabled": true,
     "formats": [
       {
-        "x": 4,
-        "y": 93,
+        "x": 8,
+        "y": 100,
         "screenHAlign": "right",
-        "format": "<img src='gui/maps/driftkings/clock/clockbg.png'>"
+        "format": "<img src='gui/maps/driftkings/clock/clockbg.png'>",
+        "height": 0,
+        "shadow": {
+          "alpha": 100,
+          "angle": 0,
+          "blur": 4,
+          "color": "#000000",
+          "distance": 0,
+          "enabled": false,
+          "strength": 1
+        },
+        "textFormat": {
+          "align": "left",
+          "color": "#959688",
+          "valign": "top"
+        },
+        "width": 0
       },
       {
         "x": -10,

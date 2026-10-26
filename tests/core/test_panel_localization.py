@@ -107,7 +107,7 @@ class PanelLocalizationTests(RuntimeTest):
         with open(os.path.join(ROOT, 'res/configs/driftkings/default/team_panels/playerspanel.json'), 'rb') as stream:
             document = json.loads(stream.read().decode('utf-8'))
         field = document['templates']['hpBar']
-        self.assertEqual(field['height'], 14)
+        self.assertEqual(field['height'], 24)
         macros = self.load('core.panel_macros').Macros
         for ally, blind, filename in ((True, False, 'hp_alive_l.png'), (True, True, 'hp_alive_l.png'),
                                       (False, False, 'hp_alive_r.png'), (False, True, 'hp_alive_r_cb.png')):
