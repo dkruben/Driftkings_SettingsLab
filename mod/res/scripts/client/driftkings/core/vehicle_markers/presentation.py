@@ -2,12 +2,8 @@
 """Map standalone JSON options onto WoT 2.4.1 native marker settings."""
 import copy
 
+from driftkings.core.vehicle_markers.fields import string_types
 from driftkings.core.vehicle_markers.hooks import Hooks
-
-try:
-    string_types = (basestring,)
-except NameError:
-    string_types = (str,)
 
 HP_MODES = {'percent': 0, 'currentAndMax': 1, 'current': 2, 'hidden': 3}
 FIELDS = {'vehicleName': 'VehicleName', 'playerName': 'PlayerName',

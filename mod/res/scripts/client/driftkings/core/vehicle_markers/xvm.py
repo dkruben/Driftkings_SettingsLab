@@ -9,6 +9,7 @@ their alignment, damage text 200x100 boxes and vehicle distance 100x100 boxes.
 import copy
 import re
 
+from driftkings.core.vehicle_markers.fields import string_types
 from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
 from driftkings.core.vehicle_markers.references import resolve
 
@@ -25,11 +26,6 @@ SHADOW = ('enabled', 'distance', 'angle', 'color', 'alpha', 'blur', 'strength')
 FIELD_SIZE = (140, 100)
 DAMAGE_SIZE = (200, 100)
 DISTANCE_SIZE = (100, 100)
-
-try:
-    STRING = basestring
-except NameError:
-    STRING = str
 
 
 def join(documents):
@@ -51,7 +47,7 @@ def block(data, documents, team, state, mode):
     value = data['markers'].get(team, {}).get(state, {}).get(mode)
     if isinstance(value, dict):
         return resolve(value)
-    match = WIRING.match(value) if isinstance(value, STRING) else None
+    match = WIRING.match(value) if isinstance(value, string_types) else None
     if match is None:
         raise ValueError('Invalid marker wiring: %s.%s.%s' % (team, state, mode))
     key, part = match.groups()
@@ -135,7 +131,7 @@ def hex_color(value, fallback):
     """XVM writes 0xRRGGBB; the health bar validates #RRGGBB. Macros pass unchanged."""
     if value is None:
         return fallback
-    if isinstance(value, STRING) and re.match(r'^0x[0-9A-Fa-f]{6}$', value):
+    if isinstance(value, string_types) and re.match(r'^0x[0-9A-Fa-f]{6}$', value):
         return '#' + value[2:].upper()
     return value
 
