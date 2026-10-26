@@ -2,6 +2,9 @@
 """Small text and colour conversions, independent of the game."""
 from colorsys import hsv_to_rgb
 import math
+import re
+
+from driftkings.common.utils.compat import string_types
 
 
 def percentToRgb(percent, saturation=0.5, brightness=1.0, **__):
@@ -18,22 +21,11 @@ def percentToRgb(percent, saturation=0.5, brightness=1.0, **__):
     return '#{:02X}{:02X}{:02X}'.format(r, g, b)
 
 
-def hexToDecimal(*args):
-    """
-    Convert a hexadecimal string to a decimal integer.
-    *args: First argument should be a string containing hexadecimal digits.
-    int: Decimal representation of the hexadecimal string.
-    """
-    hex_decimal_conversion = {
-        '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-        'A': 10, 'a': 10, 'B': 11, 'b': 11, 'C': 12, 'c': 12, 'D': 13, 'd': 13, 'E': 14, 'e': 14, 'F': 15, 'f': 15
-    }
-    p = len(args[0]) - 1
-    decimal = 0
-    for color in args[0]:
-        decimal += hex_decimal_conversion[color] * (16 ** p)
-        p -= 1
-    return decimal
+def hexToDecimal(value):
+    """Convert a #RRGGBB setting to the numeric colour required by native APIs."""
+    if not isinstance(value, string_types) or not re.match(r'^#[0-9A-Fa-f]{6}\Z', value):
+        raise ValueError('Expected #RRGGBB')
+    return int(value[1:], 16)
 
 
 def replaceMacros(text_format, data):

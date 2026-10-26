@@ -56,26 +56,17 @@ def getColor(data, ratting_color, value=None, kwargs=None):
     if category in gradient.get('metrics', ()):
         return gradient_color(bands, gradient['hsl'], value)
     if category == 'diff':
-        return formatColor(bands[0 if value < 0 else 2 if value > 0 else 1]['color'])
+        return bands[0 if value < 0 else 2 if value > 0 else 1]['color']
     if category == 'mog':
         for item in reversed(bands):
             if value >= item['value']:
-                return formatColor(item['color'])
-        return formatColor(bands[0]['color'])
+                return item['color']
+        return bands[0]['color']
     for item in bands:
         if value < item['value']:
-            return formatColor(item['color'])
+            return item['color']
     # The last source limit is a sentinel, not a reason to lose the rating color.
-    return formatColor(bands[-1]['color'])
-
-
-def formatColor(color):
-    """
-    Format a color string to a standard hex format.
-    color (str): Color string, possibly starting with '0x'.
-    str: Color in standard hex format (#RRGGBB).
-    """
-    return '#' + color[2:] if color.startswith('0x') else color
+    return bands[-1]['color']
 
 
 def getRatingPaletteColor(name, index=0):

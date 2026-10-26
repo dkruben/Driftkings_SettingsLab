@@ -12,7 +12,7 @@
     }
     function color(value) {
         if (typeof value === 'number') { return '#'+('000000'+value.toString(16)).slice(-6); }
-        value=String(value || '').replace(/^0x/,'#');
+        value=String(value || '');
         return /^#[a-f0-9]{6}$/i.test(value) ? value : 'transparent';
     }
     function writeRuns(target,html) {

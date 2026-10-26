@@ -158,7 +158,7 @@ class MinimapVehiclesTests(RuntimeTest):
         self.assertTrue(self.entry.isActive())
         self.assertIn((7, 'setInAoI', True), self.plugin.invoked)
         self.assertEqual(self.published[-1]['state'], 'lost')
-        self.assertEqual(self.published[-1]['color'], '#' + self.data['lostMarker']['enemyColor'])
+        self.assertEqual(self.published[-1]['color'], self.data['lostMarker']['enemyColor'])
         # Duration 0: still kept after a long time, until the vehicle is seen again.
         self.tick(600)
         self.assertIn(7, self.plugin._lastPositions)

@@ -194,4 +194,4 @@ class BattlePreferencesTests(RuntimeTest):
 
     def test_border_uses_the_configured_colour(self):
         red, green, blue, alpha = self.hooks.get('ArenaBorderController', '_ArenaBorderController__getCurrentColor')(Native(), 'ctrl', False)
-        self.assertEqual((round(red * 255), round(green * 255), round(blue * 255), alpha), (0xF9, 0x30, 0xF8, 1.0))
+        self.assertEqual((round(red * 255), round(green * 255), round(blue * 255), alpha), (249, 48, 248, 1.0))

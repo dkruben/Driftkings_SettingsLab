@@ -155,7 +155,7 @@
                 if (key==='align' || (key==='hp' && type==='string')) {
                     def.type='dropdown'; var choices=key==='align'?['left','center','right']:['percent','currentAndMax','current','hidden'];
                     def.options=choices.map(function (option) { return {value:option,label:label(option)}; });
-                } else if (typeof value==='string' && /^(#|0x)[0-9a-f]{6}$/i.test(value)) {
+                } else if (typeof value==='string' && /^#[0-9a-f]{6}$/i.test(value)) {
                     def.type='color'; def.presets=[];
                 }
             }
@@ -336,7 +336,7 @@
             }
         }
         function rgba(color,alpha) {
-            var hex=String(color).replace(/^(#|0x)/,'');
+            var hex=String(color).slice(1);
             return 'rgba('+parseInt(hex.slice(0,2),16)+','+parseInt(hex.slice(2,4),16)+','+parseInt(hex.slice(4,6),16)+','+alpha/100+')';
         }
         function html(element,value) {

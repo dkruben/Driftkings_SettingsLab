@@ -30,8 +30,7 @@ package driftkings.utils
 
         public static function colorConvert(color:String):uint
         {
-            var cleanColor:String = color.charAt(0) == '#' ? color.substr(1) : color;
-            return uint(parseInt(cleanColor, 16));
+            return colorutils.parse(color);
         }
 
         public static function updateColor(object:DisplayObject, hpColor:String):void

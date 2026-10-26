@@ -5,15 +5,15 @@
     "dash": 18,
     "direction": "client",
     "directionAlpha": 100,
-    "directionColor": "F2BB35",
+    "directionColor": "#F2BB35",
     "gap": 5,
     "geometry": false,
     "hull": true,
-    "hullColor": "60FF00",
+    "hullColor": "#60FF00",
     "length": 500,
     "marks": 100,
     "sector": "client",
-    "sectorColor": "FFFFFF",
+    "sectorColor": "#FFFFFF",
     "thickness": 1,
     "triangleAlpha": 100
   }

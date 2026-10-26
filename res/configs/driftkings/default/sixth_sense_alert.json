@@ -9,7 +9,7 @@
   "playTickSound": false,
   "showTimer": true,
   "showTimerGraphics": true,
-  "showTimerGraphicsColor": "C462FF",
+  "showTimerGraphicsColor": "#C462FF",
   "showTimerGraphicsRadius": 45,
   "sixthSenseSound": "SixthSense_06",
   "spottedMessage": false,

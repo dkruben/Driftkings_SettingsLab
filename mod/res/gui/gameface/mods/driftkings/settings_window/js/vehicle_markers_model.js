@@ -204,10 +204,6 @@
     }
     function pick(options,keys) { var result={}; keys.forEach(function (key) { if (options && options[key]!==undefined) { result[key]=clone(options[key]); } }); return result; }
     function get(options,key,fallback) { return options && options[key]!==undefined && options[key]!==null ? options[key] : fallback; }
-    function hexColor(value,fallback) {
-        if (value===null || value===undefined) { return fallback; }
-        return typeof value==='string' && /^0x[0-9a-f]{6}$/i.test(value) ? '#'+value.slice(2).toUpperCase() : value;
-    }
     function textField(options,size,defaultFormat) {
         var width=get(options,'width',size[0]), height=get(options,'height',size[1]), align=get(options,'align','center');
         var x=get(options,'x',0), y=get(options,'y',0), valign=options.valign;
@@ -237,11 +233,11 @@
         var border=options.border || {}, damage=options.damage || {}, lcolor=options.lcolor, enabled=get(options,'enabled',true);
         return {enabled:enabled,showOnDead:!!(dead && enabled),x:get(options,'x',-36),y:get(options,'y',-33),
             width:get(options,'width',70),height:get(options,'height',12),alpha:get(options,'alpha',100),
-            color:hexColor(options.color,'{{c:team}}'),fill:{alpha:get(options.fill,'alpha',100)},
-            gradient:{enabled:lcolor!==null && lcolor!==undefined,color:hexColor(lcolor,'{{c:hp}}'),angle:0},
-            background:{color:hexColor(border.color,'#000000'),alpha:get(border,'alpha',35)},
-            border:{color:hexColor(border.color,'#000000'),alpha:get(border,'alpha',35),width:get(border,'size',1)},
-            damage:{enabled:true,color:hexColor(damage.color,'{{c:dmg}}'),alpha:get(damage,'alpha',80),delay:0,duration:get(damage,'fade',1)},
+            color:get(options,'color','{{c:team}}'),fill:{alpha:get(options.fill,'alpha',100)},
+            gradient:{enabled:lcolor!==null && lcolor!==undefined,color:get(options,'lcolor','{{c:hp}}'),angle:0},
+            background:{color:get(border,'color','#000000'),alpha:get(border,'alpha',35)},
+            border:{color:get(border,'color','#000000'),alpha:get(border,'alpha',35),width:get(border,'size',1)},
+            damage:{enabled:true,color:get(damage,'color','{{c:dmg}}'),alpha:get(damage,'alpha',80),delay:0,duration:get(damage,'fade',1)},
             shadow:{enabled:false}};
     }
     function iconPosition(options,extra) {
@@ -303,7 +299,7 @@
         var fields=scoped(config.customFields,sample);
         return {config:config,native:native,fields:config.customFields.enabled && fields ? fields.map(function (item) { return merge(field,item); }) : null,shown:config.enabled && config.markers.enabled};
     }
-    function validColor(value) { return /^(?:#|0x)[0-9a-f]{6}$/i.test(value) || value === '{{c:dmg}}' || value === '{{c:hp}}' || value === '{{c:team}}'; }
+    function validColor(value) { return /^#[0-9a-f]{6}$/i.test(value) || value === '{{c:dmg}}' || value === '{{c:hp}}' || value === '{{c:team}}'; }
     DK.vehicleMarkerModel = {resolve:resolve,clone:clone,merge:merge,migrate:migrate,defaults:defaults,field:field,ratingField:ratingField,damageStyle:damageStyle,damageEvent:damageEvent,condition:condition,state:state,text:text,teamColor:teamColor,hpColor:hpColor,validColor:validColor,
         STATE_KEYS:STATE_KEYS,wiring:wiring,adapt:adapt};
 }());

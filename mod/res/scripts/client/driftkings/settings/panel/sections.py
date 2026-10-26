@@ -225,9 +225,6 @@ class SectionPanelBinding(object):
         current = self.registry.describe(key)['values']
         for field, source in originals.items():
             value = values[field]
-            if mod.index[field].type == 'color':
-                previous = current[source]
-                value = ('0x' + value[1:]) if previous.startswith('0x') else value if previous.startswith('#') else value[1:]
             current[source] = value
         self.registry.apply(key, current)
         # Callbacks may normalize values (e.g. profile cloning clears newProfile).

@@ -53,7 +53,7 @@
     }
 
     function clockColor(value, fallback) {
-        value = String(value || '').replace(/^0x/i, '#');
+        value = String(value || '');
         return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
     }
 

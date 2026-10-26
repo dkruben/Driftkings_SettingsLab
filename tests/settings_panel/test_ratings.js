@@ -19,8 +19,10 @@ assert.deepStrictEqual([1, '1', 'true', 'yes', true].map(text.flag), [true, true
 assert.strictEqual(text.number('12.5', 3), 12.5);
 assert.strictEqual(text.number('x', 3), 3);
 assert.strictEqual(text.number(null, 3), 3);
-assert.strictEqual(text.color(0xff00), '#00ff00');
-assert.strictEqual(text.color('0xFFAA00'), '#FFAA00');
+assert.strictEqual(text.color(65280), '#00ff00');
+assert.strictEqual(text.color('#FFAA00'), '#FFAA00');
+assert.strictEqual(text.color('0xFFAA00'), 'transparent');
+assert.strictEqual(text.color('FFAA00'), 'transparent');
 assert.strictEqual(text.color('red'), 'transparent');
 assert.strictEqual(text.localImage('img://gui/maps/icons/a.png'), 'coui://gui/maps/icons/a.png');
 assert.strictEqual(text.localImage('coui://gui/../secret.png'), '');

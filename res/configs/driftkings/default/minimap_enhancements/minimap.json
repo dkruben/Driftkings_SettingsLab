@@ -13,10 +13,10 @@
     ]
   ],
   "changeColorCircles": true,
-  "colorDrawCircle": "2B28D1",
-  "colorMaxViewCircle": "E02810",
-  "colorMinSpottingCircle": "35DE46",
-  "colorViewCircle": "FF7FFF",
+  "colorDrawCircle": "#2B28D1",
+  "colorMaxViewCircle": "#E02810",
+  "colorMinSpottingCircle": "#35DE46",
+  "colorViewCircle": "#FF7FFF",
   "enabled": true,
   "icons": {
     "alpha": 100,
@@ -25,7 +25,7 @@
     "lostScale": 0.9,
     "scale": 1.0,
     "selfAlpha": 100,
-    "selfColor": "FFFFFF",
+    "selfColor": "#FFFFFF",
     "selfScale": 1.0
   },
   "lastPositionDuration": 0,
@@ -50,7 +50,7 @@
   "minimapSchema": 1.2,
   "nearby": {
     "alpha": 90,
-    "color": "FF3020",
+    "color": "#FF3020",
     "distance": 300,
     "enabled": true,
     "range": "view"

@@ -43,7 +43,9 @@ class CommonUtilsTests(RuntimeTest):
 
     def test_pure_formatting_needs_no_client(self):
         api = self.load('common.utils.formatting')
-        self.assertEqual(api.hexToDecimal('F98600'), int('F98600', 16))
+        self.assertEqual(api.hexToDecimal('#F98600'), int('F98600', 16))
+        for invalid in ('0xF98600', 'F98600', '#12345', '#GGGGGG'):
+            self.assertRaises(ValueError, api.hexToDecimal, invalid)
         self.assertEqual(api.replaceMacros('HP: {hp}', {'{hp}': '100'}), 'HP: 100')
         self.assertEqual(api.percentToRgb(0), '#FF8080')
 

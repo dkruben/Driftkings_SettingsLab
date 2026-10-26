@@ -62,7 +62,7 @@ LOST_STYLES = ('tint', 'grey')
 
 def lost_color(group, lost):
     """Dull team colour for last positions: enemies red, allies green, squadmates amber."""
-    return '#' + str(lost.get({'enemy': 'enemyColor', 'squad': 'squadColor'}.get(group, 'allyColor'))).lstrip('#')
+    return str(lost.get({'enemy': 'enemyColor', 'squad': 'squadColor'}.get(group, 'allyColor')))
 
 
 def marker_color(group, state, lost):
@@ -119,7 +119,7 @@ def health_values(current, maximum):
 
 
 def color(value):
-    if not re.match(r'^(?:#|0x)?[a-fA-F0-9]{6}\Z', str(value)):
+    if not re.match(r'^#[a-fA-F0-9]{6}\Z', str(value)):
         raise ValueError('Invalid minimap color')
 
 
@@ -167,7 +167,7 @@ def validate(data):
         raise ValueError('Invalid minimap switch: lines.hull')
     numeric(data['lines'].get('marks'), 0, 500)
     for key in ('directionColor', 'sectorColor', 'hullColor'):
-        if not re.match(r'^(?:#|0x)?[a-fA-F0-9]{6}$', str(data['lines'].get(key, ''))):
+        if not re.match(r'^#[a-fA-F0-9]{6}$', str(data['lines'].get(key, ''))):
             raise ValueError('Invalid minimap line color')
     for key in ('normal', 'alternative', 'dead', 'lost'):
         value = data['labels'].get(key)
@@ -265,7 +265,7 @@ def validate(data):
                            ('blur', 0, 100), ('strength', 0, 100)):
         numeric(shadow.get(key), low, high)
     shadow_color = shadow.get('color')
-    color(shadow_color[2:] if isinstance(shadow_color, (str, text_type)) and shadow_color.startswith('0x') else shadow_color)
+    color(shadow_color)
     if not isinstance(data['mapSize'].get('format'), (str, text_type)) or len(data['mapSize']['format']) > 1024:
         raise ValueError('Invalid map size format')
     stroke(data['lines'])

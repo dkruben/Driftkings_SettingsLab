@@ -153,7 +153,7 @@ def new_getBorderColor(func, self, colorBlind):
         color = scheme['rgba'] / 255
         return color
     elif settings[GLOBAL.ENABLED]:
-        color = int(settings[GLOBAL.COLOR], 16)
+        color = int(settings[GLOBAL.COLOR][1:], 16)
         alpha = int(100)
         red = ((color & 0xff0000) >> 16) / 255.0
         green = ((color & 0x00ff00) >> 8) / 255.0

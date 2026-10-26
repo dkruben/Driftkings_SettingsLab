@@ -2,14 +2,14 @@
   "align": "left",
   "alignX": "center",
   "alignY": "center",
-  "blue": "02C9B3",
+  "blue": "#02C9B3",
   "enabled": false,
-  "green": "A6FFA6",
-  "orange": "FE7903",
-  "purple": "D042F3",
-  "red": "FE0E00",
-  "template": "<font color='#%(color)s'>%(timer).1fs. - %(percent)d%%</font>",
+  "green": "#A6FFA6",
+  "orange": "#FE7903",
+  "purple": "#D042F3",
+  "red": "#FE0E00",
+  "template": "<font color='%(color)s'>%(timer).1fs. - %(percent)d%%</font>",
   "x": 60,
   "y": 110,
-  "yellow": "F8F400"
+  "yellow": "#F8F400"
 }

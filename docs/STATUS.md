@@ -34,3 +34,7 @@ For current commands and release procedures, use [CONTRIBUTING.md](../CONTRIBUTI
 ## Naming changes after beta.2
 
 The source branch uses descriptive marker/statistics module names and the **Driftkings** palette at index 1. New templates use `stat-available`; installed profiles and statistics caches retain read compatibility. Original font names, provider URLs, integration IDs and upstream credits are preserved. These source changes do not replace the already-published beta.2 assets.
+
+## Colour format after beta.2
+
+Colour settings and defaults use `#RRGGBB`. Legacy numeric prefixes and bare hex strings are no longer accepted. Native APIs still receive numeric RGB/ARGB values through the existing converters. The settings panel saves hash-prefixed strings directly; HTML templates do not prepend another hash. Tests cover rejection of legacy strings and unchanged open/apply behaviour for the corrected defaults.

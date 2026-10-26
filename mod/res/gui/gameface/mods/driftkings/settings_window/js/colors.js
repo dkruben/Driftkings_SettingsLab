@@ -3,14 +3,10 @@
     'use strict';
     var DK = window.DK = window.DK || {};
     function parseColor(value) {
-        var m = /^(#|0x)?([0-9a-f]{6})$/i.exec(String(value).trim());
-        return m ? {hex: '#' + m[2].toUpperCase(), prefix: m[1] || ''} : null;
+        var m = /^#([0-9a-f]{6})$/i.exec(String(value).trim());
+        return m ? {hex: '#' + m[1].toUpperCase()} : null;
     }
     function normalizeColor(value) { var c = parseColor(value); return c ? c.hex : null; }
-    function formatColor(value, original) {
-        var c = parseColor(value), previous = parseColor(original);
-        return c ? (previous ? previous.prefix : '#') + c.hex.slice(1) : null;
-    }
     function hexToRgb(value) {
         var c = parseColor(value); if (!c) { return null; }
         var n = parseInt(c.hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -44,7 +40,7 @@
         if(delta){ h=hi===rgb[0]?(rgb[1]-rgb[2])/delta:hi===rgb[1]?2+(rgb[2]-rgb[0])/delta:4+(rgb[0]-rgb[1])/delta; h=(h+6)%6; }
         return {x:hi+lo>1 ? (1+lo)/2 : hi/2,y:h/6};
     }
-    DK.colors = {parseColor: parseColor, formatColor: formatColor, normalizeColor: normalizeColor,
+    DK.colors = {parseColor: parseColor, normalizeColor: normalizeColor,
         hexToRgb: hexToRgb, rgbToHex: rgbToHex, normalizeAlpha: normalizeAlpha,
         alphaToUi: alphaToUi, alphaFromUi: alphaFromUi, spectrum: spectrum, spectrumPosition: spectrumPosition};
 }());

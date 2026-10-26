@@ -1,7 +1,7 @@
 {
   "addEnemyName": true,
   "clipLoad": true,
-  "color": "F930F8",
+  "color": "#F930F8",
   "directivesOnlyFromStorage": false,
   "disableSoundCommander": false,
   "enabled": true,

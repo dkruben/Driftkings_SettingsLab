@@ -84,6 +84,6 @@ class VehicleCarouselSettings(SectionDefinition):
                     elif key=='align': target.append(nested(path+[key],str(i+1)+': '+tr(key),'Dropdown',choices=[('left',tr('left')),('center',tr('center')),('right',tr('right'))]))
                     elif key=='layer': target.append(nested(path+[key],str(i+1)+': '+tr(key),'Dropdown',choices=[('substrate',tr('background')),('top',tr('foreground'))]))
                     else:
-                        if key in ('color','bgColor') and re.match(r'^(?:#|0x)?[0-9a-fA-F]{6}$',str(item[key])): kind='ColorChoice'
+                        if key in ('color','bgColor') and re.match(r'^#[0-9a-fA-F]{6}$',str(item[key])): kind='ColorChoice'
                         target.append(nested(path+[key],str(i+1)+': '+tr(key),kind))
         return columns[0], columns[1]

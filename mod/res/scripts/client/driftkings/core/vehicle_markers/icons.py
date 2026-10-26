@@ -49,7 +49,7 @@ def normalize(options):
             if tint is None or set(tint) - set(EXTRA['vehicle']['tint']):
                 raise ValueError('Invalid contour tint')
             number(tint['amount'], 0, 100)
-            if not isinstance(tint['color'], string_types) or not ('{{' in tint['color'] or re.match(r'^(?:0x|#)[0-9a-fA-F]{6}$', tint['color'])):
+            if not isinstance(tint['color'], string_types) or not ('{{' in tint['color'] or re.match(r'^#[0-9a-fA-F]{6}$', tint['color'])):
                 raise ValueError('Invalid contour tint colour')
             style['tint'] = tint
         if 'glow' in style:

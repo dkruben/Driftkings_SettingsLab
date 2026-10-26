@@ -82,8 +82,8 @@ class ControlValuesTests(unittest.TestCase):
     def test_color_validation_normalizes_short_hex(self):
         control = Control('color', 'accent', default='#abc').finalize()
         self.assertEqual(control.default, '#AABBCC')
-        self.assertEqual(control.validate('0xff8800'), '#FF8800')
-        for value in ('red', '#12345', 0xABCDEF):
+        self.assertEqual(control.validate('#ff8800'), '#FF8800')
+        for value in ('red', '#12345', '0xff8800', 'FF8800', 11259375):
             self.assertRaises(ValueError, control.validate, value)
 
     def test_hotkey_rejects_unknown_codes_and_invalid_groups(self):

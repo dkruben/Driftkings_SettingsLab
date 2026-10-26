@@ -6,7 +6,7 @@
     {
       "path": "default/aiming_countdown.json",
       "source_sha256": "a5dd6b8ea94bea0337bc49b18d184284ca37d5c61eac869d3755c1db8f235e91",
-      "sha256": "3c362874eb0b2515f171b94f01c5e727eb30b85bb42d0197d32f151daff69c4f"
+      "sha256": "16d9da02f0e3d8e5d32bf915eca0c38d733816dc8a0e7916bc7afa5f9008ab42"
     },
     {
       "path": "default/aiming_reticles.json",
@@ -36,7 +36,7 @@
     {
       "path": "default/battle_preferences.json",
       "source_sha256": "353c0981c97751352ac897a1b18599ae23fb8e54aada1a4b350fd678cf58bd01",
-      "sha256": "144c213f71efaf3d7f470f98f56fe9eac7ff7480bbccd6b117bc9f6b6a984361"
+      "sha256": "5bc41a2f1a9d236372f46b7c98b0e2269c71d5bc8c1f3eaf15ab389bfdc55acf"
     },
     {
       "path": "default/battle_statistics.json",
@@ -56,7 +56,7 @@
     {
       "path": "default/enemy_spotting_status.json",
       "source_sha256": "3708b3c0ae0cde0e0b479b5c69206dcbe4b0b6609f3c5ee2a00c0cc5a89ec3a9",
-      "sha256": "2285ebafb4552df75b7a3ae5f21b95c8cb4699fd2a921a47f7d71583cd56e8d3"
+      "sha256": "66a4dfce267766bd39f44e43f8eaaf69ed9e9c0ccd6790c47522d88dcbae0f6b"
     },
     {
       "path": "default/game_log_manager.json",
@@ -90,27 +90,27 @@
     {
       "path": "default/minimap_enhancements.json",
       "source_sha256": "dfaa52eb85cb1a534dec7230085819638293ffd3220ac3ed81a87ac6869acb41",
-      "sha256": "ed45eaa98fe53e19726afa9c7f4f51c5ba446a4c894ff5dfb38aeb1976929797"
+      "sha256": "8fabd1df3e86383934827bae4bc0bf27709295a1e7fa1003e556f29e3f6edf22"
     },
     {
       "path": "default/minimap_enhancements/minimap.json",
       "source_sha256": "de64e128582a012f20414e5aab72e09f8462db98ad1a2c17b0aabb2448d0dd33",
-      "sha256": "b88582a626aaa9d1df9480cbd264716aec3b0ded86c1b5850a90bbde46911c51"
+      "sha256": "9dfb324a9aa56c12b10348e1440c70aec1a69ab5bf65d3e5f10469ba9ea76ec3"
     },
     {
       "path": "default/minimap_enhancements/minimap_circles.json",
       "source_sha256": "2002ae27b75ae49c22721020ce5a625dec4f402d4c784ff7d012d74c378a7587",
-      "sha256": "d1ab3378f42e339fc98749947832382088d1665bbd22153618d355076c676979"
+      "sha256": "e848c11d20f9149f767a0fd281cf6c10d3f1c0ba3312f47337e7f9e354585469"
     },
     {
       "path": "default/minimap_enhancements/minimap_labels.json",
       "source_sha256": "e602742ef21babeed44ce4031d3b261e43131d67b6a055787b7def0f2f6ce3d7",
-      "sha256": "82d95d56325c2dce15c2ff67ba7a8e921224a316a85a3637e317fdf6086c0bc5"
+      "sha256": "5dad121b6c82012a0a91acefebb9316b4e7591164416b89d2dfbddccd0b782a9"
     },
     {
       "path": "default/minimap_enhancements/minimap_lines.json",
       "source_sha256": "59d1ff8edd5a5b497c1d0a4888e7446f953f6fe2745e4480e0f93f07685c76f6",
-      "sha256": "b3c6d7257bb1a801f7dd9532d1bb2aa9466c91d36d852e837bfff03c67a2146e"
+      "sha256": "3a8f439f7fa1ab347bb00b49feb17d6f9b79b16ccd6412d1e554df296ea5cc90"
     },
     {
       "path": "default/penetration_indicator.json",
@@ -139,7 +139,7 @@
     {
       "path": "default/sixth_sense_alert.json",
       "source_sha256": "463d8bbbc411dd90fb39397db58ced158c4e83a8f2567c0853b954fa438dadf2",
-      "sha256": "122252fd3995a11045aa7d88db8fd7ba6279f313d431ae4ea66e6df7c3514502"
+      "sha256": "1aa4e2d5fe16f25b1d85668da76a079fe8357a439d5844aba27582f8182af46c"
     },
     {
       "path": "default/sniper_camera.json",
@@ -154,7 +154,7 @@
     {
       "path": "default/target_distance.json",
       "source_sha256": "bbcf88a12d49bbb9d130217aabbcee279494002b8216a69d73c72d9f7bef2f28",
-      "sha256": "72bc7c3f870ebc862ec519a613fb1f4652efa0a72a9da8efcc1dc581ed99442a"
+      "sha256": "adb5d3e958e339d0fa568c982c03cd5d5e08df167124357043466e0dee4e17d2"
     },
     {
       "path": "default/target_information.json",

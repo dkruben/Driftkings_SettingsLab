@@ -74,7 +74,7 @@ def normalize(options, extra_macros=()):
                         raise ValueError('Invalid font color')
                     if '{{' in style['color']:
                         template(style['color'], extra_macros)
-                    elif not re.match(r'^(?:0x|#)[0-9a-fA-F]{6}\Z', style['color']):
+                    elif not re.match(r'^#[0-9a-fA-F]{6}\Z', style['color']):
                         raise ValueError('Invalid font color')
                 for key in ('x', 'y'): number(field[key], -1000, 1000)
                 for key in ('width', 'height'): number(field[key], 1, 1000)
@@ -96,7 +96,7 @@ def normalize(options, extra_macros=()):
                     raise ValueError('Invalid shadow color')
                 if '{{' in shadow['color']:
                     template(shadow['color'], extra_macros)
-                elif not re.match(r'^(?:0x|#)[0-9a-fA-F]{6}\Z', shadow['color']):
+                elif not re.match(r'^#[0-9a-fA-F]{6}\Z', shadow['color']):
                     raise ValueError('Invalid shadow color')
                 for key, low, high in (('distance', 0, 100), ('angle', -360, 360),
                                        ('alpha', 0, 100), ('blur', 0, 100), ('strength', 0, 100)):

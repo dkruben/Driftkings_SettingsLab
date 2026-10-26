@@ -13,8 +13,7 @@
         crystalsIcon:'[class*="Background_crystal_"]', coreBorder:'[class*="Background_bpBonus_"]'
     };
     function color(value, fallback) {
-        value = String(value || '').replace(/^0x/i,'#');
-        if (/^[0-9a-f]{6}$/i.test(value)) { value = '#'+value; }
+        value = String(value || '');
         return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
     }
     function localIcon(value, images) {

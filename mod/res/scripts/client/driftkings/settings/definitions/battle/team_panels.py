@@ -62,7 +62,7 @@ def player_panel_columns(config):
         elif key in ('startMode','altMode'):
             choices=[None]+list(PROFILES)
             item.update(type='Dropdown',options=[{'label':name or labels['UI_panel_clientDefault']} for name in choices],optionValues=choices)
-        elif isinstance(value,(str,type(u''))) and re.match(r'^(?:#|0x)[0-9a-fA-F]{6}$',value):
+        elif isinstance(value,(str,type(u''))) and re.match(r'^#[0-9a-fA-F]{6}$',value):
             item['type']='ColorChoice'
         else: item['type']='TextInput'
         columns[column].append(item)

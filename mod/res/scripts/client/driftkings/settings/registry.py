@@ -118,7 +118,7 @@ class SettingsRegistry(object):
                         values[key] = int(value)
                 elif kind in ('TextInput', 'TextArea', 'ColorChoice'):
                     if not isinstance(value, string_types): raise ValueError('Text required')
-                    if kind == 'ColorChoice' and not re.match(r'^(?:#|0x)?[0-9a-fA-F]{6}$', value): raise ValueError('Invalid color')
+                    if kind == 'ColorChoice' and not re.match(r'^#[0-9a-fA-F]{6}$', value): raise ValueError('Invalid color')
                 elif kind == 'HotKey':
                     if not isinstance(value, list) or len(value) > 4: raise ValueError('Invalid hotkey')
                     for group in value:

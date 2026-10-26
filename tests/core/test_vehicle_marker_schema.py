@@ -102,7 +102,7 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         block['vehicleDist'] = dict(block['vehicleDist'], enabled=True)
         block['vehicleIcon'].update(offsetX=4, offsetY=-2, showSpeaker=True)
         block['damageIndicator']['showText'] = False
-        block['contourIcon'].update(enabled=True, color='0xFF0000', amount=60)
+        block['contourIcon'].update(enabled=True, color='#FF0000', amount=60)
         profile = self.profiles(data)['enemy']['alive']['normal']
         distance = profile['fields'][-1]
         self.assertEqual(distance['format'], '{{alive&&distance?{{distance}}m|}}')
@@ -110,7 +110,7 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         self.assertEqual((profile['icons']['class']['containerX'], profile['icons']['class']['containerY']), (4, -18))
         self.assertTrue(profile['icons']['class']['showSpeaker'])
         self.assertFalse(profile['icons']['damageIndicatorText']['enabled'])
-        self.assertEqual(profile['icons']['vehicle']['tint'], {'color': '0xFF0000', 'amount': 60})
+        self.assertEqual(profile['icons']['vehicle']['tint'], {'color': '#FF0000', 'amount': 60})
         self.assertTrue(profile['native']['vehicleIcon'])
 
     def test_wiring_can_reuse_another_state_and_rejects_unknown_files(self):
@@ -170,3 +170,19 @@ class VehicleMarkerSchemaTests(RuntimeTest):
             field = self.schema.text_field({'format': '&#x115; <b>!</b>', 'textFormat': {'font': font}})
             self.assertEqual(field['format'], u'\u2022 <b>!</b>')
             self.assertEqual(field['textFormat']['font'], '$FieldFont')
+
+    def test_marker_colours_reject_legacy_prefixes(self):
+        for invalid in ('0xFF0000', 'FF0000'):
+            for target in ('text', 'shadow', 'bar', 'contour'):
+                data = copy.deepcopy(self.data)
+                state = data['markersAliveNormal']
+                if target == 'text':
+                    state['def']['rating']['textFormat']['color'] = invalid
+                elif target == 'shadow':
+                    state['def']['rating']['shadow']['color'] = invalid
+                elif target == 'bar':
+                    state['enemy']['healthBar']['color'] = invalid
+                else:
+                    state['enemy']['contourIcon']['color'] = invalid
+                with self.assertRaises(ValueError):
+                    self.profiles(data)

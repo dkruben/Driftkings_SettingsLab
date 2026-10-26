@@ -126,15 +126,6 @@ def damage_text(options):
     return field
 
 
-def hex_color(value, fallback):
-    """Legacy input accepts 0xRRGGBB; the health bar validates #RRGGBB. Macros pass unchanged."""
-    if value is None:
-        return fallback
-    if isinstance(value, string_types) and re.match(r'^0x[0-9A-Fa-f]{6}$', value):
-        return '#' + value[2:].upper()
-    return value
-
-
 def health_bar(options, dead):
     border = part(options, 'border')
     damage = part(options, 'damage')
@@ -143,14 +134,14 @@ def health_bar(options, dead):
     return {'enabled': enabled, 'showOnDead': bool(dead and enabled),
             'x': get(options, 'x', -36), 'y': get(options, 'y', -33),
             'width': get(options, 'width', 70), 'height': get(options, 'height', 12), 'alpha': get(options, 'alpha', 100),
-            'color': hex_color(options.get('color'), '{{c:team}}'),
+            'color': get(options, 'color', '{{c:team}}'),
             'fill': {'alpha': get(part(options, 'fill'), 'alpha', 100)},
-            'gradient': {'enabled': lcolor is not None, 'color': hex_color(lcolor, '{{c:hp}}'), 'angle': 0},
+            'gradient': {'enabled': lcolor is not None, 'color': get(options, 'lcolor', '{{c:hp}}'), 'angle': 0},
             # The layout draws the substrate and the frame with the same colour and opacity.
-            'background': {'color': hex_color(border.get('color'), '#000000'), 'alpha': get(border, 'alpha', 35)},
-            'border': {'color': hex_color(border.get('color'), '#000000'), 'alpha': get(border, 'alpha', 35),
+            'background': {'color': get(border, 'color', '#000000'), 'alpha': get(border, 'alpha', 35)},
+            'border': {'color': get(border, 'color', '#000000'), 'alpha': get(border, 'alpha', 35),
                        'width': get(border, 'size', 1)},
-            'damage': {'enabled': True, 'color': hex_color(damage.get('color'), '{{c:dmg}}'), 'alpha': get(damage, 'alpha', 80),
+            'damage': {'enabled': True, 'color': get(damage, 'color', '{{c:dmg}}'), 'alpha': get(damage, 'alpha', 80),
                        'delay': 0, 'duration': get(damage, 'fade', 1)},
             'shadow': {'enabled': False}}
 

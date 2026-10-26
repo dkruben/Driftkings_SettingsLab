@@ -21,6 +21,12 @@ def defaults():
 
 
 class MinimapPolicyTests(RuntimeTest):
+    def test_colour_settings_require_hash_prefix(self):
+        policy = self.load('core.minimap')
+        policy.color('#AABBCC')
+        for invalid in ('0xAABBCC', 'AABBCC', '#12345', '#GGGGGG'):
+            self.assertRaises(ValueError, policy.color, invalid)
+
     def setUp(self):
         super(MinimapPolicyTests, self).setUp()
         self.policy = self.load('core.minimap')
@@ -102,7 +108,7 @@ class MinimapPolicyTests(RuntimeTest):
 
     def test_state_scales_nearby_and_vehicle_circles_are_validated(self):
         data = defaults()
-        data['extraCircles'] = [{'radius': 445, 'alpha': 60, 'color': 'FFFFFF', 'thickness': 1, 'dash': 0,
+        data['extraCircles'] = [{'radius': 445, 'alpha': 60, 'color': '#FFFFFF', 'thickness': 1, 'dash': 0,
                                  'gap': 5, 'vehicleClass': 'all', 'vehicle': 'Tiger I'}]
         self.policy.validate(data)
         for section, key, value in (('icons', 'deadScale', 0.1), ('icons', 'lostScale', 4), ('lines', 'triangleAlpha', 120),
@@ -117,9 +123,9 @@ class MinimapPolicyTests(RuntimeTest):
     def test_last_positions_use_a_dull_team_colour(self):
         lost = defaults()['lostMarker']
         self.assertEqual(lost['style'], 'tint')
-        self.assertEqual(self.policy.marker_color('enemy', 'lost', lost), '#' + lost['enemyColor'])
-        self.assertEqual(self.policy.marker_color('squad', 'lost', lost), '#' + lost['squadColor'])
-        self.assertEqual(self.policy.marker_color('teamKiller', 'lost', lost), '#' + lost['allyColor'])
+        self.assertEqual(self.policy.marker_color('enemy', 'lost', lost), lost['enemyColor'])
+        self.assertEqual(self.policy.marker_color('squad', 'lost', lost), lost['squadColor'])
+        self.assertEqual(self.policy.marker_color('teamKiller', 'lost', lost), lost['allyColor'])
         # Spotted and destroyed vehicles keep the team scheme; grey style keeps the alive colour.
         self.assertEqual(self.policy.marker_color('enemy', 'dead', lost), self.policy.team_color('enemy', 'dead'))
         grey = dict(lost, style='grey')

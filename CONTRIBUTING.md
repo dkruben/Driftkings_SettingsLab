@@ -14,6 +14,7 @@ This guide explains how the code is organised and how to make a change safely. F
 - Prefer **pure, engine-free modules** for logic (see `core/gun_stats.py`, `core/carousel*.py`, `core/high_caliber.py`). They can be tested without the game.
 - Regenerate `settings/default_values.py` with the defaults tool and `shared/bootstrap.js` with the UI catalogue tool. The compiler generates the packaged `component_list.py` from enabled manifests; keep the checked-in component list aligned with those manifests.
 - Write fixed colours as `#RRGGBB`. Reuse `colorutils.parse`, `nativestate.color` or `VMState.rgb` where ActionScript needs a numeric colour. Keep bit masks and format-compatibility parsers separate from colour literals.
+- Colour settings require the `#` prefix. Legacy numeric prefixes and bare hex strings are rejected; do not restore prefix-preserving save logic or automatic conversion of old colour strings. Keep actual native numeric colours as numbers at the API boundary. HTML templates consume the complete colour value, including `#`, so do not add a second prefix.
 - Owned ActionScript text fields use `embedFonts = true` with the client's `$FieldFont`/`$TitleFont` aliases. Fields copied from native text retain its font settings. The marker adapters map `xvm` and `XVMSymbol` to the client font in both Python and Gameface; keep their mappings equivalent.
 
 ## Branches and release channels

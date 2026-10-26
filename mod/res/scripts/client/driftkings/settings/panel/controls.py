@@ -8,7 +8,7 @@ from driftkings.core.keycodes import valid_key_code
 from driftkings.common.utils.compat import string_types, text_type
 
 ID_PATTERN = re.compile(r'^[A-Za-z][A-Za-z0-9_]{0,63}\Z')
-COLOR_PATTERN = re.compile(r'^(?:#|0x)?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\Z')
+COLOR_PATTERN = re.compile(r'^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\Z')
 TEXT_LIMIT = 4096
 
 # Controls that hold a persisted value.

@@ -86,6 +86,9 @@ scripts.filter(name => name !== 'bridge.js').forEach(name => {
 });
 ['dom', 'layer', 'controlKit', 'controls', 'theme', 'updaterPanel', 'profileDialogs', 'app'].forEach(name => assert(DK[name], name));
 assert.strictEqual(typeof DK.controlKit.color, 'function');
+assert.strictEqual(DK.colors.normalizeColor('#ff8800'), '#FF8800');
+assert.strictEqual(DK.colors.normalizeColor('0xff8800'), null);
+assert.strictEqual(DK.colors.normalizeColor('FF8800'), null);
 assert.strictEqual(DK.app.themeCss, DK.theme.css);
 
 const option = (value, label) => ({value, label});

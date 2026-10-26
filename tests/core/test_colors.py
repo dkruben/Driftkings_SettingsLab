@@ -142,14 +142,14 @@ class ColorTests(RuntimeTest):
                 for index, band in enumerate(bands):
                     limit = band['value']
                     # Source scales use exclusive upper bounds, not <=.
-                    lower = api.formatColor(band['color'])
-                    upper = api.formatColor(bands[min(index + 1, len(bands) - 1)]['color'])
+                    lower = band['color']
+                    upper = bands[min(index + 1, len(bands) - 1)]['color']
                     self.assertEqual(api.getColor(table['colors'], metric, limit - 0.00001), lower)
                     self.assertEqual(api.getColor(table['colors'], metric, limit), upper)
                     self.assertEqual(api.getColor(table['colors'], metric, limit + 0.00001), upper)
                     checked += 1
-                self.assertEqual(api.getColor(table['colors'], metric, -1e40), api.formatColor(bands[0]['color']))
-                self.assertEqual(api.getColor(table['colors'], metric, 1e40), api.formatColor(bands[-1]['color']))
+                self.assertEqual(api.getColor(table['colors'], metric, -1e40), bands[0]['color'])
+                self.assertEqual(api.getColor(table['colors'], metric, 1e40), bands[-1]['color'])
         self.assertGreater(checked, 100)
 
     def test_moe_inclusive_lower_bounds_and_outside_range(self):
@@ -157,11 +157,11 @@ class ColorTests(RuntimeTest):
         for index in range(len(api.color_tables)):
             bands = api.getRatingColors(index)['mog']
             for position, band in enumerate(bands):
-                self.assertEqual(api.getStatisticColor('mog', band['value'], index), api.formatColor(band['color']))
+                self.assertEqual(api.getStatisticColor('mog', band['value'], index), band['color'])
                 self.assertEqual(api.getStatisticColor('mog', band['value'] - 0.001, index),
-                                 api.formatColor(bands[max(0, position - 1)]['color']))
+                                 bands[max(0, position - 1)]['color'])
             self.assertEqual(api.getStatisticColor('mog', -10, index), bands[0]['color'])
-            self.assertEqual(api.getStatisticColor('mog', 101, index), api.formatColor(bands[-1]['color']))
+            self.assertEqual(api.getStatisticColor('mog', 101, index), bands[-1]['color'])
 
     def test_invalid_palette_and_metric_fallbacks(self):
         api = self.colors
@@ -193,7 +193,7 @@ class ColorTests(RuntimeTest):
         for index in range(3):
             palette = api.getRatingColors(index)['colorRating']
             for value, name in ((9, 'very_bad'), (10, 'normal'), (11, 'good')):
-                self.assertEqual(api.getComparisonColor(value, 10, index), api.formatColor(palette[name]))
+                self.assertEqual(api.getComparisonColor(value, 10, index), palette[name])
             for value in (None, 'bad', float('nan'), float('inf')):
                 self.assertEqual(api.getComparisonColor(value, 10, index), api.getRatingPaletteColor('nocolor', index))
 

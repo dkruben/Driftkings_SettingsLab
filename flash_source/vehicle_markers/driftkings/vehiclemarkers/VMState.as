@@ -34,7 +34,7 @@ package driftkings.vehiclemarkers
 
         public static function rgb(value:String):uint
         {
-            return uint(value.replace("#", "0x"));
+            return /^#[0-9A-Fa-f]{6}$/.test(value) ? uint(parseInt(value.substr(1), 16)) : 0;
         }
 
         public static function shadowFilters(shadow:Object, color:String):Array

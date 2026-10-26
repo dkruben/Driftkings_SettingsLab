@@ -114,7 +114,7 @@ class SpottedLightController(object):
             if settings[ENEMY_SPOTTING_STATUS.SOUND]:
                 self.sound(0 if eventID == BATTLE_EVENT_TYPE.SPOTTED else 1)
             message, color = self.textGenerator(eventID)
-            sendPanelMessage("<font color='#%s'>%s</font>" % (color, message))
+            sendPanelMessage("<font color='%s'>%s</font>" % (color, message))
 
 
 config = Settings()

@@ -30,7 +30,7 @@
     },
     "shell": {
       "alpha": 60,
-      "color": "FF6666",
+      "color": "#FF6666",
       "dash": 0,
       "gap": 5,
       "mode": "on",
