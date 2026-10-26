@@ -4,7 +4,8 @@
 .dk-vm-tabs .dk-btn { margin:0 6rem 6rem 0; padding:5rem 10rem; min-width:0; }
 .dk-vm-tabs .is-active,.dk-vm-selectors .is-active { color:#ffcc66; border-color:#aa8749; background:#393020; }
 .dk-vm-workspace { display:flex; align-items:flex-start; }
-.dk-vm-edit { flex:1 1 auto; min-width:260rem; margin-right:14rem; }
+/* A zero basis lets Gameface (Yoga) grow the form into the free width. */
+.dk-vm-edit { flex:1 1 0; min-width:260rem; margin-right:14rem; }
 .dk-vm-properties { max-height:470rem; overflow-y:auto; padding:0 10rem 20rem 0; }
 .dk-vm-properties .dk-row { display:block; margin-bottom:7rem; }
 .dk-vm-properties .dk-label-area { max-width:none; width:100%; margin-bottom:5rem; }
@@ -17,7 +18,12 @@
 .dk-vm-field-actions { display:flex; flex-wrap:wrap; margin:10rem 0; }
 .dk-vm-field-actions select { width:100%; margin-bottom:6rem; }
 .dk-vm-field-actions .dk-btn { margin-right:5rem; padding:4rem 8rem; min-width:0; }
+.dk-vm-field-actions input { width:150rem; height:30rem; margin:0 5rem 6rem 0; padding:0 8rem; color:#e8e4da; background:#101215; border:1rem solid #4a4a4a; }
 .dk-vm-preview { flex:0 0 340rem; width:340rem; padding:12rem; border:1rem solid #48433b; background:#15191d; }
+/* Sample sliders: label above the slider, as in the property form, so labels never wrap or overlap. */
+.dk-vm-preview .dk-row { display:block; margin-bottom:7rem; }
+.dk-vm-preview .dk-label-area { max-width:none; width:100%; margin-bottom:5rem; }
+.dk-vm-preview .dk-input-area { width:100%; }
 .dk-vm-title { font-size:17rem; color:#f1dbac; margin-bottom:10rem; }
 .dk-vm-selectors { display:flex; flex-wrap:wrap; margin-bottom:8rem; }
 .dk-vm-selectors .dk-text { flex:1 1 auto; width:110rem; }
@@ -28,14 +34,14 @@
 .dk-vm-tank { position:absolute; width:310rem; height:auto; bottom:-20rem; left:50%; transform:translateX(-50%); pointer-events:none; }
 .dk-vm-marker,.dk-vm-effects { position:absolute; left:50%; top:130rem; width:0; height:0; }
 .dk-vm-effects { pointer-events:none; }
-.dk-vm-text { position:absolute; overflow:hidden; font:13rem Arial; white-space:pre; cursor:pointer; box-sizing:content-box; padding:2rem; }
+.dk-vm-text { position:absolute; overflow:hidden; font:13rem Warhelios; white-space:pre; cursor:pointer; box-sizing:content-box; padding:2rem; }
 .dk-vm-text.is-selected { outline:1rem dashed rgba(255,204,102,.9); background:rgba(255,204,102,.06); }
 .dk-vm-text p { margin:0; }
-.dk-vm-native-text { position:absolute; width:210rem; left:-105rem; top:-65rem; font:13rem Arial; text-align:center; }
+.dk-vm-native-text { position:absolute; width:210rem; left:-105rem; top:-65rem; font:13rem Warhelios; text-align:center; }
 .dk-vm-bar { position:absolute; overflow:hidden; box-sizing:border-box; }
 .dk-vm-fill { height:100%; }
 .dk-vm-trail { position:absolute; top:0; bottom:0; }
-.dk-vm-icon { position:absolute; font:13rem Arial; white-space:nowrap; }
+.dk-vm-icon { position:absolute; font:13rem Warhelios; white-space:nowrap; }
 .dk-vm-icon-class { font-size:17rem; transform:rotate(-45deg); }
 .dk-vm-icon-vehicle { font-size:23rem; }
 .dk-vm-actions { display:flex; flex-wrap:wrap; }

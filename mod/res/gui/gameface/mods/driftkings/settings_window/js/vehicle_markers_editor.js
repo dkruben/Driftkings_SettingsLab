@@ -159,6 +159,11 @@
                 }
             }
         }
+        // XVM template keys (def.tankName...) shown with a translated name and the key itself.
+        function templateTitle(key,value) {
+            var title=labels['tpl_'+key] || (value && typeof value.name==='string' && value.name) || key;
+            return title===key?key:title+' ('+key+')';
+        }
         function objectForm(owner,path,object,defaults) {
             var source=M.merge(defaults || {},object || {});
             Object.keys(source).forEach(function (key) {
@@ -166,7 +171,7 @@
                 if (Array.isArray(value)) { arrayForm(owner,next,value); }
                 else if (value && typeof value==='object') {
                     var details=node('div','dk-vm-details',null,owner), body;
-                    button(details,label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
+                    button(details,path[path.length-1]==='def'?templateTitle(key,value):label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
                     body=node('div','',null,details); body.style.display='none'; objectForm(body,next,value);
                 } else { widget(owner,next,value); }
             });
@@ -222,7 +227,7 @@
                 resolvedList=(current.inline?resolvedList:resolvedList[current.part]).textFields || [];
                 if (list.length) {
                     var select=DK.controls.create({id:'sampleField',type:'dropdown',label:label('fields'),metadata:{},options:list.map(function (item,index) {
-                        var name=templateName(item); return {value:index,label:(resolvedList[index] || {}).name || (name?'def.'+name:label('fields')+' '+(index+1))};
+                        var name=templateName(item); return {value:index,label:name?templateTitle(name,resolvedList[index]):((resolvedList[index] || {}).name || label('fields')+' '+(index+1))};
                     })}, {labels:context.labels,commit:function (id,value) { selected=value; buildForm(); draw(); }});
                     bar.appendChild(select.node); select.update(selected); select.info({disabled:false,changed:false,values:{}}); widgets.push(select);
                 }
@@ -245,7 +250,7 @@
                     Object.keys(model[current.key].def || {}).forEach(function (name) {
                         var value=model[current.key].def[name];
                         if (!value || typeof value.format!=='string' || name==='damageText') { return; }
-                        var addTemplate=button(bar,name,function () { push('${def.'+name+'}'); }); addTemplate.disabled=list.length>=12;
+                        var addTemplate=button(bar,labels['tpl_'+name] || name,function () { push('${def.'+name+'}'); }); addTemplate.disabled=list.length>=12;
                     });
                 }
                 var remove=button(bar,label('remove'),function () { list.splice(selected,1); selected=Math.max(0,selected-1); save(blockPath()[0]); buildForm(); draw(); }); remove.disabled=!list.length;
@@ -280,7 +285,8 @@
             element.style.opacity=isFinite(alpha)?Math.max(0,Math.min(100,alpha))/100:0; element.style.textAlign=options.align || 'center';
             var font=options.textFormat;
             if (font) {
-                element.style.fontFamily=font.font==='$FieldFont'?'Arial':font.font;
+                // Gameface only draws loaded fonts; this window loads Warhelios, the closest to $FieldFont.
+                element.style.fontFamily=font.font && font.font!=='$FieldFont'?font.font+', Warhelios':'Warhelios';
                 element.style.fontSize=font.size+'rem'; element.style.fontWeight=font.bold?'bold':'normal'; element.style.fontStyle=font.italic?'italic':'normal';
                 element.style.color=font.color===null?(event?M.damageStyle(config,event.source).colors[event.source]:M.teamColor(config,sample)):M.text(String(font.color),config,sample,event);
             }
@@ -296,7 +302,7 @@
         }
         function html(element,value) {
             var source=document.createElement('div'); source.innerHTML=value;
-            if (window.DriftkingsFlashText) { window.DriftkingsFlashText.copy(source,element,{fontFamily:true,sizeUnit:'rem'}); }
+            if (window.DriftkingsFlashText) { window.DriftkingsFlashText.copy(source,element,{fontFamily:true,fieldFont:'Warhelios',hideZeroSize:true,sizeUnit:'rem'}); }
             else { element.textContent=source.textContent; }
         }
         function draw() {
