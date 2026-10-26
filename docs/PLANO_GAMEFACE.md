@@ -72,7 +72,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | Etapa | Âmbito | Estado | Evidência |
 | --- | --- | --- | --- |
 | 0 | Auditoria, mapa e decisão de nomes | Concluída | Inventário acima; nenhum código migrado |
-| 1 | Package, núcleo, publicação partilhada, registo e comuns | Pendente | Testes core e integridade |
+| 1 | Package, núcleo, publicação partilhada, registo e comuns | Concluída | 419 testes core Python 3: OK |
 | 2 | Adaptadores batalha, HUD e referências | Pendente | Testes cards/MainGun/HUD/TAB |
 | 3 | Adaptadores hangar e hooks mistos | Pendente | Testes controllers/carousel/profile/janelas |
 | 4 | Contratos, fronteiras, documentação e release.json | Pendente | Testes arquitetura/imports/ciclos |
@@ -88,3 +88,5 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 - Navegação hangar/tripulação/perfil/árvore/resultados, alterações de configuração, relógio e cabeçalho: não duplicar painéis nem listeners.
 - Abrir/fechar/reabrir definições e contas, encaminhar comandos, guardar/aplicar e confirmar configurações preservadas.
 - Automatização não prova o comportamento do runtime nativo; estes testes permanecem explicitamente pendentes até execução em jogo.
+
+- Etapa 1 (`22d12d1`): movidos núcleo, registo de janelas e comuns; publicação extraída para `gameface/payloads.py` sem imports do motor, eliminando dependência batalha → hangar. Imports e testes atualizados; 419 testes core passaram. Auditoria inicial: `58086e7`. Uma leitura com encoding Windows impediu a atualização deste registo no commit de código; corrigida usando UTF-8 explícito antes de prosseguir.
