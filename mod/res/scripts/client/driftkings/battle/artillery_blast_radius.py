@@ -71,7 +71,7 @@ class ArtySplashController(object):
             self.modelSplashCircle = BigWorld.PyTerrainSelectedArea()
             player = BigWorld.player()
             if player is not None:
-                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model', Math.Vector2(2.0, 2.0), 0.5, 0xFFFFFFFF, player.spaceID)
+                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model', Math.Vector2(2.0, 2.0), 0.5, int("#FFFFFFFF"[1:], 16), player.spaceID)
             self.modelSplash.model.root.attach(self.modelSplashCircle)
             self.modelSplashCircle.enableAccurateCollision(False)
 

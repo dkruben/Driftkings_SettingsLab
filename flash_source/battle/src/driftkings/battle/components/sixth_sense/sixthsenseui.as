@@ -1,5 +1,6 @@
 package driftkings.battle.components.sixth_sense
 {
+    import driftkings.utils.colorutils;
 	import flash.display.*;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -147,7 +148,7 @@ package driftkings.battle.components.sixth_sense
 					this._container.removeChild(this.timer);
 					this.timer = null;
 				}
-				var textformat:TextFormat = new TextFormat("$TitleFont", Math.ceil(16 * scale), 0xFFFFFF);
+				var textformat:TextFormat = new TextFormat("$TitleFont", Math.ceil(16 * scale), colorutils.parse("#FFFFFF"));
 				var _y:Number = afterScaleWH - (this.params.showTimerGraphics ? -2 : 2);
 				this.timer = new textext(0, _y, textformat, TextFieldAutoSize.CENTER, this._container);
 			}

@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import driftkings.utils.shadowutils;
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -18,11 +19,12 @@ package driftkings.battle.components.minimap
             var size:Object = options.mapSize;
             if (!size.enabled) return;
             field = new TextField();
+            field.embedFonts = true;
             field.mouseEnabled = field.selectable = false;
             field.width = Number(size.width);
             field.height = Number(size.height);
             field.alpha = Number(size.alpha) / 100;
-            field.defaultTextFormat = new TextFormat("$FieldFont", 10, 0xFFCC66);
+            field.defaultTextFormat = new TextFormat("$FieldFont", 10, colorutils.parse("#FFCC66"));
             var shadow:Object = size.shadow;
             if (shadow.enabled) field.filters = shadowutils.filters(shadow);
             // The minimap grid is 10 x 10: {{cellsize}} is the side of one cell in metres.

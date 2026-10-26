@@ -41,6 +41,10 @@
     "Fix marker editor previews, labels, colour and slider limits; show sample-toggle states, report invalid marker references and treat null options as unset. Add editor regression coverage and the shared marker-condition fixture.",
     "Fix local player statistics when subtracting legacy battle totals.",
     "Share ActionScript colour, shadow and crosshair HUD helpers, and consolidate Python 2/3 string compatibility across settings, markers and updater modules.",
-    "Initialize the marks-of-excellence worker through clearData, share the damage-log enemy-name hook factory and fix Python 2 compatibility in test stubs."
+    "Initialize the marks-of-excellence worker through clearData, share the damage-log enemy-name hook factory and fix Python 2 compatibility in test stubs.",
+    "Use the shared client font library for ActionScript marker, minimap, overlay and HUD text; preserve $FieldFont/$TitleFont aliases and fall back to $FieldFont when a marker font is empty. Guard missing marker shadow options.",
+    "Remove unnecessary damage-log hook renaming that prevents the battle-preferences tests from loading under Python 2.7.",
+    "Standardize fixed colours as #RRGGBB across ActionScript, Python, Gameface and default JSON settings; reuse existing numeric colour converters, update the distance-marker payload and regenerate canonical defaults.",
+    "Add an independent scrollbar to the vehicle-marker property editor, with mouse-wheel and drag support, refresh it when tabs, groups or window size change, and cover scrolling to the final property with a regression test."
   ]
 }

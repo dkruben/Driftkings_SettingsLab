@@ -272,7 +272,7 @@ def _withEnemyName(method):
         if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.ADD_ENEMY_NAME]:
             vehicleName = vehicleName + ' | ' + _getAttackerName(vehicleName)
         return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg)
-    hook.__name__ = 'new_' + method
+    # The explicit method identifies each hook, including its diagnostics key.
     return override(DamageLogPanel, method)(hook)
 
 

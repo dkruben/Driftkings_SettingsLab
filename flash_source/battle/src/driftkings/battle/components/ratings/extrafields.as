@@ -73,7 +73,7 @@ package driftkings.battle.components.ratings
                 {
                 var style:Object = cfg.textFormat || {};
                 text.defaultTextFormat = new TextFormat(style.font || "$FieldFont", nativestate.number(style.size,13),
-                    nativestate.color(style.color,0xD9D9D9), nativestate.flag(style.bold),
+                    nativestate.color(style.color,nativestate.color("#D9D9D9")), nativestate.flag(style.bold),
                     nativestate.flag(style.italic), nativestate.flag(style.underline), null, null, style.align || "left");
                 // HTML images have a two-pixel TextField gutter. Compensate it
                 // for src so a full-width texture is neither clipped nor shifted.

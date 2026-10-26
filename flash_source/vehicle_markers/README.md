@@ -17,6 +17,12 @@ native movie calls. Its helpers live in `driftkings/vehiclemarkers` (`VMState`, 
 marker movie keeps its own colour and shadow code rather than sharing classes with the
 battle SWF.
 
+Owned ActionScript text fields set `embedFonts = true`, matching the native
+`TextManager.createTextField`. Keep `$FieldFont` and `$TitleFont` as client aliases:
+Scaleform resolves them through the game's shared font library for the active
+language. Do not replace them with a system font or embed a fixed Latin font.
+Fields cloned from native text retain the source field's font settings.
+
 Configuration lives in the active profile's `vehicle_markers` directory and
 follows XVM's `default_wg` marker files, without XMQP: `markers.json` plus
 `markersAliveNormal.json`, `markersAliveExtended.json`, `markersDeadNormal.json`

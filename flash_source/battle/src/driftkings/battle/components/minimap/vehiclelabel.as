@@ -27,6 +27,7 @@ package driftkings.battle.components.minimap
             mouseEnabled = mouseChildren = false;
             for each (var field:TextField in [caption, hp])
             {
+                field.embedFonts = true;
                 field.mouseEnabled = field.selectable = false;
                 field.autoSize = TextFieldAutoSize.LEFT;
                 addChild(field);

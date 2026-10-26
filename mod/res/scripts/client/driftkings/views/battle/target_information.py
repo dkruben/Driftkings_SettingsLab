@@ -129,7 +129,7 @@ class Flash(object):
             'background': False,
             'alpha': 1.0,
             'customBackground': {
-                'color': 0x20252B, 'borderColor': 0x49535D,
+                'color': '#20252B', 'borderColor': '#49535D',
                 'border': True, 'fill': True, 'thickness': 1,
                 'margin': 12, 'ellipseWidth': 10,
                 'alpha': max(0.0, min(1.0, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.BACKGROUND_ALPHA])) if settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.BACKGROUND_ENABLED] else 0.0

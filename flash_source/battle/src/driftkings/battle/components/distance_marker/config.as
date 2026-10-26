@@ -1,12 +1,13 @@
 package driftkings.battle.components.distance_marker 
 {
+    import driftkings.utils.colorutils;
 	import driftkings.battle.components.distance_marker.disposable;
 
 	public class config implements disposable
 	{
 		private var _decimalPrecision:int= 0;
 		private var _textSize:int = 11;
-		private var _textColor:int = 0xFFFFFF;
+		private var _textColor:int = colorutils.parse("#FFFFFF");
 		private var _textAlpha:Number = 1.0;
 		private var _drawTextShadow:Boolean = true;
 
@@ -19,7 +20,7 @@ package driftkings.battle.components.distance_marker
 		{
             this._decimalPrecision = serializedConfig["decimalPrecision"];
             this._textSize = serializedConfig["textSize"];
-            this._textColor = uint(serializedConfig["textColor"]);
+            this._textColor = colorutils.parse(serializedConfig["textColor"]);
             this._textAlpha = serializedConfig["textAlpha"];
             this._drawTextShadow = serializedConfig["drawTextShadow"];
         }

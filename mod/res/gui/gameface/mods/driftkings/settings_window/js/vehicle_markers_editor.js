@@ -8,11 +8,18 @@
         var ROOTS=['markers'].concat(M.STATE_KEYS);
         var FIELD={name:'',enabled:true,x:0,y:-36,alpha:100,align:'center',format:'{{vehicle}}',
             textFormat:{font:'$FieldFont',size:13,color:null,bold:false,italic:false},
-            shadow:{enabled:true,distance:0,angle:45,color:'0x000000',alpha:100,blur:6,strength:2}};
+            shadow:{enabled:true,distance:0,angle:45,color:'#000000',alpha:100,blur:6,strength:2}};
         var sample={group:'enemy',state:'alive',alt:false,blind:false,hp:70,distance:350,damageSource:'player',explosion:false,name:'DriftKings'}, widgets=[], disposed=false, lastValues='';
         var root=DK.dom.el('div','dk-vm-editor',null,parent), tabs=DK.dom.el('div','dk-vm-tabs',null,root);
         var workspace=DK.dom.el('div','dk-vm-workspace',null,root), edit=DK.dom.el('div','dk-vm-edit',null,workspace);
         var form=DK.dom.el('div','dk-vm-properties',null,edit), preview=DK.dom.el('div','dk-vm-preview',null,workspace);
+        var updateScrollbar=DK.dom.scrollbar(form,edit), scrollTimer=null;
+        function scheduleScrollbar() {
+            if (disposed || scrollTimer!==null) { return; }
+            scrollTimer=setTimeout(function () { scrollTimer=null; if (!disposed) { updateScrollbar(); } },0);
+        }
+        root.addEventListener('click',scheduleScrollbar);
+        window.addEventListener('resize',scheduleScrollbar);
         function label(key) { return labels[key] || key; }
         function node(tag,cls,text,owner) { return DK.dom.el(tag,cls,text,owner); }
         function button(owner,title,action) { var value=node('button','dk-btn',title,owner); value.type='button'; value.addEventListener('click',action); return value; }
@@ -162,7 +169,6 @@
                     next=next===''?null:(key==='color'?next:Number(next));
                     if (next!==null && key!=='color' && !isFinite(next)) { error.textContent=label('invalid'); return; }
                 }
-                if (def.type==='color' && typeof value==='string' && value.indexOf('0x')===0) { next='0x'+next.slice(1); }
                 set(path,next,commit);
                 if (key==='colorRating' && commit) { DK.layer.close(); buildForm(); }
             }
@@ -230,6 +236,7 @@
         // An invalid reference or a missing block is reported in the error box, like draw() does, and never thrown to the window.
         function buildForm() {
             try { renderForm(); } catch (problem) { error.textContent=problem.message; }
+            scheduleScrollbar();
         }
         function renderForm() {
             widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; arrays={}; form.textContent='';
@@ -433,6 +440,8 @@
             model=next; lastValues=signature; error.textContent=''; buildForm(); draw();
         }
         return {update:update,dispose:function () {
+            window.removeEventListener('resize',scheduleScrollbar);
+            if (scrollTimer!==null) { clearTimeout(scrollTimer); }
             disposed=true; timers.forEach(clearTimeout); hp.dispose(); distance.dispose(); widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); root.parentNode.removeChild(root);
         },node:root,notice:notice};
     }

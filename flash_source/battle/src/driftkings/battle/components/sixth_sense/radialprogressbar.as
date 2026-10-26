@@ -1,11 +1,12 @@
 package driftkings.battle.components.sixth_sense
 {
+    import driftkings.utils.colorutils;
 	import flash.display.Shape;
 
 	public class radialprogressbar extends Shape
 	{
 		private var _radius:Number = 50;
-		private var _color:uint = 0xffa500;
+		private var _color:uint = colorutils.parse("#FFA500");
 		private var _thickness:Number = 5.0;
 
 		public function radialprogressbar()

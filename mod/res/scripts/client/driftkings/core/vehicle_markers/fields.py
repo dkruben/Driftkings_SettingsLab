@@ -7,7 +7,7 @@ import re
 from driftkings.core.vehicle_markers.expressions import validate as validate_expression
 from driftkings.common.utils.compat import string_types
 
-SHADOW = {'enabled': True, 'distance': 0, 'angle': 0, 'color': '0x000000',
+SHADOW = {'enabled': True, 'distance': 0, 'angle': 0, 'color': '#000000',
           'alpha': 80, 'blur': 3, 'strength': 2}
 TEXT_FORMAT = {'font': '$FieldFont', 'size': 13, 'color': None, 'bold': False, 'italic': False}
 DEFAULTS = {'name': '', 'textFormat': TEXT_FORMAT, 'enabled': True, 'format': '{{vehicle}}', 'x': -100, 'y': -65,

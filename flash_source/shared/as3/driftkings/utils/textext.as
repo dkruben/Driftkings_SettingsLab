@@ -9,6 +9,8 @@ package driftkings.utils
 		public function textext(x:Number, y:Number, style:TextFormat, align:String, ui:*, enabled:Boolean = true)
 		{
 			super();
+			// $FieldFont/$TitleFont use the client's shared Scaleform font library.
+			this.embedFonts = true;
 			if (style == null)
 			{
 				style = constants.normalText;

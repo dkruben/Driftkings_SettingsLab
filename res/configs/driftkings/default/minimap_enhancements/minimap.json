@@ -39,7 +39,7 @@
       "enabled": true,
       "distance": 0,
       "angle": 0,
-      "color": "0x000000",
+      "color": "#000000",
       "alpha": 80,
       "blur": 2,
       "strength": 3

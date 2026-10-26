@@ -13,7 +13,7 @@ DEFAULTS = {'enabled': False, 'x': -35, 'y': -22, 'width': 70, 'height': 8,
             'background': {'color': '#181818', 'alpha': 80},
             'border': {'color': '#000000', 'alpha': 100, 'width': 1},
             'damage': {'enabled': False, 'color': '#FFDD66', 'alpha': 65, 'delay': .25, 'duration': .75},
-            'shadow': {'enabled': True, 'distance': 0, 'angle': 0, 'color': '0x000000',
+            'shadow': {'enabled': True, 'distance': 0, 'angle': 0, 'color': '#000000',
                        'alpha': 70, 'blur': 2, 'strength': 2}}
 
 

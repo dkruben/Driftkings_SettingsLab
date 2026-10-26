@@ -34,7 +34,8 @@ public class overlayelement extends imageloadercomponent {
         mouseChildren = true;
         if (kind == 'label') {
             label = new TextField();
-            label.defaultTextFormat = new TextFormat('$FieldFont', 14, 0xFFFFFF);
+            label.embedFonts = true;
+            label.defaultTextFormat = new TextFormat('$FieldFont', 14, colorutils.parse("#FFFFFF"));
             label.selectable = false; label.mouseEnabled = false;
             addChild(label);
         }
@@ -109,7 +110,7 @@ public class overlayelement extends imageloadercomponent {
         if (bg != null) fill = bg.fill === false ? 0 : Number(bg.alpha || 0);
         // Drag hit areas remain available without drawing their box outlines.
         // Also suppress outlines from older saved configurations.
-        graphics.beginFill(bg == null ? 0x000000 : colorutils.parse(bg.color), fill);
+        graphics.beginFill(bg == null ? colorutils.parse("#000000") : colorutils.parse(bg.color), fill);
         var w:Number = boxWidth, h:Number = boxHeight;
         // A zero-size parent can still be dragged using its children's visible bounds.
         if (kind == 'panel' && w == 0 && h == 0 && numChildren > 0) {

@@ -24,7 +24,7 @@
         "$ref": "textFieldShadow",
         "alpha": "{{v.premium?85|35}}",
         "blur": "{{v.premium?10|8}}",
-        "color": "{{v.premium?0xFC3700|0xC8C8B5}}"
+        "color": "{{v.premium?#FC3700|#C8C8B5}}"
       },
       "x": 159,
       "y": 14

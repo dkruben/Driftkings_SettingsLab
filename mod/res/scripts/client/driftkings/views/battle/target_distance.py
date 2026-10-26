@@ -29,16 +29,14 @@ def serializeConfigParams():
     settings = settings_service.getComponentDict(_component().config)
     textColor = settings[TARGET_DISTANCE.TEXT_COLOR]
     if isinstance(textColor, string_types):
-        if textColor.startswith('#'):
-            textColor = textColor[1:]
-        hex_color = '0x' + textColor
+        hex_color = '#' + textColor.lstrip('#')
     else:
         r, g, b = textColor
-        hex_color = '0x{:02X}{:02X}{:02X}'.format(r, g, b)
+        hex_color = '#{:02X}{:02X}{:02X}'.format(r, g, b)
     return {
         'decimalPrecision': settings[TARGET_DISTANCE.DECIMAL_PRECISION],
         'textSize': settings[TARGET_DISTANCE.TEXT_SIZE],
-        'textColor': hex_color,  # Send properly formatted hex color
+        'textColor': hex_color,
         'textAlpha': settings[TARGET_DISTANCE.TEXT_ALPHA],
         'drawTextShadow': settings[TARGET_DISTANCE.DRAW_TEXT_SHADOW]
     }

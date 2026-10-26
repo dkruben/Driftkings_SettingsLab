@@ -102,7 +102,7 @@ package driftkings.battle.components.minimap
         // Blend each pixel towards its luminance, multiplied by the tint (white = grey).
         private static function recolour(amount:Number, tint:int):ColorMatrixFilter
         {
-            var colour:uint = tint < 0 ? 0xFFFFFF : uint(tint);
+            var colour:uint = tint < 0 ? colorutils.parse("#FFFFFF") : uint(tint);
             var cr:Number = (colour >> 16 & 0xFF) / 255, cg:Number = (colour >> 8 & 0xFF) / 255, cb:Number = (colour & 0xFF) / 255;
             var s:Number = 1 - amount, r:Number = 0.3086 * amount, g:Number = 0.6094 * amount, b:Number = 0.082 * amount;
             return new ColorMatrixFilter([s + r * cr, g * cr, b * cr, 0, 0,

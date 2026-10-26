@@ -65,7 +65,7 @@
         Object.keys(source || {}).forEach(function (key) { if (key!=='ally' && key!=='enemy') { common[key]=source[key]; } });
         return merge(merge(base,common),scoped(source || {},sample));
     }
-    var shadow = {enabled:true,distance:0,angle:0,color:'0x000000',alpha:80,blur:3,strength:2};
+    var shadow = {enabled:true,distance:0,angle:0,color:'#000000',alpha:80,blur:3,strength:2};
     var font = {font:'$FieldFont',size:13,color:null,bold:false,italic:false};
     var field = {name:'',textFormat:font,enabled:true,format:'<font size="13" color="{{c:team}}">{{vehicle}}</font>',x:-100,y:-65,width:200,height:25,alpha:100,align:'center',shadow:shadow};
     function ratingField(alt) {

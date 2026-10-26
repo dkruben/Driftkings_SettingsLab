@@ -27,7 +27,7 @@
         if (text !== undefined && text !== null) { node.textContent = String(text); }
         if (parent) { parent.appendChild(node); }
         if (tag === 'button') { node.addEventListener('click', handled); }
-        if (tag === 'textarea' || /(^| )(dk-sidebar|dk-controls|dk-popup|dk-profile-dialog)( |$)/.test(className || '')) {
+        if (tag === 'textarea' || /(^| )(dk-sidebar|dk-controls|dk-popup|dk-profile-dialog|dk-vm-properties)( |$)/.test(className || '')) {
             node.addEventListener('wheel', scrollWheel);
         }
         return node;

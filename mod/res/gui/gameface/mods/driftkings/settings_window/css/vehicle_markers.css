@@ -5,8 +5,8 @@
 .dk-vm-tabs .is-active,.dk-vm-selectors .is-active { color:#ffcc66; border-color:#aa8749; background:#393020; }
 .dk-vm-workspace { display:flex; align-items:flex-start; }
 /* A zero basis lets Gameface (Yoga) grow the form into the free width. */
-.dk-vm-edit { flex:1 1 0; min-width:260rem; margin-right:14rem; }
-.dk-vm-properties { max-height:470rem; overflow-y:auto; padding:0 10rem 20rem 0; }
+.dk-vm-edit { position:relative; flex:1 1 0; min-width:260rem; margin-right:14rem; height:470rem; }
+.dk-vm-properties { height:100%; overflow-y:auto; padding:0 24rem 20rem 0; }
 .dk-vm-properties .dk-row { display:block; margin-bottom:7rem; }
 .dk-vm-properties .dk-label-area { max-width:none; width:100%; margin-bottom:5rem; }
 .dk-vm-properties .dk-input-area { width:100%; }

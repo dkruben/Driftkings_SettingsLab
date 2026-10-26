@@ -1,5 +1,6 @@
 package driftkings.battle.components.distance_marker 
 {
+    import driftkings.utils.colorutils;
 	import driftkings.battle.components.distance_marker.config;
 	import driftkings.battle.components.distance_marker.distancemarkerui;
 	import driftkings.battle.components.distance_marker.disposable;
@@ -31,6 +32,7 @@ package driftkings.battle.components.distance_marker
 				this.addChild(this._shape);
 			}
 			this._textField.alpha = this.config.textAlpha
+			this._textField.embedFonts = true;
 			this._textField.antiAliasType = AntiAliasType.NORMAL;
 			this._textField.autoSize = TextFieldAutoSize.CENTER;
 			this._textField.background = false;
@@ -65,7 +67,7 @@ package driftkings.battle.components.distance_marker
 			var textWidth:Number = this._textField.textWidth + 4.0;
 			var textHeight:Number = this._textField.textHeight + 4.0;
 			this._shape.graphics.clear();
-			this._shape.graphics.beginFill(0x000000);
+			this._shape.graphics.beginFill(colorutils.parse("#000000"));
 			this._shape.graphics.drawEllipse(-8.0 - (textWidth / 2.0), 0.0, textWidth + 16.0, textHeight);
 			this._shape.graphics.endFill();
 		}

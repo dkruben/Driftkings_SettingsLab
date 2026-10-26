@@ -90,12 +90,12 @@
     {
       "path": "default/minimap_enhancements.json",
       "source_sha256": "dfaa52eb85cb1a534dec7230085819638293ffd3220ac3ed81a87ac6869acb41",
-      "sha256": "1224f1432012b08257e23fe083f733bf0327f3c75332ca46915df05615b7b1af"
+      "sha256": "ed45eaa98fe53e19726afa9c7f4f51c5ba446a4c894ff5dfb38aeb1976929797"
     },
     {
       "path": "default/minimap_enhancements/minimap.json",
       "source_sha256": "de64e128582a012f20414e5aab72e09f8462db98ad1a2c17b0aabb2448d0dd33",
-      "sha256": "59a30d4fc952e5c0da70ef56ea24186db26124fdbfbb89859dcc2e9d4c6ec482"
+      "sha256": "cf0cdaa512441c15a0e4eb462ae1654e0a13a4c6e8c2ccf4a4bdb319d7364d76"
     },
     {
       "path": "default/minimap_enhancements/minimap_circles.json",
@@ -229,7 +229,7 @@
     {
       "path": "default/vehicle_carousel/carouselsmall.json",
       "source_sha256": "e6b3cc21a73acb53ef9e5f3d3616747327fd6a2b860a5b7a51dd4da18d4b6864",
-      "sha256": "bd7e323d06d4821ef483cebdd23a71684a6f7b374aa3869b487e30aa048e0fd8"
+      "sha256": "a983bc0f3a87cb709399e14ac11e9c57d911eda23bb9e1821c15f68949592902"
     },
     {
       "path": "default/vehicle_health.json",
@@ -242,19 +242,19 @@
     },
     {
       "path": "default/vehicle_markers/markersAliveExtended.json",
-      "sha256": "2e28d0a5cc978915c0987a59f6cd835bc5c4d94dd4f3748ca6cb6eff07a77d51"
+      "sha256": "1983f10306b89f60a3622c2ea9f458eb878a2631270dcb5ac3065745f0ea16bf"
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "8b62baa750c906a533646c17cbaeff55d77e03f9fb1f37015967d525c8cbcf8b"
+      "sha256": "bb7feb4de65ad7340bb06d1d986b6ef1b73408984d1c84a797614e3623d8875d"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",
-      "sha256": "2af7b4bc2c830e4900d0fc574c2e2200e753221b063d9d19c1bcccff9244a418"
+      "sha256": "bb66c71f2e40a31300294b91d8737eca4369f8cf8c8d4116c98bcfe1ed9ceff5"
     },
     {
       "path": "default/vehicle_markers/markersDeadNormal.json",
-      "sha256": "682a52da8a0996d27ee42524cbf34443774053d8dc0bd1725c486f2b5d30d512"
+      "sha256": "d94a3c0c065670e7afb429a74988c2c29c9e32da4d0a54e32cc53b4045083be1"
     },
     {
       "path": "load.json",

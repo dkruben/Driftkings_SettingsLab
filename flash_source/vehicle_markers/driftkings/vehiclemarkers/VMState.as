@@ -46,18 +46,20 @@ package driftkings.vehiclemarkers
         public static function makeField(options:Object):TextField
         {
             var field:TextField = new TextField();
+            // Match the client's TextManager: resolve aliases through its shared font library.
+            field.embedFonts = true;
             field.mouseEnabled = field.selectable = false;
             field.width = options.width; field.height = options.height;
             field.x = options.x; field.y = options.y;
             var style:Object = options.textFormat;
-            var textFormat:TextFormat = style ? new TextFormat(style.font, style.size, 0xFFFFFF, style.bold, style.italic)
-                                             : new TextFormat("$FieldFont", 13, 0xFFFFFF);
+            var textFormat:TextFormat = style ? new TextFormat(style.font || "$FieldFont", style.size, rgb("#FFFFFF"), style.bold, style.italic)
+                                             : new TextFormat("$FieldFont", 13, rgb("#FFFFFF"));
             textFormat.align = options.align;
             field.defaultTextFormat = textFormat;
             field.multiline = true; field.wordWrap = false;
             // Macro shadow colours ({{c:system}}) are applied per vehicle in refreshFields.
             var shadow:Object = options.shadow;
-            if (shadow.enabled && String(shadow.color).indexOf("{{") < 0)
+            if (shadow && shadow.enabled && String(shadow.color).indexOf("{{") < 0)
                 field.filters = shadowFilters(shadow, String(shadow.color));
             return field;
         }
