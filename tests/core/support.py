@@ -132,6 +132,10 @@ class Hooks(object):
         return self.overrides[(target, name)]
 
 
+# Pure helpers that must behave like production even when every other driftkings import is stubbed.
+ALWAYS_REAL = ('driftkings.logger', 'driftkings.common.utils.compat')
+
+
 def game_source(relative, stubs=None, real=(), extra_builtins=None):
     """Execute a feature module with every game and unlisted Driftkings import stubbed.
 
@@ -149,7 +153,7 @@ def game_source(relative, stubs=None, real=(), extra_builtins=None):
     def importing(name, globals=None, locals=None, fromlist=(), level=0):
         if name in stubs:
             return stubs[name]
-        if name in real or name == 'driftkings.logger' or name.split('.')[0] in STDLIB or name == '__future__':
+        if name in real or name in ALWAYS_REAL or name.split('.')[0] in STDLIB or name == '__future__':
             return original(name, globals, locals, fromlist, level)
         return auto(name) if fromlist else auto(name.split('.')[0])
 
