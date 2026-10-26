@@ -69,5 +69,5 @@ def install_card(component, view_type, owner, resource):
     for name, handler in (('_getChildComponents', get_children),
                           ('_onShown', on_shown), ('_onHidden', on_hidden)):
         # Each card keeps its own hook owner and can be disabled independently.
-        handler.__module__ = owner
+        setattr(handler, '__module__', owner)
         override(RandomHangar, name)(handler)

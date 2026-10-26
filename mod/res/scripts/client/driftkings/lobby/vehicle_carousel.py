@@ -20,11 +20,12 @@ from driftkings.core.carousel_tiers import battle_tiers
 from driftkings.core.hooks import override
 from driftkings.core.wnx import calculate as calculate_wnx
 from driftkings.core.wnx import get_expected as get_wnx_expected
+from driftkings.gameface.hangar.vehicle_carousel import (CarouselController, get_view_config, install_carousel_layout,
+                                                         install_gameface, restore_carousel_layout)
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import calculateRatingScale, getVehicleInfoData
-from driftkings.gameface.hangar.vehicle_carousel import CarouselController, get_view_config, install_carousel_layout, install_gameface
 
 LOG = get_logger('Driftkings.CarouselStats')
 g_controller = None
@@ -222,9 +223,4 @@ def init():
 
 def fini():
     g_controller.stop()
-    for model, native in list(g_rowModels.items()):
-        model.setCarouselRowCount(native)
-    g_rowModels.clear()
-    for presenter in list(g_filterPresenters):
-        presenter._VehicleFiltersDataProvider__updateModel()
-    g_filterPresenters.clear()
+    restore_carousel_layout()

@@ -76,7 +76,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | 2 | Adaptadores batalha, HUD e referências | Concluída | 419 testes core: OK |
 | 3 | Adaptadores hangar e hooks mistos | Concluída | 419 testes core: OK |
 | 4 | Contratos, fronteiras, documentação e release.json | Concluída | 10 novos testes de arquitetura: OK; catálogo/build data válidos |
-| 5 | Validação completa e build | Pendente | Python 2/3, npm, lint, build, GitHub CI |
+| 5 | Validação completa e build | Validação local concluída; CI final em acompanhamento | Python 2/3, npm, lint e build: OK |
 
 ## Registo de execução
 
@@ -136,3 +136,24 @@ driftkings/gameface/
 - Hooks de preferências ativos são instalados no mesmo âmbito do proprietário funcional. Não foram ativados os hooks do antigo módulo misto não referenciado, para não introduzir alterações funcionais.
 - `core/battle_capabilities` continua a consultar capacidades nativas; diálogo de aviso de sound banks usa o builder nativo, sem implementação de View própria; CrewPresenter apenas aciona recolha de dados. Estas dependências não são adaptadores de apresentação próprios.
 - Nenhuma alteração em `mod/res/gui`: HTML/CSS/JS, declarações nativas e bootstrap idênticos à base. Sem alterações às configurações EU nem instalação de pacote.
+
+## Resultados finais de validação local
+
+| Verificação | Resultado |
+| --- | --- |
+| Core Python 3 / Python 2.7 | 429 / 429 testes: OK |
+| Settings panel Python 3 / Python 2.7 | 27 / 27 testes: OK |
+| Installer Python 3 | 33 testes: OK |
+| `npm test` / `npm run lint` | OK / OK |
+| Catálogos de tradução | 18 idiomas; 1491 chaves de componentes, 170 de painel; 0 não traduzidas |
+| Defaults gerados | Sincronizados; 34 componentes |
+| Nomes indefinidos / isort do package | 0 / OK |
+| Catálogo UI e build inputs | 14 Gameface, 10 Flash, 12 injetados; 39 manifests, 301 módulos, 223 assets, 53 defaults |
+| Comparação com a base | Somente os 14 caminhos Python mudaram no catálogo; nenhum outro campo; nenhum recurso visual modificado |
+| Pesquisa dos caminhos Python antigos | Nenhuma referência ativa em runtime, testes, build tools ou build data |
+| Build debug beta com toolchain real | OK; 301 módulos compilados/verificados em Python 2.7; WOTMOD gerado em `build/debug/beta/0.1.3-beta.2` |
+
+- Etapa 5: concluídas as validações acima. A build foi repetida após as correções finais. A reposição nativa do layout/filtros do carrossel também ficou no adaptador, chamada pelo `fini` funcional.
+- Corrigidos os testes de hooks que usavam metadados de funções num namespace de builtins simulado: Python 2.7 restringe essa escrita. Aplicado o mesmo padrão de setter externo já usado pelos testes de BattleCardAdapter. A autoria de hooks do runtime é preservada.
+- CI intermédio de `8456378` detetou o import em falta documentado na etapa 4; CI de `d916f05` detetou a limitação dos testes Python 2.7, corrigida nesta etapa. Estes resultados não são tratados como validações aprovadas. O CI do commit final será acompanhado após push.
+- Nenhuma versão publicada, tag alterada ou instalação EU substituída. Os testes no cliente listados acima continuam pendentes.

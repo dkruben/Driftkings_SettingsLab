@@ -210,3 +210,15 @@ def install_carousel_layout():
             return None
         return original(presenter, event, contentID)
 
+
+
+def restore_carousel_layout():
+    component = _component()
+    g_rowModels = component.g_rowModels
+    g_filterPresenters = component.g_filterPresenters
+    for model, native in list(g_rowModels.items()):
+        model.setCarouselRowCount(native)
+    g_rowModels.clear()
+    for presenter in list(g_filterPresenters):
+        presenter._VehicleFiltersDataProvider__updateModel()
+    g_filterPresenters.clear()

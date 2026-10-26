@@ -3,7 +3,7 @@
 import ast
 import os
 
-from support import CLIENT, RuntimeTest, game_source, module, source
+from support import CLIENT, Hooks, RuntimeTest, game_source, module, source
 
 
 class GamefaceArchitectureTests(RuntimeTest):
@@ -78,7 +78,14 @@ class GamefaceArchitectureTests(RuntimeTest):
     def test_native_tab_hooks_preserve_hud_service_ownership_and_cleanup(self):
         visibility = self.load('core.hud_visibility').HudVisibility()
         visibility.active = True
-        api, hooks = game_source('gameface/batalha/hud_visibility.py')
+        hooks = Hooks()
+        class TabView(object):
+            pass
+        api = source('gameface/batalha/hud_visibility.py', {
+            'driftkings.core.hooks': module(override=hooks.override),
+            'gui.impl.battle.battle_page.tab_view': module(TabView=TabView)})
+        # Python 2 restricts metadata writes from the stubbed builtins namespace.
+        api['setattr'] = lambda target, name, value: setattr(target, name, value)
         api['install'](visibility)
         shown = hooks.get('TabView', '_onShown')
         hidden = hooks.get('TabView', '_onHidden')
@@ -97,8 +104,16 @@ class GamefaceArchitectureTests(RuntimeTest):
         self.assertTrue(visibility.visible)
 
     def test_hangar_installer_uses_explicit_resource_and_routes_visibility(self):
-        api, hooks = game_source('gameface/hangar/common.py', {
+        hooks = Hooks()
+        class RandomHangar(object):
+            pass
+        api = source('gameface/hangar/common.py', {
+            'driftkings.core.hooks': module(override=hooks.override),
+            'driftkings.core.settings_controller': module(SettingsController=object),
+            'driftkings.gameface.payloads': module(publish_card=None),
+            'gui.impl.lobby.hangar.random.random_hangar': module(RandomHangar=RandomHangar),
             'driftkings.gameface.core': module(INVALID_RES_ID=-1, resource_id=lambda key: 42)})
+        api['setattr'] = lambda target, name, value: setattr(target, name, value)
         calls = []
         component = module(g_controller=module(setVisible=lambda parent, value: calls.append(value)))
         api['install_card'](lambda: component, lambda parent, resource: (parent, resource),

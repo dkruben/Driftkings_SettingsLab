@@ -25,7 +25,8 @@ def install(visibility):
             if wasShown:
                 visibility.block('native', False)
 
-    shown.__module__ = hidden.__module__ = type(visibility).__module__
+    for handler in (shown, hidden):
+        setattr(handler, '__module__', type(visibility).__module__)
     override(TabView, '_onShown', shown)
     override(TabView, '_onHidden', hidden)
     override(TabView, '_finalize', hidden)
