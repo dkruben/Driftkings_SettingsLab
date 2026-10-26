@@ -29,4 +29,4 @@ Dated reviews retain their original evidence, line references, counts and conclu
 - ActionScript fields use the client font library. Marker `xvm`/`XVMSymbol` aliases resolve to `$FieldFont`; legacy private glyphs map to a supported bullet. Fixed colours use `#RRGGBB` with existing numeric converters.
 - WN8 uses random-battle statistics; WNX uses its own assistance-aware calculation and expected values. The EU battle overlay defaults to WN8, EFF and DIFF; WNX remains configurable.
 
-For current commands and release procedures, use [CONTRIBUTING.md](../CONTRIBUTING.md). For feature guides and historical reports, use the [documentation index](../README.md#documentation).
+For current commands and release procedures, use [CONTRIBUTING.md](../CONTRIBUTING.md). For feature guides and historical reports, use the [project overview](../README.md).

@@ -1,207 +1,149 @@
-# Driftkings
+![WoT Version](https://img.shields.io/badge/WoT-2.4.1.0-red.svg)
+[![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
+[![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
+[![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
+[![Beta 0.1.3-beta.2](https://img.shields.io/badge/Beta-0.1.3--beta.2-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)
+[![Stable 0.1.2](https://img.shields.io/badge/Stable-0.1.2-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)
 
-Modpack for Wargaming World of Tanks: battle overlays, hangar improvements and an integrated settings panel.
+# Driftkings Modpack
+
+A configurable modpack for **Wargaming World of Tanks**, with battle statistics, vehicle markers, aiming tools, hangar improvements and an integrated settings panel.
+
+Built for **WoT 2.4.1.0** on **EU, NA and ASIA**.
 
 ## Downloads
 
-Both releases target **WoT 2.4.1.0** on Wargaming EU, NA and ASIA clients.
-
-| Channel | Version | Downloads |
+| Release | Windows installer | Manual installation |
 | --- | --- | --- |
-| Beta (`develop`) | [0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2) | [Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0-Setup.exe) · [Manual ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip) |
-| Stable (`main`) | [0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2) | [Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) · [Manual ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0.zip) |
+| **[Beta 0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip) |
+| **[Stable 0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0.zip) |
 
-[All releases](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes its defaults archive, dependencies, signed updater manifest and SHA-256 checksums.
+[All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
-### Changes in 0.1.3-beta.2
+### What's new in the beta
 
-- Integrated vehicle markers with separate team, alive/destroyed and normal/ALT layouts, shared rating colours and an editable tank preview. The property editor has its own scrollbar and mouse-wheel support.
-- Corrected native ActionScript font handling, marker font aliases and editor validation; standardized fixed colours as `#RRGGBB` using the existing converters.
-- Adopted the author's EU profile for the clock, panel positions, carousel, minimap and markers. The settings window starts at 140% scale and 94% opacity; both remain configurable.
-- Validated the packaged Python 2.7 modules, defaults, installer inputs and every settings page's open/apply round trip. GitHub Actions covers Python 2/3 and Gameface regressions.
-
-The 0.1.3 beta series requires a clean configuration when upgrading from the previous configuration layout: back up personal images and sounds, remove the old `mods/configs/driftkings` folder before starting the game, then configure the mod again in the hangar. Old configurations, interface preferences, translations and caches are no longer imported or cleaned up automatically.
-
-## Included mods and functions
-
-The names below match the settings labels. The module column identifies the corresponding Python file, without the `.py` extension. Components can be enabled or configured individually; availability depends on the vehicle, battle mode and selected options.
-
-### Battle interface and statistics
-
-| Mod | Module | Function |
-| --- | --- | --- |
-| Team panels and battle loading | `team_panels` | Customizes player panels, the team statistics screen and battle-loading information, including player ratings. |
-| Battle performance | `battle_performance` | Calculates battle efficiency ratings such as WNX, WN8, EFF and XTE. Adds configurable macro text to the native results information line, with automatic UI sizing, spacing and vertical separators. |
-| Battle statistics | `battle_statistics` | Compares team statistics and displays an estimated team-strength comparison. Estimates are not a guarantee of the battle outcome. |
-| Marks of Excellence in battle | `battle_marks_of_excellence` | Displays estimated gun-mark progress and combined damage during battle in a movable Gameface panel. |
-| High Caliber progress | `high_caliber_progress` | Tracks damage, the current High Caliber target, remaining damage and eligibility in a Gameface panel. Reaching the displayed target does not guarantee the server award. |
-| Vehicle health | `vehicle_health` | Displays the player's vehicle health with configurable text and positioning. |
-| Target information | `target_information` | Shows configurable information about the targeted vehicle. |
-| Target distance | `target_distance` | Displays the distance to the current target. |
-| Minimap enhancements | `minimap_enhancements` | Customizes minimap labels, circles, lines and vehicle information. |
-| Vehicle markers | `vehicle_markers` | Configures text, ratings, health bars, floating damage and icons by team, alive/destroyed state and normal/ALT mode. Includes reusable templates, a tank preview and an independent property scrollbar. Special modes retain native markers; XMQP is not included. |
-| Spotted and assist notifications | `enemy_spotting_status` | Displays notifications for detected vehicles and spotting, tracking or stun assistance, with configurable text, colors and sound. |
-| Sixth Sense alert | `sixth_sense_alert` | Customizes the Sixth Sense alert, including its icon, sound and timing. |
-| Battle damage log | `game_log_manager` | Filters native damage-log event types and optionally swaps the top and bottom log positions. |
-| Battle preferences | `battle_preferences` | Groups battle presentation and convenience options, including hints, notifications, fog and other native interface controls. |
-
-### Camera, aiming and controls
-
-| Mod | Module | Function |
-| --- | --- | --- |
-| Third-person camera zoom | `third_person_zoom` | Adjusts third-person zoom steps, limits and camera behavior. |
-| Sniper camera | `sniper_camera` | Customizes sniper-camera zoom and related camera options. |
-| Gun traverse limits | `gun_traverse_limits` | Displays the gun's aiming-angle limits. |
-| Aiming reticles | `aiming_reticles` | Customizes aiming-circle size and client/server reticle presentation. |
-| Aiming countdown | `aiming_countdown` | Displays the estimated remaining aiming time. |
-| Shell flight time | `shell_flight_time` | Displays the estimated shell travel time to the aiming point. |
-| Armour penetration indicator | `penetration_indicator` | Displays armour and penetration information for the aimed surface. |
-| Artillery blast radius | `artillery_blast_radius` | Visualizes the shell blast radius for supported artillery aiming modes. |
-| Server turret synchronization | `server_turret_sync` | Synchronizes turret presentation with server aiming data. |
-| Autoaim target indicator | `autoaim_target_indicator` | Highlights the native autoaim target with a configurable indicator color. |
-| Repair controls | `repair_controls` | Provides configurable shortcuts and priorities for repairs, crew treatment and fire extinguishing using available consumables. |
-
-### Hangar and utilities
-
-| Mod | Module | Function |
-| --- | --- | --- |
-| Vehicle carousel | `vehicle_carousel` | Customizes carousel layout, filters and vehicle statistics. |
-| Marks of Excellence in the hangar | `hangar_marks_of_excellence` | Shows gun-mark information and progress for the selected vehicle in a Gameface panel. |
-| Marks of Excellence in the tech tree | `tech_tree_marks_of_excellence` | Adds gun-mark information to supported tech-tree vehicle displays. |
-| Crew management | `crew_management` | Supports automatic crew return and adds crew details, progression, remaining XP and estimated battles in supported crew screens and tooltips. |
-| Service record ratings | `profile_ratings` | Colors native overview, statistics and vehicle profiles; shows player/vehicle WN8, with independent switches, palettes and editable survival/received-damage limits. |
-| Hangar preferences | `hangar_preferences` | Configures header buttons, widgets, notifications and other garage convenience options. |
-| General settings | `main` | Holds options that apply to the whole mod, starting with the hangar clock. `clock.enabled` switches the clock. The hangar settings panel exposes each clock field in its own tab: position, dimensions, screen/text alignment, Flash HTML text or background image, text color and shadow. These controls save to `clock.formats` in `main.json`; the section's own switch turns all general options off. |
-| AccountManager | `account_manager` | Provides the account-management interface, controlled through Hangar preferences. |
-| Clan reward collection | `clan_reward_collection` | Collects eligible clan rewards automatically when the option is enabled. |
-| Sound bank loader | `sound_bank_loader` | Loads the mod's custom sound banks. |
-
-The integrated settings window (`settings_window`) provides controls, profiles, themes and update settings, including stable/beta channels. Gameface folders and native resource files use the corresponding presentation-module names under `mod/res/gui/gameface/mods/driftkings/` and `mod/res/gui/gen_resources/`.
-
-The retired `hangar_efficiency` panel has been removed; its history remains available in Git.
+- **Vehicle markers:** separate layouts for allies/enemies, alive/destroyed vehicles and normal/ALT views; configurable text, ratings, health bars, icons and floating damage.
+- **Live tank preview:** edit marker fields, simulate damage and check team colours, HP and visibility. The property column has its own scrollbar.
+- **Updated defaults:** the author's EU profile for the clock, panel positions, carousel, minimap and markers. Settings-window scale starts at 140%, with 94% opacity.
+- **Font and editor fixes:** corrected native font handling, marker font aliases, colour inputs, slider limits and reference errors.
 
 ## Installation
 
-For guided setup, choose the beta or stable Windows installer from the table above. Select a supported Wargaming game installation; the installer verifies its root, realm and game version.
+### Windows installer
 
 1. Close World of Tanks.
-2. Download the manual ZIP for your chosen release, such as `Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip`.
-3. Extract its `mods` folder into the game installation, merging folders. It includes Driftkings and the required ModsListAPI and OpenWG Gameface packages under `mods/2.4.1.0/`.
-4. For a new installation, extract `Driftkings-defaults.zip` from the same release into the game installation. Preserve existing settings when updating within the current configuration layout; follow the clean-configuration instructions above when moving from the older layout.
-5. Start the game and open Driftkings settings through the mods list.
+2. Download the installer for your chosen release.
+3. Select your game installation and the components you want enabled.
+4. Start the game and open **Driftkings settings** through the mods list.
 
-The defaults are the author's selected mod configurations. Existing personal JSON files take precedence. The in-game updater preserves those configurations; missing settings use packaged defaults.
+The installer checks the game version and region, installs the required dependencies and preserves existing profiles when reinstalling.
 
-To receive future beta updates in game, select the **Beta** update channel in Driftkings settings.
+### Manual installation
 
-An optional Windows installer is built from the same compiler output. Its 30 component choices change JSON configuration only, never the installed WOTMOD/dependency set. Existing profiles are preserved on reinstall. Explicit `/RESETCONFIG=1` backs up configurations before resetting them. Branding and component previews are optional and can be added later.
+1. Close World of Tanks and download the ZIP for your chosen release.
+2. Extract its `mods` folder into the game installation, merging folders.
+3. For a new installation, download `Driftkings-defaults.zip` from the **same release** and extract it into the game installation.
+4. Start the game and open Driftkings settings through the mods list.
 
-The installer creates user-media folders `mods/configs/driftkings/sixthsense/` (default custom icon: `SixthSenseIcon.png`) and `mods/configs/driftkings/images/`, with short READMEs. Uninstall preserves these folders and their contents. Images accept packaged `gui/maps/driftkings/...` resources or custom files in `mods/configs/driftkings/...`; select the paths in the mod settings. These user files are not optional installer payloads.
+**Upgrading from the old configuration layout:** back up your personal images and sounds, then remove the old `mods/configs/driftkings` folder before the first launch of the 0.1.3 beta series. Configure the mod again in the hangar. Older settings and caches are no longer imported automatically.
+
+## Included features
+
+Components can be enabled and configured individually. Availability depends on the vehicle, battle mode and selected options.
+
+### Battle interface and statistics
+
+| Feature | What it does |
+| --- | --- |
+| Team panels and battle loading | Custom player panels, battle-loading information and team statistics, including player ratings. |
+| Vehicle markers | Editable text, ratings, health bars, floating damage and icons, with team/state/ALT layouts and a tank preview. |
+| Battle performance | WNX, WN8, EFF and XTE calculations, with configurable battle text and native results information. |
+| Battle statistics | Team-statistics comparisons and estimated relative strength. |
+| Marks of Excellence | Estimated gun-mark progress and combined damage in a movable battle panel. |
+| High Caliber progress | Damage, target, remaining damage and eligibility in a movable panel. |
+| Vehicle health | Configurable own-vehicle health display. |
+| Target information and distance | Information about the targeted vehicle and its distance. |
+| Minimap enhancements | Vehicle labels, last positions, HP, circles, direction lines and map-size captions. |
+| Spotted and assist notifications | Configurable messages, colours and sounds for detection and spotting, tracking or stun assistance. |
+| Sixth Sense | Custom icon, sound and alert timing. |
+| Battle damage log | Event filters and optional swapping of the native top/bottom logs. |
+| Battle preferences | Hints, notifications, fog and other native interface options. |
+
+### Camera, aiming and controls
+
+| Feature | What it does |
+| --- | --- |
+| Third-person and sniper cameras | Configurable zoom steps, limits and camera behaviour. |
+| Gun traverse limits | Displays the gun's aiming-angle limits. |
+| Aiming reticles | Reticle size and client/server aiming-circle presentation. |
+| Aiming countdown | Estimated remaining aiming time. |
+| Shell flight time | Estimated shell travel time to the aiming point. |
+| Armour penetration indicator | Armour and penetration information for the aimed surface. |
+| Artillery blast radius | Shell blast-radius display in supported artillery aiming modes. |
+| Server turret synchronization | Turret presentation synchronized with server aiming data. |
+| Autoaim target indicator | Configurable highlight for the native autoaim target. |
+| Repair controls | Shortcuts and priorities for repairs, crew treatment and fire extinguishing. |
+
+### Hangar and utilities
+
+| Feature | What it does |
+| --- | --- |
+| Vehicle carousel | Card layouts, filters, sorting and vehicle statistics. |
+| Hangar and tech-tree Marks of Excellence | Gun-mark information for the selected vehicle and supported tech-tree displays. |
+| Crew management | Automatic crew return, progression, remaining XP and estimated battles in supported crew screens. |
+| Service record ratings | Player/vehicle WN8 and configurable rating colours in native service-record screens. |
+| Hangar preferences | Header buttons, widgets, notifications and garage options. |
+| General settings and clock | Editable hangar clock fields with time/date text, background images, positioning and shadows. |
+| AccountManager | Account-management interface, controlled through Hangar preferences. |
+| Clan reward collection | Automatic collection of eligible clan rewards when enabled. |
+| Sound bank loader | Loads the mod's packaged sound banks. |
+
+Ratings and progress displays are estimates; they do not guarantee a battle result, server award or gun-mark increase. Vehicle-marker customization applies to supported regular modes; special modes retain native markers. XMQP is not included.
+
+## Settings and updates
+
+The integrated settings panel includes **profiles, themes, UI scale, translations and update channels**. Marker changes can be checked in the tank preview before applying them.
+
+Default configurations are based on the author's EU profile. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
+
+To receive beta updates, select the **Beta** update channel in Driftkings settings. The `develop` branch carries beta development; `main` carries the stable version.
+
+For custom media, use `mods/configs/driftkings/images/` and `mods/configs/driftkings/sixthsense/`. The default custom Sixth Sense icon is `SixthSenseIcon.png`. Packaged `gui/maps/driftkings/...` image paths are also supported. Select the paths in settings; uninstall preserves your media folders.
+
+### Ratings and palettes
+
+Choose from **NoobMeter, XVM, WoT-Life and Tomato.gg** palettes. WNX includes assistance damage for your own battle, results and carousel vehicles; missing data displays `--`. Expected values refresh daily in the hangar and retain the last valid cache if a download fails.
+
+The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c_wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
+
+### Languages
+
+**18 languages:** Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese.
+
+English is the fallback language. Translation corrections are welcome.
+
+### Optional anonymous statistics
+
+Anonymous usage statistics are **off by default**. You can enable them in settings. When enabled, the mod sends a random installation ID, mod/game versions, region, activity heartbeats and error-location metadata to Google Analytics. It does not send player names, account details, error messages or full filesystem paths. Disabling the option stops sending and deletes the installation ID. Replays are not counted.
 
 ## Compatibility
 
-Designed for Wargaming World of Tanks **EU, NA and ASIA** clients, for **WoT 2.4.1.0**. Mir Tankov/RU is outside scope.
+Supports Wargaming **EU, NA and ASIA** clients for **WoT 2.4.1.0**. Mir Tankov/RU is outside the project's scope.
 
-Version 0.1.2 is the stable release, with in-game validation completed for the panels and automatic-update installation.
+The stable release has prior in-game validation. Beta 0.1.3-beta.2 passed package verification and GitHub Actions, including Python 2/3 and Gameface tests. Its latest marker, font and layout changes still need visual confirmation in game.
 
-Version 0.1.3-beta.2 passed the source, package and GitHub Actions checks. Its latest marker, font and settings-layout changes still need visual confirmation in game.
+## Development
 
-## WNX and Tomato.gg colours
+The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
-Choose **Tomato.gg** in a feature's colour-table setting to use the published [Tomato.gg reference](https://tomato.gg/wnx). Existing palettes remain selectable.
-
-WNX is calculated for your own battle, battle results and carousel vehicles, including assistance damage. Use `{wnx}` / `{c:wnx}` in battle/results templates, or `{{v.wnx}}` / `{{v.c_wnx}}` on carousel cards. The EU-profile battle overlay defaults to WN8, EFF and DIFF; add the WNX macros to display it there. The carousel also supports sorting by `wnx`. Missing data displays `--`.
-
-Expected values refresh daily in the hangar, retaining the last valid cache if a download fails. Without a valid cache, WNX displays `--` until a download succeeds. The bundled colour scale is a snapshot from 25 October 2026. These additions require in-game validation; existing service-record and player-panel WN8 displays are unchanged.
-
-## Anonymous statistics (optional)
-
-Driftkings can send anonymous usage statistics to Google Analytics. It is **off by default** and is enabled in **Settings → Anonymous statistics**. When on, it sends a random installation ID, the mod and game versions, the realm, a heartbeat while the game is open and the type and source location (file, line, function) of errors logged by the mod. It never sends player names, accounts, error messages or file paths. Turning the switch off stops all sending and deletes the installation ID (`mods/configs/driftkings/analytics_id`). Replays are not counted. Builds without a configured Measurement ID and API secret in `core/analytics.py` do not send anything, even with the switch on.
-
-## Languages
-
-Settings translations: Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese. Translation corrections are welcome. Bundled translations are editable UTF-8 `.yml` files in `mod/res/mods/driftkings/text/`; see [contribution guide](CONTRIBUTING.md#translation-resources) for the format and JSON override paths.
-
-## Build from source
-
-All commands below run from the repository root. This repository contains the compiler, runtime sources, defaults and required resource inputs. Generated packages, Python bytecode, caches and local tests are excluded from Git. Download compiled packages from Releases.
-
-On Windows, configure Python 3.10+, Python 2.7, Java/Flex, playerglobal and game SWCs, RABCDAsm and the .NET C# compiler. Inno Setup 6.7.1+ is required to compile the Windows installer. Game and reference directories are external read-only inputs.
-
-```powershell
-python build_tools/compiler.py --plan
-python build_tools/validate_build_data.py
-.\debug.cmd
-.\release.cmd
-```
-
-Set `version` and `channel` in `build_data/release.json`, for example `"version": "0.1.3-beta.2", "channel": "beta"` or `"version": "0.1.2", "channel": "stable"`. The compiler validates their agreement and synchronizes `VERSION` in the original Python source after prerequisite validation. The installer takes its version from the completed build. An explicit `--version` also updates the JSON and Python source; `--channel` validates the selected version. `--plan` never writes files. For temporary older-version updater tests, use `--version ... --keep-source-version` to leave both originals unchanged. A version change modifies the Git checkout: commit it and rebuild before signing and publishing, so the release records a clean source revision. Version numbers are never incremented automatically.
-
-Check portable logic with `python -m unittest discover -s tests/settings_panel -p 'test_*.py'` and `python -m unittest discover -s tests/core -p 'test_*.py'`; both suites also run on Python 2.7. Run `node tests/settings_panel/test_gameface.js` for the Gameface state tests. Install development dependencies with `npm ci --ignore-scripts`, then run `npm run lint` to enforce ES5 syntax and basic JavaScript checks. These tools run on Node 20.19+; client scripts remain ES5.
-
-Edit defaults in `res/configs/driftkings/default/`, then run `python build_tools/generate_defaults.py --write` to regenerate the Python fallback. For intentional changes to the default values, also refresh the recorded snapshot with `python build_tools/generate_defaults.py --write --refresh-snapshot`. Use `python build_tools/generate_defaults.py --check` to check synchronization without writing files; never edit `settings/default_values.py` by hand.
-
-The current build contract uses the (EU, NA) installation as its resource source and an EU source reference. Local tool paths belong in ignored `build_data/toolchain.local.json`. Builds compile Python 2.7 to standard bytecode without obfuscation, Flash and native helpers, generate the carousel integration and verify the packages. Outputs go to `build/`; compilation does not install or publish them.
-
-To compile the Windows installer and include it in the release inventory and checksums:
-
-```powershell
-python build_tools/build_installer.py --artifacts build/releases/beta/0.1.3-beta.2 --compile --attach-to-release
-```
-
-Sign `release.json` after preparing all release assets, then publish with `build_tools/publish_release.py`. The installer is uploaded with the other verified assets.
-
-To update an existing published release, first edit and save its release notes on GitHub, commit the intended code and source version, then run:
-
-```powershell
-python build_tools/update_release.py --key release-signing.key --publish
-```
-
-This imports those notes into the signed changelog, rebuilds the mod and installer, verifies the assets and replaces the existing release files. It also moves the remote release tag to the compiled source commit. Omit `--publish` to build and sign locally without changing GitHub. Notes must fit the panel contract: 50 nonempty lines, 500 characters per line and 16 KiB total UTF-8. The private key stays local. Replacing files under the same version does not trigger an automatic update for clients already running that version; editing GitHub notes alone does not change the signed changelog.
-
-| Directory | Contents |
-| --- | --- |
-| `mod/res` | Runtime Python, Gameface and packaged resource inputs |
-| `flash_source` | ActionScript sources and compilation libraries |
-| `installer/source` | Native helper sources |
-| `build_data` | Build contracts, components, targets and release metadata |
-| `build_tools` | Compiler, validators and release tooling |
-| `res` | Canonical defaults, dependencies and resource sources |
-| `docs` | Documentation, feature guides and historical audits |
-
-## Image paths
-
-Overlay images and custom Sixth Sense icons accept `gui/maps/driftkings/...` resources or user files in `mods/configs/driftkings/...`, including their fixed SWF-relative forms. `img://` prefixes remain supported. Move custom images from other folders into `mods/configs/driftkings/` and update their configuration paths. External URLs, absolute paths and directory traversal are rejected; overlays use their configured alternative image, and Sixth Sense uses its embedded fallback icon when loading fails.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 
 ## Support and credits
 
-[Join the Driftkings Discord community](https://discord.gg/GJcy4x7SP).
+[Join Discord](https://discord.gg/GJcy4x7SP) · [Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) · [Browse releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
 
-[Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) with the mod version, game version/realm, reproduction steps and relevant `game.log` excerpts. Remove personal information before sharing logs.
+When reporting a problem, include the mod version, game version, region, reproduction steps and relevant `game.log` excerpts. Remove personal information before sharing logs.
 
-Dependencies: ModsListAPI by poliroid and OpenWG Gameface.
+Dependencies: **ModsListAPI** by poliroid and **OpenWG Gameface**.
 
-## Documentation
-
-The project README and contribution guide live at the repository root; feature guides and historical reports live in `docs/`. Paths shown in code spans are relative to the repository root unless a guide says otherwise. Local research data and scripts are excluded from Git and from the mod packages.
-
-### Development and feature guides
-
-- [Contribution guide](CONTRIBUTING.md): architecture, conventions, tests and release workflow.
-- [Current documentation status](docs/STATUS.md): release baseline and verification limits.
-- [Development references](docs/FONTES_DESENVOLVIMENTO.md): local WoT sources and toolchain inputs.
-- [Vehicle markers](docs/vehicle_markers/README.md): layouts, fonts, ratings, damage and editor.
-- [Hangar clock](docs/hangar_preferences/README.md): General settings and `clock.formats`.
-- [Vehicle carousel](docs/vehicle_carousel/README.md): native fields, macros and statistics.
-- [High Caliber / MainGun](docs/MainGun_Gameface.md): Gameface implementation and behaviour.
-- [Languages](docs/i18n/README.md), [sound banks](docs/audioww/README.md) and [Sixth Sense icons](docs/sixthsense_icons/README.md).
-- [Retired HangarEfficiency](docs/hangar_efficiency/README.md): historical status and replacements.
-
-### Historical reviews and studies
-
-These reports retain their original findings and data dates; their update notes explain the current context.
-
-- [Constants review](docs/analise_constants.md), [XVM/configuration/mode analysis](docs/Analise_XVM_Configs_Modos.md) and [duplication review](docs/plano_duplicacoes.md).
-- [Code review, 20 October](docs/Revisao_Codigo_2026-10-20.md), [translation review, 22 October](docs/Revisao_Traducoes_2026-10-22.md) and [control descriptions, 23 October](docs/Revisao_Descricoes_2026-10-23.md).
-- [WN8 exploratory study](docs/wn8-study/report.md), [WN8 audit](docs/wn8-study/wn8-audit-report.md) and [assistance normalization](docs/wn8-study/normalized-report.md).
-- [Contribution prototype](docs/wn8-study/contribution-report.md), [normalized contribution](docs/wn8-study/contribution-normalized-report.md) and [experimental colour preview](docs/wn8-study/color-preview.md).
+Licensed under [GPL-3.0](licence).
