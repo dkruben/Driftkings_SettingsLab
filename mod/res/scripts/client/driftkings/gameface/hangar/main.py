@@ -3,7 +3,7 @@ from driftkings._constants import GLOBAL, HANGAR_PREFERENCES, MAIN
 from driftkings.logger import get_logger
 from driftkings.settings.service import affects, settings_service
 
-LOG = get_logger('driftkings.views.hangar.main')
+LOG = get_logger('driftkings.gameface.hangar.main')
 """Hangar clock presentation for the main section; its state stays in the component."""
 from importlib import import_module
 import weakref
@@ -11,7 +11,12 @@ import weakref
 from helpers import getClientLanguage
 
 from driftkings.core.hooks import override
+from driftkings.interface_catalog import gameface_spec
 from driftkings.gameface.hangar.common import HangarController, publish_card
+
+
+FEATURE = 'DriftkingsHangarClock'
+RESOURCE = gameface_spec(FEATURE)['resource']
 
 
 def _component():
@@ -88,7 +93,7 @@ def install_clock_gameface():
         def _initialize(self):
             super(ClockModel, self)._initialize()
             self._addStringProperty('payload', '{}')
-            attach_assets(self, _component().FEATURE)
+            attach_assets(self, FEATURE)
 
     class ClockView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -137,9 +142,9 @@ def install_clock_gameface():
     def get_children(original, parent, *args, **kwargs):
         children = dict(original(parent, *args, **kwargs))
         try:
-            resource_id = resolve_resource(_component().RESOURCE)
+            resource_id = resolve_resource(RESOURCE)
             if resource_id == INVALID_RES_ID:
-                LOG.error('Missing Gameface clock resource: ' + _component().RESOURCE)
+                LOG.error('Missing Gameface clock resource: ' + RESOURCE)
             else:
                 children[resource_id] = lambda: ClockView(parent, resource_id)
         except Exception:

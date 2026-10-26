@@ -2,6 +2,8 @@
 from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
 from driftkings.core import carousel as layout
 from driftkings.core.carousel_options import from_carousel
+from driftkings.core.hooks import override
+from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.service import affects, settings_service
 
 """Presentation adapter for CarouselStats; gameplay state stays in its component."""
@@ -13,6 +15,10 @@ from gui.shared.personality import ServicesLocator
 
 from driftkings.gameface.hangar.common import card_payload, HangarController, install_card, publish_card
 from driftkings.common.utils.compat import string_types
+
+
+FEATURE = 'DriftkingsCarouselStats'
+RESOURCE = gameface_spec(FEATURE)['resource']
 
 
 def _component():
@@ -82,7 +88,7 @@ def install_gameface():
             super(CarouselModel, self)._initialize()
             self._addStringProperty('payload', '{}')
             self.onRequestVehicles = self._addCommand('onRequestVehicles')
-            attach_assets(self, _component().FEATURE)
+            attach_assets(self, FEATURE)
 
     class CarouselView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -150,4 +156,58 @@ def install_gameface():
                 with self.getViewModel().transaction() as model:
                     model._setString(0, '{"config":{"visible":false}}')
 
-    install_card(_component, CarouselView, __name__)
+    install_card(_component, CarouselView, __name__, RESOURCE)
+
+
+def install_carousel_layout():
+    component = _component()
+    config = component.config
+    LOG = component.LOG
+    g_rowModels = component.g_rowModels
+    g_filterPresenters = component.g_filterPresenters
+    g_controller = component.g_controller
+    from gui.impl.gen.view_models.views.lobby.hangar.sub_views.vehicle_filter_model import VehicleFilterModel
+    @override(VehicleFilterModel, 'setCarouselRowCount')
+    def set_rows(original, model, value):
+        try:
+            g_rowModels[model] = value
+        except TypeError:
+            LOG.debug('Carousel model is not weak-referenceable; row count not tracked')
+        rows = layout.row_count(settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL], value) if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else value
+        # The client model/toggle remains single or double; our Gameface bridge
+        # expands effectiveRows to three/four without saving invalid client prefs.
+        result = original(model, min(2, rows))
+        if not getattr(g_controller, 'updatingSettings', False):
+            for child in list(g_controller.views.values()):
+                child.refresh()
+        return result
+
+    from gui.impl.lobby.hangar.presenters.vehicle_filters_presenter import VehicleFiltersDataProvider
+    @override(VehicleFiltersDataProvider, '_VehicleFiltersDataProvider__updateModel')
+    def update_filters(original, presenter):
+        result = original(presenter)
+        g_filterPresenters.add(presenter)
+        order = settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['nations_order'] if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else []
+        if order:
+            with presenter.viewModel.transaction() as model:
+                target = model.getNationsOrder()
+                existing = list(target)
+                ordered = [value for value in order if value in existing] + [value for value in existing if value not in order]
+                target.clear()
+                for value in ordered:
+                    target.addString(value)
+        return result
+
+    @override(VehicleFiltersDataProvider, '_finalize')
+    def finalize_filters(original, presenter, *args, **kwargs):
+        g_filterPresenters.discard(presenter)
+        return original(presenter, *args, **kwargs)
+
+    from gui.impl.gen import R
+    from gui.impl.lobby.hangar.presenters.vehicle_inventory_presenter import VehicleInventoryPresenter
+    @override(VehicleInventoryPresenter, 'createToolTipContent')
+    def tooltip(original, presenter, event, contentID):
+        if settings_service.getComponentDict(config)[GLOBAL.ENABLED] and settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['suppressCarouselTooltips'] and contentID == R.views.mono.hangar.vehicle_tooltip():
+            return None
+        return original(presenter, event, contentID)
+

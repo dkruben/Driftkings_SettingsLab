@@ -6,7 +6,7 @@ config = ProfileRatingsSettings()
 
 
 def init():
-    from driftkings.views.hangar.profile_ratings import install
+    from driftkings.gameface.hangar.profile_ratings import install
     from driftkings.views.hangar.profile_statistics import install as install_statistics
     install()
     install_statistics()

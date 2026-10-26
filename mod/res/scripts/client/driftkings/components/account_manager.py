@@ -140,7 +140,7 @@ class AccountsManagerController(object):
         if not self.canLogin():
             return
         if self.launcher is None:
-            from driftkings.views.hangar.account_manager import AccountsWindow
+            from driftkings.gameface.hangar.account_manager import AccountsWindow
             self.launcher = AccountsWindow(self, launcher=True)
             self.launcher.load()
         else:
@@ -148,7 +148,7 @@ class AccountsManagerController(object):
 
     def open(self):
         if self.window is None and self.active and self.canLogin() and settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True):
-            from driftkings.views.hangar.account_manager import AccountsWindow
+            from driftkings.gameface.hangar.account_manager import AccountsWindow
             self.window = AccountsWindow(self)
             self.window.load()
 

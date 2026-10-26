@@ -6,6 +6,11 @@ from frameworks.wulf import ViewModel, ViewSettings
 from gui.impl.pub import ViewImpl
 
 from driftkings.core.hooks import override
+from driftkings.interface_catalog import gameface_spec
+
+
+FEATURE = 'DriftkingsMarksOnGunTechTree'
+RESOURCE = gameface_spec(FEATURE)['resource']
 
 
 def _component():
@@ -29,7 +34,7 @@ def install():
         def _initialize(self):
             super(MarksModel, self)._initialize()
             self._addStringProperty('payload', '{}')
-            attach_assets(self, _component().FEATURE)
+            attach_assets(self, FEATURE)
 
     class MarksView(ViewImpl):
         def __init__(self, resource_id):
@@ -53,9 +58,9 @@ def install():
     @override(TechTreeView, '_onLoading')
     def new__on_loading(original, view, *args, **kwargs):
         try:
-            resource_id = resolve_resource(_component().RESOURCE)
+            resource_id = resolve_resource(RESOURCE)
             if resource_id == INVALID_RES_ID:
-                _component().LOG.warning('Missing resource map entry: %s', _component().RESOURCE)
+                _component().LOG.warning('Missing resource map entry: %s', RESOURCE)
             else:
                 child = MarksView(resource_id)
                 _component()._views[view] = child

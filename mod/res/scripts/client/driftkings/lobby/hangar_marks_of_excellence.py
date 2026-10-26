@@ -18,15 +18,12 @@ from driftkings.core.cache import cache_directory
 from driftkings.core.hooks import override
 from driftkings.core.marks_calculator import ceil_damage, combined_damage, hangar_goal, statistics
 from driftkings.core.marks_state import marks_state
-from driftkings.interface_catalog import gameface_spec
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import getVehicleInfoData
 from driftkings.views.marks_model import delta_model, milestone_model, number_locale
 
 LOG = get_logger('Driftkings.MarksOnGunHangar')
-FEATURE = 'DriftkingsMarksOnGunHangar'
-RESOURCE = gameface_spec(FEATURE)['resource']
 g_controller = None
 from driftkings._constants import MARK_THRESHOLDS as THRESHOLDS
 
@@ -405,7 +402,7 @@ g_history = ProgressHistory()
 g_data = MarksOnGunData()
 
 
-from driftkings.views.hangar.hangar_marks_of_excellence import (get_view_config, install_gameface,
+from driftkings.gameface.hangar.hangar_marks_of_excellence import (get_view_config, install_gameface,
                                                                 MarksOnGunHangarController)
 
 

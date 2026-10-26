@@ -3,10 +3,6 @@ from CurrentVehicle import g_currentVehicle
 from gui.game_control.achievements_earning_controller import EarningAnimationCommand, RewardScreenCommand
 from gui.game_control.AwardController import ProgressiveItemsRewardHandler
 from gui.game_control.PromoController import PromoController
-from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
-from gui.impl.lobby.page.session_stats_presenter import SessionStatsPresenter
-from gui.impl.lobby.user_missions.hangar_widget.presenters.battle_pass_presenter import BattlePassPresenter
-from gui.impl.lobby.user_missions.hangar_widget.services import IBattlePassService, IUserMissionWidgetService
 from gui.prb_control.entities.base.actions_validator import CurrentVehicleActionsValidator
 from gui.prb_control.items import ValidationResult
 from gui.prb_control.settings import PREBATTLE_RESTRICTION
@@ -36,7 +32,7 @@ from driftkings.core.settings_controller import SettingsController
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.views.hangar.hangar_preferences import install_header_options
+from driftkings.gameface.hangar.hangar_preferences import install_header_options
 
 LOG = get_logger('driftkings.lobby.hangar_preferences')
 
@@ -48,11 +44,8 @@ class HangarOptionsController(SettingsController):
     def onSettingsChanged(self, component, changes):
         if not affects(changes, GLOBAL.ENABLED, HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET):
             return
-        visible = dependency.instance(IBattlePassService).isVisible()
-        data = settings_service.getComponentDict(config)
-        if data[GLOBAL.ENABLED] and not data[HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET]:
-            visible = False
-        dependency.instance(IUserMissionWidgetService).setGroupVisibility(BattlePassPresenter.GROUP, visible)
+        from driftkings.gameface.hangar.native_preferences import refresh_battle_pass
+        refresh_battle_pass(settings_service.getComponentDict(config))
 
 
 config = Settings()
@@ -228,31 +221,10 @@ def new__populate(func, self):
 
 
 # hide display session statistics button
-@_overrideIfAvailable(SessionStatsPresenter, '_SessionStatsPresenter__updateSessionStats')
-def new__updateSessionStats(func, self):
-    settings = settings_service.getComponentDict(config)
-    if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_BUTTON, True):
-        return
-    return func(self)
 
 
-@_overrideIfAvailable(SessionStatsPresenter, '_SessionStatsPresenter__updateBattleCount')
-def new__updateBattleCountPresenter(func, self, model):
-    settings = settings_service.getComponentDict(config)
-    if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_BATTLE_COUNT, True):
-        model.setBattleCount(0)
-        return
-    return func(self, model)
 
 
-@_overrideIfAvailable(UserMissionsPresenter, '_updateMissions')
-def new__updateMissions(func, self, vm):
-    settings = settings_service.getComponentDict(config)
-    if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_DAILY_QUEST_WIDGET, True):
-        self._addChild(self._WIDGET_ALIAS.Quests(), False)
-        vm.setAreMissionsActive(False)
-        return
-    return func(self, vm)
 
 
 # hide display pop-up window when receiving progressive decals
@@ -264,14 +236,6 @@ def new__showAward(func, self, ctx):
     func(self, ctx)
 
 
-@_overrideIfAvailable(UserMissionsPresenter, '_updateEntryPoints')
-def new__updateEntryPoints(func, self, vm):
-    settings = settings_service.getComponentDict(config)
-    if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_EVENT_BANNER, True):
-        self._addChild(self._WIDGET_ALIAS.Events(), False)
-        vm.setIsAnyEntryPointAvailable(False)
-        return
-    return func(self, vm)
 
 
 # hide counters in service channel
@@ -302,14 +266,6 @@ def new__rewardScreenExecute(base, self):
     return base(self)
 
 
-@_overrideIfAvailable(UserMissionsPresenter, '_updateBattlePass')
-def new__updateBattlePass(func, self, vm):
-    settings = settings_service.getComponentDict(config)
-    if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET, True):
-        self._addChild(self._WIDGET_ALIAS.BattlePass(), False)
-        vm.setIsBattlePassActive(False)
-        return
-    return func(self, vm)
 
 
 # Auto-Login
@@ -367,20 +323,8 @@ def new__getAllVehiclePossibleXP(func, self, nodeCD, unlockStats):
 
 
 # The current hangar renders Battle Pass through the user missions presenter.
-@override(BattlePassPresenter, 'isVisible')
-def new__battlePassIsVisible(func, self):
-    settings = settings_service.getComponentDict(config)
-    if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET, True):
-        return False
-    return func(self)
 
 
-@override(UserMissionsPresenter, '_onGroupVisibilityChanged')
-def new__missionGroupVisibility(func, self, groupName, isVisible):
-    settings = settings_service.getComponentDict(config)
-    if groupName == BattlePassPresenter.GROUP and settings[GLOBAL.ENABLED] and not settings[HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET]:
-        isVisible = False
-    return func(self, groupName, isVisible)
 
 
 # Handlers
@@ -413,3 +357,6 @@ def fini():
 
 
 # Import registers the presentation hooks with the current component owner.
+
+from driftkings.gameface.hangar.native_preferences import install as install_native_preferences
+install_native_preferences(config, _overrideIfAvailable)

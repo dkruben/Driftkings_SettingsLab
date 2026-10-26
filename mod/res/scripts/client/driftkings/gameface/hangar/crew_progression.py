@@ -122,6 +122,6 @@ def install(config):
                 LOG.exception('Could not publish crew progression')
                 publish_card(self, {'config': {'visible': False}, 'rows': []})
 
-    install_card(lambda: sys.modules[__name__], CrewView, __name__)
-    from driftkings.views.hangar import crew_details
+    install_card(lambda: sys.modules[__name__], CrewView, __name__, RESOURCE)
+    from driftkings.gameface.hangar import crew_details
     crew_details.install()

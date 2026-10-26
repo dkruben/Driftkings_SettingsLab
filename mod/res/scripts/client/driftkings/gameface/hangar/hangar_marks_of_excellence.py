@@ -14,6 +14,10 @@ from driftkings.gameface.hangar.common import card_payload, HangarController, in
 from driftkings.views.marks_model import moved_panel, number_locale
 
 
+FEATURE = 'DriftkingsMarksOnGunHangar'
+RESOURCE = gameface_spec(FEATURE)['resource']
+
+
 def _component():
     # Resolve live state after component initialization; avoid circular imports.
     return import_module('driftkings.lobby.hangar_marks_of_excellence')
@@ -80,7 +84,7 @@ def install_gameface():
             super(MarksModel, self)._initialize()
             self._addStringProperty('payload', '{}')
             self.onSavePosition = self._addCommand('onSavePosition')
-            attach_assets(self, _component().FEATURE)
+            attach_assets(self, FEATURE)
 
     class MarksView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -141,4 +145,4 @@ def install_gameface():
                 return
             settings_service.apply(_component().config, {HANGAR_MARKS_OF_EXCELLENCE.PANEL: panel})
 
-    install_card(_component, MarksView, __name__)
+    install_card(_component, MarksView, __name__, RESOURCE)

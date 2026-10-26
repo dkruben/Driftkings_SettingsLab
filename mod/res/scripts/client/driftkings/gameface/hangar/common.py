@@ -38,7 +38,7 @@ def card_payload(previous, config_only, visible, config, build):
     return payload
 
 
-def install_card(component, view_type, owner):
+def install_card(component, view_type, owner, resource):
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
 
     from driftkings.core.hooks import override
@@ -48,9 +48,9 @@ def install_card(component, view_type, owner):
     def get_children(original, parent, *args, **kwargs):
         children = dict(original(parent, *args, **kwargs))
         try:
-            resource_id = resolve_resource(component().RESOURCE)
+            resource_id = resolve_resource(resource)
             if resource_id == INVALID_RES_ID:
-                component().LOG.warning('Missing Gameface resource: %s. Rebuild the Driftkings resource map for this client.', component().RESOURCE)
+                component().LOG.warning('Missing Gameface resource: %s. Rebuild the Driftkings resource map for this client.', resource)
             else:
                 children[resource_id] = lambda: view_type(parent, resource_id)
         except Exception:

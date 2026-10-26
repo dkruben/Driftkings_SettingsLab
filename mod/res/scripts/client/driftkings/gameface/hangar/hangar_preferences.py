@@ -4,7 +4,7 @@ from driftkings.interface_catalog import gameface_spec
 from driftkings.logger import get_logger
 from driftkings.settings.service import affects, settings_service
 
-LOG = get_logger('driftkings.views.hangar.hangar_preferences')
+LOG = get_logger('driftkings.gameface.hangar.hangar_preferences')
 """Presentation adapter for HangarOptions; gameplay state stays in its component."""
 from importlib import import_module
 

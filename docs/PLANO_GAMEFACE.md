@@ -74,7 +74,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | 0 | Auditoria, mapa e decisão de nomes | Concluída | Inventário acima; nenhum código migrado |
 | 1 | Package, núcleo, publicação partilhada, registo e comuns | Concluída | 419 testes core Python 3: OK |
 | 2 | Adaptadores batalha, HUD e referências | Concluída | 419 testes core: OK |
-| 3 | Adaptadores hangar e hooks mistos | Pendente | Testes controllers/carousel/profile/janelas |
+| 3 | Adaptadores hangar e hooks mistos | Concluída | 419 testes core: OK |
 | 4 | Contratos, fronteiras, documentação e release.json | Pendente | Testes arquitetura/imports/ciclos |
 | 5 | Validação completa e build | Pendente | Python 2/3, npm, lint, build, GitHub CI |
 
@@ -92,3 +92,5 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 - Etapa 1 (`22d12d1`): movidos núcleo, registo de janelas e comuns; publicação extraída para `gameface/payloads.py` sem imports do motor, eliminando dependência batalha → hangar. Imports e testes atualizados; 419 testes core passaram. Auditoria inicial: `58086e7`. Uma leitura com encoding Windows impediu a atualização deste registo no commit de código; corrigida usando UTF-8 explícito antes de prosseguir.
 
 - Etapa 2: migrados individualmente MainGun, marcas e TAB para `gameface/batalha`; catálogo, imports e testes alinhados. Hooks TabView extraídos do serviço HUD, mantendo proprietário/ativação originais. `handler.py` mantém-se Scaleform: WindowLayer apenas seleciona a página Flash nativa. Corrigida a pesquisa do teste de pares de eventos para abranger a árvore cliente inteira. 419 testes core: OK.
+
+- Etapa 3: migrados os 11 adaptadores hangar e os contratos respetivos; recursos de relógio, carrossel e marcas saíram dos componentes funcionais. Extraídos também os hooks ativos de presenters nativos de `lobby/hangar_preferences.py` para `native_preferences.py` e os hooks de layout/filtros/tooltips do carrossel. O componente fornece configuração e caches sem dependências circulares de inicialização. Separados os hooks Gameface do ficheiro misto `hangar_preferences_hooks.py`, preservando a ausência de ativação desse módulo não referenciado. A recolha de dados acionada por CrewPresenter permanece funcional. Todos os 419 testes core passaram. Batalha publicada em `bed9b5a`.
