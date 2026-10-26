@@ -3,7 +3,7 @@
     'use strict';
     var DK=window.DK=window.DK || {}, M=DK.vehicleMarkerModel;
     function create(parent, mod, context) {
-        var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, section='textFields', selected=0;
+        var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, arrays={}, section='textFields', selected=0;
         // XVM files edited by this form: markers.json and the four state files.
         var ROOTS=['markers'].concat(M.STATE_KEYS);
         var FIELD={name:'',enabled:true,x:0,y:-36,alpha:100,align:'center',format:'{{vehicle}}',
@@ -98,7 +98,18 @@
             return name && !current.inline ? [current.key,'def',name] : path;
         }
         function pathGet(path) { var value=model; path.forEach(function (key) { value=value && value[key]; }); return value; }
-        function pathSet(path,value) { var target=model; path.slice(0,-1).forEach(function (key) { if (!target[key] || typeof target[key]!=='object') { target[key]={}; } target=target[key]; }); target[path[path.length-1]]=value; }
+        function pathSet(path,value) {
+            var target=model;
+            path.slice(0,-1).forEach(function (key,index) {
+                if (!target[key] || typeof target[key]!=='object') {
+                    // A list shown from defaults must become a real array, not an object keyed by index.
+                    var shown=arrays[path.slice(0,index+1).join('.')];
+                    target[key]=shown?M.clone(shown):{};
+                }
+                target=target[key];
+            });
+            target[path[path.length-1]]=value;
+        }
         function set(path,value,commit) {
             pathSet(path,value); error.textContent=''; if (commit) { save(path[0]); } draw();
         }
@@ -112,17 +123,24 @@
                 if (key==='scale') { def.min=0.25; def.step=0.05; }
                 if (value===null) { def.type='text'; def.label += ' (auto)'; }
                 if (key==='maxCount') { def.min=1; def.max=12; }
+                // Paths start with the XVM file key (markersAliveNormal...), so containers are looked up anywhere in the path.
+                // The limits below match the validation in core/vehicle_markers (healthbar.py, damage.py).
+                var inBar=path.indexOf('healthBar')>=0, inBorder=path.indexOf('border')>=0;
                 if (key==='size') { def.min=1; def.max=100; }
+                if (key==='size' && inBorder) { def.min=0; def.max=10; }
                 if (key==='value') { def.max=Math.max(101,value); def.step=0.1; }
-                if (key==='rise') { def.max=300; }
-                if (key==='duration') { def.min=0.1; def.max=path[0]==='healthBar'?5:10; }
+                if (key==='rise' || key==='maxRange') { def.max=300; }
+                // speed (damage text display time) and fade (health bar damage trail) are seconds.
+                if (key==='speed') { def.min=0.1; def.max=10; def.step=0.1; }
+                if (key==='fade') { def.min=0.1; def.max=5; def.step=0.1; }
+                if (key==='duration') { def.min=0.1; def.max=inBar?5:10; }
                 if (key==='delay') { def.max=5; }
                 if (key==='blur' || key==='strength' || key==='distance') { def.max=100; }
                 if (key==='angle') { def.min=-360; def.max=360; }
                 if (key==='width' || key==='height') {
                     def.min=1; def.max=1000;
-                if (path[0]==='healthBar') { def.min=key==='width'?4:2; def.max=key==='width'?500:100; }
-                    if (path.indexOf('border')>=0) { def.min=0; def.max=10; }
+                    if (inBar) { def.min=key==='width'?4:2; def.max=key==='width'?500:100; }
+                    if (inBorder) { def.min=0; def.max=10; }
                 }
             } else {
                 var long=key==='format' || key==='blowupMessage' || key==='damageMessage';
@@ -176,15 +194,22 @@
                 } else { widget(owner,next,value); }
             });
         }
+        // The shown list may come from defaults; the first edit or change copies it into the file.
+        function bandList(path,items) {
+            if (!Array.isArray(pathGet(path))) { pathSet(path,M.clone(items)); }
+            return pathGet(path);
+        }
         function arrayForm(owner,path,items) {
+            arrays[path.join('.')]=items;
             items.forEach(function (item,index) { var box=node('div','dk-vm-array-item',null,owner); objectForm(box,path.concat([index]),item); });
-            if (path[0]==='colors' && path[1]==='hp') {
+            // Health colour bands are stored in markers.json as markers.colors.hp.
+            if (path.length===3 && path[0]==='markers' && path[1]==='colors' && path[2]==='hp') {
                 button(owner,label('addBand'),function () {
-                    var bands=pathGet(path), previous=bands.length>1?bands[bands.length-2].value:0;
+                    var bands=bandList(path,items), previous=bands.length>1?bands[bands.length-2].value:0;
                     if (bands.length>=20 || previous>=99) { return; }
-                    bands.splice(bands.length-1,0,{value:Math.floor((previous+100)/2),color:'#FFDD66'}); save('colors'); buildForm(); draw();
+                    bands.splice(bands.length-1,0,{value:Math.floor((previous+100)/2),color:'#FFDD66'}); save('markers'); buildForm(); draw();
                 });
-                if (items.length>1) { button(owner,label('remove'),function () { pathGet(path).splice(items.length-2,1); save('colors'); buildForm(); draw(); }); }
+                if (items.length>1) { button(owner,label('remove'),function () { bandList(path,items).splice(items.length-2,1); save('markers'); buildForm(); draw(); }); }
             }
         }
         function textFields() {
@@ -198,7 +223,7 @@
             objectForm(owner,target,pathGet(target),defaults);
         }
         function buildForm() {
-            widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; form.textContent='';
+            widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; arrays={}; form.textContent='';
             var buttons=tabs.querySelectorAll('button'); for (var t=0;t<buttons.length;t++) { DK.dom.setClass(buttons[t],'is-active',buttons[t].getAttribute('data-section')===section); }
             if (!model.markers) { return; }
             var current;
