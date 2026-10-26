@@ -105,9 +105,10 @@ const xvm = {enabled: xvmGeneral.enabled, markers: Object.assign({}, xvmGeneral)
 model.STATE_KEYS.forEach(name => { xvm[name] = JSON.parse(fs.readFileSync(path.join(xvmDir, name + '.json'), 'utf8')); });
 const xvmEnemy = model.state(xvm, {group:'enemy',state:'alive',alt:false,hp:70});
 assert.strictEqual(JSON.stringify(xvmEnemy.fields.map(item => item.name)), JSON.stringify(['Tank name','Tank HP','Rating','position','Vehicle distance']));
-assert.deepStrictEqual([xvmEnemy.fields[0].x, xvmEnemy.fields[0].y, xvmEnemy.fields[0].width], [-70, -36, 140]);
+assert.strictEqual(JSON.stringify([xvmEnemy.fields[0].x, xvmEnemy.fields[0].y, xvmEnemy.fields[0].width]), JSON.stringify([-70, -51, 140]));
+assert.strictEqual(xvmEnemy.fields[1].y, -35);
 assert.strictEqual(xvmEnemy.fields[2].x, -172);
-assert.strictEqual(xvmEnemy.fields[2].format, '\u25a0');
+assert.strictEqual(xvmEnemy.fields[2].format, '\u2022');
 assert.strictEqual(xvmEnemy.fields[2].textFormat.font, '$FieldFont');
 assert.deepStrictEqual([xvmEnemy.config.healthBar.x, xvmEnemy.config.healthBar.width, xvmEnemy.config.healthBar.border.color], [-36, 70, '#000000']);
 assert.deepStrictEqual([xvmEnemy.config.icons['class'].containerX, xvmEnemy.config.icons['class'].containerY], [0, -16]);

@@ -17,8 +17,9 @@ FILES = ('markers.json',) + tuple(key + '.json' for key in STATE_KEYS)
 WIRING = re.compile(r'^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$')
 GENERAL = {'debug': False, 'colorRating': 0, 'ratingType': 'wn8',
            'turretMarkers': {'highVulnerability': '*', 'lowVulnerability': "'"}, 'colors': {}}
-# Glyphs of XVM's private icon font drawn with the client font.
-XVM_GLYPHS = {'&#x115;': u'■'}
+# Glyphs of XVM's private icon font drawn with the client font. The bullet (U+2022) exists in every
+# client font library; the square (U+25A0) is missing from $FieldFont (ZurichCond).
+XVM_GLYPHS = {'&#x115;': u'\u2022'}
 TEXT_STYLE = ('font', 'size', 'color', 'bold', 'italic')
 SHADOW = ('enabled', 'distance', 'angle', 'color', 'alpha', 'blur', 'strength')
 FIELD_SIZE = (140, 100)

@@ -53,11 +53,16 @@ class VehicleMarkersXvmTests(RuntimeTest):
         # default_wg shows the distance in alive markers without Alt.
         self.assertEqual(names, ['Tank name', 'Tank HP', 'Rating', 'position', 'Vehicle distance'])
         tank = profile['fields'][0]
-        self.assertEqual((tank['x'], tank['y'], tank['width'], tank['height']), (-70, -36, 140, 100))
+        self.assertEqual((tank['x'], tank['y'], tank['width'], tank['height']), (-70, -51, 140, 100))
+        # The HP text sits inside the bar (-33..-21) and the tank name just above it.
+        bar = profile['healthBar']
+        self.assertEqual(profile['fields'][1]['y'], -35)
+        self.assertTrue(bar['y'] - 3 <= profile['fields'][1]['y'] <= bar['y'])
+        self.assertLessEqual(tank['y'] + 15, bar['y'])
         rating = profile['fields'][2]
         # align right at x=-32: the box ends at the anchor; XVM's icon glyph uses the client font.
         self.assertEqual((rating['x'], rating['align']), (-172, 'right'))
-        self.assertEqual(rating['format'], u'\u25a0')
+        self.assertEqual(rating['format'], u'\u2022')
         self.assertEqual(rating['textFormat']['font'], '$FieldFont')
         self.assertEqual(rating['textFormat']['color'], '{{c:xr|#999999}}')
         self.assertEqual(profile['fields'][3]['shadow']['color'], '{{c:system}}')
@@ -103,7 +108,7 @@ class VehicleMarkersXvmTests(RuntimeTest):
         profile = self.profiles(data)['enemy']['alive']['normal']
         distance = profile['fields'][-1]
         self.assertEqual(distance['format'], '{{alive&&distance?{{distance}}m|}}')
-        self.assertEqual((distance['x'], distance['y'], distance['width']), (-50, -66, 100))
+        self.assertEqual((distance['x'], distance['y'], distance['width']), (-50, -81, 100))
         self.assertEqual((profile['icons']['class']['containerX'], profile['icons']['class']['containerY']), (4, -18))
         self.assertTrue(profile['icons']['class']['showSpeaker'])
         self.assertFalse(profile['icons']['damageIndicatorText']['enabled'])
@@ -132,3 +137,13 @@ class VehicleMarkersXvmTests(RuntimeTest):
         files = dict(self.xvm.split(self.data))
         self.assertEqual(files['markers.json'], self.documents['markers.json'])
         self.assertEqual(self.xvm.join(files), self.data)
+
+    def test_flash_never_uses_replace_callbacks(self):
+        # Scaleform inserts the callback's source text instead of calling it.
+        import re
+        for folder, _, names in os.walk(os.path.join(ROOT, 'flash_source')):
+            for name in names:
+                if name.endswith('.as'):
+                    with open(os.path.join(folder, name), 'rb') as stream:
+                        text = stream.read().decode('utf-8')
+                    self.assertIsNone(re.search(r'\.replace\([^\n]*,\s*function\b', text), name)

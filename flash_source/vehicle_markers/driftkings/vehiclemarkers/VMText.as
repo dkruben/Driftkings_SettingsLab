@@ -125,35 +125,50 @@ package driftkings.vehiclemarkers
             values["c:team"] = teamColor(marker, model, dead);
             values["c:system"] = values["c:team"];
             values["c:hp"] = hpColor(hp, maxHp);
-            for (var iteration:int = 0; iteration < 12 && template.indexOf("{{") >= 0; iteration++)
+            // Scaleform does not call String.replace callbacks (it inserts the function's text),
+            // so the innermost macro is resolved one at a time, as the regex pass did.
+            var scanned:int = 0;
+            for (var steps:int = 0; steps < 512; steps++)
             {
-                var previous:String = template;
-                template = template.replace(/\{\{([^{}]*)\}\}/g, function(...args):String {
-                    var expression:String = String(args[1]);
-                    var question:int = expression.indexOf("?");
-                    var pipe:int = expression.indexOf("|");
-                    if (question >= 0)
-                    {
-                        var branches:Array = expression.substr(question + 1).split("|");
-                        return condition(expression.substring(0, question), values) ? branches[0] : (branches.length > 1 ? branches[1] : "");
-                    }
-                    var fallback:String = pipe >= 0 ? expression.substr(pipe + 1) : "--";
-                    var body:String = pipe >= 0 ? expression.substring(0, pipe) : expression;
-                    var percent:int = body.indexOf("%");
-                    var key:String = percent >= 0 ? body.substring(0, percent) : body;
-                    var value:Object = values[key];
-                    if (value == null) return fallback;
-                    if (percent >= 0)
-                    {
-                        var spec:String = body.substr(percent + 1);
-                        if (spec == "d") value = String(Math.round(Number(value)));
-                        else if (/^0?\.[0-3]f$/.test(spec)) value = Number(value).toFixed(int(spec.charAt(spec.length - 2)));
-                    }
-                    return escaped(value);
-                });
-                if (previous == template) break;
+                var close:int = template.indexOf("}}", scanned);
+                if (close < 0) break;
+                var open:int = template.lastIndexOf("{{", close);
+                var inner:String = template.substring(open + 2, close);
+                if (open < 0 || inner.indexOf("{") >= 0 || inner.indexOf("}") >= 0)
+                {
+                    // Not a macro: braces inside the expression, as the regex excluded.
+                    scanned = close + 2;
+                    continue;
+                }
+                var resolved:String = macro(inner, values);
+                template = template.substring(0, open) + resolved + template.substr(close + 2);
+                scanned = open;
             }
             return template;
+        }
+
+        private static function macro(expression:String, values:Object):String
+        {
+            var question:int = expression.indexOf("?");
+            var pipe:int = expression.indexOf("|");
+            if (question >= 0)
+            {
+                var branches:Array = expression.substr(question + 1).split("|");
+                return condition(expression.substring(0, question), values) ? branches[0] : (branches.length > 1 ? branches[1] : "");
+            }
+            var fallback:String = pipe >= 0 ? expression.substr(pipe + 1) : "--";
+            var body:String = pipe >= 0 ? expression.substring(0, pipe) : expression;
+            var percent:int = body.indexOf("%");
+            var key:String = percent >= 0 ? body.substring(0, percent) : body;
+            var value:Object = values[key];
+            if (value == null) return fallback;
+            if (percent >= 0)
+            {
+                var spec:String = body.substr(percent + 1);
+                if (spec == "d") value = String(Math.round(Number(value)));
+                else if (/^0?\.[0-3]f$/.test(spec)) value = Number(value).toFixed(int(spec.charAt(spec.length - 2)));
+            }
+            return escaped(value);
         }
     }
 }

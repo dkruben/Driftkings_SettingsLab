@@ -69,7 +69,7 @@
     var font = {font:'$FieldFont',size:13,color:null,bold:false,italic:false};
     var field = {name:'',textFormat:font,enabled:true,format:'<font size="13" color="{{c:team}}">{{vehicle}}</font>',x:-100,y:-65,width:200,height:25,alpha:100,align:'center',shadow:shadow};
     function ratingField(alt) {
-        return merge(field,{name:'Rating',format:alt?'{{r}}':'■',x:alt?-100:-65,y:alt?-115:-25,width:alt?200:28,height:25,
+        return merge(field,{name:'Rating',format:alt?'{{r}}':'\u2022',x:alt?-100:-65,y:alt?-115:-25,width:alt?200:28,height:25,
             alpha:alt?100:'{{xvm-stat?100|0}}',align:alt?'center':'right',textFormat:{font:'$FieldFont',size:alt?13:17,color:'{{c:xr}}'}});
     }
     var defaults = {
@@ -182,7 +182,7 @@
     /* XVM files (markers.json wiring + four state files), mirrored from core/vehicle_markers/xvm.py. */
     var STATE_KEYS=['markersAliveNormal','markersAliveExtended','markersDeadNormal','markersDeadExtended'];
     var WIRING=/^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$/;
-    var XVM_GLYPHS={'&#x115;':'■'};
+    var XVM_GLYPHS={'&#x115;':'\u2022'};
     function wiring(raw,team,state,mode) {
         var value=(((raw.markers || {})[team] || {})[state] || {})[mode];
         if (value && typeof value==='object') { return {inline:true,path:['markers',team,state,mode]}; }

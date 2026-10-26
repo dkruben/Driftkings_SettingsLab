@@ -43,7 +43,8 @@ boxes anchored at `x` by `align`, damage text 200x100 boxes, the distance a
 `offsetY` (XVM itself ignores `maxScale`), and the damage indicator text sits at
 `x + 14`, `y - 14`. `{{position}}` is the vehicle's place in its team list from
 the first roster and `{{battletype}}` is empty in random battles. XVM's private
-icon font glyph `&#x115;` is drawn as a client-font square.
+icon font glyph `&#x115;` is drawn as a bullet (U+2022), which every client font library
+contains; `$FieldFont` (ZurichCond) has no square glyph.
 
 `core/vehicle_markers/xvm.py` converts the files to the runtime profiles; the
 editor uses the same mapping in `vehicle_markers_model.js`. The earlier
@@ -67,7 +68,7 @@ the individual metrics and colors are also available. `{{xr}}` is the normalized
 XVM value where the statistics module provides one (WN8/EFF); no normalized WNX
 value is invented. Anonymized or unavailable statistics remain unavailable.
 
-The default alive normal layout shows a colored square, and ALT shows the
+The default alive normal layout shows a colored bullet, and ALT shows the
 selected rating. The square uses the client font rather than requiring XVM's
 icon font. Existing custom field arrays are preserved: use **Add rating** in the
 editor to insert the normal or ALT preset in any of the eight contexts.
