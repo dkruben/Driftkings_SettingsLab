@@ -8,7 +8,7 @@ Modpack for Wargaming World of Tanks: battle overlays, hangar improvements and a
 
 Latest stable version: **0.1.2**, for **WoT 2.4.1.0**.
 
-The `develop` branch carries **[0.1.3-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.1)** for testing. The download links above refer to the stable release.
+The `develop` branch carries **[0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)** for testing. The download links above refer to the stable release.
 
 This beta requires a clean configuration: remove the old `mods/configs/driftkings` folder before starting the game, then configure the mod again in the hangar. Old configurations, interface preferences, translations and caches are no longer imported or cleaned up automatically. Back up any personal images or sounds before removing the folder.
 
