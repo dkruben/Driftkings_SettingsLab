@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import flash.display.DisplayObject;
     import flash.display.Graphics;
     import flash.display.Sprite;
@@ -59,7 +60,7 @@ package driftkings.battle.components.minimap
                 stored.key = key;
                 var g:Graphics = shape.graphics;
                 g.clear();
-                g.lineStyle(1.5, vehiclelabel.parseColor(nearby.color), Number(nearby.alpha) / 100, false, "none");
+                g.lineStyle(1.5, colorutils.parse(nearby.color), Number(nearby.alpha) / 100, false, "none");
                 g.drawCircle(0, 0, radius);
             }
         }

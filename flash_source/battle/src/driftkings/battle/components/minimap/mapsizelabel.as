@@ -1,6 +1,6 @@
 package driftkings.battle.components.minimap
 {
-    import flash.filters.DropShadowFilter;
+    import driftkings.utils.shadowutils;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.text.TextField;
@@ -24,10 +24,7 @@ package driftkings.battle.components.minimap
             field.alpha = Number(size.alpha) / 100;
             field.defaultTextFormat = new TextFormat("$FieldFont", 10, 0xFFCC66);
             var shadow:Object = size.shadow;
-            if (shadow.enabled)
-                field.filters = [new DropShadowFilter(Number(shadow.distance), Number(shadow.angle),
-                    uint(String(shadow.color).replace("#", "0x")), Number(shadow.alpha) / 100,
-                    Number(shadow.blur), Number(shadow.blur), Number(shadow.strength))];
+            if (shadow.enabled) field.filters = shadowutils.filters(shadow);
             // The minimap grid is 10 x 10: {{cellsize}} is the side of one cell in metres.
             field.htmlText = String(size.format).split("{{width}}").join(options.mapWidth).split("{{height}}").join(options.mapHeight)
                 .split("{{cellsize}}").join(Math.round(Number(options.mapWidth) / 10));

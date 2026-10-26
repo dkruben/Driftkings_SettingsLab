@@ -1,10 +1,11 @@
 package driftkings.battle.components.ratings
 {
+    import driftkings.utils.shadowutils;
+    import driftkings.utils.colorutils;
     import flash.utils.Dictionary;
     import flash.utils.getQualifiedClassName;
     import flash.text.TextField;
     import flash.text.TextFormat;
-    import flash.filters.DropShadowFilter;
     public class nativestate
     {
         private var changes:Dictionary = new Dictionary(true);
@@ -154,13 +155,8 @@ package driftkings.battle.components.ratings
         public static function flag(value:*):Boolean
         { return !(value === false || value === null || value === undefined || value === "false" || value === "" || value === 0 || value === "0"); }
         public static function color(value:*, fallback:uint = 0):uint
-        { var s:String = String(value).replace("#", "0x"); var n:Number = Number(s); return isNaN(n) ? fallback : uint(n); }
+        { return colorutils.parse(value, fallback); }
         public static function filters(config:Object):Array
-        {
-            if (!config || config.enabled === false) return [];
-            return [new DropShadowFilter(number(config.distance), number(config.angle), color(config.color),
-                number(config.alpha,100)/100, number(config.blurX,number(config.blur,4)),
-                number(config.blurY,number(config.blur,4)), number(config.strength,1), 2)];
-        }
+        { return shadowutils.filters(config, 4, 2); }
     }
 }

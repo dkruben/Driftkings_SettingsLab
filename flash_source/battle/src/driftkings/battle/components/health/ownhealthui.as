@@ -4,30 +4,19 @@ package driftkings.battle.components.health
    import driftkings.battle.components.health.progressbar;
    import driftkings.utils.align;
    import flash.text.TextFieldAutoSize;
-   import driftkings.battle.base.battledisplayable;
+   import driftkings.battle.base.crosshairdisplayable;
    
-   public class ownhealthui extends battledisplayable
+   public class ownhealthui extends crosshairdisplayable
    {
       private var own_health:progressbar;
       public var getAVGColor:Function;
       public var getSettings:Function;
-	  
-      private var alignX:String = align.CENTER;
-      private var alignY:String = align.BOTTOM;
       
       public function ownhealthui()
       {
          super();
-      }
-      
-      override protected function configUI() : void
-      {
-         super.configUI();
-         this.tabEnabled = false;
-         this.tabChildren = false;
-         this.mouseEnabled = false;
-         this.mouseChildren = false;
-         this.buttonMode = false;
+         this.alignX = align.CENTER;
+         this.alignY = align.BOTTOM;
       }
       
       override protected function onPopulate() : void
@@ -36,11 +25,6 @@ package driftkings.battle.components.health
          this.applySettings();
       }
       
-      private function updatePosition() : void
-      {
-         align.position(this, App.appWidth, App.appHeight, this.alignX, this.alignY);
-      }
-
       private function applySettings() : void
       {
          if(this.getSettings == null)
@@ -74,10 +58,6 @@ package driftkings.battle.components.health
          this.updatePosition();
       }
 
-      override protected function onResized() : void
-      {
-         this.updatePosition();
-      }
       
       override protected function onBeforeDispose() : void
       {
@@ -110,12 +90,6 @@ package driftkings.battle.components.health
       public function as_updateSettings() : void
       {
          this.applySettings();
-      }
-      
-      public function as_onCrosshairPositionChanged(x:Number, y:Number) : void
-      {
-         this.x = x;
-         this.y = y;
       }
    }
 }

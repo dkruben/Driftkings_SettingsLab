@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import flash.display.Sprite;
     import net.wg.gui.battle.views.minimap.components.entries.constants.VehicleMinimapEntryConst;
     import flash.text.TextField;
@@ -33,11 +34,6 @@ package driftkings.battle.components.minimap
             addChild(bar);
         }
 
-        public static function parseColor(value:String):uint
-        {
-            return uint(parseInt(value.replace(/^#|^0x/i, ""), 16));
-        }
-
         public static function nativeColor(data:Object):Number
         {
             return App.colorSchemeMgr.getRGB(VehicleMinimapEntryConst.TEXT_COLOR_SCHEME_PREFIX +
@@ -52,8 +48,8 @@ package driftkings.battle.components.minimap
             var labels:Object = options.labels;
             var health:Object = options.health;
             // Own colours first, then the shared team scheme (per group and state), then the client's.
-            var color:uint = labels.customColors ? parseColor(labels[(data.state == "dead" ? "dead" : data.group) + "Color"]) :
-                labels.teamColors && data.color ? parseColor(String(data.color)) :
+            var color:uint = labels.customColors ? colorutils.parse(labels[(data.state == "dead" ? "dead" : data.group) + "Color"]) :
+                labels.teamColors && data.color ? colorutils.parse(String(data.color)) :
                 nativeColor(data);
             // Enemy names/HP must follow the native accessible palette, including lost positions.
             if (options.colorBlind && data.group == "enemy" && data.state != "dead")

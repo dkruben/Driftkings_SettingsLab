@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import flash.display.DisplayObject;
     import flash.display.Graphics;
     import flash.display.Sprite;
@@ -55,14 +56,14 @@ package driftkings.battle.components.minimap
                 if (stored.key != key)
                 {
                     stored.key = key;
-                    draw(shape, lines, vehiclelabel.parseColor(color), alpha, length, step, drawn);
+                    draw(shape, lines, colorutils.parse(color), alpha, length, step, drawn);
                 }
                 if (drawn) target.alpha = 0;
             }
             if (custom && !drawn)
             {
                 var transform:ColorTransform = new ColorTransform();
-                transform.color = vehiclelabel.parseColor(color);
+                transform.color = colorutils.parse(color);
                 target.transform.colorTransform = transform;
                 target.alpha = alpha / 100;
             }
@@ -93,7 +94,7 @@ package driftkings.battle.components.minimap
             var key:String = [Math.round(length * 10), Math.round(step * 10)].join(":");
             if (stored.key == key) return;
             stored.key = key;
-            draw(shape, lines, vehiclelabel.parseColor(lines.hullColor), Number(lines.alpha), length, step, true);
+            draw(shape, lines, colorutils.parse(lines.hullColor), Number(lines.alpha), length, step, true);
         }
     }
 }

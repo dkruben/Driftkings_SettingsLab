@@ -1,12 +1,11 @@
 package driftkings.battle.components.armor_calculator
 {
-	import flash.events.Event;
 	import flash.text.TextFieldAutoSize;
 	import driftkings.utils.constants;
 	import driftkings.utils.textext;
-	import driftkings.battle.base.battledisplayable;
+	import driftkings.battle.base.crosshairdisplayable;
 
-	public class armorcalculatorui extends battledisplayable
+	public class armorcalculatorui extends crosshairdisplayable
 	{
 		private var armorCalc:textext;
 		public var getSettings:Function;
@@ -14,16 +13,6 @@ package driftkings.battle.components.armor_calculator
 		public function armorcalculatorui()
 		{
 			super();
-		}
-
-		override protected function configUI():void
-		{
-			super.configUI();
-			this.tabEnabled = false;
-			this.tabChildren = false;
-			this.mouseEnabled = false;
-			this.mouseChildren = false;
-			this.buttonMode = false;
 		}
 
 		override protected function onPopulate():void 
@@ -42,12 +31,6 @@ package driftkings.battle.components.armor_calculator
 		{
 			super.onBeforeDispose();
 			this.armorCalc = null;
-		}
-
-		public function as_onCrosshairPositionChanged(x:Number, y:Number):void
-		{
-			this.x = x;
-			this.y = y;
 		}
 
 		public function as_armorCalculator(text:String):void

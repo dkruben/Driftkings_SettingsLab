@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import driftkings.battle.base.battledisplayable;
     import flash.display.DisplayObject;
     import flash.display.DisplayObjectContainer;
@@ -143,7 +144,7 @@ package driftkings.battle.components.minimap
             if (point.arrowPlaceholder)
             {
                 var arrowColor:ColorTransform = new ColorTransform();
-                arrowColor.color = vehiclelabel.parseColor(options.icons.selfColor);
+                arrowColor.color = colorutils.parse(options.icons.selfColor);
                 point.arrowPlaceholder.transform.colorTransform = arrowColor;
             }
             lines.line(point.sectorLeft, options, options.lines.sectorColor);

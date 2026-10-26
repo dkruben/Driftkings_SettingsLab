@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import flash.display.DisplayObject;
     import flash.display.Sprite;
     import net.wg.gui.battle.views.minimap.components.entries.personal.ViewRangeCirclesMinimapEntry;
@@ -51,7 +52,7 @@ package driftkings.battle.components.minimap
                 // Optional vehicle: 'germany-G04_PzVI_Tiger_I', 'G04_PzVI_Tiger_I' or 'Tiger I'.
                 var vehicle:String = data.vehicle ? String(data.vehicle).toLowerCase().replace(":", "-") : "";
                 if (vehicle && names.indexOf(vehicle) < 0) continue;
-                mapgeometry.stroke(shape.graphics, data, vehiclelabel.parseColor(data.color), data.alpha);
+                mapgeometry.stroke(shape.graphics, data, colorutils.parse(data.color), data.alpha);
                 mapgeometry.circle(shape.graphics, Number(data.radius) * coefficient, data);
             }
         }

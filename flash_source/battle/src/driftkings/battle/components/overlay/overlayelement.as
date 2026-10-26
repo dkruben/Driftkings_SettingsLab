@@ -1,10 +1,11 @@
 package driftkings.battle.components.overlay {
+import driftkings.utils.colorutils;
 import driftkings.utils.imageloadercomponent;
+import driftkings.utils.shadowutils;
 import flash.display.Stage;
 import flash.display.DisplayObjectContainer;
 import flash.events.Event;
 import flash.events.MouseEvent;
-import flash.filters.DropShadowFilter;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.utils.getTimer;
@@ -91,18 +92,14 @@ public class overlayelement extends imageloadercomponent {
         }
         var shadow:Object = props.shadow;
         if (shadow != null && shadow.enabled !== false) {
+            // Overlays accept opacity and strength as 0..1 or 0..100.
             var opacity:Number = shadow.alpha == null ? 1 : Number(shadow.alpha);
             var strength:Number = shadow.strength == null ? 1 : Number(shadow.strength);
-            filters = [new DropShadowFilter(Number(shadow.distance || 0), Number(shadow.angle || 0),
-                color(shadow.color), opacity > 1 ? opacity / 100 : opacity,
-                Number(shadow.blurX || 0), Number(shadow.blurY || 0),
-                strength > 1 ? strength / 100 : strength, int(shadow.quality || 1))];
+            filters = shadowutils.filters({distance:shadow.distance, angle:shadow.angle, color:shadow.color,
+                alpha:(opacity > 1 ? opacity / 100 : opacity) * 100, blurX:shadow.blurX || 0, blurY:shadow.blurY || 0,
+                strength:strength > 1 ? strength / 100 : strength, quality:shadow.quality || 1});
         } else filters = [];
         drawBackground();
-    }
-    private function color(value:*):uint {
-        if (value is String) return uint(parseInt(String(value).replace('#', '').replace('0x', ''), 16));
-        return uint(value || 0);
     }
     private function drawBackground():void {
         graphics.clear();
@@ -112,7 +109,7 @@ public class overlayelement extends imageloadercomponent {
         if (bg != null) fill = bg.fill === false ? 0 : Number(bg.alpha || 0);
         // Drag hit areas remain available without drawing their box outlines.
         // Also suppress outlines from older saved configurations.
-        graphics.beginFill(bg == null ? 0x000000 : color(bg.color), fill);
+        graphics.beginFill(bg == null ? 0x000000 : colorutils.parse(bg.color), fill);
         var w:Number = boxWidth, h:Number = boxHeight;
         // A zero-size parent can still be dragged using its children's visible bounds.
         if (kind == 'panel' && w == 0 && h == 0 && numChildren > 0) {

@@ -1,5 +1,6 @@
 package driftkings.battle.components.minimap
 {
+    import driftkings.utils.colorutils;
     import flash.display.DisplayObject;
     import flash.display.DisplayObjectContainer;
     import flash.filters.ColorMatrixFilter;
@@ -33,7 +34,7 @@ package driftkings.battle.components.minimap
             if (data) layered.push({entry:entry, rank:rank(state)});
             var icons:Object = options.icons;
             var size:Number = Number(state == "dead" ? icons.deadScale : state == "lost" ? icons.lostScale : icons.scale);
-            var tint:int = options.lostMarker.style == "tint" && data && data.lostColor ? vehiclelabel.parseColor(String(data.lostColor)) : -1;
+            var tint:int = options.lostMarker.style == "tint" && data && data.lostColor ? colorutils.parse(String(data.lostColor)) : -1;
             if (options.colorBlind && data && data.group == "enemy")
             {
                 var accessible:Number = vehiclelabel.nativeColor(data);
