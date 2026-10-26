@@ -76,7 +76,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | 2 | Adaptadores batalha, HUD e referências | Concluída | 419 testes core: OK |
 | 3 | Adaptadores hangar e hooks mistos | Concluída | 419 testes core: OK |
 | 4 | Contratos, fronteiras, documentação e release.json | Concluída | 10 novos testes de arquitetura: OK; catálogo/build data válidos |
-| 5 | Validação completa e build | Validação local concluída; CI final em acompanhamento | Python 2/3, npm, lint e build: OK |
+| 5 | Validação completa e build | Concluída | Validação local e GitHub Actions: OK |
 
 ## Registo de execução
 
@@ -157,3 +157,5 @@ driftkings/gameface/
 - Corrigidos os testes de hooks que usavam metadados de funções num namespace de builtins simulado: Python 2.7 restringe essa escrita. Aplicado o mesmo padrão de setter externo já usado pelos testes de BattleCardAdapter. A autoria de hooks do runtime é preservada.
 - CI intermédio de `8456378` detetou o import em falta documentado na etapa 4; CI de `d916f05` detetou a limitação dos testes Python 2.7, corrigida nesta etapa. Estes resultados não são tratados como validações aprovadas. O CI do commit final será acompanhado após push.
 - Nenhuma versão publicada, tag alterada ou instalação EU substituída. Os testes no cliente listados acima continuam pendentes.
+
+- Encerramento: código final em `c7189f8`; [GitHub Actions aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40421997019), incluindo suites Python 2.7/3, instalação, recursos, sintaxe e JavaScript. Etapas técnicas concluídas e enviadas para `origin/develop`. A aceitação dentro do cliente permanece pendente, sem presumir equivalência visual com base apenas em testes simulados.
