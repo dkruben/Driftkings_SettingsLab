@@ -29,7 +29,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | `views/hangar/hangar_preferences.py` | `gameface/hangar/hangar_preferences.py` | hangar_preferences.py; `driftkings._constants`, `driftkings.core.hooks`, `driftkings.interface_catalog`, `driftkings.logger`, `driftkings.settings.service`, `driftkings.ui.gameface` |
 | `views/hangar/main.py` | `gameface/hangar/main.py` | main.py; `driftkings._constants`, `driftkings.core.hooks`, `driftkings.logger`, `driftkings.settings.service`, `driftkings.ui.gameface`, `driftkings.views.hangar.common` |
 | `views/hangar/profile_ratings.py` | `gameface/hangar/profile_ratings.py` | Rating colors for the native achievements summary, without replacing values.; `driftkings.common.utils.colorratting`, `driftkings.core.hooks`, `driftkings.interface_catalog`, `driftkings.logger`, `driftkings.settings.service`, `driftkings.ui.gameface` |
-| `views/hangar/settings_window.py` | `gameface/hangar/settings_window.py` | Gameface presentation of DK Mod Settings: integrated settings window.  The window logic lives in driftkings.settings.panel.presenter; this module only moves JSON between the Wulf view models and the presenter.; `driftkings.core.fog_package`, `driftkings.core.keyboard`, `driftkings.core.keycodes`, `driftkings.interface_catalog`, `driftkings.settings.panel`, `driftkings.settings.panel.controls`, `driftkings.settings.panel.presenter`, `driftkings.ui.gameface` |
+| `views/hangar/settings_window.py` | `gameface/hangar/settings_window.py` | Gameface presentation of Driftkings Mod Settings: integrated settings window.  The window logic lives in driftkings.settings.panel.presenter; this module only moves JSON between the Wulf view models and the presenter.; `driftkings.core.fog_package`, `driftkings.core.keyboard`, `driftkings.core.keycodes`, `driftkings.interface_catalog`, `driftkings.settings.panel`, `driftkings.settings.panel.controls`, `driftkings.settings.panel.presenter`, `driftkings.ui.gameface` |
 | `views/hangar/tech_tree_marks_of_excellence.py` | `gameface/hangar/tech_tree_marks_of_excellence.py` | Presentation adapter for MarksOnGunTechTree; gameplay state stays in its component.; `driftkings.core.hooks`, `driftkings.ui.gameface` |
 | `views/hangar/vehicle_carousel.py` | `gameface/hangar/vehicle_carousel.py` | vehicle_carousel.py; `driftkings._constants`, `driftkings.common.utils.compat`, `driftkings.core`, `driftkings.core.carousel_options`, `driftkings.settings.service`, `driftkings.ui.gameface`, `driftkings.views.hangar.common` |
 
@@ -41,7 +41,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | `DriftkingsCarouselStats` | hangar | `driftkings.views.hangar.vehicle_carousel` | `mods/driftkings/vehicle_carousel/model` |
 | `DriftkingsCrewDetails` | hangar | `driftkings.views.hangar.crew_details` | `mods/driftkings/crew_details/model` |
 | `DriftkingsCrewProgression` | hangar | `driftkings.views.hangar.crew_progression` | `mods/driftkings/crew_progression/model` |
-| `DriftkingsDKModSettings` | window | `driftkings.views.hangar.settings_window` | `mods/driftkings/settings_window/window` |
+| `DriftkingsModSettings` | window | `driftkings.views.hangar.settings_window` | `mods/driftkings/settings_window/window` |
 | `DriftkingsHangarClock` | hangar | `driftkings.views.hangar.main` | `mods/driftkings/main/clock` |
 | `DriftkingsHangarHeaderOptions` | header | `driftkings.views.hangar.hangar_preferences` | `mods/driftkings/hangar_preferences/header_options` |
 | `DriftkingsMainGun` | battle | `driftkings.views.battle.high_caliber_gameface` | `mods/driftkings/high_caliber_gameface/model` |
@@ -159,3 +159,5 @@ driftkings/gameface/
 - Nenhuma versão publicada, tag alterada ou instalação EU substituída. Os testes no cliente listados acima continuam pendentes.
 
 - Encerramento: código final em `c7189f8`; [GitHub Actions aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40421997019), incluindo suites Python 2.7/3, instalação, recursos, sintaxe e JavaScript. Etapas técnicas concluídas e enviadas para `origin/develop`. A aceitação dentro do cliente permanece pendente, sem presumir equivalência visual com base apenas em testes simulados.
+
+- Ajuste de nomenclatura posterior: contrato da janela alterado para `DriftkingsModSettings`, removendo a abreviatura redundante. Atualizados consumidor Python, comentários e changelog; recurso nativo e comportamento preservados. Validação do catálogo, build data e 10 testes de arquitetura em Python 2.7/3: OK.

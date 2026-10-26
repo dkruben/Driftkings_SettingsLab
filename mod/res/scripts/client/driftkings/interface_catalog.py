@@ -118,7 +118,7 @@ GAMEFACE = {'DriftkingsProfileRatings': {
                                          'coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel.js'],
                              'section': 'vehicle_carousel',
                              'styles': ['coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel.css']},
- 'DriftkingsDKModSettings': {'context': 'window',
+ 'DriftkingsModSettings': {'context': 'window',
                              'layout': 'coui://gui/gameface/mods/driftkings/settings_window/window.html',
                              'owner': None,
                              'python': 'driftkings.gameface.hangar.settings_window',

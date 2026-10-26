@@ -1,6 +1,6 @@
 @font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Regular.ttf'); font-weight: 400; }
 @font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Bold.ttf'); font-weight: 700; }
-/* DK Mod Settings window layout. Accent colors are generated in js/app.js (themeCss). */
+/* Driftkings Mod Settings window layout. Accent colors are generated in js/app.js (themeCss). */
 * { box-sizing: border-box; }
 /* html font-size is set by js/app.js to the client's UI scale (1rem = 1 UI unit). */
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }

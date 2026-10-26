@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Gameface presentation of DK Mod Settings: integrated settings window.
+"""Gameface presentation of Driftkings Mod Settings: integrated settings window.
 
 The window logic lives in driftkings.settings.panel.presenter; this module only moves JSON
 between the Wulf view models and the presenter.
@@ -21,7 +21,7 @@ from driftkings.settings.panel import core_page, logger
 from driftkings.settings.panel.controls import is_text
 from driftkings.settings.panel.presenter import CORE_ID, MAX_REQUEST, Presenter
 
-WINDOW_RESOURCE = gameface_spec('DriftkingsDKModSettings')['resource']
+WINDOW_RESOURCE = gameface_spec('DriftkingsModSettings')['resource']
 _JSON = {'separators': (',', ':'), 'allow_nan': False}
 
 

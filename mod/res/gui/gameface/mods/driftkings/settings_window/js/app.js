@@ -1,4 +1,4 @@
-/* DK Mod Settings window: layout, sidebar, mod page, state patches and confirmation dialog. */
+/* Driftkings Mod Settings window: layout, sidebar, mod page, state patches and confirmation dialog. */
 (function () {
     'use strict';
     var DK = window.DK, el = DK.dom.el, setClass = DK.dom.setClass;
