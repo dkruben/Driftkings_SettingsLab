@@ -4,13 +4,23 @@ Modpack for Wargaming World of Tanks: battle overlays, hangar improvements and a
 
 ## Downloads
 
-[Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) · **[Download the stable release](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)** · [All releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
+Both releases target **WoT 2.4.1.0** on Wargaming EU, NA and ASIA clients.
 
-Latest stable version: **0.1.2**, for **WoT 2.4.1.0**.
+| Channel | Version | Downloads |
+| --- | --- | --- |
+| Beta (`develop`) | [0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2) | [Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0-Setup.exe) · [Manual ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip) |
+| Stable (`main`) | [0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2) | [Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) · [Manual ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0.zip) |
 
-The `develop` branch carries **[0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)** for testing. The download links above refer to the stable release.
+[All releases](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes its defaults archive, dependencies, signed updater manifest and SHA-256 checksums.
 
-This beta requires a clean configuration: remove the old `mods/configs/driftkings` folder before starting the game, then configure the mod again in the hangar. Old configurations, interface preferences, translations and caches are no longer imported or cleaned up automatically. Back up any personal images or sounds before removing the folder.
+### Changes in 0.1.3-beta.2
+
+- Integrated vehicle markers with separate team, alive/destroyed and normal/ALT layouts, shared rating colours and an editable tank preview. The property editor has its own scrollbar and mouse-wheel support.
+- Corrected native ActionScript font handling, marker font aliases and editor validation; standardized fixed colours as `#RRGGBB` using the existing converters.
+- Adopted the author's EU profile for the clock, panel positions, carousel, minimap and markers. The settings window starts at 140% scale and 94% opacity; both remain configurable.
+- Validated the packaged Python 2.7 modules, defaults, installer inputs and every settings page's open/apply round trip. GitHub Actions covers Python 2/3 and Gameface regressions.
+
+The 0.1.3 beta series requires a clean configuration when upgrading from the previous configuration layout: back up personal images and sounds, remove the old `mods/configs/driftkings` folder before starting the game, then configure the mod again in the hangar. Old configurations, interface preferences, translations and caches are no longer imported or cleaned up automatically.
 
 ## Included mods and functions
 
@@ -29,10 +39,11 @@ The names below match the settings labels. The module column identifies the corr
 | Target information | `target_information` | Shows configurable information about the targeted vehicle. |
 | Target distance | `target_distance` | Displays the distance to the current target. |
 | Minimap enhancements | `minimap_enhancements` | Customizes minimap labels, circles, lines and vehicle information. |
+| Vehicle markers | `vehicle_markers` | Configures text, ratings, health bars, floating damage and icons by team, alive/destroyed state and normal/ALT mode. Includes reusable templates, a tank preview and an independent property scrollbar. Special modes retain native markers; XMQP is not included. |
 | Spotted and assist notifications | `enemy_spotting_status` | Displays notifications for detected vehicles and spotting, tracking or stun assistance, with configurable text, colors and sound. |
 | Sixth Sense alert | `sixth_sense_alert` | Customizes the Sixth Sense alert, including its icon, sound and timing. |
 | Battle damage log | `game_log_manager` | Filters native damage-log event types and optionally swaps the top and bottom log positions. |
-| Battle preferences | `battle_preferences` | Groups battle presentation and convenience options, including the clock, hints, notifications and other native interface controls. |
+| Battle preferences | `battle_preferences` | Groups battle presentation and convenience options, including hints, notifications, fog and other native interface controls. |
 
 ### Camera, aiming and controls
 
@@ -71,15 +82,17 @@ The retired `hangar_efficiency` panel has been removed; its history remains avai
 
 ## Installation
 
-For guided setup, download `Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe` from the stable release. Select a supported Wargaming game installation; the installer verifies its root, realm and game version.
+For guided setup, choose the beta or stable Windows installer from the table above. Select a supported Wargaming game installation; the installer verifies its root, realm and game version.
 
 1. Close World of Tanks.
-2. Download `Driftkings-0.1.2-WoT-2.4.1.0.zip` from the release assets.
+2. Download the manual ZIP for your chosen release, such as `Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip`.
 3. Extract its `mods` folder into the game installation, merging folders. It includes Driftkings and the required ModsListAPI and OpenWG Gameface packages under `mods/2.4.1.0/`.
-4. For a new installation, extract the separate `Driftkings-defaults.zip` into the game installation. Preserve existing `mods/configs/driftkings` settings when updating.
+4. For a new installation, extract `Driftkings-defaults.zip` from the same release into the game installation. Preserve existing settings when updating within the current configuration layout; follow the clean-configuration instructions above when moving from the older layout.
 5. Start the game and open Driftkings settings through the mods list.
 
 The defaults are the author's selected mod configurations. Existing personal JSON files take precedence. The in-game updater preserves those configurations; missing settings use packaged defaults.
+
+To receive future beta updates in game, select the **Beta** update channel in Driftkings settings.
 
 An optional Windows installer is built from the same compiler output. Its 30 component choices change JSON configuration only, never the installed WOTMOD/dependency set. Existing profiles are preserved on reinstall. Explicit `/RESETCONFIG=1` backs up configurations before resetting them. Branding and component previews are optional and can be added later.
 
@@ -87,15 +100,17 @@ The installer creates user-media folders `mods/configs/driftkings/sixthsense/` (
 
 ## Compatibility
 
-Designed for Wargaming World of Tanks **EU, NA and ASIA** clients, for **WoT 2.4.1.0**. All included features have been tested in-game and confirmed working across these regions, including live battles, replays, Gameface panel dragging and the in-game updater. Mir Tankov/RU is outside scope.
+Designed for Wargaming World of Tanks **EU, NA and ASIA** clients, for **WoT 2.4.1.0**. Mir Tankov/RU is outside scope.
 
 Version 0.1.2 is the stable release, with in-game validation completed for the panels and automatic-update installation.
+
+Version 0.1.3-beta.2 passed the source, package and GitHub Actions checks. Its latest marker, font and settings-layout changes still need visual confirmation in game.
 
 ## WNX and Tomato.gg colours
 
 Choose **Tomato.gg** in a feature's colour-table setting to use the published [Tomato.gg reference](https://tomato.gg/wnx). Existing palettes remain selectable.
 
-WNX is calculated for your own battle, battle results and carousel vehicles, including assistance damage. Use `{wnx}` / `{c:wnx}` in battle/results templates, or `{{v.wnx}}` / `{{v.c_wnx}}` on carousel cards. New default battle templates include WNX; add these macros to an existing custom template. The carousel also supports sorting by `wnx`. Missing data displays `--`.
+WNX is calculated for your own battle, battle results and carousel vehicles, including assistance damage. Use `{wnx}` / `{c:wnx}` in battle/results templates, or `{{v.wnx}}` / `{{v.c_wnx}}` on carousel cards. The EU-profile battle overlay defaults to WN8, EFF and DIFF; add the WNX macros to display it there. The carousel also supports sorting by `wnx`. Missing data displays `--`.
 
 Expected values refresh daily in the hangar, retaining the last valid cache if a download fails. Without a valid cache, WNX displays `--` until a download succeeds. The bundled colour scale is a snapshot from 25 October 2026. These additions require in-game validation; existing service-record and player-panel WN8 displays are unchanged.
 
@@ -111,7 +126,7 @@ Settings translations: Czech, German, English, Spanish, French, Hungarian, Itali
 
 This repository contains the compiler, runtime sources, defaults and required resource inputs. Generated packages, Python bytecode, caches and local tests are excluded from Git. Download compiled packages from Releases.
 
-On Windows, configure Python 3.10+, Python 2.7, Java/Flex, playerglobal and game SWCs, the .NET C# compiler. Game and reference directories are external read-only inputs.
+On Windows, configure Python 3.10+, Python 2.7, Java/Flex, playerglobal and game SWCs, RABCDAsm and the .NET C# compiler. Inno Setup 6.7.1+ is required to compile the Windows installer. Game and reference directories are external read-only inputs.
 
 ```powershell
 python build_tools/compiler.py --plan
@@ -120,7 +135,7 @@ python build_tools/validate_build_data.py
 .\release.cmd
 ```
 
-Set `version` and `channel` in `build_data/release.json`, for example `"version": "0.1.3-beta.1", "channel": "beta"` or `"version": "0.1.2", "channel": "stable"`. The compiler validates their agreement and synchronizes `VERSION` in the original Python source after prerequisite validation. The installer takes its version from the completed build. An explicit `--version` also updates the JSON and Python source; `--channel` validates the selected version. `--plan` never writes files. For temporary older-version updater tests, use `--version ... --keep-source-version` to leave both originals unchanged. A version change modifies the Git checkout: commit it and rebuild before signing and publishing, so the release records a clean source revision. Version numbers are never incremented automatically.
+Set `version` and `channel` in `build_data/release.json`, for example `"version": "0.1.3-beta.2", "channel": "beta"` or `"version": "0.1.2", "channel": "stable"`. The compiler validates their agreement and synchronizes `VERSION` in the original Python source after prerequisite validation. The installer takes its version from the completed build. An explicit `--version` also updates the JSON and Python source; `--channel` validates the selected version. `--plan` never writes files. For temporary older-version updater tests, use `--version ... --keep-source-version` to leave both originals unchanged. A version change modifies the Git checkout: commit it and rebuild before signing and publishing, so the release records a clean source revision. Version numbers are never incremented automatically.
 
 Check portable logic with `python -m unittest discover -s tests/settings_panel -p 'test_*.py'` and `python -m unittest discover -s tests/core -p 'test_*.py'`; both suites also run on Python 2.7. Run `node tests/settings_panel/test_gameface.js` for the Gameface state tests. Install development dependencies with `npm ci --ignore-scripts`, then run `npm run lint` to enforce ES5 syntax and basic JavaScript checks. These tools run on Node 20.19+; client scripts remain ES5.
 
@@ -131,7 +146,7 @@ The current build contract uses the (EU, NA) installation as its resource source
 To compile the Windows installer and include it in the release inventory and checksums:
 
 ```powershell
-python build_tools/build_installer.py --artifacts build/releases/stable/0.1.2 --compile --attach-to-release
+python build_tools/build_installer.py --artifacts build/releases/beta/0.1.3-beta.2 --compile --attach-to-release
 ```
 
 Sign `release.json` after preparing all release assets, then publish with `build_tools/publish_release.py`. The installer is uploaded with the other verified assets.
