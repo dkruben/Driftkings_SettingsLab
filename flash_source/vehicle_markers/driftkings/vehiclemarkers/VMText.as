@@ -117,7 +117,7 @@ package driftkings.vehiclemarkers
             values.ally = String(marker.entityType) == "ally";
             values.enemy = String(marker.entityType) == "enemy";
             values["vtype"] = ({lightTank:"LT", mediumTank:"MT", heavyTank:"HT", "AT-SPG":"TD", SPG:"SPG"})[model.vClass];
-            values.blownUp = values["l10n:blownUp"] = VMState.config.blownUp || "Ammo rack";
+            values.blownUp = values["i18n:blownUp"] = values["l10n:blownUp"] = VMState.config.blownUp || "Ammo rack";
             if (event) for (var eventKey:String in event) values[eventKey] = event[eventKey];
             values["nick"] = model.pName;
             values["clan"] = model.pClan ? "[" + model.pClan + "]" : "";

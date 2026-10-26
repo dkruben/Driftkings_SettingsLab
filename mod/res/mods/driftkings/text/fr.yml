@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "PA"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HÉSH"
 target_information.high_explosive: "IL"
+target_information.high_explosive_legacy_no_stun: "IL"
+target_information.high_explosive_legacy_stun: "IL"
+target_information.high_explosive_modern: "IL"
 target_information.hollow_charge: "CHALEUR"
+target_information.smoke: "Fumigène"
 
 # team_panels
 team_panels.UI_description: "Panneaux des équipes et chargement"

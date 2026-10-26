@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "美聯社"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "赫什"
 target_information.high_explosive: "他"
+target_information.high_explosive_legacy_no_stun: "他"
+target_information.high_explosive_legacy_stun: "他"
+target_information.high_explosive_modern: "他"
 target_information.hollow_charge: "熱"
+target_information.smoke: "煙霧"
 
 # team_panels
 team_panels.UI_description: "隊伍面板與戰鬥載入"

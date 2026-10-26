@@ -259,7 +259,7 @@
                 var author={player:'damageTextPlayer',squad:'damageTextSquadman',other:'damageText'}[sample.damageSource];
                 node('div','dk-vm-hint',label(sample.damageSource),form);
                 scoped(form,author,{enabled:true,x:0,y:-67,alpha:100,align:'center',textFormat:FIELD.textFormat,shadow:FIELD.shadow,
-                                    speed:2,maxRange:40,damageMessage:'{{dmg}}',blowupMessage:'{{l10n:blownUp}}\n{{dmg}}'});
+                                    speed:2,maxRange:40,damageMessage:'{{dmg}}',blowupMessage:'{{i18n:blownUp}}\n{{dmg}}'});
                 return;
             }
             if (section==='icons') {

@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "АП"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "ХЭШ"
 target_information.high_explosive: "ОН"
+target_information.high_explosive_legacy_no_stun: "ОН"
+target_information.high_explosive_legacy_stun: "ОН"
+target_information.high_explosive_modern: "ОН"
 target_information.hollow_charge: "ТЕПЛО"
+target_information.smoke: "Дым"
 
 # team_panels
 team_panels.UI_description: "Панели команд и загрузка боя"

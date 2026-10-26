@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HESH"
 target_information.high_explosive: "el"
+target_information.high_explosive_legacy_no_stun: "el"
+target_information.high_explosive_legacy_stun: "el"
+target_information.high_explosive_modern: "el"
 target_information.hollow_charge: "CALOR"
+target_information.smoke: "Humo"
 
 # team_panels
 team_panels.UI_description: "Paneles de equipos y carga de batalla"

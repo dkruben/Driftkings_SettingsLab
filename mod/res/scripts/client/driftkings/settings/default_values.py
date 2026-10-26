@@ -52,10 +52,10 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '49d3755f130e78a2f6d4c460b0836
  'default/vehicle_carousel/carouselsmall.json': 'a253a421770c92d0248f17df4c57f43630b0686d783c7cd235a097f11a6ce737',
  'default/vehicle_health.json': '33692c38eec07ebe05cf5dfa3d5c8ebe532c0d0543717c738ba8316cfd9cb0aa',
  'default/vehicle_markers/markers.json': '8209bdd6371734a1eaa53f500f224dce408d57301e82c641fe79f14f31fe5211',
- 'default/vehicle_markers/markersAliveExtended.json': 'e222e1abd513519b6d7e6e9002b0716db1c66ba294cf73fb47e69232dd028303',
- 'default/vehicle_markers/markersAliveNormal.json': '89a97e33047d0cd5b8c9d0a49ade8492fa90957762f33c26c574e533c5048315',
- 'default/vehicle_markers/markersDeadExtended.json': '32447447c9335b68069acebcc85f991322ae640e1ee62a3fe90fa8fa6ec3c566',
- 'default/vehicle_markers/markersDeadNormal.json': 'e055fde4e1fd5047df03bacae33ad7b1084b58a81e2de9de528899033664a583',
+ 'default/vehicle_markers/markersAliveExtended.json': 'bb335db684f25b4d4cb7d11540514f35787e585b8ddfa806ab56f6e2c7384836',
+ 'default/vehicle_markers/markersAliveNormal.json': 'cf65bc2b16c873c1f4abca65bc1d6be476e5b26ed3a240e12fa6dc08036e9803',
+ 'default/vehicle_markers/markersDeadExtended.json': 'da76a0ff06df31ea5d6180562fc187d6c731db9dfe28a9d3e0db26275ba3c4cd',
+ 'default/vehicle_markers/markersDeadNormal.json': 'e1d11e7e8bb871d44f221e413d5302b191184dde4fdd03abed7071dc5cda2757',
  'load.json': 'e5cae5ab9397c92ab3988170ff26475e0bf4b4e9c165f7a6cd8b4d016031769c'}
 
 SELECTOR = {'loadConfig': 'default'}
@@ -1549,7 +1549,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                                'y': -92}},
                                               'def': {'damageText': {'align': 'center',
                                                                      'alpha': 100,
-                                                                     'blowupMessage': '{{l10n:blownUp}}\n'
+                                                                     'blowupMessage': '{{i18n:blownUp}}\n'
                                                                                       '{{dmg}}',
                                                                      'damageMessage': '{{dmg}}',
                                                                      'enabled': True,
@@ -1783,7 +1783,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                              'y': -92}},
                                             'def': {'damageText': {'align': 'center',
                                                                    'alpha': 100,
-                                                                   'blowupMessage': '{{l10n:blownUp}}\n'
+                                                                   'blowupMessage': '{{i18n:blownUp}}\n'
                                                                                     '{{dmg}}',
                                                                    'damageMessage': '{{dmg}}',
                                                                    'enabled': True,
@@ -2038,7 +2038,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                               'y': -67}},
                                              'def': {'damageText': {'align': 'center',
                                                                     'alpha': 100,
-                                                                    'blowupMessage': '{{l10n:blownUp}}\n'
+                                                                    'blowupMessage': '{{i18n:blownUp}}\n'
                                                                                      '{{dmg}}',
                                                                     'damageMessage': '{{dmg}}',
                                                                     'enabled': True,
@@ -2214,7 +2214,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                             'y': -67}},
                                            'def': {'damageText': {'align': 'center',
                                                                   'alpha': 100,
-                                                                  'blowupMessage': '{{l10n:blownUp}}\n'
+                                                                  'blowupMessage': '{{i18n:blownUp}}\n'
                                                                                    '{{dmg}}',
                                                                   'damageMessage': '{{dmg}}',
                                                                   'enabled': True,

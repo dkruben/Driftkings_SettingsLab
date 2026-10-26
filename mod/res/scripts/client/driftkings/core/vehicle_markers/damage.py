@@ -9,10 +9,11 @@ from driftkings.core.vehicle_markers.fields import number, template
 from driftkings.core.vehicle_markers.layouts import merge
 
 SOURCES = ('player', 'squad', 'other')
-EVENT_MACROS = ('dmg', 'c:dmg', 'dmg-ratio', 'dmg-kind', 'dmg-source', 'blownUp', 'l10n:blownUp')
+# {{i18n:blownUp}} is the Driftkings form; {{i18n:blownUp}} keeps XVM configurations working.
+EVENT_MACROS = ('dmg', 'c:dmg', 'dmg-ratio', 'dmg-kind', 'dmg-source', 'blownUp', 'i18n:blownUp', 'l10n:blownUp')
 
 DEFAULTS_DAMAGE = {'enabled': False, 'duration': 2, 'rise': 40, 'maxCount': 4,
-                  'blowupMessage': "<font size='18' color='{{c:dmg}}'><b>{{l10n:blownUp}}\n-{{dmg}}</b></font>",
+                  'blowupMessage': "<font size='18' color='{{c:dmg}}'><b>{{i18n:blownUp}}\n-{{dmg}}</b></font>",
                   'format': "<font size='18' color='{{c:dmg}}'><b>-{{dmg}}</b></font>",
                   'x': -100, 'y': -95, 'width': 200, 'height': 30,
                   'colors': {'player': '#FFDD66', 'squad': '#FFAA44', 'other': '#FFFFFF'}}

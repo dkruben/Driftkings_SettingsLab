@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "ХЕШ"
 target_information.high_explosive: "ВІН"
+target_information.high_explosive_legacy_no_stun: "ВІН"
+target_information.high_explosive_legacy_stun: "ВІН"
+target_information.high_explosive_modern: "ВІН"
 target_information.hollow_charge: "ТЕПЛО"
+target_information.smoke: "Дим"
 
 # team_panels
 team_panels.UI_description: "Панелі команд і завантаження бою"

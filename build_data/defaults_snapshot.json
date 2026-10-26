@@ -242,19 +242,19 @@
     },
     {
       "path": "default/vehicle_markers/markersAliveExtended.json",
-      "sha256": "4f66d13f5589b1f021bb013c58510a316ca7e8cb72070a6e3b6e7f12692fe003"
+      "sha256": "de87f361dd17e8d028051c900e193aa76c01ccf031ae2ada910b555e467c797e"
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "f52a06c12579fee5d4dc3e235cb3c8906c4b3b4ac6aa7cbba53668f4e42ad169"
+      "sha256": "44d0cdd23b72305dc5ae46ae9bfa6bced5b02d64425c61431d0c789f0a47e0ee"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",
-      "sha256": "5544dc8fade955db1468097e3034dd580b031430d4f9f2d97b0abafa971b3d1a"
+      "sha256": "2af7b4bc2c830e4900d0fc574c2e2200e753221b063d9d19c1bcccff9244a418"
     },
     {
       "path": "default/vehicle_markers/markersDeadNormal.json",
-      "sha256": "d1046bb02c52a08cf831b3d00abb78f80f159f9acfc27b53045ec0276dca3453"
+      "sha256": "682a52da8a0996d27ee42524cbf34443774053d8dc0bd1725c486f2b5d30d512"
     },
     {
       "path": "load.json",

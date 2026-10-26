@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "PA"
 target_information.armor_piercing_cr: "TAEG"
 target_information.armor_piercing_he: "HESH"
 target_information.high_explosive: "ELE"
+target_information.high_explosive_legacy_no_stun: "ELE"
+target_information.high_explosive_legacy_stun: "ELE"
+target_information.high_explosive_modern: "ELE"
 target_information.hollow_charge: "CALOR"
+target_information.smoke: "Fumo"
 
 # team_panels
 team_panels.UI_description: "Painéis das equipas e carregamento"

@@ -113,7 +113,7 @@ def damage_text(options):
     if field['textFormat']['color'] is None:
         field['textFormat']['color'] = '{{c:dmg}}'
     field.update(duration=options.get('speed', 2), rise=options.get('maxRange', 40), maxCount=4,
-                 blowupMessage=options.get('blowupMessage', '{{l10n:blownUp}}\n{{dmg}}'))
+                 blowupMessage=options.get('blowupMessage', '{{i18n:blownUp}}\n{{dmg}}'))
     field.pop('name')
     return field
 

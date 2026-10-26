@@ -43,7 +43,7 @@ class PanelLocalizationTests(RuntimeTest):
         })['Roster']
         self.data = copy.deepcopy(literal_assignment('settings/default_values.py', 'DEFAULTS')['team_panels'])
         screen = {'enabled': True, 'showUnavailable': True,
-                  'format': '{{region}} / {{l10n:Destroyed}}',
+                  'format': '{{region}} / {{i18n:Destroyed}}',
                   'extraFieldsLeft': [{'format': '{{l10n:Destroyed}}'}],
                   'extraFieldsRight': []}
         self.data['profiles'] = {'large': screen}

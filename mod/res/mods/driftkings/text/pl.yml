@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HESZ"
 target_information.high_explosive: "ON"
+target_information.high_explosive_legacy_no_stun: "ON"
+target_information.high_explosive_legacy_stun: "ON"
+target_information.high_explosive_modern: "ON"
 target_information.hollow_charge: "CIEPŁO"
+target_information.smoke: "Dym"
 
 # team_panels
 team_panels.UI_description: "Panele drużyn i ładowanie bitwy"

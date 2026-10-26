@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HESH"
 target_information.high_explosive: "HE"
+target_information.high_explosive_legacy_no_stun: "HE"
+target_information.high_explosive_legacy_stun: "HE"
+target_information.high_explosive_modern: "HE"
 target_information.hollow_charge: "HEAT"
+target_information.smoke: "Füst"
 
 # team_panels
 team_panels.UI_description: "Csapatpanelek és csatabetöltés"

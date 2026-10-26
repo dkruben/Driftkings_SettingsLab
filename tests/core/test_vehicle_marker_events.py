@@ -19,8 +19,11 @@ class MarkerEventsTests(RuntimeTest):
         self.assertEqual(result['sources']['squad']['duration'], 2)
         self.assertEqual(result['sources']['squad']['rise'], 100)
         self.assertFalse(result['sources']['other']['enabled'])
-        self.assertIn('{{l10n:blownUp}}', result['sources']['player']['blowupMessage'])
+        self.assertIn('{{i18n:blownUp}}', result['sources']['player']['blowupMessage'])
         self.assertEqual(options, before)
+        # XVM writes {{l10n:blownUp}}; copied configurations keep working.
+        xvm = normalize({'sources': {'player': {'blowupMessage': '{{l10n:blownUp}} {{dmg}}'}}})
+        self.assertEqual(xvm['sources']['player']['blowupMessage'], '{{l10n:blownUp}} {{dmg}}')
         with self.assertRaises(ValueError):
             normalize({'sources': {'player': {'blowupMessage': '{{unknown}}'}}})
         with self.assertRaises(ValueError):

@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HESH"
 target_information.high_explosive: "ANH TA"
+target_information.high_explosive_legacy_no_stun: "ANH TA"
+target_information.high_explosive_legacy_stun: "ANH TA"
+target_information.high_explosive_modern: "ANH TA"
 target_information.hollow_charge: "NHIỆT"
+target_information.smoke: "Khói"
 
 # team_panels
 team_panels.UI_description: "Bảng đội và tải trận"

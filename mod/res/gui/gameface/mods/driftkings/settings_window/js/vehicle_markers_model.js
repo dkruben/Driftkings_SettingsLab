@@ -77,7 +77,7 @@
         colors:{team:{ally:'#99CC66',enemy:'#FF7777',squad:'#FFCC66',teamKiller:'#66CCFF',dead:'#AAAAAA',unknown:'#CCCCCC'},hp:[{value:25,color:'#FF5555'},{value:50,color:'#FFAA44'},{value:75,color:'#FFDD66'},{value:100,color:'#99CC66'}],colorBlind:{enabled:true,team:{enemy:'#C48CFF',teamKiller:'#66CCFF'}}},
         def:{},turretMarkers:{highVulnerability:'*',lowVulnerability:"'",unknown:'?'},
         healthBar:{enabled:false,x:-35,y:-22,width:70,height:8,alpha:100,color:'{{c:team}}',showOnDead:false,fill:{alpha:100},gradient:{enabled:false,color:'{{c:hp}}',angle:0},background:{color:'#181818',alpha:80},border:{color:'#000000',alpha:100,width:1},shadow:shadow,damage:{enabled:false,color:'#FFDD66',alpha:65,delay:0.25,duration:0.75}},
-        damageText:{enabled:false,format:'<font size="18" color="{{c:dmg}}"><b>-{{dmg}}</b></font>',blowupMessage:'<font size="18" color="{{c:dmg}}"><b>{{l10n:blownUp}}\n-{{dmg}}</b></font>',sources:{player:{},squad:{},other:{}},textFormat:font,x:-100,y:-100,width:200,height:30,alpha:100,align:'center',shadow:shadow,duration:2,rise:40,maxCount:4,colors:{player:'#FFDD66',squad:'#FFAA44',other:'#FFFFFF'}},
+        damageText:{enabled:false,format:'<font size="18" color="{{c:dmg}}"><b>-{{dmg}}</b></font>',blowupMessage:'<font size="18" color="{{c:dmg}}"><b>{{i18n:blownUp}}\n-{{dmg}}</b></font>',sources:{player:{},squad:{},other:{}},textFormat:font,x:-100,y:-100,width:200,height:30,alpha:100,align:'center',shadow:shadow,duration:2,rise:40,maxCount:4,colors:{player:'#FFDD66',squad:'#FFAA44',other:'#FFFFFF'}},
         icons:{enabled:false,'class':{enabled:true,x:null,y:null,scale:1,alpha:100,deadAlpha:40},level:{enabled:true,x:null,y:null,scale:1,alpha:100,deadAlpha:40},vehicle:{enabled:false,x:-55,y:-18,scale:1,alpha:100,deadAlpha:40}}
     };
     ['actionMarker','hoverMarker','vehicleStatusMarker','damageIndicator','damageIndicatorText','hitExplosion'].forEach(function (key) { defaults.icons[key]={enabled:true,x:null,y:null,scale:1,alpha:100,deadAlpha:100}; });
@@ -151,7 +151,7 @@
         values.alive=sample.state!=='dead' && sample.group!=='dead'; values.dead=!values.alive;
         values.ally=sample.group==='ally'; values.enemy=sample.group==='enemy';
         values.player=!!sample.player; values.squad=!!sample.squad; values.anonym=!!sample.anonym; values.vtype='HT';
-        values.blownUp=values['l10n:blownUp']=config.blownUp || 'Ammo rack';
+        values.blownUp=values['i18n:blownUp']=values['l10n:blownUp']=config.blownUp || 'Ammo rack';
         if (damage !== undefined) {
             var event=typeof damage==='number'?{amount:damage,source:'player',kind:'shot'}:damage;
             var style=damageStyle(config,event.source || 'player');
@@ -228,7 +228,7 @@
         delete result.name;
         if (result.textFormat.color===undefined || result.textFormat.color===null) { result.textFormat.color='{{c:dmg}}'; }
         result.duration=get(options,'speed',2); result.rise=get(options,'maxRange',40); result.maxCount=4;
-        result.blowupMessage=get(options,'blowupMessage','{{l10n:blownUp}}\n{{dmg}}');
+        result.blowupMessage=get(options,'blowupMessage','{{i18n:blownUp}}\n{{dmg}}');
         return result;
     }
     function healthBar(options,dead) {

@@ -128,7 +128,7 @@ class DataConstants(object):
         return result
 
     @staticmethod
-    def l10n(text):
+    def i18n(text):
         if text is None:
             return None
         if text in config.i18n:
@@ -136,7 +136,9 @@ class DataConstants(object):
             if text is None:
                 return None
         while True:
-            localizedMacroStart = text.find('{{l10n:')
+            # {{i18n:KEY}}; XVM's {{l10n:KEY}} is read the same way.
+            starts = [start for start in (text.find('{{i18n:'), text.find('{{l10n:')) if start != -1]
+            localizedMacroStart = min(starts) if starts else -1
             if localizedMacroStart == -1:
                 break
             localizedMacroEnd = text.find('}}', localizedMacroStart)
@@ -231,9 +233,9 @@ class DataConstants(object):
             'shell_power_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%d" % (self._gunShots[0].piercingPower[0]),
             'shell_power_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%d" % (self._gunShots[1].piercingPower[0]),
             'shell_power_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%d" % (self._gunShots[2].piercingPower[0]),
-            'shell_type_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else self.l10n(self._gunShots[0].shell.kind.lower()),
-            'shell_type_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else self.l10n(self._gunShots[1].shell.kind.lower()),
-            'shell_type_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else self.l10n(self._gunShots[2].shell.kind.lower()),
+            'shell_type_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else self.i18n(self._gunShots[0].shell.kind.lower()),
+            'shell_type_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else self.i18n(self._gunShots[1].shell.kind.lower()),
+            'shell_type_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else self.i18n(self._gunShots[2].shell.kind.lower()),
             'shell_speed_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%d" % round(self._gunShots[0].speed * 1.25),
             'shell_speed_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%d" % round(self._gunShots[1].speed * 1.25),
             'shell_speed_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%d" % round(self._gunShots[2].speed * 1.25),

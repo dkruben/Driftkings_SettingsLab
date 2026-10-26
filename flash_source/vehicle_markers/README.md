@@ -125,7 +125,7 @@ one author's animation does not evict another's. For example, under
 
 `blowupMessage` is used only for the native `explosion` damage type or negative
 health signal, not an ordinary hit reaching zero HP. Killing hits use the
-destroyed context. `{{l10n:blownUp}}` is localized by Driftkings; damage messages
+destroyed context. `{{i18n:blownUp}}` (or XVM's `{{l10n:blownUp}}`) is localized by Driftkings; damage messages
 also accept `{{dmg}}`, `{{dmg-ratio}}`, `{{dmg-kind}}`, `{{dmg-source}}` and
 `{{c:dmg}}`. The editor selects the author and can simulate an ammo-rack explosion.
 

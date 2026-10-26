@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "헤쉬"
 target_information.high_explosive: "그"
+target_information.high_explosive_legacy_no_stun: "그"
+target_information.high_explosive_legacy_stun: "그"
+target_information.high_explosive_modern: "그"
 target_information.hollow_charge: "열"
+target_information.smoke: "연막"
 
 # team_panels
 team_panels.UI_description: "팀 패널 및 전투 로딩"

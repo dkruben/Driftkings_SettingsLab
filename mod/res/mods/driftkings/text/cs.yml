@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "AP"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HESH"
 target_information.high_explosive: "ON"
+target_information.high_explosive_legacy_no_stun: "ON"
+target_information.high_explosive_legacy_stun: "ON"
+target_information.high_explosive_modern: "ON"
 target_information.hollow_charge: "TEPLO"
+target_information.smoke: "Kouř"
 
 # team_panels
 team_panels.UI_description: "Panely týmů a načítání bitvy"

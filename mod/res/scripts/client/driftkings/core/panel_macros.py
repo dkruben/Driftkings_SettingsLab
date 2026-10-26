@@ -38,7 +38,8 @@ class Macros(object):
         self.dependencies = dependencies
 
     def value(self, name):
-        if name.startswith('l10n:'):
+        # {{i18n:KEY}}; XVM's {{l10n:KEY}} reads the same translations.
+        if name.startswith(('i18n:', 'l10n:')):
             return self.translations.get(name[5:], name[5:])
         if name.startswith('.'):
             value=self.config

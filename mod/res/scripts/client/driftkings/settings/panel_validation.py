@@ -32,7 +32,7 @@ def macro_issues(text,config):
                     issues.append('Unknown configuration reference: '+key); break
                 value=value[part]
             continue
-        if key.startswith('l10n:'): continue
+        if key.startswith(('i18n:', 'l10n:')): continue
         if key=='hp-ratio' or key.startswith('hp-ratio:'): continue
         if key.startswith('my-'): key=key[3:]
         if key in KNOWN: continue

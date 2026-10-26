@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "เอพี"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "เฮช"
 target_information.high_explosive: "เขา"
+target_information.high_explosive_legacy_no_stun: "เขา"
+target_information.high_explosive_legacy_stun: "เขา"
+target_information.high_explosive_modern: "เขา"
 target_information.hollow_charge: "ความร้อน"
+target_information.smoke: "ควัน"
 
 # team_panels
 team_panels.UI_description: "แผงทีมและการโหลดการรบ"

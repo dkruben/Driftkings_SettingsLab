@@ -1001,7 +1001,11 @@ target_information.armor_piercing: "Erişim noktası"
 target_information.armor_piercing_cr: "APCR"
 target_information.armor_piercing_he: "HESH"
 target_information.high_explosive: "O"
+target_information.high_explosive_legacy_no_stun: "O"
+target_information.high_explosive_legacy_stun: "O"
+target_information.high_explosive_modern: "O"
 target_information.hollow_charge: "ISI"
+target_information.smoke: "Duman"
 
 # team_panels
 team_panels.UI_description: "Takım panelleri ve savaş yükleme"
