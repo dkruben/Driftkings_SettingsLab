@@ -35,6 +35,12 @@
     "Separate vehicle marker layouts by team, alive/destroyed state and normal/ALT mode, with independent text, native visibility, health bar, icon and floating-damage styles. Migrate previous JSON settings with original-file backups and edit each context in the tank preview.",
     "Connect marker ratings to the shared statistics worker and cache. Add XVM-style r/c:xr fields, configurable WN8/WNX/EFF, structured font styles and an Add rating preset with matching preview. Calculate account WNX from complete random-only vehicle statistics and preserve unavailable or anonymized data as missing.",
     "Add independent floating-damage styles for player, platoon and other authors, plus localized ammo-rack explosion messages. Add live distance, battle-role flags, comparisons and compound marker conditions, with matching editor previews and bounded expression validation.",
-    "Add marker health-bar gradients, independent fill opacity and author-coloured damage trails; configurable native indicators, visible stock-turret macros and local reusable templates, with matching editor controls. XMQP is not included."
+    "Add marker health-bar gradients, independent fill opacity and author-coloured damage trails; configurable native indicators, visible stock-turret macros and local reusable templates, with matching editor controls. XMQP is not included.",
+    "Adopt the XVM default_wg vehicle-marker layouts without XMQP, with separate alive/destroyed and normal/ALT files; position HP and rating text on the health bar.",
+    "Resolve marker macros without replace callbacks, use a bullet glyph and support {{i18n:...}} localization macros, including translations for newer shell types.",
+    "Fix marker editor previews, labels, colour and slider limits; show sample-toggle states, report invalid marker references and treat null options as unset. Add editor regression coverage and the shared marker-condition fixture.",
+    "Fix local player statistics when subtracting legacy battle totals.",
+    "Share ActionScript colour, shadow and crosshair HUD helpers, and consolidate Python 2/3 string compatibility across settings, markers and updater modules.",
+    "Initialize the marks-of-excellence worker through clearData, share the damage-log enemy-name hook factory and fix Python 2 compatibility in test stubs."
   ]
 }
