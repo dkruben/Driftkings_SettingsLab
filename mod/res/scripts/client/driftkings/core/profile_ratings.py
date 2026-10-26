@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """Account WN8 from random-battle dossier totals and weighted expectations."""
 import math
+from collections import namedtuple
+
+# Same fields as the client's VehiclesDossiersCut: readers use .battlesCount or record[0].
+VehicleCut = namedtuple('VehicleCut', ('battlesCount', 'wins', 'xp'))
 
 
 def pure_random_stats(dossier, vehicle_id=None, vehicle_dossier=None):
@@ -26,7 +30,7 @@ def pure_random_stats(dossier, vehicle_id=None, vehicle_dossier=None):
     if not count:
         return None
     if vehicle_id is not None:
-        vehicles = {vehicle_id: (count, values['getWinsCount'], 0)}
+        vehicles = {vehicle_id: VehicleCut(count, values['getWinsCount'], 0)}
     else:
         if vehicle_dossier is None:
             from gui.shared.personality import ServicesLocator
@@ -41,7 +45,7 @@ def pure_random_stats(dossier, vehicle_id=None, vehicle_dossier=None):
                 return None
             stats = pure_random_stats(item, ident)
             if stats is not None and stats.getBattlesCount():
-                vehicles[ident] = (stats.getBattlesCount(), stats.getWinsCount(), 0)
+                vehicles[ident] = VehicleCut(stats.getBattlesCount(), stats.getWinsCount(), 0)
         if sum(record[0] for record in vehicles.values()) != count:
             return None
 

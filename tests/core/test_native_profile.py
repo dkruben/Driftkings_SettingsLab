@@ -19,6 +19,8 @@ class AccountWN8Tests(RuntimeTest):
         clean = api.pure_random_stats(account, vehicle_dossier=lambda ident: vehicle)
         self.assertEqual(clean.getBattlesCount(), 100)
         self.assertEqual(clean.getVehicles(), {1: (100, 50, 0)})
+        # Marker ratings read the client field names, as on VehiclesDossiersCut.
+        self.assertEqual((clean.getVehicles()[1].battlesCount, clean.getVehicles()[1].wins), (100, 50))
         self.assertEqual(clean.getAvgDamage(), 1000)
         expected = lambda ident: dict(wn8expDamage=1000, wn8expFrag=1, wn8expSpot=1, wn8expDef=1, wn8expWinRate=50)
         self.assertEqual(api.account_wn8(clean, expected), 1565)
