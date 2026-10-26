@@ -167,81 +167,73 @@ assert(!DK.profileDialogs.isOpen());
 window_.querySelectorAll('.dk-installed-button')[0].fire('click');
 assert(DK.profileDialogs.isOpen());
 
-// Integrated editor uses the same controls and sends JSON drafts through the normal session.
-const markerValues = {enabled: true, debug: false};
-['general','markers','fields','colors','healthbar','damage','icons'].forEach(name => {
-    Object.assign(markerValues, JSON.parse(fs.readFileSync(path.join(root, 'res/configs/driftkings/default/vehicle_markers', name + '.json'), 'utf8')));
-});
+// Integrated editor edits the XVM files and sends JSON drafts through the normal session.
+const markerDir = path.join(root, 'res/configs/driftkings/default/vehicle_markers');
+const markerFile = name => JSON.parse(fs.readFileSync(path.join(markerDir, name + '.json'), 'utf8'));
+const markerGeneral = markerFile('markers').markers;
+const markerValues = {enabled: markerGeneral.enabled, markers: Object.assign({}, markerGeneral)};
+delete markerValues.markers.enabled;
+DK.vehicleMarkerModel.STATE_KEYS.forEach(name => { markerValues[name] = markerFile(name); });
 const markerBindings = {}, markerState = {}, markerCommits = [];
-['enabled','debug','markers','customFields','colors','healthBar','damageText','icons','ratingType'].forEach(key => {
+['enabled', 'markers'].concat(DK.vehicleMarkerModel.STATE_KEYS).forEach(key => {
     markerBindings[key] = key;
     markerState[key] = typeof markerValues[key] === 'boolean' ? markerValues[key] : JSON.stringify(markerValues[key]);
 });
-markerState.ratingType=0;
 const markerHost = new Node('div');
 const markerEditor = DK.vehicleMarkersEditor.create(markerHost, {preview: {labels:{},bindings:markerBindings,tank:'sample.png'}}, {
     labels:{on:'On',off:'Off'},commit(key,value) { markerCommits.push([key,value]); }
 });
 markerEditor.update(markerState);
+function markerButton(text) { return markerHost.querySelectorAll('button').find(node => node.textContent === text); }
+function markerRow(property) { return markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property') === property); }
+function lastDraft() { return JSON.parse(markerCommits[markerCommits.length-1][1]); }
 assert.strictEqual(markerHost.querySelector('.dk-vm-tank').src, 'sample.png');
-assert(markerHost.querySelectorAll('.dk-vm-text').length > 0);
+// Enemy, alive, without Alt: tank name, HP, rating, position and distance, as in XVM default_wg.
 const originalFieldCount = markerHost.querySelectorAll('.dk-vm-text').length;
-markerHost.querySelectorAll('button').find(node => node.textContent === 'add').fire('click');
+assert.strictEqual(originalFieldCount, 5);
+markerButton('add').fire('click');
 assert.strictEqual(markerHost.querySelectorAll('.dk-vm-text').length, originalFieldCount + 1);
-assert.strictEqual(markerCommits[0][0], 'customFields');
+assert.strictEqual(markerCommits[0][0], 'markersAliveNormal');
 const formatInput = markerHost.querySelector('textarea');
 formatInput.value = '<b>{{vehicle}} {{hp}}</b>';
 formatInput.fire('input');
 assert.strictEqual(markerCommits.length, 1, 'typing previews without persisting');
 formatInput.fire('blur');
-assert.strictEqual(JSON.parse(markerCommits[1][1]).enemy.alive.normal.slice(-1)[0].format, formatInput.value);
-markerHost.querySelectorAll('button').find(node => node.textContent === 'healthBar').fire('click');
-assert(markerHost.querySelectorAll('.dk-row').some(node => node.getAttribute('data-property') === 'healthBar.enemy.alive.normal.color'));
+assert.strictEqual(lastDraft().enemy.textFields.slice(-1)[0].format, formatInput.value);
+// A referenced field edits its shared template.
+markerHost.querySelectorAll('.dk-vm-text')[0].fire('click');
+const sharedY = markerRow('markersAliveNormal.def.tankName.y').querySelector('input');
+sharedY.value = '-40'; sharedY.fire('blur');
+assert.strictEqual(lastDraft().def.tankName.y, -40);
+assert.strictEqual(lastDraft().ally.textFields[0], '${def.tankName}');
+markerButton('healthBar').fire('click');
+assert(markerRow('markersAliveNormal.enemy.healthBar.color'));
 markerHost.querySelector('.dk-vm-actions').querySelectorAll('button').find(node => node.textContent === 'damage').fire('click');
 assert(markerHost.querySelector('.dk-vm-damage'));
-// Select a destroyed ally in ALT and change only that context's bar position.
-function markerButton(text) { return markerHost.querySelectorAll('button').find(node => node.textContent === text); }
+// A destroyed ally in Alt reads markersDeadExtended.json; only that block changes.
 markerButton('ally').fire('click');
 markerButton('alive').fire('click');
 markerButton('normal').fire('click');
 assert.strictEqual(markerHost.querySelector('.dk-vm-damage'), null);
-const scopedX = markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property') === 'healthBar.ally.dead.extended.x');
-assert(scopedX);
-const xInput = scopedX.querySelector('input');
-xInput.value='49'; xInput.fire('blur');
-const changedBar = JSON.parse(markerCommits[markerCommits.length-1][1]);
-assert.strictEqual(changedBar.ally.dead.extended.x,49);
-assert.deepStrictEqual(changedBar.enemy.alive.normal,markerValues.healthBar.enemy.alive.normal);
-assert.strictEqual(changedBar.x,markerValues.healthBar.x);
-markerButton('enemy').fire('click');
-assert(markerHost.querySelectorAll('.dk-row').some(node => node.getAttribute('data-property') === 'healthBar.enemy.dead.extended.x'));
-markerButton('customFields').fire('click');
+const scopedX = markerRow('markersDeadExtended.ally.healthBar.x').querySelector('input');
+scopedX.value='49'; scopedX.fire('blur');
+assert.strictEqual(markerCommits[markerCommits.length-1][0], 'markersDeadExtended');
+assert.strictEqual(lastDraft().ally.healthBar.x, 49);
+assert.deepStrictEqual(lastDraft().enemy.healthBar, markerValues.markersDeadExtended.enemy.healthBar);
+markerButton('textFields').fire('click');
 markerButton('addRating').fire('click');
-const ratingDraft=JSON.parse(markerCommits[markerCommits.length-1][1]);
-assert.strictEqual(ratingDraft.enemy.dead.extended.slice(-1)[0].format,'{{r}}');
-markerButton('extended').fire('click');
-markerButton('addRating').fire('click');
-markerButton('ratingType').fire('click');
-assert.strictEqual(markerHost.querySelectorAll('.dk-vm-text').slice(-1)[0].style.opacity,0);
-markerButton('ratingType').fire('click');
-assert.strictEqual(markerHost.querySelectorAll('.dk-vm-text').slice(-1)[0].style.opacity,1);
-markerButton('general').fire('click');
-const ratingControl=markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property')==='ratingType');
-ratingControl.querySelector('.dk-dropdown').fire('keydown',{keyCode:40});
-assert.deepStrictEqual(markerCommits[markerCommits.length-1],['ratingType',1]);
+assert.strictEqual(lastDraft().ally.textFields.slice(-1)[0].format, '{{r}}');
+// Player damage is the shared def.damageText template in default_wg.
 markerButton('damageText').fire('click');
-let authorFormat=markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property')==='damageText.enemy.dead.normal.sources.player.format').querySelector('textarea');
-authorFormat.value='Player {{dmg}}'; authorFormat.fire('blur');
-markerHost.querySelectorAll('button').find(node => node.getAttribute('data-damage-source')==='squad').fire('click');
-let authorX=markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property')==='damageText.enemy.dead.normal.sources.squad.x').querySelector('input');
-authorX.value='55'; authorX.fire('blur');
-const authorDraft=JSON.parse(markerCommits[markerCommits.length-1][1]);
-assert.strictEqual(authorDraft.enemy.dead.normal.sources.player.format,'Player {{dmg}}');
-assert.strictEqual(authorDraft.enemy.dead.normal.sources.squad.x,55);
-assert.strictEqual(authorDraft.format,markerValues.damageText.format);
-markerButton('customFields').fire('click');
-markerButton('addDistance').fire('click');
-assert.strictEqual(JSON.parse(markerCommits[markerCommits.length-1][1]).enemy.dead.normal.slice(-1)[0].format,'{{distance|--}} m');
+const authorFormat = markerRow('markersDeadExtended.def.damageText.damageMessage').querySelector('textarea');
+authorFormat.value = 'Player {{dmg}}'; authorFormat.fire('blur');
+assert.strictEqual(lastDraft().def.damageText.damageMessage, 'Player {{dmg}}');
+markerButton('general').fire('click');
+const ratingControl = markerRow('markers.ratingType');
+ratingControl.querySelector('.dk-dropdown').fire('keydown',{keyCode:40});
+assert.strictEqual(markerCommits[markerCommits.length-1][0], 'markers');
+assert.strictEqual(lastDraft().ratingType, 'wnx');
+assert.strictEqual(lastDraft().ally.alive.normal, '${markersAliveNormal.json:ally}');
 markerEditor.dispose();
 assert.strictEqual(markerHost.children.length, 0);
 

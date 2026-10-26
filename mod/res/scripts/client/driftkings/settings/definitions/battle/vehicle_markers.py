@@ -2,11 +2,11 @@
 from driftkings.common.utils.color_rating_data import color_tables
 from driftkings.core.vehicle_markers.colors import normalize, palette
 from driftkings.core.vehicle_markers.config import prepare
-from driftkings.core.vehicle_markers.layouts import migrate
 from driftkings.core.vehicle_markers.ratings import values as rating_values
+from driftkings.core.vehicle_markers.xvm import FILES, STATE_KEYS
 from driftkings.settings.controls_schema import field
 from driftkings.settings.definitions.base import SectionDefinition
-from driftkings.settings.vehicle_markers_store import FILES, VehicleMarkersStore
+from driftkings.settings.vehicle_markers_store import VehicleMarkersStore
 
 
 class VehicleMarkersSettings(SectionDefinition):
@@ -15,7 +15,7 @@ class VehicleMarkersSettings(SectionDefinition):
     STORAGE_FILES = FILES
 
     def normalize_loaded(self, values):
-        values = migrate(values)
+        # Validate the XVM files as the battle will read them; the files keep their templates.
         prepare(values)
         return values
 
@@ -23,14 +23,15 @@ class VehicleMarkersSettings(SectionDefinition):
         return self.normalize_loaded(values)
 
     def getControlColumns(self):
-        items = [field(['debug'], self.i18n['UI_debug'], tooltip=self.i18n['UI_debug_tip'])]
-        items.append(field(['colorRating'], self.i18n['UI_setting_colorRating_text'], 'Dropdown',
+        items = [field(['markers', 'debug'], self.i18n['UI_debug'], tooltip=self.i18n['UI_debug_tip'])]
+        items.append(field(['markers', 'colorRating'], self.i18n['UI_setting_colorRating_text'], 'Dropdown',
                            choices=range(len(color_tables)), choice_labels=[table['ScaleColor'] for table in color_tables],
                            tooltip=self.i18n['UI_setting_colorRating_tooltip']))
-        items.append(field(['ratingType'], self.i18n['UI_preview_ratingType'], 'Dropdown',
+        items.append(field(['markers', 'ratingType'], self.i18n['UI_preview_ratingType'], 'Dropdown',
                            choices=('wn8', 'wnx', 'eff'), choice_labels=('WN8', 'WNX', 'EFF'),
                            tooltip=self.i18n['UI_preview_ratingType']))
-        for key in ('markers', 'customFields', 'colors', 'healthBar', 'damageText', 'icons', 'def', 'turretMarkers'):
+        # One editor per XVM file: markers.json, then the four state files.
+        for key in ('markers',) + STATE_KEYS:
             items.append(field([key], self.i18n['UI_' + key], 'TextArea', jsonValue=True,
                                maxLength=524288, tooltip=self.i18n['UI_' + key + '_tip']))
         return (items, [])

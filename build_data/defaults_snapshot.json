@@ -237,39 +237,24 @@
       "sha256": "c613427fa69c26a1cca0e5b48c181395d9b4375654d0106514082434d319c15a"
     },
     {
-      "path": "default/vehicle_markers/colors.json",
-      "source_sha256": "c2464aabdf2329bf41c2d3d6bf990f65ef8a8c0c1e6e7f724aae04c60605304d",
-      "sha256": "b525ea2229d02ad4610a70f797747a5acb756bec717100f14dc52176d9d9daa5"
-    },
-    {
-      "path": "default/vehicle_markers/damage.json",
-      "source_sha256": "597c062a474df4059350e2c56da051dd292899fb6cc3ad26260551377ff1f791",
-      "sha256": "0eeda3eb48da245c9b02d957c8a5b0e568b10a187fe7f8dcb2a80c2b66c0ebee"
-    },
-    {
-      "path": "default/vehicle_markers/fields.json",
-      "source_sha256": "4ff160f06443960b9b879ab4523256a5e73b69ee4db46b8153aabcb9deda5d1b",
-      "sha256": "1cff71d1e6f6130a495c0ae2e4a393c099335e334ba579d4a4664368e4789ef5"
-    },
-    {
-      "path": "default/vehicle_markers/general.json",
-      "source_sha256": "53900a140a4c4006b4fd24d480fb85bdba0a4dab7e1579ae2df8aa1593e55b87",
-      "sha256": "2d5bac88b66e0abe59e78de97cc2ee77d5f28d66066414e85198a1bb63db00d4"
-    },
-    {
-      "path": "default/vehicle_markers/healthbar.json",
-      "source_sha256": "fe3b66c2c6ffa26b4806a917cb5f6a9839e7673dab308d9ab056f54e75bab21c",
-      "sha256": "75dd21e6e50d6ed31a291450739f37ec4fd80bb8a0de95630954c08cca89aa8e"
-    },
-    {
-      "path": "default/vehicle_markers/icons.json",
-      "source_sha256": "e6b705e15e77dbeed60bafca457f7bac8bd13e2b977c843e82c315a91a22d8ba",
-      "sha256": "ee2044801b4da8b509e902f1a11230812dbc0e1551099b8d778327c66f7b60b1"
-    },
-    {
       "path": "default/vehicle_markers/markers.json",
-      "source_sha256": "cbd68f324f4a19977bb47ac623c3b694e554b49e56a56346437697eda45f29df",
-      "sha256": "bbb246c5952fe346bf1bcda5bc3810de5b36beac13311717847be420a5d600f4"
+      "sha256": "6a50d5234ad42da0bb48d6a5f9eab4fd09b18eeb1dfe3d1833d70527b318d32d"
+    },
+    {
+      "path": "default/vehicle_markers/markersAliveExtended.json",
+      "sha256": "4f66d13f5589b1f021bb013c58510a316ca7e8cb72070a6e3b6e7f12692fe003"
+    },
+    {
+      "path": "default/vehicle_markers/markersAliveNormal.json",
+      "sha256": "f52a06c12579fee5d4dc3e235cb3c8906c4b3b4ac6aa7cbba53668f4e42ad169"
+    },
+    {
+      "path": "default/vehicle_markers/markersDeadExtended.json",
+      "sha256": "5544dc8fade955db1468097e3034dd580b031430d4f9f2d97b0abafa971b3d1a"
+    },
+    {
+      "path": "default/vehicle_markers/markersDeadNormal.json",
+      "sha256": "d1046bb02c52a08cf831b3d00abb78f80f159f9acfc27b53045ec0276dca3453"
     },
     {
       "path": "load.json",

@@ -11,11 +11,14 @@ from driftkings.core.vehicle_markers.icons import normalize as normalize_icons
 from driftkings.core.vehicle_markers.layouts import leaf, migrate, MODES, STATES, style_tree, TEAMS, validate_tree
 from driftkings.core.vehicle_markers.presentation import validate
 from driftkings.core.vehicle_markers.references import resolve
+from driftkings.core.vehicle_markers.xvm import adapt, STATE_KEYS
 
 DEFAULTS = {'enabled': False, 'debug': False, 'colorRating': 0, 'markers': {'enabled': False}, 'targetGameVersion': '2.4.1'}
 
 
 def prepare(data):
+    if STATE_KEYS[0] in data:
+        data = adapt(data)
     result = copy.deepcopy(DEFAULTS)
     result.update(migrate(resolve(data)))
     if not isinstance(result.get('def', {}), dict):

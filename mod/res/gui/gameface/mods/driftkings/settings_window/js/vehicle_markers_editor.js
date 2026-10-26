@@ -3,7 +3,12 @@
     'use strict';
     var DK=window.DK=window.DK || {}, M=DK.vehicleMarkerModel;
     function create(parent, mod, context) {
-        var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, section='customFields', selected=0;
+        var labels=mod.preview.labels || {}, bindings=mod.preview.bindings, palettes=mod.preview.palettes, model={}, section='textFields', selected=0;
+        // XVM files edited by this form: markers.json and the four state files.
+        var ROOTS=['markers'].concat(M.STATE_KEYS);
+        var FIELD={name:'',enabled:true,x:0,y:-36,alpha:100,align:'center',format:'{{vehicle}}',
+            textFormat:{font:'$FieldFont',size:13,color:null,bold:false,italic:false},
+            shadow:{enabled:true,distance:0,angle:45,color:'0x000000',alpha:100,blur:6,strength:2}};
         var sample={group:'enemy',state:'alive',alt:false,blind:false,hp:70,distance:350,damageSource:'player',explosion:false,name:'DriftKings'}, widgets=[], disposed=false, lastValues='';
         var root=DK.dom.el('div','dk-vm-editor',null,parent), tabs=DK.dom.el('div','dk-vm-tabs',null,root);
         var workspace=DK.dom.el('div','dk-vm-workspace',null,root), edit=DK.dom.el('div','dk-vm-edit',null,workspace);
@@ -69,14 +74,28 @@
         });
         var blowup=button(authors,label('blowup'),function () { sample.explosion=!sample.explosion; DK.dom.setClass(blowup,'is-active',sample.explosion); });
         var notice=node('div','dk-vm-hint',label('hint'),preview), error=node('div','dk-vm-error','',preview);
-        ['general','customFields','healthBar','damageText','icons','colors','markers','def'].forEach(function (key) {
+        ['general','textFields','healthBar','damageText','icons','vehicleDist','def'].forEach(function (key) {
             var value=button(tabs,label(key),function () { section=key; buildForm(); draw(); }); value.setAttribute('data-section',key);
         });
-        function save(block) {
-            if (!bindings[block]) { return; }
-            var value=(block==='enabled' || block==='debug' || block==='colorRating' || block==='ratingType') ? model[block] : JSON.stringify(model[block]);
-            if (block==='ratingType') { value=['wn8','wnx','eff'].indexOf(model[block]); }
-            context.commit(bindings[block],value);
+        function save(root) {
+            if (!bindings[root]) { return; }
+            context.commit(bindings[root],root==='enabled'?model.enabled:JSON.stringify(model[root]));
+        }
+        function link() { return M.wiring(model,sample.group,sample.state,sample.alt?'extended':'normal'); }
+        function blockPath() { return link().path; }
+        // A field written as "${def.name}" or {"$ref":{"path":"def.name"}} edits its shared template.
+        function templateName(value) {
+            var match=typeof value==='string' && /^\$\{def\.([A-Za-z0-9_-]+)\}$/.exec(value);
+            if (match) { return match[1]; }
+            if (value && typeof value==='object' && Object.keys(value).length===1 && value.$ref) {
+                var path=typeof value.$ref==='string'?value.$ref:value.$ref.path;
+                match=/^def\.([A-Za-z0-9_-]+)$/.exec(path || ''); return match?match[1]:null;
+            }
+            return null;
+        }
+        function editPath(path,value) {
+            var name=templateName(value), current=link();
+            return name && !current.inline ? [current.key,'def',name] : path;
         }
         function pathGet(path) { var value=model; path.forEach(function (key) { value=value && value[key]; }); return value; }
         function pathSet(path,value) { var target=model; path.slice(0,-1).forEach(function (key) { if (!target[key] || typeof target[key]!=='object') { target[key]={}; } target=target[key]; }); target[path[path.length-1]]=value; }
@@ -106,7 +125,8 @@
                     if (path.indexOf('border')>=0) { def.min=0; def.max=10; }
                 }
             } else {
-                def.type=(key==='format' || key==='blowupMessage')?'textarea':'text'; def.maxLength=(key==='format' || key==='blowupMessage')?2048:256;
+                var long=key==='format' || key==='blowupMessage' || key==='damageMessage';
+                def.type=long?'textarea':'text'; def.maxLength=long?2048:256;
                 if (key==='align' || (key==='hp' && type==='string')) {
                     def.type='dropdown'; var choices=key==='align'?['left','center','right']:['percent','currentAndMax','current','hidden'];
                     def.options=choices.map(function (option) { return {value:option,label:label(option)}; });
@@ -162,73 +182,95 @@
                 if (items.length>1) { button(owner,label('remove'),function () { pathGet(path).splice(items.length-2,1); save('colors'); buildForm(); draw(); }); }
             }
         }
-        function fields() {
-            if (!model.customFields[sample.group]) { model.customFields[sample.group]={}; }
-            if (!model.customFields[sample.group][sample.state]) { model.customFields[sample.group][sample.state]={}; }
-            var modeKey=sample.alt?'extended':'normal';
-            if (!model.customFields[sample.group][sample.state][modeKey]) { model.customFields[sample.group][sample.state][modeKey]=[]; }
-            return model.customFields[sample.group][sample.state][modeKey];
+        function textFields() {
+            var block=pathGet(blockPath());
+            if (!block.textFields) { block.textFields=[]; }
+            return block.textFields;
         }
-        function scopePath(key) { return [key,sample.group,sample.state,sample.alt?'extended':'normal']; }
+        function scoped(owner,key,defaults) {
+            var path=blockPath().concat([key]), value=pathGet(path), target=editPath(path,value);
+            if (target!==path) { node('div','dk-vm-hint',label('shared')+': def.'+target[2],owner); }
+            objectForm(owner,target,pathGet(target),defaults);
+        }
         function buildForm() {
             widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; form.textContent='';
             var buttons=tabs.querySelectorAll('button'); for (var t=0;t<buttons.length;t++) { DK.dom.setClass(buttons[t],'is-active',buttons[t].getAttribute('data-section')===section); }
-            if (!model.customFields) { return; }
-            if (section!=='general' && section!=='colors') {
-                node('div','dk-vm-hint',label(sample.group)+' / '+label(sample.state)+' / '+label(sample.alt?'extended':'normal'),form);
+            if (!model.markers) { return; }
+            var current;
+            try { current=link(); } catch (problem) { error.textContent=problem.message; return; }
+            if (section!=='general') {
+                node('div','dk-vm-hint',label(sample.group)+' / '+label(sample.state)+' / '+label(sample.alt?'extended':'normal')+' \u2192 '+
+                     (current.inline?'markers.json':current.key+'.json : '+current.part),form);
             }
             if (section==='general') {
-                widget(form,['enabled'],model.enabled); widget(form,['debug'],model.debug);
-                if (palettes) { widget(form,['colorRating'],model.colorRating || 0); }
-                widget(form,['ratingType'],model.ratingType || 'wn8');
-                objectForm(form,['turretMarkers'],model.turretMarkers,M.defaults.turretMarkers);
+                widget(form,['enabled'],model.enabled); widget(form,['markers','debug'],!!model.markers.debug);
+                if (palettes) { widget(form,['markers','colorRating'],model.markers.colorRating || 0); }
+                widget(form,['markers','ratingType'],model.markers.ratingType || 'wn8');
+                objectForm(form,['markers','turretMarkers'],model.markers.turretMarkers,{highVulnerability:'*',lowVulnerability:"'"});
+                objectForm(form,['markers','colors'],model.markers.colors,resolved().config.colors);
                 return;
             }
-            if (section==='def') { objectForm(form,['def'],model.def || {},M.resolve(model).def || {}); return; }
-            if (section==='customFields') {
-                widget(form,['customFields','enabled'],model.customFields.enabled);
-                var list=fields(), bar=node('div','dk-vm-field-actions',null,form);
+            if (section==='def') {
+                if (current.inline) { node('div','dk-vm-hint',label('empty'),form); return; }
+                objectForm(form,[current.key,'def'],model[current.key].def || {});
+                return;
+            }
+            if (section==='textFields') {
+                var list=textFields(), bar=node('div','dk-vm-field-actions',null,form);
                 selected=Math.max(0,Math.min(selected,list.length-1));
+                var resolvedList=M.resolve(current.inline?pathGet(current.path):model[current.key]);
+                resolvedList=(current.inline?resolvedList:resolvedList[current.part]).textFields || [];
                 if (list.length) {
-                    var select=DK.controls.create({id:'sampleField',type:'dropdown',label:label('fields'),metadata:{},options:list.map(function (item,index) { return {value:index,label:item.name || label('fields')+' '+(index+1)}; })},
-                        {labels:context.labels,commit:function (id,value) { selected=value; buildForm(); draw(); }});
+                    var select=DK.controls.create({id:'sampleField',type:'dropdown',label:label('fields'),metadata:{},options:list.map(function (item,index) {
+                        var name=templateName(item); return {value:index,label:(resolvedList[index] || {}).name || (name?'def.'+name:label('fields')+' '+(index+1))};
+                    })}, {labels:context.labels,commit:function (id,value) { selected=value; buildForm(); draw(); }});
                     bar.appendChild(select.node); select.update(selected); select.info({disabled:false,changed:false,values:{}}); widgets.push(select);
                 }
-                var add=button(bar,label('add'),function () { if (list.length>=12) { return; } list.push(M.clone(M.field)); selected=list.length-1; save('customFields'); buildForm(); draw(); }); add.disabled=list.length>=12;
-                var rating=button(bar,label('addRating'),function () { if (list.length>=12) { return; } list.push(M.ratingField(sample.alt)); selected=list.length-1; save('customFields'); buildForm(); draw(); }); rating.disabled=list.length>=12;
-                var distanceField=button(bar,label('addDistance'),function () {
-                    if (list.length>=12) { return; }
-                    list.push(M.merge(M.field,{name:label('distance'),format:'{{distance|--}} m',y:-140})); selected=list.length-1; save('customFields'); buildForm(); draw();
-                }); distanceField.disabled=list.length>=12;
-                var turret=button(bar,label('turretMarkers'),function () {
-                    if (list.length>=12) { return; }
-                    list.push(M.merge(M.field,{name:label('turretMarkers'),format:'{{turret}}',y:-160})); selected=list.length-1; save('customFields'); buildForm(); draw();
-                }); turret.disabled=list.length>=12;
+                function push(item) { if (list.length>=12) { return; } list.push(item); selected=list.length-1; save(blockPath()[0]); buildForm(); draw(); }
+                var add=button(bar,label('add'),function () { push(M.clone(FIELD)); }); add.disabled=list.length>=12;
+                var rating=button(bar,label('addRating'),function () {
+                    push(sample.alt?M.merge(FIELD,{name:'Rating',y:-51,format:'{{r}}',textFormat:{color:'{{c:xr}}'}})
+                                   :M.merge(FIELD,{name:'Rating',x:-32,y:-21,align:'right',alpha:'{{xvm-stat?100|0}}',format:'&#x115;',
+                                                   textFormat:{font:'xvm',size:17,color:'{{c:xr|#999999}}'},shadow:{blur:2,strength:1}}));
+                }); rating.disabled=list.length>=12;
                 var templates=node('input','',null,bar); templates.type='text'; templates.placeholder=label('def');
                 button(bar,label('saveTemplate'),function () {
                     var name=templates.value.trim();
-                    if (!/^[A-Za-z0-9_-]+$/.test(name) || !list.length) { return; }
-                    model.def=model.def || {}; model.def[name]=M.clone(M.resolve(model).customFields[sample.group][sample.state][sample.alt?'extended':'normal'][selected]);
-                    list[selected]={$ref:{path:'def.'+name}}; save('def'); save('customFields'); buildForm(); draw();
+                    if (current.inline || !/^[A-Za-z0-9_-]+$/.test(name) || !list.length || templateName(list[selected])) { return; }
+                    model[current.key].def=model[current.key].def || {};
+                    model[current.key].def[name]=M.clone(list[selected]); list[selected]='${def.'+name+'}';
+                    save(current.key); buildForm(); draw();
                 });
-                Object.keys(model.def || {}).forEach(function (name) {
-                    var value=M.resolve(model).def[name]; if (!value || typeof value.format!=='string') { return; }
-                    var addTemplate=button(bar,name,function () { if (list.length>=12) { return; } list.push({$ref:{path:'def.'+name}}); selected=list.length-1; save('customFields'); buildForm(); draw(); }); addTemplate.disabled=list.length>=12;
-                });
-                var remove=button(bar,label('remove'),function () { list.splice(selected,1); selected=Math.max(0,selected-1); save('customFields'); buildForm(); draw(); }); remove.disabled=!list.length;
-                if (!list.length) { node('div','dk-vm-hint',label('empty'),form); }
-                else { objectForm(form,scopePath('customFields').concat([selected]),{},M.merge(M.field,M.resolve(model).customFields[sample.group][sample.state][sample.alt?'extended':'normal'][selected])); }
-            } else if (section==='markers') {
-                objectForm(form,scopePath('markers'),pathGet(scopePath('markers')),{vehicleName:true,playerName:true,hp:'currentAndMax',healthBar:true,vehicleIcon:false,levelIcon:true,damage:true});
-            } else {
-                if (section==='colors' && palettes) { widget(form,['colorRating'],model.colorRating || 0); }
-                if (section==='colors') { objectForm(form,[section],model[section],resolved().config[section]); }
-                else if (section==='damageText') {
-                    var damagePath=scopePath(section).concat(['sources',sample.damageSource]);
-                    node('div','dk-vm-hint',label(sample.damageSource),form);
-                    objectForm(form,damagePath,pathGet(damagePath),M.damageStyle(resolved().config,sample.damageSource));
-                } else { objectForm(form,scopePath(section),pathGet(scopePath(section)),resolved().config[section]); }
+                if (!current.inline) {
+                    Object.keys(model[current.key].def || {}).forEach(function (name) {
+                        var value=model[current.key].def[name];
+                        if (!value || typeof value.format!=='string' || name==='damageText') { return; }
+                        var addTemplate=button(bar,name,function () { push('${def.'+name+'}'); }); addTemplate.disabled=list.length>=12;
+                    });
+                }
+                var remove=button(bar,label('remove'),function () { list.splice(selected,1); selected=Math.max(0,selected-1); save(blockPath()[0]); buildForm(); draw(); }); remove.disabled=!list.length;
+                if (!list.length) { node('div','dk-vm-hint',label('empty'),form); return; }
+                var path=blockPath().concat(['textFields',selected]), target=editPath(path,list[selected]);
+                if (target!==path) { node('div','dk-vm-hint',label('shared')+': def.'+target[2],form); }
+                objectForm(form,target,pathGet(target),FIELD);
+                return;
             }
+            if (section==='damageText') {
+                var author={player:'damageTextPlayer',squad:'damageTextSquadman',other:'damageText'}[sample.damageSource];
+                node('div','dk-vm-hint',label(sample.damageSource),form);
+                scoped(form,author,{enabled:true,x:0,y:-67,alpha:100,align:'center',textFormat:FIELD.textFormat,shadow:FIELD.shadow,
+                                    speed:2,maxRange:40,damageMessage:'{{dmg}}',blowupMessage:'{{l10n:blownUp}}\n{{dmg}}'});
+                return;
+            }
+            if (section==='icons') {
+                ['vehicleIcon','levelIcon','contourIcon','actionMarker','hoverMarker','vehicleStatusMarker','damageIndicator'].forEach(function (key) {
+                    var details=node('div','dk-vm-details',null,form), body;
+                    button(details,label(key),function () { body.style.display=body.style.display==='none'?'block':'none'; });
+                    body=node('div','',null,details); body.style.display='none'; scoped(body,key);
+                });
+                return;
+            }
+            scoped(form,section);
         }
         function resolved() { var state=M.state(model,sample,palettes); state.config.blownUp=label('blowup'); return state; }
         function styleField(element,options,config,event) {
@@ -258,15 +300,17 @@
             else { element.textContent=source.textContent; }
         }
         function draw() {
-            if (!model.customFields || disposed) { return; }
-            marker.textContent=''; var state=resolved(), config=state.config;
+            if (!model.markers || disposed) { return; }
+            var state;
+            try { state=resolved(); } catch (problem) { error.textContent=problem.message; return; }
+            marker.textContent=''; var config=state.config;
             marker.style.opacity=state.shown?1:0.2; tank.style.opacity=sample.state==='dead'?0.45:1;
             if (state.fields) {
                 state.fields.forEach(function (options,index) {
                     if (!options.enabled) { return; }
-                    var field=node('div','dk-vm-text'+(section==='customFields' && index===selected?' is-selected':''),null,marker);
+                    var field=node('div','dk-vm-text'+(section==='textFields' && index===selected?' is-selected':''),null,marker);
                     styleField(field,options,config); html(field,M.text(options.format,config,sample));
-                    field.addEventListener('click',function () { section='customFields'; selected=index; buildForm(); draw(); });
+                    field.addEventListener('click',function () { section='textFields'; selected=index; buildForm(); draw(); });
                 });
             } else {
                 var nativeText=[]; if (state.native.vehicleName) { nativeText.push('T32'); } if (state.native.playerName) { nativeText.push(sample.name); }
@@ -294,7 +338,9 @@
                 var style=iconOptions.enabled?iconOptions[kind]:{enabled:true,scale:1,alpha:100,deadAlpha:40,x:null,y:null};
                 if (!style.enabled || !visible) { return; }
                 var value=node('div','dk-vm-icon dk-vm-icon-'+kind,text,marker);
-                value.style.left=(style.x===null?x:style.x)+'rem'; value.style.top=(style.y===null?y:style.y)+'rem';
+                // XVM places the class icon through its container; native icons keep their default spot.
+                if (style.containerX!==undefined && style.containerX!==null) { x=style.containerX; y=style.containerY+12; }
+                value.style.left=(style.x===null || style.x===undefined?x:style.x)+'rem'; value.style.top=(style.y===null || style.y===undefined?y:style.y)+'rem';
                 value.style.color=M.teamColor(config,sample); value.style.opacity=style.alpha/100*(sample.state==='dead'?style.deadAlpha/100:1);
                 value.style.transform='translateX(-50%) scale('+style.scale+')';
             }
@@ -307,7 +353,7 @@
             }
         }
         function simulateDamage() {
-            if (!model.customFields) { return; }
+            if (!model.markers) { return; }
             if (sample.hp<=0) { return; }
             var before=sample.hp; sample.hp=sample.explosion?0:Math.max(0,sample.hp-20);
             if (sample.hp<=0) { sample.state='dead'; life.textContent=label('dead'); buildForm(); }
@@ -335,12 +381,16 @@
             var signature=JSON.stringify(values);
             if (signature===lastValues) { return; }
             if (form.contains(document.activeElement)) { return; }
-            var next={};
+            var next={enabled:true};
             try {
-                Object.keys(bindings).forEach(function (key) { var raw=values[bindings[key]]; next[key]=(key==='enabled' || key==='debug' || key==='colorRating' || key==='ratingType')?raw:JSON.parse(raw); });
-                if (typeof next.ratingType==='number') { next.ratingType=['wn8','wnx','eff'][next.ratingType]; }
+                Object.keys(bindings).forEach(function (key) {
+                    var raw=values[bindings[key]];
+                    if (key==='enabled') { next.enabled=raw!==false; }
+                    else if (ROOTS.indexOf(key)>=0) { next[key]=typeof raw==='string'?JSON.parse(raw):raw; }
+                });
+                if (!next.markers) { throw new Error('missing markers.json'); }
             } catch (_error) { error.textContent=label('invalid'); return; }
-            model=M.migrate(next); lastValues=signature; buildForm(); draw();
+            model=next; lastValues=signature; error.textContent=''; buildForm(); draw();
         }
         return {update:update,dispose:function () {
             disposed=true; timers.forEach(clearTimeout); hp.dispose(); distance.dispose(); widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); root.parentNode.removeChild(root);

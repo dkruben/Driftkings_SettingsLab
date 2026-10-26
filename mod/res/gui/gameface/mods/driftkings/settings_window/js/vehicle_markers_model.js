@@ -179,7 +179,116 @@
         }
         return result;
     }
+    /* XVM files (markers.json wiring + four state files), mirrored from core/vehicle_markers/xvm.py. */
+    var STATE_KEYS=['markersAliveNormal','markersAliveExtended','markersDeadNormal','markersDeadExtended'];
+    var WIRING=/^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$/;
+    var XVM_GLYPHS={'&#x115;':'■'};
+    function wiring(raw,team,state,mode) {
+        var value=(((raw.markers || {})[team] || {})[state] || {})[mode];
+        if (value && typeof value==='object') { return {inline:true,path:['markers',team,state,mode]}; }
+        var match=typeof value==='string' ? WIRING.exec(value) : null;
+        if (!match) { throw new Error('Invalid marker wiring: '+team+'.'+state+'.'+mode); }
+        return {key:match[1],part:match[2],path:[match[1],match[2]]};
+    }
+    function xvmBlock(raw,documents,team,state,mode) {
+        var link=wiring(raw,team,state,mode);
+        if (link.inline) { return resolve(raw.markers[team][state][mode]); }
+        if (!documents[link.key]) {
+            if (!raw[link.key] || typeof raw[link.key]!=='object') { throw new Error('Missing marker state file: '+link.key); }
+            documents[link.key]=resolve(raw[link.key]);
+        }
+        var block=documents[link.key][link.part];
+        if (!block || typeof block!=='object') { throw new Error('Missing marker block: '+link.key+':'+link.part); }
+        return block;
+    }
+    function pick(options,keys) { var result={}; keys.forEach(function (key) { if (options && options[key]!==undefined) { result[key]=clone(options[key]); } }); return result; }
+    function get(options,key,fallback) { return options && options[key]!==undefined && options[key]!==null ? options[key] : fallback; }
+    function hexColor(value,fallback) {
+        if (value===null || value===undefined) { return fallback; }
+        return typeof value==='string' && /^0x[0-9a-f]{6}$/i.test(value) ? '#'+value.slice(2).toUpperCase() : value;
+    }
+    function textField(options,size,defaultFormat) {
+        var width=get(options,'width',size[0]), height=get(options,'height',size[1]), align=get(options,'align','center');
+        var x=get(options,'x',0), y=get(options,'y',0), valign=options.valign;
+        if (align==='right') { x-=width; } else if (align==='center') { x-=width/2; }
+        if (valign==='bottom') { y-=height; } else if (valign==='center') { y-=height/2; }
+        var textFormat=pick(options.textFormat || {},['font','size','color','bold','italic']), format=get(options,'format',defaultFormat || '');
+        if (textFormat.font==='xvm') {
+            Object.keys(XVM_GLYPHS).forEach(function (glyph) { format=format.split(glyph).join(XVM_GLYPHS[glyph]); });
+            textFormat.font='$FieldFont';
+        }
+        var result={name:get(options,'name',''),enabled:get(options,'enabled',true),format:format,x:x,y:y,width:width,height:height,
+            alpha:get(options,'alpha',100),align:align,textFormat:textFormat};
+        if (options.shadow) { result.shadow=pick(options.shadow,['enabled','distance','angle','color','alpha','blur','strength']); }
+        return result;
+    }
+    function damageText(options) {
+        options=options || {};
+        var result=textField(options,[200,100],get(options,'damageMessage','{{dmg}}'));
+        delete result.name;
+        if (result.textFormat.color===undefined || result.textFormat.color===null) { result.textFormat.color='{{c:dmg}}'; }
+        result.duration=get(options,'speed',2); result.rise=get(options,'maxRange',40); result.maxCount=4;
+        result.blowupMessage=get(options,'blowupMessage','{{l10n:blownUp}}\n{{dmg}}');
+        return result;
+    }
+    function healthBar(options,dead) {
+        options=options || {};
+        var border=options.border || {}, damage=options.damage || {}, lcolor=options.lcolor, enabled=get(options,'enabled',true);
+        return {enabled:enabled,showOnDead:!!(dead && enabled),x:get(options,'x',-36),y:get(options,'y',-33),
+            width:get(options,'width',70),height:get(options,'height',12),alpha:get(options,'alpha',100),
+            color:hexColor(options.color,'{{c:team}}'),fill:{alpha:get(options.fill,'alpha',100)},
+            gradient:{enabled:lcolor!==null && lcolor!==undefined,color:hexColor(lcolor,'{{c:hp}}'),angle:0},
+            background:{color:hexColor(border.color,'#000000'),alpha:get(border,'alpha',35)},
+            border:{color:hexColor(border.color,'#000000'),alpha:get(border,'alpha',35),width:get(border,'size',1)},
+            damage:{enabled:true,color:hexColor(damage.color,'{{c:dmg}}'),alpha:get(damage,'alpha',80),delay:0,duration:get(damage,'fade',1)},
+            shadow:{enabled:false}};
+    }
+    function iconPosition(options,extra) {
+        options=options || {};
+        return merge({enabled:get(options,'enabled',true),x:get(options,'x',null),y:get(options,'y',null),scale:1,alpha:get(options,'alpha',100),deadAlpha:100},extra || {});
+    }
+    function icons(options) {
+        var vehicle=options.vehicleIcon || {}, contour=options.contourIcon || {}, hover=options.hoverMarker || {}, indicator=options.damageIndicator || {};
+        var x=get(indicator,'x',53), y=get(indicator,'y',-27);
+        return {enabled:true,
+            'class':{enabled:get(vehicle,'enabled',true),x:null,y:null,scale:1,alpha:get(vehicle,'alpha',100),deadAlpha:100,
+                containerX:get(vehicle,'x',0)+get(vehicle,'offsetX',0),containerY:get(vehicle,'y',-16)+get(vehicle,'offsetY',0),showSpeaker:!!vehicle.showSpeaker},
+            level:iconPosition(options.levelIcon || {enabled:false}),
+            vehicle:iconPosition(contour,{enabled:get(contour,'enabled',false),tint:{color:contour.color || '{{c:system}}',amount:get(contour,'amount',0)}}),
+            actionMarker:iconPosition(options.actionMarker),hoverMarker:iconPosition(hover,{glow:clone(hover.glow || {enabled:true})}),
+            vehicleStatusMarker:iconPosition(options.vehicleStatusMarker),damageIndicator:iconPosition(indicator),hitExplosion:iconPosition(indicator),
+            damageIndicatorText:iconPosition(indicator,{enabled:!!(get(indicator,'enabled',true) && get(indicator,'showText',true)),x:x+14,y:y-14})};
+    }
+    function adapt(raw) {
+        var markers=raw.markers || {}, enabled=raw.enabled!==false, documents={};
+        var result={enabled:enabled,debug:!!markers.debug,colorRating:get(markers,'colorRating',0),ratingType:get(markers,'ratingType','wn8'),
+            turretMarkers:merge({highVulnerability:'*',lowVulnerability:"'",unknown:'?'},markers.turretMarkers || {}),colors:clone(markers.colors || {}),
+            def:{},schemaVersion:2,markers:{enabled:enabled},customFields:{enabled:enabled},healthBar:{enabled:enabled},damageText:{enabled:enabled},icons:{enabled:enabled}};
+        ['ally','enemy'].forEach(function (team) {
+            ['markers','customFields','healthBar','damageText','icons'].forEach(function (name) { result[name][team]={alive:{},dead:{}}; });
+            ['alive','dead'].forEach(function (state) {
+                ['normal','extended'].forEach(function (mode) {
+                    var options=xvmBlock(raw,documents,team,state,mode);
+                    result.markers[team][state][mode]={vehicleName:false,playerName:false,hp:'hidden',healthBar:false,
+                        vehicleIcon:!!(options.contourIcon || {}).enabled,levelIcon:!!(options.levelIcon || {}).enabled,damage:true};
+                    if (!enabled) { return; }
+                    var fields=(options.textFields || []).filter(function (item) { return item && typeof item==='object'; }).map(function (item) { return textField(item,[140,100]); });
+                    if ((options.vehicleDist || {}).enabled) {
+                        var distance=textField(options.vehicleDist,[100,100],'{{alive&&distance?{{distance}}m|}}'); distance.name='Vehicle distance'; fields.push(distance);
+                    }
+                    result.customFields[team][state][mode]=fields;
+                    result.healthBar[team][state][mode]=healthBar(options.healthBar,state==='dead');
+                    var other=damageText(options.damageText);
+                    other.sources={player:damageText(options.damageTextPlayer || options.damageText),squad:damageText(options.damageTextSquadman || options.damageText),other:{}};
+                    result.damageText[team][state][mode]=other;
+                    result.icons[team][state][mode]=icons(options);
+                });
+            });
+        });
+        return result;
+    }
     function state(raw, sample, palettes) {
+        if (raw && raw[STATE_KEYS[0]]) { raw=adapt(raw); }
         raw=migrate(resolve(raw));
         var config=merge(defaults,raw);
         ['healthBar','damageText','icons'].forEach(function (key) { config[key]=style(defaults[key],raw[key],sample); });
@@ -194,5 +303,6 @@
         return {config:config,native:native,fields:config.customFields.enabled && fields ? fields.map(function (item) { return merge(field,item); }) : null,shown:config.enabled && config.markers.enabled};
     }
     function validColor(value) { return /^(?:#|0x)[0-9a-f]{6}$/i.test(value) || value === '{{c:dmg}}' || value === '{{c:hp}}' || value === '{{c:team}}'; }
-    DK.vehicleMarkerModel = {resolve:resolve,clone:clone,merge:merge,migrate:migrate,defaults:defaults,field:field,ratingField:ratingField,damageStyle:damageStyle,damageEvent:damageEvent,condition:condition,state:state,text:text,teamColor:teamColor,hpColor:hpColor,validColor:validColor};
+    DK.vehicleMarkerModel = {resolve:resolve,clone:clone,merge:merge,migrate:migrate,defaults:defaults,field:field,ratingField:ratingField,damageStyle:damageStyle,damageEvent:damageEvent,condition:condition,state:state,text:text,teamColor:teamColor,hpColor:hpColor,validColor:validColor,
+        STATE_KEYS:STATE_KEYS,wiring:wiring,adapt:adapt};
 }());

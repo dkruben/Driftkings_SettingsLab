@@ -1,76 +1,40 @@
 {
   "markers": {
     "enabled": true,
+    "debug": false,
+    "colorRating": 0,
+    "ratingType": "wn8",
+    "turretMarkers": {
+      "highVulnerability": "*",
+      "lowVulnerability": "'"
+    },
+    "colors": {
+      "colorBlind": {
+        "enabled": true,
+        "team": {
+          "enemy": "#C48CFF",
+          "teamKiller": "#66CCFF"
+        }
+      }
+    },
     "ally": {
       "alive": {
-        "normal": {
-          "vehicleName": true,
-          "playerName": false,
-          "hp": "currentAndMax",
-          "healthBar": true,
-          "vehicleIcon": false,
-          "levelIcon": true,
-          "damage": true
-        },
-        "extended": {
-          "vehicleName": true,
-          "playerName": true,
-          "hp": "percent",
-          "healthBar": true,
-          "vehicleIcon": false
-        }
+        "normal": "${markersAliveNormal.json:ally}",
+        "extended": "${markersAliveExtended.json:ally}"
       },
       "dead": {
-        "normal": {
-          "hp": "hidden",
-          "vehicleName": false,
-          "playerName": false,
-          "healthBar": false,
-          "vehicleIcon": false
-        },
-        "extended": {
-          "hp": "hidden",
-          "vehicleName": true,
-          "playerName": true,
-          "healthBar": false,
-          "vehicleIcon": false
-        }
+        "normal": "${markersDeadNormal.json:ally}",
+        "extended": "${markersDeadExtended.json:ally}"
       }
     },
     "enemy": {
       "alive": {
-        "normal": {
-          "vehicleName": true,
-          "playerName": false,
-          "hp": "currentAndMax",
-          "healthBar": true,
-          "vehicleIcon": false,
-          "levelIcon": true,
-          "damage": true
-        },
-        "extended": {
-          "vehicleName": true,
-          "playerName": true,
-          "hp": "percent",
-          "healthBar": true,
-          "vehicleIcon": false
-        }
+        "normal": "${markersAliveNormal.json:enemy}",
+        "extended": "${markersAliveExtended.json:enemy}"
       },
       "dead": {
-        "normal": {
-          "hp": "hidden",
-          "vehicleName": false,
-          "playerName": false,
-          "healthBar": false,
-          "vehicleIcon": false
-        },
-        "extended": {
-          "hp": "hidden",
-          "vehicleName": true,
-          "playerName": true,
-          "healthBar": false,
-          "vehicleIcon": false
-        }
+        "normal": "${markersDeadNormal.json:enemy}",
+        "extended": "${markersDeadExtended.json:enemy}"
       }
     }
   }

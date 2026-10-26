@@ -21,6 +21,8 @@ MACROS.update(('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate',
                'xvm-stat', 'a:r', 'nick', 'clan', 'hp-max', 'hp-ratio', 'c:system'))
 MACROS.update('c:' + key for key in ('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb'))
 MACROS.update(('turret', 'stock-turret', 'turret-vulnerability', 'distance', 'dist', 'alive', 'dead', 'ally', 'enemy', 'player', 'squad', 'anonym', 'vtype'))
+# XVM battle macros: {{battletype}} is empty in random battles, {{position}} is the team list order.
+MACROS.update(('battletype', 'position'))
 
 
 def template(value, extra_macros=()):
@@ -92,7 +94,11 @@ def normalize(options, extra_macros=()):
                 shadow = field['shadow']
                 if type(shadow['enabled']) is not bool:
                     raise ValueError('Invalid shadow enabled')
-                if not isinstance(shadow['color'], string_types) or not re.match(r'^(?:0x|#)[0-9a-fA-F]{6}\Z', shadow['color']):
+                if not isinstance(shadow['color'], string_types):
+                    raise ValueError('Invalid shadow color')
+                if '{{' in shadow['color']:
+                    template(shadow['color'], extra_macros)
+                elif not re.match(r'^(?:0x|#)[0-9a-fA-F]{6}\Z', shadow['color']):
                     raise ValueError('Invalid shadow color')
                 for key, low, high in (('distance', 0, 100), ('angle', -360, 360),
                                        ('alpha', 0, 100), ('blur', 0, 100), ('strength', 0, 100)):

@@ -89,12 +89,11 @@ def assemble(root=ROOT):
             data['carousel'] = {key: value for key, value in general.items() if key not in data}
             data['carousel'].update(normal=get(prefix + 'carouselnormal.json'), small=get(prefix + 'carouselsmall.json'))
         elif identifier == 'vehicle_markers':
-            data = {}
-            for name in ('general', 'markers', 'fields', 'colors', 'healthbar', 'damage', 'icons'):
-                part = get('default/vehicle_markers/' + name + '.json')
-                if set(data).intersection(part):
-                    raise ValueError('Duplicate vehicle marker sections')
-                data.update(part)
+            # XVM layout: markers.json (its enabled is the section switch) and four state files.
+            markers = dict(get('default/vehicle_markers/markers.json')['markers'])
+            data = {'enabled': markers.pop('enabled'), 'markers': markers}
+            for name in ('markersAliveNormal', 'markersAliveExtended', 'markersDeadNormal', 'markersDeadExtended'):
+                data[name] = get('default/vehicle_markers/' + name + '.json')
         elif identifier == 'minimap_enhancements':
             data = {}
             for name in ('minimap.json', 'minimap_labels.json', 'minimap_circles.json', 'minimap_lines.json'):

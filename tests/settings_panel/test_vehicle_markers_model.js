@@ -97,3 +97,23 @@ assert.throws(()=>model.resolve({def:{a:'${def.a}'}}));
 assert.throws(()=>model.resolve({field:'${def.missing}'}));
 assert.strictEqual(model.state({},sample).config.healthBar.fill.alpha,100);
 assert.strictEqual(model.state({},sample).config.icons.actionMarker.deadAlpha,100);
+
+// XVM files: the JS adapter mirrors core/vehicle_markers/xvm.py.
+const xvmDir = path.join(__dirname, '../../res/configs/driftkings/default/vehicle_markers');
+const xvmGeneral = JSON.parse(fs.readFileSync(path.join(xvmDir, 'markers.json'), 'utf8')).markers;
+const xvm = {enabled: xvmGeneral.enabled, markers: Object.assign({}, xvmGeneral)};
+model.STATE_KEYS.forEach(name => { xvm[name] = JSON.parse(fs.readFileSync(path.join(xvmDir, name + '.json'), 'utf8')); });
+const xvmEnemy = model.state(xvm, {group:'enemy',state:'alive',alt:false,hp:70});
+assert.strictEqual(JSON.stringify(xvmEnemy.fields.map(item => item.name)), JSON.stringify(['Tank name','Tank HP','Rating','position','Vehicle distance']));
+assert.deepStrictEqual([xvmEnemy.fields[0].x, xvmEnemy.fields[0].y, xvmEnemy.fields[0].width], [-70, -36, 140]);
+assert.strictEqual(xvmEnemy.fields[2].x, -172);
+assert.strictEqual(xvmEnemy.fields[2].format, '\u25a0');
+assert.strictEqual(xvmEnemy.fields[2].textFormat.font, '$FieldFont');
+assert.deepStrictEqual([xvmEnemy.config.healthBar.x, xvmEnemy.config.healthBar.width, xvmEnemy.config.healthBar.border.color], [-36, 70, '#000000']);
+assert.deepStrictEqual([xvmEnemy.config.icons['class'].containerX, xvmEnemy.config.icons['class'].containerY], [0, -16]);
+assert.strictEqual(xvmEnemy.config.icons.damageIndicatorText.y, -41);
+assert.strictEqual(model.damageStyle(xvmEnemy.config, 'player').rise, 40);
+assert.strictEqual(model.state(xvm, {group:'ally',state:'dead',alt:false,hp:0}).fields.length, 0);
+assert.strictEqual(JSON.stringify(model.wiring(xvm, 'ally', 'dead', 'extended')), JSON.stringify({key:'markersDeadExtended', part:'ally', path:['markersDeadExtended','ally']}));
+assert.throws(() => model.state(Object.assign({}, xvm, {markers: Object.assign({}, xvm.markers, {ally: {alive: {normal: '${other.json:ally}'}}})}), {group:'ally',state:'alive',alt:false,hp:70}));
+console.log('Vehicle marker XVM adapter matches the Python mapping');

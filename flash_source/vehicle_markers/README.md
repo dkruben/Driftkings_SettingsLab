@@ -11,43 +11,50 @@ requires reviewing the patch and lock before building. RABCDAsm's `abcexport`,
 `rabcdasm`, `rabcasm` and `abcreplace` are required; set `DK_RABCDASM_HOME`,
 `rabcdasm_home` in `build_data/toolchain.local.json`, or `--rabcdasm-home`.
 
-Configuration lives in the active profile's `vehicle_markers` directory:
-`general.json`, `markers.json`, `fields.json`, `colors.json`, `healthbar.json`,
-`damage.json` and `icons.json`. Transactions preserve the seven files together.
+`DriftkingsVehicleMarkersFlash.as` is the facade whose static entry points the patched
+native movie calls. Its helpers live in `driftkings/vehiclemarkers` (`VMState`, `VMText`,
+`VMDamage`, `VMHealthBar`, `VMIcons`) and compile into the same single helper ABC; the
+marker movie keeps its own colour and shadow code rather than sharing classes with the
+battle SWF.
 
-Schema 2 distinguishes eight contexts: `ally`/`enemy`, `alive`/`dead`, and
-`normal`/`extended`. Native visibility and text arrays are stored at those paths
-in `markers.json` and `fields.json`. Health bars, icons and floating damage keep
-root properties as common defaults and accept independent overrides at the same
-paths. For example, in `healthbar.json`:
+Configuration lives in the active profile's `vehicle_markers` directory and
+follows XVM's `default_wg` marker files, without XMQP: `markers.json` plus
+`markersAliveNormal.json`, `markersAliveExtended.json`, `markersDeadNormal.json`
+and `markersDeadExtended.json`. Transactions preserve the five files together.
+
+`markers.json` holds the switch (`enabled`), `debug`, `colorRating`,
+`ratingType`, `turretMarkers`, `colors` and, as in `markers.xc`, the wiring of
+each team, state and mode to a block of a state file:
 
 ```json
-{
-  "healthBar": {
-    "enabled": true,
-    "width": 70,
-    "enemy": {
-      "dead": {
-        "extended": {"x": -45, "width": 90, "showOnDead": true}
-      }
-    }
-  }
-}
+{"markers": {"enabled": true,
+  "ally": {"alive": {"normal": "${markersAliveNormal.json:ally}", "extended": "${markersAliveExtended.json:ally}"},
+           "dead": {"normal": "${markersDeadNormal.json:ally}", "extended": "${markersDeadExtended.json:ally}"}}}}
 ```
 
-Changing that override affects only destroyed enemies in ALT. All other
-properties inherit the common defaults. The editor writes overrides only to the
-selected context; colors and the colorRating choice remain shared.
+Each state file has XVM's `def` templates and complete `ally` and `enemy`
+blocks: `vehicleIcon`, `healthBar`, `damageText`, `damageTextPlayer`,
+`damageTextSquadman`, `vehicleDist`, `contourIcon`, `levelIcon`, `actionMarker`,
+`hoverMarker` (with `glow`), `vehicleStatusMarker`, `damageIndicator` and
+`textFields`. Fields and templates reference definitions with `"${def.name}"` or
+`{"$ref": {"path": "def.name"}}`. Geometry follows XVM: text fields are 140x100
+boxes anchored at `x` by `align`, damage text 200x100 boxes, the distance a
+100x100 box, the class icon moves its container by `x`/`y` plus `offsetX`/
+`offsetY` (XVM itself ignores `maxScale`), and the damage indicator text sits at
+`x + 14`, `y - 14`. `{{position}}` is the vehicle's place in its team list from
+the first roster and `{{battletype}}` is empty in random battles. XVM's private
+icon font glyph `&#x115;` is drawn as a client-font square.
 
-The first schema is converted automatically. Its common destroyed layout is
-copied independently to each team; the original documents are kept as `.v1.bak`
-before publishing the converted seven files in one transaction. The native
-marker settings getter resolves visibility per vehicle, so destroyed allies and
-enemies can differ even though the client exposes a shared dead settings group.
-Icon geometry is restored before native updates to avoid carrying offsets across
-ALT, death or observer changes.
+`core/vehicle_markers/xvm.py` converts the files to the runtime profiles; the
+editor uses the same mapping in `vehicle_markers_model.js`. The earlier
+seven-file layout is converted once: its general switches and colours are kept,
+the layouts start from these defaults, and the old files remain as `.v2.bak`.
+The native marker settings getter resolves visibility per vehicle, so destroyed
+allies and enemies can differ even though the client exposes a shared dead
+settings group. Icon geometry is restored before native updates to avoid
+carrying offsets across ALT, death or observer changes.
 
-`general.json` selects the shared `colorRating` palette. Marker team colors use
+`markers.json` selects the shared `colorRating` palette. Marker team colors use
 its `system` table, percentage HP uses `hp_ratio`, and floating damage uses its
 `damage` ownership colors. The runtime and sample use the same resolved tables;
 HP thresholds follow the shared strict upper-bound comparison and last-band

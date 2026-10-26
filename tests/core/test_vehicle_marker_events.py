@@ -61,3 +61,18 @@ class MarkerEventsTests(RuntimeTest):
         self.assertIsNone(api.context(player, lookup, 3, target, True)['distance'])
         self.assertIsNone(api.context(player, lookup, 2, target, False)['distance'])
         self.assertFalse(api.context(player, lookup, 2, {'team': 2, 'prebattleID': 7})['squad'])
+
+    def test_position_and_battle_type_follow_xvm(self):
+        api = self.load('core.vehicle_markers.context')
+        vehicles = {5: {'team': 1}, 2: {'team': 1}, 9: {'team': 2}, 4: {'team': 2}}
+        arena = module(vehicles=vehicles, bonusType=1)
+        player = module(team=1, playerVehicleID=2, arena=arena, getVehicleAttached=lambda: None)
+        data = dict((ident, api.context(player, lambda ident: None, ident, vehicle)) for ident, vehicle in vehicles.items())
+        # Without the client's roster the team order falls back to vehicle ids, numbered per team.
+        self.assertEqual([data[ident]['position'] for ident in (2, 5, 4, 9)], [1, 2, 1, 2])
+        self.assertEqual(data[2]['battletype'], '')
+        vehicles[1] = {'team': 1}
+        self.assertEqual(api.context(player, lambda ident: None, 5, vehicles[5])['position'], 2)
+        arena.bonusType = 2
+        self.assertNotEqual(api.context(player, lambda ident: None, 5, vehicles[5])['battletype'], '')
+

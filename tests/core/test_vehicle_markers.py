@@ -45,7 +45,7 @@ class VehicleMarkersTests(RuntimeTest):
                     self.assertEqual(profile['native']['playerName'], count % 2 == 0)
                     self.assertEqual(profile['healthBar']['x'], count)
                     self.assertEqual(profile['healthBar']['border']['color'], '#123456')
-                    self.assertEqual(profile['healthBar']['border']['width'], data['healthBar']['border']['width'])
+                    self.assertEqual(profile['healthBar']['border']['width'], 1)
                     self.assertEqual(profile['icons']['level']['x'], count)
                     self.assertEqual(profile['damageText']['rise'], count)
         self.assertEqual(data, before)
@@ -68,26 +68,34 @@ class VehicleMarkersTests(RuntimeTest):
         prepared = self.load('core.vehicle_markers.config').prepare(converted)
         self.assertEqual(prepared['customFields']['profiles']['enemy']['alive']['normal']['healthBar']['width'], 120)
 
-    def test_store_migrates_old_files_together_and_keeps_original_backups(self):
+    def test_store_converts_the_seven_file_layout_once_and_keeps_backups(self):
         directory = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, directory)
         api = self.load('settings.vehicle_markers_store')
-        old = self.legacy()
-        old['icons']['level']['x'] = 43
+        old = {'general.json': {'enabled': False, 'debug': True, 'colorRating': 1, 'ratingType': 'eff',
+                                'turretMarkers': {'highVulnerability': '#', 'lowVulnerability': '~', 'unknown': '?'}},
+               'markers.json': {'markers': {'enabled': True}}, 'colors.json': {'colors': {'colorBlind': {'enabled': False}}},
+               'healthbar.json': {'healthBar': {'width': 80}}, 'fields.json': {'customFields': {'enabled': True}},
+               'damage.json': {'damageText': {}}, 'icons.json': {'icons': {}}}
         originals = {}
-        for name, document in zip(api.FILES, api.split(old)):
-            content = json.dumps(document).encode('utf-8')
-            originals[name] = content
+        for name, document in old.items():
+            originals[name] = json.dumps(document).encode('utf-8')
             with open(os.path.join(directory, name), 'wb') as stream:
-                stream.write(content)
-        store = api.VehicleMarkersStore(directory)
-        result = store.load()
-        self.assertEqual(result['schemaVersion'], 2)
-        self.assertEqual(result['icons']['level']['x'], 43)
+                stream.write(originals[name])
+        result = api.VehicleMarkersStore(directory).load()
+        self.assertFalse(result['enabled'])
+        self.assertTrue(result['markers']['debug'])
+        self.assertEqual((result['markers']['colorRating'], result['markers']['ratingType']), (1, 'eff'))
+        self.assertEqual(result['markers']['turretMarkers'], {'highVulnerability': '#', 'lowVulnerability': '~'})
+        self.assertFalse(result['markers']['colors']['colorBlind']['enabled'])
+        # Layouts come from the XVM defaults, not from the old health bar.
+        self.assertEqual(result['markersAliveNormal'], self.xvm_defaults()['markersAliveNormal'])
         for name, content in originals.items():
-            with open(os.path.join(directory, name + '.v1.bak'), 'rb') as stream:
+            with open(os.path.join(directory, name + '.v2.bak'), 'rb') as stream:
                 self.assertEqual(stream.read(), content)
-        self.assertEqual(store.load(), result)
+        self.assertEqual(sorted(name for name in os.listdir(directory) if name.endswith('.json')),
+                         sorted(api.FILES))
+        self.assertEqual(api.VehicleMarkersStore(directory).load(), result)
 
     def test_bad_scope_or_style_is_rejected(self):
         prepare = self.load('core.vehicle_markers.config').prepare
@@ -136,23 +144,31 @@ class VehicleMarkersTests(RuntimeTest):
         self.addCleanup(shutil.rmtree, root)
         store = self.load('settings.vehicle_markers_store').VehicleMarkersStore(root)
         data = store.load()
-        data['customFields']['enemy']['alive']['normal'][0]['x'] = 123
+        data['markersAliveNormal']['def']['tankName']['y'] = -40
         store.save(data)
-        self.assertEqual(store.load()['customFields']['enemy']['alive']['normal'][0]['x'], 123)
+        loaded = store.load()
+        self.assertEqual(loaded['markersAliveNormal']['def']['tankName']['y'], -40)
+        # Templates stay references in the file.
+        self.assertEqual(loaded['markersAliveNormal']['ally']['textFields'][0], '${def.tankName}')
         broken = copy.deepcopy(data)
-        broken['healthBar']['height'] = 0
+        broken['markersAliveNormal']['ally']['healthBar']['height'] = 0
         with self.assertRaises(ValueError):
             store.save(broken)
         self.assertEqual(store.load(), data)
         self.assertEqual(sorted(os.listdir(root)), sorted(store.filenames))
 
-    def defaults(self):
-        result = {}
+    def xvm_defaults(self):
+        documents = {}
         directory = os.path.join(ROOT, 'res', 'configs', 'driftkings', 'default', 'vehicle_markers')
-        for name in ('general', 'markers', 'fields', 'colors', 'healthbar', 'damage', 'icons'):
-            with open(os.path.join(directory, name + '.json'), 'rb') as stream:
-                result.update(json.loads(stream.read().decode('utf-8')))
-        return result
+        xvm = self.load('core.vehicle_markers.xvm')
+        for name in xvm.FILES:
+            with open(os.path.join(directory, name), 'rb') as stream:
+                documents[name] = json.loads(stream.read().decode('utf-8'))
+        return xvm.join(documents)
+
+    def defaults(self):
+        # The internal schema produced from the XVM files; validation and Flash consume it.
+        return self.load('core.vehicle_markers.xvm').adapt(self.xvm_defaults())
 
     def test_canonical_split_defaults_prepare_without_mutating_editable_documents(self):
         raw = self.defaults()
@@ -230,16 +246,15 @@ class VehicleMarkersTests(RuntimeTest):
             self.assertTrue(native[team]['markerBaseHpIndicator'])
 
     def test_referenced_field_survives_store_defaults_and_compiles_overrides(self):
-        data = self.defaults()
-        data['def'] = {'rating': {'format': '{{r}}', 'x': -30}}
-        data['customFields']['enemy']['alive']['normal'] = [{'$ref': {'path': 'def.rating'}, 'y': -90}]
+        data = self.xvm_defaults()
+        data['markersAliveNormal']['def']['custom'] = {'format': '{{r}}', 'x': -30, 'align': 'left'}
+        data['markersAliveNormal']['enemy']['textFields'] = [{'$ref': {'path': 'def.custom'}, 'y': -90}]
         result = self.load('core.vehicle_markers.config').prepare(data)
         field = result['customFields']['profiles']['enemy']['alive']['normal']['fields'][0]
-        self.assertEqual(field['x'], -30)
-        self.assertEqual(field['y'], -90)
+        self.assertEqual((field['x'], field['y']), (-30, -90))
         root = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, root)
         store = self.load('settings.vehicle_markers_store').VehicleMarkersStore(root)
         store.save(data)
         loaded = store.load()
-        self.assertEqual(loaded['customFields']['enemy']['alive']['normal'][0], data['customFields']['enemy']['alive']['normal'][0])
+        self.assertEqual(loaded['markersAliveNormal']['enemy']['textFields'], data['markersAliveNormal']['enemy']['textFields'])
