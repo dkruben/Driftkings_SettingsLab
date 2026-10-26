@@ -242,11 +242,11 @@
     },
     {
       "path": "default/vehicle_markers/markersAliveExtended.json",
-      "sha256": "de87f361dd17e8d028051c900e193aa76c01ccf031ae2ada910b555e467c797e"
+      "sha256": "2e28d0a5cc978915c0987a59f6cd835bc5c4d94dd4f3748ca6cb6eff07a77d51"
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "44d0cdd23b72305dc5ae46ae9bfa6bced5b02d64425c61431d0c789f0a47e0ee"
+      "sha256": "8b62baa750c906a533646c17cbaeff55d77e03f9fb1f37015967d525c8cbcf8b"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",
