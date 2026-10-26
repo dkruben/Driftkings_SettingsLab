@@ -50,33 +50,16 @@ class MarksBattleCache(object):
 class Worker(object):
 
     def __init__(self):
+        # Kept across clearData(): arena, dossier and the per-session counters.
         self._arena = None
-        self.movingAvgDamage = 0.0
-        self.damageRating = 0.0
-        self.battleDamage = 0.0
-        self.battleCount = 0
-        self.RADIO_ASSIST = 0.0
-        self.TRACK_ASSIST = 0.0
-        self.STUN_ASSIST = 0.0
-        self.TANKING = 0.0
-        self.killed = False
-        self.level = False
-        self.values = [0, 0, 0, 0, datetime.datetime.toordinal(datetime.datetime.utcnow()) - 1, datetime.datetime.toordinal(datetime.datetime.utcnow()) - 1]
-        self.name = ''
-        self.vehicleID = None
         self.dossier = None
-        self.initiated = False
-        self.replay = False
-        self.approximate = False
-        self.levels = []
-        self.damages = []
-        self.health = {}
-        self.battleDamageRatingIndex = []
         self.startCount = 0
         self.gunLevel = 0
-        self.dateTime = datetime.datetime.toordinal(datetime.datetime.utcnow())
+        self.health = {}
+        self.clearData()
 
     def clearData(self):
+        today = datetime.datetime.toordinal(datetime.datetime.utcnow())
         self.movingAvgDamage = 0.0
         self.damageRating = 0.0
         self.battleDamage = 0.0
@@ -87,7 +70,7 @@ class Worker(object):
         self.TANKING = 0.0
         self.killed = False
         self.level = False
-        self.values = [0, 0, 0, 0, datetime.datetime.toordinal(datetime.datetime.utcnow()) - 1, datetime.datetime.toordinal(datetime.datetime.utcnow()) - 1]
+        self.values = [0, 0, 0, 0, today - 1, today - 1]
         self.name = ''
         self.vehicleID = None
         self.initiated = False
@@ -97,7 +80,7 @@ class Worker(object):
         self.damages = []
         self.health.clear()
         self.battleDamageRatingIndex = []
-        self.dateTime = datetime.datetime.toordinal(datetime.datetime.utcnow())
+        self.dateTime = today
 
     def getCurrentHangarData(self):
         if g_currentVehicle.item:
