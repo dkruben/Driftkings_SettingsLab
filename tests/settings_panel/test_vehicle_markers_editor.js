@@ -143,4 +143,15 @@ assert.deepStrictEqual(limits('healthBar', 'border.size'), [0, 10, 1]);
 assert.deepStrictEqual(limits('healthBar', 'damage.fade'), [0.1, 5, 0.1]);
 assert.deepStrictEqual(limits('damageText', 'damageText.speed'), [0.1, 10, 0.1]);
 assert.deepStrictEqual(limits('damageText', 'damageText.maxRange'), [0, 300, 1]);
-console.log('Vehicle marker editor: colour limits and slider limits passed');
+// A circular template reference is reported in the error box; it must not throw out of update() or the buttons.
+const broken = JSON.parse(values.markersAliveNormal);
+broken.def.damageText = {$ref: {path: 'def.damageText'}};
+const damaged = new Node('div');
+const guarded = DK.vehicleMarkersEditor.create(damaged, {preview: {labels: {}, bindings, palettes: null, tank: 'tank.png'}},
+    {labels: {}, commit() {}, preview() {}});
+assert.doesNotThrow(() => guarded.update(Object.assign({}, values, {markersAliveNormal: JSON.stringify(broken)})));
+assert(/circular/i.test(damaged.querySelectorAll('.dk-vm-error')[0].textContent), 'the error box explains the reference problem');
+assert.doesNotThrow(() => damaged.querySelectorAll('button').filter(node => node.textContent === 'damage')[0].fire('click'));
+assert.doesNotThrow(() => damaged.querySelectorAll('button').filter(node => node.textContent === 'general')[0].fire('click'));
+
+console.log('Vehicle marker editor: colour limits, slider limits and invalid references passed');

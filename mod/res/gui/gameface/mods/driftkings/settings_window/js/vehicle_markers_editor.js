@@ -222,7 +222,11 @@
             if (target!==path) { node('div','dk-vm-hint',label('shared')+': def.'+target[2],owner); }
             objectForm(owner,target,pathGet(target),defaults);
         }
+        // An invalid reference or a missing block is reported in the error box, like draw() does, and never thrown to the window.
         function buildForm() {
+            try { renderForm(); } catch (problem) { error.textContent=problem.message; }
+        }
+        function renderForm() {
             widgets.forEach(function (api) { if (api.dispose) { api.dispose(); } }); widgets=[]; arrays={}; form.textContent='';
             var buttons=tabs.querySelectorAll('button'); for (var t=0;t<buttons.length;t++) { DK.dom.setClass(buttons[t],'is-active',buttons[t].getAttribute('data-section')===section); }
             if (!model.markers) { return; }
@@ -389,7 +393,9 @@
             var before=sample.hp; sample.hp=sample.explosion?0:Math.max(0,sample.hp-20);
             if (sample.hp<=0) { sample.state='dead'; life.textContent=label('dead'); buildForm(); }
             hp.update(sample.hp); draw();
-            var config=resolved().config, damage=M.damageStyle(config,sample.damageSource), trail=config.healthBar.damage;
+            var current;
+            try { current=resolved(); } catch (problem) { error.textContent=problem.message; return; }
+            var config=current.config, damage=M.damageStyle(config,sample.damageSource), trail=config.healthBar.damage;
             if (trail.enabled && sample.state!=='dead' && before>sample.hp) {
                 var bar=marker.querySelector('.dk-vm-bar');
                 if (bar) {
@@ -397,7 +403,7 @@
                     timers.push(setTimeout(function () { tail.style.transition='width '+trail.duration+'s linear'; tail.style.width='0%'; },trail.delay*1000));
                 }
             }
-            if (!damage.enabled || resolved().native.damage===false) { return; }
+            if (!damage.enabled || current.native.damage===false) { return; }
             var same=[];
             for (var i=0;i<effects.children.length;i++) { if (effects.children[i].getAttribute('data-source')===sample.damageSource) { same.push(effects.children[i]); } }
             while (same.length>=damage.maxCount) { effects.removeChild(same.shift()); }
