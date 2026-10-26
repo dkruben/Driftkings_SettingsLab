@@ -7,13 +7,13 @@ from gui.shared.personality import ServicesLocator
 from driftkings._constants import GLOBAL
 from driftkings.core.crew_progression import nonnegative
 from driftkings.core.hooks import override
+from driftkings.gameface.hangar import crew_progression as hangar_bridge
+from driftkings.gameface.hangar.common import publish_card
 from driftkings.interface_catalog import gameface_spec
 from driftkings.lobby.crew_progression import collect_tankman
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.crew_progression_model import integer, progression_kinds, progression_lines, translated
-from driftkings.gameface.hangar import crew_progression as hangar_bridge
-from driftkings.gameface.hangar.common import publish_card
 
 FEATURE = 'DriftkingsCrewDetails'
 RESOURCE = gameface_spec(FEATURE)['resource']

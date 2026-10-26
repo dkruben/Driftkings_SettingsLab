@@ -49,6 +49,7 @@
     "Adopt the active EU profile's clock, panel positions, carousel fields, minimap and marker layouts as project defaults; set the settings window to 140% scale and 94% opacity, normalize colour and image paths and regenerate fallback defaults.",
     "Support the XVMSymbol marker-font alias through the client font in battle and the editor preview; verify that every settings page opens and applies its current defaults without changes.",
     "Rename the project palette to Driftkings and use descriptive marker/statistics modules and stat-available macros. Preserve palette indices and colours, existing profile macros and cache data, font names, upstream credits and external integration identifiers.",
-    "Require hash-prefixed colours in settings and rendering, remove legacy colour-prefix compatibility and redundant converters, and correct defaults and colour-consuming HTML/native APIs. Validate rejection of legacy strings in the settings panel, minimap and markers."
+    "Require hash-prefixed colours in settings and rendering, remove legacy colour-prefix compatibility and redundant converters, and correct defaults and colour-consuming HTML/native APIs. Validate rejection of legacy strings in the settings panel, minimap and markers.",
+    "Centralize Python Gameface presentation in gameface/batalha and gameface/hangar, sharing resource resolution, transactional payload publication and window registration. Preserve functional components, native resource IDs, visual assets and Python 2.7 compatibility; add architecture and lifecycle regression checks."
   ]
 }

@@ -38,3 +38,7 @@ The source branch uses descriptive marker/statistics module names and the **Drif
 ## Colour format after beta.2
 
 Colour settings and defaults use `#RRGGBB`. Legacy numeric prefixes and bare hex strings are no longer accepted. Native APIs still receive numeric RGB/ARGB values through the existing converters. The settings panel saves hash-prefixed strings directly; HTML templates do not prepend another hash. Tests cover rejection of legacy strings and unchanged open/apply behaviour for the corrected defaults.
+
+## Python Gameface architecture after beta.2
+
+The development branch centralizes Python Gameface adapters under `driftkings/gameface`, with shared `core.py`, `payloads.py`, `registry.py`, and separate `batalha`/`hangar` packages. The 14 interface contracts still come from `interface_catalog.py`; native resource IDs and visual assets are preserved. Scaleform remains under `views`; functional calculations and data collection remain in the feature modules. See the [migration inventory and execution log](PLANO_GAMEFACE.md). Client acceptance checks remain pending; this refactor does not replace the published beta.2.

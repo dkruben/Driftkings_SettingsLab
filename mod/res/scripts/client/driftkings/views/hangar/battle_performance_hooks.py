@@ -3,7 +3,7 @@ from driftkings._constants import BATTLE_PERFORMANCE, GLOBAL
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 
-LOG = get_logger('driftkings.gameface.hangar.battle_performance_hooks')
+LOG = get_logger('driftkings.views.hangar.battle_performance_hooks')
 """Presentation adapter for BattleEfficiency; gameplay state stays in its component."""
 from importlib import import_module
 import re

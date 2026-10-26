@@ -9,10 +9,10 @@ from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
 from driftkings.common.utils.colorratting import getStatisticColor
-from driftkings.settings.service import affects, settings_service
 from driftkings.gameface.hangar.common import card_payload, HangarController, install_card, publish_card
+from driftkings.interface_catalog import gameface_spec
+from driftkings.settings.service import affects, settings_service
 from driftkings.views.marks_model import moved_panel, number_locale
-
 
 FEATURE = 'DriftkingsMarksOnGunHangar'
 RESOURCE = gameface_spec(FEATURE)['resource']

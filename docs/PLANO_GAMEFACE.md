@@ -75,7 +75,7 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 | 1 | Package, núcleo, publicação partilhada, registo e comuns | Concluída | 419 testes core Python 3: OK |
 | 2 | Adaptadores batalha, HUD e referências | Concluída | 419 testes core: OK |
 | 3 | Adaptadores hangar e hooks mistos | Concluída | 419 testes core: OK |
-| 4 | Contratos, fronteiras, documentação e release.json | Pendente | Testes arquitetura/imports/ciclos |
+| 4 | Contratos, fronteiras, documentação e release.json | Concluída | 10 novos testes de arquitetura: OK; catálogo/build data válidos |
 | 5 | Validação completa e build | Pendente | Python 2/3, npm, lint, build, GitHub CI |
 
 ## Registo de execução
@@ -94,3 +94,45 @@ Todos os caminhos seguintes são relativos a `mod/res/scripts/client/driftkings`
 - Etapa 2: migrados individualmente MainGun, marcas e TAB para `gameface/batalha`; catálogo, imports e testes alinhados. Hooks TabView extraídos do serviço HUD, mantendo proprietário/ativação originais. `handler.py` mantém-se Scaleform: WindowLayer apenas seleciona a página Flash nativa. Corrigida a pesquisa do teste de pares de eventos para abranger a árvore cliente inteira. 419 testes core: OK.
 
 - Etapa 3: migrados os 11 adaptadores hangar e os contratos respetivos; recursos de relógio, carrossel e marcas saíram dos componentes funcionais. Extraídos também os hooks ativos de presenters nativos de `lobby/hangar_preferences.py` para `native_preferences.py` e os hooks de layout/filtros/tooltips do carrossel. O componente fornece configuração e caches sem dependências circulares de inicialização. Separados os hooks Gameface do ficheiro misto `hangar_preferences_hooks.py`, preservando a ausência de ativação desse módulo não referenciado. A recolha de dados acionada por CrewPresenter permanece funcional. Todos os 419 testes core passaram. Batalha publicada em `bed9b5a`.
+
+- Etapa 4: adicionados 10 testes cobrindo execução dos 14 adaptadores com fronteiras do motor simuladas, contexto/catálogo único, localização de Views, ciclos de imports imediatos, imports passivos, resolução nativa, transação e cache de payload, registo de janelas e hooks HUD/hangar. Corrigido um import `gameface_spec` em marcas de hangar identificado pelo verificador de nomes indefinidos; 0 nomes indefinidos. Imports do package ordenados com isort. Catálogo: 10 Flash, 14 Gameface e 12 injetados; build data: 301 módulos, 39 manifests, 223 assets, 53 defaults. Atualizados CONTRIBUTING, guias atuais, nota histórica, STATUS e changelog sem alterar a versão publicada. Hangar publicado em `8456378`.
+
+## Estrutura final e dependências
+
+```text
+driftkings/gameface/
+  __init__.py
+  core.py                 # recursos nativos e assets Wulf
+  payloads.py             # publicação transacional, sem motor
+  registry.py             # registo de janelas existente
+  batalha/
+    __init__.py
+    common.py             # BattleCardAdapter existente
+    battle_marks_of_excellence.py
+    high_caliber_gameface.py
+    panel_gameface.py
+    hud_visibility.py     # lifecycle TAB nativo
+  hangar/
+    __init__.py
+    common.py
+    account_manager.py
+    battle_performance.py
+    crew_details.py
+    crew_progression.py
+    hangar_marks_of_excellence.py
+    hangar_preferences.py
+    main.py
+    native_preferences.py # hooks ativos extraídos do componente
+    preferences_hooks.py  # parte Gameface do módulo misto
+    profile_ratings.py
+    settings_window.py
+    tech_tree_marks_of_excellence.py
+    vehicle_carousel.py
+```
+
+- Os 18 ficheiros do mapa inicial foram movidos, removendo as implementações antigas sem shims. Criados 3 `__init__.py`, `payloads.py`, `batalha/hud_visibility.py`, `hangar/native_preferences.py` e `hangar/preferences_hooks.py`. Criado `tests/core/test_gameface_architecture.py`. O teste de eventos pesquisa agora todo o cliente.
+- Componentes funcionais → adaptadores de contexto → núcleo/catalogue e APIs WG. Adaptadores usam dados dos componentes via referências diferidas; não existem ciclos de imports imediatos entre os módulos Gameface.
+- `interface_catalog.py`: alterados apenas os 14 campos `python`. IDs, recursos, contextos, owners, scripts, estilos e URLs preservados. `core` aponta WindowViews para `gameface.registry`. Os testes seguem os caminhos novos.
+- Hooks de preferências ativos são instalados no mesmo âmbito do proprietário funcional. Não foram ativados os hooks do antigo módulo misto não referenciado, para não introduzir alterações funcionais.
+- `core/battle_capabilities` continua a consultar capacidades nativas; diálogo de aviso de sound banks usa o builder nativo, sem implementação de View própria; CrewPresenter apenas aciona recolha de dados. Estas dependências não são adaptadores de apresentação próprios.
+- Nenhuma alteração em `mod/res/gui`: HTML/CSS/JS, declarações nativas e bootstrap idênticos à base. Sem alterações às configurações EU nem instalação de pacote.

@@ -5,9 +5,9 @@ from importlib import import_module
 from driftkings._constants import BATTLE_MARKS_OF_EXCELLENCE, GLOBAL
 from driftkings.core.hud_visibility import hudVisibility
 from driftkings.core.marks_state import marks_state
+from driftkings.gameface.batalha.common import BattleCardAdapter
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
-from driftkings.gameface.batalha.common import BattleCardAdapter
 from driftkings.views.marks_model import moved_panel, number_locale
 
 LOG = get_logger('Driftkings.MarksOnGunBattle')

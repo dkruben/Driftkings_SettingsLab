@@ -11,9 +11,8 @@ import weakref
 from helpers import getClientLanguage
 
 from driftkings.core.hooks import override
-from driftkings.interface_catalog import gameface_spec
 from driftkings.gameface.hangar.common import HangarController, publish_card
-
+from driftkings.interface_catalog import gameface_spec
 
 FEATURE = 'DriftkingsHangarClock'
 RESOURCE = gameface_spec(FEATURE)['resource']

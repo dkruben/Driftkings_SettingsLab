@@ -7,12 +7,12 @@ from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
 from driftkings._constants import CREW_MANAGEMENT, GLOBAL
+from driftkings.gameface.hangar.common import HangarController, install_card, publish_card
 from driftkings.interface_catalog import gameface_spec
 from driftkings.lobby.crew_progression import collect_rows
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.crew_progression_model import progression_kinds, progression_lines
-from driftkings.gameface.hangar.common import HangarController, install_card, publish_card
 
 FEATURE = 'DriftkingsCrewProgression'
 RESOURCE = gameface_spec(FEATURE)['resource']

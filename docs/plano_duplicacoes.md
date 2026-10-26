@@ -76,3 +76,7 @@ A repetição dos controladores de hangar era a subscrição do sinal de configu
 Primitivas de publicação/recuperação centralizadas em common/utils/filesystem.py, mantendo os imports públicos de settings/store.py. Hash do instalador usa a primitiva comum; inventory.py mantém o hashing autónomo por também ser carregado sem pacote pelo build. Escrita da cache de tripulação passou a publicação recuperável. Leitores JSON estritos e validadores de caminhos do updater permanecem separados.
 
 Beta 0.1.2-beta.5 publicada com instalador e manifesto assinado. Commit b6afb5c; CI remoto 39368442484 passou. Testes locais: 111 core em Python 2.7/3, 25 painel em ambas as versões, 22 instalador, Node e ESLint. Validação no jogo e instalação real continuam por confirmar.
+
+## Atualização arquitetural — 26 outubro 2026
+
+Os caminhos `views/battle` e `views/hangar` indicados neste relatório representam a localização à data da revisão. A infraestrutura e os adaptadores Gameface foram posteriormente centralizados em `gameface/`, conforme o [plano de migração](PLANO_GAMEFACE.md). A publicação é partilhada através de `gameface/payloads.py`; os adaptadores de batalha continuam a reutilizar `BattleCardAdapter`.

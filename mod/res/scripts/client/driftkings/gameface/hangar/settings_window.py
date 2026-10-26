@@ -15,11 +15,11 @@ from skeletons.gui.app_loader import GuiGlobalSpaceID
 
 from driftkings.core.keyboard import keyboard
 from driftkings.core.keycodes import MAX_KEY_CODE, valid_key_code
+from driftkings.gameface.core import resource_id
 from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.panel import core_page, logger
 from driftkings.settings.panel.controls import is_text
 from driftkings.settings.panel.presenter import CORE_ID, MAX_REQUEST, Presenter
-from driftkings.gameface.core import resource_id
 
 WINDOW_RESOURCE = gameface_spec('DriftkingsDKModSettings')['resource']
 _JSON = {'separators': (',', ':'), 'allow_nan': False}

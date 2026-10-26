@@ -10,9 +10,9 @@ from gui.impl.pub import ViewImpl
 from gui.impl.pub.window_impl import WindowImpl
 
 from driftkings.core.accounts import AccountError, READ_ERROR
+from driftkings.gameface.core import resource_id
 from driftkings.interface_catalog import gameface_spec
 from driftkings.logger import get_logger
-from driftkings.gameface.core import resource_id
 
 LOG = get_logger('Driftkings.AccountManager')
 RESOURCE = gameface_spec('DriftkingsAccountManager')['resource']

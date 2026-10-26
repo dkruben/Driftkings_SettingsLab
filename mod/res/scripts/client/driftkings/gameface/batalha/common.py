@@ -2,8 +2,8 @@
 """Shared lifecycle for owned Gameface children of the native battle HUD."""
 import weakref
 
-from driftkings.settings.service import settings_service
 from driftkings.gameface.payloads import publish_card
+from driftkings.settings.service import settings_service
 
 
 class BattleCardAdapter(object):
@@ -27,8 +27,8 @@ class BattleCardAdapter(object):
         from gui.shared import EVENT_BUS_SCOPE, events
 
         from driftkings.core.hooks import override
-        from driftkings.interface_catalog import gameface_spec
         from driftkings.gameface.core import attach_assets, resource_id
+        from driftkings.interface_catalog import gameface_spec
         adapter = self
 
         class BattleCardModel(ViewModel):
@@ -143,8 +143,8 @@ class BattleCardAdapter(object):
         self.installed = False
 
     def resourceID(self):
-        from driftkings.interface_catalog import gameface_spec
         from driftkings.gameface.core import resource_id
+        from driftkings.interface_catalog import gameface_spec
         return resource_id(gameface_spec(self.feature)['resource'])
 
     def savePosition(self, child, args):

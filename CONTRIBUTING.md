@@ -44,7 +44,8 @@ Inside the client package:
 - `core/` – composition, lifecycle, hooks, keyboard, callbacks, updater, and pure logic helpers.
 - `settings/` – settings service, profiles, store, panel (presenter, controls, sections) and `definitions/`.
 - `battle/`, `lobby/`, `components/` – the feature components.
-- `views/` – Scaleform/Gameface presentation for those components.
+- `gameface/` – Python Gameface integration: shared resource/assets core, transactional payloads, window registry, `batalha/` and `hangar/` adapters. `interface_catalog.py` remains the single contract source.
+- `views/` – Scaleform presentation and engine-free presentation data helpers.
 - `common/` – shared utilities (colours, config reading, monkeypatching helpers).
 - `i18n/` – translation loaders and optional JSON override support; bundled language text lives in `mod/res/mods/driftkings/text/`.
 
@@ -57,6 +58,10 @@ Inside the client package:
 1. **Services** are declared as `ServiceSpec(name, factory, requires, phase)`. A service starts only when all the services it `requires` are `active`; otherwise it is marked `blocked`. Factories hold import *paths*, so no engine module is touched until the service really starts. Services are stopped in reverse order.
 2. **Components** are the modules listed in `component_list.py` (for example `battle.target_information`). Core imports each one, which *declares* its hooks, then starts the `interface` services, then calls the module's `init()`. A component can declare `REQUIRES_SERVICES`, and optionally `getBattleViews()` / `getWindowViews()`. `fini()` is called on shutdown.
 3. A component that fails to import or initialise is **disabled and logged** (`LOG.exception`), and its settings are disabled; it must never take the rest of the mod down.
+
+### Gameface presentation
+
+Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. See the [migration plan and inventory](docs/PLANO_GAMEFACE.md) for dependencies, validation and in-game checks.
 
 ### Hooks
 

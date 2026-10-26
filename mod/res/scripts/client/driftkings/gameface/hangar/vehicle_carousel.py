@@ -13,9 +13,8 @@ import weakref
 from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
-from driftkings.gameface.hangar.common import card_payload, HangarController, install_card, publish_card
 from driftkings.common.utils.compat import string_types
-
+from driftkings.gameface.hangar.common import card_payload, HangarController, install_card, publish_card
 
 FEATURE = 'DriftkingsCarouselStats'
 RESOURCE = gameface_spec(FEATURE)['resource']

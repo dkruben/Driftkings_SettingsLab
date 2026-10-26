@@ -8,7 +8,6 @@ from gui.impl.pub import ViewImpl
 from driftkings.core.hooks import override
 from driftkings.interface_catalog import gameface_spec
 
-
 FEATURE = 'DriftkingsMarksOnGunTechTree'
 RESOURCE = gameface_spec(FEATURE)['resource']
 

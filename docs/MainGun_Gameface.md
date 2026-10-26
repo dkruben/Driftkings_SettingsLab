@@ -6,7 +6,7 @@ Implementação integrada e publicada na beta 0.1.3-beta.2. Comandos e caminhos 
 
 - `battle/high_caliber_progress.py`: eventos existentes de dano, roster, destruição, configurações e fim de batalha; publica agora o estado calculado.
 - `core/high_caliber.py` (novo): projeção única do objetivo, restante, elegibilidade, motivo e progresso; usada pelo módulo de batalha. O frontend não recalcula regras de jogo.
-- `views/battle/high_caliber_gameface.py` (novo): filho de `RandomHUDView`, modelo Wulf, payload JSON deduplicado, visibilidade nativa/TAB/cursor, persistência de posição e destruição dos filhos próprios.
+- `gameface/batalha/high_caliber_gameface.py` (novo): filho de `RandomHUDView`, modelo Wulf, payload JSON deduplicado, visibilidade nativa/TAB/cursor, persistência de posição e destruição dos filhos próprios.
 - `views/battle/high_caliber_progress.py`: removido, juntamente com o fundo PNG exclusivo da apresentação Scaleform.
 - `gui/gameface/mods/driftkings/high_caliber_gameface/` (novo; `model.html`, `main_gun.css`, `main_gun.js`): layout, CSS e JavaScript ES5. Painel 290 × 84 unidades de UI, carvão/dourado, medalha 44 × 44, barra com transição de 200 ms. Texto transmitido por `textContent`.
 - `interface_catalog.py`, recurso `gen_resources/driftkings.high_caliber_gameface.json`, bootstrap gerado e `build_data/components.json`: registo e empacotamento. Reutiliza `shared/marks_panel.js`, sem alterar esse helper nem os outros painéis.

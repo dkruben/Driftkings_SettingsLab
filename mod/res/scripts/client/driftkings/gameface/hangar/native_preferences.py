@@ -4,7 +4,6 @@ from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMission
 from gui.impl.lobby.page.session_stats_presenter import SessionStatsPresenter
 from gui.impl.lobby.user_missions.hangar_widget.presenters.battle_pass_presenter import BattlePassPresenter
 from gui.impl.lobby.user_missions.hangar_widget.services import IBattlePassService, IUserMissionWidgetService
-
 from helpers import dependency
 
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES
