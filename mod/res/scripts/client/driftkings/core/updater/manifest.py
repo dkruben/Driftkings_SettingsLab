@@ -5,17 +5,13 @@ import re
 
 from driftkings.core.updater.endpoints import official_release_url
 from driftkings.core.updater.inventory import Inventory
-from driftkings.core.updater.versioning import game_key, normalize_game_version, TEXT, Version
+from driftkings.core.updater.versioning import game_key, normalize_game_version, Version
+from driftkings.common.utils.compat import integer_types, string_types
 
 MAX_MANIFEST = 64 * 1024
 MAX_PACKAGE = 64 * 1024 * 1024
 REQUIRED = frozenset(('schema', 'version', 'channel', 'gameVersion', 'file', 'size', 'sha256', 'download'))
 OPTIONAL = frozenset(('minGameVersion', 'maxGameVersion', 'changelog', 'modpack'))
-try:
-    INTEGER = (int, long)
-except NameError:
-    INTEGER = (int,)
-
 
 def unique_object(pairs):
     result = {}
@@ -27,7 +23,7 @@ def unique_object(pairs):
 
 
 def bounded_json(raw, maximum=MAX_MANIFEST):
-    if not isinstance(raw, (bytes,) + TEXT):
+    if not isinstance(raw, (bytes,) + string_types):
         raise ValueError('Expected JSON text')
     data = raw.encode('utf-8') if not isinstance(raw, bytes) else raw
     if len(data) > maximum:
@@ -42,7 +38,7 @@ class Manifest(object):
         try:
             if len(json.dumps(document, ensure_ascii=False).encode('utf-8')) > MAX_MANIFEST:
                 raise ValueError('Manifest exceeds limit')
-            if type(document['schema']) not in INTEGER or document['schema'] not in (1, 2):
+            if type(document['schema']) not in integer_types or document['schema'] not in (1, 2):
                 raise ValueError('Unknown manifest schema')
             self.schema = document['schema']
             if (self.schema == 2) != ('modpack' in document):
@@ -63,14 +59,14 @@ class Manifest(object):
                 raise ValueError('Invalid game version range')
             if document['file'] != 'driftkings.wotmod':
                 raise ValueError('Unexpected package name')
-            if type(document['size']) not in INTEGER or not 0 < document['size'] <= MAX_PACKAGE:
+            if type(document['size']) not in integer_types or not 0 < document['size'] <= MAX_PACKAGE:
                 raise ValueError('Invalid package size')
-            if not isinstance(document['sha256'], TEXT) or re.match(r'\A[0-9a-fA-F]{64}\Z', document['sha256']) is None:
+            if not isinstance(document['sha256'], string_types) or re.match(r'\A[0-9a-fA-F]{64}\Z', document['sha256']) is None:
                 raise ValueError('Invalid SHA-256')
             official_release_url(document['download'])
             changelog = document.get('changelog', [])
             if (not isinstance(changelog, list) or len(changelog) > 50 or
-                    any(not isinstance(line, TEXT) or len(line) > 500 for line in changelog) or
+                    any(not isinstance(line, string_types) or len(line) > 500 for line in changelog) or
                     sum(len(line.encode('utf-8')) for line in changelog) > 16 * 1024):
                 raise ValueError('Invalid changelog')
             self.changelog = tuple(changelog)

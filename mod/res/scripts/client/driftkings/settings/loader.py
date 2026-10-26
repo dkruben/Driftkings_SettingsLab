@@ -11,13 +11,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.default_values import SELECTOR
 from driftkings.settings.settings_data import part_name, SettingsData, user_settings
 from driftkings.settings.store import merge, read_object, recover_file, SettingsStore
-
-try:
-    string_types = (basestring,)
-    number_types = (int, long, float)
-except NameError:
-    string_types = (str,)
-    number_types = (int, float)
+from driftkings.common.utils.compat import number_types, string_types
 
 LOG = get_logger('Driftkings.Settings')
 

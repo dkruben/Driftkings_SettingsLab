@@ -12,6 +12,7 @@ from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
 from driftkings.views.hangar.common import card_payload, HangarController, install_card, publish_card
+from driftkings.common.utils.compat import string_types
 
 
 def _component():
@@ -118,7 +119,7 @@ def install_gameface():
             if not isinstance(args, dict):
                 return
             ids = args.get('ids', '')
-            if not isinstance(ids, basestring) or len(ids) > 2048:
+            if not isinstance(ids, string_types) or len(ids) > 2048:
                 return
             requested = tuple(sorted(set(int(x) for x in ids.split(',')[:120] if x.isdigit())))
             if requested == self._vehicleIds and self._lastPayload is not None:

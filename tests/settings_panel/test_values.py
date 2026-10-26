@@ -16,6 +16,13 @@ CLIENT = os.path.join(ROOT, 'mod', 'res', 'scripts', 'client', 'driftkings')
 
 def load_source(relative, dependencies):
     original_import = builtins.__import__
+    dependencies = dict(dependencies)
+    if 'driftkings.common.utils.compat' not in dependencies:
+        compat_path = os.path.join(CLIENT, 'common', 'utils', 'compat.py')
+        compat = {'__name__': '_compat_test'}
+        with open(compat_path, 'rb') as stream:
+            exec(compile(stream.read(), compat_path, 'exec'), compat)
+        dependencies['driftkings.common.utils.compat'] = types.SimpleNamespace(**{k: v for k, v in compat.items() if not k.startswith('__')})
     def importing(name, globals=None, locals=None, fromlist=(), level=0):
         if name in dependencies:
             return dependencies[name]

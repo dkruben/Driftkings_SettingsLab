@@ -232,7 +232,9 @@ class GeneratorTests(unittest.TestCase):
     def test_runtime_loader_merges_partial_file_without_rewriting_it(self):
         client = ROOT / 'mod/res/scripts/client/driftkings'
         def load(relative, dependencies=None):
-            dependencies = dependencies or {}
+            dependencies = dict(dependencies or {})
+            if 'driftkings.common.utils.compat' not in dependencies and relative != 'common/utils/compat.py':
+                dependencies['driftkings.common.utils.compat'] = load('common/utils/compat.py')
             def importing(name, globals=None, locals=None, fromlist=(), level=0):
                 return dependencies[name] if name in dependencies else builtins.__import__(name, globals, locals, fromlist, level)
             namespace = {'__name__': '_installer_test', '__builtins__': dict(vars(builtins), __import__=importing)}
@@ -262,7 +264,9 @@ class GeneratorTests(unittest.TestCase):
     def test_runtime_loader_ignores_and_preserves_old_settings(self):
         client = ROOT / 'mod/res/scripts/client/driftkings'
         def load(relative, dependencies=None):
-            dependencies = dependencies or {}
+            dependencies = dict(dependencies or {})
+            if 'driftkings.common.utils.compat' not in dependencies and relative != 'common/utils/compat.py':
+                dependencies['driftkings.common.utils.compat'] = load('common/utils/compat.py')
             def importing(name, globals=None, locals=None, fromlist=(), level=0):
                 return dependencies[name] if name in dependencies else builtins.__import__(name, globals, locals, fromlist, level)
             namespace = {'__name__': '_installer_test', '__builtins__': dict(vars(builtins), __import__=importing)}

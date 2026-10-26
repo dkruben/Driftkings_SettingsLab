@@ -5,13 +5,7 @@ import math
 import re
 
 from driftkings.core.keycodes import valid_key_code
-
-try:
-    string_types = (basestring,)  # noqa: F821 - Python 2 client
-    text_type = unicode  # noqa: F821
-except NameError:
-    string_types = (str,)
-    text_type = str
+from driftkings.common.utils.compat import string_types, text_type
 
 ID_PATTERN = re.compile(r'^[A-Za-z][A-Za-z0-9_]{0,63}\Z')
 COLOR_PATTERN = re.compile(r'^(?:#|0x)?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\Z')

@@ -5,16 +5,12 @@ import os
 import re
 
 from driftkings._constants import MARK_LEVELS as MOE_LEVELS
+from driftkings.common.utils.compat import string_types
 
 RESOURCE_ROOT = 'mods/driftkings/colors/'
 RESOURCE = RESOURCE_ROOT + 'shared.json'
 _REFERENCE = re.compile(r'\A\$\{(def(?:\.[A-Za-z0-9_]+)+)\}\Z')
 _FILENAME = re.compile(r'\A[a-z0-9_]+\.json\Z')
-try:
-    _TEXT = basestring
-except NameError:
-    _TEXT = str
-
 
 def read_resource(path=RESOURCE):
     try:
@@ -36,7 +32,7 @@ def resolve(value, document, trail=()):
         return dict((key, resolve(item, document, trail)) for key, item in value.items())
     if isinstance(value, list):
         return [resolve(item, document, trail) for item in value]
-    if isinstance(value, _TEXT) and value.startswith('${'):
+    if isinstance(value, string_types) and value.startswith('${'):
         match = _REFERENCE.match(value)
         if match is None:
             raise ValueError('Invalid colour reference: ' + value)
@@ -72,9 +68,9 @@ def load_tables(reader=read_resource):
         if not isinstance(entry, dict):
             raise ValueError('Invalid rating palette entry')
         name, filename = entry.get('name'), entry.get('file')
-        if not isinstance(name, _TEXT) or not name or name in names:
+        if not isinstance(name, string_types) or not name or name in names:
             raise ValueError('Invalid or duplicate rating palette name')
-        if not isinstance(filename, _TEXT) or not _FILENAME.match(filename) or filename in files or filename == 'shared.json':
+        if not isinstance(filename, string_types) or not _FILENAME.match(filename) or filename in files or filename == 'shared.json':
             raise ValueError('Invalid or duplicate rating palette file')
         names.add(name)
         files.add(filename)

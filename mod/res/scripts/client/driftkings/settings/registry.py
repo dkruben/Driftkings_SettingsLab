@@ -7,13 +7,9 @@ import re
 
 from driftkings.core.keycodes import valid_key_code
 from driftkings.logger import get_logger
+from driftkings.common.utils.compat import string_types
 
 LOG = get_logger('Driftkings.Settings.Validation')
-
-try:
-    string_types = (basestring,)
-except NameError:
-    string_types = (str,)
 
 
 def path_value(data, path):

@@ -5,7 +5,7 @@ try:
 except ImportError:
     from urlparse import urlsplit
 
-from driftkings.core.updater.versioning import TEXT
+from driftkings.common.utils.compat import string_types
 
 REPOSITORY = 'dkruben/Driftkings_SettingsLab'
 RELEASES = 'https://api.github.com/repos/' + REPOSITORY + '/releases?per_page=50'
@@ -13,7 +13,7 @@ ALLOWED_HOSTS = frozenset(('github.com', 'api.github.com', 'release-assets.githu
 
 
 def validate_https(url):
-    if not isinstance(url, TEXT) or not url or any(ord(char) <= 32 or ord(char) >= 127 for char in url):
+    if not isinstance(url, string_types) or not url or any(ord(char) <= 32 or ord(char) >= 127 for char in url):
         raise ValueError('Invalid HTTPS URL')
     parts = urlsplit(url)
     if (parts.scheme != 'https' or parts.hostname not in ALLOWED_HOSTS or
