@@ -56,6 +56,7 @@
     "Rename the Gameface and Flash presentation subpackages to battle and lobby; update Python imports, native package registration, catalogue paths, tests and documentation without changing visual resources or native contexts.",
     "Remove the obsolete standalone marker script detection that could disable integrated vehicle markers.",
     "Stop reading and writing unsupported Scaleform text sharpness/thickness properties in the battle clock; use explicitly declared native Warhelios regular/bold fonts for MainGun and marks cards instead of undeclared font stacks or literal inherit resolution; clear the carousel FieldFont override instead of requesting a font named inherit.",
-    "Reject flat or inverted cached calibration curves in replays, reusing the existing borrowed/configured approximation without changing personal caches or live-battle calculations."
+    "Reject flat or inverted cached calibration curves in replays, reusing the existing borrowed/configured approximation without changing personal caches or live-battle calculations.",
+    "Preserve configured fonts, Unicode characters and HTML entities across vehicle markers, battle texts and Gameface panels. Bundle the real symbol fonts with original names and credits, retain their glyphs when patching the native marker SWF, allow shared/device font lookup and use the same fonts in the settings preview and carousel."
   ]
 }

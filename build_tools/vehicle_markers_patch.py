@@ -114,9 +114,74 @@ def swf_parts(data):
     return prefix, tags
 
 
+def tag_payload(tag):
+    header = struct.unpack('<H', tag[:2])[0]
+    return tag[6 if header & 63 == 63 else 2:]
+
+
+def make_tag(kind, payload):
+    return struct.pack('<HI', (kind << 6) | 63, len(payload)) + payload
+
+
+def helper_fonts(native_tags, helper_tags):
+    """Copy embedded font resources and remap IDs before adding the helper ABC.
+
+    The helper has no display assets. Font definitions and their metadata share
+    character IDs with the native movie, so copying only its ABC loses every
+    glyph and copying font tags unchanged can overwrite native artwork.
+    """
+    definitions = (10, 48, 75, 91)
+    metadata = (13, 62, 73, 88)
+    # Reserve every possible leading character reference/definition in native tags.
+    used = {0}
+    for kind, tag in native_tags:
+        payload = tag_payload(tag)
+        if len(payload) >= 2:
+            used.add(struct.unpack('<H', payload[:2])[0])
+        if kind == 76:
+            count = struct.unpack('<H', payload[:2])[0]
+            offset = 2
+            for _ in range(count):
+                used.add(struct.unpack_from('<H', payload, offset)[0])
+                offset = payload.index(b'\x00', offset + 2) + 1
+    identifiers = {}
+    available = (value for value in range(1, 65536) if value not in used)
+    for kind, tag in helper_tags:
+        if kind in definitions:
+            original = struct.unpack('<H', tag_payload(tag)[:2])[0]
+            if original in identifiers:
+                raise ValueError('Duplicate helper font ID')
+            identifiers[original] = next(available)
+        elif kind not in metadata + (0, 1, 9, 41, 43, 65, 69, 76, 77, 82, 86):
+            raise ValueError('Unsupported helper asset tag: %s' % kind)
+    result = []
+    for kind, tag in helper_tags:
+        payload = tag_payload(tag)
+        if kind in definitions + metadata:
+            original = struct.unpack('<H', payload[:2])[0]
+            if original not in identifiers:
+                raise ValueError('Helper font metadata without a definition')
+            result.append(make_tag(kind, struct.pack('<H', identifiers[original]) + payload[2:]))
+        elif kind == 76:
+            count = struct.unpack('<H', payload[:2])[0]
+            offset, entries = 2, []
+            for _ in range(count):
+                original = struct.unpack_from('<H', payload, offset)[0]
+                end = payload.index(b'\x00', offset + 2) + 1
+                if original in identifiers:
+                    entries.append(struct.pack('<H', identifiers[original]) + payload[offset+2:end])
+                elif original != 0:
+                    raise ValueError('Helper symbol has no font definition')
+                offset = end
+            if entries:
+                result.append(make_tag(76, struct.pack('<H', len(entries)) + b''.join(entries)))
+    return result
+
+
 def inject_helper(native, helper):
     prefix, tags = swf_parts(native)
     _, helper_tags = swf_parts(helper)
+    fonts = helper_fonts(tags, helper_tags)
     abc = [tag for kind, tag in helper_tags if kind == 82]
     if len(abc) != 1: raise ValueError('Expected one helper ABC')
     # Flex calls its ABC frame1 too. Scaleform must not see duplicate ABC names.
@@ -130,9 +195,12 @@ def inject_helper(native, helper):
     output = []
     inserted = False
     for kind, tag in tags:
+        if kind == 82 and not inserted:
+            output.extend(tag for tag in fonts if struct.unpack('<H', tag[:2])[0] >> 6 != 76)
         output.append(tag)
         if kind == 82 and not inserted:
             output.append(unique_helper)
+            output.extend(tag for tag in fonts if struct.unpack('<H', tag[:2])[0] >> 6 == 76)
             inserted = True
     if not inserted: raise ValueError('No native ABC')
     body = prefix[8:] + b''.join(output)

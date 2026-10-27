@@ -8,18 +8,15 @@ their alignment, damage text 200x100 boxes and vehicle distance 100x100 boxes.
 import copy
 import re
 
+from driftkings.common.utils.compat import string_types
 from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
 from driftkings.core.vehicle_markers.references import resolve
-from driftkings.common.utils.compat import string_types
 
 STATE_KEYS = ('markersAliveNormal', 'markersAliveExtended', 'markersDeadNormal', 'markersDeadExtended')
 FILES = ('markers.json',) + tuple(key + '.json' for key in STATE_KEYS)
 WIRING = re.compile(r'^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$')
 GENERAL = {'debug': False, 'colorRating': 0, 'ratingType': 'wn8',
            'turretMarkers': {'highVulnerability': '*', 'lowVulnerability': "'"}, 'colors': {}}
-# Glyphs of XVM's private icon font drawn with the client font. The bullet (U+2022) exists in every
-# client font library; the square (U+25A0) is missing from $FieldFont (ZurichCond).
-PRIVATE_FONT_GLYPHS = {'&#x115;': u'\u2022'}
 TEXT_STYLE = ('font', 'size', 'color', 'bold', 'italic')
 SHADOW = ('enabled', 'distance', 'angle', 'color', 'alpha', 'blur', 'strength')
 FIELD_SIZE = (140, 100)
@@ -96,10 +93,6 @@ def text_field(options, size=FIELD_SIZE, default_format=''):
     text = part(options, 'textFormat')
     fmt = get(options, 'format', default_format)
     textFormat = style(text, TEXT_STYLE)
-    if textFormat.get('font') in ('xvm', 'XVMSymbol'):
-        for glyph, replacement in PRIVATE_FONT_GLYPHS.items():
-            fmt = fmt.replace(glyph, replacement)
-        textFormat['font'] = '$FieldFont'
     result = {'name': get(options, 'name', ''), 'enabled': get(options, 'enabled', True), 'format': fmt,
               'x': x, 'y': y, 'width': width, 'height': height, 'alpha': get(options, 'alpha', 100),
               'align': align, 'textFormat': textFormat}

@@ -39,7 +39,7 @@ assert.strictEqual(simple.childNodes[3].tagName, 'SPAN');
 assert.deepStrictEqual(simple.childNodes[3].attributes, {});
 const options = {fontFamily: true, fontAlpha: true, hideZeroSize: true, sizeUnit: 'rem'};
 const ratings = output(rich, options);
-assert.deepStrictEqual(ratings.childNodes[1].style, {fontFamily: 'Arial', opacity: 128 / 255, color: '#12Ab34', fontSize: '16rem'});
+assert.deepStrictEqual(ratings.childNodes[1].style, {fontFamily: '', opacity: 128 / 255, color: '#12Ab34', fontSize: '16rem'});
 assert.deepStrictEqual(ratings.childNodes[2].style, {display: 'none'});
 for (const size of ['7', '41', 'NaN', 'Infinity', '-1']) {
     const invalid = output(element('div', {}, [element('font', {size, color: 'red', alpha: '#GG', face: 'Arial; color:red'}, [text('text')])]), options);
@@ -50,6 +50,11 @@ for (const size of ['8', '40']) {
     assert.strictEqual(result.childNodes[0].style.fontSize, size + 'rem');
 }
 assert.strictEqual(output(element('div', {}, [element('font', {face: 'Times New Roman'}, [])]), options).childNodes[0].style.fontFamily, 'Times New Roman');
+for (const face of ['XVMSymbol', 'xvm', 'Fonte Ã¡', 'å­—ä½“']) {
+    const result = output(element('div', {}, [element('font', {face}, [text('Ã¡ Ð– ä¸­ !')])]), options);
+    assert.strictEqual(result.childNodes[0].style.fontFamily, face);
+    assert.strictEqual(result.childNodes[0].childNodes[0].nodeValue, 'Ã¡ Ð– ä¸­ !');
+}
 // A second load is safe when two injected features request the shared script.
 vm.runInContext(fs.readFileSync(path.join(root, 'mod/res/gui/gameface/mods/driftkings/shared/flash_text.js'), 'utf8'), context);
 assert.deepStrictEqual(output(rich, options).childNodes[1].style, ratings.childNodes[1].style);

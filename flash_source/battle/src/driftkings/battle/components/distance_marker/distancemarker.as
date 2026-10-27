@@ -32,7 +32,7 @@ package driftkings.battle.components.distance_marker
 				this.addChild(this._shape);
 			}
 			this._textField.alpha = this.config.textAlpha
-			this._textField.embedFonts = true;
+			this._textField.embedFonts = false;
 			this._textField.antiAliasType = AntiAliasType.NORMAL;
 			this._textField.autoSize = TextFieldAutoSize.CENTER;
 			this._textField.background = false;

@@ -7,7 +7,8 @@ implementation. VM_TEST is not a build or runtime dependency.
 
 The build reads `battleVehicleMarkersApp.swf` from the game package identified in
 `native-lock.json`, verifies its SHA-256, patches the native methods and appends
-the helper ABC with a unique name after the native ABC. A different native movie
+the helper ABC with a unique name after the native ABC. Embedded font resources
+and their class bindings are copied with collision-free character IDs. A different native movie
 requires reviewing the patch and lock before building. RABCDAsm's `abcexport`,
 `rabcdasm`, `rabcasm` and `abcreplace` are required; set `DK_RABCDASM_HOME`,
 `rabcdasm_home` in `build_data/toolchain.local.json`, or `--rabcdasm-home`.
@@ -18,11 +19,11 @@ native movie calls. Its helpers live in `driftkings/vehiclemarkers` (`VMState`, 
 marker movie keeps its own colour and shadow code rather than sharing classes with the
 battle SWF.
 
-Owned ActionScript text fields set `embedFonts = true`, matching the native
-`TextManager.createTextField`. Keep `$FieldFont` and `$TitleFont` as client aliases:
-Scaleform resolves them through the game's shared font library for the active
-language. Do not replace them with a system font or embed a fixed Latin font.
-Fields cloned from native text retain the source field's font settings.
+Configurable ActionScript text fields allow shared-library, device and embedded font
+lookup with `embedFonts = false`. Keep `$FieldFont` and `$TitleFont` as client aliases.
+The real symbol fonts are included in both Flash movies and Gameface; configured names,
+Unicode and HTML entities are preserved. Font resources, credits and coverage limits are
+listed in [Fontes e caracteres](../FONTES.md).
 
 Configuration lives in the active profile's `vehicle_markers` directory and
 uses a structured five-file marker layout, without XMQP: `markers.json` plus
@@ -49,9 +50,7 @@ boxes anchored at `x` by `align`, damage text 200x100 boxes, the distance a
 100x100 box, the class icon moves its container by `x`/`y` plus `offsetX`/
 `offsetY` (`maxScale` is unused in this schema), and the damage indicator text sits at
 `x + 14`, `y - 14`. `{{position}}` is the vehicle's place in its team list from
-the first roster and `{{battletype}}` is empty in random battles. XVM's private
-icon font glyph `&#x115;` is drawn as a bullet (U+2022), which every client font library
-contains; `$FieldFont` (ZurichCond) has no square glyph.
+the first roster and `{{battletype}}` is empty in random battles. The entity `&#x115;` is preserved and drawn using the configured font's own glyph map.
 
 `core/vehicle_markers/schema.py` converts the files to the runtime profiles; the
 editor uses the same mapping in `vehicle_markers_model.js`. The earlier
@@ -75,10 +74,9 @@ the individual metrics and colors are also available. `{{xr}}` is the normalized
 normalized rating where the statistics module provides one (WN8/EFF); no normalized WNX
 value is invented. Anonymized or unavailable statistics remain unavailable.
 
-The EU-profile alive normal layout shows a coloured `!`, and ALT shows the
-selected rating. Both `xvm` and `XVMSymbol` font aliases resolve to `$FieldFont`
-in the runtime and the editor. Legacy `&#x115;` uses a bullet instead of requiring
-XVM's icon font. Existing custom field arrays are preserved: use **Add rating** in the
+The EU-profile alive normal layout uses a coloured `!` in `XVMSymbol`, and ALT shows the
+selected rating. Both `xvm` and `XVMSymbol` use the original symbol font in the runtime
+and the editor. `&#x115;` retains its original glyph. Existing custom field arrays are preserved: use **Add rating** in the
 editor to insert the normal or ALT preset in any of the eight contexts.
 
 Text fields support structured `name`, `textFormat` (font, size, color, bold,
@@ -202,7 +200,7 @@ stock/top turret variants and edited templates still require replay acceptance.
 
 The structured property column has a fixed 470 UI-unit viewport and its own scrollbar through `DK.dom.scrollbar`. Wheel events stay in that column; dragging reaches the final property. The scrollbar refreshes after tab/group changes and resize, hides when content fits, and removes deferred updates and resize listeners on disposal.
 
-The beta 0.1.3-beta.2 defaults follow the EU profile: normal-mode distance fields are disabled, level and contour icons are enabled, and the normal rating template uses `XVMSymbol` with custom `!` text. Preserve the editable font name and resolve it at the adapter boundary. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
+The beta 0.1.3-beta.2 defaults follow the EU profile: normal-mode distance fields are disabled, level and contour icons are enabled, and the normal rating template uses `XVMSymbol` with custom `!` text. Preserve the editable font name and original glyphs through the adapter boundary. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
 
 Run `npm test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
 

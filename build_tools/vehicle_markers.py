@@ -24,6 +24,8 @@ def build(root, destination, spec, tools, game_root):
         run([tools['java'], '-Xmx512m', '-jar', tools['mxmlc_jar'], '+flexlib=' + str(sdk / 'frameworks'),
              '-load-config=', '-compiler.theme=', '-compiler.external-library-path=' + tools['playerglobal'],
              '-target-player=11.0', '-swf-version=13', '-debug=false', '-compiler.strict=true',
+             '-compiler.source-path+=' + str(root / 'flash_source/shared/as3'),
+             '-compiler.library-path=' + str(sdk / 'frameworks/libs/framework.swc'),
              '-compiler.optimize=true', '-output=' + str(helper), root / spec['entrypoint']])
         movie = work / 'markers.swf'
         movie.write_bytes(native)

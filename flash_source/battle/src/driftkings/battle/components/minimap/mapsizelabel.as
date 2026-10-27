@@ -19,7 +19,7 @@ package driftkings.battle.components.minimap
             var size:Object = options.mapSize;
             if (!size.enabled) return;
             field = new TextField();
-            field.embedFonts = true;
+            field.embedFonts = false;
             field.mouseEnabled = field.selectable = false;
             field.width = Number(size.width);
             field.height = Number(size.height);

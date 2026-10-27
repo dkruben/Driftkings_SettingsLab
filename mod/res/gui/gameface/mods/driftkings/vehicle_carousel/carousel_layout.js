@@ -69,7 +69,7 @@
                     if(key==='color') node.style.color=color(val,'#FFFFFF');
                     if(key==='size' && /^\d{1,2}$/.test(val)) node.style.fontSize=Math.max(8,Math.min(40,Number(val)))+'px';
                     // Flash's default font alias inherits the native Gameface font.
-                    if(key==='face' && /^[\w $,-]{1,60}$/.test(val)) node.style.fontFamily=val==='$FieldFont'?'':val==='mono'?'monospace':val;
+                    if(key==='face' && /^[^;{}<>\r\n]+$/.test(val)) node.style.fontFamily=val==='$FieldFont'||val==='$TitleFont'?'':val;
                     if(key==='alpha' && /^#[0-9a-f]{2}$/i.test(val)) node.style.opacity=parseInt(val.slice(1),16)/255;
                     else if(key==='alpha' && /^\d{1,3}$/.test(val)) node.style.opacity=Math.min(100,Number(val))/100;
                 }

@@ -1,5 +1,6 @@
 package {
 import driftkings.battle.factory.componentfactory;
+import driftkings.utils.fontlibrary;
 import net.wg.gui.battle.views.BaseBattlePage;
 import net.wg.infrastructure.base.AbstractView;
 
@@ -15,7 +16,7 @@ public class driftkingsbattle extends AbstractView {
         };
     }
 
-    { registerCreators(); }
+    { fontlibrary.initialize(); registerCreators(); }
 
     public function driftkingsbattle() {
         super();

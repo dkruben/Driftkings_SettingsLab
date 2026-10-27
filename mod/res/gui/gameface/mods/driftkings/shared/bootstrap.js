@@ -3,6 +3,10 @@
     'use strict';
     if (window.__dkUIBridge) { return; }
     var active = {}, retiring = {}, disposed = false;
+    var fonts = document.createElement('link');
+    fonts.rel = 'stylesheet';
+    fonts.href = 'coui://gui/gameface/mods/driftkings/shared/fonts.css';
+    document.head.appendChild(fonts);
     /* GENERATED CATALOG START */
     var features = {
         "DriftkingsCarouselStats": {
@@ -198,6 +202,7 @@
     function dispose() {
         if (disposed) { return; }
         disposed = true;
+        remove(fonts);
         engine.off('subViews.onAdded', refresh);
         engine.off('subViews.onRemoved', refresh);
         Object.keys(active).forEach(unload);

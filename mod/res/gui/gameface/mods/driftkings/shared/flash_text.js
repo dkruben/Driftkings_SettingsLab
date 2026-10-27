@@ -20,8 +20,8 @@
                 if (options.fontFamily) {
                     var face = child.getAttribute('face');
                     // Views without the game's fonts (the settings window) pass the font they load.
-                    if (face === '$FieldFont') { dest.style.fontFamily = options.fieldFont || 'Arial'; }
-                    else if (face && /^[a-z0-9 _-]+$/i.test(face)) { dest.style.fontFamily = face; }
+                    if (face === '$FieldFont' || face === '$TitleFont') { dest.style.fontFamily = options.fieldFont || ''; }
+                    else if (face && /^[^;{}<>\r\n]+$/.test(face)) { dest.style.fontFamily = face; }
                 }
                 if (options.fontAlpha) {
                     var alpha = child.getAttribute('alpha');

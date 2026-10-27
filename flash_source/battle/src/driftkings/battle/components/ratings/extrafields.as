@@ -30,7 +30,7 @@ package driftkings.battle.components.ratings
             // Keep the native text and its layout untouched. Client auto-sizing
             // must never measure our longer statistics string on the next draw.
             field.defaultTextFormat=source.getTextFormat();
-            field.embedFonts=source.embedFonts;
+            field.embedFonts=false;
             field.antiAliasType=source.antiAliasType;
             field.multiline=source.multiline; field.wordWrap=source.wordWrap;
             field.autoSize="none"; field.width=width; field.height=source.height;
@@ -58,7 +58,7 @@ package driftkings.battle.components.ratings
                 if (!group[id])
                 {
                     var sprite:Sprite = new Sprite(); sprite.mouseEnabled = sprite.mouseChildren = false;
-                    var text:TextField = new TextField(); text.mouseEnabled = false; text.embedFonts = true;
+                    var text:TextField = new TextField(); text.mouseEnabled = false; text.embedFonts = false;
                     sprite.addChild(text); parent.addChild(sprite);
                     group[id] = {sprite:sprite, text:text};
                 }

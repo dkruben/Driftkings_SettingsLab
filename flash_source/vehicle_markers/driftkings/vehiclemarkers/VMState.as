@@ -9,6 +9,7 @@ package driftkings.vehiclemarkers
     import flash.filters.DropShadowFilter;
     import flash.geom.ColorTransform;
     import flash.geom.Matrix;
+    import driftkings.utils.fontlibrary;
     import flash.text.TextField;
     import flash.text.TextFormat;
     import flash.utils.Dictionary;
@@ -45,9 +46,10 @@ package driftkings.vehiclemarkers
 
         public static function makeField(options:Object):TextField
         {
+            fontlibrary.initialize();
             var field:TextField = new TextField();
-            // Match the client's TextManager: resolve aliases through its shared font library.
-            field.embedFonts = true;
+            // Device lookup also permits the client's font provider and embedded fallback.
+            field.embedFonts = false;
             field.mouseEnabled = field.selectable = false;
             field.width = options.width; field.height = options.height;
             field.x = options.x; field.y = options.y;

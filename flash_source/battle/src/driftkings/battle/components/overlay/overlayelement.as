@@ -34,7 +34,7 @@ public class overlayelement extends imageloadercomponent {
         mouseChildren = true;
         if (kind == 'label') {
             label = new TextField();
-            label.embedFonts = true;
+            label.embedFonts = false;
             label.defaultTextFormat = new TextFormat('$FieldFont', 14, colorutils.parse("#FFFFFF"));
             label.selectable = false; label.mouseEnabled = false;
             addChild(label);

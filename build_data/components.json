@@ -643,6 +643,16 @@
           "source": "mod/res/mods/driftkings/text/**",
           "target": "res/mods/driftkings/text/**",
           "generator": null
+        },
+        {
+          "source": "mod/res/gui/fonts/driftkings/**",
+          "target": "res/gui/fonts/driftkings/**",
+          "generator": null
+        },
+        {
+          "source": "mod/res/gui/gameface/mods/driftkings/shared/fonts.css",
+          "target": "res/gui/gameface/mods/driftkings/shared/fonts.css",
+          "generator": null
         }
       ]
     },

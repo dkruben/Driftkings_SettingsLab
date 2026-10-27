@@ -47,6 +47,13 @@ const plain = element('div');
 text.writeRuns(plain, 'No markup');
 assert.strictEqual(plain.childNodes[0].textContent, 'No markup');
 
+for (const face of ['XVMSymbol', 'xvm', 'Fonte á', '字体']) {
+    const custom = element('div');
+    text.copyRuns(element('div', {}, [element('font', {face}, [node('á Ж 中 !')])]), custom, {});
+    assert.strictEqual(custom.childNodes[0].style.fontFamily, face);
+    assert.strictEqual(custom.childNodes[0].textContent, 'á Ж 中 !');
+}
+
 // Rows: a unique name wins, otherwise the native position in the team order.
 const data = {rows: [
     {id: 1, ally: true, aliases: ['Player One'], cfg: {enabled: true}},

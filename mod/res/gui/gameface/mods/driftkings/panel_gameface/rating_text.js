@@ -63,8 +63,8 @@
                 if (size === '0') { style.hidden = true; }
                 else if (Number(size) >= 8 && Number(size) <= 40) { style.fontSize = Number(size) + 'rem'; }
                 // $FieldFont means the native font, not a wider Arial substitute.
-                if (face === '$FieldFont') { delete style.fontFamily; }
-                else if (face && /^[a-z0-9 _-]+$/i.test(face)) { style.fontFamily = face; }
+                if (face === '$FieldFont' || face === '$TitleFont') { delete style.fontFamily; }
+                else if (face && /^[^;{}<>\r\n]+$/.test(face)) { style.fontFamily = face; }
                 if (/^#[0-9a-f]{2}$/i.test(alpha)) { style.opacity = (inherited.opacity === undefined ? 1 : inherited.opacity) * parseInt(alpha.slice(1), 16) / 255; }
             }
             copyRuns(child, target, style);

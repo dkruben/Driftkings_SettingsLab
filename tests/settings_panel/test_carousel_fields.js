@@ -46,9 +46,13 @@ var aligned = layers[1].children;
 assert.deepStrictEqual(aligned.map(function(n) { return n.style.justifyContent; }),['flex-start','center','flex-end']);
 assert.deepStrictEqual(aligned.map(function(n) { return n.style.textAlign; }),['left','center','right']);
 assert.strictEqual(aligned[2].style.transform,'translateX(-100%)');
-assert.strictEqual(aligned[2].children[0].children[0].style.fontFamily,'monospace');
+assert.strictEqual(aligned[2].children[0].children[0].style.fontFamily,'mono');
 var nativeFont=element();
 layout.richText(nativeFont,"<font face='$FieldFont'>native</font>",previewDocument,{},true);
 assert.strictEqual(nativeFont.children[0].style.fontFamily,'');
 delete global.getComputedStyle;
 console.log('Carousel fixed-width text alignment and font aliases: passed');
+
+var unicodeFont=previewDocument.createElement('div');
+layout.richText(unicodeFont,"<font face='Fonte á'>á Ж 中 !</font>",previewDocument,{},true);
+assert.strictEqual(unicodeFont.children[0].style.fontFamily,'Fonte á');

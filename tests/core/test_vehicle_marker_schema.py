@@ -58,10 +58,10 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         self.assertTrue(bar['y'] - 3 <= profile['fields'][1]['y'] <= bar['y'])
         self.assertLessEqual(tank['y'] + 15, bar['y'])
         rating = profile['fields'][2]
-        # The right-aligned box ends at the configured anchor; use the client font.
+        # The right-aligned box ends at the configured anchor; preserve the symbol font.
         self.assertEqual((rating['x'], rating['align']), (-160, 'right'))
         self.assertIn('<b>!</b>', rating['format'])
-        self.assertEqual(rating['textFormat']['font'], '$FieldFont')
+        self.assertEqual(rating['textFormat']['font'], 'XVMSymbol')
         self.assertEqual(rating['textFormat']['color'], '{{c:xr|#999999}}')
         self.assertEqual(profile['fields'][3]['shadow']['color'], '{{c:system}}')
 
@@ -165,11 +165,11 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         data['markersAliveNormal']['ally'] = {'textFields': None}
         self.assertEqual(schema.adapt(data)['customFields']['ally']['alive']['normal'], [])
 
-    def test_private_font_aliases_use_client_glyphs_and_preserve_custom_text(self):
-        for font in ('xvm', 'XVMSymbol'):
-            field = self.schema.text_field({'format': '&#x115; <b>!</b>', 'textFormat': {'font': font}})
-            self.assertEqual(field['format'], u'\u2022 <b>!</b>')
-            self.assertEqual(field['textFormat']['font'], '$FieldFont')
+    def test_fonts_and_characters_are_preserved(self):
+        for font in ('xvm', 'XVMSymbol', 'Arial', u'Fonte \u00e1', '$FieldFont'):
+            field = self.schema.text_field({'format': u'&#x115; <b>!</b> \u00e1 \u0416 \u4e2d', 'textFormat': {'font': font}})
+            self.assertEqual(field['format'], u'&#x115; <b>!</b> \u00e1 \u0416 \u4e2d')
+            self.assertEqual(field['textFormat']['font'], font)
 
     def test_marker_colours_reject_legacy_prefixes(self):
         for invalid in ('0xFF0000', 'FF0000'):

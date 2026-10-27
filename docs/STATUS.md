@@ -58,3 +58,7 @@ The battle clock no longer accesses unsupported Scaleform sharpness/thickness pr
 ## Settings panel functional report
 
 The [settings panel report](RELATORIO_PAINEL_CONFIGURACAO.md), in Portuguese, inventories navigation, editing/save behaviour, controls, previews, both profile mechanisms, updater/restart actions, battle restrictions, the 34 component definitions and all 23 backend actions. It documents the current implementation detail that Apply also persists values, with links to the source modules.
+
+## Fontes e símbolos — 27 outubro 2026
+
+Correção em desenvolvimento: fontes de símbolos reais incorporadas nos dois SWF e disponibilizadas ao Gameface; adaptadores preservam Unicode, nomes de fontes e entidades HTML. Plano e validação em [PLANO_FONTES.md](PLANO_FONTES.md); recursos e limites em [FONTES.md](FONTES.md). Requer confirmação visual no cliente.

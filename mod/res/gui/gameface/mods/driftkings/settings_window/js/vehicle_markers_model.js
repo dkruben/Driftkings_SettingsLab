@@ -183,7 +183,6 @@
     /* marker files (markers.json wiring + four state files), mirrored from core/vehicle_markers/schema.py. */
     var STATE_KEYS=['markersAliveNormal','markersAliveExtended','markersDeadNormal','markersDeadExtended'];
     var WIRING=/^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$/;
-    var PRIVATE_FONT_GLYPHS={'&#x115;':'\u2022'};
     function wiring(raw,team,state,mode) {
         var value=(((raw.markers || {})[team] || {})[state] || {})[mode];
         if (value && typeof value==='object') { return {inline:true,path:['markers',team,state,mode]}; }
@@ -210,10 +209,7 @@
         if (align==='right') { x-=width; } else if (align==='center') { x-=width/2; }
         if (valign==='bottom') { y-=height; } else if (valign==='center') { y-=height/2; }
         var textFormat=pick(options.textFormat || {},['font','size','color','bold','italic']), format=get(options,'format',defaultFormat || '');
-        if (textFormat.font==='xvm' || textFormat.font==='XVMSymbol') {
-            Object.keys(PRIVATE_FONT_GLYPHS).forEach(function (glyph) { format=format.split(glyph).join(PRIVATE_FONT_GLYPHS[glyph]); });
-            textFormat.font='$FieldFont';
-        }
+
         var result={name:get(options,'name',''),enabled:get(options,'enabled',true),format:format,x:x,y:y,width:width,height:height,
             alpha:get(options,'alpha',100),align:align,textFormat:textFormat};
         if (options.shadow) { result.shadow=pick(options.shadow,['enabled','distance','angle','color','alpha','blur','strength']); }

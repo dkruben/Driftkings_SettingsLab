@@ -114,7 +114,7 @@ assert.strictEqual(JSON.stringify([markerEnemy.fields[0].x, markerEnemy.fields[0
 assert.strictEqual(markerEnemy.fields[1].y, -35);
 assert.strictEqual(markerEnemy.fields[2].x, -160);
 assert(markerEnemy.fields[2].format.indexOf('<b>!</b>') >= 0);
-assert.strictEqual(markerEnemy.fields[2].textFormat.font, '$FieldFont');
+assert.strictEqual(markerEnemy.fields[2].textFormat.font, 'XVMSymbol');
 assert.deepStrictEqual([markerEnemy.config.healthBar.x, markerEnemy.config.healthBar.width, markerEnemy.config.healthBar.border.color], [-36, 70, '#000000']);
 assert.deepStrictEqual([markerEnemy.config.icons['class'].containerX, markerEnemy.config.icons['class'].containerY], [0, -16]);
 assert.strictEqual(markerEnemy.config.icons.damageIndicatorText.y, -41);
@@ -123,11 +123,11 @@ assert.strictEqual(model.state(markers, {group:'ally',state:'dead',alt:false,hp:
 assert.strictEqual(JSON.stringify(model.wiring(markers, 'ally', 'dead', 'extended')), JSON.stringify({key:'markersDeadExtended', part:'ally', path:['markersDeadExtended','ally']}));
 assert.throws(() => model.state(Object.assign({}, markers, {markers: Object.assign({}, markers.markers, {ally: {alive: {normal: '${other.json:ally}'}}})}), {group:'ally',state:'alive',alt:false,hp:70}));
 console.log('Vehicle marker schema adapter matches the Python mapping');
-['xvm', 'XVMSymbol'].forEach(font => {
+['xvm', 'XVMSymbol', 'Arial', 'Fonte á', '$FieldFont'].forEach(font => {
     const custom = JSON.parse(JSON.stringify(markers));
     custom.markersAliveNormal.def.rating.textFormat.font = font;
-    custom.markersAliveNormal.def.rating.format = '&#x115; <b>!</b>';
+    custom.markersAliveNormal.def.rating.format = '&#x115; <b>!</b> á Ж 中';
     const field = model.state(custom, {group:'enemy',state:'alive',alt:false,hp:70}).fields[2];
-    assert.strictEqual(field.textFormat.font, '$FieldFont');
-    assert.strictEqual(field.format, '\u2022 <b>!</b>');
+    assert.strictEqual(field.textFormat.font, font);
+    assert.strictEqual(field.format, '&#x115; <b>!</b> á Ж 中');
 });
