@@ -61,4 +61,4 @@ The [settings panel report](RELATORIO_PAINEL_CONFIGURACAO.md), in Portuguese, in
 
 ## Fontes e símbolos — 27 outubro 2026
 
-Correção em desenvolvimento: fontes de símbolos reais incorporadas nos dois SWF e disponibilizadas ao Gameface; adaptadores preservam Unicode, nomes de fontes e entidades HTML. Plano e validação em [PLANO_FONTES.md](PLANO_FONTES.md); recursos e limites em [FONTES.md](FONTES.md). Requer confirmação visual no cliente.
+Correção `4d1b961` com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40541534633): fontes de símbolos reais incorporadas nos dois SWF e disponibilizadas ao Gameface; adaptadores preservam Unicode, nomes de fontes e entidades HTML. Plano e validação em [PLANO_FONTES.md](PLANO_FONTES.md); recursos e limites em [FONTES.md](FONTES.md). Requer confirmação visual no cliente.
