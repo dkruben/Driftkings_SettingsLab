@@ -63,7 +63,7 @@ class NativeProfileTests(RuntimeTest):
         fields = module(**dict((name, type(name, (object,), {})) for name in names))
         fields.DetailedStatisticsUtils = type('DetailedStatisticsUtils', (object,), {})
         fields.ProfileUtils = module(packLditItemData=lambda text, desc, tip, icon: dict(text=text, description=desc, iconPath=icon))
-        api, hooks = game_source('views/hangar/profile_statistics.py', {
+        api, hooks = game_source('flash/hangar/profile_statistics.py', {
             'driftkings.settings.service': Settings(settings).service(),
             'gui.Scaleform.genConsts.PROFILE_DROPDOWN_KEYS': module(PROFILE_DROPDOWN_KEYS=module(ALL='all', FALLOUT='fallout')),
             'gui.Scaleform.daapi.view.lobby.profile': module(ProfileUtils=fields),

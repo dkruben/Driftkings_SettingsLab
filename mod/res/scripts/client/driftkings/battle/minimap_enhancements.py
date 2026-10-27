@@ -106,7 +106,7 @@ config = Settings()
 controller = MinimapController(config)
 
 
-from driftkings.views.battle.minimap_enhancements import MinimapEnhancementsView
+from driftkings.flash.batalha.minimap_enhancements import MinimapEnhancementsView
 
 
 class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):

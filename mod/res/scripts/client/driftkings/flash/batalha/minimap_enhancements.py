@@ -11,7 +11,7 @@ from gui.battle_control.avatar_getter import getInputHandler
 from driftkings.common.utils.game import checkKeys
 from driftkings.common.utils.wgutils import hasCompetingMarkers
 from driftkings.core.callbacks import callback, cancelCallback
-from driftkings.meta.battle.minimap import MinimapMeta
+from driftkings.flash.batalha.meta.minimap import MinimapMeta
 from driftkings.ui.common.events import g_events
 
 # The client updates its strategic camera entry, which carries the artillery reticle, only in these modes.

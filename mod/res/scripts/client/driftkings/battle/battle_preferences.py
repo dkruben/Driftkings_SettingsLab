@@ -37,7 +37,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
-from driftkings.views.battle.debug_panel import DebugPanelView
+from driftkings.flash.batalha.debug_panel import DebugPanelView
 
 LOG = get_logger('driftkings.battle.battle_preferences')
 

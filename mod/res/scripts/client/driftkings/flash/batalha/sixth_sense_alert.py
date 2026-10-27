@@ -8,7 +8,7 @@ from PlayerEvents import g_playerEvents
 from SoundGroups import g_instance
 
 from driftkings._constants import SIXTH_SENSE_ALERT
-from driftkings.meta.battle.sixth_sense import SixthSenseMeta
+from driftkings.flash.batalha.meta.sixth_sense import SixthSenseMeta
 
 _STATES_TO_HIDE = frozenset((
     VEHICLE_VIEW_STATE.SWITCHING, VEHICLE_VIEW_STATE.RESPAWNING,

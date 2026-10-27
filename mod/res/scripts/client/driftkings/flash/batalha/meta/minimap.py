@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from driftkings.meta.battle.base import BattleMeta
+from driftkings.flash.batalha.meta.base import BattleMeta
 
 
 class MinimapMeta(BattleMeta):

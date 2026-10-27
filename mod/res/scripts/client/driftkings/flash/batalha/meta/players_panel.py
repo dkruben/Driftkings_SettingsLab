@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from driftkings.core.diagnostics import diagnostics
-from driftkings.meta.battle.base import ComponentMeta
+from driftkings.flash.batalha.meta.base import ComponentMeta
 
 
 class PlayersPanelMeta(ComponentMeta):

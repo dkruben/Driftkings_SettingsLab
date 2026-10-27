@@ -54,14 +54,14 @@ class PanelLocalizationTests(RuntimeTest):
                              arena=module(guiType=1, statistics={}, vehicles={1: {
                                  'name': 'Example', 'team': 1, 'accountDBID': 1500000000,
                                  'isAlive': False}}))
-        self.api = source('views/battle/player_ratings.py', {
+        self.api = source('flash/batalha/player_ratings.py', {
             'driftkings._constants': constants,
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.data),
                                                  SettingsChanges=lambda *args: (), changed_paths=lambda *args: (),
                                                  affects=lambda *args: True),
             'BigWorld': module(player=lambda: self.player),
             'realm': module(CURRENT_REALM='EU'),
-            'driftkings.meta.battle.players_panel': module(PlayersPanelMeta=object),
+            'driftkings.flash.batalha.meta.players_panel': module(PlayersPanelMeta=object),
             'gui.Scaleform.daapi.view.battle.classic.players_panel': module(PlayersPanel=object),
             'gui.Scaleform.daapi.view.meta.BattleStatisticDataControllerMeta': module(BattleStatisticDataControllerMeta=object),
             'gui.shared': module(g_eventBus=None, events=None, EVENT_BUS_SCOPE=None),

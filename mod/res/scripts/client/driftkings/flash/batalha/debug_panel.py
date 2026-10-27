@@ -4,7 +4,7 @@ import locale
 from time import strftime
 
 from driftkings._constants import BATTLE_PREFERENCES, GLOBAL
-from driftkings.meta.battle.debug_panel import DebugPanelMeta
+from driftkings.flash.batalha.meta.debug_panel import DebugPanelMeta
 from driftkings.settings.service import settings_service
 from driftkings.ui import CyclicTimerEvent
 

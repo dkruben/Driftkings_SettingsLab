@@ -9,7 +9,7 @@ from math_utils import VectorConstant
 from driftkings._constants import GLOBAL, SHELL_FLIGHT_TIME
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_policy import battle_policy
-from driftkings.meta.battle.flight_timer import FlightTimeMeta
+from driftkings.flash.batalha.meta.flight_timer import FlightTimeMeta
 
 
 class FlightTime(FlightTimeMeta):

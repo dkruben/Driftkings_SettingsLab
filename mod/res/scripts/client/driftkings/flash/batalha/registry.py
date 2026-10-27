@@ -30,7 +30,7 @@ class BattleViews(object):
             return
         if self.registration is None:
             from driftkings.core.hud_visibility import hudVisibility
-            from driftkings.views.battle.overlay import ALIAS, OverlayConfig, OverlayView
+            from driftkings.flash.batalha.overlay import ALIAS, OverlayConfig, OverlayView
             self.visibility = hudVisibility
             self.registration = BattlePackageRegistration()
             self.register(ALIAS, OverlayView, OverlayConfig())
@@ -57,7 +57,7 @@ class BattleViews(object):
 
 
 class BattlePackageRegistration(object):
-    PACKAGE = 'driftkings.views.battle'
+    PACKAGE = 'driftkings.flash.batalha'
     SWF = FLASH_LIBRARY
 
     def __init__(self):

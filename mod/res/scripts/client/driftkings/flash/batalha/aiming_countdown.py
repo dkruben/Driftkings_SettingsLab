@@ -11,9 +11,9 @@ from skeletons.gui.battle_session import IBattleSessionProvider
 from driftkings._constants import AIMING_COUNTDOWN
 from driftkings.core.battle_events import battleEvents
 from driftkings.logger import get_logger
-from driftkings.meta.battle.dispersion_timer import DispersionTimerMeta
+from driftkings.flash.batalha.meta.dispersion_timer import DispersionTimerMeta
 
-LOG = get_logger('driftkings.views.battle.aiming_countdown')
+LOG = get_logger('driftkings.flash.batalha.aiming_countdown')
 
 
 class DispersionTimer(DispersionTimerMeta):

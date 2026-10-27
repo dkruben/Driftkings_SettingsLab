@@ -116,7 +116,7 @@ class MinimapVehiclesTests(RuntimeTest):
             'driftkings.settings.service': module(settings_service=service),
             'driftkings.ui': module(g_events=module(onAltKey=lambda pressed: None)),
             'driftkings.settings.definitions.battle.minimap_enhancements': module(MinimapEnhancementsSettings=object),
-            'driftkings.views.battle.minimap_enhancements': module(MinimapEnhancementsView=object),
+            'driftkings.flash.batalha.minimap_enhancements': module(MinimapEnhancementsView=object),
         }
         self.api = source('battle/minimap_enhancements.py', deps)
         self.api['VIEWS'].add(self)

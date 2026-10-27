@@ -10,7 +10,7 @@ from PlayerEvents import g_playerEvents
 
 from driftkings._constants import GLOBAL, VEHICLE_HEALTH
 from driftkings.common.utils.formatting import percentToRgb
-from driftkings.meta.battle.own_health import OwnHealthMeta
+from driftkings.flash.batalha.meta.own_health import OwnHealthMeta
 from driftkings.settings.service import settings_service
 
 

@@ -20,7 +20,7 @@ from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import override
 from driftkings.core.panel_model import Roster
 from driftkings.logger import get_logger
-from driftkings.meta.battle.players_panel import PlayersPanelMeta
+from driftkings.flash.batalha.meta.players_panel import PlayersPanelMeta
 from driftkings.settings.settings_data import profile_for_mode, PROFILES
 
 LOG=get_logger('Driftkings.PlayerPanelPro')

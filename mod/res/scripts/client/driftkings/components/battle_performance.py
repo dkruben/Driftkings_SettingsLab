@@ -23,7 +23,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings as Settings
 from driftkings.settings.service import affects, settings_service
 from driftkings.stats.vehinfo import calculateXTE, calculateRatingScale, getVehicleInfoData
-from driftkings.views.battle.battle_performance import _startFlash
+from driftkings.flash.batalha.battle_performance import _startFlash
 from driftkings.gameface.hangar.battle_performance import install_results_gameface
 
 LOG = get_logger('Driftkings.BattleEfficiency')

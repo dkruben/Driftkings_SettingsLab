@@ -133,7 +133,7 @@ def validate(root=ROOT, plan=None):
         tree = ast.parse(path.read_text(encoding='utf-8'))
         require(any(isinstance(node, ast.ClassDef) and node.name == name for node in tree.body), 'Missing Python view/controller: ' + spec['python'])
     meta_classes = set()
-    for path in (root / 'mod/res/scripts/client/driftkings/meta/battle').glob('*.py'):
+    for path in (root / 'mod/res/scripts/client/driftkings/flash/batalha/meta').glob('*.py'):
         tree = ast.parse(path.read_text(encoding='utf-8'))
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'FLASH_CLASS' for t in node.targets):

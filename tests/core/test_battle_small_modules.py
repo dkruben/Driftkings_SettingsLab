@@ -68,7 +68,7 @@ class TargetDistanceTests(RuntimeTest):
 
         self.api, self.hooks = game_source('battle/target_distance.py', {
             'driftkings.settings.service': Settings(self.data).service(),
-            'driftkings.views.battle.target_distance': module(DistanceMarkerController=Controller,
+            'driftkings.flash.batalha.target_distance': module(DistanceMarkerController=Controller,
                                                               DistanceMarkerView=object, ALIAS='alias'),
         }, real=('driftkings._constants',))
 

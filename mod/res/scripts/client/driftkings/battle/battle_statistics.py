@@ -15,7 +15,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.battle_statistics import BattleStatisticsSettings as Settings
 from driftkings.settings.service import affects, settings_service
 from driftkings.ui import g_events
-from driftkings.views.battle.battle_statistics import _startFlash
+from driftkings.flash.batalha.battle_statistics import _startFlash
 
 LOG = get_logger('driftkings.battle.battle_statistics')
 

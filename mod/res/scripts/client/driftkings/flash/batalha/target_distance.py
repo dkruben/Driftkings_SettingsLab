@@ -3,7 +3,7 @@ from driftkings._constants import TARGET_DISTANCE
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 
-LOG = get_logger('driftkings.views.battle.target_distance')
+LOG = get_logger('driftkings.flash.batalha.target_distance')
 """Presentation adapter for DistanceMarker; gameplay state stays in its component."""
 from importlib import import_module
 
@@ -15,7 +15,7 @@ import Math
 from driftkings._constants import BATTLE_ALIASES
 from driftkings.core.hud_visibility import hudVisibility
 from driftkings.core.keyboard import keyboard
-from driftkings.meta.battle.distance_marker import DistanceMarkerMeta
+from driftkings.flash.batalha.meta.distance_marker import DistanceMarkerMeta
 import GUI
 
 

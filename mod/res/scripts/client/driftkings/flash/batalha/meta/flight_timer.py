@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from driftkings.meta.battle.base import CrosshairMeta
+from driftkings.flash.batalha.meta.base import CrosshairMeta
 
 
 class FlightTimeMeta(CrosshairMeta):

@@ -98,7 +98,7 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 | --- | --- | --- |
 | 0 — Auditoria e mapa antes de código | Concluída | Inventário acima |
 | 1 — Núcleo, registo e lifecycle partilhado | Concluída | 429 testes core Python 3; 0 nomes indefinidos |
-| 2 — Views, metas e adaptadores existentes | Pendente | Contratos, testes core |
+| 2 — Views, metas e adaptadores existentes | Concluída | 429 testes core, catálogo e build inputs válidos |
 | 3 — Separação de apresentação dos módulos mistos | Pendente | Testes dos componentes e nomes indefinidos |
 | 4 — Testes arquiteturais, documentação e changelog | Pendente | Fronteiras, contratos, ciclos, hooks |
 | 5 — Validação completa, build e GitHub | Pendente | Python 2.7/3, npm/lint, AS3/SWF, WOTMOD e CI |
@@ -125,3 +125,5 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 - Medições comparativas de CPU/memória/FPS continuam necessárias antes de atribuir ganhos a esta reorganização.
 
 - Etapa 1: criados packages Flash passivos; OverlayScene movido para `flash/core.py` e BattleViews/registo para `flash/batalha/registry.py`. Extraída a instalação Scaleform de lifecycle/HUD; serviço e estado partilhado permanecem no core. Imports e testes alinhados, sem alterar o bridge Gameface. 429 testes core: OK; 0 nomes indefinidos. Auditoria inicial publicada em `27ff790`.
+
+- Etapa 2: movidas as views/metas de batalha e as três views Scaleform de hangar. BattleLabel/CachedBattleLabel ficaram em `flash/batalha/common.py`; package nativo passou a `driftkings.flash.batalha`. Atualizados dez caminhos do catálogo, imports estáticos/diferidos, testes e pesquisa de metas no validador de build. Mantidos helpers de dados partilhados em views; removidos apenas os `__init__` antigos sem utilização. 429 testes core: OK; catálogo e build data validados; nenhuma alteração AS3/SWF. Núcleo publicado em `e9a4635`.

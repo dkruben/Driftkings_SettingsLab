@@ -8,7 +8,7 @@ from helpers import dependency
 from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import PENETRATION_INDICATOR
-from driftkings.meta.battle.armor_calculator import ArmorCalculatorMeta
+from driftkings.flash.batalha.meta.armor_calculator import ArmorCalculatorMeta
 from driftkings.settings.service import settings_service
 from driftkings.ui.common.events import g_events
 

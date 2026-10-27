@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from driftkings.meta.battle.base import HudMeta
+from driftkings.flash.batalha.meta.base import HudMeta
 
 
 class OverlayMeta(HudMeta):

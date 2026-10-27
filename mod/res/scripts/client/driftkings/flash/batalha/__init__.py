@@ -1,2 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Python Flash/Scaleform presentation; runtime imports remain deferred."""
+"""Native Scaleform package contract, loaded once by each battle application."""
+
+
+def getViewSettings():
+    from gui.Scaleform.framework import ComponentSettings, ScopeTemplates
+
+    from driftkings.flash.batalha.registry import BATTLE_COMPONENTS
+    return tuple(ComponentSettings(alias, definition[0], ScopeTemplates.DEFAULT_SCOPE)
+                 for alias, definition in sorted(BATTLE_COMPONENTS.items()))
+
+
+def getBusinessHandlers():
+    from driftkings.flash.batalha.handler import BattleViewHandler
+    return (BattleViewHandler(),)
+
+
+def getContextMenuHandlers():
+    return ()

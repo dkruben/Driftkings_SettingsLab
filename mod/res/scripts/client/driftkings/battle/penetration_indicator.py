@@ -13,7 +13,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.penetration_indicator import PenetrationIndicatorSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
-from driftkings.views.battle.penetration_indicator import ArmorCalculator
+from driftkings.flash.batalha.penetration_indicator import ArmorCalculator
 
 LOG = get_logger('driftkings.battle.penetration_indicator')
 
