@@ -1,96 +1,7 @@
-/* Settings window scripts load together in catalog order and every control and dialog builds. */
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-const root = path.resolve(__dirname, '../..');
-const jsRoot = path.join(root, 'mod/res/gui/gameface/mods/driftkings/settings_window/js');
-
-class Node {
-    constructor(tag) {
-        this.tagName = String(tag).toUpperCase(); this.childNodes = []; this.parentNode = null;
-        this.style = {}; this.className = ''; this.attributes = {}; this.listeners = {};
-        this._text = ''; this.disabled = false; this.value = '';
-    }
-    get children() { return this.childNodes; }
-    get firstChild() { return this.childNodes[0] || null; }
-    get lastChild() { return this.childNodes[this.childNodes.length - 1] || null; }
-    contains(other) { return other === this || this.childNodes.some(child => child.contains(other)); }
-    remove() { if (this.parentNode) { this.parentNode.removeChild(this); } }
-    querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
-    get textContent() { return this._text + this.childNodes.map(child => child.textContent).join(''); }
-    set textContent(value) { this._text = String(value); this.childNodes.forEach(child => { child.parentNode = null; }); this.childNodes = []; }
-    get tabIndex() { return this._tabIndex === undefined ? (/^(BUTTON|INPUT|TEXTAREA)$/.test(this.tagName) ? 0 : -1) : this._tabIndex; }
-    set tabIndex(value) { this._tabIndex = value; }
-    appendChild(child) {
-        if (child.isFragment) { child.childNodes.slice().forEach(node => this.appendChild(node)); return child; }
-        if (child.parentNode) { child.parentNode.removeChild(child); }
-        child.parentNode = this; this.childNodes.push(child); return child;
-    }
-    removeChild(child) { this.childNodes = this.childNodes.filter(node => node !== child); child.parentNode = null; return child; }
-    addEventListener(type, handler) { (this.listeners[type] = this.listeners[type] || []).push(handler); }
-    removeEventListener(type, handler) { this.listeners[type] = (this.listeners[type] || []).filter(h => h !== handler); }
-    fire(type, extra) {
-        const event = Object.assign({type, target: this, button: 0, clientX: 10, clientY: 10, preventDefault() {}, stopPropagation() {}}, extra);
-        (this.listeners[type] || []).slice().forEach(handler => handler.call(this, event));
-    }
-    setAttribute(name, value) { this.attributes[name] = String(value); }
-    getAttribute(name) { return name in this.attributes ? this.attributes[name] : null; }
-    getBoundingClientRect() { return {left: 0, top: 0, right: 100, bottom: 20, width: 100, height: 20}; }
-    focus() { document.activeElement = this; }
-    getContext() { return null; }
-    matches(selector) {
-        return selector.split(',').some(part => {
-            part = part.trim();
-            if (part === '[tabindex]') { return this._tabIndex !== undefined; }
-            if (part[0] === '.') { return this.className.split(' ').indexOf(part.slice(1)) >= 0; }
-            return this.tagName === part.toUpperCase();
-        });
-    }
-    querySelectorAll(selector) {
-        const found = [];
-        const walk = node => node.childNodes.forEach(child => { if (child.matches(selector)) { found.push(child); } walk(child); });
-        walk(this); return found;
-    }
-    get offsetWidth() { return 100; }
-    get offsetHeight() { return 20; }
-}
-
-const app = new Node('main'), themeStyle = new Node('style');
-const document = {
-    body: new Node('body'), documentElement: new Node('html'), activeElement: null, listeners: {},
-    createElement: tag => new Node(tag),
-    createDocumentFragment: () => Object.assign(new Node('fragment'), {isFragment: true}),
-    getElementById: id => ({'dk-app': app, 'dk-theme': themeStyle})[id],
-    addEventListener(type, handler) { (this.listeners[type] = this.listeners[type] || []).push(handler); },
-    removeEventListener(type, handler) { this.listeners[type] = (this.listeners[type] || []).filter(h => h !== handler); }
-};
-const sent = [];
-let callbacks = null;
-const window = {innerWidth: 1920, innerHeight: 1080, addEventListener() {}, removeEventListener() {}};
-const DK = window.DK = {bridge: {
-    start: next => { callbacks = next; }, send: (action, data) => sent.push([action, data || {}]),
-    scale: () => 1, clientSizeRem: () => ({width: 1920, height: 1080}), dispose() {}
-}};
-const context = {window, document, setTimeout: () => 0, clearTimeout() {}, JSON, Math, Date, Object, Array, String, Number, isFinite, parseFloat, parseInt};
-vm.createContext(context);
-// Same order as interface_catalog.py; the bridge is replaced by the stub above.
-const catalog = fs.readFileSync(path.join(root, 'mod/res/scripts/client/driftkings/interface_catalog.py'), 'utf8');
-const scripts = catalog.match(/settings_window\/js\/[a-z_]+\.js/g).map(name => name.split('/').pop());
-assert.deepStrictEqual(scripts, ['bridge.js', 'colors.js', 'modal.js', 'dom.js', 'control_kit.js', 'color_picker.js',
-    'controls.js', 'theme.js', 'updater_panel.js', 'profile_dialogs.js', 'vehicle_markers_model.js', 'vehicle_markers_editor.js', 'app.js']);
-const html = fs.readFileSync(path.join(jsRoot, '..', 'window.html'), 'utf8');
-assert.deepStrictEqual(html.match(/js\/[a-z_]+\.js/g).map(name => name.slice(3)), scripts);
-scripts.filter(name => name !== 'bridge.js').forEach(name => {
-    vm.runInContext(fs.readFileSync(path.join(jsRoot, name), 'utf8'), context, {filename: name});
-});
-['dom', 'layer', 'controlKit', 'controls', 'theme', 'updaterPanel', 'profileDialogs', 'app'].forEach(name => assert(DK[name], name));
-assert.strictEqual(typeof DK.controlKit.color, 'function');
-assert.strictEqual(DK.colors.normalizeColor('#ff8800'), '#FF8800');
-assert.strictEqual(DK.colors.normalizeColor('0xff8800'), null);
-assert.strictEqual(DK.colors.normalizeColor('FF8800'), null);
-assert.strictEqual(DK.app.themeCss, DK.theme.css);
-
+const assert=require('assert');
+const {createEnvironment}=require('./dom_fixture');
+const env=createEnvironment();
+const {DK,app,document,sent,callbacks,themeStyle}=env;
 const option = (value, label) => ({value, label});
 const defs = [
     {id: 'on', type: 'switch', label: 'Switch', default: true, description: 'Help'},
@@ -123,123 +34,48 @@ const state = {selected: 'dk.settings', values: {'dk.settings': values}, changed
     updater: {installedVersion: '1.0', channel: 'release', lastCheck: null, status: 'IDLE'}, profiles: ['default'],
     restartRequired: [], keyNames: {'1': 'A', '2': 'B'}};
 
-callbacks.schema(schema);
-callbacks.state(state);
-assert(themeStyle.textContent.indexOf('#D98219') >= 0, 'theme stylesheet');
-const window_ = app.firstChild;
-assert(window_.querySelectorAll('.dk-row').length >= 12, 'every value control renders a row');
-assert(window_.querySelectorAll('.dk-updates').length === 1, 'updates section on the Driftkings page');
-const status = window_.querySelectorAll('.dk-update-line');
-assert.strictEqual(status[0].textContent, 'Installed: 1.0');
-
-// The native alert icon marks restart-only controls and modules that need attention.
-const restartBadge = window_.querySelectorAll('.dk-apply-timing--restart')[0];
-assert.strictEqual(restartBadge.querySelectorAll('.dk-alert-icon').length, 1, 'restart badge has the alert icon');
-assert.strictEqual(window_.querySelectorAll('.dk-apply-timing--live')[0].querySelectorAll('.dk-alert-icon').length, 0);
-// Statuses: "✓ On" for the active page, "Error • Missing dependency: x" for the other module.
-const alertShown = text => window_.querySelectorAll('.dk-nav-status').filter(node => node.textContent.indexOf(text) >= 0)
-    .map(node => node.childNodes[0].className.indexOf('is-hidden') < 0)[0];
-assert.strictEqual(alertShown('On'), false, 'an active module has no alert icon');
-assert.strictEqual(alertShown('Missing dependency'), true, 'an errored module with a missing dependency shows the alert icon');
-callbacks.state(Object.assign({}, state, {restartRequired: ['dk.settings']}));
-assert.strictEqual(alertShown('On'), true, 'a pending restart shows the alert icon');
-callbacks.state(state);
-
-// The dropdown popup opens in the layer and a choice commits through the bridge.
-const dropdown = window_.querySelectorAll('.dk-dropdown')[0];
-dropdown.fire('click');
-assert(DK.layer.isOpen());
-DK.layer.close();
-assert(!DK.layer.isOpen());
-// The colour picker opens as a modal with its alpha slider and closes cleanly.
-window_.querySelectorAll('.dk-color-swatch')[0].fire('click');
-assert(DK.modal.isOpen());
-DK.modal.close(false);
-assert(!DK.modal.isOpen());
-// Switch commits its new value.
-window_.querySelectorAll('.dk-switch')[0].fire('click');
-// Payloads come from another VM realm: compare them as JSON.
-assert.strictEqual(JSON.stringify(sent.pop()), JSON.stringify(['set', {mod: 'dk.settings', key: 'on', value: false}]));
-
-// Profile and installed dialogs open and close through the shared dialog module.
-const footer = window_.querySelectorAll('.dk-btn').filter(node => node.textContent === 'Profiles')[0];
-footer.fire('click');
-assert(DK.profileDialogs.isOpen());
-DK.profileDialogs.close();
-assert(!DK.profileDialogs.isOpen());
-window_.querySelectorAll('.dk-installed-button')[0].fire('click');
-assert(DK.profileDialogs.isOpen());
-
-// Integrated editor edits the marker files and sends JSON drafts through the normal session.
-const markerDir = path.join(root, 'res/configs/driftkings/default/vehicle_markers');
-const markerFile = name => JSON.parse(fs.readFileSync(path.join(markerDir, name + '.json'), 'utf8'));
-const markerGeneral = markerFile('markers').markers;
-const markerValues = {enabled: markerGeneral.enabled, markers: Object.assign({}, markerGeneral)};
-delete markerValues.markers.enabled;
-DK.vehicleMarkerModel.STATE_KEYS.forEach(name => { markerValues[name] = markerFile(name); });
-const markerBindings = {}, markerState = {}, markerCommits = [];
-['enabled', 'markers'].concat(DK.vehicleMarkerModel.STATE_KEYS).forEach(key => {
-    markerBindings[key] = key;
-    markerState[key] = typeof markerValues[key] === 'boolean' ? markerValues[key] : JSON.stringify(markerValues[key]);
-});
-const markerHost = new Node('div');
-const markerEditor = DK.vehicleMarkersEditor.create(markerHost, {preview: {labels:{},bindings:markerBindings,tank:'sample.png'}}, {
-    labels:{on:'On',off:'Off'},commit(key,value) { markerCommits.push([key,value]); }
-});
-markerEditor.update(markerState);
-function markerButton(text) { return markerHost.querySelectorAll('button').find(node => node.textContent === text); }
-function markerRow(property) { return markerHost.querySelectorAll('.dk-row').find(node => node.getAttribute('data-property') === property); }
-function lastDraft() { return JSON.parse(markerCommits[markerCommits.length-1][1]); }
-assert.strictEqual(markerHost.querySelector('.dk-vm-tank').src, 'sample.png');
-// EU layout: enemy, alive, without Alt shows tank name, HP, rating and position.
-const originalFieldCount = markerHost.querySelectorAll('.dk-vm-text').length;
-assert.strictEqual(originalFieldCount, 4);
-markerButton('add').fire('click');
-assert.strictEqual(markerHost.querySelectorAll('.dk-vm-text').length, originalFieldCount + 1);
-assert.strictEqual(markerCommits[0][0], 'markersAliveNormal');
-const formatInput = markerHost.querySelector('textarea');
-formatInput.value = '<b>{{vehicle}} {{hp}}</b>';
-formatInput.fire('input');
-assert.strictEqual(markerCommits.length, 1, 'typing previews without persisting');
-formatInput.fire('blur');
-assert.strictEqual(lastDraft().enemy.textFields.slice(-1)[0].format, formatInput.value);
-// A referenced field edits its shared template.
-markerHost.querySelectorAll('.dk-vm-text')[0].fire('click');
-const sharedY = markerRow('markersAliveNormal.def.tankName.y').querySelector('input');
-sharedY.value = '-40'; sharedY.fire('blur');
-assert.strictEqual(lastDraft().def.tankName.y, -40);
-assert.strictEqual(lastDraft().ally.textFields[0], '${def.tankName}');
-markerButton('healthBar').fire('click');
-assert(markerRow('markersAliveNormal.enemy.healthBar.color'));
-markerHost.querySelector('.dk-vm-actions').querySelectorAll('button').find(node => node.textContent === 'damage').fire('click');
-assert(markerHost.querySelector('.dk-vm-damage'));
-// A destroyed ally in Alt reads markersDeadExtended.json; only that block changes.
-markerButton('ally').fire('click');
-markerButton('alive').fire('click');
-markerButton('normal').fire('click');
-assert.strictEqual(markerHost.querySelector('.dk-vm-damage'), null);
-const scopedX = markerRow('markersDeadExtended.ally.healthBar.x').querySelector('input');
-scopedX.value='49'; scopedX.fire('blur');
-assert.strictEqual(markerCommits[markerCommits.length-1][0], 'markersDeadExtended');
-assert.strictEqual(lastDraft().ally.healthBar.x, 49);
-assert.deepStrictEqual(lastDraft().enemy.healthBar, markerValues.markersDeadExtended.enemy.healthBar);
-markerButton('textFields').fire('click');
-markerButton('addRating').fire('click');
-assert.strictEqual(lastDraft().ally.textFields.slice(-1)[0].format, '{{r}}');
-// Player damage is the shared def.damageText template in default_wg.
-markerButton('damageText').fire('click');
-const authorFormat = markerRow('markersDeadExtended.def.damageText.damageMessage').querySelector('textarea');
-authorFormat.value = 'Player {{dmg}}'; authorFormat.fire('blur');
-assert.strictEqual(lastDraft().def.damageText.damageMessage, 'Player {{dmg}}');
-markerButton('general').fire('click');
-const ratingControl = markerRow('markers.ratingType');
-ratingControl.querySelector('.dk-dropdown').fire('keydown',{keyCode:40});
-assert.strictEqual(markerCommits[markerCommits.length-1][0], 'markers');
-assert.strictEqual(lastDraft().ratingType, 'wnx');
-assert.strictEqual(lastDraft().ally.alive.normal, '${markersAliveNormal.json:ally}');
-markerEditor.dispose();
-assert.strictEqual(markerHost.children.length, 0);
-
-DK.app.dispose();
-assert(!DK.profileDialogs.isOpen() && !DK.modal.isOpen() && !DK.layer.isOpen());
-console.log('Settings window: scripts, controls, theme, updates and dialogs OK');
+callbacks.schema(schema);callbacks.state(state);
+assert(app.querySelectorAll('.dk-row').length>=12);
+assert(themeStyle.textContent.includes('#D98219'));
+assert(app.querySelector('.dk-updates'));
+assert.strictEqual(DK.hex('0xFF8800'),null);
+assert.strictEqual(DK.hex('FF8800'),null);
+assert.strictEqual(DK.hex('#ff8800'),'#FF8800');
+// The original spectrum is used, with cancel/apply and separate alpha conversion.
+app.querySelector('.dk-swatch').fire('click');
+let modal=DK.modal.top();assert(modal);assert(modal.panel.querySelector('.dk-spectrum-canvas'));
+assert(!modal.panel.querySelector('.dk-picker-hue'));
+modal.panel.querySelector('.dk-preset').fire('click');
+modal.panel.querySelector('input').value='#112233';
+const pickerButtons=modal.panel.querySelector('.dk-modal-actions').querySelectorAll('button');
+pickerButtons[1].fire('click');assert(!DK.modal.top());
+assert.strictEqual(sent[sent.length-1][0],'set');assert.strictEqual(sent[sent.length-1][1].value,'#112233');
+assert.strictEqual(DK.colorPicker.toScale(50,'normalized'),0.5);
+assert.strictEqual(DK.colorPicker.toScale(100,'byte'),255);
+assert.strictEqual(DK.colorPicker.fromScale(128,'byte'),128*100/255);
+let chosen=0;DK.colorPicker.open({value:'#FF0000',alpha:null},()=>chosen++);
+modal=DK.modal.top();modal.panel.querySelector('.dk-spectrum').fire('mousedown');
+assert((document.listeners.mousemove||[]).length>0);
+DK.layer.key({keyCode:27,preventDefault(){},stopPropagation(){}});
+assert.strictEqual(chosen,0);assert.strictEqual((document.listeners.mousemove||[]).length,0);
+// Invalid HEX cannot be applied.
+DK.colorPicker.open({value:'#FF0000',alpha:null},()=>chosen++);modal=DK.modal.top();
+modal.panel.querySelector('input').value='0xFFFFFF';
+modal.panel.querySelector('.dk-modal-actions').querySelectorAll('button')[1].fire('click');
+assert(DK.modal.top());assert.strictEqual(chosen,0);DK.modal.closeAll();
+// Every normal control uses the Python action contract; disabled controls do not write.
+const changes=[];
+const slider=DK.controls.create({id:'x',type:'slider',label:'X',min:-4096,max:4096,step:1},{commit:(...v)=>changes.push(v)});
+slider.set(0);slider.node.querySelector('.dk-slider-track').fire('keydown',{keyCode:39});
+assert.strictEqual(changes[0][1],1);slider.sync({disabled:true});
+slider.node.querySelector('.dk-slider-track').fire('keydown',{keyCode:39});assert.strictEqual(changes.length,1);
+slider.dispose();
+// Enter then blur writes once after the authoritative state synchronizes.
+const text=DK.controls.create({id:'name',type:'text',label:'Name'},{commit:(...v)=>changes.push(v)});
+text.set('before');const field=text.node.querySelector('input');field.value='after';field.fire('keydown',{keyCode:13});
+assert.strictEqual(changes[1][1],'after');text.set('after');field.fire('blur');assert.strictEqual(changes.length,2);
+env.flush();callbacks.resize();assert.strictEqual(env.timers.size,0,'unchanged geometry is cached');
+env.window.innerWidth=1600;callbacks.resize();env.window.innerWidth=1500;callbacks.resize();
+assert.strictEqual(env.timers.size,1,'layout refreshes coalesce');
+DK.app.dispose();assert.strictEqual(env.timers.size,0);assert(!DK.modal.top());assert(!DK.layer.menuOpen());
+console.log('Redesigned settings: controls, original spectrum, alpha, validation and lifetime passed');

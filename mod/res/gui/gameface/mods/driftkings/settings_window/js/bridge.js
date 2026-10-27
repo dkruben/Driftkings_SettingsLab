@@ -1,20 +1,15 @@
-/* Python <-> Gameface transport: model.schema / model.state strings and the onAction command. */
+/* DK Settings — contrato com o Python (gameface/lobby/settings_window.py):
+   model.schema e model.state chegam como texto JSON; as ações saem por model.onAction({data}). */
 (function () {
     'use strict';
-    var DK = window.DK = window.DK || {};
-    var callbackId = null, disposed = false, lastSchema = null, lastState = null, handlers = null;
+    var DK = window.DK;
+    var handlers = null, callbackId = null, lastSchema = null, lastState = null, disposed = false;
 
-    function parse(text) {
-        try { return JSON.parse(text || '{}'); } catch (error) { return null; }
-    }
-    function changed(data, indexes, ids) {
-        if (disposed || !handlers || (ids && ids.indexOf(callbackId) < 0)) { return; }
-        read();
-    }
+    function parse(text) { try { return JSON.parse(text || '{}'); } catch (error) { return null; } }
     function read() {
         var model = window.model;
-        if (!model) { return; }
-        // Event driven: only parse and render the payload that actually changed.
+        if (!model || !handlers) { return; }
+        // Only the payload that changed is parsed; the schema rarely changes.
         if (model.schema !== lastSchema) {
             lastSchema = model.schema;
             var schema = parse(lastSchema);
@@ -26,16 +21,21 @@
             if (state && state.values) { handlers.state(state); }
         }
     }
-    function resized() { if (!disposed && handlers && handlers.layout) { handlers.layout(); } }
+    function changed(data, indexes, ids) {
+        if (disposed || (ids && ids.indexOf && ids.indexOf(callbackId) < 0)) { return; }
+        read();
+    }
+    function resized() { if (!disposed && handlers && handlers.resize) { handlers.resize(); } }
+
     DK.bridge = {
         start: function (callbacks) {
             handlers = callbacks;
             engine.whenReady.then(function () {
                 if (disposed) { return; }
                 callbackId = viewEnv.addDataChangedCallback('model', 0, true);
+                engine.on('viewEnv.onDataChanged', changed);
                 engine.on('clientResized', resized);
                 engine.on('self.onScaleUpdated', resized);
-                engine.on('viewEnv.onDataChanged', changed);
                 read();
             });
         },
@@ -45,25 +45,25 @@
             message.action = action;
             window.model.onAction({data: JSON.stringify(message)});
         },
-        /* Pixels per UI unit (interface scale); 1 when the client does not expose it. */
-        scale: function () {
-            var unit = typeof viewEnv.remToPx === 'function' ? Number(viewEnv.remToPx(1)) : 1;
-            return isFinite(unit) && unit > 0 ? unit : 1;
+        /* Pixels per UI unit (the client's interface scale). */
+        unit: function () {
+            var value = typeof viewEnv.remToPx === 'function' ? Number(viewEnv.remToPx(1)) : 1;
+            return isFinite(value) && value > 0 ? value : 1;
         },
-        clientSizeRem: function () {
+        clientRem: function () {
             if (typeof viewEnv.getClientSizeRem === 'function') {
                 var size = viewEnv.getClientSizeRem();
-                if (size && size.width > 0 && size.height > 0) { return size; }
+                if (size && size.width > 0 && size.height > 0) { return {width: size.width, height: size.height}; }
             }
-            var unit = DK.bridge.scale();
+            var unit = DK.bridge.unit();
             return {width: (window.innerWidth || 1920) / unit, height: (window.innerHeight || 1080) / unit};
         },
         dispose: function () {
             if (disposed) { return; }
             disposed = true;
+            engine.off('viewEnv.onDataChanged', changed);
             engine.off('clientResized', resized);
             engine.off('self.onScaleUpdated', resized);
-            engine.off('viewEnv.onDataChanged', changed);
             if (callbackId !== null) { viewEnv.removeDataChangedCallback(callbackId, 0); }
             handlers = null;
         }

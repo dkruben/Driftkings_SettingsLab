@@ -111,8 +111,8 @@ class LocalizedControlTests(RuntimeTest):
         self.assertEqual(self.schema.nested_description(['minimap', 'x'], labels), 'Generic')
         self.assertEqual(self.schema.nested_description(['unknown'], labels), '')
 
-    def test_current_defaults_open_and_apply_through_every_settings_page(self):
-        self.text = self.documents['en']
+    def settings_registry(self, language='en'):
+        self.text = self.documents[language]
         metadata = self.load('settings.settings_data')
         key_names = set()
         def collect(value):
@@ -146,6 +146,11 @@ class LocalizedControlTests(RuntimeTest):
             before = registry.describe(config.NAME)
             after = registry.apply(config.NAME, copy.deepcopy(before['values']))
             self.assertEqual(before['values'], after['values'], config.NAME)
+
+        return registry
+
+    def test_current_defaults_open_and_apply_through_every_settings_page(self):
+        self.settings_registry()
 
     def test_distance_choices_and_team_tabs_use_each_selected_language(self):
         for code, text in self.documents.items():

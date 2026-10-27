@@ -1,0 +1,19 @@
+.dk-presets { display: flex; flex-direction: row; flex-wrap: wrap; margin-bottom: 10rem; }
+.dk-preset { width: 30rem; height: 30rem; margin: 0 6rem 6rem 0; border: 1rem solid #2a2a2a; cursor: pointer; }
+.dk-preset:hover { border-color: #ffffff; }
+.dk-color-picker { width:360rem; }
+.dk-spectrum { position:relative;height:240rem;width:100%;margin-bottom:16rem;background:linear-gradient(to right,#000,transparent 50%,#fff),linear-gradient(to bottom,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);cursor:crosshair; }
+.dk-spectrum-canvas { width:100%;height:100%; }
+.dk-spectrum-cursor { position:absolute;width:12rem;height:12rem;border:2rem solid white;border-radius:50%;box-shadow:0 0 0 1rem #222;transform:translate(-50%,-50%);pointer-events:none; }
+.dk-color-comparison { display:flex;justify-content:space-between;margin-bottom:12rem; }
+.dk-color-comparison .dk-color-preview { width:154rem;height:42rem;padding:0; }
+.dk-preview-fill { width:100%;height:100%; }
+.dk-color-picker > .dk-field { width:100%; margin-bottom:12rem; }
+.dk-color-title { margin-bottom:6rem; }
+.dk-color-picker .dk-modal-actions { display:flex; justify-content:flex-end; margin-top:18rem; }
+.dk-color-picker .dk-modal-actions > button { margin-left:10rem; }
+.dk-alpha-value { text-align:right; margin-top:4rem; }
+.dk-color-picker .dk-row { padding:6rem 0; }
+.dk-color-picker .dk-row-text { display:none; }
+.dk-color-picker .dk-row-input { width:100%; flex:1 1 auto; }
+.dk-modal-spectrum { width:auto; }

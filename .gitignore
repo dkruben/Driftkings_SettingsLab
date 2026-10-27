@@ -109,6 +109,9 @@ htmlcov/
 /tests/settings_panel/*
 !/tests/settings_panel/test_*.py
 !/tests/settings_panel/test_*.js
+!/tests/settings_panel/dom_fixture.js
+!/tests/settings_panel/schema_fixture.js
+!/tests/settings_panel/export_schema.py
 
 # Portable Core regression tests are also source-controlled.
 !/tests/core/
