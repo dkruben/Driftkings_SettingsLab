@@ -8,10 +8,10 @@ from helpers import dependency
 from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import AIMING_COUNTDOWN
-from driftkings.core.battle_events import battleEvents
 from driftkings.core.aiming_timing import dispersion_timing
-from driftkings.logger import get_logger
+from driftkings.core.battle_events import battleEvents
 from driftkings.flash.batalha.meta.dispersion_timer import DispersionTimerMeta
+from driftkings.logger import get_logger
 
 LOG = get_logger('driftkings.flash.batalha.aiming_countdown')
 

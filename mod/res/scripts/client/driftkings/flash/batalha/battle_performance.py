@@ -7,8 +7,8 @@ from driftkings.settings.service import affects, settings_service
 
 from importlib import import_module
 
-from driftkings.flash.core import overlays
 from driftkings.flash.batalha.common import CachedBattleLabel
+from driftkings.flash.core import overlays
 
 
 def _component():

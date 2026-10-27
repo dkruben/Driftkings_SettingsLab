@@ -80,3 +80,7 @@ Beta 0.1.2-beta.5 publicada com instalador e manifesto assinado. Commit b6afb5c;
 ## Atualização arquitetural — 26 outubro 2026
 
 Os caminhos `views/battle` e `views/hangar` indicados neste relatório representam a localização à data da revisão. A infraestrutura e os adaptadores Gameface foram posteriormente centralizados em `gameface/`, conforme o [plano de migração](PLANO_GAMEFACE.md). A publicação é partilhada através de `gameface/payloads.py`; os adaptadores de batalha continuam a reutilizar `BattleCardAdapter`.
+
+## Atualização de caminhos Flash — 27 outubro 2026
+
+As referências a `views/battle`, `meta/battle`, `views/hangar` e ao registo em `views/__init__.py` neste relatório são históricas. A apresentação Scaleform atual está em `flash/`, conforme o [inventário e plano Flash](PLANO_FLASH.md). Os helpers de dados independentes das tecnologias permanecem em `views`.

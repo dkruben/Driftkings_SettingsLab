@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Native DAAPI transport for the shared Driftkings battle scene."""
 from driftkings._constants import BATTLE_ALIASES
-from driftkings.flash.core import overlays
 from driftkings.flash.batalha.meta.overlay import OverlayMeta
+from driftkings.flash.core import overlays
 
 ALIAS = BATTLE_ALIASES.OVERLAY
 

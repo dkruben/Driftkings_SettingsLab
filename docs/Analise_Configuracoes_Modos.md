@@ -154,3 +154,7 @@ As normalizações de ambos os módulos descartam os campos obsoletos ao carrega
 Passaram 66 testes core e 25 settings em Python 2.7 e 3, testes Gameface, ESLint ES5, verificação de nomes indefinidos, validação de build e sincronização de defaults. Três testes novos verificam preservação do formato/posição/opções pessoais, remoção idempotente e o contrato dos JSON canónicos.
 
 Etapas 1 e 2 concluídas localmente; continuam pendentes 3 (minimapa) e 4 (torre). Mantém-se o bloqueio de compilação por divergência do SRC já identificado na etapa 1. Sem commit nem push automático.
+
+## Atualização de caminhos Flash — 27 outubro 2026
+
+As referências a `views/battle`, `meta/battle`, `views/hangar` e ao registo em `views/__init__.py` neste relatório são históricas. A apresentação Scaleform atual está em `flash/`, conforme o [inventário e plano Flash](PLANO_FLASH.md). Os helpers de dados independentes das tecnologias permanecem em `views`.

@@ -100,7 +100,7 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 | 1 — Núcleo, registo e lifecycle partilhado | Concluída | 429 testes core Python 3; 0 nomes indefinidos |
 | 2 — Views, metas e adaptadores existentes | Concluída | 429 testes core, catálogo e build inputs válidos |
 | 3 — Separação de apresentação dos módulos mistos | Concluída | 429 testes core em Python 2.7/3; 0 nomes indefinidos |
-| 4 — Testes arquiteturais, documentação e changelog | Pendente | Fronteiras, contratos, ciclos, hooks |
+| 4 — Testes arquiteturais, documentação e changelog | Concluída | 12 testes novos Python 2.7/3: OK |
 | 5 — Validação completa, build e GitHub | Pendente | Python 2.7/3, npm/lint, AS3/SWF, WOTMOD e CI |
 
 ## Registo de execução
@@ -135,3 +135,84 @@ Antes de migrar estas dependências adicionais, confirmou-se: `common/utils/game
 - Etapa 3: extraídos plugins nativos de minimapa, plugin de penetração, factories/containers/linkages de mira, hooks visuais de preferências, transporte de mensagens, encaminhamento de logs e ponte do formulário de login. Marcadores conservam `validate/apply/values` funcionais no core; lifecycle/transporte estão em `flash/batalha/vehicle_markers`. Cálculos numéricos de mira/voo extraídos para `core/aiming_timing.py`; projeção/hit-test/drag do marcador de distância permanecem no adaptador por dependerem do contrato por frame do SWF.
 - Componentes fornecem configuração/estado aos bridges existentes sem novas frameworks. Minimap/penetração ligam as referências uma vez na importação do componente, antes da ativação dos hooks. Estado e controlos de simulação das miras ficam funcionais, usando métodos de linkage do adaptador. Core/serviços de diagnóstico/hook reversível e consumidores de eventos de recolha continuam fora de Flash.
 - Corrigidos os stubs de mensagens e plugins nos testes para as novas fronteiras; mantidos todos os testes de comportamento existentes. 429 testes Python 3 e 429 Python 2.7 passaram; catálogo/build data válidos (317 módulos); 0 nomes indefinidos. Nenhuma frequência alterada ou ganho de FPS alegado. Views/metas publicadas em `19db2a3`.
+
+- Etapa 4: adicionados 12 testes de arquitetura, executados em Python 2.7/3: resolução real das views/metas dos dez contratos, correspondência de métodos DAAPI no AS3 existente, cache escalar/recriação/falhas, registo único e descarregamento, rollback de start, instalação/desativação dos hooks HUD, cancelamento de callbacks de pesquisa, imports antigos/fronteiras, ciclos imediatos, cálculos numéricos e valores/posição do formulário de login. O contrato RatingViews é uma factory de RosterView; o teste valida a classe realmente registada. Imports Flash ordenados; documentação e release.json atualizados sem mudar a versão publicada. Módulos mistos publicados em `8d97f92`.
+
+## Estrutura final
+
+```text
+driftkings/
+  flash/
+    __init__.py
+    core.py
+    lifecycle.py
+    batalha/
+      __init__.py
+      aiming_countdown.py
+      aiming_reticles.py
+      battle_performance.py
+      battle_statistics.py
+      common.py
+      debug_panel.py
+      game_log.py
+      gun_traverse_limits.py
+      handler.py
+      hud_visibility.py
+      messages.py
+      minimap_enhancements.py
+      minimap_plugins.py
+      overlay.py
+      penetration_hooks.py
+      penetration_indicator.py
+      player_ratings.py
+      preferences_hooks.py
+      registry.py
+      shell_flight_time.py
+      sixth_sense_alert.py
+      target_distance.py
+      target_information.py
+      vehicle_health.py
+      meta/
+        __init__.py
+        armor_calculator.py
+        base.py
+        debug_panel.py
+        dispersion_timer.py
+        distance_marker.py
+        flight_timer.py
+        minimap.py
+        overlay.py
+        own_health.py
+        players_panel.py
+        sixth_sense.py
+      vehicle_markers/
+        __init__.py
+        presentation.py
+        ratings.py
+        runtime.py
+    hangar/
+      __init__.py
+      battle_performance_hooks.py
+      hangar_preferences_hooks.py
+      login.py
+      native_preferences.py
+      profile_statistics.py
+  gameface/                # implementação anterior preservada
+  battle/, lobby/, components/  # regras, estado e recolha
+  core/                    # serviços/modelos independentes
+    aiming_timing.py       # cálculos extraídos dos adaptadores
+  views/                   # apenas helpers de dados sem motor
+    marks_model.py
+    crew_progression_model.py
+```
+
+## Dependências e ficheiros
+
+- Movidos os ficheiros do mapa inicial; `views/__init__.py` conserva apenas o package de helpers. Os antigos packages `views/battle`, `views/hangar`, `meta/battle` e `meta` deixaram de conter fontes; não existem shims de importação.
+- Criados os packages passivos, `flash/lifecycle.py`, `flash/batalha/hud_visibility.py`, `core/aiming_timing.py` e os bridges extraídos: `aiming_reticles`, `minimap_plugins`, `penetration_hooks`, `preferences_hooks`, `game_log`, `messages`, `vehicle_markers/{runtime,presentation,ratings}`, `hangar/{login,native_preferences}`. Novo teste: `tests/core/test_flash_architecture.py`.
+- `interface_catalog.py`: apenas os dez campos `FLASH_COMPONENTS[*].python` alterados. AS3, aliases, secções, componentes e superfícies preservados. Os 14 contratos Gameface permanecem intactos.
+- Core ServiceSpec → `flash.batalha.registry:BattleViews` → package `driftkings.flash.batalha` → `handler`/metas/views. Componentes → adaptadores Flash; cálculos/configuração/estado continuam nos componentes/core. Os adaptadores usam referências diferidas ou configuração explícita antes da ativação de hooks, evitando ciclos imediatos.
+- `build_tools/generate_ui_catalog.py` pesquisa metas na nova localização. Não foi necessário regenerar/modificar os artefactos AS3/JS porque os seus contratos públicos não mudaram.
+- A ponte de login é dependência real da janela de contas Gameface, mas a API do controller foi preservada e nenhum ficheiro Gameface precisou de mudar.
+- Hooks de tripulação, ribbons e consultas ProfileUtils/constantes que apenas recolhem dados ou executam regras mantêm-se funcionais. Não são Views nem manipulam flashObject.
+- Problemas resolvidos durante a migração: pesquisa de metas ainda apontava para o diretório antigo; stubs de mensagens/plugins ainda simulavam a fronteira antiga; testes distinguem corretamente a factory RatingViews da classe RosterView e suportam AST de Python 2.7 e 3.14. Nenhum erro foi mascarado com novos fallbacks.

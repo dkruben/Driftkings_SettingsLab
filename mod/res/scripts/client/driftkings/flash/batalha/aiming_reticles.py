@@ -5,9 +5,11 @@ from aih_constants import GUN_MARKER_TYPE
 from gui.battle_control.battle_constants import CROSSHAIR_VIEW_ID
 from gui.Scaleform.daapi.view.battle.shared import SharedPage
 from gui.Scaleform.daapi.view.battle.shared.crosshair import CrosshairPanelContainer, gm_factory
-from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_components import DefaultGunMarkerComponent, GunMarkersComponents, SPGGunMarkerComponent
+from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_components import (DefaultGunMarkerComponent,
+                                                                            GunMarkersComponents, SPGGunMarkerComponent)
 from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_factory import _GunMarkersFactory
-from gui.Scaleform.daapi.view.battle.shared.crosshair.plugins import _SETTINGS_KEY_TO_VIEW_ID, _SETTINGS_KEYS, _SETTINGS_VIEWS
+from gui.Scaleform.daapi.view.battle.shared.crosshair.plugins import (_SETTINGS_KEY_TO_VIEW_ID, _SETTINGS_KEYS,
+                                                                      _SETTINGS_VIEWS)
 from gui.Scaleform.genConsts.GUN_MARKER_VIEW_CONSTANTS import GUN_MARKER_VIEW_CONSTANTS
 from helpers import dependency
 from skeletons.account_helpers.settings_core import ISettingsCore

@@ -7,6 +7,7 @@ from driftkings._constants import GAME_LOG_MANAGER, GLOBAL
 from driftkings.core.hooks import override
 from driftkings.settings.service import settings_service
 
+
 class WGLogs(object):
     def __init__(self, config, filters):
         self.config, self.filters = config, filters

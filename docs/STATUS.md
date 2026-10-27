@@ -1,6 +1,6 @@
 # Documentation status
 
-Updated: 26 October 2026. Commands and source paths in these guides are relative to the repository root unless explicitly stated otherwise.
+Updated: 27 October 2026. Commands and source paths in these guides are relative to the repository root unless explicitly stated otherwise.
 
 ## Release baseline
 
@@ -41,6 +41,10 @@ Colour settings and defaults use `#RRGGBB`. Legacy numeric prefixes and bare hex
 
 ## Python Gameface architecture after beta.2
 
-The development branch centralizes Python Gameface adapters under `driftkings/gameface`, with shared `core.py`, `payloads.py`, `registry.py`, and separate `batalha`/`hangar` packages. The 14 interface contracts still come from `interface_catalog.py`; native resource IDs and visual assets are preserved. Scaleform remains under `views`; functional calculations and data collection remain in the feature modules. See the [migration inventory and execution log](PLANO_GAMEFACE.md). Client acceptance checks remain pending; this refactor does not replace the published beta.2.
+The development branch centralizes Python Gameface adapters under `driftkings/gameface`, with shared `core.py`, `payloads.py`, `registry.py`, and separate `batalha`/`hangar` packages. The 14 interface contracts still come from `interface_catalog.py`; native resource IDs and visual assets are preserved. Scaleform is now centralized under `flash`; functional calculations and data collection remain in the feature modules. See the [migration inventory and execution log](PLANO_GAMEFACE.md). Client acceptance checks remain pending; this refactor does not replace the published beta.2.
 
 Gameface refactor validation: 429 Core tests on Python 2.7/3, 27 settings tests on both runtimes, 33 installer tests, JavaScript/lint and the native debug build passed. [Source CI passed for c7189f8](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40421997019). The build validates 301 Python modules; visual assets and all non-Python catalogue fields are unchanged.
+
+## Python Flash/Scaleform architecture after beta.2
+
+The development branch centralizes Flash views, DAAPI metas and native presentation bridges under `driftkings/flash`. `flash/batalha/registry.py` registers the native battle package and preserves the ten aliases from `interface_catalog.py`; `flash/core.py` owns the existing overlay scene. Shared HUD state, functional calculations and data collection remain outside the presentation layer. The Gameface package and AS3/SWF assets are unchanged. The [local plan](PLANO_FLASH.md) records the inventory, per-step commits, validation and client acceptance checks. No measured FPS improvement or new published release is implied.

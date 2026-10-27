@@ -51,6 +51,7 @@
     "Rename the project palette to Driftkings and use descriptive marker/statistics modules and stat-available macros. Preserve palette indices and colours, existing profile macros and cache data, font names, upstream credits and external integration identifiers.",
     "Require hash-prefixed colours in settings and rendering, remove legacy colour-prefix compatibility and redundant converters, and correct defaults and colour-consuming HTML/native APIs. Validate rejection of legacy strings in the settings panel, minimap and markers.",
     "Centralize Python Gameface presentation in gameface/batalha and gameface/hangar, sharing resource resolution, transactional payload publication and window registration. Preserve functional components, native resource IDs, visual assets and Python 2.7 compatibility; add architecture and lifecycle regression checks.",
-    "Rename the settings interface to DriftkingsModSettings, removing the redundant DK abbreviation."
+    "Rename the settings interface to DriftkingsModSettings, removing the redundant DK abbreviation.",
+    "Centralize Python Flash/Scaleform views, DAAPI metas, native package registration and presentation bridges under flash/batalha and flash/hangar. Keep combat calculations and shared state separate, preserve AS3/SWF resources and add contract, hook, lifecycle and login-bridge regression tests."
   ]
 }

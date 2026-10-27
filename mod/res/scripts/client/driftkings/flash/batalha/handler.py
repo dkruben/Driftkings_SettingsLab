@@ -7,9 +7,9 @@ from gui.Scaleform.daapi.settings.views import VIEW_ALIAS, VIEW_BATTLE_PAGE_CONF
 from gui.Scaleform.framework.package_layout import PackageBusinessHandler
 from gui.shared import EVENT_BUS_SCOPE
 
+from driftkings.flash.batalha.registry import BATTLE_COMPONENTS, BATTLE_HANDLERS
 from driftkings.interface_catalog import selected_components, surface_aliases
 from driftkings.logger import get_logger
-from driftkings.flash.batalha.registry import BATTLE_COMPONENTS, BATTLE_HANDLERS
 
 LOG = get_logger('Driftkings.Views')
 

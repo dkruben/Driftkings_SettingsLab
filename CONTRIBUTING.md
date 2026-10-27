@@ -45,7 +45,8 @@ Inside the client package:
 - `settings/` – settings service, profiles, store, panel (presenter, controls, sections) and `definitions/`.
 - `battle/`, `lobby/`, `components/` – the feature components.
 - `gameface/` – Python Gameface integration: shared resource/assets core, transactional payloads, window registry, `batalha/` and `hangar/` adapters. `interface_catalog.py` remains the single contract source.
-- `views/` – Scaleform presentation and engine-free presentation data helpers.
+- `flash/` – Python Flash/Scaleform presentation: overlay core, native lifecycle, `batalha/` views/metas/registry and `hangar/` bridges.
+- `views/` – engine-free presentation data helpers shared by both technologies.
 - `common/` – shared utilities (colours, config reading, monkeypatching helpers).
 - `i18n/` – translation loaders and optional JSON override support; bundled language text lives in `mod/res/mods/driftkings/text/`.
 
@@ -62,6 +63,10 @@ Inside the client package:
 ### Gameface presentation
 
 Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. See the [migration plan and inventory](docs/PLANO_GAMEFACE.md) for dependencies, validation and in-game checks.
+
+### Flash/Scaleform presentation
+
+Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.batalha`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [Flash migration plan](docs/PLANO_FLASH.md) for the inventory, dependencies, tests and pending client checks; structural changes alone do not establish an FPS improvement.
 
 ### Hooks
 
