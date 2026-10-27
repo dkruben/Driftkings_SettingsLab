@@ -41,6 +41,29 @@ class ReplayMarksTests(RuntimeTest):
         # The base reproduces the configured mark when the battle matches the average damage.
         self.assertAlmostEqual(self.marks.battle_estimate(3500, 3500, values), 94.0, places=2)
 
+    def test_degenerate_owner_curve_uses_borrowed_data_without_mutating_cache(self):
+        borrowed = [80.0, 2000.0, 81.0, 2050.0, 1, 2]
+        for owned in ([81.6, 1002, 81.6, 1012, 1, 2],
+                      [80.0, 2000, 81.0, 2000, 1, 2],
+                      [80.0, 2100, 81.0, 2000, 1, 2]):
+            cache = {'1': {'T-34': owned}, '2': {'T-34': borrowed}}
+            values, approximate = self.calibrate(cache)
+            self.assertEqual(values, borrowed)
+            self.assertTrue(approximate)
+            self.assertIs(cache['1']['T-34'], owned)
+            self.assertIsNot(values, borrowed)
+
+    def test_flat_borrowed_curve_uses_the_existing_configured_base(self):
+        values, approximate = self.calibrate({'2': {'T-34': [58.28, 1200, 58.28, 1210, 1, 2]}})
+        self.assertEqual(values, [0, 0, 94.0, 3500.0, TODAY, TODAY])
+        self.assertTrue(approximate)
+
+    def test_decreasing_samples_with_a_positive_slope_remain_exact(self):
+        owned = [81.0, 2050.0, 80.0, 2000.0, 1, 2]
+        values, approximate = self.calibrate({'1': {'T-34': owned}})
+        self.assertIs(values, owned)
+        self.assertFalse(approximate)
+
     def test_invalid_base_leaves_the_panel_unavailable(self):
         for percent, damage in ((0, 3500), (94.0, 0), ('bad', 3500), (101, 3500)):
             self.assertEqual(self.marks.replay_calibration({}, '1', 'T-34', percent, damage, TODAY), (None, False))

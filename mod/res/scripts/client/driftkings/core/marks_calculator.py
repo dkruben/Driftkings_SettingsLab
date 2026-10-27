@@ -16,15 +16,20 @@ def valid_calibration(values):
         0 <= values[0] <= 100 and 0 <= values[2] <= 100 and values[1] >= 0 and values[3] > 0)
 
 
+def valid_replay_calibration(values):
+    """Interpolation requires a positive slope, unlike raw dossier samples."""
+    return valid_calibration(values) and (values[2] - values[0]) * (values[3] - values[1]) > 0
+
+
 def replay_calibration(cache, owner, name, base_percent, base_damage, today):
     """Replays carry no dossier: prefer the owner's cache, then any account's, then the configured base.
 
     Returns (values, approximate). Borrowed values are copies so the owner's cache is never touched.
     """
-    if valid_calibration((cache.get(owner) or {}).get(name)):
+    if valid_replay_calibration((cache.get(owner) or {}).get(name)):
         return cache[owner][name], False
     borrowed = [values for account, vehicles in cache.items() if account != owner and isinstance(vehicles, dict)
-                for values in [vehicles.get(name)] if valid_calibration(values) and values[1] != values[3]]
+                for values in [vehicles.get(name)] if valid_replay_calibration(values)]
     if borrowed:
         values = list(max(borrowed, key=lambda item: item[5] if len(item) == 6 else 0))
         return values + [today, today][len(values) - 4:], True

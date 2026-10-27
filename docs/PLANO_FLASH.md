@@ -246,3 +246,5 @@ driftkings/
 
 - Limpeza posterior — 27 outubro 2026: removida a deteção do antigo script standalone que impedia a inicialização dos marcadores integrados, juntamente com o import ResMgr usado exclusivamente nessa deteção. Mantidos os créditos históricos. Guia de marcadores e changelog atualizados.
 - Validação desta limpeza: 41 testes de marcadores em Python 2.7 e 3, 0 nomes indefinidos e build data válidos.
+
+- Correção posterior baseada no log EU: removidas chamadas TextField não suportadas no relógio; cartões Gameface passam a herdar a fonte nativa; seleção de calibração de replay rejeita curvas planas/invertidas. Âmbito e evidência no [relatório EU](EU_LOG_2026-10-27.md). 444 testes core em ambos os runtimes, JavaScript/lint e build nativa: OK. Nenhuma instalação/configuração/cache EU alterada nesta correção.

@@ -54,6 +54,8 @@
     "Rename the settings interface to DriftkingsModSettings, removing the redundant DK abbreviation.",
     "Centralize Python Flash/Scaleform views, DAAPI metas, native package registration and presentation bridges under flash/battle and flash/lobby. Keep combat calculations and shared state separate, preserve AS3/SWF resources and add contract, hook, lifecycle and login-bridge regression tests.",
     "Rename the Gameface and Flash presentation subpackages to battle and lobby; update Python imports, native package registration, catalogue paths, tests and documentation without changing visual resources or native contexts.",
-    "Remove the obsolete standalone marker script detection that could disable integrated vehicle markers."
+    "Remove the obsolete standalone marker script detection that could disable integrated vehicle markers.",
+    "Stop reading and writing unsupported Scaleform text sharpness/thickness properties in the battle clock; inherit the native Gameface font for MainGun and marks cards instead of requesting undeclared font stacks.",
+    "Reject flat or inverted cached calibration curves in replays, reusing the existing borrowed/configured approximation without changing personal caches or live-battle calculations."
   ]
 }

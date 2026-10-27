@@ -8,7 +8,7 @@
     border-radius: 6rem;
     background: rgba(15, 18, 22, 0.88);
     box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.35);
-    font-family: Roboto, Arial, sans-serif;
+    font-family: inherit;
     transform-origin: top left;
     pointer-events: none;
 }

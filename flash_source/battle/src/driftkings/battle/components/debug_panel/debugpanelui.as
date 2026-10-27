@@ -41,8 +41,6 @@ public class debugpanelui extends battledisplayable {
         clock.wordWrap = false;
         clock.embedFonts = source.embedFonts;
         clock.antiAliasType = source.antiAliasType;
-        clock.sharpness = source.sharpness;
-        clock.thickness = source.thickness;
         clock.filters = source.filters;
         clock.transform.colorTransform = source.transform.colorTransform;
         var right:Number = source.x + source.width;
