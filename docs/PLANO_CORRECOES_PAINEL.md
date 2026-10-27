@@ -35,3 +35,13 @@ O autor confirmou que os erros visuais se encontram nos marcadores. Corrigidos a
 ## Compilação stable autorizada
 
 Pedido do autor: commit em develop, convergir main, compilar stable 0.1.3 com aviso de painel em construção, regressar a develop e acompanhar CI. A autorização abrange a compilação; a publicação pública permanece suspensa. Aviso acrescentado ao painel nas 18 línguas, README e release.json.
+
+## Seguimento após publicação 0.1.3 — orientação do autor
+
+O autor clarificou que a preview do carrossel pode usar dois veículos e estatísticas fictícias: a prioridade é corresponder às regras que o mod aplica aos cartões. As alterações abaixo são locais em develop e não modificam a release publicada.
+
+- Marcadores: referências de texto têm uma linha própria e botão de edição abaixo do campo; inputs podem encolher dentro da coluna. O teste percorre o botão, edita `def.tankName.format`, grava o documento correto e confirma que a referência original não é substituída por uma cópia.
+- Carrossel: substituída a leitura de inventário/dossiers da preview por dois exemplos fixos, T32 e Obj. 140, identificados como exemplos. As cores continuam calculadas pela mesma API de estatísticas dos cartões reais, com a paleta em edição.
+- Comparado o renderer de preview com `core.carousel.build_profile` e `vehicle_carousel/carousel_layout.js`: corrigidos cor/tamanho base do texto, tamanho independente do ícone, cor de fundo com macros, alinhamento flex e parâmetros de sombra. O nome do veículo passa a ancorar à direita.
+- Testes JavaScript/ESLint e testes específicos Python 2.7/3 aprovados. A reprodução visual das proporções nativas, das variantes normal/compacto e da ausência de cortes a 140% ainda necessita de confirmação no Gameface. Não se considera a preview integralmente equivalente ao renderer nativo.
+- A captura do carrossel real sem estatísticas não foi tratada como prova de falha de recolha: o autor esclareceu que a tarefa é a coerência da preview. Não foram alterados os hooks nem o renderer dos cartões reais nesta intervenção.

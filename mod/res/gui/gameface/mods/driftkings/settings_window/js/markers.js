@@ -359,7 +359,7 @@
                 numberField.addEventListener('blur', commitNumber);
             } else if (isColorKey(key, value)) {
                 var swatch = h('button.dk-swatch', null, [h('span.dk-swatch-fill')], input);
-                swatch.firstChild.style.backgroundColor = value || 'transparent';
+                swatch.firstChild.style.backgroundColor = color(value, 'transparent');
                 var colorField=h('input.dk-field',{type:'text',value:value||'',placeholder:label(preview,'team'),readOnly:readOnly},null,input);
                 function readColor(){var next=colorField.value||null;if(next!==value){save(next);}}
                 colorField.addEventListener('blur',readColor);
@@ -372,6 +372,7 @@
                 if (value !== null) { h('button.dk-button.is-small', {text: '×', title: t('clearSecret', ''), onclick: function (event) { DK.stop(event); if (!readOnly) { save(null); } }}, null, input); }
             } else if (value === null || typeof value === 'string') {
                 var ref = refPath(value);
+                if (ref) { DK.toggle(row, 'is-reference', true); }
                 var textField = h('input.dk-field', {type: 'text', value: value === null ? '' : value, placeholder: 'null', readOnly: readOnly}, null, input);
                 var commitText = function () {
                     var next = textField.value === '' && value === null ? null : textField.value;

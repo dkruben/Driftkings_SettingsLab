@@ -527,3 +527,12 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 /* Client images in the screen preview ---------------------------------------------------------------------------- */
 .dk-hud-scene { background-size: cover; background-position: center; background-repeat: no-repeat; }
 .dk-hud-hangar-tank { position: absolute; left: 510rem; top: 330rem; width: 900rem; opacity: 0.9; }
+
+/* Reference actions must stay inside the property column, including at 140% UI scale. */
+.dk-mk-input > .dk-field { flex: 1 1 0; min-width: 0; }
+.dk-mk-row.is-reference { flex-wrap: wrap; padding: 6rem 0; }
+.dk-mk-row.is-reference > .dk-mk-label { width: 100%; margin-bottom: 4rem; }
+.dk-mk-row.is-reference > .dk-mk-input { flex: 1 1 100%; flex-wrap: wrap; }
+.dk-mk-row.is-reference .dk-field { flex-basis: 100%; }
+.dk-mk-row.is-reference .dk-button { width: 100%; margin: 6rem 0 0; white-space: normal; }
+.dk-mk-group { min-width: 0; }

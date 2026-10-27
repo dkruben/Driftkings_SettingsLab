@@ -3,7 +3,7 @@
    campos nativos (enabled, alpha, dx, dy, scale) e campos extra (formato, ícone, posição,
    tamanho, alinhamento, camada, cor de fundo), com as macros de estatísticas avaliadas sobre estatísticas
    de exemplo: {{v.x}}, {{v.c_x}}, {{v.x%2d~%}}, {{v.x?sim|não}}, {{v.x|omissão}} e macros aninhadas.
-   Os veículos em jogo vêm do inventário; parte das posições nativas continua aproximada; os campos extra usam as posições reais. */
+   Dois veículos usam estatísticas fictícias identificadas como exemplo; parte das posições nativas continua aproximada; os campos extra usam as posições reais. */
 (function () {
     'use strict';
     var DK = window.DK, h = DK.h, t = DK.t;
@@ -17,17 +17,14 @@
                  marksOnGun: 2, damageRating: 87.4, mastery: 3}},
         {name: 'Obj. 140', nation: 'ussr', tank: 'r97_object_140', tier: 10, flag: ['#6b2c2c', '#401a1a'], level: 'X', type: 'mediumTank', short: 'MT', selected: false, premium: false, info: true,
          stats: {battles: 312, winrate: 48.6, hitsRatio: 70.2, tdb: 3150, tfb: 1, wn8expd: 3400, wn8effd: 0.93, wn8: 1420, battletiermin: 10, battletiermax: 10,
-                 marksOnGun: 0, damageRating: 41.2, mastery: 1}},
-        {name: 'Progetto 46', nation: 'italy', tank: 'it13_progetto_m35_mod_46', tier: 8, flag: ['#3d5c3a', '#22351f'], level: 'VIII', type: 'mediumTank', short: 'MT', selected: false, premium: true, favorite: true,
-         stats: {battles: 58, winrate: 61.0, hitsRatio: 83.0, tdb: 2010, tfb: 0, wn8expd: 1700, wn8effd: 1.95, wn8: 3300, battletiermin: 8, battletiermax: 10,
-                 marksOnGun: 3, damageRating: 96.1, mastery: 4}}
+                 marksOnGun: 0, damageRating: 41.2, mastery: 1}}
     ];
     // Class colours from lobby/vehicle_carousel.py (CLASS_COLORS); {{v.c_type}} names the card background image.
     var CLASS_COLORS = {lightTank: '#53b329', mediumTank: '#1ea2d2', heavyTank: '#957d5b', 'AT-SPG': '#f13439', SPG: '#b87ab2'};
     // Approximate places of the client's own card elements, as fractions of the card.
     var NATIVE = {
         flag: {x: 0, y: 0, w: 1, h: 1}, tankIcon: {x: 0.5, y: 0.5}, tankType: {x: 0.03, y: 0.04},
-        level: {x: 0.11, y: 0.03}, tankName: {x: 0.03, y: 0.80}, xp: {x: 0.80, y: 0.03}, favorite: {x: 1, y: 1},
+        level: {x: 0.11, y: 0.03}, tankName: {x: 0.97, y: 0.80}, xp: {x: 0.80, y: 0.03}, favorite: {x: 1, y: 1},
         info: {x: 0.30, y: 0.42}, progressionPoints: {x: 0.72, y: 0.82}
     };
 
@@ -198,17 +195,27 @@
             node.style.top = v(p + 'y', 0) + 'rem';
             node.style.opacity = DK.clamp(alpha, 0, 100) / 100;
             node.style.textAlign = align;
+            node.style.justifyContent = {left:'flex-start',center:'center',right:'flex-end'}[align];
             if (align === 'right') { node.style.transform = 'translateX(-100%)'; }
             else if (align === 'center') { node.style.transform = 'translateX(-50%)'; }
             var width = v(p + 'width', 0), height = v(p + 'height', 0);
             if (width) { node.style.width = width + 'rem'; }
             if (height) { node.style.height = height + 'rem'; }
-            var bg = DK.hex(v(p + 'bgColor', null));
+            var bg = DK.hex(macros(v(p + 'bgColor', ''), vehicle));
             if (bg) { node.style.backgroundColor = bg; }
-            if (SHADOW.enabled) { node.style.textShadow = '0 0 ' + SHADOW.blur + 'rem ' + DK.rgba(SHADOW.color, SHADOW.alpha / 100); }
+            node.style.fontSize = v(p + 'fontSize', 12) + 'rem';
+            var textColor = DK.hex(macros(v(p + 'color', ''), vehicle));
+            if (textColor) { node.style.color = textColor; }
+            var shadowPath = p + 'shadow.', shared = 'carousel.' + profile + '.textFieldShadow.';
+            if (v(shadowPath + 'enabled', v(shared + 'enabled', SHADOW.enabled))) {
+                var angle = v(shadowPath + 'angle', v(shared + 'angle', 45)) * Math.PI / 180;
+                var distance = v(shadowPath + 'distance', v(shared + 'distance', 1));
+                var shadowColor = DK.hex(macros(v(shadowPath + 'color', v(shared + 'color', '#000000')), vehicle)) || '#000000';
+                node.style.textShadow = Math.cos(angle) * distance + 'rem ' + Math.sin(angle) * distance + 'rem ' + v(shadowPath + 'blur', v(shared + 'blur', 2)) + 'rem ' + DK.rgba(shadowColor, v(shadowPath + 'alpha', v(shared + 'alpha', 80)) / 100);
+            }
             var showIcons = v('showIcons', true) !== false;
             var src = v(p + 'src', null), text = v(p + 'format', '');
-            if (src && showIcons) { icon(node, macros(src, vehicle), width || 16, height || width || 16); }
+            if (src && showIcons) { icon(node, macros(src, vehicle), v(p + 'iconSize', 14), v(p + 'iconSize', 14)); }
             if (text) {
                 var filled = macros(text, vehicle);
                 if (!showIcons) { filled = filled.replace(/<img[^>]*>/gi, ''); }
@@ -235,6 +242,8 @@
             } else if (key === 'favorite') {
                 node.style.width = '22rem'; node.style.height = '27rem';
                 node.style.transform = 'translate(-100%,-100%) ' + node.style.transform;
+            } else if (key === 'tankName') {
+                node.style.transform = 'translateX(-100%) ' + node.style.transform;
             } else if (key === 'flag') {
                 node.style.width = (profile === 'small' ? 120 : 128) + 'rem';
                 node.style.height = (profile === 'small' ? 90 : 96) + 'rem';
@@ -308,8 +317,8 @@
             update: function (next, everything, snapshot) {
                 values = next || {}; overrides = {};
                 nativeRows = snapshot && snapshot.nativeRows >= 1 && snapshot.nativeRows <= 4 ? snapshot.nativeRows : 1;
-                vehicles = snapshot && snapshot.source === 'inventory' && snapshot.vehicles && snapshot.vehicles.length ? snapshot.vehicles : VEHICLES;
-                note.textContent = vehicles === VEHICLES ? t('car.note') : t('car.title') + ': ' + vehicles.map(function (item) { return item.name; }).join(', ');
+                vehicles = snapshot && snapshot.source === 'examples' && snapshot.vehicles && snapshot.vehicles.length ? snapshot.vehicles : VEHICLES;
+                note.textContent = t('car.note');
                 draw();
             },
             preview: function (id, value) { overrides[id] = value; draw(); },
