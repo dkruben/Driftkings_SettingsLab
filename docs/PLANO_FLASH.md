@@ -101,7 +101,7 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 | 2 — Views, metas e adaptadores existentes | Concluída | 429 testes core, catálogo e build inputs válidos |
 | 3 — Separação de apresentação dos módulos mistos | Concluída | 429 testes core em Python 2.7/3; 0 nomes indefinidos |
 | 4 — Testes arquiteturais, documentação e changelog | Concluída | 12 testes novos Python 2.7/3: OK |
-| 5 — Validação completa, build e GitHub | Pendente | Python 2.7/3, npm/lint, AS3/SWF, WOTMOD e CI |
+| 5 — Validação completa, build e GitHub | Concluída | Todas as validações locais e GitHub Actions: OK |
 
 ## Registo de execução
 
@@ -216,3 +216,27 @@ driftkings/
 - A ponte de login é dependência real da janela de contas Gameface, mas a API do controller foi preservada e nenhum ficheiro Gameface precisou de mudar.
 - Hooks de tripulação, ribbons e consultas ProfileUtils/constantes que apenas recolhem dados ou executam regras mantêm-se funcionais. Não são Views nem manipulam flashObject.
 - Problemas resolvidos durante a migração: pesquisa de metas ainda apontava para o diretório antigo; stubs de mensagens/plugins ainda simulavam a fronteira antiga; testes distinguem corretamente a factory RatingViews da classe RosterView e suportam AST de Python 2.7 e 3.14. Nenhum erro foi mascarado com novos fallbacks.
+
+## Resultados finais — 27 outubro 2026
+
+| Validação | Resultado |
+| --- | --- |
+| Core Python 3 / Python 2.7 | 441 / 441 testes: OK |
+| Settings panel Python 3 / Python 2.7 | 27 / 27 testes: OK |
+| Installer Python 3 | 33 testes: OK |
+| Testes novos Flash | 12 em ambos os runtimes: OK |
+| `npm test` / `npm run lint` | OK / OK |
+| Catálogos de tradução | 18 idiomas; 1491 chaves de componentes, 170 de painel; 0 não traduzidas |
+| Defaults gerados | Sincronizados; 34 componentes |
+| Nomes indefinidos / isort Flash | 0 / OK |
+| Catálogo e build data | 10 Flash, 14 Gameface, 12 injetados; 39 manifests, 317 módulos, 223 assets, 53 defaults |
+| Comparação AST das metas com `abe544c` | Classes, métodos, assinaturas e corpos iguais; apenas imports alterados |
+| Comparação de contratos | Apenas dez caminhos Python Flash mudaram; restante catálogo e todos os contratos Gameface iguais |
+| Recursos e Gameface | Nenhuma alteração em `flash_source`, `mod/res/gui` ou `driftkings/gameface` |
+| Build debug beta nativa | OK; 317 módulos compilados/verificados com Python 2.7; geradores battle_flash/vehicle_markers_flash executados; WOTMOD em `build/debug/beta/0.1.3-beta.2` |
+| GitHub Actions do código | Aprovado para `56138ce` |
+
+- Etapa 5: validações acima concluídas; [CI do código aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40424997042). Os commits técnicos anteriores (`e9a4635`, `19db2a3`, `8d97f92`) também passaram no GitHub.
+- A build é local de desenvolvimento; nenhuma tag/release foi publicada e a instalação EU não foi alterada. Não há ganho de CPU/memória/FPS comprovado nesta tarefa.
+- A lista de testes no cliente e de oportunidades de desempenho acima permanece pendente para aceitação nativa/medição; testes simulados não demonstram equivalência visual no jogo.
+- Este registo final é enviado num commit de documentação separado, cujo CI também será acompanhado. Estado do repositório e hashes por etapa verificáveis no histórico do branch `develop`.
