@@ -54,3 +54,7 @@ Flash refactor validation: 441 Core tests and 27 settings tests on Python 2.7/3,
 ## EU replay log corrections — 27 October 2026
 
 The battle clock no longer accesses unsupported Scaleform sharpness/thickness properties; MainGun and marks cards inherit the native Gameface font. Replay calibration skips flat/inverted curves and uses the existing approximation without modifying installed caches or live-battle calculations. See the [EU log analysis](EU_LOG_2026-10-27.md) for evidence, 444 Core tests on both Python runtimes, native build results and pending client checks.
+
+## Settings panel functional report
+
+The [settings panel report](RELATORIO_PAINEL_CONFIGURACAO.md), in Portuguese, inventories navigation, editing/save behaviour, controls, previews, both profile mechanisms, updater/restart actions, battle restrictions, the 34 component definitions and all 23 backend actions. It documents the current implementation detail that Apply also persists values, with links to the source modules.
