@@ -15,7 +15,7 @@ Data: 27 outubro 2026.
 - [x] Inventário e verificação de dependências.
 - [x] Remoção e prevenção do reaparecimento de artefactos gerados.
 - [x] Comparação do plano antes/depois, testes e build nativa.
-- [ ] Atualização do release.json, commit/push e CI.
+- [x] Atualização do release.json, commit/push e CI.
 
 ## Registo
 - Selecionados 40 ficheiros (27 versionados), 3.43 MiB de artefactos e fontes obsoletas. Todos os alvos foram resolvidos dentro do workspace antes da eliminação.
@@ -29,3 +29,6 @@ Data: 27 outubro 2026.
 - A build WOTMOD completa está bloqueada pela versão instalada: EU/NA 2.4.1.1 contra alvo 2.4.1.0. Não foi alterado o contrato de versão nem produzido um pacote para uma versão não validada. A limpeza não modifica os inputs de patches nativos.
 
 - Após os testes, removidos também 470 bytecodes temporários e 22 diretórios `__pycache__` regeneráveis nas pastas de fontes/testes/ferramentas.
+
+- Limpeza e atualização de documentação/release enviadas no commit `7be22a2`; [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40564708020). O encerramento deste registo segue num commit documental com validação própria.
+- Removida a pasta temporária `build/cleanup` criada para esta auditoria, incluindo os bytecodes e outputs da compilação isolada. A conclusão e as limitações ficam registadas neste plano e no histórico Git.

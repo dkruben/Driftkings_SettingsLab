@@ -72,3 +72,5 @@ Integrada a interface do autor em `1a5b021`/`ddbf608`, com [CI aprovado](https:/
 Retirados quatro módulos Python sem consumidor runtime, oito mapas Gameface não empacotados, o SWF antigo substituído pelo gerador e caches/saídas antigas de Wwise/installer. O aviso isolado do HangarEfficiency retirado foi consolidado neste estado. Mantidos os recursos ativos, fontes de áudio e estudos citados nos relatórios. [Inventário e validação](PLANO_LIMPEZA.md). O plano passa de 317 para 313 módulos Python, sem alterações às seleções de assets, defaults ou dependências.
 
 Validação da limpeza: 443 testes core em Python 2.7/3, testes frontend e 36 testes de instalação aprovados; 313 bytecodes, SWF de batalha e três auxiliares recompilados isoladamente. A build completa requer rever o alvo de jogo, pois as instalações EU/NA já estão em 2.4.1.1 e o projeto continua em 2.4.1.0.
+
+Limpeza enviada em `7be22a2`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40564708020). O plano documenta a remoção dos temporários da própria verificação.
