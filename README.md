@@ -3,7 +3,7 @@
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
 [![Beta 0.1.3-beta.2](https://img.shields.io/badge/Beta-0.1.3--beta.2-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)
-[![Stable 0.1.2](https://img.shields.io/badge/Stable-0.1.2-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)
+[![Stable 0.1.3](https://img.shields.io/badge/Stable-0.1.3-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3)
 
 # Driftkings Modpack
 
@@ -15,17 +15,17 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
+| **[Stable 0.1.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3/Driftkings-0.1.3-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3/Driftkings-0.1.3-WoT-2.4.1.1.zip) |
 | **[Beta 0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip) |
-| **[Stable 0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0.zip) |
 
-The published downloads above target WoT **2.4.1.0**. The `develop` branch now builds for **2.4.1.1**; this update has not replaced any published release.
+Stable **0.1.3** targets WoT **2.4.1.1**. The archived beta **0.1.3-beta.2** targets WoT **2.4.1.0**.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
-### What's new in the beta
+### What's new in 0.1.3
 
 - **Vehicle markers:** separate layouts for allies/enemies, alive/destroyed vehicles and normal/ALT views; configurable text, ratings, health bars, icons and floating damage.
-- **Live tank preview:** edit marker fields, simulate damage and check team colours, HP and visibility. The property column has its own scrollbar.
+- **Live tank preview:** edit marker fields, shared templates and JSON, and check team colours, HP and visibility. The property column has its own scrollbar.
 - **Updated defaults:** the author's EU profile for the clock, panel positions, carousel, minimap and markers. Settings-window scale starts at 140%, with 94% opacity.
 - **Font and editor fixes:** corrected native font handling, marker font aliases, colour inputs, slider limits and reference errors.
 
@@ -47,7 +47,7 @@ The installer checks the game version and region, installs the required dependen
 3. For a new installation, download `Driftkings-defaults.zip` from the **same release** and extract it into the game installation.
 4. Start the game and open Driftkings settings through the mods list.
 
-**Upgrading from the old configuration layout:** back up your personal images and sounds, then remove the old `mods/configs/driftkings` folder before the first launch of the 0.1.3 beta series. Configure the mod again in the hangar. Older settings and caches are no longer imported automatically.
+**Upgrading from the old configuration layout:** back up your personal images and sounds, then remove the old `mods/configs/driftkings` folder before the first launch of version 0.1.3. Configure the mod again in the hangar. Older settings and caches are no longer imported automatically.
 
 ## Included features
 
@@ -138,7 +138,7 @@ The stable release has prior in-game validation. Beta 0.1.3-beta.2 passed packag
 
 The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
-The `develop` branch includes the redesigned settings panel, with option details, change review and minimap/HUD/carousel previews. It retains the original spectrum colour picker. This interface is a development build awaiting in-game visual acceptance; it is not a replacement of the published beta assets. See the [integration plan](docs/PLANO_PAINEL_CONFIGURACOES.md).
+Version `0.1.3` includes the redesigned settings panel with option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Automated/package checks are recorded in the [stable release plan](docs/PLANO_STABLE_0_1_3.md); the latest visual changes still need in-game acceptance.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 

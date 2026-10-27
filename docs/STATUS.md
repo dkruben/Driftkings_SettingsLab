@@ -5,13 +5,13 @@ Updated: 27 October 2026. Commands and source paths in these guides are relative
 ## Release baseline
 
 - Beta: [0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2), built from `aec3da8` with 11 verified assets and an Ed25519-signed updater manifest.
-- Stable: [0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2).
+- Stable: [0.1.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3), targeting WoT 2.4.1.1; release preparation and publication recorded in [PLANO_STABLE_0_1_3.md](PLANO_STABLE_0_1_3.md).
 - Game target: WoT `2.4.1.1`, Wargaming EU/NA/ASIA. Build source: configured NA installation; source reference: EU `2.4.1.5504`.
 - Canonical defaults: author's EU profile, including clock fields, panel positions, carousel and marker layouts. Settings-window scale: 140%; opacity: 94%. Existing personal configuration takes precedence.
 
 ## Verified checks
 
-The release passed [GitHub Actions](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40394556691), Python 2.7 package verification and the installer build. The baseline contains 413 Core and 27 settings-panel tests on Python 2.7/3, 33 installer tests on Python 3, and the Gameface regression suites. Eighteen language catalogues contain 1491 component keys and 170 panel keys, with no unapproved English-only values reported by the validator.
+Current validation baseline: 443 Core and 27 settings-panel tests on Python 2.7/3, 36 installer/build tests on Python 3, Gameface regression suites and ESLint. Eighteen language catalogues contain 1491 component keys and 243 panel keys. The native build compiles 313 Python modules and verifies the full modpack; release-specific CI, installer and signature results are recorded in the stable plan.
 
 The all-pages settings test opens and applies every current feature definition with unchanged values. Marker tests cover property scrolling, font aliases, invalid references, sample toggles and limits. Source defaults and the generated Python fallback are synchronized. These checks do not establish pixel-perfect rendering in the client: the latest marker, font and layout changes still need visual acceptance in game.
 

@@ -22,7 +22,7 @@ This guide explains how the code is organised and how to make a change safely. F
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
 - `main` is the stable release branch. Prepare stable releases there after integrating the validated changes from `develop`.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
-- Published versions: beta `0.1.3-beta.2` and stable `0.1.2`, targeting WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
+- Stable `0.1.3` targets WoT `2.4.1.1`. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
 
 ## Repository layout
 
@@ -176,7 +176,7 @@ npm test
 
 `tests/core` and `tests/settings_panel` also run on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image. Tests load real production modules through `tests/core/support.py` with the engine stubbed at the import boundary, so avoid importing `BigWorld`, `gui.*` or `Avatar` from code you want to test.
 
-The stable release has prior in-game validation; beta `0.1.3-beta.2` passed package verification and GitHub Actions. Its latest marker/font/layout changes still need visual confirmation in game. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
+Stable `0.1.2` had earlier in-game validation. Stable `0.1.3` uses the tested development sources and package-validation workflow. Its latest marker/font/layout changes still need visual confirmation in game. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
 
 The release baseline has 413 Core tests and 27 settings-panel tests on both Python 2.7 and Python 3, plus 33 installer tests on Python 3 and the Gameface regression suites. Counts describe this baseline, not a fixed requirement for later changes.
 
