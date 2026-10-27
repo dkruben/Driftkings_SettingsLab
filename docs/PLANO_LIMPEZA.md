@@ -32,3 +32,5 @@ Data: 27 outubro 2026.
 
 - Limpeza e atualização de documentação/release enviadas no commit `7be22a2`; [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40564708020). O encerramento deste registo segue num commit documental com validação própria.
 - Removida a pasta temporária `build/cleanup` criada para esta auditoria, incluindo os bytecodes e outputs da compilação isolada. A conclusão e as limitações ficam registadas neste plano e no histórico Git.
+
+- Resolvido posteriormente: o autor atualizou WoT_Tools para EU 2.4.1.5504; o projeto foi sincronizado com WoT 2.4.1.1 e a build completa passou. Ver [plano da atualização](PLANO_ATUALIZACAO_2_4_1_1.md).

@@ -1,4 +1,4 @@
-[![WoT Version](https://img.shields.io/badge/WoT-2.4.1.0-red.svg)](https://worldoftanks.eu/)
+[![WoT Version](https://img.shields.io/badge/WoT-2.4.1.1-red.svg)](https://worldoftanks.eu/)
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
@@ -9,7 +9,7 @@
 
 A configurable modpack for **Wargaming World of Tanks**, with battle statistics, vehicle markers, aiming tools, hangar improvements and an integrated settings panel.
 
-Built for **WoT 2.4.1.0** on **EU, NA and ASIA**.
+Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
 ## Downloads
 
@@ -17,6 +17,8 @@ Built for **WoT 2.4.1.0** on **EU, NA and ASIA**.
 | --- | --- | --- |
 | **[Beta 0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip) |
 | **[Stable 0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.2/Driftkings-0.1.2-WoT-2.4.1.0.zip) |
+
+The published downloads above target WoT **2.4.1.0**. The `develop` branch now builds for **2.4.1.1**; this update has not replaced any published release.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
@@ -128,7 +130,7 @@ Anonymous usage statistics are **off by default**. You can enable them in settin
 
 ## Compatibility
 
-Supports Wargaming **EU, NA and ASIA** clients for **WoT 2.4.1.0**. Mir Tankov/RU is outside the project's scope.
+Supports Wargaming **EU, NA and ASIA** clients for **WoT 2.4.1.1**. Mir Tankov/RU is outside the project's scope.
 
 The stable release has prior in-game validation. Beta 0.1.3-beta.2 passed package verification and GitHub Actions, including Python 2/3 and Gameface tests. Its latest marker, font and layout changes still need visual confirmation in game.
 

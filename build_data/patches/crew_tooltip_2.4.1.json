@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "game_version": "2.4.1.0",
+  "game_version": "2.4.1.1",
   "realm": "NA",
-  "client_build": "970",
+  "client_build": "987",
   "resource": "gui/gameface/_dist/production/mono/hangar/tooltips/bundle.js",
   "source_sha256": "20a182bc2e36b037d32bbd4fc09a61dfee33837ec68aee5f193bccf86865f5d9",
   "output_sha256": "ef5a31525496059bd271332b69008f17affff29fa647f967121c74750ae907d1",

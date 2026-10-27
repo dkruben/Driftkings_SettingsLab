@@ -1,6 +1,6 @@
 {
-  "gameVersion": "2.4.1.0",
+  "gameVersion": "2.4.1.1",
   "package": "gui-part2.pkg",
   "resource": "gui/flash/battleVehicleMarkersApp.swf",
-  "sha256": "d14952f292317dabc62f13544f9d12447370189d371bf1ed025f5c14e937efc9"
+  "sha256": "6f6711bb56832850b7b0286ff76540ca209b54752775ffa23406aaa5a66db10e"
 }

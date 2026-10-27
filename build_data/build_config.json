@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "game": {
-    "version": "2.4.1.0",
+    "version": "2.4.1.1",
     "realm": "NA",
     "supported_realms": [
       "EU",
@@ -11,7 +11,7 @@
     "root": "D:/Games/World_of_Tanks_NA"
   },
   "reference": {
-    "version": "2.4.1.5498",
+    "version": "2.4.1.5504",
     "root": "E:/Wot_Mods_/Drift_Kings_ModPack/WoT_Tools/wot-src-EU",
     "read_only": true
   },

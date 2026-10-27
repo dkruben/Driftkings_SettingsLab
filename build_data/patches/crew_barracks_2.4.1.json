@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "game_version": "2.4.1.0",
+  "game_version": "2.4.1.1",
   "realm": "NA",
-  "client_build": "970",
+  "client_build": "987",
   "resource": "gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.js",
   "source_sha256": "d4784c9c6f1b66452dad287e89ffad84e142309a75599c3866498d16e3f0162a",
   "output_sha256": "5d71e2cf13e0934bb4adeb6fb3039e5f580ef4e2425daa75ceadb66e357eb619",

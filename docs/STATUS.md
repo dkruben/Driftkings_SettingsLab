@@ -6,7 +6,7 @@ Updated: 27 October 2026. Commands and source paths in these guides are relative
 
 - Beta: [0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2), built from `aec3da8` with 11 verified assets and an Ed25519-signed updater manifest.
 - Stable: [0.1.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.2).
-- Game target: WoT `2.4.1.0`, Wargaming EU/NA/ASIA. Build source: configured NA installation; source reference: EU `2.4.1.5498`.
+- Game target: WoT `2.4.1.1`, Wargaming EU/NA/ASIA. Build source: configured NA installation; source reference: EU `2.4.1.5504`.
 - Canonical defaults: author's EU profile, including clock fields, panel positions, carousel and marker layouts. Settings-window scale: 140%; opacity: 94%. Existing personal configuration takes precedence.
 
 ## Verified checks
@@ -74,3 +74,7 @@ Retirados quatro módulos Python sem consumidor runtime, oito mapas Gameface nã
 Validação da limpeza: 443 testes core em Python 2.7/3, testes frontend e 36 testes de instalação aprovados; 313 bytecodes, SWF de batalha e três auxiliares recompilados isoladamente. A build completa requer rever o alvo de jogo, pois as instalações EU/NA já estão em 2.4.1.1 e o projeto continua em 2.4.1.0.
 
 Limpeza enviada em `7be22a2`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40564708020). O plano documenta a remoção dos temporários da própria verificação.
+
+## Atualização da referência e alvo — 27 outubro 2026
+
+A atualização em WoT_Tools disponibilizou a referência EU 2.4.1.5504. Alvo de desenvolvimento atualizado para WoT 2.4.1.1, oito SWC sincronizados e contrato/hashes dos marcadores revistos em EU e NA. Os três patches Gameface mantêm operações e bytes de origem; metadados atualizados para NA #987. A build completa voltou a passar, resolvendo o bloqueio registado na limpeza. [Plano e evidência](PLANO_ATUALIZACAO_2_4_1_1.md). As releases publicadas continuam a visar 2.4.1.0; sem alteração de tag, publicação ou instalação EU. Aceitação visual em jogo pendente.

@@ -18,11 +18,11 @@ Existem também cópias em `wot-src-EU/`, `wot-src-CT/`, `ModList/` e `GameFace/
 
 ## Estado confirmado
 
-- `wot-src-EU/.version_name`: **2.4.1.5498**.
+- `wot-src-EU/.version_name`: **2.4.1.5504**.
 - `wot-src-CT/.version_name`: **2.4.1.5466**. Neste conjunto local, o CT tem um número inferior ao EU; não o considerar automaticamente mais recente.
 - As cópias EU e CT apresentam esses mesmos números; isso não demonstra igualdade de todos os ficheiros.
-- `build_data/build_config.json`, em `reference`, aponta para `WoT_Tools/wot-src-EU`, versão **2.4.1.5498**, em leitura apenas.
-- O contrato atual indica jogo **2.4.1.0**, raiz `D:/Games/World_of_Tanks_NA`, com regiões suportadas EU, NA e ASIA. A versão do snapshot SRC e a versão da pasta `mods` são identificadores diferentes.
+- `build_data/build_config.json`, em `reference`, aponta para `WoT_Tools/wot-src-EU`, versão **2.4.1.5504**, em leitura apenas.
+- O contrato atual indica jogo **2.4.1.1**, raiz `D:/Games/World_of_Tanks_NA`, com regiões suportadas EU, NA e ASIA. A versão do snapshot SRC e a versão da pasta `mods` são identificadores diferentes.
 
 Estes valores são um registo da consulta, não uma garantia de que as pastas não serão atualizadas posteriormente.
 
@@ -64,3 +64,5 @@ No README Gameface consultado, WG 2.4.1 utiliza registo nativo `gui/gen_resource
 ## Publicação
 
 Este guia descreve referências locais de desenvolvimento. Não copiar os SRC, repositórios externos ou snapshots de consulta para `mod/` ou para o GitHub. A versão pública contém apenas documentação Markdown; os ficheiros locais de estudo não são distribuídos. Nenhum destes caminhos constitui uma nova dependência de runtime; o contrato da build continua a ser a fonte de verdade para a compilação.
+
+Atualização de 27 outubro 2026: SWC sincronizados com a referência 2.4.1.5504, alvo 2.4.1.1 e novo hash dos marcadores verificado em EU/NA. [Plano e validação](PLANO_ATUALIZACAO_2_4_1_1.md). Os hashes dos três recursos Gameface usados pelos patches mantêm-se idênticos.

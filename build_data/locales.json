@@ -21,7 +21,7 @@
     "zh_tw"
   ],
   "source": "Wargaming World of Tanks regional portal language selectors (EU, NA, ASIA)",
-  "game_version": "2.4.1.0",
+  "game_version": "2.4.1.1",
   "translation_method": "Existing localized text preserved. Missing entries and English prose completed with machine translation from the English catalog (now en.yml). Formatting macros, markup, paths and colors protected; native-speaker terminology review pending. English fallback retained.",
   "regions": {
     "EU": [
