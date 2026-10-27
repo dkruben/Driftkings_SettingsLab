@@ -78,3 +78,5 @@ Limpeza enviada em `7be22a2`, com [CI aprovado](https://github.com/dkruben/Drift
 ## Atualização da referência e alvo — 27 outubro 2026
 
 A atualização em WoT_Tools disponibilizou a referência EU 2.4.1.5504. Alvo de desenvolvimento atualizado para WoT 2.4.1.1, oito SWC sincronizados e contrato/hashes dos marcadores revistos em EU e NA. Os três patches Gameface mantêm operações e bytes de origem; metadados atualizados para NA #987. A build completa voltou a passar, resolvendo o bloqueio registado na limpeza. [Plano e evidência](PLANO_ATUALIZACAO_2_4_1_1.md). As releases publicadas continuam a visar 2.4.1.0; sem alteração de tag, publicação ou instalação EU. Aceitação visual em jogo pendente.
+
+Atualização do alvo enviada em `e019622`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40567140916). WOTMOD/ZIP de desenvolvimento regenerados para 2.4.1.1; hashes e verificações no plano.
