@@ -1,8 +1,0 @@
-[
-  {
-    "itemID": "mods/driftkings/hangar_marks_of_excellence/model",
-    "type": "Layout",
-    "path": "coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html",
-    "parameters": {"extension": "", "entrance": "main", "impl": "gameface"}
-  }
-]

@@ -164,3 +164,5 @@ driftkings/gameface/
 
 - Ajuste de nomes — 27 outubro 2026: por indicação do autor, os subpackages de ambas as tecnologias passam a `battle` e `lobby`. Atualizados diretórios, imports, strings de registo, catálogo, testes e documentação; os contextos nativos WG, nomes de funcionalidades e recursos visuais são preservados.
 - Validação do ajuste de nomes: 441 testes core em Python 2.7 e 3, 22 testes de arquitetura em Python 3, catálogo/build data/isort e build WOTMOD com 317 módulos: OK. Nenhuma referência antiga no runtime/build e nenhum recurso visual alterado.
+
+- Limpeza posterior — 27 outubro 2026: eliminado `gameface/lobby/preferences_hooks.py`, cuja ausência de ativação já fora identificada na etapa 3. Os hooks usados pelo componente continuam em `native_preferences.py`. Ver [PLANO_LIMPEZA.md](PLANO_LIMPEZA.md).

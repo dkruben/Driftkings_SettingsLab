@@ -131,7 +131,7 @@ Use lowercase `driftkings` for package and directory paths, including Python imp
 
 Name each Gameface panel folder after its Python presentation module, for example `battle_performance`, `settings_window` or `high_caliber_gameface`. Resource declaration files follow `driftkings.<module>.json`. Layouts owned by the same presentation module can share one folder and declaration file: `hangar_preferences` contains the clock and header-options layouts. Shared frontend helpers live in `shared/`.
 
-Register layouts, scripts, styles and Python owners in `interface_catalog.py`, and include their assets in `build_data/components.json`. Update the matching native declarations under `mod/res/gui/gen_resources/` and any retained resource maps under `mod/res/mods/configs/res_map/`. Existing feature aliases are separate from paths; a folder rename does not require changing them.
+Register layouts, scripts, styles and Python owners in `interface_catalog.py`, and include their assets in `build_data/components.json`. Update the matching native declarations under `mod/res/gui/gen_resources/`. Existing feature aliases are separate from paths; a folder rename does not require changing them.
 
 After changing the UI catalogue, regenerate and validate:
 
@@ -234,8 +234,10 @@ HP textures at 72 x 24 pixels; the current EU-profile default displays the HP im
 
 ## Project naming and compatibility
 
-Use descriptive internal names: `core/vehicle_markers/schema.py` for marker layouts, `stats/ratings.py` for normalized ratings and `colors/driftkings.json` for palette index 1. Keep numeric palette indices and all existing colour thresholds unchanged when renaming a palette.
+Use descriptive internal names: `core/vehicle_markers/schema.py` for marker layouts, `stats/vehinfo.py` for rating tables and normalized scales and `colors/driftkings.json` for palette index 1. Keep numeric palette indices and all existing colour thresholds unchanged when renaming a palette.
 
 New templates use `{{stat-available}}`. `core/legacy_names.py` retains the old macro and cache filename only as read aliases for installed profiles. The Python renderer, settings validator, ActionScript markers and Gameface sample must continue accepting those legacy templates. New cache downloads use `ratingScales.json`; an existing legacy cache remains readable with its validation and refresh timestamps.
 
 External service URLs, third-party module detection paths, source attribution and the `xvm`/`XVMSymbol` font names keep their original spelling. They are compatibility or provenance identifiers, not names for Driftkings components. Do not create old-name wrapper modules or duplicate palette assets.
+
+The source Wwise project keeps its WAV/WWU/WPROJ inputs. Its `.cache`, `GeneratedSoundBanks`, validation cache and generated `Wwise.dat` files are local outputs. Keep them out of Git, together with generated battle SWFs and installer helper output. The supported build regenerates the battle movie from `flash_source`; the retired `res_map` declarations are not used by the current Gameface dependency.

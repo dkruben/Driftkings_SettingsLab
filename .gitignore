@@ -66,10 +66,8 @@ Thumbs.db
 
 
 *.bnk
-res/sound_bank_wwise/sixthsense/Driftkings_SixthSense.Ruben.validationcache
+/res/sound_bank_wwise/sixthsense/*.validationcache
 res/sound_bank_wwise/sixthsense/Driftkings_SixthSense.Ruben.wsettings
-res/sound_bank_wwise/sixthsense/.cache/SoundBankInfoCache.dat
-res/sound_bank_wwise/sixthsense/.cache/lmdb/data.mdb
 
 # Generated local audit snapshots and visual previews
 audit_mods/*.json
@@ -139,3 +137,11 @@ htmlcov/
 
 # Private release-signing seed; only the public verification key is tracked.
 /release-signing.key
+
+# Generated authoring artefacts; source WAV/WWU/WPROJ files remain tracked.
+/res/sound_bank_wwise/sixthsense/.cache/
+/res/sound_bank_wwise/sixthsense/GeneratedSoundBanks/
+/res/sound_bank_wwise/sixthsense/**/Wwise.dat
+/res/.mtimes*
+# The battle movie is generated from flash_source; do not restore an old binary here.
+/mod/res/gui/flash/driftkingsbattle.swf

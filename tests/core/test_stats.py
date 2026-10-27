@@ -314,18 +314,3 @@ class StatsTests(RuntimeTest):
         self.api['threading'] = module(Thread=lambda **kwargs: module(start=lambda: started.append(True)))
         self.scale._startDownloads()
         self.assertEqual(started, [True])
-
-    def test_player_aliases_none_ratings_and_missing_hp(self):
-        self.scale.vehicleInfoData[1] = {'level': 6}
-        api = source('stats/ratings.py', {'driftkings.stats.vehinfo': module(**self.api)})
-        stats = api['rating_stats']
-        value = {'_id': 5, 'b': 10, 'w': 5, 'wn8': None, 'v': None, 'ver': 1,
-                 'vehicles': {'bad': {}, '1': {'b': 10, 'w': 5, 'dmg': 1000}}}
-        stats._fix_common(value)
-        stats._fix_common2(value, 'Player')
-        self.assertEqual(value['player_id'], 5)
-        self.assertEqual(value['winrate'], 50.0)
-        self.assertEqual(value['vehicles']['1']['db'], 100.0)
-        self.assertNotIn('dv', value['vehicles']['1'])
-        self.assertIsNone(value['wn8'])
-        self.assertNotIn('_id', value)

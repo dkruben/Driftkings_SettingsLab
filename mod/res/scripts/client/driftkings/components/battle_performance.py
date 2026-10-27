@@ -372,7 +372,7 @@ def init():
     try:
         install_results_gameface()
     except Exception:
-        LOG.exception('Gameface results integration unavailable; legacy integration retained')
+        LOG.exception('Gameface results integration unavailable; native results retained')
 
 
 def fini():

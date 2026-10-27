@@ -250,3 +250,5 @@ driftkings/
 - Correção posterior baseada no log EU: removidas chamadas TextField não suportadas no relógio; cartões Gameface usam fontes nativas declaradas; seleção de calibração de replay rejeita curvas planas/invertidas. Âmbito e evidência no [relatório EU](EU_LOG_2026-10-27.md). 444 testes core em ambos os runtimes, JavaScript/lint e build nativa: OK. Nenhuma instalação/configuração/cache EU alterada nesta correção.
 
 - Novo log EU de 01:20–01:32 confirma zero avisos sharpness/thickness. Corrigida a resolução literal de `inherit` com Warhelios declarada nos cartões e removido o mesmo padrão do carrossel/alias `$FieldFont`; fontes TTF verificadas nos packages EU. Marcas `unavailable` continuam pendentes de diagnóstico.
+
+- Limpeza posterior — 27 outubro 2026: retirados os adaptadores inativos `flash/lobby/battle_performance_hooks.py` e `hangar_preferences_hooks.py`, sem imports ou registo runtime. O inventário acima descreve a migração histórica; os hooks ativos são preservados. Evidência e validação em [PLANO_LIMPEZA.md](PLANO_LIMPEZA.md).

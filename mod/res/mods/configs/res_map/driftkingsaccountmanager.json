@@ -1,8 +1,0 @@
-[
-  {
-    "itemID": "mods/driftkings/account_manager/window",
-    "type": "Layout",
-    "path": "coui://gui/gameface/mods/driftkings/account_manager/window.html",
-    "parameters": {"extension": "", "entrance": "main", "impl": "gameface"}
-  }
-]
