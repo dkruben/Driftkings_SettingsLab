@@ -49,6 +49,6 @@ assert.strictEqual(aligned[2].style.transform,'translateX(-100%)');
 assert.strictEqual(aligned[2].children[0].children[0].style.fontFamily,'monospace');
 var nativeFont=element();
 layout.richText(nativeFont,"<font face='$FieldFont'>native</font>",previewDocument,{},true);
-assert.strictEqual(nativeFont.children[0].style.fontFamily,'inherit');
+assert.strictEqual(nativeFont.children[0].style.fontFamily,'');
 delete global.getComputedStyle;
 console.log('Carousel fixed-width text alignment and font aliases: passed');

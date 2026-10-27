@@ -1,3 +1,5 @@
+@font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Regular.ttf'); font-weight: 400; }
+@font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Bold.ttf'); font-weight: 700; }
 .dk-main-gun {
     display: none;
     position: fixed;
@@ -8,7 +10,7 @@
     border-radius: 6rem;
     background: rgba(15, 18, 22, 0.88);
     box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.35);
-    font-family: inherit;
+    font-family: Warhelios;
     transform-origin: top left;
     pointer-events: none;
 }

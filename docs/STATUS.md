@@ -53,7 +53,7 @@ Flash refactor validation: 441 Core tests and 27 settings tests on Python 2.7/3,
 
 ## EU replay log corrections — 27 October 2026
 
-The battle clock no longer accesses unsupported Scaleform sharpness/thickness properties; MainGun and marks cards inherit the native Gameface font. Replay calibration skips flat/inverted curves and uses the existing approximation without modifying installed caches or live-battle calculations. See the [EU log analysis](EU_LOG_2026-10-27.md) for evidence, 444 Core tests on both Python runtimes, native build results and pending client checks.
+The battle clock no longer accesses unsupported Scaleform sharpness/thickness properties; MainGun and marks cards explicitly declare and use the native Warhelios regular/bold fonts. Replay calibration skips flat/inverted curves and uses the existing approximation without modifying installed caches or live-battle calculations. See the [EU log analysis](EU_LOG_2026-10-27.md) for evidence, 444 Core tests on both Python runtimes, native build results and pending client checks.
 
 ## Settings panel functional report
 
