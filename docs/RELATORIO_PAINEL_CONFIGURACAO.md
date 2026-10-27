@@ -2,7 +2,7 @@
 
 **Projeto:** Driftkings SettingsLab  
 **Data:** 27 outubro 2026  
-**Referência analisada:** branch `develop`, código em `04c0512`.
+**Referência analisada:** branch `develop`, integração do painel redesenhado iniciada em `1a5b021`.
 
 O painel **DriftkingsModSettings** centraliza a edição das definições registadas pelos componentes. Apresenta controlos, valida os valores, encaminha alterações para os serviços dos mods e gere a gravação, perfis, pré-visualizações, atualizações e reinícios. As funções descritas foram verificadas no código; a disponibilidade efetiva das páginas depende dos componentes carregados e do contexto do cliente.
 
@@ -21,16 +21,16 @@ O painel **DriftkingsModSettings** centraliza a edição das definições regist
 
 | Função | Comportamento |
 | --- | --- |
-| Lista lateral | Agrupa páginas por categoria: geral, batalha, hangar/lobby e sistema; admite categorias adicionais declaradas pelos módulos. |
+| Lista lateral | Permite recolher categorias e apresenta contadores de alterações. Agrupa páginas por categoria: geral, batalha, hangar/lobby e sistema; admite categorias adicionais declaradas pelos módulos. |
 | Pesquisa | Filtra páginas e controlos pelo texto apresentado, sem alterar as configurações. |
 | Separadores | Mostra os grupos declarados por cada página e a opção de consultar todos. |
-| Cabeçalho | Apresenta nome, categoria, autor, versão e descrição quando estes metadados existem. |
+| Cabeçalho | Inclui interruptor de ativação do módulo; apresenta nome, categoria, autor, versão e descrição quando estes metadados existem. |
 | Estado | Mostra ativação, problemas de configuração, dependências e necessidade de reinício. |
 | Compatibilidade | Apresenta avisos de conflitos confirmados ou possíveis fornecidos pelo serviço de compatibilidade. |
 | Mods instalados | Abre um resumo dos módulos conhecidos pelo painel e respetivos estados; a informação vem do registo, não de uma pesquisa geral de todos os ficheiros do jogo. |
 | Mensagens | Mostra confirmações/erros temporários e permite abrir a mensagem num diálogo para leitura. |
 | Comunidade | Disponibiliza ligação Discord através de uma ação com endereço definido no código. |
-| Layout | Adapta escala e dimensões à área do cliente, distribui controlos por colunas e gere scrollbars. |
+| Layout | Adapta escala e dimensões à área do cliente, organiza os controlos por secções numa lista com coluna de detalhe e gere scrollbars. |
 
 **Código:** [app.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/app.js), [layout.py](../mod/res/scripts/client/driftkings/settings/panel/layout.py), [presenter.py](../mod/res/scripts/client/driftkings/settings/panel/presenter.py).
 
@@ -67,11 +67,11 @@ A API disponibiliza os seguintes tipos; cada página utiliza o subconjunto que d
 | Seleção | Dropdown e seleção múltipla; apresentação de opções com metadados/imagens quando declaradas. |
 | Valores numéricos | Slider, entrada numérica, limites, passos, unidades e atalhos de teclado do controlo. |
 | Texto | Texto simples e área de texto; JSON estruturado quando a definição da secção o declara. |
-| Cores | Seletor, presets e valores hexadecimais com `#`; nas configurações integradas usa-se `#RRGGBB`. Campos alfa associados podem ser editados juntamente com a cor. |
+| Cores | Seletor de espectro original (canvas, comparação atual/nova, HEX e opacidade), presets e valores hexadecimais com `#`; nas configurações integradas usa-se `#RRGGBB`. Campos alfa associados podem ser editados juntamente com a cor. |
 | Teclas | Captura de códigos nativos e combinações, apresentação dos nomes e limpeza da combinação. Escape cancela a captura; modificadores isolados dependem da declaração do controlo. |
 | Segredos | Campo password, indicação de existência e limpeza explícita; o valor armazenado não é enviado no estado da UI nem incluído nos snapshots exportados. |
 | Caminhos | Tipos `file` e `directory`, apresentados atualmente como campos de texto. |
-| Organização | Secções, labels, separadores, colunas e tabs. |
+| Organização | Secções, labels, separadores e tabs; os metadados de colunas são preservados no contrato Python. |
 | Ações | Botões com callbacks registados pelo módulo; podem devolver uma mensagem para o painel. |
 
 O backend verifica tipos, números finitos, intervalos, opções, limites de texto, códigos de tecla e dependências. Controlos desativados e valores inválidos são rejeitados. A normalização específica do componente ocorre antes de persistir as suas configurações. Identificadores desconhecidos não são aceites como novas opções.
@@ -95,20 +95,31 @@ Durante a captura de teclas, o controller combina eventos nativos com polling te
 
 ### Editor de marcadores dos veículos
 
-O editor apresenta uma amostra de tanque e configurações estruturadas com atualização imediata da amostra:
+O editor redesenhado apresenta um tanque e um formulário por elemento:
 
-- Contextos aliado/adversário, vivo/destruído e normal/ALT.
-- Amostras de vida e distância, modo daltónico, indicadores, torre, estatísticas disponíveis, veículo próprio/pelotão e anonimização.
-- Campos de texto: criação, remoção, presets de nome/vida/rating, formatação, posição e modelos reutilizáveis.
-- Barra de vida, dano flutuante, ícones, distância e opções gerais.
-- Paletas e seleção de rating WN8/WNX/EFF.
-- Simulação de dano por autor, explosão de munição e reposição da vida da amostra.
-- Coluna de propriedades com scrollbar próprio e atualização ao trocar grupo/tab ou redimensionar.
-- Edição dos documentos de marcadores e dos respetivos templates, com validação das referências e limites suportados.
+- Contextos aliado/adversário, vivo/destruído e normal/ALT, com ficheiros independentes.
+- Amostras de vida a 100%, 75%, 40% e 10%; cores de equipa, vida e rating resolvidas pelo modelo partilhado.
+- Campos de texto: criação, remoção, formatação, fonte e posição; permite acrescentar o primeiro campo a listas vazias.
+- Formulários da barra de vida, dano, ícones, distância e opções gerais, incluindo cores herdadas.
+- Edição de modelos partilhados `def.*` e edição JSON dos documentos.
+- Scrollbar próprio nas propriedades; o seletor de cores é o original do projeto.
+- Os rascunhos de documentos são cópias. Uma rejeição pelo Python repõe a referência autoritativa e não altera o cache da amostra.
 
-A amostra é uma simulação no Gameface. Os valores seguem a sessão normal de edição; Aplicar/Guardar persiste-os e os marcadores utilizam-nos na próxima batalha. A amostra não comprova que fontes, ícones e métricas sejam visualmente idênticos ao renderer Flash do jogo.
+A pré-visualização usa os macros, paletas e fontes do projeto. É uma aproximação no Gameface; não reproduz a animação de dano ou todas as variantes do renderer Flash. O formulário/JSON permite configurar esses valores para a próxima batalha. Aplicar e Guardar seguem o comportamento de persistência descrito na secção 3.
 
-**Código:** [VehicleMarkersSettings](../mod/res/scripts/client/driftkings/settings/definitions/battle/vehicle_markers.py), [vehicle_markers_editor.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/vehicle_markers_editor.js), [vehicle_markers_model.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/vehicle_markers_model.js). Ver também o [guia de marcadores](vehicle_markers/README.md).
+**Código:** [VehicleMarkersSettings](../mod/res/scripts/client/driftkings/settings/definitions/battle/vehicle_markers.py), [markers.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/markers.js), [vehicle_markers_model.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/vehicle_markers_model.js). Ver também o [guia de marcadores](vehicle_markers/README.md).
+
+### Pré-visualizações adicionais do novo painel
+
+- **Minimapa:** mapa de 1000 m, veículos e alcances de exemplo; reage a círculos, linhas, ícones, HP, etiquetas e modo alternativo.
+- **Posição no ecrã:** cena de batalha ou lobby a 1920×1080, com o módulo selecionado destacado e opção de ampliar.
+- **Texto formatado:** HTML e macros preenchidos com valores de exemplo, preservando os nomes das fontes.
+- **Carrossel:** cartões normais/compactos com veículos e estatísticas de exemplo, campos nativos e extras.
+- **Detalhe e revisão:** descrição, valores guardado/novo/predefinido, dependências e momento de aplicação; permite repor alterações individualmente.
+
+As imagens são lidas dos recursos locais do cliente. As amostras não executam os módulos de combate nem demonstram equivalência visual em jogo. A inspeção gráfica desta integração continua pendente.
+
+**Código:** [minimap.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/minimap.js), [hud.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/hud.js), [richtext.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/richtext.js), [carousel.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/carousel.js).
 
 ## 6. Perfis: dois mecanismos distintos
 
@@ -121,7 +132,7 @@ Os snapshots usam o formato `dk.settings.profile`, versão 1, com os módulos/op
 
 Perfis do painel são bloqueados em batalha. A exportação apresenta o JSON no diálogo e escreve também o ficheiro de exportação local.
 
-**Código:** [Profiles do painel](../mod/res/scripts/client/driftkings/settings/panel/profiles.py), [diálogo](../mod/res/gui/gameface/mods/driftkings/settings_window/js/profile_dialogs.js), [ProfileSettings do loader](../mod/res/scripts/client/driftkings/settings/profiles.py).
+**Código:** [Profiles do painel](../mod/res/scripts/client/driftkings/settings/panel/profiles.py), [diálogo em app.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/app.js), [ProfileSettings do loader](../mod/res/scripts/client/driftkings/settings/profiles.py).
 
 ## 7. Aparência e opções do próprio painel
 
@@ -142,7 +153,7 @@ A página `dk.settings` contém:
 | Atualizações | Verificação automática e canal stable/beta; canal declarado por predefinição: stable. |
 | Analytics | Opção de participação, desativada por predefinição. |
 
-O tema transparente limita a opacidade efetiva a 75%. A aparência tem preview no rascunho, podendo ser reposta antes de gravar. A preferência de idioma atualiza os rótulos e a estrutura sem perder os rascunhos.
+O tema transparente limita a opacidade efetiva a 75%. A aparência tem preview no rascunho, podendo ser reposta antes de gravar. A preferência de idioma atualiza os rótulos e a estrutura sem perder os rascunhos, fechando os diálogos anteriores. Os textos novos estão nos mesmos 18 catálogos YAML, com 243 chaves de painel; a revisão terminológica por falantes nativos continua recomendada.
 
 **Código:** [core_page.py](../mod/res/scripts/client/driftkings/settings/panel/core_page.py), [themes.py](../mod/res/scripts/client/driftkings/settings/panel/themes.py).
 
@@ -157,7 +168,7 @@ O tema transparente limita a opacidade efetiva a 75%. A aparência tem preview n
 
 O painel encaminha pedidos; a verificação do pacote e a execução da atualização pertencem ao serviço updater. O registo de eventos de diagnóstico e o serviço de analytics têm responsabilidades separadas da edição de configurações.
 
-**Código:** [ações do Presenter](../mod/res/scripts/client/driftkings/settings/panel/presenter.py), [updater_panel.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/updater_panel.js), [restart do controller](../mod/res/scripts/client/driftkings/gameface/lobby/settings_window.py).
+**Código:** [ações do Presenter](../mod/res/scripts/client/driftkings/settings/panel/presenter.py), [atualizações em app.js](../mod/res/gui/gameface/mods/driftkings/settings_window/js/app.js), [restart do controller](../mod/res/scripts/client/driftkings/gameface/lobby/settings_window.py).
 
 ## 9. Restrições e momento de aplicação
 
@@ -288,7 +299,7 @@ flowchart LR
 | [panel/sound.py](../mod/res/scripts/client/driftkings/settings/panel/sound.py) | Registar eventos/bancos, consultar estado e reproduzir/parar previews. |
 | [settings_window/js](../mod/res/gui/gameface/mods/driftkings/settings_window/js) | DOM, controlos, modais, tema, perfis, editor de marcadores e atualização visual do estado. |
 
-O `SettingsModel` transporta duas propriedades JSON (`schema` e `state`) e o comando `onAction`. O schema muda com a estrutura/idioma; o estado acompanha valores, seleção, validação e updater. O frontend aplica patches aos controlos e reutiliza caches de layout/filtragem para evitar reconstruções desnecessárias.
+O `SettingsModel` transporta duas propriedades JSON (`schema` e `state`) e o comando `onAction`. O schema muda com a estrutura/idioma; o estado acompanha valores, seleção, validação e updater. O frontend aplica patches aos controlos e reutiliza a geometria quando não muda, agrupa a atualização das barras de scroll e só reconstrói a página ao mudar de módulo/schema.
 
 ## 13. Persistência, proteção de dados e limites
 
@@ -304,4 +315,4 @@ O `SettingsModel` transporta duas propriedades JSON (`schema` e `state`) e o com
 
 Foram consultados os módulos Python do painel, a integração Wulf, os recursos JavaScript/CSS da janela, o serviço de configurações, as 34 definições e os rótulos portugueses. As ligações acima apontam para as fontes da implementação analisada.
 
-Esta alteração é documental. Não executa ações de configurações, não altera perfis instalados nem constitui nova validação visual no cliente. As áreas que mais exigem aceitação em jogo são captura de teclas, scroll/escala, previews de marcadores/fontes, aplicação dependente de contexto e reinícios coordenados.
+O relatório acompanha a integração da interface redesenhada. Os testes abrem 35 páginas e 1104 controlos reais em DOM simulado e verificam o contrato do seletor original. Não foram alterados perfis instalados; não constitui validação visual no cliente. As áreas que mais exigem aceitação em jogo são captura de teclas, scroll/escala, previews de marcadores/fontes, aplicação dependente de contexto e reinícios coordenados.

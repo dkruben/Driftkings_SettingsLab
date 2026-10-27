@@ -1,7 +1,7 @@
 .dk-presets { display: flex; flex-direction: row; flex-wrap: wrap; margin-bottom: 10rem; }
 .dk-preset { width: 30rem; height: 30rem; margin: 0 6rem 6rem 0; border: 1rem solid #2a2a2a; cursor: pointer; }
 .dk-preset:hover { border-color: #ffffff; }
-.dk-color-picker { width:360rem; }
+.dk-color-picker { width:360rem; padding:20rem; max-width:100%; min-height:0; overflow-y:auto; }
 .dk-spectrum { position:relative;height:240rem;width:100%;margin-bottom:16rem;background:linear-gradient(to right,#000,transparent 50%,#fff),linear-gradient(to bottom,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);cursor:crosshair; }
 .dk-spectrum-canvas { width:100%;height:100%; }
 .dk-spectrum-cursor { position:absolute;width:12rem;height:12rem;border:2rem solid white;border-radius:50%;box-shadow:0 0 0 1rem #222;transform:translate(-50%,-50%);pointer-events:none; }

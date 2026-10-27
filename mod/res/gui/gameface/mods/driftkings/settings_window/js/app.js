@@ -141,6 +141,7 @@
 
     /* Schema: sidebar ------------------------------------------------------- */
     function onSchema(next) {
+        disposePage();DK.modal.closeAll();DK.layer.closeMenu(true);
         schema = next;
         DK.setCatalog(schema.labels, schema.language);
         mods = {}; order = []; index = {};

@@ -122,9 +122,9 @@
                 item.addEventListener('click', function (event) { DK.stop(event); choose(option.value); });
                 item.addEventListener('keydown', function (event) {
                     var step = event.keyCode === 38 ? -1 : event.keyCode === 40 ? 1 : 0;
-                    if (!step) { return; }
+                    if (!step&&event.keyCode!==36&&event.keyCode!==35) { return; }
                     DK.stop(event);
-                    DK.focus(list.childNodes[DK.clamp(index + step, 0, def.options.length - 1)]);
+                    DK.focus(list.childNodes[event.keyCode===36?0:event.keyCode===35?def.options.length-1:DK.clamp(index+step,0,def.options.length-1)]);
                 });
                 if (option.value === c.value) { current = item; }
             });
@@ -135,11 +135,11 @@
         activate(box, open);
         box.addEventListener('keydown', function (event) {
             var step = event.keyCode === 38 ? -1 : event.keyCode === 40 ? 1 : 0;
-            if (!step || c.disabled) { return; }
+            if (c.disabled||(!step&&event.keyCode!==36&&event.keyCode!==35)) { return; }
             DK.stop(event);
             var index = 0;
             for (var i = 0; i < def.options.length; i++) { if (def.options[i].value === c.value) { index = i; } }
-            ctx.commit(def.id, def.options[DK.clamp(index + step, 0, def.options.length - 1)].value);
+            ctx.commit(def.id,def.options[event.keyCode===36?0:event.keyCode===35?def.options.length-1:DK.clamp(index+step,0,def.options.length-1)].value);
         });
         c.render = function () {
             label.textContent = optionLabel(def, c.value);
@@ -322,6 +322,7 @@
         });
         field.addEventListener('keydown', function (event) {
             if ((event.keyCode === 38 || event.keyCode === 40) && !c.disabled) { DK.stop(event); commit(c.value + (event.keyCode === 38 ? 1 : -1) * def.step * (event.shiftKey ? 10 : 1)); }
+            else if(!c.disabled&&(event.keyCode===36||event.keyCode===35)){DK.stop(event);commit(event.keyCode===36?def.min:def.max);}
         });
         c.render = function () { if (document.activeElement !== field) { field.value = String(c.value); } };
         c.onSync = function () { field.disabled = minus.disabled = plus.disabled = c.disabled; };
@@ -384,7 +385,7 @@
 
     /* Colour: swatch, HEX and the palette button ---------------------------- */
     function color(def, ctx) {
-        var c = base(def, ctx), alpha = 100, meta = def.metadata || {};
+        var c = base(def, ctx), alpha = 100, picker=null, meta = def.metadata || {};
         var withAlpha = !!(meta.allowAlpha && meta.alphaKey);
         var wrap = h('div.dk-color', null, null, c.row.input);
         var swatch = h('button.dk-swatch', {title: t('color.open')}, [h('span.dk-swatch-fill')], wrap);
@@ -392,7 +393,7 @@
         var pick = h('button.dk-palette', {title: t('color.open')}, null, wrap);
         function open() {
             if (c.disabled) { return; }
-            DK.colorPicker.open({value: c.value, alpha: withAlpha ? alpha : null, presets: def.presets, title: def.label, origin: pick},
+            picker=DK.colorPicker.open({value: c.value, alpha: withAlpha ? alpha : null, presets: def.presets, title: def.label, origin: pick},
                 function (value, nextAlpha) {
                     if (withAlpha) {
                         if (value !== c.value || nextAlpha !== alpha) { ctx.commit(def.id, value, DK.colorPicker.toScale(nextAlpha, meta.alphaScale)); }
@@ -412,6 +413,7 @@
             swatch.firstChild.style.opacity = alpha / 100;
             if (document.activeElement !== field) { field.value = c.value || ''; }
         };
+        c.onDispose=function(){if(picker){picker.close('code');picker=null;}};
         c.onSync = function (info) {
             field.disabled = swatch.disabled = pick.disabled = c.disabled;
             if (withAlpha && info.values) { alpha = DK.colorPicker.fromScale(info.values[meta.alphaKey], meta.alphaScale); c.render(); }

@@ -23,5 +23,31 @@ button(labels.profileExport,DK.modal.top().panel).fire('click');
 assert.strictEqual(env.sent[env.sent.length-1][0],'profile');assert.strictEqual(env.sent[env.sent.length-1][1].operation,'export');
 DK.modal.closeAll();
 button(labels.saveApply).fire('click');assert.strictEqual(env.sent[env.sent.length-1][0],'save');
+const core=Object.assign({},data.state,{selected:'dk.settings',profiles:['default','test'],unsaved:false});
+callbacks.state(core);button(labels.profiles).fire('click');
+let panel=DK.modal.top().panel;
+const beforeDelete=env.sent.length;button(labels.profileDelete,panel).fire('click');
+assert.strictEqual(env.sent.length,beforeDelete,'deletion requires the second click');
+button(labels.confirmDelete,panel).fire('click');assert.strictEqual(env.sent[env.sent.length-1][1].operation,'delete');
+DK.modal.closeAll();
+callbacks.state(Object.assign({},core,{confirm:true}));button(labels.confirmStay,DK.modal.top().panel).fire('click');
+assert.deepStrictEqual(JSON.parse(JSON.stringify(env.sent[env.sent.length-1])),['confirm',{choice:'stay'}]);
+callbacks.state(Object.assign({},core,{restartPrompt:true,inBattle:true}));
+let restart=button(labels.restartNow,DK.modal.top().panel);assert(restart.disabled);
+const blocked=env.sent.length;restart.fire('click');assert.strictEqual(env.sent.length,blocked);
+callbacks.state(Object.assign({},core,{restartPrompt:true}));button(labels.restartNow,DK.modal.top().panel).fire('click');
+assert.deepStrictEqual(JSON.parse(JSON.stringify(env.sent[env.sent.length-1])),['restart',{choice:'now'}]);callbacks.state(core);
+const update={installedVersion:'test',channel:'beta',lastCheck:null,changelog:[],compatible:true};
+for(const [fields,label,action] of [
+    [{status:'AVAILABLE',canDownload:true},'updates.download','download_update'],
+    [{status:'DOWNLOADING',canCancel:true},'updates.cancelDownload','cancel_update_download'],
+    [{status:'READY',canInstall:true},'updates.install','schedule_update'],
+    [{status:'RESTART_REQUIRED',installScheduled:true,canRestart:true},'restartNow','restart_update']]){
+    callbacks.state(Object.assign({},core,{updater:Object.assign({},update,fields)}));
+    const control=button(labels[label],app.querySelector('.dk-updates'));assert(!control.disabled);
+    control.fire('click');assert.strictEqual(env.sent[env.sent.length-1][0],action);
+}
+callbacks.state(Object.assign({},core,{updater:Object.assign({},update,{status:'ERROR',canDownload:true,compatible:false})}));
+assert(button(labels['updates.download'],app.querySelector('.dk-updates')).disabled);
 DK.app.dispose();
 console.log(`All ${data.schema.mods.length} real pages / ${count} controls render; profile and save contracts passed`);

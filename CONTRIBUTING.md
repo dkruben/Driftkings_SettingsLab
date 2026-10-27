@@ -172,6 +172,8 @@ npm test
 
 `npm test` runs all current Gameface regression suites, including the settings window and ratings helpers.
 
+`npm test` also renders the 35 live settings schemas (1104 controls) through the redesigned frontend. Its Python 3 exporter reuses the existing engine-stub fixture; no generated schema snapshots are committed. Keep the spectrum picker in `color_picker.js` and its `colors.js` math; the redesign's HSV picker is not shipped. New interface strings belong to the shared YAML catalogues.
+
 `tests/core` and `tests/settings_panel` also run on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image. Tests load real production modules through `tests/core/support.py` with the engine stubbed at the import boundary, so avoid importing `BigWorld`, `gui.*` or `Avatar` from code you want to test.
 
 The stable release has prior in-game validation; beta `0.1.3-beta.2` passed package verification and GitHub Actions. Its latest marker/font/layout changes still need visual confirmation in game. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.

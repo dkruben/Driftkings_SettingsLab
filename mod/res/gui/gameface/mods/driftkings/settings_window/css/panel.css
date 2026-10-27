@@ -266,21 +266,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-dialog-actions .dk-button:first-child { margin-left: 0; }
 
 /* Colour picker ---------------------------------------------------------------------------------- */
-.dk-picker { width: 380rem; padding: 22rem 24rem; }
-.dk-picker-field { position: relative; height: 220rem; margin-top: 14rem; cursor: crosshair; }
-.dk-picker-white { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0)); }
-.dk-picker-black { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), #000000); }
-.dk-picker-cursor { position: absolute; width: 14rem; height: 14rem; margin: -7rem 0 0 -7rem; border: 2rem solid #ffffff; border-radius: 7rem; box-shadow: 0 0 0 1rem #000000; }
-.dk-picker-hue { position: relative; height: 14rem; margin-top: 14rem; cursor: pointer; background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
-.dk-picker-alpha { position: relative; height: 14rem; margin-top: 10rem; cursor: pointer; }
-.dk-picker-alpha-fill { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
-.dk-picker-thumb { position: absolute; top: -3rem; width: 8rem; height: 20rem; margin-left: -4rem; border: 2rem solid #ffffff; box-shadow: 0 0 0 1rem #000000; }
 .dk-checker { background-color: #d8d8d8; background-image: linear-gradient(45deg, #9a9a9a 25%, transparent 25%, transparent 75%, #9a9a9a 75%), linear-gradient(45deg, #9a9a9a 25%, transparent 25%, transparent 75%, #9a9a9a 75%); background-size: 12rem 12rem; background-position: 0 0, 6rem 6rem; }
-.dk-picker-row { display: flex; align-items: center; margin-top: 14rem; }
-.dk-picker-compare { display: flex; width: 100rem; height: 32rem; flex-shrink: 0; margin-right: 10rem; }
-.dk-picker-before, .dk-picker-after { flex: 1 1 50%; }
-.dk-picker-row .dk-hex { flex: 1 1 auto; margin-left: 0; }
-.dk-picker-alpha-text { width: 52rem; text-align: right; font-size: 13rem; color: #b3ae9f; }
 .dk-presets { display: flex; flex-wrap: wrap; margin-top: 12rem; }
 .dk-preset { width: 28rem; height: 28rem; margin: 0 6rem 6rem 0; padding: 0; border: 1rem solid #2b2924; }
 .dk-preset:hover { border-color: #ffffff; }
@@ -485,7 +471,6 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 /* Rounded sliders --------------------------------------------------------------------------------------------- */
 .dk-slider-track:before, .dk-slider-fill { border-radius: 2rem; }
 .dk-slider-thumb { top: 5rem; width: 16rem; height: 16rem; margin-left: -8rem; border-radius: 8rem; }
-.dk-picker-thumb { border-radius: 4rem; }
 
 /* Slider extras: −/+ for wide ranges, fine mode, sliders inside the marker editor ------------------------------- */
 .dk-slider.is-wide .dk-number { margin: 0 4rem; width: 64rem; flex-basis: 64rem; }

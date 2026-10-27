@@ -62,3 +62,7 @@ The [settings panel report](RELATORIO_PAINEL_CONFIGURACAO.md), in Portuguese, in
 ## Fontes e símbolos — 27 outubro 2026
 
 Correção `4d1b961` com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40541534633): fontes de símbolos reais incorporadas nos dois SWF e disponibilizadas ao Gameface; adaptadores preservam Unicode, nomes de fontes e entidades HTML. Plano e validação em [PLANO_FONTES.md](PLANO_FONTES.md); recursos e limites em [FONTES.md](FONTES.md). Requer confirmação visual no cliente.
+
+## Painel redesenhado — 27 outubro 2026
+
+Integrada a interface do autor, preservando o seletor de espectro original, fontes e contrato Python. As 35 páginas/1104 controlos são testadas com schemas reais e os 18 catálogos incluem 243 chaves de painel. Novas amostras: minimapa, HUD, texto e carrossel. [Plano e registo](PLANO_PAINEL_CONFIGURACOES.md); [relatório funcional atualizado](RELATORIO_PAINEL_CONFIGURACAO.md). Validação gráfica em jogo pendente: Computer Use/browser indisponíveis nesta sessão.

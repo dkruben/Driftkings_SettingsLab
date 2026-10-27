@@ -136,6 +136,8 @@ The stable release has prior in-game validation. Beta 0.1.3-beta.2 passed packag
 
 The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
+The `develop` branch includes the redesigned settings panel, with option details, change review and minimap/HUD/carousel previews. It retains the original spectrum colour picker. This interface is a development build awaiting in-game visual acceptance; it is not a replacement of the published beta assets. See the [integration plan](docs/PLANO_PAINEL_CONFIGURACOES.md).
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 
 ## Support and credits

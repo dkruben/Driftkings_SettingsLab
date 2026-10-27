@@ -101,7 +101,7 @@ The random vehicle counters are documented in the
 The hangar settings editor uses a native T32 shop image and an HTML marker sample.
 WG's `MarkerSettings.as` in the pinned 2.4.1 source uses a T32 sample with level 8
 and 1550 maximum HP; the editor follows that approach. It adds editable text,
-normal/ALT, team and alive/destroyed selectors, HP and colorblind previews, and simulated damage.
+normal/ALT, team and alive/destroyed selectors, HP presets, shared-template editing and a raw JSON view. Damage settings remain editable; the redesigned sample does not simulate damage animation.
 The sample renders sanitized Flash-style HTML. It approximates Flash rendering;
 native icon artwork and font metrics must still be checked in-game.
 

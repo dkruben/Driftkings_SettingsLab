@@ -100,62 +100,11 @@
 
     /* Text ---------------------------------------------------------------- */
     // Strings the game catalog does not define yet; a catalog key with the same name wins.
-    var LOCAL = {
-        en: {
-            'review.title': 'Review changes', 'review.open': 'Review', 'review.sub': 'Settings that differ from the saved files. Revert any of them, or save all.',
-            'review.empty': 'Nothing to review: every setting matches the saved files.', 'review.go': 'Show', 'review.revert': 'Revert',
-            'review.pending': 'Not applied yet', 'changes.count': '{n} changes in {m} modules', 'changes.one': '1 change', 'changes.many': '{n} changes',
-            'detail.module': 'Module', 'detail.option': 'Option', 'detail.saved': 'Saved', 'detail.new': 'New value', 'detail.default': 'Default',
-            'detail.range': 'Range', 'detail.applies': 'Takes effect', 'detail.depends': 'Depends on', 'detail.locked': 'Locked until the options it depends on allow it.',
-            'detail.revert': 'Revert to saved', 'detail.reset': 'Reset to default', 'detail.options': 'Options', 'detail.changed': 'Changed',
-            'detail.hint': 'Point at an option to see its full description, saved and default values, and when it takes effect.',
-            'detail.keys': 'Keyboard', 'keys.search': 'Search', 'keys.save': 'Save', 'keys.undo': 'Undo', 'keys.module': 'Previous / next module', 'keys.close': 'Close',
-            'module.on': 'On', 'module.off': 'Off', 'noResults': 'No setting matches the search.', 'search.clear': 'Clear',
-            'color.open': 'Open colour picker', 'color.hue': 'Hue', 'color.alpha': 'Opacity', 'color.pick': 'Colour', 'all': 'All',
-            'markers.team': 'Team', 'markers.state': 'State', 'markers.mode': 'Mode', 'markers.json': 'JSON', 'markers.form': 'Form',
-            'markers.general': 'General', 'markers.element': 'Element', 'markers.inherits': 'Uses the shared template {path}.', 'markers.editShared': 'Edit shared template',
-            'markers.invalid': 'Invalid JSON: not applied.', 'markers.preview': 'Preview', 'markers.item': 'Item {n}', 'markers.add': 'Add', 'markers.remove': 'Remove',
-            'markers.apply': 'Use JSON', 'markers.normal': 'Normal', 'markers.extended': 'Alt', 'markers.hp': 'Health',
-            'live.title': 'Live preview', 'live.normal': 'Normal', 'live.alt': 'Minimap key',
-            'live.note': 'Simulated battle on a 1000 m map; positions and ranges are examples.', 'live.unsupported': 'This client cannot draw the preview.',
-            'hud.title': 'Position on screen', 'hud.note': '1920×1080 battle screen with example values; this module is highlighted, the others are faded.',
-            'hud.noteHangar': '1920×1080 hangar screen with an example date and time.', 'hud.whole': 'Whole screen', 'hud.zoom': 'Zoom',
-            'slider.fine': 'Shift + drag: fine adjustment', 'slider.step': 'One step (Shift: ten)',
-            'car.title': 'Carousel', 'car.normal': 'Normal', 'car.small': 'Compact', 'car.inBattle': 'In battle',
-            'car.note': 'Example vehicles and statistics; the native card elements are placed approximately.'
-        },
-        pt: {
-            'review.title': 'Rever alterações', 'review.open': 'Rever', 'review.sub': 'Opções diferentes dos ficheiros guardados. Reponha as que quiser ou guarde todas.',
-            'review.empty': 'Nada para rever: todas as opções coincidem com os ficheiros guardados.', 'review.go': 'Ver', 'review.revert': 'Repor',
-            'review.pending': 'Ainda por aplicar', 'changes.count': '{n} alterações em {m} módulos', 'changes.one': '1 alteração', 'changes.many': '{n} alterações',
-            'detail.module': 'Módulo', 'detail.option': 'Opção', 'detail.saved': 'Guardado', 'detail.new': 'Novo valor', 'detail.default': 'Por omissão',
-            'detail.range': 'Intervalo', 'detail.applies': 'Tem efeito', 'detail.depends': 'Depende de', 'detail.locked': 'Bloqueada até as opções de que depende o permitirem.',
-            'detail.revert': 'Repor o guardado', 'detail.reset': 'Repor por omissão', 'detail.options': 'Opções', 'detail.changed': 'Alteradas',
-            'detail.hint': 'Aponte para uma opção para ver a descrição completa, os valores guardado e por omissão, e quando tem efeito.',
-            'detail.keys': 'Teclado', 'keys.search': 'Procurar', 'keys.save': 'Guardar', 'keys.undo': 'Desfazer', 'keys.module': 'Módulo anterior / seguinte', 'keys.close': 'Fechar',
-            'module.on': 'Ligado', 'module.off': 'Desligado', 'noResults': 'Nenhuma opção corresponde à pesquisa.', 'search.clear': 'Limpar',
-            'color.open': 'Abrir seletor de cor', 'color.hue': 'Matiz', 'color.alpha': 'Opacidade', 'color.pick': 'Cor', 'all': 'Todos',
-            'markers.team': 'Equipa', 'markers.state': 'Estado', 'markers.mode': 'Modo', 'markers.json': 'JSON', 'markers.form': 'Formulário',
-            'markers.general': 'Geral', 'markers.element': 'Elemento', 'markers.inherits': 'Usa o modelo partilhado {path}.', 'markers.editShared': 'Editar modelo partilhado',
-            'markers.invalid': 'JSON inválido: não foi aplicado.', 'markers.preview': 'Pré-visualização', 'markers.item': 'Item {n}', 'markers.add': 'Adicionar', 'markers.remove': 'Remover',
-            'markers.apply': 'Usar JSON', 'markers.normal': 'Normal', 'markers.extended': 'Alt', 'markers.hp': 'Vida',
-            'live.title': 'Pré-visualização ao vivo', 'live.normal': 'Normal', 'live.alt': 'Tecla do minimapa',
-            'live.note': 'Batalha simulada num mapa de 1000 m; posições e alcances são exemplos.', 'live.unsupported': 'Este cliente não consegue desenhar a pré-visualização.',
-            'hud.title': 'Posição no ecrã', 'hud.note': 'Ecrã de batalha 1920×1080 com valores de exemplo; este módulo está destacado e os outros esbatidos.',
-            'hud.noteHangar': 'Ecrã do hangar 1920×1080 com uma data e hora de exemplo.', 'hud.whole': 'Ecrã inteiro', 'hud.zoom': 'Ampliar',
-            'slider.fine': 'Shift + arrastar: ajuste fino', 'slider.step': 'Um passo (Shift: dez)',
-            'car.title': 'Carrossel', 'car.normal': 'Normal', 'car.small': 'Compacto', 'car.inBattle': 'Em batalha',
-            'car.note': 'Veículos e estatísticas de exemplo; os elementos próprios do cartão do cliente estão em posições aproximadas.'
-        }
-    };
-    var catalog = {}, language = 'en';
-    function setCatalog(labels, lang) { catalog = labels || {}; language = String(lang || 'en').split('_')[0]; }
-    function t(key, fallback) {
-        var value = catalog[key];
-        if (value !== undefined && value !== null) { return value; }
-        value = (LOCAL[language] || {})[key];
-        if (value === undefined) { value = LOCAL.en[key]; }
-        return value === undefined ? (fallback === undefined ? key : fallback) : value;
+    var catalog = {};
+    function setCatalog(labels) { catalog=labels||{}; }
+    function t(key,fallback) {
+        var value=catalog[key];
+        return value===undefined||value===null?(fallback===undefined?key:fallback):value;
     }
     function tf(key, values) {
         return String(t(key)).replace(/\{(\w+)\}/g, function (all, name) { return values[name] === undefined ? all : values[name]; });
