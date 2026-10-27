@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Presentation adapter for DispersionTimer; gameplay state stays in its component."""
 from collections import defaultdict
-from math import ceil, log
 
 from aih_constants import CTRL_MODE_NAME
 from gui.battle_control.avatar_getter import getInputHandler
@@ -10,6 +9,7 @@ from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import AIMING_COUNTDOWN
 from driftkings.core.battle_events import battleEvents
+from driftkings.core.aiming_timing import dispersion_timing
 from driftkings.logger import get_logger
 from driftkings.flash.batalha.meta.dispersion_timer import DispersionTimerMeta
 
@@ -58,12 +58,8 @@ class DispersionTimer(DispersionTimerMeta):
         aiming_angle = gunRotator.dispersionAngle
         if aiming_angle <= 0.0:
             return self.as_updateTimerTextS('')
-        if self.min_angle > aiming_angle:
-            self.min_angle = aiming_angle
-
-        diff = self.min_angle / aiming_angle
-        percent = int(ceil(diff * 100))
-        self.macro['timer'] = round(type_descriptor.gun.aimingTime * abs(log(diff)), 2)
+        self.min_angle, percent, self.macro['timer'] = dispersion_timing(
+            self.min_angle, aiming_angle, type_descriptor.gun.aimingTime)
         self.macro['color'] = self.getColor(percent)
         self.macro['percent'] = percent
         self.as_updateTimerTextS(self.getSettings()[AIMING_COUNTDOWN.TEMPLATE] % self.macro)

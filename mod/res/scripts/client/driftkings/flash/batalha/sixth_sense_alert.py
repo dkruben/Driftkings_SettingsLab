@@ -131,3 +131,7 @@ class SixthSense(SixthSenseMeta):
     def playSound(self):
         if self.__soundID is not None:
             self.callWWISE(self.__soundID)
+
+
+def set_native_visible(view, visible):
+    view.flashObject.visible = visible

@@ -9,6 +9,7 @@ from math_utils import VectorConstant
 from driftkings._constants import GLOBAL, SHELL_FLIGHT_TIME
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_policy import battle_policy
+from driftkings.core.aiming_timing import flight_time
 from driftkings.flash.batalha.meta.flight_timer import FlightTimeMeta
 
 
@@ -64,6 +65,6 @@ class FlightTime(FlightTimeMeta):
         horizontalSpeed = shotVec.flatDistTo(VectorConstant.Vector3Zero)
         if horizontalSpeed <= 0.0:
             return self.as_flightTimeS('')
-        self.macrosDict['flightTime'] = flatDist / horizontalSpeed
+        self.macrosDict['flightTime'] = flight_time(flatDist, horizontalSpeed)
         self.macrosDict['distance'] = flatDist
         self.as_flightTimeS(self.getSettings()[SHELL_FLIGHT_TIME.TEMPLATE] % self.macrosDict)

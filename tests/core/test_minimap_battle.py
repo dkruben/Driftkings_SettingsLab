@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Minimap vehicles plugin: last positions, expiry, spotting again and labels, on a stub of the native plugin."""
 import copy
+import weakref
 
 from support import RuntimeTest, module, source
 from test_minimap import defaults
@@ -118,7 +119,8 @@ class MinimapVehiclesTests(RuntimeTest):
             'driftkings.settings.definitions.battle.minimap_enhancements': module(MinimapEnhancementsSettings=object),
             'driftkings.flash.batalha.minimap_enhancements': module(MinimapEnhancementsView=object),
         }
-        self.api = source('battle/minimap_enhancements.py', deps)
+        self.api = source('flash/batalha/minimap_plugins.py', deps)
+        self.api['configure'](object(), module(minimapZoom=False), weakref.WeakSet(), weakref.WeakSet(), weakref.WeakSet())
         self.api['VIEWS'].add(self)
         self.plugin = self.api['ArenaVehiclesPlugin']()
         self.plugin.start()

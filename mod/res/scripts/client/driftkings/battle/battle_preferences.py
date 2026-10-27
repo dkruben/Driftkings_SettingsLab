@@ -13,18 +13,11 @@ from gui.battle_control.arena_visitor import _ClientArenaVisitor
 from gui.battle_control.battle_constants import VEHICLE_VIEW_STATE
 from gui.battle_control.controllers.arena_border_ctrl import ArenaBorderController
 from gui.battle_control.controllers.team_bases_ctrl import BattleTeamsBasesController
-from gui.battle_results.components.common import ShowRateSatisfactionCmp
 from gui.doc_loaders import GuiColorsLoader
 from gui.game_control.special_sound_ctrl import SpecialSoundCtrl
-from gui.Scaleform.daapi.view.battle.shared.damage_log_panel import DamageLogPanel
-from gui.Scaleform.daapi.view.battle.shared.hint_panel import BattleHintPanel
-from gui.Scaleform.daapi.view.battle.shared.hint_panel import plugins as hint_plugins
-from gui.Scaleform.daapi.view.battle.shared.page import SharedPage
-from gui.Scaleform.daapi.view.battle.shared.stats_exchange import BattleStatisticsDataController
 from gui.Scaleform.daapi.view.battle.shared.timers_panel import TimersPanel
 from gui.shared.gui_items.processors.vehicle import VehicleAutoBattleBoosterEquipProcessor
 from messenger.gui.Scaleform.data.contacts_data_provider import _ContactsCategories
-import messenger.gui.Scaleform.view.battle.messenger_view as messenger_view
 from messenger.storage import MessengerStorageDescriptor, UsersStorage
 from PlayerEvents import g_playerEvents
 
@@ -51,18 +44,6 @@ def getBattleViews():
 
 
 # disable battle hints
-@override(BattleHintPanel, '_initPlugins')
-def _initPlugins(func, self, *args, **kwargs):
-    settings = settings_service.getComponentDict(config)
-    if not settings[GLOBAL.ENABLED]:
-        return func(self, *args, **kwargs)
-    if settings.get(BATTLE_PREFERENCES.HIDE_HINT, False):
-        if self._plugins is not None:
-            self._plugins.stop()
-            self._plugins.fini()
-            self._plugins = None
-        return None
-    return func(self, *args, **kwargs)
 
 
 # disable commander voices
@@ -85,36 +66,12 @@ def new_hasDogTag(func, *args, **kwargs):
 
 
 # disable battle hints
-@override(hint_plugins, 'createPlugins')
-def new_createPlugins(func, *args, **kwargs):
-    settings = settings_service.getComponentDict(config)
-    result = func(*args, **kwargs)
-    if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.SHOW_BATTLE_HINT]:
-        result.clear()
-    return result
 
 
 # postmortemTips
-@override(SharedPage, 'as_onPostmortemActiveS')
-def new_setPostmortemTipsVisibleS(func, self, value):
-    settings = settings_service.getComponentDict(config)
-    if settings[GLOBAL.ENABLED]:
-        if not settings[BATTLE_PREFERENCES.POSTMORTEM_TIPS]:
-            value = False
-    func(self, value)
-
-
-@override(SharedPage, '_switchToPostmortem')
-def new_switchToPostmortem(func, *args):
-    settings = settings_service.getComponentDict(config)
-    if not settings[GLOBAL.ENABLED] or settings[BATTLE_PREFERENCES.POSTMORTEM_TIPS]:
-        func(*args)
 
 
 # force update quests in FullStats
-@override(BattleStatisticsDataController, 'as_setQuestsInfoS')
-def new_setQuestsInfoS(func, self, data, _):
-    func(self, data, True)
 
 
 # disable battle artillery_stun_effect sound
@@ -225,22 +182,9 @@ def new__handleKey(func, self, isDown, key, mods):
 
 
 # limit of lines in battle
-@override(messenger_view, '_makeSettingsVO')
-def new__makeSettingsVO(func, self):
-    makeSettingsVO = func(self)
-    settings = settings_service.getComponentDict(config)
-    if settings[GLOBAL.ENABLED]:
-        makeSettingsVO['numberOfMessagesInHistory'] = settings[BATTLE_PREFERENCES.MAX_CHAT_LINES]
-    return makeSettingsVO
 
 
 # PlayerSatisfactionWidget/ShowRateSatisfactionCmp
-@override(ShowRateSatisfactionCmp, '_convert')
-def new_showRateSatisfactionCmp(func, self, value, reusable):
-    settings = settings_service.getComponentDict(config)
-    if settings[GLOBAL.ENABLED] and not settings.get(BATTLE_PREFERENCES.SHOW_PLAYER_SATISFACTION_WIDGET, True):
-        return False
-    return func(self, value, reusable)
 
 
 def _iterVehicleNames(vehicleType):
@@ -266,18 +210,6 @@ def _getAttackerName(vehicleName):
 
 
 # add enemy name to damage log
-def _withEnemyName(method):
-    def hook(func, self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg=None):
-        settings = settings_service.getComponentDict(config)
-        if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.ADD_ENEMY_NAME]:
-            vehicleName = vehicleName + ' | ' + _getAttackerName(vehicleName)
-        return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg)
-    # The explicit method identifies each hook, including its diagnostics key.
-    return override(DamageLogPanel, method)(hook)
-
-
-new__addToTopLog = _withEnemyName('_addToTopLog')
-new__addToBottomLog = _withEnemyName('_addToBottomLog')
 
 
 # Vehicle Boosters
@@ -329,3 +261,6 @@ def fini():
     g_playerEvents.onGuiCacheSyncCompleted -= __onGuiCacheSyncCompleted
     g_events.onVehicleChangedDelayed -= onVehicleChanged
 
+
+from driftkings.flash.batalha.preferences_hooks import install as install_flash_preferences
+install_flash_preferences(config, _getAttackerName)

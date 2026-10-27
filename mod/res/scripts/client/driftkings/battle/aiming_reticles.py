@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from account_helpers.settings_core.settings_constants import GRAPHICS, SPGAim
 import aih_constants
 from aih_constants import CTRL_MODE_NAME, GUN_MARKER_FLAG, GUN_MARKER_TYPE
 import AvatarInputHandler
@@ -7,15 +6,7 @@ from AvatarInputHandler.gun_marker_ctrl import _SPGGunMarkerController
 import BattleReplay
 import BigWorld
 from constants import AIMING_MODE, ARENA_PERIOD, SERVER_TICK_LENGTH
-from gui.battle_control.battle_constants import CROSSHAIR_VIEW_ID
-from gui.Scaleform.daapi.view.battle.shared import SharedPage
-from gui.Scaleform.daapi.view.battle.shared.crosshair import CrosshairPanelContainer, gm_factory
-from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_components import (DefaultGunMarkerComponent,
-                                                                            GunMarkersComponents, SPGGunMarkerComponent)
-from gui.Scaleform.daapi.view.battle.shared.crosshair.gm_factory import _GunMarkersFactory
-from gui.Scaleform.daapi.view.battle.shared.crosshair.plugins import (_SETTINGS_KEY_TO_VIEW_ID, _SETTINGS_KEYS,
-                                                                      _SETTINGS_VIEWS)
-from gui.Scaleform.genConsts.GUN_MARKER_VIEW_CONSTANTS import GUN_MARKER_VIEW_CONSTANTS
+from gui.Scaleform.daapi.view.battle.shared.crosshair import gm_factory
 from helpers import dependency
 import Math
 from skeletons.account_helpers.settings_core import ISettingsCache, ISettingsCore
@@ -29,25 +20,6 @@ from driftkings.settings.definitions.battle.aiming_reticles import AimingReticle
 from driftkings.settings.service import affects, settings_service
 
 LOG = get_logger('driftkings.battle.aiming_reticles')
-
-CUSTOM_ARCADE_GUN_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.ARCADE_GUN_MARKER_NAME + '-SERVER'
-CUSTOM_SNIPER_GUN_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.SNIPER_GUN_MARKER_NAME + '-SERVER'
-CUSTOM_DUAL_GUN_ARCADE_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.DUAL_GUN_ARCADE_MARKER_NAME + '-SERVER'
-CUSTOM_DUAL_GUN_SNIPER_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.DUAL_GUN_SNIPER_MARKER_NAME + '-SERVER'
-CUSTOM_TWIN_GUN_ARCADE_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.TWIN_GUN_ARCADE_MARKER_NAME + '-SERVER'
-CUSTOM_TWIN_GUN_SNIPER_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.TWIN_GUN_SNIPER_MARKER_NAME + '-SERVER'
-CUSTOM_SPG_MARKER_NAME = GUN_MARKER_VIEW_CONSTANTS.SPG_GUN_MARKER_NAME + '-SERVER'
-
-CUSTOM_GUN_MARKER_LINKAGES = {
-   CUSTOM_ARCADE_GUN_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.GUN_MARKER_LINKAGE,
-   CUSTOM_SNIPER_GUN_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.GUN_MARKER_LINKAGE,
-   CUSTOM_DUAL_GUN_ARCADE_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.DUAL_GUN_ARCADE_MARKER_LINKAGE,
-   CUSTOM_DUAL_GUN_SNIPER_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.DUAL_GUN_SNIPER_MARKER_LINKAGE,
-   CUSTOM_TWIN_GUN_ARCADE_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.TWIN_GUN_MARKER_LINKAGE,
-   CUSTOM_TWIN_GUN_SNIPER_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.TWIN_GUN_MARKER_LINKAGE,
-   CUSTOM_SPG_MARKER_NAME: GUN_MARKER_VIEW_CONSTANTS.GUN_MARKER_SPG_LINKAGE
-}
-
 
 class ReticleState(object):
     def __init__(self, config):
@@ -63,7 +35,7 @@ class ReticleState(object):
         if self.active:
             return
         self._originalMinSize = aih_constants.GUN_MARKER_MIN_SIZE
-        self._originalLinkages = gm_factory._GUN_MARKER_LINKAGES
+        self._originalLinkages = get_linkages()
         self._customLinkages = dict(CUSTOM_GUN_MARKER_LINKAGES)
         self._customLinkages.update(self._originalLinkages)
         self.active = True
@@ -81,7 +53,7 @@ class ReticleState(object):
         settings_service.onModSettingsChanged.disconnect(self.onModSettingsChanged)
         self.cancelServerAiming()
         aih_constants.GUN_MARKER_MIN_SIZE = self._originalMinSize
-        gm_factory._GUN_MARKER_LINKAGES = self._originalLinkages
+        set_linkages(self._originalLinkages)
         self.reticleScaleFactor = 1
         self.showClientAndServerReticle = False
         self.enableSpgStrategicReticle = False
@@ -102,7 +74,7 @@ class ReticleState(object):
             self.reticleScaleFactor = 1.71 * correction + (1 - correction)
         if full or affects(changes, AIMING_RETICLES.SHOW_CLIENT_AND_SERVER_RETICLE_BETA):
             self.showClientAndServerReticle = bool(enabled and data[AIMING_RETICLES.SHOW_CLIENT_AND_SERVER_RETICLE_BETA])
-            gm_factory._GUN_MARKER_LINKAGES = self._customLinkages if self.showClientAndServerReticle else self._originalLinkages
+            set_linkages(self._customLinkages if self.showClientAndServerReticle else self._originalLinkages)
             if not self.showClientAndServerReticle:
                 self.cancelServerAiming()
         for field, key in (('gunTag', AIMING_RETICLES.SERVER_RETICLE_GUN_MARKER_OPACITY),
@@ -140,8 +112,11 @@ class ReticleState(object):
             enableServerAiming()
 
 
+from driftkings.flash.batalha.aiming_reticles import CUSTOM_GUN_MARKER_LINKAGES, get_linkages, set_linkages, set_state
+
 config = Settings()
 reticle = ReticleState(config)
+set_state(reticle)
 
 
 def init():
@@ -150,125 +125,6 @@ def init():
 
 def fini():
     reticle.stop()
-
-
-class CustomCrosshairContainer(CrosshairPanelContainer):
-    def __init__(self, createMarkers, overrideMarkers, customSettings, enableSpgStrategicReticle):
-        super(CustomCrosshairContainer, self).__init__()
-        self.createMarkers = createMarkers
-        self.overrideMarkers = overrideMarkers
-        self.customSettings = customSettings
-        self.enableSpgStrategicReticle = enableSpgStrategicReticle
-
-    def createGunMarkers(self, markersInfo, vehicleInfo):
-        if self._CrosshairPanelContainer__gunMarkers is not None:
-            LOG.warning('Set of gun markers is already created.')
-            return
-        else:
-            self._CrosshairPanelContainer__setGunMarkers(self.createMarkers(markersInfo, vehicleInfo, self.enableSpgStrategicReticle))
-            return
-
-    def invalidateGunMarkers(self, markersInfo, vehicleInfo):
-        if self._CrosshairPanelContainer__gunMarkers is None:
-            LOG.warning('Set of gun markers is not created')
-            return
-        else:
-            newSet = self.overrideMarkers(self._CrosshairPanelContainer__gunMarkers, markersInfo, vehicleInfo, self.enableSpgStrategicReticle)
-            self._CrosshairPanelContainer__clearGunMarkers()
-            self._CrosshairPanelContainer__setGunMarkers(newSet)
-            return
-
-    def setSettings(self, _):
-        self.as_setSettingsS(self.getSettingsVo())
-
-    def getSettingsVo(self):
-        settingsCore = dependency.instance(ISettingsCore)
-        getter = settingsCore.getSetting
-        data = {}
-        for mode in _SETTINGS_KEYS:
-            data[_SETTINGS_KEY_TO_VIEW_ID[mode]] = {
-                'centerAlphaValue': 0,
-                'centerType': 0,
-                'netAlphaValue': 0,
-                'netType': 0,
-                'reloaderAlphaValue': 0,
-                'conditionAlphaValue': 0,
-                'cassetteAlphaValue': 0,
-                'reloaderTimerAlphaValue': 0,
-                'zoomIndicatorAlphaValue': 0,
-                'gunTagAlpha': self.customSettings['gunTag'] / 100.0,
-                'gunTagType': self.customSettings['gunTagType'],
-                'mixingAlpha': self.customSettings['mixing'] / 100.0,
-                'mixingType': self.customSettings['mixingType']
-            }
-        for view in _SETTINGS_VIEWS:
-            commonSettings = data.get(view, None)
-            if commonSettings is None:
-                commonSettings = {}
-                data[view] = commonSettings
-            commonSettings.update({
-                'spgScaleWidgetEnabled': getter(SPGAim.SPG_SCALE_WIDGET),
-                'isColorBlind': settingsCore.getSetting(GRAPHICS.COLOR_BLIND)
-            })
-        return data
-
-
-class _CustomServerControlMarkersFactory(_GunMarkersFactory):
-    def create(self, enableSpgStrategicReticle):
-        if self._vehicleInfo.isSPG():
-            markers = self._createSPGMarkers(enableSpgStrategicReticle)
-        elif self._vehicleInfo.isDualGunVehicle():
-            markers = self._createDualGunMarkers()
-        elif self._vehicleInfo.isTwinGunVehicle():
-            markers = self._createTwinGunMarkers()
-        else:
-            markers = self._createDefaultMarkers()
-        return markers
-
-    def _createDualGunMarkers(self):
-        return (
-         self._createArcadeMarker(CUSTOM_DUAL_GUN_ARCADE_MARKER_NAME),
-         self._createSniperMarker(CUSTOM_DUAL_GUN_SNIPER_MARKER_NAME))
-
-    def _createDefaultMarkers(self):
-        return (
-         self._createArcadeMarker(CUSTOM_ARCADE_GUN_MARKER_NAME),
-         self._createSniperMarker(CUSTOM_SNIPER_GUN_MARKER_NAME))
-
-    def _createTwinGunMarkers(self):
-        return (
-         self._createArcadeMarker(CUSTOM_TWIN_GUN_ARCADE_MARKER_NAME),
-         self._createSniperMarker(CUSTOM_TWIN_GUN_SNIPER_MARKER_NAME))
-
-    def _createSPGMarkers(self, enableSpgStrategicReticle):
-        if enableSpgStrategicReticle:
-            return (self._createArcadeMarker(CUSTOM_ARCADE_GUN_MARKER_NAME), self._createSPGMarker(CUSTOM_SPG_MARKER_NAME))
-        else:
-            return (self._createArcadeMarker(CUSTOM_ARCADE_GUN_MARKER_NAME),)
-
-    def _createArcadeMarker(self, name):
-        dataProvider = self._getMarkerDataProvider(GUN_MARKER_TYPE.SERVER)
-        return self._createMarker(DefaultGunMarkerComponent, CROSSHAIR_VIEW_ID.ARCADE, GUN_MARKER_TYPE.SERVER, dataProvider, name)
-
-    def _createSniperMarker(self, name):
-        dataProvider = self._getMarkerDataProvider(GUN_MARKER_TYPE.SERVER)
-        return self._createMarker(DefaultGunMarkerComponent, CROSSHAIR_VIEW_ID.SNIPER, GUN_MARKER_TYPE.SERVER, dataProvider, name)
-
-    def _createSPGMarker(self, name):
-        dataProvider = self._getSPGDataProvider(GUN_MARKER_TYPE.SERVER)
-        return self._createMarker(SPGGunMarkerComponent, CROSSHAIR_VIEW_ID.STRATEGIC, GUN_MARKER_TYPE.SERVER, dataProvider, name)
-
-
-def _createComponents(markersInfo, vehiclesInfo, enableSpgStrategicReticle):
-    return GunMarkersComponents(_CustomServerControlMarkersFactory(markersInfo, vehiclesInfo, None).create(enableSpgStrategicReticle))
-
-
-def _overrideComponents(components, markersInfo, vehiclesInfo, enableSpgStrategicReticle):
-    return GunMarkersComponents(_CustomServerControlMarkersFactory(markersInfo, vehiclesInfo, components).create(enableSpgStrategicReticle))
-
-
-def GetCustomServerCrosshair(customSettings, enableSpgStrategicReticle):
-    return CustomCrosshairContainer(_createComponents, _overrideComponents, customSettings, enableSpgStrategicReticle)
 
 
 def _scaleGunMarkerInfo(gunMarkerInfo):
@@ -315,14 +171,6 @@ def new_AvatarInputHandler_updateDualAccGunMarker(func, self, gunMarkerInfo, sup
     if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
-
-
-@override(SharedPage, '__init__')
-def new_SharedPage_init(func, self, components=None, external=None):
-    func(self, components, external)
-    if reticle.showClientAndServerReticle is True:
-        reticle.ensureServerAiming()
-        self._external.append(GetCustomServerCrosshair(reticle.customServerReticleSettings, reticle.enableSpgStrategicReticle))
 
 
 def enableServerAiming():

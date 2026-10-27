@@ -26,6 +26,11 @@ class AimingReticlesTests(RuntimeTest):
         self.api, self.hooks = game_source('battle/aiming_reticles.py', {
             'driftkings.settings.service': module(settings_service=self.service, affects=self.service.affects),
             'aih_constants': self.constants,
+            'driftkings.flash.batalha.aiming_reticles': module(
+                CUSTOM_GUN_MARKER_LINKAGES={'server': 'custom'},
+                get_linkages=lambda: self.factory._GUN_MARKER_LINKAGES,
+                set_linkages=lambda value: setattr(self.factory, '_GUN_MARKER_LINKAGES', value),
+                set_state=lambda state: None),
             'gui.Scaleform.daapi.view.battle.shared.crosshair': stub('crosshair', gm_factory=self.factory),
             'helpers': module(dependency=module(instance=lambda interface: self.cache)),
         }, real=('driftkings._constants',))

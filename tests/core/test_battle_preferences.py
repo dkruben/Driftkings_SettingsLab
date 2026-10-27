@@ -32,11 +32,15 @@ class BattlePreferencesTests(RuntimeTest):
         self.player = module(arena=arena)
         wg = module(getPlayer=lambda: self.player, isReplay=lambda: False,
                     square_position=module(getSquarePosition=lambda: self.square))
-        self.api, self.hooks = game_source('battle/battle_preferences.py', {
+        deps = {
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.utils.wgutils': wg,
             'driftkings.core.callbacks': module(callback=lambda delay, function: self.scheduled.append(function)),
-        }, real=('driftkings._constants',))
+        }
+        self.api, self.hooks = game_source('battle/battle_preferences.py', deps, real=('driftkings._constants',))
+        deps['driftkings.core.hooks'] = self.hooks
+        bridge, _ = game_source('flash/batalha/preferences_hooks.py', deps, real=('driftkings._constants',))
+        bridge['install'](self.api['config'], self.api['_getAttackerName'])
 
     def wrap(self, *spec, **kwargs):
         # spec is (target, method, *args); keyword arguments go to the wrapper.

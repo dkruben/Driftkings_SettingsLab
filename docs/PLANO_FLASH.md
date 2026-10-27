@@ -99,7 +99,7 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 | 0 — Auditoria e mapa antes de código | Concluída | Inventário acima |
 | 1 — Núcleo, registo e lifecycle partilhado | Concluída | 429 testes core Python 3; 0 nomes indefinidos |
 | 2 — Views, metas e adaptadores existentes | Concluída | 429 testes core, catálogo e build inputs válidos |
-| 3 — Separação de apresentação dos módulos mistos | Pendente | Testes dos componentes e nomes indefinidos |
+| 3 — Separação de apresentação dos módulos mistos | Concluída | 429 testes core em Python 2.7/3; 0 nomes indefinidos |
 | 4 — Testes arquiteturais, documentação e changelog | Pendente | Fronteiras, contratos, ciclos, hooks |
 | 5 — Validação completa, build e GitHub | Pendente | Python 2.7/3, npm/lint, AS3/SWF, WOTMOD e CI |
 
@@ -127,3 +127,11 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 - Etapa 1: criados packages Flash passivos; OverlayScene movido para `flash/core.py` e BattleViews/registo para `flash/batalha/registry.py`. Extraída a instalação Scaleform de lifecycle/HUD; serviço e estado partilhado permanecem no core. Imports e testes alinhados, sem alterar o bridge Gameface. 429 testes core: OK; 0 nomes indefinidos. Auditoria inicial publicada em `27ff790`.
 
 - Etapa 2: movidas as views/metas de batalha e as três views Scaleform de hangar. BattleLabel/CachedBattleLabel ficaram em `flash/batalha/common.py`; package nativo passou a `driftkings.flash.batalha`. Atualizados dez caminhos do catálogo, imports estáticos/diferidos, testes e pesquisa de metas no validador de build. Mantidos helpers de dados partilhados em views; removidos apenas os `__init__` antigos sem utilização. 429 testes core: OK; catálogo e build data validados; nenhuma alteração AS3/SWF. Núcleo publicado em `e9a4635`.
+
+### Complemento da auditoria durante a separação dos módulos mistos
+
+Antes de migrar estas dependências adicionais, confirmou-se: `common/utils/game.sendPanelMessage` contém transporte DAAPI (destino `flash/batalha/messages.py`); `components/account_manager` contém leitura de coordenadas/formulário nativo e chamadas AS3 (destino `flash/hangar/login.py`, mantendo credenciais/autenticação no serviço); `components/game_log_manager` mistura filtros com encaminhamento Flash (destino `flash/batalha/game_log.py`, mantendo filtros funcionais); hooks Scaleform de chat/resultados/tooltip em `lobby/hangar_preferences` passam a `flash/hangar/native_preferences.py`. Hooks que apenas recolhem dados (ribbons/seleção de tripulação) continuam funcionais. Estas dependências complementam o inventário, sem alargar a tarefa a regras ou recursos visuais.
+
+- Etapa 3: extraídos plugins nativos de minimapa, plugin de penetração, factories/containers/linkages de mira, hooks visuais de preferências, transporte de mensagens, encaminhamento de logs e ponte do formulário de login. Marcadores conservam `validate/apply/values` funcionais no core; lifecycle/transporte estão em `flash/batalha/vehicle_markers`. Cálculos numéricos de mira/voo extraídos para `core/aiming_timing.py`; projeção/hit-test/drag do marcador de distância permanecem no adaptador por dependerem do contrato por frame do SWF.
+- Componentes fornecem configuração/estado aos bridges existentes sem novas frameworks. Minimap/penetração ligam as referências uma vez na importação do componente, antes da ativação dos hooks. Estado e controlos de simulação das miras ficam funcionais, usando métodos de linkage do adaptador. Core/serviços de diagnóstico/hook reversível e consumidores de eventos de recolha continuam fora de Flash.
+- Corrigidos os stubs de mensagens e plugins nos testes para as novas fronteiras; mantidos todos os testes de comportamento existentes. 429 testes Python 3 e 429 Python 2.7 passaram; catálogo/build data válidos (317 módulos); 0 nomes indefinidos. Nenhuma frequência alterada ou ganho de FPS alegado. Views/metas publicadas em `19db2a3`.

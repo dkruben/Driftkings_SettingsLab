@@ -43,7 +43,7 @@ class EnemySpottingStatusTests(RuntimeTest):
         self.api, self.hooks = game_source('battle/enemy_spotting_status.py', {
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player),
-            'driftkings.common.utils.game': module(sendPanelMessage=self.messages.append),
+            'driftkings.flash.batalha.messages': module(sendPanelMessage=self.messages.append),
             'gui.shared.gui_items.Vehicle': module(
                 getIconPath=lambda name: 'gui/maps/icons/vehicle/' + name.replace(':', '-', 1) + '.png',
                 getContourIconPath=lambda name: 'gui/maps/icons/vehicle/contour/' + name.replace(':', '-', 1) + '.png'),

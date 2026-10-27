@@ -44,13 +44,17 @@ class PenetrationIndicatorTests(RuntimeTest):
         super(PenetrationIndicatorTests, self).setUp()
         self.data = {'enabled': True, 'displayOnAllies': False}
         self.colors, self.armor = [], []
-        self.api, self.hooks = game_source('battle/penetration_indicator.py', {
+        deps = {
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.game_constants': module(SHELL_TYPES=module(HIGH_EXPLOSIVE='HIGH_EXPLOSIVE'),
                                                 SHELL_MECHANICS_TYPE=module(MODERN='MODERN')),
             'gui.Scaleform.daapi.view.battle.shared.crosshair': module(plugins=stub('plugins', ShotResultIndicatorPlugin=NativePlugin)),
             'driftkings.ui': module(g_events=module(onMarkerColorChanged=self.colors.append, onArmorChanged=self.armor.append)),
-        }, real=('driftkings._constants',))
+        }
+        self.api, _ = game_source('battle/penetration_indicator.py', deps, real=('driftkings._constants',))
+        bridge, self.hooks = game_source('flash/batalha/penetration_hooks.py', deps, real=('driftkings._constants',))
+        bridge['configure'](self.api['config'], self.api['_ShotResult'], self.api['_ShotResultAll'])
+        self.api['ShotResultIndicatorPlugin'] = bridge['ShotResultIndicatorPlugin']
         self.shot = self.api['_ShotResult']
         # Native helpers of _CrosshairShotResults, reduced to their armour inputs.
         self.shot._computePenetrationArmor = classmethod(lambda cls, shell, cos, mat: mat.armor / cos)

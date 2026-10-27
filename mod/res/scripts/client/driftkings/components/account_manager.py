@@ -8,8 +8,6 @@ import zlib
 
 import BigWorld
 from external_strings_utils import unicode_from_utf8
-from gui.Scaleform.daapi.view.login.login_modes.wgc_mode import WgcMode
-from gui.Scaleform.daapi.view.login.LoginView import LoginView
 from helpers import getClientLanguage
 from predefined_hosts import g_preDefinedHosts
 from realm import CURRENT_REALM
@@ -20,12 +18,13 @@ from driftkings.common.utils import events
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.core.accounts import AccountError, AccountService
 from driftkings.core.callbacks import callback, cancelCallback
-from driftkings.core.hooks import on_event, override
+from driftkings.core.hooks import on_event
 from driftkings.i18n import catalog
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.settings.settings_data import defaults
-from gui import GUI_SETTINGS
+
+from driftkings.flash.hangar.login import fill_credentials, install_login_hooks, launcher_position, prepare_login
 
 LOG = get_logger('Driftkings.AccountManager')
 
@@ -110,8 +109,7 @@ class AccountsManagerController(object):
         self.active = False
         self.space = None
         on_event(events.LoginView.populate.after, self.loginPopulated)
-        override(LoginView, '_dispose', self.loginDisposed)
-        override(LoginView, 'update', self.loginUpdated)
+        install_login_hooks(self)
 
     def loginPopulated(self, view, *args, **kwargs):
         self.login = weakref.ref(view)
@@ -156,22 +154,7 @@ class AccountsManagerController(object):
         return self.login is not None and self.login() is not None and self.space == GuiGlobalSpaceID.LOGIN
 
     def launcherPosition(self):
-        """Read only display coordinates, using the same anchors as AMButton.as.
-        The native form owns positioning and scale; no account fields are read.
-        WGC's filled form has no keyboard label, so use the submit button's edge.
-        """
-        if not self.canLogin():
-            return None
-        try:
-            stack = self.login().flashObject.loginViewStack
-            form = stack.currentView
-            submit = form.submit
-            keyboard = getattr(form, 'keyboardLang', None)
-            x = float(keyboard.x) if keyboard is not None else float(submit.x) + float(submit.width) + 12
-            return float(form.parent.x) + x, float(form.parent.y) + float(submit.y)
-        except (AttributeError, TypeError, ValueError, ReferenceError):
-            # Initial population can precede creation of the form's controls.
-            return None
+        return launcher_position(self.login()) if self.canLogin() else None
 
     def useAccount(self, account_id, auto_enter):
         if not self.canLogin():
@@ -180,28 +163,11 @@ class AccountsManagerController(object):
         if login.loginManager.isWgcSteam:
             raise AccountError('errorSteam', 'This client uses Steam. Select the account through Steam.')
         email, password, server, index = service.credentials(account_id)
-        # Explicitly leave the WGC stored-account mode before choosing credentials;
-        # changeAccount only stops WGC, so update() redraws the credentials form.
-        # Authentication, queueing and errors still belong to the native login API.
-        if isinstance(login._loginMode, WgcMode):
-            login.changeAccount()
-            login.update()
-        login.resetToken()
-        login.as_setSelectedServerIndexS(index)
+        prepare_login(login, index)
         if auto_enter:
             login.onLogin(email, password, server, False)
         else:
-            mode = login._loginMode
-            login.as_setDefaultValuesS({
-                'loginName': email,
-                'pwd': password,
-                'memberMe': mode.rememberUser,
-                'memberMeVisible': mode.rememberPassVisible,
-                'isIgrCredentialsReset': GUI_SETTINGS.igrCredentialsReset,
-                'showRecoveryLink': not GUI_SETTINGS.isEmpty('recoveryPswdURL'),
-                'keyboardLang': getattr(login, '_LoginView__lang', ''),
-                'capsLockState': getattr(login, '_LoginView__capsLockState', False)
-                })
+            fill_credentials(login, email, password)
 
     def closeViews(self):
         if self.callbackID is not None:

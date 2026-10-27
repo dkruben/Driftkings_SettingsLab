@@ -13,7 +13,7 @@ from driftkings.core.callbacks import callback
 from driftkings.core.hooks import override
 from driftkings.settings.definitions.battle.sixth_sense_alert import SixthSenseAlertSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.flash.batalha.sixth_sense_alert import SixthSense
+from driftkings.flash.batalha.sixth_sense_alert import SixthSense, set_native_visible
 
 AS_BATTLE = BATTLE_ALIASES.SIXTH_SENSE_ALERT
 config = Settings()
@@ -63,7 +63,7 @@ def new__sixthSenseToggle(func, self, isVisible, force):
     func(self, isVisible, force)
     # Never suppress the game's alert unless our replacement has loaded its icon.
     replacement = (g_view is not None and getattr(g_view, 'iconReady', False) and settings[GLOBAL.ENABLED])
-    self.flashObject.visible = not replacement
+    set_native_visible(self, not replacement)
     if not isVisible:
         return
     player = getPlayer()
