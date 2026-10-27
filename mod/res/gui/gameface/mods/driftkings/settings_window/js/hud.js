@@ -13,6 +13,12 @@
     var DK = window.DK, h = DK.h, t = DK.t;
     var W = 1920, H = 1080, CX = W / 2, CY = H / 2;
     var MARKER = {x: CX + 300, y: CY - 210};       // sample enemy vehicle marker
+    var SAMPLE = DK.sample, PLAYER = SAMPLE.player;
+    // Own health: the T32 at 79%, written and coloured as flash/battle/vehicle_health.py does it.
+    var OWN_HP = Math.round(PLAYER.maxHp * 0.79);
+    // High Caliber target: max(1000, 20% of the enemy team's HP) (battle/high_caliber_progress.py), 62% dealt.
+    var ENEMY_HP = SAMPLE.enemies.reduce(function (sum, item) { return sum + item.maxHp; }, 0);
+    var HC_TARGET = Math.max(1000, Math.ceil(ENEMY_HP * 0.2)), HC_PROGRESS = 62;
     var MODULES = {
         'legacy.DispersionTimer': {scene: 'battle', draw: aimTimer},
         'legacy.FlightTimer': {scene: 'battle', draw: flightTimer},
@@ -25,6 +31,14 @@
 
     function key(mod) { return String(mod.id).split(':')[0]; }
     function supports(mod) { return !!MODULES[key(mod)]; }
+    function grouped(value) { return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+    // common/utils/formatting.percentToRgb: hue = min(0.8333, percent / 3), HSV channels rounded up.
+    function percentColor(percent, saturation, brightness) {
+        var hue = Math.min(0.8333, percent * 0.3333) * 6, i = Math.floor(hue), f = hue - i, v = brightness;
+        var p = v * (1 - saturation), q = v * (1 - saturation * f), r = v * (1 - saturation * (1 - f));
+        var rgb = [[v, r, p], [q, v, p], [p, v, r], [p, q, v], [r, p, v], [v, p, q]][i % 6];
+        return DK.colors.rgbToHex(rgb.map(function (c) { return Math.ceil(c * 255); }));
+    }
     function px(node, left, top) { node.style.left = Math.round(left) + 'rem'; node.style.top = Math.round(top) + 'rem'; }
     function text(stage, source, left, top, options) {
         var node = h('div.dk-hud-text', null, null, stage);
@@ -45,7 +59,11 @@
     }
     function health(stage, v) {
         if (!v('enabled', true)) { return null; }
-        var bar = h('div.dk-hud-health', null, [h('div.dk-hud-health-fill'), h('div.dk-hud-health-text', {text: '1350 / 1700'})], stage);
+        // Default avgColor: saturation 0.7, brightness 0.9 (settings/default_values.py).
+        var percent = OWN_HP / PLAYER.maxHp, fill = h('div.dk-hud-health-fill');
+        fill.style.width = (percent * 100) + '%';
+        fill.style.backgroundColor = percentColor(percent, 0.7, 0.9);
+        var bar = h('div.dk-hud-health', null, [fill, h('div.dk-hud-health-text', {text: OWN_HP + ' - ' + (percent * 100).toFixed(2) + '%'})], stage);
         px(bar, CX + v('x', 0) - 90, H + v('y', -80));
         return bar;
     }
@@ -67,17 +85,27 @@
     }
     function highCaliber(stage, v) {
         if (!v('enabled', true)) { return null; }
+        // Same parts as high_caliber_gameface/main_gun.js: medal, HP still needed, reason, bar and percentage.
         var scale = v('gameface.scale', 1), accent = DK.hex(v('gameface.accentColor')) || '#FFCD4F';
-        var panel = h('div.dk-hud-panel', null, null, stage);
+        var panel = h('div.dk-hud-panel.dk-hud-hc', null, null, stage);
         panel.style.width = Math.round(260 * scale) + 'rem';
         panel.style.fontSize = Math.round(15 * scale) + 'rem';
-        if (v('backGroundEnabled', false)) { panel.style.backgroundColor = 'rgba(0,0,0,' + v('background.alpha', 80) / 100 + ')'; }
-        h('div.dk-hud-panel-title', {text: 'Grande Calibre' + (v('gameface.showPercentage', true) ? '  62%' : ''), style: {color: accent}}, null, panel);
-        if (v('gameface.showProgress', true)) {
-            var track = h('div.dk-hud-progress', null, null, panel), fill = h('div.dk-hud-progress-fill', null, null, track);
-            fill.style.width = '62%'; fill.style.backgroundColor = accent;
+        if (v('backGroundEnabled', false)) { panel.style.backgroundColor = 'rgba(15,18,22,' + v('background.alpha', 80) / 100 + ')'; }
+        var head = h('div.dk-hud-hc-head', null, null, panel);
+        var medal = h('img.dk-hud-hc-medal', {src: DK.asset('gui/maps/icons/achievement/32x32/mainGun.png')}, null, head);
+        medal.addEventListener('error', function () { DK.remove(medal); });
+        var info = h('div', null, null, head);
+        h('div.dk-hud-hc-value', {text: grouped(HC_TARGET * (100 - HC_PROGRESS) / 100) + ' HP'}, null, info);
+        if (v('gameface.showSecondary', true)) { h('div.dk-hud-panel-sub', {text: t('hud.hcRemaining')}, null, info); }
+        var showBar = v('gameface.showProgress', true), showPercent = v('gameface.showPercentage', true);
+        if (showBar || showPercent) {
+            var foot = h('div.dk-hud-hc-foot', null, null, panel);
+            if (showBar) {
+                var track = h('div.dk-hud-progress', null, null, foot), fill = h('div.dk-hud-progress-fill', null, null, track);
+                fill.style.width = HC_PROGRESS + '%'; fill.style.backgroundColor = accent;
+            }
+            if (showPercent) { h('span', {text: HC_PROGRESS + '%'}, null, foot); }
         }
-        if (v('gameface.showSecondary', true)) { h('div.dk-hud-panel-sub', {text: '1 840 / 2 970'}, null, panel); }
         px(panel, v('textPosition.x', 0), v('textPosition.y', 446));
         return panel;
     }
@@ -165,16 +193,24 @@
             else { h('div.dk-hud-off', {text: t('module.off')}, null, stage); }
             focus(mine);
         }
-        // "Zoom" frames the open module's element at 80% of the real size; "Whole screen" shows 1920x1080.
+        // "Zoom" fits the open module's elements at up to 80% of the real size; "Whole screen" shows 1920x1080.
         function focus(node) {
-            stage.style.transform = '';
-            if (!zoomed || !node) { return; }
-            var unit = parseFloat(document.documentElement.style.fontSize) || 1, scale = 0.8;
+            var unit = parseFloat(document.documentElement.style.fontSize) || 1;
             var frameW = frame.clientWidth / unit, frameH = frame.clientHeight / unit;
-            var box = node.className.indexOf('dk-hud-group') >= 0 && node.firstChild ? node.lastChild : node;
-            var cx = box.offsetLeft + box.offsetWidth / 2, cy = box.offsetTop + box.offsetHeight / 2;
-            var tx = DK.clamp(frameW / 2 - cx * scale, frameW - W * scale, 0), ty = DK.clamp(frameH / 2 - cy * scale, frameH - H * scale, 0);
-            stage.style.transform = 'translate(' + Math.round(tx) + 'rem, ' + Math.round(ty) + 'rem) scale(' + scale + ')';
+            var scale = Math.min(frameW / W, frameH / H);
+            stage.style.transform = 'scale(' + scale + ')';
+            if (!zoomed || !node) { return; }
+            var boxes = node.className.indexOf('dk-hud-group') >= 0 ? node.children : [node];
+            var left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+            for (var i = 0; i < boxes.length; i++) {
+                var box = boxes[i], x = box.offsetLeft / unit, y = box.offsetTop / unit;
+                left = Math.min(left, x); top = Math.min(top, y);
+                right = Math.max(right, x + box.offsetWidth / unit); bottom = Math.max(bottom, y + box.offsetHeight / unit);
+            }
+            if (!isFinite(left) || !isFinite(top)) { return; }
+            scale = Math.min(0.8, frameW / Math.max(1, right - left + 24), frameH / Math.max(1, bottom - top + 24));
+            var tx = frameW / 2 - (left + right) / 2 * scale, ty = frameH / 2 - (top + bottom) / 2 * scale;
+            stage.style.transform = 'translate(' + tx + 'rem, ' + ty + 'rem) scale(' + scale + ')';
         }
         function findId(moduleKey) {
             var ids = Object.keys(all);

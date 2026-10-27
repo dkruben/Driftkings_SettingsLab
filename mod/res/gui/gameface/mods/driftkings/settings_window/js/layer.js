@@ -2,7 +2,7 @@
 (function () {
     'use strict';
     var DK = window.DK, h = DK.h;
-    var root = null, menu = null, tip = null, stack = [];
+    var root = null, modalHost = null, menu = null, tip = null, stack = [];
 
     /* Menus anchored to a control ----------------------------------------- */
     function place(node, anchor, above) {
@@ -61,7 +61,7 @@
     function openModal(content, options) {
         options = options || {};
         closeMenu(true); hideTip();
-        var overlay = h('div.dk-modal-backdrop', null, null, options.host || root);
+        var overlay = h('div.dk-modal-backdrop', null, null, options.host || modalHost);
         var panel = h('div.dk-modal' + (options.className ? '.' + options.className : ''), {role: 'dialog', 'aria-modal':'true'}, content, overlay);
         var entry = {overlay: overlay, panel: panel, origin: options.origin || document.activeElement, onClose: options.onClose};
         overlay.addEventListener('mousedown', function (event) { if (event.target === overlay && options.dismissable !== false) { closeModal(entry, 'outside'); } });
@@ -99,7 +99,7 @@
     /* Scroll areas: fixed-step wheel and a thin draggable bar ------------- */
     // Gameface's native overflow scroll is slow; wheel steps are applied here.
     function scroller(viewport, host) {
-        var cancelDrag=null, disposed=false;
+        var cancelDrag=null, disposed=false, refreshTimer=null;
         var track = h('div.dk-scroll', null, null, host), thumb = h('div.dk-scroll-thumb', null, null, track);
         function update() {
             if(disposed){return;}
@@ -110,13 +110,16 @@
             thumb.style.height = size + 'px';
             thumb.style.top = ((usable - size) * viewport.scrollTop / Math.max(1, total - height)) + 'px';
         }
-        viewport.addEventListener('wheel', function (event) {
+        function wheel(event) {
             if (event.defaultPrevented) { return; }
             var unit = parseFloat(document.documentElement.style.fontSize) || 1;
             var max = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
-            viewport.scrollTop = DK.clamp(viewport.scrollTop - DK.wheel(event) * 80 * unit, 0, max);
+            var next = DK.clamp(viewport.scrollTop - DK.wheel(event) * 80 * unit, 0, max);
+            if (Math.abs(next - viewport.scrollTop) < 0.5) { return; }
+            viewport.scrollTop = next;
             update(); hideTip(); DK.stop(event);
-        });
+        }
+        viewport.addEventListener('wheel', wheel);
         viewport.addEventListener('scroll', update);
         track.addEventListener('mousedown', function (event) {
             if (event.button !== 0 || disposed) { return; }
@@ -135,11 +138,14 @@
             document.addEventListener('mouseup', end);
             if (event.target !== thumb) { move(event); }
         });
-        return {update:update,to:function(top){viewport.scrollTop=Math.max(0,top);update();},dispose:function(){disposed=true;if(cancelDrag){cancelDrag();}DK.remove(track);}};
+        refreshTimer = setTimeout(function () { refreshTimer = null; update(); }, 0);
+        return {update:update,to:function(top){viewport.scrollTop=Math.max(0,top);update();},dispose:function(){disposed=true;if(refreshTimer!==null){clearTimeout(refreshTimer);}viewport.removeEventListener('wheel',wheel);viewport.removeEventListener('scroll',update);if(cancelDrag){cancelDrag();}DK.remove(track);}};
     }
 
     DK.layer = {
-        init: function (node) { root = node; },
+        // Menus and tips are placed in viewport coordinates from the zero-size layer; dialogs cover the window
+        // that holds it, since a backdrop inside the layer would have no size to centre in.
+        init: function (node) { root = node; modalHost = node.parentNode || node; },
         menu: openMenu, closeMenu: closeMenu, menuOpen: function () { return !!menu; },
         tip: showTip, hideTip: hideTip, key: key, scroller: scroller
     };

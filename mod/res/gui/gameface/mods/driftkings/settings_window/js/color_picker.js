@@ -2,7 +2,7 @@
 (function () {
     'use strict';
     var DK=window.DK;
-    var normalizeHex=DK.colors.normalizeColor, hexToRgb=DK.colors.hexToRgb;
+    var normalizeHex=DK.colors.normalizeColor;
     function el(tag,classes,text,parent){return DK.h(tag+(classes?'.'+classes.split(' ').join('.'):''),null,text,parent);}
     function label(key,fallback){return DK.t(key,fallback);}
     function textInput(type,def){return DK.h('input.dk-field',{type:type,maxLength:def.maxLength});}
@@ -21,19 +21,10 @@
     el('div','dk-dialog-title',options.title||label('color.pick','Color'),panel);
     var area = el('div', 'dk-spectrum', null, panel);
     area.tabIndex = 0; area.setAttribute('aria-label', label('color.area', 'Color spectrum'));
-    var canvas = el('canvas', 'dk-spectrum-canvas', null, area), cursor = el('div', 'dk-spectrum-cursor', null, area);
-    canvas.width = 256; canvas.height = 192;
-    try {
-        var paint = canvas.getContext && canvas.getContext('2d');
-        if (paint) {
-            var pixels = paint.createImageData(256,192);
-            for (var py=0; py<192; py++) { for (var px=0; px<256; px++) {
-                var rgb = hexToRgb(DK.colors.spectrum(px/255,py/191)), offset=(py*256+px)*4;
-                pixels.data[offset]=rgb[0]; pixels.data[offset+1]=rgb[1]; pixels.data[offset+2]=rgb[2]; pixels.data[offset+3]=255;
-            } }
-            paint.putImageData(pixels,0,0);
-        } else { canvas.style.display='none'; }
-    } catch (ignore) { canvas.style.display='none'; }
+    // Hue runs down the area; the left half darkens it to black and the right half lightens it to white,
+    // the same blend DK.colors.spectrum computes. Gradient layers avoid canvas pixel writes, which Gameface lacks.
+    el('div', 'dk-spectrum-dark', null, area); el('div', 'dk-spectrum-light', null, area);
+    var cursor = el('div', 'dk-spectrum-cursor', null, area);
     var previews = el('div', 'dk-color-comparison', null, panel);
     function preview(label) {
         var box=el('div', '', null, previews); el('div','dk-color-title',label,box);

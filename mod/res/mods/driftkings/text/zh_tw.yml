@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "包含範例日期和時間的 1920×1080 車庫畫面。
 panel.hud.title: "螢幕位置"
 panel.hud.whole: "整個螢幕"
 panel.hud.zoom: "放大"
+panel.hud.hcRemaining: "距離大口徑還需"
 panel.keys.close: "關閉"
 panel.keys.module: "上一個 / 下一個模組"
 panel.keys.save: "儲存"
@@ -1810,3 +1811,5 @@ panel.review.title: "檢查變更"
 panel.search.clear: "清除"
 panel.slider.fine: "Shift + 拖曳：微調"
 panel.slider.step: "一步（Shift：十步）"
+
+panel.constructionNotice: "設定面板仍在開發中，版面配置和即時預覽可能仍有錯誤。"

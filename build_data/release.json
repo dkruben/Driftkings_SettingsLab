@@ -8,6 +8,8 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
+    "NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors and have not completed visual in-game acceptance. A visible localized notice is included in the panel.",
+    "Correct nested scrolling, marker text dimensions, shadows, destroyed-state samples, font entities and preview refresh. The carousel preview reads bounded inventory/dossier snapshots and the selected rating palette, with labeled examples when live data is unavailable.",
     "Target Wargaming World of Tanks 2.4.1.1 on EU, NA and ASIA, using the EU 2.4.1.5504 source/SWC reference and a reviewed native vehicle-marker patch. EU/NA Gameface patch inputs were verified against the installed clients.",
     "CONFIGURATION UPGRADE: when moving from the pre-0.1.3 configuration layout, back up personal images and sounds, remove the old mods/configs/driftkings folder and configure the mod again. Legacy colour prefixes and old layouts are not imported automatically.",
     "Add integrated vehicle markers with independent ally/enemy, alive/destroyed and normal/ALT layouts; configure text, ratings, health bars, icons, distance and floating damage through the five marker documents.",

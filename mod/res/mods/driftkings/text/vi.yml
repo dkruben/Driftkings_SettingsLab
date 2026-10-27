@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Màn hình xưởng xe 1920×1080 với ngày và giờ m
 panel.hud.title: "Vị trí trên màn hình"
 panel.hud.whole: "Toàn màn hình"
 panel.hud.zoom: "Phóng to"
+panel.hud.hcRemaining: "còn thiếu cho Cỡ Nòng Lớn"
 panel.keys.close: "Đóng"
 panel.keys.module: "Mô-đun trước / tiếp theo"
 panel.keys.save: "Cứu"
@@ -1810,3 +1811,5 @@ panel.review.title: "Xem lại thay đổi"
 panel.search.clear: "Thông thoáng"
 panel.slider.fine: "Shift + kéo: điều chỉnh chính xác"
 panel.slider.step: "Một bước (Shift: mười)"
+
+panel.constructionNotice: "Bảng cài đặt đang được phát triển. Bố cục và bản xem trước vẫn có thể có lỗi."

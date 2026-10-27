@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Hangarbildschirm mit 1920×1080 sowie Beispieldatum und -
 panel.hud.title: "Bildschirmposition"
 panel.hud.whole: "Gesamter Bildschirm"
 panel.hud.zoom: "Vergrößern"
+panel.hud.hcRemaining: "bis Großkaliber"
 panel.keys.close: "Schließen"
 panel.keys.module: "Vorheriges / nächstes Modul"
 panel.keys.save: "Speichern"
@@ -1810,3 +1811,5 @@ panel.review.title: "Änderungen prüfen"
 panel.search.clear: "Klar"
 panel.slider.fine: "Umschalt + Ziehen: Feineinstellung"
 panel.slider.step: "Ein Schritt (Umschalt: zehn)"
+
+panel.constructionNotice: "Das Einstellungsfenster ist noch in Entwicklung. Darstellung und Live-Vorschauen können Fehler enthalten."

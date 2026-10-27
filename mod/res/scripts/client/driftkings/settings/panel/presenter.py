@@ -15,6 +15,28 @@ MAX_REQUEST = 2097152
 CORE_ID = 'dk.settings'
 
 
+def calendar():
+    """Day and month names the hangar clock shows, so its preview speaks the client's language."""
+    try:
+        from driftkings.gameface.lobby.main import calendar_names
+        return calendar_names()
+    except Exception:
+        return {}
+
+
+def carousel_preview(selected, values):
+    if selected != 'legacy.CarouselStats':
+        return None
+    try:
+        import hashlib
+        from driftkings.lobby.vehicle_carousel import g_data
+        palette_id = 'field_' + hashlib.sha1(b'colorRating').hexdigest()[:16]
+        return g_data.preview_cards(values.get(selected, {}).get(palette_id, 0))
+    except Exception:
+        # Inventory/dossiers are unavailable outside the lobby (and in standalone tools).
+        return None
+
+
 class Presenter(object):
     def __init__(self, api):
         self.api = api
@@ -59,7 +81,7 @@ class Presenter(object):
             preview = getattr(self.registry.mods[item['id']], 'preview', None)
             if preview is not None:
                 item['preview'] = copy.deepcopy(preview)
-        return {'language': language, 'labels': self.api.strings, 'mods': mods}
+        return {'language': language, 'labels': self.api.strings, 'mods': mods, 'calendar': calendar()}
 
     def state(self):
         mods = self.registry.mods
@@ -97,7 +119,8 @@ class Presenter(object):
                 path = images[value] if images is not None and isinstance(value, int) and 0 <= value < len(images) else '' if images is not None else value
                 previews[control.id] = self.image_previews.resolve(path)
         updater = getattr(self.api, 'updater', None)
-        return {'updater': updater.state.snapshot() if updater is not None else None,
+        return {'carouselPreview': None if self.api.in_battle else carousel_preview(self.selected, values),
+                'updater': updater.state.snapshot() if updater is not None else None,
                 'selected': self.selected, 'compatibilityWarnings': compatibility_warnings, 'previews': previews, 'values': values, 'secrets': secrets, 'changed': changed,
                 'disabled': disabled, 'status': status, 'pending': self.session.pending_apply(),
                 'unsaved': self.session.unsaved(), 'confirm': self.confirming, 'message': self.message,

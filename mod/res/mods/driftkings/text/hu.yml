@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "1920×1080-as garázsképernyő példadátummal és időv
 panel.hud.title: "Képernyőpozíció"
 panel.hud.whole: "Teljes képernyő"
 panel.hud.zoom: "Nagyítás"
+panel.hud.hcRemaining: "a Nagy kaliberig"
 panel.keys.close: "Bezárás"
 panel.keys.module: "Előző / következő modul"
 panel.keys.save: "Mentés"
@@ -1810,3 +1811,5 @@ panel.review.title: "Módosítások áttekintése"
 panel.search.clear: "Világos"
 panel.slider.fine: "Shift + húzás: finomhangolás"
 panel.slider.step: "Egy lépés (Shift: tíz)"
+
+panel.constructionNotice: "A beállítási panel fejlesztés alatt áll. Az elrendezés és az élő előnézetek még hibásak lehetnek."

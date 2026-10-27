@@ -8,6 +8,18 @@ from support import CLIENT, ROOT, RuntimeTest, module
 
 
 class LocalizedControlTests(RuntimeTest):
+    def test_color_captions_resolve_hash_values_without_duplicate_prefix(self):
+        for code, groups in self.documents.items():
+            labels = groups['aiming_countdown']
+            for key in ('red', 'orange', 'yellow', 'green', 'blue', 'purple'):
+                template = labels['UI_setting_' + key + '_text']
+                declaration = {'varName': key, 'colorLabelKey': key, 'tooltip': template}
+                result = self.schema.resolve(declaration, labels, {key: u'#123456'})
+                for name in ('text', 'tooltip'):
+                    self.assertNotIn('%(', result[name], (code, key, name))
+                    self.assertNotIn('##', result[name], (code, key, name))
+                    self.assertIn('#123456', result[name], (code, key, name))
+
     def setUp(self):
         super(LocalizedControlTests, self).setUp()
         for name, relative in (('driftkings.settings', 'settings'),

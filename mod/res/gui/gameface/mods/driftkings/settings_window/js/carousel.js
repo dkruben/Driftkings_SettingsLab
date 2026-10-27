@@ -3,7 +3,7 @@
    campos nativos (enabled, alpha, dx, dy, scale) e campos extra (formato, ícone, posição,
    tamanho, alinhamento, camada, cor de fundo), com as macros de estatísticas avaliadas sobre estatísticas
    de exemplo: {{v.x}}, {{v.c_x}}, {{v.x%2d~%}}, {{v.x?sim|não}}, {{v.x|omissão}} e macros aninhadas.
-   As posições dos campos nativos do cliente são aproximadas; os campos extra usam as posições reais. */
+   Os veículos em jogo vêm do inventário; parte das posições nativas continua aproximada; os campos extra usam as posições reais. */
 (function () {
     'use strict';
     var DK = window.DK, h = DK.h, t = DK.t;
@@ -26,8 +26,8 @@
     var CLASS_COLORS = {lightTank: '#53b329', mediumTank: '#1ea2d2', heavyTank: '#957d5b', 'AT-SPG': '#f13439', SPG: '#b87ab2'};
     // Approximate places of the client's own card elements, as fractions of the card.
     var NATIVE = {
-        flag: {x: 0, y: 0, w: 1, h: 1}, tankIcon: {x: 0.28, y: 0.18, w: 0.72, h: 0.72}, tankType: {x: 0.03, y: 0.04},
-        level: {x: 0.11, y: 0.03}, tankName: {x: 0.03, y: 0.80}, xp: {x: 0.80, y: 0.03}, favorite: {x: 0.03, y: 0.20},
+        flag: {x: 0, y: 0, w: 1, h: 1}, tankIcon: {x: 0.5, y: 0.5}, tankType: {x: 0.03, y: 0.04},
+        level: {x: 0.11, y: 0.03}, tankName: {x: 0.03, y: 0.80}, xp: {x: 0.80, y: 0.03}, favorite: {x: 1, y: 1},
         info: {x: 0.30, y: 0.42}, progressionPoints: {x: 0.72, y: 0.82}
     };
 
@@ -42,15 +42,18 @@
     }
     function lookup(name, vehicle) {
         name = name.replace(/^v\./, '');
+        var aliases = {tdb:'avgDamage',winrate:'winRate',hitsRatio:'hitRate',damageRating:'marks',tfb:'avgFrags',t_battles:'battles',markOfMastery:'mastery'};
         if (name.indexOf('c_') === 0) {
             var key = name.slice(2);
             if (key === 'type') { return CLASS_COLORS[vehicle.type] || '#957d5b'; }
+            if (vehicle.colors) { return vehicle.colors[aliases[key] || key] || null; }
             return colorOf(key, vehicle.stats[key]);
         }
         if (name === 'name') { return vehicle.name; }
         if (name === 'premium') { return vehicle.premium || null; }
         if (name === 'selected') { return vehicle.selected || null; }
         if (name === 'level') { return vehicle.level; }
+        if (vehicle.colors) { return vehicle.stats[aliases[name] || name]; }
         if (name === 'tfb') { return vehicle.stats.tfb ? vehicle.stats.tdb : null; }
         var value = vehicle.stats[name];
         return value === 0 && /marksOnGun/.test(name) ? null : value;
@@ -65,7 +68,15 @@
         if (body.indexOf('icon:') === 0) {
             var kind = body.slice(5);
             if (kind === 'mastery' && vehicle.stats.mastery) { return DK.assets.mastery(vehicle.stats.mastery); }
-            if (kind === 'marksOnGun' && vehicle.stats.marksOnGun) { return DK.assets.marks(vehicle.stats.marksOnGun); }
+            if (kind === 'marksOnGun' && vehicle.stats.marksOnGun) {
+                var count = vehicle.stats.marksOnGun;
+                return vehicle.colors ? 'gui/maps/icons/marksOnGun/95x85/' + vehicle.nation + '_' + count + '_' + (count === 1 ? 'mark' : 'marks') + '.png' : DK.assets.marks(count);
+            }
+            if (vehicle.colors) {
+                if (kind === 'mastery') { return '--'; }
+                var icons = {damage:'efficiency/48x48/damage.png',assist:'efficiency/48x48/help.png',blocked:'efficiency/48x48/armor.png',wins:'dossier/wins40x32.png',battles:'dossier/battles40x32.png'};
+                return icons[kind] ? 'gui/maps/icons/library/' + icons[kind] : '';
+            }
             return 'dkicon:' + kind;
         }
         var name = /^[\w.:-]+/.exec(body);
@@ -73,14 +84,14 @@
         var rest = body.slice(name.length), value = lookup(name, vehicle), present = value !== undefined && value !== null && value !== '';
         if (rest.charAt(0) === '?') {
             var bar = rest.indexOf('|');
-            return present ? rest.slice(1, bar < 0 ? undefined : bar) : bar < 0 ? '' : rest.slice(bar + 1);
+            return value ? rest.slice(1, bar < 0 ? undefined : bar) : bar < 0 ? '' : rest.slice(bar + 1);
         }
         var spec = /^%[-\d.]*[sdif]/.exec(rest);
         if (spec) { rest = rest.slice(spec[0].length); }
         var suffix = '', fallback = null;
         if (rest.charAt(0) === '~') { var end = rest.indexOf('|'); suffix = rest.slice(1, end < 0 ? undefined : end); rest = end < 0 ? '' : rest.slice(end); }
         if (rest.charAt(0) === '|') { fallback = rest.slice(1); }
-        if (!present) { return fallback === null ? '' : fallback; }
+        if (!present) { return fallback === null ? (vehicle.colors ? '--' : '') : fallback; }
         return format(value, spec ? spec[0] : null) + suffix;
     }
     // Innermost macros first, so {{v.tfb?{{v.wn8expd%d}}|}} works.
@@ -148,7 +159,7 @@
     }
 
     function create(host, mod) {
-        var values = {}, overrides = {}, layout = null, defs = {};
+        var values = {}, overrides = {}, layout = null, defs = {}, vehicles = VEHICLES, nativeRows = 1;
         mod.controls.forEach(function (def) { defs[def.id] = def; });
         function v(path, fallback) {
             var id = DK.minimapPreview.fieldId(path);
@@ -168,12 +179,12 @@
         small.addEventListener('click', function (event) { DK.stop(event); layout = 'small'; draw(); });
         var frame = h('div.dk-car-frame', null, null, root);
         var strip = h('div.dk-car-strip', null, null, frame);
-        h('div.dk-live-note', {text: t('car.note')}, null, root);
+        var note = h('div.dk-live-note', {text: t('car.note')}, null, root);
 
         function profileName() {
             if (layout) { return layout; }
             var cell = v('carousel.cellType', 0);
-            return cell === 2 || cell === 'small' ? 'small' : 'normal';
+            return cell === 2 || cell === 'small' || ((cell === 0 || cell === 'auto') && nativeRows > 1) ? 'small' : 'normal';
         }
         function field(layers, profile, index, vehicle) {
             var p = 'carousel.' + profile + '.extraFields.' + index + '.';
@@ -216,6 +227,18 @@
             if (place.w) { node.style.width = (place.w * 100) + '%'; node.style.height = (place.h * 100) + '%'; }
             node.style.opacity = DK.clamp(Number(v(p + 'alpha', 100)), 0, 100) / 100;
             node.style.transform = 'translate(' + v(p + 'dx', 0) + 'rem,' + v(p + 'dy', 0) + 'rem) scale(' + v(p + 'scale', 1) + ')';
+            // Baseline anchors from the EU 2.4.1.1 native carousel CSS.
+            if (key === 'tankIcon') {
+                node.style.width = (profile === 'small' ? 230 : 260) + 'rem';
+                node.style.height = (profile === 'small' ? 184 : 208) + 'rem';
+                node.style.transform = 'translate(-50%,-53%) ' + node.style.transform;
+            } else if (key === 'favorite') {
+                node.style.width = '22rem'; node.style.height = '27rem';
+                node.style.transform = 'translate(-100%,-100%) ' + node.style.transform;
+            } else if (key === 'flag') {
+                node.style.width = (profile === 'small' ? 120 : 128) + 'rem';
+                node.style.height = (profile === 'small' ? 90 : 96) + 'rem';
+            }
             node.style.transformOrigin = '0 0';
         }
         function card(profile, vehicle, width, height) {
@@ -227,10 +250,10 @@
             // The client's own images: nation flag (160x100), vehicle (420x307), class and tier icons.
             native(node, profile, 'flag', vehicle, function () {
                 var flag = h('div.dk-car-flag');
-                flag.style.backgroundImage = 'url(' + DK.asset(DK.assets.flag(vehicle.nation)) + '), linear-gradient(to right, ' + vehicle.flag[0] + ', ' + vehicle.flag[1] + ')';
+                flag.style.backgroundImage = 'url(' + DK.asset(DK.assets.flag(vehicle.nation)) + '), linear-gradient(to right, ' + (vehicle.flag || ['#1a2c40','#101820'])[0] + ', ' + (vehicle.flag || ['#1a2c40','#101820'])[1] + ')';
                 return flag;
             });
-            native(node, profile, 'tankIcon', vehicle, function () { return withFallback(h('img.dk-car-tank-img', {src: DK.asset(DK.assets.tank(vehicle.tank))})); });
+            native(node, profile, 'tankIcon', vehicle, function () { return withFallback(h('img.dk-car-tank-img', {src: DK.asset(vehicle.image || DK.assets.tank(vehicle.tank))})); });
             native(node, profile, 'tankType', vehicle, function () { return withFallback(h('img.dk-car-type-img', {src: DK.asset(DK.assets.type(vehicle.type))})); });
             native(node, profile, 'level', vehicle, function () { return withFallback(h('img.dk-car-level-img', {src: DK.asset(DK.assets.level(vehicle.tier))})); });
             native(node, profile, 'tankName', vehicle, function () { return h('div.dk-car-name' + (vehicle.premium ? '.is-premium' : ''), {text: vehicle.name}); });
@@ -257,7 +280,10 @@
             var width = v('carousel.' + profile + '.width', profile === 'small' ? 160 : 210);
             var height = v('carousel.' + profile + '.height', profile === 'small' ? 70 : 140);
             var gap = v('carousel.' + profile + '.gap', 10);
-            var rows = profile === 'small' ? 2 : 1, columns = 2;
+            var configuredRows = Number(v('carousel.rows', 0));
+            var rows = configuredRows >= 1 && configuredRows <= 4 ? configuredRows : vehicles === VEHICLES ? (profile === 'small' ? 2 : 1) : nativeRows;
+            rows = Math.min(rows, vehicles.length);
+            var columns = Math.min(2, Math.ceil(vehicles.length / rows));
             strip.style.backgroundColor = 'rgba(0,0,0,' + (v('carousel.backgroundAlpha', 60) / 100 * 0.6) + ')';
             var total = {w: columns * width + (columns - 1) * gap + 16, h: rows * height + (rows - 1) * gap + 16};
             var unit = parseFloat(document.documentElement.style.fontSize) || 1, room = (frame.clientWidth / unit) || 344;
@@ -270,8 +296,8 @@
             for (var c = 0; c < columns; c++) {
                 var column = h('div.dk-car-column', null, null, strip);
                 if (c) { column.style.marginLeft = gap + 'rem'; }
-                for (var r = 0; r < rows; r++) {
-                    var node = card(profile, VEHICLES[index % VEHICLES.length], width, height);
+                for (var r = 0; r < rows && index < vehicles.length; r++) {
+                    var node = card(profile, vehicles[index % vehicles.length], width, height);
                     if (r) { node.style.marginTop = gap + 'rem'; }
                     column.appendChild(node);
                     index += 1;
@@ -279,7 +305,13 @@
             }
         }
         return {
-            update: function (next) { values = next || {}; overrides = {}; draw(); },
+            update: function (next, everything, snapshot) {
+                values = next || {}; overrides = {};
+                nativeRows = snapshot && snapshot.nativeRows >= 1 && snapshot.nativeRows <= 4 ? snapshot.nativeRows : 1;
+                vehicles = snapshot && snapshot.source === 'inventory' && snapshot.vehicles && snapshot.vehicles.length ? snapshot.vehicles : VEHICLES;
+                note.textContent = vehicles === VEHICLES ? t('car.note') : t('car.title') + ': ' + vehicles.map(function (item) { return item.name; }).join(', ');
+                draw();
+            },
             preview: function (id, value) { overrides[id] = value; draw(); },
             redraw: draw,
             dispose: function () { DK.remove(root); }

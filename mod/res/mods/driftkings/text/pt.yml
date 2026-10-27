@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Ecrã do hangar 1920×1080 com uma data e hora de exemplo
 panel.hud.title: "Posição no ecrã"
 panel.hud.whole: "Ecrã inteiro"
 panel.hud.zoom: "Ampliar"
+panel.hud.hcRemaining: "em falta para Alto Calibre"
 panel.keys.close: "Fechar"
 panel.keys.module: "Módulo anterior / seguinte"
 panel.keys.save: "Guardar"
@@ -1810,3 +1811,5 @@ panel.review.title: "Rever alterações"
 panel.search.clear: "Limpar"
 panel.slider.fine: "Shift + arrastar: ajuste fino"
 panel.slider.step: "Um passo (Shift: dez)"
+
+panel.constructionNotice: "Painel de configurações em construção. A apresentação e as pré-visualizações ainda podem conter erros."

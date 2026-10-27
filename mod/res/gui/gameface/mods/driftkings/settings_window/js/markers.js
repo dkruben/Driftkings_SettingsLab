@@ -7,10 +7,26 @@
     var DK = window.DK, h = DK.h, t = DK.t, M=DK.vehicleMarkerModel;
     var FILES = {alive: {normal: 'markersAliveNormal', extended: 'markersAliveExtended'}, dead: {normal: 'markersDeadNormal', extended: 'markersDeadExtended'}};
     var TEAM = {ally: '#60D35A', enemy: '#F0413B'};
-    // Marker numbers with a known range: [min, max, unit].
+    // Marker numbers with a known range: [min, max, unit, step]. Positions, sizes and times stay inside the limits
+    // core/vehicle_markers validates (fields.py, healthbar.py, damage.py, icons.py), so a slider cannot break a file.
     var RANGES = {alpha: [0, 100, '%'], amount: [0, 100, '%'], size: [6, 40, 'px'], angle: [0, 360, '°'], blur: [0, 30, ''],
-                  strength: [0, 10, ''], maxScale: [0, 200, '%']};
-    var ICON_ELEMENTS = {actionMarker: '!', vehicleIcon: '◆', levelIcon: 'VIII', hoverMarker: '▼', vehicleStatusMarker: '●', damageIndicator: '✦'};
+                  strength: [0, 10, ''], maxScale: [0, 200, '%'], x: [-300, 300, 'px'], y: [-300, 300, 'px'],
+                  offsetX: [-300, 300, 'px'], offsetY: [-300, 300, 'px'], width: [1, 500, 'px'], height: [1, 200, 'px'],
+                  maxRange: [0, 300, 'px'], speed: [0.1, 10, 's', 0.1], fade: [0.1, 5, 's', 0.1]};
+    // The health bar is stricter: width 4-500 and height 2-100 (healthbar.py).
+    var BAR_RANGES = {width: [4, 500, 'px'], height: [2, 100, 'px']};
+    function rangeFor(key, path) {
+        if (DK.contains(path, 'border') && key === 'size') { return [0, 10, 'px']; }   // healthbar.py border width
+        return (DK.contains(path, 'healthBar') && !DK.contains(path, 'border') && BAR_RANGES[key]) || RANGES[key];
+    }
+    function fits(value, range) {
+        var step = range[3] || 1;
+        return typeof value === 'number' && value >= range[0] && value <= range[1] && Math.abs(Math.round(value / step) * step - value) < 1e-9;
+    }
+    // The battle draws these from the marker SWF; the preview stands in with a glyph.
+    var ICON_ELEMENTS = {actionMarker: '!', hoverMarker: '▼', vehicleStatusMarker: '●', damageIndicator: '✦'};
+    // Client images for the sample vehicle (gui/maps/icons, as Vehicle.py and respawn_utils.py name them).
+    var IMAGE_ELEMENTS = {vehicleIcon: 'typeIcon', levelIcon: 'levelIcon', contourIcon: 'contour'};
 
     function label(preview, key) { return (preview.labels && preview.labels[key]) || key; }
     function getPath(object, path) { for (var i = 0; i < path.length; i++) { if (object === null || object === undefined) { return undefined; } object = object[path[i]]; } return object; }
@@ -27,21 +43,19 @@
         var match = typeof value === 'string' ? /^\$\{([\w.]+)\}$/.exec(value) : null;
         return match ? match[1].split('.') : null;
     }
-    function resolve(doc, value) {
-        for (var guard = 0; guard < 5; guard++) {
-            var path = refPath(value);
-            if (!path) { return value; }
-            value = getPath(doc, path);
-        }
-        return value;
-    }
     function create(host, mod, ctx) {
         var preview = mod.preview, bindings = preview.bindings || {}, values = {}, disabled = [], changed = [];
         var sel = {team: 'ally', state: 'alive', mode: 'normal', element: null, path: null, json: false};
         var docs = {}, texts = {}, sliders = [], current=null, awaiting=false;
-        function sample(){return {group:sel.team,state:sel.state,alt:sel.mode==='extended',blind:false,hp:hp.value,distance:350,name:'Driftkings'};}
+        var vehicle = preview.vehicle || {};
+        function sample(){return {group:sel.team,state:sel.state,alt:sel.mode==='extended',blind:false,hp:sel.state==='dead'?0:hp.value,distance:350,name:'Driftkings',vehicle:vehicle};}
         function resolved(){
-            var general=doc('markers'),raw=general?DK.copy(general.markers):{};
+            // The markers field holds the content of markers.json's "markers" object (ally/enemy wiring, colours...).
+            var general=doc('markers'),raw=general&&typeof general==='object'?DK.copy(general):{};
+            // The rating switches above the preview are their own fields; follow them before markers.json catches up.
+            var rating=values[bindings['markers.colorRating']],metric=values[bindings['markers.ratingType']];
+            if(typeof rating==='number'){raw.colorRating=rating;}
+            if(typeof metric==='string'){raw.ratingType=metric;}
             raw={enabled:values[bindings.enabled]!==false,markers:raw};
             M.STATE_KEYS.forEach(function(key){raw[key]=doc(key);});
             return M.state(raw,sample(),preview.palettes);
@@ -66,7 +80,7 @@
             var group = h('div.dk-segments', null, null, box), buttons = {};
             options.forEach(function (option) {
                 buttons[option[0]] = h('button.dk-segment', {text: option[1], onclick: function (event) {
-                    DK.stop(event); sel[key] = option[0]; sel.path = null; render();
+                    DK.stop(event); sel[key] = option[0]; sel.path = null; clearEffects(); render();
                 }}, null, group);
             });
             return buttons;
@@ -90,14 +104,107 @@
         var hpBox = h('div.dk-markers-hp', null, [h('span', {text: t('markers.hp')})], stage);
         var hp = {value: 75}, hpButtons = [];
         var hpGroup = h('div.dk-segments', null, null, hpBox);
+        function setHp(value) {
+            hp.value = value;
+            hpButtons.forEach(function (b) { DK.toggle(b, 'is-selected', b.textContent === value + '%'); });
+        }
         [100, 75, 40, 10].forEach(function (value) {
             hpButtons.push(h('button.dk-segment' + (value === hp.value ? '.is-selected' : ''), {text: value + '%', onclick: function (event) {
-                DK.stop(event);
-                hp.value = value;
-                hpButtons.forEach(function (b) { DK.toggle(b, 'is-selected', b.textContent === value + '%'); });
-                draw();
+                DK.stop(event); setHp(value); draw();
             }}, null, hpGroup));
         });
+
+        /* Damage simulator: real shells hit the sample vehicle. First shell of each gun in components/shells.xml:
+           the player's T32 (105 mm AP T32E1, 320), a platoon Leopard 1 (105 mm DM13, 420), another IS-7 (130 mm UBR-482, 490). */
+        var SHOTS = {player: 320, squad: 420, other: 490};
+        // The floating text each author uses in the marker files (schema.py: damageTextPlayer, damageTextSquadman, damageText).
+        var DAMAGE_KEYS = {player: 'damageTextPlayer', squad: 'damageTextSquadman', other: 'damageText'};
+        var effects = h('div.dk-markers-anchor.dk-markers-effects', null, null, stage);
+        var sim = {source: 'player', blowup: false, items: [], ticker: null};
+        var simBox = h('div.dk-markers-sim', null, null, stage);
+        h('button.dk-button.is-small.is-primary', {text: label(preview, 'damage'), onclick: function (event) { DK.stop(event); simulate(); }}, null, simBox);
+        h('button.dk-button.is-small', {text: label(preview, 'reset'), onclick: function (event) {
+            DK.stop(event); clearEffects(); setHp(100); sel.state = 'alive'; sel.path = null; render();
+        }}, null, simBox);
+        var sourceGroup = h('div.dk-segments', null, null, simBox), sourceButtons = {};
+        ['player', 'squad', 'other'].forEach(function (source) {
+            sourceButtons[source] = h('button.dk-segment' + (source === sim.source ? '.is-selected' : ''), {text: label(preview, source), onclick: function (event) {
+                DK.stop(event); sim.source = source;
+                Object.keys(sourceButtons).forEach(function (key) { DK.toggle(sourceButtons[key], 'is-selected', key === source); });
+            }}, null, sourceGroup);
+        });
+        var blowupButton = h('button.dk-segment', {text: label(preview, 'blowup'), onclick: function (event) {
+            DK.stop(event); sim.blowup = !sim.blowup; DK.toggle(blowupButton, 'is-selected', sim.blowup);
+        }}, null, simBox);
+        function clearEffects() {
+            if (sim.ticker !== null) { clearInterval(sim.ticker); sim.ticker = null; }
+            sim.items = []; DK.clear(effects);
+        }
+        // One step of every running effect, as VMDamage.as and VMHealthBar.as do on each frame.
+        function tick() {
+            var now = Date.now();
+            sim.items = sim.items.filter(function (item) {
+                var progress = (now - item.start) / item.duration;
+                if (progress < 0) { return true; }
+                if (progress >= 1) { DK.remove(item.node); return false; }
+                item.step(progress);
+                return true;
+            });
+            if (!sim.items.length) { clearInterval(sim.ticker); sim.ticker = null; }
+        }
+        function animate(node, seconds, source, step) {
+            sim.items.push({node: node, start: Date.now(), duration: Math.max(0.1, seconds) * 1000, source: source, step: step});
+            if (sim.ticker === null) { sim.ticker = setInterval(tick, 16); }
+        }
+        function simulate() {
+            var file = doc(FILES.alive[sel.mode]), d;
+            if (sel.state === 'dead' || hp.value <= 0 || !file || !current) { return; }
+            try { d = M.resolve(file); } catch (error) { return; }
+            var team = d[sel.team] || {}, maxHp = vehicle.maxHp || 1650, before = Math.round(maxHp * hp.value / 100);
+            // An ammo rack explosion destroys the vehicle whatever its health; the damage is the health it had left.
+            var amount = sim.blowup ? before : Math.min(before, SHOTS[sim.source]), after = before - amount;
+            var event = M.damageEvent(amount, sim.source, sim.blowup ? 'explosion' : 'shot', sim.blowup ? -1 : after);
+            var info = sample(), config = current.config;
+            setHp(after * 100 / maxHp);
+            trail(team.healthBar, before / maxHp, after / maxHp, config, info, event);
+            var options = team[DAMAGE_KEYS[sim.source]] || team.damageText;
+            if (options && typeof options === 'object' && options.enabled !== false) { floating(options, event, config, info); }
+            if (after <= 0) { sel.state = 'dead'; sel.path = null; render(); } else { draw(); }
+        }
+        function trail(bar, from, to, config, info, event) {
+            var damage = bar && bar.damage;
+            if (!bar || bar.enabled === false || !damage || to <= 0) { return; }
+            var width = bar.width || 70, height = bar.height || 12;
+            var node = h('div.dk-mk-trail', null, null, effects);
+            node.style.left = (bar.x + width * to) + 'rem'; node.style.top = (bar.y + 1) + 'rem';
+            node.style.height = Math.max(1, height - 2) + 'rem';
+            node.style.backgroundColor = DK.hex(M.text(damage.color || '{{c:dmg}}', config, info, event)) || '#FFFFFF';
+            node.style.opacity = (damage.alpha === undefined ? 100 : damage.alpha) / 100;
+            function span(ratio) { node.style.width = Math.max(0, width * (ratio - to)) + 'rem'; }
+            span(from);
+            animate(node, damage.fade === undefined ? 1 : damage.fade, null, function (progress) { span(from + (to - from) * progress); });
+        }
+        function floating(options, event, config, info) {
+            var format = options.textFormat || {}, rise = options.maxRange === undefined ? 40 : options.maxRange;
+            var message = event.blowup ? (options.blowupMessage || '{{i18n:blownUp}}\n{{dmg}}') : (options.damageMessage || '{{dmg}}');
+            // Up to four texts per author stay on screen (VMDamage maxCount); the oldest goes first.
+            var mine = sim.items.filter(function (item) { return item.source === sim.source; });
+            while (mine.length >= 4) { var old = mine.shift(); DK.remove(old.node); sim.items.splice(sim.items.indexOf(old), 1); }
+            var node = h('div.dk-mk-text.is-' + (options.align || 'center'), null, null, effects);
+            DK.richText.render(node, M.text(message, config, info, event).replace(/\n/g, '<br>'), {size: format.size || 18});
+            node.style.fontFamily = format.font && format.font !== '$FieldFont' && format.font !== '$TitleFont' ? format.font : 'Warhelios';
+            node.style.fontWeight = format.bold ? '700' : '400';
+            node.style.fontStyle = format.italic ? 'italic' : 'normal';
+            node.style.color = DK.hex(M.text(format.color || '{{c:dmg}}', config, info, event)) || '#FFFFFF';
+            node.style.left = (options.x || 0) + 'rem';
+            var y = options.y || 0, opacity = Number(M.text(String(options.alpha === undefined ? 100 : options.alpha), config, info, event)) / 100;
+            node.style.top = y + 'rem'; node.style.opacity = opacity;
+            // The text rises linearly and fades out over the second half of its time.
+            animate(node, options.speed === undefined ? 2 : options.speed, sim.source, function (progress) {
+                node.style.top = (y - rise * progress) + 'rem';
+                node.style.opacity = opacity * Math.min(1, (1 - progress) * 2);
+            });
+        }
         var side = h('div.dk-markers-side', null, null, body);
         var list = h('div.dk-markers-list', null, null, side);
         var editor = h('div.dk-markers-editor', null, null, side);
@@ -122,34 +229,46 @@
         function draw() {
             DK.clear(anchor);
             var d = doc(FILES[sel.state][sel.mode]);
+            try { d = d && M.resolve(d); } catch (error) { d = null; }
             var team = d && d[sel.team];
             if (!team) { return; }
             try{current=resolved();}catch(error){current=null;return;}
+            if (!current.shown) { return; }
             var base=M.teamColor(current.config,sample());
             Object.keys(team).forEach(function (key) {
-                var item = resolve(d, team[key]);
+                var item = team[key];
                 if (key === 'textFields' && DK.isArray(item)) {
-                    item.forEach(function (field, index) { text(resolve(d, field), key, index, base); });
+                    item.forEach(function (field, index) { text(field, key, index, base); });
                     return;
                 }
                 if (!item || typeof item !== 'object' || item.enabled === false || typeof item.x !== 'number') { return; }
-                var node;
+                var node, x = item.x + (item.offsetX || 0), y = item.y + (item.offsetY || 0);
                 if (key === 'healthBar') {
                     node = h('div.dk-mk-bar', null, null, anchor);
-                    node.style.width = (item.width || 70) + 'px'; node.style.height = (item.height || 10) + 'px';
+                    node.style.width = (item.width || 70) + 'rem'; node.style.height = (item.height || 10) + 'rem';
                     var border = item.border || {};
-                    node.style.borderWidth = (border.size === undefined ? 1 : border.size) + 'px';
+                    node.style.borderWidth = (border.size === undefined ? 1 : border.size) + 'rem';
                     node.style.borderColor = DK.rgba(color(border.color, '#000000'), (border.alpha === undefined ? 100 : border.alpha) / 100);
                     var fill = h('div.dk-mk-fill', null, null, node);
                     fill.style.width = (sel.state==='dead'?0:hp.value) + '%';
-                    fill.style.backgroundColor = DK.rgba(color(item.color, base), ((item.fill && item.fill.alpha) === undefined ? 100 : item.fill.alpha) / 100);
-                    node.style.left = item.x + 'px'; node.style.top = item.y + 'px';
-                } else if (key === 'contourIcon' || key === 'vehicleDist' || ICON_ELEMENTS[key]) {
-                    var shown = key === 'vehicleDist' ? '350 m' : key === 'contourIcon' ? '▭' : ICON_ELEMENTS[key];
-                    node = h('div.dk-mk-icon', {text: shown}, null, anchor);
-                    node.style.left = item.x + 'px'; node.style.top = item.y + 'px';
-                    node.style.color = color(item.color,key === 'levelIcon' ? '#F2E3B5' : base);
+                    var fillAlpha = ((item.fill && item.fill.alpha) === undefined ? 100 : item.fill.alpha) / 100;
+                    fill.style.backgroundColor = DK.rgba(color(item.color, base), fillAlpha);
+                    if (item.lcolor) { fill.style.backgroundImage = 'linear-gradient(to right, ' + DK.rgba(color(item.color, base), fillAlpha) + ', ' + DK.rgba(color(item.lcolor, base), fillAlpha) + ')'; }
+                } else if (key === 'vehicleDist') {
+                    node = h('div.dk-mk-text.is-' + (item.align || 'center'), null, null, anchor);
+                    DK.richText.render(node, M.text('{{alive&&distance?{{distance}}m|}}', current.config, sample()), {size: (item.textFormat || {}).size || 13});
+                    node.style.color = color((item.textFormat || {}).color, '#FFFFFF');
+                } else if (IMAGE_ELEMENTS[key] && vehicle[IMAGE_ELEMENTS[key]]) {
+                    node = h('div.dk-mk-image.is-' + key, null, null, anchor);
+                    var image = h('img', {src: DK.asset(vehicle[IMAGE_ELEMENTS[key]])}, null, node);
+                    image.addEventListener('error', function () { DK.remove(image); node.textContent = key === 'levelIcon' ? String(vehicle.level || '') : '◆'; });
+                    // The contour tint mixes the team colour into the image, as the battle marker does.
+                    if (key === 'contourIcon' && item.amount) { node.style.backgroundColor = DK.rgba(color(item.color, base), item.amount / 100); }
+                } else if (ICON_ELEMENTS[key]) {
+                    node = h('div.dk-mk-icon', {text: ICON_ELEMENTS[key]}, null, anchor);
+                    node.style.color = color(item.color, base);
                 } else { return; }
+                node.style.left = x + 'rem'; node.style.top = y + 'rem';
                 node.style.opacity = (item.alpha === undefined ? 100 : item.alpha) / 100;
                 node.title = label(preview, key);
                 hook(node, [sel.team, key]);
@@ -162,12 +281,21 @@
             DK.richText.render(node,M.text(field.format || field.name || '',current.config,sample()),{size:format.size||13});
             node.style.fontFamily=format.font&&format.font!=='$FieldFont'&&format.font!=='$TitleFont'?format.font:'Warhelios';
             node.style.fontStyle=format.italic?'italic':'normal';
-            node.style.fontSize = (format.size || 13) + 'px';
             node.style.fontWeight = format.bold ? '700' : '400';
-            node.style.color = color(format.color, '#FFFFFF');
+            node.style.color = color(format.color, base);
             node.style.opacity = Number(M.text(String(field.alpha === undefined ? 100 : field.alpha),current.config,sample())) / 100;
-            node.style.left = (field.x || 0) + 'px';
-            node.style.top = (field.y || 0) + 'px';
+            node.style.left = (field.x || 0) + 'rem';
+            var width = field.width === undefined ? 140 : field.width, height = field.height === undefined ? 100 : field.height;
+            node.style.width = width + 'rem'; node.style.height = height + 'rem';
+            node.style.marginLeft = (field.align === 'right' ? -width : field.align === 'left' ? 0 : -width / 2) + 'rem';
+            var top = field.y || 0;
+            if (field.valign === 'bottom') { top -= height; } else if (field.valign === 'center') { top -= height / 2; }
+            node.style.top = top + 'rem';
+            var shadow = field.shadow || {};
+            if (shadow.enabled !== false && field.shadow) {
+                var angle = (shadow.angle || 0) * Math.PI / 180, distance = shadow.distance || 0;
+                node.style.textShadow = (Math.cos(angle) * distance) + 'rem ' + (Math.sin(angle) * distance) + 'rem ' + (shadow.blur || 0) + 'rem ' + DK.rgba(color(shadow.color, '#000000'), (shadow.alpha === undefined ? 100 : shadow.alpha) / 100);
+            }
             DK.toggle(node, 'is-' + (field.align || 'center'), true);
             node.title = field.name || label(preview, key);
             hook(node, [sel.team, key, index]);
@@ -198,10 +326,10 @@
         function isColorKey(key, value) { return (typeof value==='string'||value===null)&&/color$/i.test(key); }
         function field(container, document, key, path, value, fileKeyName, readOnly) {
             function save(next) { if(readOnly){return;} var draft=DK.copy(document);setPath(draft,path,next);commit(fileKeyName,draft); }
-            var range = RANGES[key];
-            if (typeof value === 'number' && range && value >= range[0] && value <= range[1] && value === Math.round(value)) {
-                // Known bounded numbers get a slider; positions and sizes keep the free number field.
-                var control = DK.controls.create({id: path.join('.'), type: 'slider', label: label(preview, key), min: range[0], max: range[1], step: 1, unit: range[2]},
+            var range = rangeFor(key, path);
+            if (range && fits(value, range)) {
+                // Known bounded numbers get a slider; a value outside the range keeps the free number field.
+                var control = DK.controls.create({id: path.join('.'), type: 'slider', label: label(preview, key), min: range[0], max: range[1], step: range[3] || 1, unit: range[2]},
                                                  {commit: function (id, next) { if (!readOnly) { save(next); } }});
                 control.sync({disabled: readOnly, changed: false, value: value});
                 control.set(value);
@@ -278,7 +406,7 @@
             }
         }
         function form(container, document, object, path, fileKeyName, readOnly, skip) {
-            if(path.join('.')==='markers.colors'&&current){object=M.merge(current.config.colors,object);}
+            if(fileKeyName==='markers'&&path.join('.')==='colors'&&current){object=M.merge(current.config.colors,object);}
             Object.keys(object || {}).forEach(function (key) {
                 if (skip && DK.contains(skip, key)) { return; }
                 field(container, document, key, path.concat([key]), object[key], fileKeyName, readOnly);
@@ -329,7 +457,7 @@
 
         return {
             update: function (nextValues, info) {
-                var before = JSON.stringify([fieldId(FILES[sel.state][sel.mode]), values[bindings.markers]].map(function (id) { return values[id]; }));
+                var before = JSON.stringify([fieldId(FILES[sel.state][sel.mode]), bindings.markers, bindings.enabled, bindings['markers.colorRating'], bindings['markers.ratingType']].map(function (id) { return values[id]; }));
                 values = nextValues || {};
                 disabled = info.disabled || []; changed = info.changed || [];
                 generalControls.forEach(function (control) {
@@ -337,10 +465,10 @@
                     control.sync({disabled: DK.contains(disabled, id), changed: DK.contains(changed, id), value: values[id], values: values});
                     control.set(values[id]);
                 });
-                var after = JSON.stringify([fieldId(FILES[sel.state][sel.mode]), values[bindings.markers]].map(function (id) { return values[id]; }));
+                var after = JSON.stringify([fieldId(FILES[sel.state][sel.mode]), bindings.markers, bindings.enabled, bindings['markers.colorRating'], bindings['markers.ratingType']].map(function (id) { return values[id]; }));
                 if (before !== after || awaiting || !list.firstChild) { awaiting=false;render(); }
             },
-            dispose: function () { editorScroll.dispose();sliders.forEach(function(control){control.dispose();}); generalControls.forEach(function (control) { control.dispose(); }); DK.remove(root); }
+            dispose: function () { clearEffects();editorScroll.dispose();sliders.forEach(function(control){control.dispose();}); generalControls.forEach(function (control) { control.dispose(); }); DK.remove(root); }
         };
     }
 

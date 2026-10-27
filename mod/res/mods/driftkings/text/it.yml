@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Schermo dell’officina 1920×1080 con data e ora di esem
 panel.hud.title: "Posizione sullo schermo"
 panel.hud.whole: "Schermo intero"
 panel.hud.zoom: "Ingrandisci"
+panel.hud.hcRemaining: "mancanti per Grosso calibro"
 panel.keys.close: "Chiudi"
 panel.keys.module: "Modulo precedente / successivo"
 panel.keys.save: "Salva"
@@ -1810,3 +1811,5 @@ panel.review.title: "Rivedi modifiche"
 panel.search.clear: "Chiaro"
 panel.slider.fine: "Maiusc + trascina: regolazione fine"
 panel.slider.step: "Un passo (Maiusc: dieci)"
+
+panel.constructionNotice: "Pannello impostazioni in sviluppo. La disposizione e le anteprime possono ancora contenere errori."

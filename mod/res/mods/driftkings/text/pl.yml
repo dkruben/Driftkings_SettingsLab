@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Ekran garażu 1920×1080 z przykładową datą i godziną
 panel.hud.title: "Pozycja na ekranie"
 panel.hud.whole: "Cały ekran"
 panel.hud.zoom: "Powiększ"
+panel.hud.hcRemaining: "do Dużego kalibru"
 panel.keys.close: "Zamknij"
 panel.keys.module: "Poprzedni / następny moduł"
 panel.keys.save: "Zapisz"
@@ -1810,3 +1811,5 @@ panel.review.title: "Przejrzyj zmiany"
 panel.search.clear: "Jasne"
 panel.slider.fine: "Shift + przeciągnięcie: dokładna regulacja"
 panel.slider.step: "Jeden krok (Shift: dziesięć)"
+
+panel.constructionNotice: "Panel ustawień jest w trakcie tworzenia. Układ i podglądy mogą nadal zawierać błędy."

@@ -69,16 +69,21 @@ def resolve(item, labels, values):
     color_key = item.pop('colorLabelKey', None)
     if color_key is not None:
         item['text'] = labels['UI_setting_' + color_key + '_text']
-        tooltip = item.get('tooltip', '')
-        if isinstance(tooltip, bytes):
-            tooltip = tooltip.decode('utf-8')
-        # Only a %(name)s macro is substituted; plain percentages in the text stay as written.
-        if '%(' in tooltip:
-            try:
-                tooltip = tooltip % {item['varName']: values[item['varName']]}
-            except (KeyError, TypeError, ValueError):
-                pass
-        item['tooltip'] = tooltip
+        # Both the caption and tooltip may contain the legacy colour placeholder.
+        # Stored colours already include '#'; avoid producing '##RRGGBB'.
+        for name in ('text', 'tooltip'):
+            text = item.get(name, '')
+            if isinstance(text, bytes):
+                text = text.decode('utf-8')
+            if '%(' in text:
+                try:
+                    value = values[item['varName']]
+                    if value is not None and str(value).startswith('#'):
+                        text = text.replace('#%(' + item['varName'] + ')s', '%(' + item['varName'] + ')s')
+                    text = text % {item['varName']: value}
+                except (KeyError, TypeError, ValueError):
+                    pass
+            item[name] = text
     return item
 
 

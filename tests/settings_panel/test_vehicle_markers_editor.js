@@ -6,9 +6,24 @@ const mod=data.schema.mods.find(m=>m.preview&&m.preview.kind==='vehicleMarkers')
 const values=JSON.parse(JSON.stringify(data.state.values[mod.id])),commits=[];
 const empty=JSON.parse(values[mod.preview.bindings.markersDeadExtended]);empty.enemy.textFields=[];
 values[mod.preview.bindings.markersDeadExtended]=JSON.stringify(empty);
+const alive=JSON.parse(values[mod.preview.bindings.markersAliveNormal]);
+alive.ally.textFields=[{enabled:true,format:'{{hp}}',x:5,y:7,width:88,height:30,align:'right',valign:'bottom',
+    textFormat:{size:15,color:'#123456'},shadow:{enabled:true,angle:0,distance:2,blur:3,color:'#000000',alpha:50}}];
+values[mod.preview.bindings.markersAliveNormal]=JSON.stringify(alive);
 const host=document.createElement('div');
 const editor=DK.markers.create(host,mod,{commit:(...v)=>commits.push(v),action(){}});
 editor.update(values,{disabled:[],changed:[]});
+let sampleText=host.querySelector('.dk-mk-text');
+assert.strictEqual(sampleText.style.width,'88rem');
+assert.strictEqual(sampleText.style.marginLeft,'-88rem');
+assert.strictEqual(sampleText.style.top,'-23rem');
+assert.strictEqual(sampleText.style.color,'#123456');
+assert.strictEqual(sampleText.style.textShadow,'2rem 0rem 3rem rgba(0,0,0,0.5)');
+const off=Object.assign({},values,{[mod.preview.bindings.enabled]:false});
+editor.update(off,{disabled:[],changed:[]});
+assert.strictEqual(host.querySelector('.dk-markers-anchor').children.length,0,'general enable changes redraw the preview');
+editor.update(values,{disabled:[],changed:[]});
+assert(host.querySelector('.dk-markers-anchor').children.length>0);
 function byText(text,root=host){const n=root.querySelectorAll('button').find(n=>n.textContent===text);assert(n,text);return n;}
 const choice=host.querySelectorAll('.dk-markers-choice');
 choice[0].querySelectorAll('button')[1].fire('click');
@@ -16,6 +31,10 @@ byText(mod.preview.labels.textFields).fire('click');
 // Native font names and Unicode remain available to the preview renderer.
 const rich=document.createElement('div');DK.richText.render(rich,'<font face="XVMSymbol">&#x115;!</font>');
 assert.strictEqual(rich.querySelector('span').style.fontFamily,'XVMSymbol');
+assert.strictEqual(rich.textContent,'\u0115!');
+DK.richText.render(rich,'A&#39;B &lt;b&gt; &amp; &#128512;');
+assert.strictEqual(rich.textContent,"A'B <b> & \uD83D\uDE00");
+assert.strictEqual(rich.querySelector('b'),null,'decoded markup stays text');
 // Destroyed/Alt is a separate document; adding to an empty list must work.
 choice[1].querySelectorAll('button')[1].fire('click');choice[2].querySelectorAll('button')[1].fire('click');
 byText(mod.preview.labels.textFields).fire('click');byText(DK.t('markers.add')).fire('click');

@@ -9,6 +9,32 @@ from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_markers_store import VehicleMarkersStore
 
 
+# Sample vehicle for the marker preview. The client's vehicle cache supplies the live values; these come from
+# res/scripts/item_defs/vehicles/usa (list.xml: tier 8 heavyTank; A12_T32.xml: hull 1320 + top turret 330 HP).
+SAMPLE_VEHICLE = {'name': 'usa:A12_T32', 'vehicle': 'T32', 'level': 8, 'vtype': 'heavyTank', 'maxHp': 1650}
+
+
+def sample_vehicle():
+    result = dict(SAMPLE_VEHICLE)
+    try:
+        from items import vehicles
+        nation, ident = vehicles.g_list.getIDsByName(result['name'])
+        vehicle_type = vehicles.g_cache.vehicle(nation, ident)
+        # Top turret, as most players field it; the battle reads the installed one.
+        turrets = vehicle_type.turrets[0] if vehicle_type.turrets else ()
+        result.update(vehicle=vehicle_type.shortUserString, level=vehicle_type.level,
+                      vtype=vehicles.getVehicleClassFromVehicleType(vehicle_type) or result['vtype'],
+                      maxHp=vehicle_type.hulls[0].maxHealth + max([turret.maxHealth for turret in turrets] or [0]))
+    except Exception:
+        pass
+    nation, ident = result['name'].split(':')
+    result.update(contour='gui/maps/icons/vehicle/contour/%s-%s.png' % (nation, ident),
+                  typeIcon='gui/maps/icons/vehicleTypes/%s.png' % result['vtype'],
+                  levelIcon='gui/maps/icons/levels/tank_level_%d.png' % result['level'],
+                  tank='coui://gui/maps/shop/vehicles/600x450/%s.png' % ident)
+    return result
+
+
 class VehicleMarkersSettings(SectionDefinition):
     NAME = 'vehicle_markers'
     STORAGE_CLASS = VehicleMarkersStore
@@ -49,6 +75,7 @@ class VehicleMarkersSettings(SectionDefinition):
                              'ratings': dict((metric, rating_values({'battles': 15000, 'wn8': 2000, 'wnx': 1800,
                                  'eff': 1400, 'xwn8': 75, 'xeff': 65, 'winrate': 55}, metric, index))
                                  for metric in ('wn8', 'wnx', 'eff'))})
+        vehicle = sample_vehicle()
         return {'kind': 'vehicleMarkers', 'labels': labels,
-                'palettes': palettes,
-                'tank': 'coui://gui/maps/shop/vehicles/600x450/A12_T32.png'}
+                'palettes': palettes, 'vehicle': vehicle,
+                'tank': vehicle['tank']}

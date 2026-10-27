@@ -12,7 +12,7 @@ const sample = {group:'enemy',alt:false,blind:false,hp:50,name:'<b>unsafe</b>'};
 const raw = {customFields:{enabled:true,enemy:{normal:[{format:'{{hp}}',x:12}],extended:[{format:'{{name}}'}]}}};
 let state = model.state(raw,sample);
 assert.strictEqual(state.fields[0].x,12);
-assert.strictEqual(model.text('{{hp}}/{{maxHp}} {{hpPercent}}%',state.config,sample),'775/1550 50%');
+assert.strictEqual(model.text('{{hp}}/{{maxHp}} {{hpPercent}}%',state.config,sample),'825/1650 50%');
 assert.strictEqual(model.text('{{name}}',state.config,sample),'&lt;b&gt;unsafe&lt;/b&gt;');
 assert.strictEqual(model.teamColor(state.config,sample),'#FF7777');
 assert.strictEqual(model.teamColor(state.config,Object.assign({},sample,{blind:true})),'#C48CFF');
@@ -88,7 +88,7 @@ assert.strictEqual(model.damageStyle(authorConfig,'squad').duration,2);
 const ordinary=model.damageEvent(310,'squad','shot',0), explosion=model.damageEvent(310,'squad','shot',-1);
 assert.strictEqual(ordinary.blowup,false);
 assert.strictEqual(explosion.blowup,true);
-assert.strictEqual(model.text('{{dmg-source}} {{dmg-kind}} {{dmg}} {{dmg-ratio}}%',authorConfig,sample,explosion),'squad explosion 310 20%');
+assert.strictEqual(model.text('{{dmg-source}} {{dmg-kind}} {{dmg}} {{dmg-ratio}}%',authorConfig,sample,explosion),'squad explosion 310 19%');
 assert.strictEqual(model.text('{{dmg-source==\'squad\'?S|X}}',authorConfig,sample,ordinary),'S');
 console.log('Vehicle marker sample: macros, team/HP/colorblind colors and normal/ALT passed');
 

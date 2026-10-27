@@ -4,13 +4,28 @@
    %(nome)s / %(nome).1f (Python), {nome} e {c:nome}, {{nome}} e {{nome%.16s}}, e datas %H:%M. */
 (function () {
     'use strict';
-    var DK = window.DK, h = DK.h;
-    var DAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-    var MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    var DK = window.DK, h = DK.h, decoder = document.createElement('textarea');
+    // Date codes as the hangar clock writes them (main/clock.js dateFormat): week from Monday, names from the
+    // client's own calendar (schema.calendar, gameface/lobby/main.calendar_names) and English otherwise.
+    var CALENDAR = {days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                    shortDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']};
+    function dateCode(key, now) {
+        if (key === '%') { return '%'; }
+        var names = DK.calendar || {}, hour = now.getHours(), weekday = (now.getDay() + 6) % 7;
+        function list(name) { return names[name] && names[name].length ? names[name] : CALENDAR[name]; }
+        function pad(n) { return ('0' + n).slice(-2); }
+        var value = {H: pad(hour), I: pad(hour % 12 || 12), M: pad(now.getMinutes()), S: pad(now.getSeconds()), d: pad(now.getDate()),
+                     m: pad(now.getMonth() + 1), Y: String(now.getFullYear()), y: pad(now.getFullYear() % 100),
+                     A: list('days')[weekday], a: list('shortDays')[weekday], B: list('months')[now.getMonth()],
+                     b: list('shortMonths')[now.getMonth()], p: hour < 12 ? 'AM' : 'PM'}[key.charAt(0)];
+        return key.length === 1 ? value : key.charAt(1) === 'u' ? value.toUpperCase() : value.toLowerCase();
+    }
     var SAMPLE = {
         timer: 1.8, percent: 76, flightTime: 1.42, distance: 315, dist: 315, wn8: 2150, eff: 1650, wtr: 7400, xte: 82, winrate: 54.2, diff: '+120',
         battles: 12450, avgDamage: 2380, damage: 350, dmg: 350, icons: '◆◆', vehicles: 'IS-7, Obj. 140', vehicle: 'T32', name: 'Driftking',
-        nick: 'Driftking', clan: '[DK]', hp: 1350, 'hp-max': 1700, 'hp-ratio': 79, level: 'VIII', tier: 8, type: 'HT', vtype: 'HT',
+        nick: 'Driftking', clan: '[DK]', hp: 1304, 'hp-max': 1650, 'hp-ratio': 79, level: 'VIII', tier: 8, type: 'HT', vtype: 'HT',
         pos: 'E5', cellsize: 100, frags: 2, kills: 2, assist: 820, blocked: 640, spotted: 3, marks: 2, mark: 87.4, mastery: 'M',
         'squad-num': '', place: 3, time: '04:32'
     };
@@ -27,7 +42,7 @@
 
     // Fills every macro syntax. extra: {color, ...} values specific to the module.
     function fill(text, extra) {
-        var now = new Date(2026, 9, 27, 21, 7, 42);
+        var now = new Date();   // the clock shows the client's current time
         text = String(text || '');
         // Carousel fields use rating macros ({{v.x?a|b}}, {{v.c_x}}, {{icon:x}}); they have their own evaluator.
         if (DK.carouselPreview && /\{\{(v\.|icon:)/.test(text)) { text = DK.carouselPreview.macros(text).replace(/dkicon:\w+/g, ''); }
@@ -39,13 +54,7 @@
                 if (kind === 'f') { return Number(value).toFixed(digits ? Number(digits) : 6); }
                 return String(value);
             })
-            .replace(/%%/g, '%')
-            .replace(/%([HMSAadbBYmy])/g, function (all, code) {
-                var pad = function (n) { return ('0' + n).slice(-2); };
-                return {H: pad(now.getHours()), M: pad(now.getMinutes()), S: pad(now.getSeconds()), A: DAYS[now.getDay()], a: DAYS[now.getDay()].slice(0, 3),
-                        d: pad(now.getDate()), b: MONTHS[now.getMonth()], B: MONTHS[now.getMonth()], Y: String(now.getFullYear()), m: pad(now.getMonth() + 1),
-                        y: String(now.getFullYear()).slice(2)}[code];
-            })
+            .replace(/%([aAbB][ul]|[HIMSdmYyaAbBp%])/g, function (all, key) { return dateCode(key, now); })
             .replace(/\{\{([^}]+)\}\}/g, function (all, body) {
                 if (/^c:/.test(body)) { return colorMacro(body.slice(2), extra); }
                 var match = /^([\w-]+)(?:%\.(\d+)s)?/.exec(body), name = match ? match[1] : body, value = sampleValue(name, extra);
@@ -89,7 +98,8 @@
         }
         while ((match = pattern.exec(text)) !== null) {
             if (match[3] !== undefined) {
-                current.appendChild(document.createTextNode(match[3].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&nbsp;/g, '\u00a0')));
+                decoder.innerHTML = match[3];
+                current.appendChild(document.createTextNode(decoder.value));
                 continue;
             }
             var name = match[1].toLowerCase(), closing = match[0].charAt(1) === '/', attrs = match[2];

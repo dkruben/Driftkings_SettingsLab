@@ -8,22 +8,30 @@
     var MAP = 1000;                              // metres per side
     var RESOLUTION = 420;                        // canvas pixels per side
     var SELF = {x: 430, y: 610, hull: -18, camera: 12};
-    var RANGES = {draw: 564, maxView: 445, proximity: 50, view: 390, shell: 720};
+    // The player drives the sample T32: its own view and shell ranges, and the client's fixed circles.
+    var SAMPLE = DK.sample, PLAYER = SAMPLE.player;
+    var RANGES = {draw: SAMPLE.circles.draw, maxView: SAMPLE.circles.maxView, proximity: SAMPLE.circles.proximity,
+                  view: PLAYER.view, shell: PLAYER.shellRange};
     // Client default circle colours, used while "Alterar cores dos círculos" is off.
-    var CLIENT_COLORS = {draw: '#FFFFFF', maxView: '#FFFFFF', proximity: '#FFFFFF', view: '#7CFF7C'};
+    var CLIENT_COLORS = SAMPLE.circleColors;
     var CIRCLE_COLOR_KEYS = {draw: 'colorDrawCircle', maxView: 'colorMaxViewCircle', proximity: 'colorMinSpottingCircle', view: 'colorViewCircle'};
     var TEAM = {ally: '#80D639', enemy: '#F05050', squad: '#FFB964', dead: '#999999'};
+    // Positions and health are the scene; class and maximum health come from each vehicle's definition.
     var VEHICLES = [
-        {team: 'squad', x: 372, y: 655, type: 'MT', vehicle: 'Leopard 1', name: 'DriftSquad', hp: 0.86},
-        {team: 'ally', x: 300, y: 720, type: 'HT', vehicle: 'E 100', name: 'AllyTanker', hp: 0.62},
-        {team: 'ally', x: 555, y: 770, type: 'TD', vehicle: 'Grille 15', name: 'SniperBob', hp: 1},
-        {team: 'enemy', x: 520, y: 500, type: 'LT', vehicle: 'EBR 105', name: 'FastAndFurious', hp: 0.41},
-        {team: 'enemy', x: 610, y: 300, type: 'HT', vehicle: 'IS-7', name: 'HeavyMetal', hp: 0.93},
-        {team: 'enemy', x: 760, y: 430, type: 'SPG', vehicle: 'Conqueror GC', name: 'SkyCannon', hp: 1},
-        {team: 'enemy', x: 220, y: 260, type: 'MT', vehicle: 'Obj. 140', name: 'Burned', hp: 0, dead: true},
-        {team: 'enemy', x: 820, y: 190, type: 'TD', vehicle: 'Strv 103B', name: 'Hidden', hp: 0.7, lost: true}
-    ];
-    var MAX_HP = 1700;
+        {team: 'squad', x: 372, y: 655, vehicle: 'Leopard 1', name: 'DriftSquad', hp: 0.86},
+        {team: 'ally', x: 300, y: 720, vehicle: 'E 100', name: 'AllyTanker', hp: 0.62},
+        {team: 'ally', x: 555, y: 770, vehicle: 'Grille 15', name: 'SniperBob', hp: 1},
+        {team: 'enemy', x: 520, y: 500, vehicle: 'EBR 105', name: 'FastAndFurious', hp: 0.41},
+        {team: 'enemy', x: 610, y: 300, vehicle: 'IS-7', name: 'HeavyMetal', hp: 0.93},
+        {team: 'enemy', x: 760, y: 430, vehicle: 'Conqueror GC', name: 'SkyCannon', hp: 1},
+        {team: 'enemy', x: 220, y: 260, vehicle: 'Obj. 140', name: 'Burned', hp: 0, dead: true},
+        {team: 'enemy', x: 820, y: 190, vehicle: 'Strv 103B', name: 'Hidden', hp: 0.7, lost: true}
+    ].map(function (item) {
+        var real = SAMPLE.find(item.vehicle);
+        item.type = SAMPLE.types[real.vtype]; item.maxHp = real.maxHp;
+        return item;
+    });
+    function currentHp(vehicle) { return Math.round(vehicle.hp * vehicle.maxHp); }
 
     /* SHA-1 (ES5), only to find the controls by variable name ---------------- */
     function sha1(text) {
@@ -96,8 +104,8 @@
                 var match = /^([\w-]+)(?:%\.(\d+)s)?/.exec(body), key = match ? match[1] : body, value;
                 if (key === 'vehicle') { value = vehicle.vehicle; }
                 else if (key === 'name' || key === 'nick') { value = vehicle.name; }
-                else if (key === 'hp') { value = String(Math.round(vehicle.hp * MAX_HP)); }
-                else if (key === 'hp-max') { value = String(MAX_HP); }
+                else if (key === 'hp') { value = String(currentHp(vehicle)); }
+                else if (key === 'hp-max') { value = String(vehicle.maxHp); }
                 else if (key === 'hp-ratio') { value = String(Math.round(vehicle.hp * 100)); }
                 else if (key === 'vtype' || key === 'type') { value = vehicle.type; }
                 else if (key === 'cellsize') { value = String(MAP / 10); }
@@ -279,7 +287,7 @@
                 paint.fillStyle = 'rgba(0, 0, 0, 0.7)'; paint.fillRect(x - w / 2 - 1, y - 1, w + 2, hgt + 2);
                 paint.fillStyle = teamColor(vehicle); paint.fillRect(x - w / 2, y, w * vehicle.hp, hgt);
             } else {
-                text(showMode === 1 ? Math.round(vehicle.hp * 100) + '%' : String(Math.round(vehicle.hp * MAX_HP)), x, y, v('health.fontSize', 9), '#FFFFFF', 1, 'center', true);
+                text(showMode === 1 ? Math.round(vehicle.hp * 100) + '%' : String(currentHp(vehicle)), x, y, v('health.fontSize', 9), '#FFFFFF', 1, 'center', true);
             }
         }
         function self() {

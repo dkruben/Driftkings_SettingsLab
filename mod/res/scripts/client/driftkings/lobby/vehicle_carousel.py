@@ -164,12 +164,40 @@ class CarouselData(object):
     def invalidate(self):
         self.cache.clear()
 
-    def build_panel_model(self, requested):
-        settings = settings_service.getComponentDict(config)
+    def _sync_account(self):
         account = getattr(getPlayer(), 'databaseID', None)
         if account != self.account:
             self.account = account
             self.invalidate()
+
+    def preview_cards(self, palette=0):
+        """Bounded, read-only inventory snapshot for the settings preview."""
+        self._sync_account()
+        inventory = ServicesLocator.itemsCache.items.getVehicles(REQ_CRITERIA.INVENTORY)
+        selected = g_currentVehicle.intCD if g_currentVehicle.isPresent() else None
+        cards = []
+        for cd in sorted(inventory, key=lambda key: (key != selected, key))[:4]:
+            vehicle = inventory[cd]
+            try:
+                if cd not in self.cache:
+                    self.cache[cd] = collect(vehicle)
+                values = dict(self.cache[cd], selected=cd == selected)
+                colors = dict((key, getStatisticColor(COLOR_KEYS.get(key, key), value, palette))
+                              for key, value in values.items() if isinstance(value, (int, float)) and not isinstance(value, bool))
+                cards.append({'id': cd, 'name': vehicle.shortUserName, 'nation': vehicle.nationName,
+                              'tank': vehicle.name.split(':')[-1].lower(), 'image': vehicle.icon,
+                              'tier': vehicle.level, 'level': str(vehicle.level), 'type': vehicle.type,
+                              'premium': bool(vehicle.isPremium), 'selected': cd == selected,
+                              'favorite': bool(vehicle.isFavorite), 'info': bool(vehicle.isInBattle),
+                              'xp': 'x%s' % vehicle.dailyXPFactor if vehicle.dailyXPFactor > 1 else '',
+                              'stats': values, 'colors': colors})
+            except Exception:
+                LOG.debug('Preview dossier unavailable for %s', cd, exc_info=True)
+        return {'source': 'inventory', 'vehicles': cards, 'nativeRows': next(iter(g_rowModels.values()), 1)}
+
+    def build_panel_model(self, requested):
+        settings = settings_service.getComponentDict(config)
+        self._sync_account()
         result = {'config': get_view_config(config, g_rowModels), 'vehicles': {}}
         inventory = ServicesLocator.itemsCache.items.getVehicles(REQ_CRITERIA.INVENTORY)
         criteria = set(key.lstrip('-') for key in settings[VEHICLE_CAROUSEL.CAROUSEL]['sorting_criteria'])

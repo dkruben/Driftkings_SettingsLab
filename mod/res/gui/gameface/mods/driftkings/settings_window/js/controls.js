@@ -182,9 +182,10 @@
         var track = h('div.dk-slider-track', {tabIndex: 0, role: 'slider', title: t('slider.fine')}, null, wrap);
         var fill = h('div.dk-slider-fill', null, null, track);
         var thumb = h('div.dk-slider-thumb', null, null, track);
-        var minus = wide ? h('button.dk-step', {text: '−', title: t('slider.step')}, null, wrap) : null;
+        // The signs are drawn by the stylesheet: Gameface's interface font has no minus sign (U+2212).
+        var minus = wide ? h('button.dk-step.is-minus', {title: t('slider.step'), 'aria-label': '-'}, null, wrap) : null;
         var field = h('input.dk-number', {type: 'text', maxLength: 12}, null, wrap);
-        var plus = wide ? h('button.dk-step', {text: '+', title: t('slider.step')}, null, wrap) : null;
+        var plus = wide ? h('button.dk-step.is-plus', {title: t('slider.step'), 'aria-label': '+'}, null, wrap) : null;
         if (def.unit) { h('span.dk-unit', {text: def.unit}, null, wrap); }
         function draw(value) {
             shown = value;
@@ -303,9 +304,9 @@
     function number(def, ctx) {
         var c = base(def, ctx);
         var wrap = h('div.dk-stepper', null, null, c.row.input);
-        var minus = h('button.dk-step', {text: '−'}, null, wrap);
+        var minus = h('button.dk-step.is-minus', {'aria-label': '-'}, null, wrap);
         var field = h('input.dk-number', {type: 'text', maxLength: 12}, null, wrap);
-        var plus = h('button.dk-step', {text: '+'}, null, wrap);
+        var plus = h('button.dk-step.is-plus', {'aria-label': '+'}, null, wrap);
         if (def.unit) { h('span.dk-unit', {text: def.unit}, null, wrap); }
         function commit(value) {
             value = DK.snap(value, def.min, def.max, def.step);
@@ -339,7 +340,9 @@
             field.addEventListener('wheel', function (event) {
                 var max = field.scrollHeight - field.clientHeight;
                 if (max <= 0) { return; }
-                field.scrollTop = DK.clamp(field.scrollTop - DK.wheel(event) * 60, 0, max);
+                var next = DK.clamp(field.scrollTop - DK.wheel(event) * 60, 0, max);
+                if (Math.abs(next - field.scrollTop) < 0.5) { return; }
+                field.scrollTop = next;
                 DK.stop(event);
             });
         }

@@ -1,5 +1,7 @@
 /* UI cache regressions. No game, browser or third-party packages required. */
 require('./test_settings_window.js');
+require('./test_panel_layout.js');
+require('./test_carousel_preview.js');
 require('./test_all_pages.js');
 require('./test_vehicle_markers_model.js');
 require('./test_vehicle_markers_editor.js');

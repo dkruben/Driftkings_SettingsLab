@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "日付と時刻の例を使った 1920×1080 のガレー
 panel.hud.title: "画面上の位置"
 panel.hud.whole: "画面全体"
 panel.hud.zoom: "拡大"
+panel.hud.hcRemaining: "大口径までの残り"
 panel.keys.close: "閉じる"
 panel.keys.module: "前 / 次のモジュール"
 panel.keys.save: "保存"
@@ -1810,3 +1811,5 @@ panel.review.title: "変更を確認"
 panel.search.clear: "クリア"
 panel.slider.fine: "Shift + ドラッグ: 微調整"
 panel.slider.step: "1 段階 (Shift: 10 段階)"
+
+panel.constructionNotice: "設定パネルは開発中です。レイアウトやライブプレビューに不具合が残っている場合があります。"

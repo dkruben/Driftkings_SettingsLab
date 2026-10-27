@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Écran du garage 1920×1080 avec une date et une heure d�
 panel.hud.title: "Position à l’écran"
 panel.hud.whole: "Écran entier"
 panel.hud.zoom: "Agrandir"
+panel.hud.hcRemaining: "restant pour Gros calibre"
 panel.keys.close: "Fermer"
 panel.keys.module: "Module précédent / suivant"
 panel.keys.save: "Enregistrer"
@@ -1810,3 +1811,5 @@ panel.review.title: "Vérifier les modifications"
 panel.search.clear: "Clair"
 panel.slider.fine: "Maj + glisser : réglage précis"
 panel.slider.step: "Un pas (Maj : dix)"
+
+panel.constructionNotice: "Panneau de configuration en cours de développement. La présentation et les aperçus peuvent contenir des erreurs."

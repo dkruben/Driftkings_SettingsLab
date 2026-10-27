@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Pantalla del garaje de 1920×1080 con fecha y hora de eje
 panel.hud.title: "Posición en pantalla"
 panel.hud.whole: "Pantalla completa"
 panel.hud.zoom: "Ampliar"
+panel.hud.hcRemaining: "restante para Gran Calibre"
 panel.keys.close: "Cerrar"
 panel.keys.module: "Módulo anterior / siguiente"
 panel.keys.save: "Guardar"
@@ -1810,3 +1811,5 @@ panel.review.title: "Revisar cambios"
 panel.search.clear: "Claro"
 panel.slider.fine: "Mayús + arrastrar: ajuste fino"
 panel.slider.step: "Un paso (Mayús: diez)"
+
+panel.constructionNotice: "Panel de configuración en desarrollo. El diseño y las vistas previas pueden contener errores."

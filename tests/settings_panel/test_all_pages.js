@@ -17,6 +17,7 @@ assert(data.schema.mods.length>=35);assert(count>=1100);
 // Full settings schema stays interactive through the core command routes.
 callbacks.state(Object.assign({},data.state,{selected:'dk.settings'}));
 const labels=data.schema.labels;
+assert.strictEqual(app.querySelector('.dk-construction').textContent,labels.constructionNotice);
 function button(text,root=app){const found=root.querySelectorAll('button').find(n=>n.textContent===text);assert(found,text);return found;}
 button(labels.profiles).fire('click');assert(DK.modal.top());
 button(labels.profileExport,DK.modal.top().panel).fire('click');

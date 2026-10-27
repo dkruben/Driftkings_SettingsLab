@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "带有示例日期和时间的 1920×1080 车库画面。
 panel.hud.title: "屏幕位置"
 panel.hud.whole: "整个屏幕"
 panel.hud.zoom: "放大"
+panel.hud.hcRemaining: "距离大口径还需"
 panel.keys.close: "关闭"
 panel.keys.module: "上一个 / 下一个模块"
 panel.keys.save: "保存"
@@ -1810,3 +1811,5 @@ panel.review.title: "检查更改"
 panel.search.clear: "清除"
 panel.slider.fine: "Shift + 拖动：微调"
 panel.slider.step: "一步（Shift：十步）"
+
+panel.constructionNotice: "设置面板仍在开发中，布局和实时预览可能仍存在错误。"

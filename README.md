@@ -11,6 +11,8 @@ A configurable modpack for **Wargaming World of Tanks**, with battle statistics,
 
 Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
+> **Settings panel under construction:** layouts and live previews may still contain errors. The panel has not completed visual acceptance in the game client.
+
 ## Downloads
 
 | Release | Windows installer | Manual installation |

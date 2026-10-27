@@ -92,6 +92,10 @@
         for (var i=0;i<config.colors.hp.length;i++) { if (percent < config.colors.hp[i].value) { return config.colors.hp[i].color; } }
         return config.colors.hp[config.colors.hp.length-1].color;
     }
+    // The preview's sample vehicle when the panel sends none (T32 from the client's vehicle definitions);
+    // the class abbreviations are the ones the battle markers use (VMText.formatText).
+    var SAMPLE_VEHICLE = {vehicle:'T32',level:8,vtype:'heavyTank',maxHp:1650};
+    var VEHICLE_CLASSES = {lightTank:'LT',mediumTank:'MT',heavyTank:'HT','AT-SPG':'TD',SPG:'SPG'};
     function escape(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
     function damageStyle(config,source) {
         var root=config.damageText, base={};
@@ -130,8 +134,9 @@
         });
     }
     function text(template, config, sample, damage) {
-        var hp = sample.state === 'dead' || sample.group === 'dead' ? 0 : Math.round(1550*sample.hp/100);
-        var values = {vehicle:'T32',name:sample.name || 'DriftKings',hp:hp,maxHp:1550,hpPercent:Math.round(hp/1550*100),level:8,'c:team':teamColor(config,sample),'c:hp':hpColor(config,{hp:hp/1550*100})};
+        var vehicle = merge(SAMPLE_VEHICLE, sample.vehicle || {}), maxHp = vehicle.maxHp;
+        var hp = sample.state === 'dead' || sample.group === 'dead' ? 0 : Math.round(maxHp*sample.hp/100);
+        var values = {vehicle:vehicle.vehicle,name:sample.name || 'DriftKings',hp:hp,maxHp:maxHp,hpPercent:Math.round(hp/maxHp*100),level:vehicle.level,'c:team':teamColor(config,sample),'c:hp':hpColor(config,{hp:hp/maxHp*100})};
         var ratings=config.ratingValues || {wn8:2000,wnx:1800,eff:1400,xwn8:75,xeff:65,battles:15000,winrate:55,'stat-available':true};
         Object.keys(ratings).forEach(function (key) { values[key]=ratings[key]; });
         if (!config.ratingValues) {
@@ -151,13 +156,15 @@
         values.distance=values.dist=sample.distance===undefined?350:sample.distance;
         values.alive=sample.state!=='dead' && sample.group!=='dead'; values.dead=!values.alive;
         values.ally=sample.group==='ally'; values.enemy=sample.group==='enemy';
-        values.player=!!sample.player; values.squad=!!sample.squad; values.anonym=!!sample.anonym; values.vtype='HT';
+        values.player=!!sample.player; values.squad=!!sample.squad; values.anonym=!!sample.anonym; values.vtype=VEHICLE_CLASSES[vehicle.vtype] || '';
+        // Battle macros as a regular random battle reports them: no bonus type name, the place in the team list.
+        values.battletype=sample.battletype===undefined?'':sample.battletype; values.position=sample.position===undefined?1:sample.position;
         values.blownUp=values['i18n:blownUp']=values['l10n:blownUp']=config.blownUp || 'Ammo rack';
         if (damage !== undefined) {
             var event=typeof damage==='number'?{amount:damage,source:'player',kind:'shot'}:damage;
             var style=damageStyle(config,event.source || 'player');
             values.dmg=event.amount; values['c:dmg']=style.colors[event.source || 'player'];
-            values['dmg-ratio']=Math.round(event.amount/1550*100); values['dmg-source']=event.source || 'player';
+            values['dmg-ratio']=Math.round(event.amount/maxHp*100); values['dmg-source']=event.source || 'player';
             values['dmg-kind']=event.blowup?'explosion':event.kind || 'shot';
         }
         var result=String(template);

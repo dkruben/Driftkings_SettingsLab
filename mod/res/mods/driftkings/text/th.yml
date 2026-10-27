@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "หน้าจอโรงรถ 1920×1080 พร้อ
 panel.hud.title: "ตำแหน่งบนหน้าจอ"
 panel.hud.whole: "ทั้งหน้าจอ"
 panel.hud.zoom: "ขยาย"
+panel.hud.hcRemaining: "ที่เหลือสำหรับลำกล้องใหญ่"
 panel.keys.close: "ปิด"
 panel.keys.module: "ม็อดก่อนหน้า / ถัดไป"
 panel.keys.save: "บันทึก"
@@ -1810,3 +1811,5 @@ panel.review.title: "ตรวจสอบการเปลี่ยนแป�
 panel.search.clear: "ชัดเจน"
 panel.slider.fine: "Shift + ลาก: ปรับละเอียด"
 panel.slider.step: "หนึ่งขั้น (Shift: สิบขั้น)"
+
+panel.constructionNotice: "แผงการตั้งค่าอยู่ระหว่างการพัฒนา รูปแบบและภาพตัวอย่างอาจยังมีข้อผิดพลาด"

@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Obrazovka garáže 1920×1080 s příkladem data a času.
 panel.hud.title: "Poloha na obrazovce"
 panel.hud.whole: "Celá obrazovka"
 panel.hud.zoom: "Přiblížit"
+panel.hud.hcRemaining: "zbývá do Velké ráže"
 panel.keys.close: "Zavřít"
 panel.keys.module: "Předchozí / další modul"
 panel.keys.save: "Uložit"
@@ -1810,3 +1811,5 @@ panel.review.title: "Zkontrolovat změny"
 panel.search.clear: "Jasný"
 panel.slider.fine: "Shift + tažení: jemné nastavení"
 panel.slider.step: "Jeden krok (Shift: deset)"
+
+panel.constructionNotice: "Panel nastavení je ve vývoji. Rozvržení a živé náhledy mohou stále obsahovat chyby."

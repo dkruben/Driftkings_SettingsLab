@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Экран ангара 1920×1080 с примером д
 panel.hud.title: "Положение на экране"
 panel.hud.whole: "Весь экран"
 panel.hud.zoom: "Приблизить"
+panel.hud.hcRemaining: "до Основного калибра"
 panel.keys.close: "Закрыть"
 panel.keys.module: "Предыдущий / следующий модуль"
 panel.keys.save: "Сохранить"
@@ -1810,3 +1811,5 @@ panel.review.title: "Проверить изменения"
 panel.search.clear: "Прозрачный"
 panel.slider.fine: "Shift + перетаскивание: точная настройка"
 panel.slider.step: "Один шаг (Shift: десять)"
+
+panel.constructionNotice: "Панель настроек находится в разработке. В оформлении и предпросмотре возможны ошибки."

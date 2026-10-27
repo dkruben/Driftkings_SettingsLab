@@ -1769,6 +1769,7 @@ panel.hud.noteHangar: "Екран гаража 1920×1080 із прикладо�
 panel.hud.title: "Положення на екрані"
 panel.hud.whole: "Увесь екран"
 panel.hud.zoom: "Збільшити"
+panel.hud.hcRemaining: "до Основного калібру"
 panel.keys.close: "Закрити"
 panel.keys.module: "Попередній / наступний модуль"
 panel.keys.save: "Зберегти"
@@ -1810,3 +1811,5 @@ panel.review.title: "Переглянути зміни"
 panel.search.clear: "ясно"
 panel.slider.fine: "Shift + перетягування: точне налаштування"
 panel.slider.step: "Один крок (Shift: десять)"
+
+panel.constructionNotice: "Панель налаштувань перебуває в розробці. В оформленні та попередньому перегляді можливі помилки."

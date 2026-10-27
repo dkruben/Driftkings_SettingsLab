@@ -90,6 +90,7 @@
         ui.installed = h('button.dk-top-link', {onclick: function (event) { DK.stop(event); openInstalled(); }}, null, top);
         ui.close = h('button.dk-close', {text: '×', onclick: function (event) { DK.stop(event); send('close'); }}, null, top);
 
+        ui.construction = h('div.dk-construction', {role: 'note'}, null, ui.window);
         var body = h('div.dk-body', null, null, ui.window);
         var sideHost = h('div.dk-side', null, null, body);
         ui.nav = h('div.dk-nav', null, null, sideHost);
@@ -144,6 +145,7 @@
         disposePage();DK.modal.closeAll();DK.layer.closeMenu(true);
         schema = next;
         DK.setCatalog(schema.labels, schema.language);
+        DK.calendar = schema.calendar || {};
         mods = {}; order = []; index = {};
         var title = String(t('title', 'DRIFTKINGS · SETTINGS')), cut = title.indexOf(' · ');
         DK.clear(ui.brand);
@@ -152,6 +154,7 @@
         ui.searchInput.placeholder = t('search', '');
         ui.searchClear.title = t('search.clear');
         ui.installed.textContent = t('installed', 'Installed');
+        ui.construction.textContent = t('constructionNotice');
         ui.close.title = t('close') + ' (Esc)';
         ui.themeReset.textContent = t('resetTheme');
         ui.undo.textContent = '↶  ' + t('undo'); ui.undo.title = t('undoHint', '') + ' (Ctrl+Z)';
@@ -325,7 +328,7 @@
         u.manual = button(actions, t('updates.manual'), function () { send('manual_update'); }, 'is-small');
         var community = page.community = h('div.dk-community', null, null, ui.list);
         h('div.dk-section', null, [h('span', {text: 'Discord'})], community);
-        button(community, 'discord.gg/GJcy4x7SP', function () { send('open_discord'); }, 'is-small');
+        button(community, 'DISCORD', function () { send('open_discord'); }, 'is-small');
     }
     function renderUpdates() {
         var u = page && page.updates, update = state.updater;
@@ -575,7 +578,7 @@
             if (Object.prototype.hasOwnProperty.call(values, key)) { control.set(values[key]); }
         });
         if (page.markers) { page.markers.update(values, {disabled: disabled, changed: changed}); }
-        if (page.live) { page.live.update(values, state.values); }
+        if (page.live) { page.live.update(values, state.values, state.carouselPreview); }
         renderNav();
         renderHead();
         renderTabs();
