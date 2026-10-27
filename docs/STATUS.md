@@ -65,4 +65,4 @@ Correção `4d1b961` com [CI aprovado](https://github.com/dkruben/Driftkings_Set
 
 ## Painel redesenhado — 27 outubro 2026
 
-Integrada a interface do autor, preservando o seletor de espectro original, fontes e contrato Python. As 35 páginas/1104 controlos são testadas com schemas reais e os 18 catálogos incluem 243 chaves de painel. Novas amostras: minimapa, HUD, texto e carrossel. [Plano e registo](PLANO_PAINEL_CONFIGURACOES.md); [relatório funcional atualizado](RELATORIO_PAINEL_CONFIGURACAO.md). Validação gráfica em jogo pendente: Computer Use/browser indisponíveis nesta sessão.
+Integrada a interface do autor em `1a5b021`/`ddbf608`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40561989621), preservando o seletor de espectro original, fontes e contrato Python. As 35 páginas/1104 controlos são testadas com schemas reais e os 18 catálogos incluem 243 chaves de painel. Novas amostras: minimapa, HUD, texto e carrossel. [Plano e registo](PLANO_PAINEL_CONFIGURACOES.md); [relatório funcional atualizado](RELATORIO_PAINEL_CONFIGURACAO.md). Validação gráfica em jogo pendente: Computer Use/browser indisponíveis nesta sessão.

@@ -10,7 +10,7 @@ Integrar o painel redesenhado pelo autor, mantendo o seletor de espectro atual d
 - [x] Integrar HTML, CSS, ícones e JavaScript; adaptar o seletor atual ao novo sistema de janelas.
 - [x] Corrigir diferenças de contrato e preservar fontes, estados e validação dos marcadores.
 - [x] Verificar todos os módulos, controlos, fluxos e ciclo de vida; gerar build.
-- [ ] Atualizar documentação e release.json; commit/push e validação GitHub.
+- [x] Atualizar documentação e release.json; commit/push e validação GitHub.
 
 ## Registo
 - O desenho novo usa schema/state/onAction existentes e acrescenta pré-visualizações de HUD, minimapa, texto e carrossel.
@@ -29,3 +29,9 @@ Integrar o painel redesenhado pelo autor, mantendo o seletor de espectro atual d
 
 - Verificação final: 444 testes core em Python 2.7/3, 27 testes de configuração em ambos, 36 testes installer/build em Python 3, JavaScript e ESLint aprovados. Catálogo, defaults e 264 recursos validados; zero nomes indefinidos.
 - Acrescentados testes dos caminhos de perfis, confirmação de fecho, bloqueio de reinício em batalha e operações do updater; todos usam bridge simulado, sem ações reais no cliente.
+
+- A build final detetou 51 entradas no changelog (limite 50). Consolidada a nota antiga de alias XVMSymbol com as notas atuais de fontes e cobertura de páginas, preservando a informação e o limite do manifesto.
+
+- Implementação, revisão de lifecycle/traduções e documentação enviadas para `develop` nos commits `1a5b021` e `ddbf608`; [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40561989621). Este fecho inclui a consolidação do changelog e terá validação própria.
+- Build final aprovada após a consolidação. Pacote: `build/debug/beta/0.1.3-beta.2/driftkings.wotmod`; SHA-256 `99be41aeade20d7e60595a66878c1aa078602da959c9d68db3bf9a0b0e2a5142`. Auditoria dos scripts/styles, seletor original, fontes e exclusão dos recursos antigos aprovada.
+- A integração está concluída no projeto; aceitação visual em jogo pendente. A origem no Desktop e a instalação/configurações EU permanecem intactas.
