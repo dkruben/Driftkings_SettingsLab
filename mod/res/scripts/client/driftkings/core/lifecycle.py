@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Single producers for login and lobby view lifecycle notifications."""
-from driftkings.core.hooks import override
 
 
 class LifecycleService(object):
@@ -10,10 +9,8 @@ class LifecycleService(object):
     def start(self):
         if self.active:
             return
-        from gui.Scaleform.daapi.view.lobby.LobbyView import LobbyView
-        from gui.Scaleform.daapi.view.login.LoginView import LoginView
-        override(LoginView, '_populate', self.loginPopulated)
-        override(LobbyView, '_populate', self.lobbyPopulated)
+        from driftkings.flash.lifecycle import install
+        install(self)
         self.active = True
 
     def loginPopulated(self, original, *args, **kwargs):

@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape
 from helpers import dependency
 from skeletons.account_helpers.settings_core import ISettingsCore
 
-from driftkings.core.overlay import Align, ElementType, overlays
+from driftkings.flash.core import Align, ElementType, overlays
 from driftkings.settings.service import affects, settings_service
 import GUI
 from gui import g_guiResetters

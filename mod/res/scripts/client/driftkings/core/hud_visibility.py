@@ -38,33 +38,6 @@ class HudVisibility(object):
         self.blockers.clear()
         self.publish()
 
-    def nativeVisibility(self, original, page, visible, hidden):
-        # Owned components are registered with DAAPI, not the native page's
-        # private AS3 visibility registry. Route them to their own public API.
-        from driftkings.views import BATTLE_COMPONENTS
-        def route(aliases, shown):
-            if aliases is None:
-                return []
-            native = []
-            for componentAlias in aliases:
-                if componentAlias not in BATTLE_COMPONENTS:
-                    native.append(componentAlias)
-                    continue
-                component = page.components.get(componentAlias)
-                if component is not None:
-                    component.as_setComponentVisible(shown)
-            return native
-        nativeVisible = route(visible, True)
-        nativeHidden = route(hidden, False)
-        result = original(page, nativeVisible, nativeHidden)
-        alias = getattr(page, '_fullStatsAlias', None)
-        if self.active and alias:
-            if alias in (hidden or ()):
-                self.block('native', False)
-            elif alias in (visible or ()):
-                self.block('native', True)
-        return result
-
     def start(self):
         if self.active:
             return
@@ -77,11 +50,8 @@ class HudVisibility(object):
 
     def installHooks(self):
         # Core service hooks have their own lifecycle, like BattleEvents.
-        from gui.Scaleform.daapi.view.meta.BattlePageMeta import BattlePageMeta
-
-        from driftkings.core.hooks import override
-        for method in ('as_setComponentsVisibilityS', 'as_setComponentsVisibilityWithFadeS'):
-            override(BattlePageMeta, method, self.nativeVisibility)
+        from driftkings.flash.batalha.hud_visibility import install as install_flash
+        install_flash(self)
         from driftkings.gameface.batalha.hud_visibility import install
         install(self)
 

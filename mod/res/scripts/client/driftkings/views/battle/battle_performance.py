@@ -7,7 +7,7 @@ from driftkings.settings.service import affects, settings_service
 
 from importlib import import_module
 
-from driftkings.core.overlay import overlays
+from driftkings.flash.core import overlays
 from driftkings.views.battle.label import CachedBattleLabel
 
 

@@ -34,7 +34,7 @@ class TargetIndicatorTests(RuntimeTest):
             'driftkings._constants': constants,
             'driftkings.core.battle_events': module(battleEvents=module()),
             'driftkings.core.callbacks': module(callback=None, cancelCallback=None),
-            'driftkings.core.overlay': module(Align=None, ElementType=None, overlays=None),
+            'driftkings.flash.core': module(Align=None, ElementType=None, overlays=None),
             'driftkings.settings.service': module(settings_service=module(
                 getComponentDict=lambda config: {'enabled': True})),
             'driftkings.settings.definitions.battle.autoaim_target_indicator': module(

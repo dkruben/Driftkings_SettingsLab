@@ -97,7 +97,7 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 | Etapa | Estado | Validação / evidência |
 | --- | --- | --- |
 | 0 — Auditoria e mapa antes de código | Concluída | Inventário acima |
-| 1 — Núcleo, registo e lifecycle partilhado | Pendente | Core, registo e importações |
+| 1 — Núcleo, registo e lifecycle partilhado | Concluída | 429 testes core Python 3; 0 nomes indefinidos |
 | 2 — Views, metas e adaptadores existentes | Pendente | Contratos, testes core |
 | 3 — Separação de apresentação dos módulos mistos | Pendente | Testes dos componentes e nomes indefinidos |
 | 4 — Testes arquiteturais, documentação e changelog | Pendente | Fronteiras, contratos, ciclos, hooks |
@@ -123,3 +123,5 @@ Caminhos relativos a `mod/res/scripts/client/driftkings`. Nenhum ficheiro abaixo
 - Mira/penetração/tempo de voo, minimapa e marcadores (normal/ALT, vida, cores e ratings), sexto sentido e painéis de jogadores.
 - Preferências de batalha e hangar, perfil/resultados e ativação/desativação preservadas.
 - Medições comparativas de CPU/memória/FPS continuam necessárias antes de atribuir ganhos a esta reorganização.
+
+- Etapa 1: criados packages Flash passivos; OverlayScene movido para `flash/core.py` e BattleViews/registo para `flash/batalha/registry.py`. Extraída a instalação Scaleform de lifecycle/HUD; serviço e estado partilhado permanecem no core. Imports e testes alinhados, sem alterar o bridge Gameface. 429 testes core: OK; 0 nomes indefinidos. Auditoria inicial publicada em `27ff790`.

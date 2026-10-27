@@ -9,7 +9,7 @@ from gui.shared import EVENT_BUS_SCOPE
 
 from driftkings.interface_catalog import selected_components, surface_aliases
 from driftkings.logger import get_logger
-from driftkings.views import BATTLE_COMPONENTS, BATTLE_HANDLERS
+from driftkings.flash.batalha.registry import BATTLE_COMPONENTS, BATTLE_HANDLERS
 
 LOG = get_logger('Driftkings.Views')
 
