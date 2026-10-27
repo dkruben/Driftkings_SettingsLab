@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Integrated vehicle markers; settings are edited in the hangar and applied next battle."""
 import BigWorld
-import ResMgr
 
 from driftkings.core.vehicle_markers.compatibility import manager_supported
 from driftkings.core.vehicle_markers.context import context
@@ -35,9 +34,6 @@ def start(data, config):
     global _controller, _presentation, _ratings
     stop()
     if not data['enabled']:
-        return
-    if ResMgr.isFile('scripts/client/gui/mods/mod_vm_test.pyc'):
-        LOG.warning('Standalone VM_TEST is installed; remove it before using integrated markers')
         return
     from gui.Scaleform.daapi.view.battle.shared.markers2d.manager import MarkersManager
     from gui.Scaleform.daapi.view.battle.shared.markers2d.vehicle_plugins import VehicleMarkerPlugin

@@ -1,6 +1,7 @@
 # Integrated vehicle markers
 
-The runtime lives in `driftkings/core/vehicle_markers` and is owned by
+The Flash runtime lives in `driftkings/flash/battle/vehicle_markers`, with
+functional helpers in `driftkings/core/vehicle_markers`, and is owned by
 `battle.vehicle_markers`. It incorporates the independently tested VM_TEST 0.0.14
 implementation. VM_TEST is not a build or runtime dependency.
 

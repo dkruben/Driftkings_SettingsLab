@@ -53,6 +53,7 @@
     "Centralize Python Gameface presentation in gameface/battle and gameface/lobby, sharing resource resolution, transactional payload publication and window registration. Preserve functional components, native resource IDs, visual assets and Python 2.7 compatibility; add architecture and lifecycle regression checks.",
     "Rename the settings interface to DriftkingsModSettings, removing the redundant DK abbreviation.",
     "Centralize Python Flash/Scaleform views, DAAPI metas, native package registration and presentation bridges under flash/battle and flash/lobby. Keep combat calculations and shared state separate, preserve AS3/SWF resources and add contract, hook, lifecycle and login-bridge regression tests.",
-    "Rename the Gameface and Flash presentation subpackages to battle and lobby; update Python imports, native package registration, catalogue paths, tests and documentation without changing visual resources or native contexts."
+    "Rename the Gameface and Flash presentation subpackages to battle and lobby; update Python imports, native package registration, catalogue paths, tests and documentation without changing visual resources or native contexts.",
+    "Remove the obsolete standalone marker script detection that could disable integrated vehicle markers."
   ]
 }

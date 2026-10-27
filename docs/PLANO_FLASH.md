@@ -243,3 +243,6 @@ driftkings/
 
 - Ajuste de nomes — 27 outubro 2026: por indicação do autor, os subpackages de ambas as tecnologias passam a `battle` e `lobby`. Atualizados diretórios, imports, strings de registo, catálogo, testes e documentação; os contextos nativos WG, nomes de funcionalidades e recursos visuais são preservados.
 - Validação do ajuste de nomes: 441 testes core em Python 2.7 e 3, 22 testes de arquitetura em Python 3, catálogo/build data/isort e build WOTMOD com 317 módulos: OK. Nenhuma referência antiga no runtime/build e nenhum recurso visual alterado.
+
+- Limpeza posterior — 27 outubro 2026: removida a deteção do antigo script standalone que impedia a inicialização dos marcadores integrados, juntamente com o import ResMgr usado exclusivamente nessa deteção. Mantidos os créditos históricos. Guia de marcadores e changelog atualizados.
+- Validação desta limpeza: 41 testes de marcadores em Python 2.7 e 3, 0 nomes indefinidos e build data válidos.
