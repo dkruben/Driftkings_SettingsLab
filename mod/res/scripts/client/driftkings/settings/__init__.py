@@ -20,7 +20,7 @@ class SettingsService(object):
         self.registry.register(ProfileSettings(settings_loader, getClientLanguage()))
         from driftkings.settings.panel import settings
         from driftkings.settings.panel.sections import SectionPanelBinding
-        from driftkings.gameface.hangar.settings_window import controller
+        from driftkings.gameface.lobby.settings_window import controller
         settings.client_version = getClientVersion()
         settings.start(str(getClientLanguage()))
         controller.adapter = SectionPanelBinding(settings, self.registry)

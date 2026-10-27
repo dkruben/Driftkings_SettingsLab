@@ -117,9 +117,9 @@ class MinimapVehiclesTests(RuntimeTest):
             'driftkings.settings.service': module(settings_service=service),
             'driftkings.ui': module(g_events=module(onAltKey=lambda pressed: None)),
             'driftkings.settings.definitions.battle.minimap_enhancements': module(MinimapEnhancementsSettings=object),
-            'driftkings.flash.batalha.minimap_enhancements': module(MinimapEnhancementsView=object),
+            'driftkings.flash.battle.minimap_enhancements': module(MinimapEnhancementsView=object),
         }
-        self.api = source('flash/batalha/minimap_plugins.py', deps)
+        self.api = source('flash/battle/minimap_plugins.py', deps)
         self.api['configure'](object(), module(minimapZoom=False), weakref.WeakSet(), weakref.WeakSet(), weakref.WeakSet())
         self.api['VIEWS'].add(self)
         self.plugin = self.api['ArenaVehiclesPlugin']()

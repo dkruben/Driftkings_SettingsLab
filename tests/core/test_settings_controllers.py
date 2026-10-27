@@ -59,9 +59,9 @@ class SettingsControllerTests(RuntimeTest):
             self.events[:] = []
 
     def test_clock_refreshes_after_connect_and_after_disconnect(self):
-        common = source('gameface/hangar/common.py', {'driftkings.core.settings_controller': module(SettingsController=self.base)})
+        common = source('gameface/lobby/common.py', {'driftkings.core.settings_controller': module(SettingsController=self.base)})
         changes = []
-        controller = self.controller('gameface/hangar/main.py', 'ClockController', {
+        controller = self.controller('gameface/lobby/main.py', 'ClockController', {
             'HangarController': common['HangarController'], 'MAIN': self.constants.MAIN, 'GLOBAL': self.constants.GLOBAL,
             'affects': lambda values, *options: changes.append(options) or True})
         class Parent(object):
@@ -87,9 +87,9 @@ class SettingsControllerTests(RuntimeTest):
         self.assertEqual(self.listeners, [])
 
     def test_clock_observes_hangar_prestige_and_ignores_other_sections(self):
-        common = source('gameface/hangar/common.py', {'driftkings.core.settings_controller': module(SettingsController=self.base)})
+        common = source('gameface/lobby/common.py', {'driftkings.core.settings_controller': module(SettingsController=self.base)})
         service = self.load('settings.service')
-        controller = self.controller('gameface/hangar/main.py', 'ClockController', {
+        controller = self.controller('gameface/lobby/main.py', 'ClockController', {
             'HangarController': common['HangarController'], 'MAIN': self.constants.MAIN,
             'GLOBAL': self.constants.GLOBAL, 'affects': service.affects})
         refreshed = []

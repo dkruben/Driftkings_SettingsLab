@@ -241,7 +241,7 @@ class Crew(object):
 
 g_crew = Crew()
 
-from driftkings.gameface.hangar import crew_progression as progression_view
+from driftkings.gameface.lobby import crew_progression as progression_view
 
 progression_view.install(config)
 

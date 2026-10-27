@@ -38,7 +38,7 @@ class ArtilleryBlastRadiusTests(RuntimeTest):
             'gui.shared.gui_items.Vehicle': module(VEHICLE_CLASS_NAME=module(SPG='SPG')),
             'driftkings.common.utils.exceptions': module(log_exceptions=lambda function: function),
             'driftkings.common.utils.game': module(checkKeys=lambda keys: str(keys) in self.keys),
-            'driftkings.flash.batalha.messages': module(sendPanelMessage=lambda text, color: self.messages.append(color)),
+            'driftkings.flash.battle.messages': module(sendPanelMessage=lambda text, color: self.messages.append(color)),
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player()),
             'driftkings.ui.common.markers': module(StaticWorldObjectMarker3D=Marker),
             'driftkings.settings.definitions.battle.artillery_blast_radius': module(

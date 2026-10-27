@@ -402,7 +402,7 @@ g_history = ProgressHistory()
 g_data = MarksOnGunData()
 
 
-from driftkings.gameface.hangar.hangar_marks_of_excellence import (get_view_config, install_gameface,
+from driftkings.gameface.lobby.hangar_marks_of_excellence import (get_view_config, install_gameface,
                                                                 MarksOnGunHangarController)
 
 

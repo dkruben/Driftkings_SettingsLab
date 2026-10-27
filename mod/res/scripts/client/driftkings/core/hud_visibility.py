@@ -50,9 +50,9 @@ class HudVisibility(object):
 
     def installHooks(self):
         # Core service hooks have their own lifecycle, like BattleEvents.
-        from driftkings.flash.batalha.hud_visibility import install as install_flash
+        from driftkings.flash.battle.hud_visibility import install as install_flash
         install_flash(self)
-        from driftkings.gameface.batalha.hud_visibility import install
+        from driftkings.gameface.battle.hud_visibility import install
         install(self)
 
     def stop(self):

@@ -5,7 +5,7 @@ class VehicleListColorsTests(RuntimeTest):
     def setUp(self):
         super(VehicleListColorsTests, self).setUp()
         self.settings = {'enabled': True, 'vehicleColors': True}
-        self.api, _ = game_source('flash/hangar/profile_statistics.py', {
+        self.api, _ = game_source('flash/lobby/profile_statistics.py', {
             'driftkings.settings.service': Settings(self.settings).service(),
         }, real=('driftkings.common.utils.colorratting', 'driftkings.core.profile_ratings'))
         self.row = module(name='renderer0', data=module(id=123),

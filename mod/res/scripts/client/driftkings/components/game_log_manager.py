@@ -3,7 +3,7 @@
 from gui.battle_control.battle_constants import PERSONAL_EFFICIENCY_TYPE
 
 from driftkings._constants import GAME_LOG_MANAGER
-from driftkings.flash.batalha.game_log import WGLogs
+from driftkings.flash.battle.game_log import WGLogs
 from driftkings.settings.definitions.components.game_log_manager import GameLogManagerSettings as Settings
 from driftkings.settings.service import settings_service
 

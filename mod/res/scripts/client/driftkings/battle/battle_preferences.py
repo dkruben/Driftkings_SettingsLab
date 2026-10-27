@@ -30,7 +30,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
-from driftkings.flash.batalha.debug_panel import DebugPanelView
+from driftkings.flash.battle.debug_panel import DebugPanelView
 
 LOG = get_logger('driftkings.battle.battle_preferences')
 
@@ -262,5 +262,5 @@ def fini():
     g_events.onVehicleChangedDelayed -= onVehicleChanged
 
 
-from driftkings.flash.batalha.preferences_hooks import install as install_flash_preferences
+from driftkings.flash.battle.preferences_hooks import install as install_flash_preferences
 install_flash_preferences(config, _getAttackerName)

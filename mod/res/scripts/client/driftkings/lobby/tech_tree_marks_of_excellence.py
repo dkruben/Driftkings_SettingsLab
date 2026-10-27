@@ -13,7 +13,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.tech_tree_marks_of_excellence import \
     TechTreeMarksOfExcellenceSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.gameface.hangar.tech_tree_marks_of_excellence import install
+from driftkings.gameface.lobby.tech_tree_marks_of_excellence import install
 
 LOG = get_logger('Driftkings.MarksOnGunTechTree')
 _views = weakref.WeakKeyDictionary()

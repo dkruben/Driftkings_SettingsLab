@@ -200,7 +200,7 @@ class VehicleMarkersTests(RuntimeTest):
         native = {'enemy': {'markerBaseHp': 1, 'markerBaseHpIndicator': True}}
         snapshot = copy.deepcopy(native)
         data = self.load('core.vehicle_markers.config').prepare(self.defaults())
-        controller = self.load('flash.batalha.vehicle_markers.presentation').Presentation(Logger(), data['markers'], data['customFields'], supported=lambda manager: False)
+        controller = self.load('flash.battle.vehicle_markers.presentation').Presentation(Logger(), data['markers'], data['customFields'], supported=lambda manager: False)
         controller.install(Manager)
         try:
             changed = Manager().setMarkerSettings(native)

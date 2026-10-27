@@ -39,7 +39,7 @@ class BattlePreferencesTests(RuntimeTest):
         }
         self.api, self.hooks = game_source('battle/battle_preferences.py', deps, real=('driftkings._constants',))
         deps['driftkings.core.hooks'] = self.hooks
-        bridge, _ = game_source('flash/batalha/preferences_hooks.py', deps, real=('driftkings._constants',))
+        bridge, _ = game_source('flash/battle/preferences_hooks.py', deps, real=('driftkings._constants',))
         bridge['install'](self.api['config'], self.api['_getAttackerName'])
 
     def wrap(self, *spec, **kwargs):

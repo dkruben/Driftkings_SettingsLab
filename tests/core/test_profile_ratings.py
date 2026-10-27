@@ -5,7 +5,7 @@ class ProfileRatingTests(RuntimeTest):
     def setUp(self):
         super(ProfileRatingTests, self).setUp()
         self.settings = {'enabled': True}
-        self.api, _ = game_source('gameface/hangar/profile_ratings.py', {
+        self.api, _ = game_source('gameface/lobby/profile_ratings.py', {
             'driftkings.settings.service': Settings(self.settings).service(),
         }, real=('driftkings.common.utils.colorratting',))
         self.stats = module(getBattlesCount=lambda: 51000, getAvgDamage=lambda: 1800,
@@ -59,7 +59,7 @@ class ProfileRatingTests(RuntimeTest):
                 pass
 
         Main = type('AchievementMainView', (object,), {})
-        api, hooks = game_source('gameface/hangar/profile_ratings.py', {
+        api, hooks = game_source('gameface/lobby/profile_ratings.py', {
             'driftkings.settings.service': Settings(self.settings).service(),
             'frameworks.wulf': module(ViewModel=object),
             'gui.impl.pub.view_component': module(ViewComponent=ChildBase),

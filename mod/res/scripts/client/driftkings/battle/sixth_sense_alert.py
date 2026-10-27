@@ -13,7 +13,7 @@ from driftkings.core.callbacks import callback
 from driftkings.core.hooks import override
 from driftkings.settings.definitions.battle.sixth_sense_alert import SixthSenseAlertSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.flash.batalha.sixth_sense_alert import SixthSense, set_native_visible
+from driftkings.flash.battle.sixth_sense_alert import SixthSense, set_native_visible
 
 AS_BATTLE = BATTLE_ALIASES.SIXTH_SENSE_ALERT
 config = Settings()

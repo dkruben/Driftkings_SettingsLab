@@ -67,7 +67,7 @@ class BattleCardTests(RuntimeTest):
             'driftkings.interface_catalog': module(gameface_spec=lambda feature: {'resource': 'test'}),
             'GUI': module(mcursor=lambda: module(visible=self.cursor)),
         }
-        base = source('gameface/batalha/common.py', self.deps)
+        base = source('gameface/battle/common.py', self.deps)
         # Python 2 restricts metadata writes when source() replaces builtins.
         base['setattr'] = lambda target, name, value: setattr(target, name, value)
         self.base = base['BattleCardAdapter']
@@ -178,7 +178,7 @@ class BattleCardTests(RuntimeTest):
         deps.update({
             'importlib': module(import_module=lambda name: component),
             'driftkings._constants': constants,
-            'driftkings.gameface.batalha.common': module(BattleCardAdapter=self.base),
+            'driftkings.gameface.battle.common': module(BattleCardAdapter=self.base),
             'driftkings.core.marks_state': module(marks_state=state),
             'driftkings.core.hud_visibility': module(hudVisibility=module(
                 attach=lambda adapter: attached.append(adapter), detach=lambda adapter: attached.remove(adapter))),
@@ -187,7 +187,7 @@ class BattleCardTests(RuntimeTest):
                 number_locale=lambda language: {'decimalSeparator': '.', 'groupSeparator': ','}),
             'BattleReplay': module(isPlaying=lambda: True),
         })
-        adapter = source('gameface/batalha/battle_marks_of_excellence.py', deps)['BattleMarksAdapter']()
+        adapter = source('gameface/battle/battle_marks_of_excellence.py', deps)['BattleMarksAdapter']()
         adapter.install()
         adapter.startBattle()
         self.assertFalse(adapter.active)

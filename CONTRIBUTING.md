@@ -44,8 +44,8 @@ Inside the client package:
 - `core/` – composition, lifecycle, hooks, keyboard, callbacks, updater, and pure logic helpers.
 - `settings/` – settings service, profiles, store, panel (presenter, controls, sections) and `definitions/`.
 - `battle/`, `lobby/`, `components/` – the feature components.
-- `gameface/` – Python Gameface integration: shared resource/assets core, transactional payloads, window registry, `batalha/` and `hangar/` adapters. `interface_catalog.py` remains the single contract source.
-- `flash/` – Python Flash/Scaleform presentation: overlay core, native lifecycle, `batalha/` views/metas/registry and `hangar/` bridges.
+- `gameface/` – Python Gameface integration: shared resource/assets core, transactional payloads, window registry, `battle/` and `lobby/` adapters. `interface_catalog.py` remains the single contract source.
+- `flash/` – Python Flash/Scaleform presentation: overlay core, native lifecycle, `battle/` views/metas/registry and `lobby/` bridges.
 - `views/` – engine-free presentation data helpers shared by both technologies.
 - `common/` – shared utilities (colours, config reading, monkeypatching helpers).
 - `i18n/` – translation loaders and optional JSON override support; bundled language text lives in `mod/res/mods/driftkings/text/`.
@@ -66,7 +66,7 @@ Keep Wulf ViewModels, views, native presenter hooks and resource resolution insi
 
 ### Flash/Scaleform presentation
 
-Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.batalha`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [Flash migration plan](docs/PLANO_FLASH.md) for the inventory, dependencies, tests and pending client checks; structural changes alone do not establish an FPS improvement.
+Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.battle`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [Flash migration plan](docs/PLANO_FLASH.md) for the inventory, dependencies, tests and pending client checks; structural changes alone do not establish an FPS improvement.
 
 ### Hooks
 

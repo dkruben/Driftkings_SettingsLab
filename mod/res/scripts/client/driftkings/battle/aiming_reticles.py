@@ -112,7 +112,7 @@ class ReticleState(object):
             enableServerAiming()
 
 
-from driftkings.flash.batalha.aiming_reticles import CUSTOM_GUN_MARKER_LINKAGES, get_linkages, set_linkages, set_state
+from driftkings.flash.battle.aiming_reticles import CUSTOM_GUN_MARKER_LINKAGES, get_linkages, set_linkages, set_state
 
 config = Settings()
 reticle = ReticleState(config)

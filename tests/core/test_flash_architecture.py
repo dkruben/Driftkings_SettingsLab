@@ -20,7 +20,7 @@ class NativeComponent(object):
 
 class FlashArchitectureTests(RuntimeTest):
     def meta(self):
-        return source('flash/batalha/meta/base.py', {
+        return source('flash/battle/meta/base.py', {
             'account_helpers.settings_core.settings_constants': module(GRAPHICS=module()),
             'gui.Scaleform.framework.entities.BaseDAAPIComponent': module(BaseDAAPIComponent=NativeComponent),
             'helpers': module(dependency=module(descriptor=lambda interface: None)),
@@ -35,17 +35,17 @@ class FlashArchitectureTests(RuntimeTest):
         catalog = self.load('interface_catalog')
         self.assertEqual(len(catalog.FLASH_COMPONENTS), 10)
         base = module(**self.meta())
-        dependencies = {'driftkings.flash.batalha.meta.base': base,
+        dependencies = {'driftkings.flash.battle.meta.base': base,
                         'driftkings.core.diagnostics': module(diagnostics=module(enabled=False))}
-        folder = os.path.join(CLIENT, 'flash', 'batalha', 'meta')
+        folder = os.path.join(CLIENT, 'flash', 'battle', 'meta')
         for name in sorted(os.listdir(folder)):
             if name.endswith('.py') and name not in ('__init__.py', 'base.py'):
-                api = source('flash/batalha/meta/' + name, dependencies)
-                dependencies['driftkings.flash.batalha.meta.' + name[:-3]] = module(**api)
-        registry = self.load('flash.batalha.registry').BattleViews()
+                api = source('flash/battle/meta/' + name, dependencies)
+                dependencies['driftkings.flash.battle.meta.' + name[:-3]] = module(**api)
+        registry = self.load('flash.battle.registry').BattleViews()
         for alias, spec in catalog.FLASH_COMPONENTS.items():
             path, name = spec['python'].rsplit('.', 1)
-            self.assertTrue(path.startswith('driftkings.flash.batalha.'))
+            self.assertTrue(path.startswith('driftkings.flash.battle.'))
             api, _ = game_source(path.replace('driftkings.', '', 1).replace('.', '/') + '.py',
                                  dependencies, real=('driftkings._constants',))
             view = api[name]
@@ -67,7 +67,7 @@ class FlashArchitectureTests(RuntimeTest):
                     with open(os.path.join(folder, name), 'rb') as stream:
                         methods.update(re.findall(r'function\s+(\w+)\s*\(', stream.read().decode('utf-8')))
         checked = 0
-        for folder, dirs, files in os.walk(os.path.join(CLIENT, 'flash', 'batalha', 'meta')):
+        for folder, dirs, files in os.walk(os.path.join(CLIENT, 'flash', 'battle', 'meta')):
             for name in files:
                 if not name.endswith('.py'):
                     continue
@@ -122,10 +122,10 @@ class FlashArchitectureTests(RuntimeTest):
 
     def test_package_registration_removes_only_owned_entries_and_closes_handlers(self):
         native = ['native.package']
-        existing = ['driftkings.flash.batalha']
+        existing = ['driftkings.flash.battle']
         packages = {1: native, 2: existing}
         libraries = ['native.swf']
-        api = source('flash/batalha/registry.py', {
+        api = source('flash/battle/registry.py', {
             'constants': module(ARENA_GUI_TYPE=module(RANGE=(1, 2))),
             'gui.override_scaleform_views_manager': module(g_overrideScaleFormViewsConfig=module(battlePackages=packages)),
             'gui.Scaleform.required_libraries_config': module(BATTLE_REQUIRED_LIBRARIES=libraries)})
@@ -137,16 +137,16 @@ class FlashArchitectureTests(RuntimeTest):
         api['BATTLE_HANDLERS'].add(handler)
         registration = api['BattlePackageRegistration']()
         registration.install({'example': (object, object)})
-        self.assertIn('driftkings.flash.batalha', native)
+        self.assertIn('driftkings.flash.battle', native)
         registration.uninstall()
         self.assertEqual(native, ['native.package'])
-        self.assertEqual(existing, ['driftkings.flash.batalha'])
+        self.assertEqual(existing, ['driftkings.flash.battle'])
         self.assertEqual(libraries, ['native.swf'])
         self.assertEqual(api['BATTLE_COMPONENTS'], {})
         self.assertEqual(closed, [True])
 
     def test_registration_service_is_idempotent_and_unwinds_failed_start(self):
-        cls = self.load('flash.batalha.registry').BattleViews
+        cls = self.load('flash.battle.registry').BattleViews
         events = []
         service = cls(module(install=lambda definitions: events.append('install'),
                              uninstall=lambda: events.append('uninstall')),
@@ -167,7 +167,7 @@ class FlashArchitectureTests(RuntimeTest):
         hooks = self.load('core.hooks')
         visibility = self.load('core.hud_visibility').HudVisibility()
         visibility.active = True
-        registry = self.load('flash.batalha.registry')
+        registry = self.load('flash.battle.registry')
         registry.BATTLE_COMPONENTS['owned'] = (object, object)
         updates = []
         class BattlePageMeta(object):
@@ -176,9 +176,9 @@ class FlashArchitectureTests(RuntimeTest):
             def as_setComponentsVisibilityS(self, visible, hidden):
                 return visible, hidden
             as_setComponentsVisibilityWithFadeS = as_setComponentsVisibilityS
-        api = source('flash/batalha/hud_visibility.py', {
+        api = source('flash/battle/hud_visibility.py', {
             'driftkings.core.hooks': hooks,
-            'driftkings.flash.batalha.registry': registry,
+            'driftkings.flash.battle.registry': registry,
             'gui.Scaleform.daapi.view.meta.BattlePageMeta': module(BattlePageMeta=BattlePageMeta)})
         api['setattr'] = lambda target, name, value: setattr(target, name, value)
         owner = 'service:flash_test'
@@ -205,7 +205,7 @@ class FlashArchitectureTests(RuntimeTest):
                 pass
             def fini(self):
                 pass
-        api = source('flash/batalha/handler.py', {
+        api = source('flash/battle/handler.py', {
             'BigWorld': module(callback=lambda delay, callback: scheduled.append(callback) or len(scheduled),
                                cancelCallback=cancelled.append),
             'frameworks.wulf': module(WindowLayer=module(VIEW=1)),
@@ -229,7 +229,9 @@ class FlashArchitectureTests(RuntimeTest):
 
     def test_no_old_import_paths_or_flash_objects_in_functional_modules(self):
         old = ('driftkings.views.battle', 'driftkings.views.hangar',
-               'driftkings.meta.battle', 'driftkings.core.overlay', 'driftkings.views:BattleViews')
+               'driftkings.meta.battle', 'driftkings.core.overlay', 'driftkings.views:BattleViews',
+               'driftkings.gameface.batalha', 'driftkings.gameface.hangar',
+               'driftkings.flash.batalha', 'driftkings.flash.hangar')
         for folder, dirs, files in os.walk(CLIENT):
             for name in files:
                 if not name.endswith('.py'):
@@ -283,7 +285,7 @@ class FlashArchitectureTests(RuntimeTest):
         class WgcMode(object):
             rememberUser = True
             rememberPassVisible = False
-        api = source('flash/hangar/login.py', {
+        api = source('flash/lobby/login.py', {
             'gui': module(GUI_SETTINGS=module(igrCredentialsReset=False, isEmpty=lambda key: False)),
             'gui.Scaleform.daapi.view.login.login_modes.wgc_mode': module(WgcMode=WgcMode),
             'gui.Scaleform.daapi.view.login.LoginView': module(LoginView=object),

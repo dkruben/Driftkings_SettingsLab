@@ -20,7 +20,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event, override
 from driftkings.settings.definitions.battle.gun_traverse_limits import GunTraverseLimitsSettings as Settings
-from driftkings.flash.batalha.gun_traverse_limits import AimingAnglesView
+from driftkings.flash.battle.gun_traverse_limits import AimingAnglesView
 
 ARCADE_MODE = 'arc'
 SNIPER_MODE = 'sn'

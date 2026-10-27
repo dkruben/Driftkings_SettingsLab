@@ -26,7 +26,7 @@ class AimingReticlesTests(RuntimeTest):
         self.api, self.hooks = game_source('battle/aiming_reticles.py', {
             'driftkings.settings.service': module(settings_service=self.service, affects=self.service.affects),
             'aih_constants': self.constants,
-            'driftkings.flash.batalha.aiming_reticles': module(
+            'driftkings.flash.battle.aiming_reticles': module(
                 CUSTOM_GUN_MARKER_LINKAGES={'server': 'custom'},
                 get_linkages=lambda: self.factory._GUN_MARKER_LINKAGES,
                 set_linkages=lambda value: setattr(self.factory, '_GUN_MARKER_LINKAGES', value),

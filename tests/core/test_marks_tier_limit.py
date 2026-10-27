@@ -23,7 +23,7 @@ class BattleMarksTierTests(RuntimeTest):
             'driftkings.settings.service': Settings({'enabled': True}).service(),
             'driftkings.settings.sections': module(previous_name=lambda name: 'MarksOnGunBattle'),
             'driftkings.common.config.json_reader': module(loadJson=lambda *args, **kwargs: {}),
-            'driftkings.gameface.batalha.battle_marks_of_excellence': module(BattleMarksAdapter=lambda: self.panel),
+            'driftkings.gameface.battle.battle_marks_of_excellence': module(BattleMarksAdapter=lambda: self.panel),
             'driftkings.settings.definitions.battle.battle_marks_of_excellence': module(
                 BattleMarksOfExcellenceSettings=lambda: module(NAME='battle_marks_of_excellence')),
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player()),

@@ -19,7 +19,7 @@ class GamefaceArchitectureTests(RuntimeTest):
         resources = set()
         owners = set()
         for name, spec in catalog.items():
-            context = 'batalha' if spec['context'] in ('battle', 'tab') else 'hangar'
+            context = 'battle' if spec['context'] in ('battle', 'tab') else 'lobby'
             self.assertTrue(spec['python'].startswith('driftkings.gameface.' + context + '.'), name)
             path = os.path.join(CLIENT, *spec['python'].split('.')[1:]) + '.py'
             self.assertTrue(os.path.isfile(path), path)
@@ -71,7 +71,7 @@ class GamefaceArchitectureTests(RuntimeTest):
             visit(key, [])
 
     def test_shared_packages_import_without_the_game_engine(self):
-        for name in ('gameface', 'gameface.batalha', 'gameface.hangar',
+        for name in ('gameface', 'gameface.battle', 'gameface.lobby',
                      'gameface.payloads', 'gameface.registry'):
             self.assertIsNotNone(self.load(name))
 
@@ -81,7 +81,7 @@ class GamefaceArchitectureTests(RuntimeTest):
         hooks = Hooks()
         class TabView(object):
             pass
-        api = source('gameface/batalha/hud_visibility.py', {
+        api = source('gameface/battle/hud_visibility.py', {
             'driftkings.core.hooks': module(override=hooks.override),
             'gui.impl.battle.battle_page.tab_view': module(TabView=TabView)})
         # Python 2 restricts metadata writes from the stubbed builtins namespace.
@@ -107,7 +107,7 @@ class GamefaceArchitectureTests(RuntimeTest):
         hooks = Hooks()
         class RandomHangar(object):
             pass
-        api = source('gameface/hangar/common.py', {
+        api = source('gameface/lobby/common.py', {
             'driftkings.core.hooks': module(override=hooks.override),
             'driftkings.core.settings_controller': module(SettingsController=object),
             'driftkings.gameface.payloads': module(publish_card=None),

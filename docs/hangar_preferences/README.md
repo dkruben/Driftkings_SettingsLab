@@ -17,7 +17,7 @@ Repository paths:
 
 - `mod/res/scripts/client/driftkings/components/main.py`: General component.
 - `mod/res/scripts/client/driftkings/settings/definitions/components/main.py`: field declarations and normalization.
-- `mod/res/scripts/client/driftkings/gameface/hangar/hangar_preferences.py`: hangar presentation.
+- `mod/res/scripts/client/driftkings/gameface/lobby/hangar_preferences.py`: hangar presentation.
 - `mod/res/gui/gameface/mods/driftkings/main/clock.js`: clock rendering.
 - `res/configs/driftkings/default/main.json`: canonical defaults.
 

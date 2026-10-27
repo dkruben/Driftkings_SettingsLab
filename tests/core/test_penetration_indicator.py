@@ -52,7 +52,7 @@ class PenetrationIndicatorTests(RuntimeTest):
             'driftkings.ui': module(g_events=module(onMarkerColorChanged=self.colors.append, onArmorChanged=self.armor.append)),
         }
         self.api, _ = game_source('battle/penetration_indicator.py', deps, real=('driftkings._constants',))
-        bridge, self.hooks = game_source('flash/batalha/penetration_hooks.py', deps, real=('driftkings._constants',))
+        bridge, self.hooks = game_source('flash/battle/penetration_hooks.py', deps, real=('driftkings._constants',))
         bridge['configure'](self.api['config'], self.api['_ShotResult'], self.api['_ShotResultAll'])
         self.api['ShotResultIndicatorPlugin'] = bridge['ShotResultIndicatorPlugin']
         self.shot = self.api['_ShotResult']

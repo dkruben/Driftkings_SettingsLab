@@ -24,7 +24,7 @@ from driftkings.core.settings_controller import SettingsController
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.gameface.hangar.hangar_preferences import install_header_options
+from driftkings.gameface.lobby.hangar_preferences import install_header_options
 
 LOG = get_logger('driftkings.lobby.hangar_preferences')
 
@@ -36,7 +36,7 @@ class HangarOptionsController(SettingsController):
     def onSettingsChanged(self, component, changes):
         if not affects(changes, GLOBAL.ENABLED, HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET):
             return
-        from driftkings.gameface.hangar.native_preferences import refresh_battle_pass
+        from driftkings.gameface.lobby.native_preferences import refresh_battle_pass
         refresh_battle_pass(settings_service.getComponentDict(config))
 
 
@@ -281,8 +281,8 @@ def fini():
 
 # Import registers the presentation hooks with the current component owner.
 
-from driftkings.gameface.hangar.native_preferences import install as install_native_preferences
+from driftkings.gameface.lobby.native_preferences import install as install_native_preferences
 install_native_preferences(config, _overrideIfAvailable)
 
-from driftkings.flash.hangar.native_preferences import install as install_flash_preferences
+from driftkings.flash.lobby.native_preferences import install as install_flash_preferences
 install_flash_preferences(config, _overrideIfAvailable, LOG)

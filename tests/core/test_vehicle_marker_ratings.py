@@ -4,7 +4,7 @@ from support import RuntimeTest, module
 
 class MarkerRatingsTests(RuntimeTest):
     def test_distance_refreshes_at_point_two_seconds_without_extra_stats_loads(self):
-        api = self.load('flash.batalha.vehicle_markers.ratings')
+        api = self.load('flash.battle.vehicle_markers.ratings')
         calls, delays, packets = [], [], []
         stats = module(enabled=lambda: True, loadStats=lambda: calls.append(True),
                        acquire=lambda owner: None, release=lambda owner: None,
@@ -35,7 +35,7 @@ class MarkerRatingsTests(RuntimeTest):
             bridge.close()
 
     def test_macros_use_selected_rating_and_marker_palette(self):
-        api = self.load('flash.batalha.vehicle_markers.ratings')
+        api = self.load('flash.battle.vehicle_markers.ratings')
         colors = self.load('common.utils.colorratting')
         stats = {'battles': 1000, 'wn8': 2000, 'wnx': 1800, 'eff': 1400, 'xwn8': 75, 'xeff': 65}
         for scale in range(len(colors.color_tables)):
@@ -48,7 +48,7 @@ class MarkerRatingsTests(RuntimeTest):
         self.assertIsNone(api.values(stats, 'wnx')['xr'])
 
     def test_missing_anonymized_and_incomplete_stats_never_become_zero_ratings(self):
-        api = self.load('flash.batalha.vehicle_markers.ratings')
+        api = self.load('flash.battle.vehicle_markers.ratings')
         for stats, minimum, anonymous in ((None, 1, False), ({'battles': 9, 'wn8': 2000}, 10, False),
                                            ({'battles': 1000, 'wn8': 2000}, 1, True)):
             result = api.values(stats, 'wn8', 0, minimum, anonymous)
@@ -59,7 +59,7 @@ class MarkerRatingsTests(RuntimeTest):
         self.assertIsNone(api.values({'battles': 1000, 'wn8': float('nan')})['r'])
 
     def test_bridge_reuses_shared_stats_sends_only_changes_and_releases_hooks(self):
-        api = self.load('flash.batalha.vehicle_markers.ratings')
+        api = self.load('flash.battle.vehicle_markers.ratings')
         stats = module(enabled=lambda: True, loadStats=lambda: None,
                        acquire=lambda owner: acquired.append(owner), release=lambda owner: released.append(owner),
                        getPlayersInfo=lambda ident: information.get(ident))

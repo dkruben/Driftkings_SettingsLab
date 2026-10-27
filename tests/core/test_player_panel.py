@@ -175,12 +175,12 @@ class KeyStateTests(RuntimeTest):
         self.data = {constants.TEAM_PANELS.PLAYERS_PANEL: {'altMode': 'large'}}
         settings_data = module(PROFILES=('none', 'short', 'medium', 'medium2', 'large'),
                                profile_for_mode=lambda mode: 'large')
-        api = source('flash/batalha/player_ratings.py', {
+        api = source('flash/battle/player_ratings.py', {
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.data),
                                                  SettingsChanges=None, changed_paths=None, affects=None),
             'BigWorld': module(isKeyDown=lambda code: code in self.down),
             'realm': module(CURRENT_REALM='EU'),
-            'driftkings.flash.batalha.meta.players_panel': module(PlayersPanelMeta=object),
+            'driftkings.flash.battle.meta.players_panel': module(PlayersPanelMeta=object),
             'gui.Scaleform.daapi.view.battle.classic.players_panel': module(PlayersPanel=object),
             'gui.Scaleform.daapi.view.meta.BattleStatisticDataControllerMeta': module(BattleStatisticDataControllerMeta=object),
             'gui.shared': module(g_eventBus=None, events=None, EVENT_BUS_SCOPE=None),

@@ -16,7 +16,7 @@ from driftkings.core.vehicle_images import resolve_vehicle_images
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.target_information import TargetInformationSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.flash.batalha.target_information import Flash
+from driftkings.flash.battle.target_information import Flash
 
 COMPARE_MACROS = ['compareDelim', 'compareColor']
 ROMAN_LEVELS = ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII')

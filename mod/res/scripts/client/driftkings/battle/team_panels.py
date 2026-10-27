@@ -4,7 +4,7 @@ from gui.shared.personality import ServicesLocator
 
 from driftkings.core import player_ratings
 from driftkings.settings.definitions.battle.team_panels import TeamPanelsSettings
-from driftkings.flash.batalha.player_ratings import RatingViews
+from driftkings.flash.battle.player_ratings import RatingViews
 
 g_config = TeamPanelsSettings()
 g_stats = player_ratings.configure(g_config)

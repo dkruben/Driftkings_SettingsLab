@@ -64,7 +64,7 @@ class HighCaliberTests(RuntimeTest):
             'driftkings.core.hooks': module(override=identity, on_event=identity),
             'driftkings.settings.service': module(settings_service=self.service),
             'driftkings.settings.definitions.battle.high_caliber_progress': module(HighCaliberProgressSettings=object),
-            'driftkings.gameface.batalha.high_caliber_gameface': module(MainGunAdapter=object),
+            'driftkings.gameface.battle.high_caliber_gameface': module(MainGunAdapter=object),
         }
         self.api = source('battle/high_caliber_progress.py', self.deps)
         self.gun, self.scl = self.api['mainGuns'], self.api['scl']
@@ -263,10 +263,10 @@ class HighCaliberTests(RuntimeTest):
             'driftkings.interface_catalog': module(gameface_spec=lambda feature: {'resource': 'test'}),
             'GUI': module(mcursor=lambda: module(visible=False)),
         }
-        base = source('gameface/batalha/common.py', deps)
+        base = source('gameface/battle/common.py', deps)
         base['setattr'] = lambda target, name, value: setattr(target, name, value)
-        deps['driftkings.gameface.batalha.common'] = module(BattleCardAdapter=base['BattleCardAdapter'])
-        adapter = source('gameface/batalha/high_caliber_gameface.py', deps)['MainGunAdapter']()
+        deps['driftkings.gameface.battle.common'] = module(BattleCardAdapter=base['BattleCardAdapter'])
+        adapter = source('gameface/battle/high_caliber_gameface.py', deps)['MainGunAdapter']()
         adapter.install()
         adapter.install()
         self.assertEqual(len(attached), 1)

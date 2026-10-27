@@ -5,7 +5,7 @@ from gui.battle_control.controllers.personal_efficiency_ctrl import (_AGGREGATED
 from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
 
 from driftkings._constants import ENEMY_SPOTTING_STATUS, GLOBAL
-from driftkings.flash.batalha.messages import sendPanelMessage
+from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event

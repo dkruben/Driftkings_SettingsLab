@@ -24,7 +24,7 @@ from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.settings.settings_data import defaults
 
-from driftkings.flash.hangar.login import fill_credentials, install_login_hooks, launcher_position, prepare_login
+from driftkings.flash.lobby.login import fill_credentials, install_login_hooks, launcher_position, prepare_login
 
 LOG = get_logger('Driftkings.AccountManager')
 
@@ -138,7 +138,7 @@ class AccountsManagerController(object):
         if not self.canLogin():
             return
         if self.launcher is None:
-            from driftkings.gameface.hangar.account_manager import AccountsWindow
+            from driftkings.gameface.lobby.account_manager import AccountsWindow
             self.launcher = AccountsWindow(self, launcher=True)
             self.launcher.load()
         else:
@@ -146,7 +146,7 @@ class AccountsManagerController(object):
 
     def open(self):
         if self.window is None and self.active and self.canLogin() and settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True):
-            from driftkings.gameface.hangar.account_manager import AccountsWindow
+            from driftkings.gameface.lobby.account_manager import AccountsWindow
             self.window = AccountsWindow(self)
             self.window.load()
 

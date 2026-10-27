@@ -94,7 +94,7 @@ config = Settings()
 controller = MinimapController(config)
 
 
-from driftkings.flash.batalha.minimap_enhancements import MinimapEnhancementsView
+from driftkings.flash.battle.minimap_enhancements import MinimapEnhancementsView
 
 
 def getBattleViews():
@@ -104,5 +104,5 @@ def getBattleViews():
 def fini():
     controller.dispose()
 
-from driftkings.flash.batalha.minimap_plugins import configure
+from driftkings.flash.battle.minimap_plugins import configure
 configure(config, controller, PERSONAL, VEHICLES, VIEWS)

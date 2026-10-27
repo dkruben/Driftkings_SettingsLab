@@ -26,8 +26,8 @@ class CarouselSyncTests(RuntimeTest):
 
         event = SyncEvent()
         service = module(onModSettingsChanged=module(connect=lambda *a: None, disconnect=lambda *a: None))
-        api, _ = game_source('gameface/hangar/vehicle_carousel.py', {
-            'driftkings.gameface.hangar.common': module(HangarController=ControllerBase,
+        api, _ = game_source('gameface/lobby/vehicle_carousel.py', {
+            'driftkings.gameface.lobby.common': module(HangarController=ControllerBase,
                 install_card=lambda *a: None, card_payload=None, publish_card=None),
             'driftkings.interface_catalog': module(gameface_spec=lambda name: {'resource': 'mods/driftkings/vehicle_carousel/model'}),
             'driftkings.settings.service': module(settings_service=service, affects=None),

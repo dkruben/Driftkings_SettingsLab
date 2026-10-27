@@ -7,7 +7,7 @@ from driftkings._constants import BATTLE_ALIASES
 from driftkings.game_constants import SHELL_MECHANICS_TYPE, SHELL_TYPES
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.penetration_indicator import PenetrationIndicatorSettings as Settings
-from driftkings.flash.batalha.penetration_indicator import ArmorCalculator
+from driftkings.flash.battle.penetration_indicator import ArmorCalculator
 
 LOG = get_logger('driftkings.battle.penetration_indicator')
 
@@ -130,5 +130,5 @@ class _ShotResultAll(_ShotResult):
 def getBattleViews():
     return ((AS_BATTLE, ArmorCalculator, config),)
 
-from driftkings.flash.batalha.penetration_hooks import configure
+from driftkings.flash.battle.penetration_hooks import configure
 configure(config, _ShotResult, _ShotResultAll)

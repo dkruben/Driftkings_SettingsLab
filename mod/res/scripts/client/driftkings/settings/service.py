@@ -183,7 +183,7 @@ class SettingsService(object):
         return value
 
     def getSettingDictByAliasBattle(self, alias):
-        from driftkings.flash.batalha.registry import BATTLE_COMPONENTS
+        from driftkings.flash.battle.registry import BATTLE_COMPONENTS
 
         # Registration already links the alias to its config; no second map.
         config = BATTLE_COMPONENTS[alias][1]
