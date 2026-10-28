@@ -164,6 +164,24 @@ class LocalizedControlTests(RuntimeTest):
     def test_current_defaults_open_and_apply_through_every_settings_page(self):
         self.settings_registry()
 
+    def test_carousel_numeric_defaults_and_personal_macros_share_a_valid_control(self):
+        registry = self.settings_registry()
+        config, defaults = registry.entries['vehicle_carousel']
+        key = 'carousel.normal.extraFields.10.alpha'
+        macro = '{{v.tfb?100|0}}'
+        controls = self.load('settings.panel.controls')
+        for saved, default in ((macro, 100), (100, macro)):
+            config.data['carousel']['normal']['extraFields'][10]['alpha'] = saved
+            defaults['carousel']['normal']['extraFields'][10]['alpha'] = default
+            description = registry.describe('vehicle_carousel')
+            declaration = next(item for item in description['controls'] if item.get('varName') == key)
+            self.assertEqual(declaration['type'], 'TextInput')
+            control = controls.Control('text', 'alpha', 'Alpha', default=description['defaults'][key])
+            control.finalize()  # This failed with "invalid default (Expected text)" in EU.
+            self.assertEqual(control.validate(description['values'][key]), str(saved))
+            registry.apply('vehicle_carousel', description['values'])
+            self.assertEqual(config.data['carousel']['normal']['extraFields'][10]['alpha'], str(saved))
+
     def test_distance_choices_and_team_tabs_use_each_selected_language(self):
         for code, text in self.documents.items():
             self.text = text

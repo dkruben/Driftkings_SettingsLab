@@ -73,3 +73,13 @@ Aprovada a proposta de cano sem estrela, adaptada com o gerador de imagens a par
 Mantida `v.c_tdb` para dano médio absoluto e acrescentado mapeamento de `v.c_wn8expd` à mesma escala de dano absoluto, avaliada com o valor esperado. `v.c_wn8effd` continua a representar a razão dano/esperado. A preview acompanha os valores separados; testes confirmam duas chamadas com valores distintos e permitem cores diferentes. Cores podem coincidir se os valores pertencerem à mesma faixa. Alteração local, ainda sem nova build.
 
 Validação antes do commit pedido em 28 outubro: 448 testes core, suite JavaScript, ESLint, defaults e build data aprovados. Alterações registadas em develop; sem push, publicação ou instalação no EU neste passo.
+
+## Página do carrossel desaparecida — 28 outubro 2026
+
+O game.log EU regista às 01:13:14 UTC `Could not bind settings: vehicle_carousel` / `DefinitionError: field_39467bf00a96f286: invalid default (Expected text)`. O ID corresponde a `carousel.normal.extraFields.10.alpha`. Os JSON pessoais continuam presentes; o binder omite a página por falhar na validação de um controlo.
+
+Corrigido o contrato em SettingsRegistry.describe, apenas nas propriedades numéricas/com macros dos extraFields do carrossel: quando o valor guardado ou o default é texto, ambos são expostos como TextInput textual. A expressão guardada é preservada, sem apagar/repor perfis. O caso inverso (guardado numérico, default macro) também é tratado. Regressão cobre descrição, finalização do controlo e aplicação sem perder a expressão. Sete testes de controlos localizados aprovados em Python 2.7/3; suite JavaScript e verificador de nomes indefinidos aprovados. Build de diagnóstico beta.2 atualizada; sem instalação, commit ou publicação neste passo.
+
+## Zero marcas no perfil EU — 28 outubro 2026
+
+Confirmados ícone mark_0.png e referência Python no WOTMOD instalado. O perfil EU ainda ocultava o campo com `{{v.marksOnGun?100|0}}`. Guardado backup em build/backups/eu-zero-mark-* e alterada somente a opacidade do campo com `{{icon:marksOnGun}}` para 100. Verificada igualdade semântica de todas as restantes configurações. Sem substituição do WOTMOD; reabertura/reaplicação do painel necessária para confirmar no cliente.
