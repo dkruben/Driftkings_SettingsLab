@@ -87,3 +87,15 @@ class ScreenGateTests(RuntimeTest):
         self.assertFalse(harness.views.supports('panel'))
         harness.views.end()
         self.assertIsNone(harness.views.adapter)
+
+    def test_random_keeps_the_exchange_order_and_enemies(self):
+        harness = Harness(self, battle(15, 15), 'random')
+        left = sorted((ident for ident, vehicle in harness.arena.vehicles.items() if vehicle['team'] == 1),
+                      reverse=True)
+        right = sorted(ident for ident, vehicle in harness.arena.vehicles.items() if vehicle['team'] == 2)
+        harness.views.captureOrder(lambda controller, data: None, None,
+                                   {'leftItemsIDs': left, 'rightItemsIDs': right})
+        rows = dict((row['id'], row) for row in harness.views.rows(None, ('panel',)))
+        self.assertEqual([rows[ident]['index'] for ident in left], list(range(15)))
+        self.assertEqual([rows[ident]['index'] for ident in right], list(range(15)))
+        self.assertEqual(set(rows[1]['panels']), set(harness.data['profiles']))

@@ -18,7 +18,7 @@ from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import override
-from driftkings.core.mode_adapters import adapter_for
+from driftkings.core.mode_adapters import adapter_for, roster_order
 from driftkings.core.panel_model import Roster
 from driftkings.flash.battle.meta.players_panel import PlayersPanelMeta
 from driftkings.logger import get_logger
@@ -174,6 +174,10 @@ class RatingViews(object):
         adapter=self.modeAdapter()
         return adapter is not None and bool(adapter.panel_modes)
 
+    def nativeOrder(self):
+        adapter=self.modeAdapter()
+        return adapter is None or adapter.order=='native'
+
     def captureOrder(self,original,controller,data,*args,**kwargs):
         result=original(controller,data,*args,**kwargs)
         if self.active and isinstance(data,dict):
@@ -182,7 +186,8 @@ class RatingViews(object):
                 self.model.reset(); self.arena=arena
             for side in ('left','right'):
                 ids=data.get(side+'ItemsIDs')
-                if ids is not None: self.model.set_order(side,ids)
+                # Halloween's exchange empties the enemy side; its order is sorted in rows().
+                if ids is not None and self.nativeOrder(): self.model.set_order(side,ids)
             for entries in data.values():
                 if not isinstance(entries,(tuple,list)): continue
                 for entry in entries:
@@ -361,14 +366,24 @@ class RatingViews(object):
                     for item in value: track(item)
             track(data)
             self.trackedKeys=None if dynamic[0] else tracked
-        self.model.sync(arena.vehicles)
+        adapter=self.modeAdapter()
+        team=getattr(player,'team',0)
+        # Allies-only modes leave enemies, bots and bosses to the native view.
+        vehicles=arena.vehicles if adapter is None or adapter.enemies else dict(
+            (ident,vehicle) for ident,vehicle in arena.vehicles.items() if vehicle.get('team')==team)
+        self.model.sync(vehicles)
+        if adapter is not None and adapter.order=='mod':
+            ordered=roster_order(vehicles)
+            self.model.set_order('left',[ident for ident in ordered if vehicles[ident].get('team')==team])
+            self.model.set_order('right',[ident for ident in ordered if vehicles[ident].get('team')!=team])
         contexts={}
         ownID=getattr(player,'playerVehicleID',0)
         self.resolvedRows=0
         colorblind=bool(getattr(self.view,'isColorBlind',lambda: False)())
         shared=(colorblind,ownID,getattr(player,'team',0),self.model.mode,self.model.widths,getattr(arena,'guiType',None),CURRENT_REALM,self.model.restricted,
                 any(m.get('hasSelectedBadge') for m in self.model.metadata.values()))
-        for ident,vehicle in arena.vehicles.items():
+        for ident,vehicle in vehicles.items():
+            # Mode entities (accountDBID 0) resolve as players without statistics.
             stats=self.stats.getPlayersInfo(vehicle.get('accountDBID',0))
             vtype=vehicle.get('vehicleType'); descriptor=getattr(vtype,'type',None)
             typeStamp=tuple(getattr(vtype,key,None) for key in ('level','maxHealth'))+tuple(getattr(descriptor,key,None) for key in ('compactDescr','userString','shortUserString','name'))
@@ -388,11 +403,12 @@ class RatingViews(object):
         rows=[]
         hotkeys=tuple(frozenset(keys if self.trackedKeys is None else keys.intersection(self.trackedKeys)) for keys in (self.model.keys,self.model.toggled))
         profiles=data[TEAM_PANELS.PROFILES] if mode is None else {mode:data[TEAM_PANELS.PROFILES][mode]}
+        # The classic short/medium/large profiles do not apply to panels without those modes.
+        if adapter is not None and not adapter.panel_modes: profiles={}
         active=frozenset(('panel','loading','tab') if screens is None else screens)
         for cache in (self.rowCache,self.contextCache,self.screenCache):
             for ident in set(cache)-set(contexts): cache.pop(ident,None)
         for ident,values in contexts.items():
-            vehicle=arena.vehicles[ident]
             values.update(own)
             side='Left' if values['ally'] else 'Right'
             ids=self.model.order[side.lower()]

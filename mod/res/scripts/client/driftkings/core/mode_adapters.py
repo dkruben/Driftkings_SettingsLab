@@ -26,3 +26,23 @@ ADAPTERS = {
 
 def adapter_for(mode):
     return ADAPTERS.get(mode)
+
+
+# Native battle class order (gui.shared.gui_items.Vehicle.VEHICLE_BATTLE_TYPES_ORDER).
+CLASS_ORDER = ('heavyTank', 'mediumTank', 'AT-SPG', 'lightTank', 'SPG')
+
+
+def _class_index(tags):
+    return next((index for index, tag in enumerate(CLASS_ORDER) if tag in tags), len(CLASS_ORDER))
+
+
+def sort_key(vehicle):
+    """Halloween's HWSortKey: team, alive first, class, vehicle name, player name."""
+    descriptor = getattr(vehicle.get('vehicleType'), 'type', None)
+    return (vehicle.get('team', 0), not vehicle.get('isAlive', True),
+            _class_index(getattr(descriptor, 'tags', ()) or ()),
+            (getattr(descriptor, 'shortUserString', '') or '').upper(), (vehicle.get('name', '') or '').upper())
+
+
+def roster_order(vehicles):
+    return [ident for ident, _ in sorted(vehicles.items(), key=lambda item: (sort_key(item[1]), item[0]))]
