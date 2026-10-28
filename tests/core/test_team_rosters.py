@@ -66,10 +66,12 @@ class HalloweenRosterTests(RuntimeTest):
         harness.views.rows(None, ('panel',))
         self.assertEqual(harness.views.contextCache[6][1]['stat-available'], '')
 
-    def test_halloween_ticks_never_draw(self):
+    def test_halloween_ticks_never_draw_the_flash_panel(self):
         harness = Harness(self, halloween(), 'halloween')
         for _ in range(3):
             payload = harness.tick()
             self.assertEqual((payload['enabled'], payload['rows']), (False, []))
         self.assertEqual(len(harness.sent), 1)
+        # Only the TAB table receives the allies.
+        self.assertEqual([len(rows) for enabled, rows in harness.gameface], [6, 6, 6])
         self.assertNotIn('medium2', [payload['mode'] for payload in harness.sent])

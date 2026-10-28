@@ -7,7 +7,8 @@
   - `core/battle_capabilities.py` devolve o modo `halloween` (antes era `special`). O Halloween continua a ser um modo de evento para `is_special()` e `is_event_mode()`.
   - `core/mode_adapters.py` declara o que cada modo suporta. Só existem `random` (comportamento anterior) e `halloween`. Os modos sem adaptador ficam com as vistas nativas intactas.
   - No Halloween, o roster do mod tem só aliados, ordenados no mod como o `HWSortKey` nativo (equipa, vivos primeiro, classe, nome do veículo, nome do jogador). As entidades do modo (bots, bosses, `accountDBID` 0) ficam como linhas sem estatísticas. Os perfis short/medium/large do painel clássico não são usados.
-  - O painel, o carregamento e o TAB do Halloween **não são desenhados** (adaptador com `panel=False`, `loading=False`, `tab=False`). Ver "Painel" abaixo.
+  - O painel e o carregamento do Halloween **não são desenhados** (adaptador com `panel=False`, `loading=False`). Ver "Painel" abaixo.
+  - O TAB do Halloween recebe uma **tabela separada** com os aliados e as estatísticas numéricas (opção B abaixo, adaptador com `tab='halloween'` e `event_numbers=True`). Os outros modos de evento continuam só com cores.
 
 ## Versão da referência
 
@@ -31,9 +32,18 @@ O Flash do mod (`ratingscreens.as` / `viewbindings.as`) liga-se a qualquer objet
 
 Sem o AS3 do `HWPlayersPanel` não há forma segura de alinhar as linhas. Por isso o adaptador `halloween` tem `panel=False`: o payload Flash vai com `enabled=False`, o Flash do mod restaura o estado nativo e os hooks de modo só passam a chamada ao original. O roster (só aliados, ordenado, sem estatísticas para `accountDBID` 0) já é calculado e testado; ativar o painel exige primeiro validar o alinhamento em jogo.
 
-## TAB — opções (não implementado)
+## TAB
 
-Garantia atual: `GamefaceLoading` só instala hooks em `gui.impl.battle.battle_page.tab_view.TabView` e só anexa o filho quando o adaptador do modo suporta `tab`. O `TabScreen` do Halloween não é tocado, e `tests/core/test_halloween_tab.py` verifica isso.
+### Implementação atual (opção B)
+
+- `GamefaceLoading` anexa o filho `DriftkingsRatingPlayers` ao `TabView` clássico só quando o adaptador tem `tab='classic'`, e ao `TabScreen` do Halloween só quando tem `tab='halloween'`.
+- O mod nunca importa a extensão. O hook do `TabScreen` só é instalado depois de o `page.py` do Halloween ter carregado `halloween.gui.impl.battle.full_stats` (`GamefaceLoading.watch`, chamado em cada tick). Se o TAB for aberto antes desse primeiro tick, essa janela fica sem tabela até ser recriada.
+- O payload `hwTab` tem uma linha por aliado (`summary`): nome, clã, veículo, vivo, próprio, rating configurado, % de vitórias e batalhas, com as cores da escala. Respeita o interruptor do TAB nas definições. Não lê o modelo nativo (o `TabScreen` não tem `playerList`).
+- `panel_gameface/halloween_tab.js` cria um único `div.dk-hw-tab` em `document.body` (posição absoluta, `left: 24rem`, `top: 160rem`, sem eventos de rato). Só usa `textContent` e nunca altera os elementos nativos. As entidades sem estatísticas mostram `—`, e os mortos ficam a 50% de opacidade.
+- Não há settings novas nem texto traduzível. O único cabeçalho é o nome do rating (por exemplo `WN8`).
+- Testes: `tests/core/test_halloween_tab.py` (hooks e payload) e `tests/settings_panel/test_halloween_tab.js` (formatação, cores, texto seguro e nó próprio).
+
+### Opções avaliadas
 
 ### Opção A — camada por cima do `TabScreen`
 
@@ -57,14 +67,15 @@ Uma vista própria do mod (Flash ou Gameface) mostrada enquanto o TAB do Hallowe
   - Visibilidade: é preciso seguir a abertura e o fecho da janela (hook em `FullEventStatsWindow` ou nos eventos de `page.py`) e esconder o painel quando o TAB fecha.
   - Duplica informação do `TeamStats`, e a posição livre pode tapar elementos nativos em resoluções diferentes.
 
-### Recomendação
+### Decisão
 
-Começar pela opção B, com só aliados e sem tocar no DOM nativo. A opção A só vale a pena depois de inspecionar o `TabScreen` em jogo (estrutura e classes CSS) no cliente NA.
+Foi implementada a opção B, alojada como filho do `TabScreen`. Assim abre e fecha com o TAB, na mesma camada, sem foco próprio e sem tocar no DOM nativo. A opção A só vale a pena depois de inspecionar o `TabScreen` em jogo (estrutura e classes CSS) no cliente NA.
 
 ## Por validar em jogo
 
 - O painel nativo do Halloween fica sem texto do mod por cima e sem mudanças de modo (`medium2`/`large`).
-- O log mostra `Team panels: mode=halloween supported=none` e não mostra `Gameface roster attached`.
-- O TAB e o carregamento do Halloween ficam iguais ao nativo.
+- O log mostra `Team panels: mode=halloween supported=tab`, `Gameface roster watching halloween.gui.impl.battle.full_stats.TabScreen` e, ao abrir o TAB, `Gameface roster attached: tab (halloween)`.
+- No TAB do Halloween, a tabela aparece à esquerda sem tapar conteúdo nativo (posição, tamanho da letra, contraste), com números e cores para os 5 jogadores e `—` para os bots. Fecha com o TAB.
+- O carregamento do Halloween fica igual ao nativo.
 - O random fica igual ao anterior (painel, carregamento e TAB).
 - Os outros modos (comp7, frontline, treino, eventos) ficam com as vistas nativas, sem o roster do mod.

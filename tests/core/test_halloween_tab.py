@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Halloween TAB (TabScreen): the roster bridge must not attach to it nor write into it."""
+"""Halloween TAB (TabScreen): a separate allies table, hooked late, never the native rows."""
 import io
+import json
 import os
+import sys
 
 from support import CLIENT, Hooks, RuntimeTest, module, source
+
+MODULE = 'halloween.gui.impl.battle.full_stats'
 
 
 class View(object):
@@ -18,53 +22,131 @@ class View(object):
         return self.children.get(resource)
 
 
+class Model(object):
+    def __init__(self):
+        self.payload = None
+
+    def transaction(self):
+        model = self
+
+        class Transaction(object):
+            def __enter__(self):
+                return model
+
+            def __exit__(self, *args):
+                return False
+        return Transaction()
+
+    def _setString(self, index, value):
+        self.payload = json.loads(value)
+
+
 class GamefaceTabTests(RuntimeTest):
-    def bridge(self, supported):
+    def setUp(self):
+        super(GamefaceTabTests, self).setUp()
+        self.kind = 'classic'
+        self.addCleanup(sys.modules.pop, MODULE, None)
+        sys.modules.pop(MODULE, None)
+
+    def bridge(self):
         hooks = Hooks()
         self.refreshes = []
-        self.owner = module(active=True, supports=lambda screen: screen in supported,
+        self.owner = module(active=True, tabKind=lambda: self.kind,
                             refresh=lambda: self.refreshes.append(1), config=None)
 
         class TabView(object):
             pass
 
+        class Child(object):
+            def __init__(self, settings):
+                self.model = Model()
+
+            def getViewModel(self):
+                return self.model
+
+        settings = module(getComponentDict=lambda config: {'performance': {'diagnostics': False}})
         api = source('gameface/battle/panel_gameface.py', {
             'frameworks.wulf': module(ViewModel=type('ViewModel', (object,), {'__init__': lambda self, **kwargs: None}),
                                       ViewSettings=lambda resource, model=None: None),
             'frameworks.wulf.gui_constants': module(ShowingStatus=module(SHOWING='SHOWING', SHOWN='SHOWN')),
-            'gui.impl.pub': module(ViewImpl=type('ViewImpl', (object,), {'__init__': lambda self, *args: None})),
+            'gui.impl.pub': module(ViewImpl=Child),
             'gui.impl.battle.battle_page.tab_view': module(TabView=TabView),
             'driftkings.gameface.core': module(attach_assets=lambda *args: None, resource_id=lambda value: 77),
             'driftkings.interface_catalog': module(gameface_spec=lambda name: {'resource': 'tab'}),
-            'driftkings.settings.service': module(settings_service=None),
+            'driftkings.settings.service': module(settings_service=settings),
+            'driftkings._constants': module(GLOBAL=module(ENABLED='enabled'),
+                                            TEAM_PANELS=module(PERFORMANCE='performance')),
             'driftkings.core.diagnostics': module(diagnostics=module(enabled=False)),
             'driftkings.core.hooks': module(override=hooks.override),
         })
         return api['GamefaceLoading'](self.owner), hooks
 
+    def screen_module(self):
+        class TabScreen(object):
+            pass
+        sys.modules[MODULE] = module(TabScreen=TabScreen)
+        return TabScreen
+
     def test_random_tab_gets_the_roster_child(self):
-        bridge, hooks = self.bridge(('tab',))
+        bridge, hooks = self.bridge()
         view = View()
         hooks.get('TabView', '_onLoaded')(lambda view: None, view)
         self.assertEqual(list(view.children), [77])
         self.assertEqual(bridge.active_screens(), set(['tab']))
 
-    def test_halloween_gets_no_child_and_no_writes(self):
-        bridge, hooks = self.bridge(())
+    def test_halloween_does_not_use_the_classic_tab(self):
+        self.kind = 'halloween'
+        bridge, hooks = self.bridge()
         view = View()
         hooks.get('TabView', '_onLoaded')(lambda view: None, view)
         self.assertEqual(view.children, {})
-        self.assertEqual(bridge.active_screens(), set())
-        # update() with no attached view writes nothing anywhere.
-        bridge.update(True, [{'id': 1, 'ally': True, 'aliases': [], 'tab': {}}])
-        bridge.dispose()
-        self.assertEqual(self.refreshes, [])
 
-    def test_only_the_classic_tab_is_hooked(self):
-        bridge, hooks = self.bridge(('tab',))
-        self.assertEqual(sorted(name for name, _ in hooks.overrides if name != 'TabView'), [])
+    def test_tab_screen_is_hooked_only_once_its_module_is_loaded(self):
+        bridge, hooks = self.bridge()
+        bridge.watch('halloween')
+        self.assertNotIn(('TabScreen', '_onLoaded'), hooks.overrides)
+        self.screen_module()
+        bridge.watch('classic')
+        self.assertNotIn(('TabScreen', '_onLoaded'), hooks.overrides)
+        bridge.watch('halloween')
+        bridge.watch('halloween')
+        self.assertIn(('TabScreen', '_onLoaded'), hooks.overrides)
+        self.assertEqual(bridge.watched, set(['halloween']))
+
+    def test_tab_screen_attaches_only_in_halloween(self):
+        bridge, hooks = self.bridge()
+        self.screen_module()
+        bridge.watch('halloween')
+        loaded = hooks.get('TabScreen', '_onLoaded')
+        view = View()
+        loaded(lambda view: None, view)
+        self.assertEqual(view.children, {})
+        self.kind = 'halloween'
+        loaded(lambda view: None, view)
+        self.assertEqual(list(view.children), [77])
+
+    def test_halloween_payload_is_a_separate_sorted_table(self):
+        self.kind = 'halloween'
+        bridge, hooks = self.bridge()
+        self.screen_module()
+        bridge.watch('halloween')
+        # The TabScreen has no playerList: reading the native model would raise.
+        view = View()
+        hooks.get('TabScreen', '_onLoaded')(lambda view: None, view)
+        summary = {'enabled': True, 'name': 'a', 'stats': True}
+        rows = [{'id': 2, 'index': 1, 'ally': True, 'aliases': [], 'tab': {}, 'summary': dict(summary, name='b')},
+                {'id': 1, 'index': 0, 'ally': True, 'aliases': [], 'tab': {}, 'summary': summary},
+                {'id': 3, 'index': 2, 'ally': True, 'aliases': [], 'tab': {}, 'summary': dict(summary, enabled=False)}]
+        bridge.update(True, rows)
+        payload = view.children[77].model.payload
+        self.assertEqual((payload['screen'], payload['enabled']), ('hwTab', True))
+        self.assertEqual([(row['id'], row['name']) for row in payload['rows']], [(1, 'a'), (2, 'b')])
+        bridge.update(False, rows)
+        self.assertEqual(view.children[77].model.payload, {'enabled': False, 'screen': 'tab', 'rows': []})
+
+    def test_the_extension_is_never_imported_by_the_mod(self):
         path = os.path.join(CLIENT, 'gameface', 'battle', 'panel_gameface.py')
         with io.open(path, encoding='utf-8') as stream:
             text = stream.read()
-        for name in ('TabScreen', 'FullEventStatsWindow', 'halloween'):
-            self.assertNotIn(name, text)
+        self.assertNotIn('import halloween', text)
+        self.assertNotIn('from halloween', text)
