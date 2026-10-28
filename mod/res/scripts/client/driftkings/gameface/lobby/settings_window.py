@@ -54,6 +54,8 @@ class SettingsView(ViewImpl):
         self.live = False
         self.sentSchema = None
         self.sentRevision = None
+        self.sentState = None
+        self._actionDepth = 0
         self.updaterState = None
         self.captureCallback = None
         self.captureTarget = None
@@ -73,7 +75,7 @@ class SettingsView(ViewImpl):
         updater = getattr(self.controller.api, 'updater', None)
         if updater is not None:
             self.updaterState = updater.state
-            self.updaterState.subscribe(self.push)
+            self.updaterState.subscribe(self._publish)
         self.push()
 
     def _finalize(self):
@@ -81,7 +83,7 @@ class SettingsView(ViewImpl):
         self.stopCapturePolling()
         self.controller.api.registry.unsubscribe(self.push)
         if self.updaterState is not None:
-            self.updaterState.unsubscribe(self.push)
+            self.updaterState.unsubscribe(self._publish)
             self.updaterState = None
         try:
             self.presenter.dispose()
@@ -92,12 +94,17 @@ class SettingsView(ViewImpl):
         super(SettingsView, self)._finalize()
 
     def push(self):
+        # Structure notifications are consolidated at the end of onAction.
+        if not self._actionDepth:
+            self._publish()
+
+    def _publish(self):
+        # Updater notifications bypass consolidation: intermediate errors matter.
         if not self.live:
             return
         self.syncCapturePolling()
         revision = (self.presenter.registry.revision, self.controller.api.language)
         schema = json.dumps(self.presenter.schema(), **_JSON) if revision != self.sentRevision else self.sentSchema
-        self.sentRevision = revision
         codes = set()
         for mod in self.presenter.registry.mods.values():
             for control in mod.controls:
@@ -106,12 +113,18 @@ class SettingsView(ViewImpl):
                         codes.update(group)
         self.presenter.key_names = dict((str(code), BigWorld.keyToString(code)) for code in codes)
         state = json.dumps(self.presenter.state(), **_JSON)
+        if schema == self.sentSchema and state == self.sentState:
+            self.sentRevision = revision
+            return
         with self.getViewModel().transaction() as model:
-            # The schema is only resent when mods, controls or the language change.
+            # Keep both properties together, but write only changed JSON strings.
             if schema != self.sentSchema:
                 model._setString(0, schema)
-                self.sentSchema = schema
-            model._setString(1, state)
+            if state != self.sentState:
+                model._setString(1, state)
+        # A failed transaction must not mark unpublished content as delivered.
+        self.sentSchema, self.sentState = schema, state
+        self.sentRevision = revision
 
     def stopCapturePolling(self):
         if self.captureCallback is not None:
@@ -165,7 +178,17 @@ class SettingsView(ViewImpl):
         except ValueError:
             logger.warning('Rejected malformed settings request')
             return
-        result = self.presenter.handle(data)
+        self._actionDepth += 1
+        failed = True
+        try:
+            result = self.presenter.handle(data)
+            failed = False
+        finally:
+            self._actionDepth -= 1
+            if failed:
+                self.push()
+        if not self.live:
+            return
         if result.get('restart'):
             if result.get('restartReason') == 'updater':
                 if not self.controller.restart(reason='updater'):

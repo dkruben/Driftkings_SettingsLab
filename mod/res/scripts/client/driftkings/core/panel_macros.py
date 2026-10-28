@@ -11,6 +11,18 @@ except NameError:
     text_type = str
 
 
+def uses_tdv(value):
+    """Keep the legacy JSON substring search, including keys and nested templates."""
+    if isinstance(value, (str, text_type)):
+        # JSON escapes a tab as backslash-t: a tab followed by 'dv' also matched.
+        return 'tdv' in value or '\tdv' in value
+    if isinstance(value, dict):
+        return any(uses_tdv(key) or uses_tdv(value[key]) for key in value)
+    if isinstance(value, (list, tuple)):
+        return any(uses_tdv(item) for item in value)
+    return False
+
+
 def truth(value):
     return value not in (None, False, '', 0, 'false', '0')
 

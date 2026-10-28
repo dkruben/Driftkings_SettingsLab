@@ -48,7 +48,8 @@ package driftkings.battle.components.minimap
                 // Copy position and rotation only: a scaled native placeholder
                 // must not stretch a line measured in metres.
                 var m:Matrix = target.transform.matrix, angle:Number = Math.atan2(m.b, m.a);
-                shape.transform.matrix = new Matrix(Math.cos(angle), Math.sin(angle), -Math.sin(angle), Math.cos(angle), m.tx, m.ty);
+                var cosine:Number = Math.cos(angle), sine:Number = Math.sin(angle);
+                shape.transform.matrix = new Matrix(cosine, sine, -sine, cosine, m.tx, m.ty);
                 shape.visible = target.visible;
                 var length:Number = scale.metres(shape, Number(lines.length));
                 var step:Number = marks ? scale.metres(shape, Number(lines.marks)) : 0;

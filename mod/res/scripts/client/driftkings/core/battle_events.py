@@ -87,7 +87,11 @@ class BattleEvents(object):
         from skeletons.gui.battle_session import IBattleSessionProvider
         session = dependency.instance(IBattleSessionProvider)
         session.onBattleSessionStart += self.attachFeedback
-        session.onBattleSessionStop += self.detachFeedback
+        try:
+            session.onBattleSessionStop += self.detachFeedback
+        except Exception:
+            session.onBattleSessionStart -= self.attachFeedback
+            raise
         self.session = session
         # Acquired during a battle: the session already started.
         self.attachFeedback()

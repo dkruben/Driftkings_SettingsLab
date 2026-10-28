@@ -103,6 +103,7 @@ class GamefaceLoading(object):
 
     def update(self,enabled,rows):
         if not self.children: return
+        result=None
         for view,record in list(self.children.items()):
             if view.getChildView(record['resource']) is not record['child']:
                 self.children.pop(view, None)
@@ -111,7 +112,9 @@ class GamefaceLoading(object):
             if not record.get('visible',True) or not enabled:
                 data={'enabled':False,'screen':screen,'rows':[]}
             else:
-                result=[{'id':row['id'],'ally':row['ally'],'aliases':row['aliases'],'cfg':row['tab']} for row in rows]
+                # Resolved rows are immutable snapshots, shared by active child views.
+                if result is None:
+                    result=[{'id':row['id'],'ally':row['ally'],'aliases':row['aliases'],'cfg':row['tab']} for row in rows]
                 players=view.viewModel.playerList
                 order={'left':[p.getVehicleId() for p in players.getAllies()],
                        'right':[p.getVehicleId() for p in players.getEnemies()]}

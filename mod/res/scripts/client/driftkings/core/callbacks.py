@@ -17,7 +17,12 @@ class CallbackService(object):
         from driftkings.core.battle_events import battleEvents
         self.events = battleEvents
         self.events.ended.connect(self.endBattle)
-        self.events.acquire(self)
+        try:
+            self.events.acquire(self)
+        except Exception:
+            self.events.ended.disconnect(self.endBattle)
+            self.events = None
+            raise
 
     def schedule(self, delay, method, *args, **kwargs):
         if self.backend is None:
@@ -29,6 +34,10 @@ class CallbackService(object):
         owner = getattr(function, '__module__', '')
         token = [None]
         def run():
+            # Cancelled/completed registrations must not call a disposed owner,
+            # including when the backend already queued the callable.
+            if token[0] not in self.pending:
+                return
             self.pending.pop(token[0], None)
             if diagnostics.enabled:
                 return diagnostics.call('callback.' + owner + '.' + getattr(function, '__name__', 'handler'), method, *args, **kwargs)
@@ -60,7 +69,8 @@ class CallbackService(object):
 
     def endBattle(self):
         for token, owner in list(self.pending.items()):
-            if owner.startswith('driftkings.battle.'):
+            # Flash battle adapters share the arena lifetime of gameplay components.
+            if owner.startswith(('driftkings.battle.', 'driftkings.flash.battle.')):
                 self.cancel(token)
 
     def stop(self):

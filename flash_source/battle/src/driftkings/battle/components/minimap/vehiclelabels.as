@@ -20,7 +20,7 @@ package driftkings.battle.components.minimap
 
         public function begin():void
         {
-            visible = [];
+            visible.length = 0;
         }
 
         public function update(entry:VehicleMinimapEntry, data:Object, options:Object):void

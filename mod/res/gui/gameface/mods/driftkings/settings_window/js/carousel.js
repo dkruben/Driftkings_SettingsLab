@@ -157,7 +157,7 @@
     }
 
     function create(host, mod) {
-        var values = {}, overrides = {}, layout = null, defs = {}, vehicles = VEHICLES, nativeRows = 1;
+        var values = {}, overrides = {}, layout = null, defs = {}, vehicles = VEHICLES, nativeRows = 1, lastInput = null;
         mod.controls.forEach(function (def) { defs[def.id] = def; });
         function v(path, fallback) {
             var id = DK.minimapPreview.fieldId(path);
@@ -319,11 +319,16 @@
         }
         return {
             update: function (next, everything, snapshot) {
+                var input = JSON.stringify([next || {}, snapshot || null]);
+                var changed = input !== lastInput || Object.keys(overrides).length > 0;
                 values = next || {}; overrides = {};
                 nativeRows = snapshot && snapshot.nativeRows >= 1 && snapshot.nativeRows <= 4 ? snapshot.nativeRows : 1;
                 vehicles = snapshot && snapshot.source === 'examples' && snapshot.vehicles && snapshot.vehicles.length ? snapshot.vehicles : VEHICLES;
-                note.textContent = t('car.note');
-                draw();
+                if (changed) {
+                    note.textContent = t('car.note');
+                    draw();
+                    lastInput = input;
+                }
             },
             preview: function (id, value) { overrides[id] = value; draw(); },
             redraw: draw,

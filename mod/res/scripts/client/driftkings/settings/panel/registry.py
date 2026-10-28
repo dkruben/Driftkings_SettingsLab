@@ -38,10 +38,12 @@ class ModHandle(object):
         return copy.deepcopy(self._mod.values if self._action_values is None else self._action_values)
 
     def get(self, setting_id, default=None):
-        return self.values.get(setting_id, default)
+        values = self._mod.values if self._action_values is None else self._action_values
+        return copy.deepcopy(values[setting_id]) if setting_id in values else default
 
     def __getitem__(self, setting_id):
-        return self.values[setting_id]
+        values = self._mod.values if self._action_values is None else self._action_values
+        return copy.deepcopy(values[setting_id])
 
     def on_change(self, callback):
         """callback(changes) after Apply/Save/Discard; changes maps setting id to its new value."""
@@ -392,11 +394,12 @@ class ModRegistry(object):
             return
         public = dict(mod.stored)
         secrets = dict(mod.secrets)
-        for control in mod.value_controls():
+        controls = mod.value_controls()
+        for control in controls:
             (secrets if control.secret else public)[control.id] = copy.deepcopy(mod.values[control.id])
         if self.store is not None:
             self.store.write(mod.file_name, public)
-            if any(control.secret for control in mod.value_controls()):
+            if any(control.secret for control in controls):
                 self.store.write(mod.file_name, secrets, secret=True)
         mod.stored, mod.secrets = public, secrets
         mod.saved = copy.deepcopy(mod.values)

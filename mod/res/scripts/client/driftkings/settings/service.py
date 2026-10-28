@@ -31,7 +31,10 @@ class SettingsChanges(dict):
 
 
 def affects(changes, *options):
-    paths = getattr(changes, 'paths', tuple((key,) for key in changes))
+    try:
+        paths = changes.paths
+    except AttributeError:
+        paths = tuple((key,) for key in changes)
     for option in options:
         option = tuple(option) if isinstance(option, (tuple, list)) else (option,)
         for path in paths:
@@ -230,7 +233,8 @@ class SettingsService(object):
         config = self.getConfig(config)
         current = config.data
         before = copy.deepcopy(current)
-        changes = changed_values(before, merge(before, values))
+        candidate = merge(before, values)
+        changes = changed_values(before, candidate)
         if not changes:
             return {}
         token = id(config)
@@ -240,12 +244,12 @@ class SettingsService(object):
         self._applying.add(token)
         try:
             if not persist:
-                restore(current, merge(before, values))
+                restore(current, candidate)
             elif callable(getattr(config, 'persist_values', None)):
-                candidate = config.persist_values(merge(before, values))
+                candidate = config.persist_values(candidate)
                 restore(current, candidate)
             else:
-                candidate = config.normalize_changes(merge(before, values), changes)
+                candidate = config.normalize_changes(candidate, changes)
                 from driftkings.settings.loader import validate_types
                 validate_types(before, candidate)
                 self._save(config, candidate)

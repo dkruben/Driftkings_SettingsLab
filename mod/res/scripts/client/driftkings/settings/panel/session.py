@@ -82,15 +82,27 @@ class EditSession(object):
 
     def apply(self):
         changed = []
-        for mod_id, values in self.drafts.items():
-            if any(not self._mod(mod_id).index[key].enabled for key in values):
+        # Preflight one independent snapshot before any module can publish values.
+        # external_apply and listeners can still fail or have irreversible effects.
+        drafts = copy.deepcopy(self.drafts)
+        for mod_id, values in drafts.items():
+            mod = self._mod(mod_id)
+            if any(not mod.index[key].enabled for key in values):
                 raise ValueError('Draft contains disabled settings')
-        for mod_id in sorted(self.drafts):
+            if any(not dep['installed'] for dep in self.registry.dependency_status(mod)):
+                raise ValueError('Missing mod dependency')
+            for key, value in values.items():
+                control = mod.index[key]
+                if not control.has_value:
+                    raise ValueError('Unknown setting: %s.%s' % (mod_id, key))
+                control.validate(value)
+        for mod_id in sorted(drafts):
             if mod_id not in self.registry.mods:
                 continue
             if any(not dep['installed'] for dep in self.registry.dependency_status(self._mod(mod_id))):
                 raise ValueError('Missing mod dependency')
-            if self.registry.apply_values(mod_id, self.drafts[mod_id]):
+            # Recheck at publication: an earlier callback can change the registry.
+            if self.registry.apply_values(mod_id, drafts[mod_id]):
                 changed.append(mod_id)
         self.drafts.clear()
         self.history = []
