@@ -8,7 +8,7 @@
   - `core/mode_adapters.py` declara o que cada modo suporta. Só existem `random` (comportamento anterior) e `halloween`. Os modos sem adaptador ficam com as vistas nativas intactas.
   - No Halloween, o roster do mod tem só aliados, ordenados no mod como o `HWSortKey` nativo (equipa, vivos primeiro, classe, nome do veículo, nome do jogador). As entidades do modo (bots, bosses, `accountDBID` 0) ficam como linhas sem estatísticas. Os perfis short/medium/large do painel clássico não são usados.
   - O painel e o carregamento do Halloween **não são desenhados** (adaptador com `panel=False`, `loading=False`). Ver "Painel" abaixo.
-  - O TAB do Halloween recebe uma **tabela separada** com os aliados e as estatísticas numéricas (opção B abaixo, adaptador com `tab='halloween'` e `event_numbers=True`). Os outros modos de evento continuam só com cores.
+  - O TAB do Halloween recebe apenas cores nos nomes nativos dos aliados segundo o rating configurado (`tab='halloween'`, `event_numbers=True`). A tabela adicional no canto superior esquerdo foi removida.
 
 ## Versão da referência
 
@@ -34,14 +34,14 @@ Sem o AS3 do `HWPlayersPanel` não há forma segura de alinhar as linhas. Por is
 
 ## TAB
 
-### Implementação atual (opção B)
+### Implementação atual (cores no TAB nativo)
 
 - `GamefaceLoading` anexa o filho `DriftkingsRatingPlayers` ao `TabView` clássico só quando o adaptador tem `tab='classic'`, e ao `TabScreen` do Halloween só quando tem `tab='halloween'`.
-- O mod nunca importa a extensão. O hook do `TabScreen` só é instalado depois de o `page.py` do Halloween ter carregado `halloween.gui.impl.battle.full_stats` (`GamefaceLoading.watch`, chamado em cada tick). Se o TAB for aberto antes desse primeiro tick, essa janela fica sem tabela até ser recriada.
+- O mod nunca importa a extensão. O hook do `TabScreen` só é instalado depois de o `page.py` do Halloween ter carregado `halloween.gui.impl.battle.full_stats` (`GamefaceLoading.watch`, chamado em cada tick). Os hooks tardios mantêm o proprietário do componente capturado no arranque; um teste com o registo real verifica ativação, visibilidade, finalização e desativação. Se o TAB for aberto antes desse primeiro tick, essa janela fica sem tabela até ser recriada.
 - O payload `hwTab` tem uma linha por aliado (`summary`): nome, clã, veículo, vivo, próprio, rating configurado, % de vitórias e batalhas, com as cores da escala. Respeita o interruptor do TAB nas definições. Não lê o modelo nativo (o `TabScreen` não tem `playerList`).
-- `panel_gameface/halloween_tab.js` cria um único `div.dk-hw-tab` em `document.body` (posição absoluta, `left: 24rem`, `top: 160rem`, sem eventos de rato). Só usa `textContent` e nunca altera os elementos nativos. As entidades sem estatísticas mostram `—`, e os mortos ficam a 50% de opacidade.
-- Não há settings novas nem texto traduzível. O único cabeçalho é o nome do rating (por exemplo `WN8`).
-- Testes: `tests/core/test_halloween_tab.py` (hooks e payload) e `tests/settings_panel/test_halloween_tab.js` (formatação, cores, texto seguro e nó próprio).
+- `panel_gameface/halloween_tab.js` colore apenas os nomes nativos por correspondência exata e única (`PlayerInfo_base__tabWindow_` / `PlayerInfo_userName_`, verificados no bundle NA 2.4.1.1). Usa `style.color` e restaura o valor original quando deixa de ser necessário. Reutiliza o temporizador existente para acompanhar recriações das linhas, sem reescrever cores inalteradas. Não cria elementos nem altera nomes, danos, abates ou anomalias.
+- Não há settings novas, cabeçalhos ou texto traduzível adicionais.
+- Testes: `tests/core/test_halloween_tab.py` (hooks e payload) e `tests/settings_panel/test_halloween_tab.js` (ausência de painel adicional, associação por nome, mudanças de cor, recriação de linhas e restauro dos estilos nativos).
 
 ### Opções avaliadas
 
@@ -75,7 +75,13 @@ Foi implementada a opção B, alojada como filho do `TabScreen`. Assim abre e fe
 
 - O painel nativo do Halloween fica sem texto do mod por cima e sem mudanças de modo (`medium2`/`large`).
 - O log mostra `Team panels: mode=halloween supported=tab`, `Gameface roster watching halloween.gui.impl.battle.full_stats.TabScreen` e, ao abrir o TAB, `Gameface roster attached: tab (halloween)`.
-- No TAB do Halloween, a tabela aparece à esquerda sem tapar conteúdo nativo (posição, tamanho da letra, contraste), com números e cores para os 5 jogadores e `—` para os bots. Fecha com o TAB.
+- No TAB do Halloween, apenas os nomes nativos recebem a cor do rating. Confirmar que não aparece um painel adicional, que os dados do evento permanecem intactos e que as cores originais regressam ao desativar o TAB.
 - O carregamento do Halloween fica igual ao nativo.
 - O random fica igual ao anterior (painel, carregamento e TAB).
 - Os outros modos (comp7, frontline, treino, eventos) ficam com as vistas nativas, sem o roster do mod.
+
+- Confirmar no cliente: nomes nativos coloridos pelo rating, nomes sem estatísticas intactos e restauro das cores ao fechar/desativar o TAB; danos, abates e anomalias nativos permanecem intactos.
+
+## Compatibilidade CSS do Gameface
+
+O log NA de 28/10 confirmou `TypeError: style.getPropertyPriority is not a function`, que interrompia a criação da tabela. A aplicação usa agora `style.color`, e a API de prioridade só é consultada se existir. A tabela adicional foi posteriormente removida; o código atual só aplica cores aos nomes nativos. A regressão JavaScript cobre um objeto de estilos sem `getPropertyPriority`, `getPropertyValue`, `setProperty` ou `removeProperty`. Requer nova build instalada para validar no cliente.

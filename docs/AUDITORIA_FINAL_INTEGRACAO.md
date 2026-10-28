@@ -131,6 +131,12 @@ Estas localizações correspondem à versão auditada e podem mudar com ediçõe
 - **Fase 5 — comportamento nativo:** cancelamento de callbacks, destruição de views e substituição da arena em replay permanecem dependentes do cliente WG. É necessário confirmar que o trabalho legítimo continua a ser reagendado e que operações antigas não atingem a arena seguinte.
 - **Outros mods:** a ordem de instalação dos hooks e o comportamento de terceiros continuam a exigir validação. Não foram removidas cadeias de hooks de outros mods.
 
+### Pendências consolidadas do plano de otimização retirado
+
+- A reconstrução integral do estado Gameface em notificações independentes foi mantida para evitar dados desatualizados. Qualquer cache adicional exige invalidação demonstrável.
+- Confirmar no cliente a recuperação de arranques incompletos, falhas de remoção de subscrições nativas e encerramento com callbacks pendentes; a revisão estática não garante estes cenários.
+- Medir CPU, memória e FPS antes de atribuir ganhos quantitativos. Os riscos de cache de estatísticas, normalização externa e gravação parcial permanecem descritos acima.
+
 ## G. Checklist manual futura no WoT
 
 Os cenários abaixo **não foram executados**. Esta checklist é apenas um guia de validação manual futura, não um ficheiro de testes executáveis.

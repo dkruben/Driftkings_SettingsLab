@@ -6,7 +6,7 @@ This guide explains how the code is organised and how to make a change safely. F
 
 - **Client scripts run on Python 2.7** (the World of Tanks client). Write code that is valid on both 2.7 and 3: no f-strings, no type hints, no `nonlocal`, no keyword-only arguments. CI parses every client source with Python 2.7.
 - **Keep Python imports alphabetical in three groups**, separated by a blank line: Python standard libraries, game libraries, then Driftkings modules. Keep conditional and local imports in their existing execution scope. Run `python -m isort mod/res/scripts/client` to apply the client configuration, or add `--check-only` to check it.
-- **Gameface JavaScript is ES5.** `npm run lint` enforces this.
+- **Gameface JavaScript is ES5.** `npm --prefix build_tools/javascript run lint` enforces this.
 - Vehicle markers build from a SHA-256-pinned native movie. Configure RABCDAsm with
   `DK_RABCDASM_HOME` or `--rabcdasm-home`; see the [vehicle marker guide](docs/vehicle_markers/README.md).
 - **Use `logging`, never `print`.** Import `get_logger` from `driftkings.logger` and declare `LOG = get_logger('Driftkings.<Area>')`. The shared factory preserves client-owned handlers and output. Use `LOG.exception(...)` inside `except` blocks so the traceback reaches the game log.
@@ -62,11 +62,11 @@ Inside the client package:
 
 ### Gameface presentation
 
-Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. See the [migration plan and inventory](docs/PLANO_GAMEFACE.md) for dependencies, validation and in-game checks.
+Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. Use `interface_catalog.py` for the active contracts and the [settings-panel report](docs/RELATORIO_PAINEL_CONFIGURACAO.md) for the configuration flow; confirm affected views in the client.
 
 ### Flash/Scaleform presentation
 
-Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.battle`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [Flash migration plan](docs/PLANO_FLASH.md) for the inventory, dependencies, tests and pending client checks; structural changes alone do not establish an FPS improvement.
+Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.battle`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [vehicle-marker guide](docs/vehicle_markers/README.md) and `flash/battle/registry.py` for the current integration. Structural changes alone do not establish an FPS improvement.
 
 ### Hooks
 
@@ -152,6 +152,8 @@ Keep custom text and macros configurable. Use the native UI scale for Gameface l
 
 ## Testing
 
+The npm manifests and local JavaScript dependencies live in `build_tools/javascript/`. Run the commands below from the repository root; the scripts keep lint and test execution rooted at the project directory.
+
 Run these before opening a pull request. They cover the main local checks; the complete sequence is defined in `.github/workflows/`:
 
 ```bash
@@ -165,14 +167,14 @@ python build_tools/generate_ui_catalog.py
 python build_tools/build_installer.py
 python -m pip install pyflakes
 python build_tools/check_undefined_names.py
-npm ci --ignore-scripts
-npm run lint
-npm test
+npm --prefix build_tools/javascript ci --ignore-scripts
+npm --prefix build_tools/javascript run lint
+npm --prefix build_tools/javascript test
 ```
 
-`npm test` runs all current Gameface regression suites, including the settings window and ratings helpers.
+`npm --prefix build_tools/javascript test` runs all current Gameface regression suites, including the settings window and ratings helpers.
 
-`npm test` also renders the 35 live settings schemas (1104 controls) through the redesigned frontend. Its Python 3 exporter reuses the existing engine-stub fixture; no generated schema snapshots are committed. Keep the spectrum picker in `color_picker.js` and its `colors.js` math; the redesign's HSV picker is not shipped. New interface strings belong to the shared YAML catalogues.
+`npm --prefix build_tools/javascript test` also renders the 35 live settings schemas (1104 controls) through the redesigned frontend. Its Python 3 exporter reuses the existing engine-stub fixture; no generated schema snapshots are committed. Keep the spectrum picker in `color_picker.js` and its `colors.js` math; the redesign's HSV picker is not shipped. New interface strings belong to the shared YAML catalogues.
 
 `tests/core` and `tests/settings_panel` also run on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image. Tests load real production modules through `tests/core/support.py` with the engine stubbed at the import boundary, so avoid importing `BigWorld`, `gui.*` or `Avatar` from code you want to test.
 

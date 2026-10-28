@@ -24,12 +24,9 @@ Atualizado em 28 de outubro de 2026. Os caminhos e comandos partem da raiz do re
 | Traduções | [Guia i18n](i18n/README.md) |
 | Áudio e Sexto Sentido | [Bancos](audioww/README.md) e [ícones](sixthsense_icons/README.md) |
 | Referências locais de desenvolvimento | [Fontes de desenvolvimento](FONTES_DESENVOLVIMENTO.md) |
-| Arquitetura Gameface | [Inventário e migração](PLANO_GAMEFACE.md) |
-| Arquitetura Flash/Scaleform | [Inventário e migração](PLANO_FLASH.md) |
-| Painel Grande Calibre | [Gameface](MainGun_Gameface.md) |
-| Otimização e pendências | [Plano](PLANO_OTIMIZACAO.md) e [auditoria final](AUDITORIA_FINAL_INTEGRACAO.md) |
+| Otimização e pendências | [Auditoria final](AUDITORIA_FINAL_INTEGRACAO.md) |
 
-Os inventários de migração preservam o contexto histórico; a localização atual dos adaptadores usa `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`. Os estudos em `wn8-study/` são investigação, não métricas adicionais de produção. Os dados e scripts locais associados continuam excluídos do Git.
+Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`; os contratos ativos estão em `interface_catalog.py`. Os planos de migração concluídos e os estudos antigos foram retirados de `docs`. Os dados locais dos estudos foram preservados em `../Driftkings_SettingsLab_docs_backup_20261028/`; os relatórios versionados continuam recuperáveis no histórico Git. As pendências da otimização permanecem na auditoria final.
 
 ## Comportamentos e limites a preservar
 

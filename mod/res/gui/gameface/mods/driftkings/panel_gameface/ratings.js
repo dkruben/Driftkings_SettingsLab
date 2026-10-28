@@ -476,6 +476,7 @@
             // Native model events include clocks, reserves and other TAB data.
             // They must not redraw every roster field when our payload is equal.
             else if (tabData && pollLayout === true) { renderTab(tabData); }
+            else if (pollLayout === true && window.DKHalloweenTab) { window.DKHalloweenTab.refresh(); }
             return;
         }
         lastPayload = null; hide(); diagnosticModel=null;

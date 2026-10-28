@@ -10,7 +10,7 @@ import sys
 import weakref
 
 from driftkings.core.diagnostics import diagnostics
-from driftkings.core.hooks import override
+from driftkings.core.hooks import hooks, override
 from driftkings.logger import get_logger
 
 # Extension TAB views, hooked once their battle page has imported them.
@@ -20,6 +20,7 @@ EXTENSION_TABS = {'halloween': ('halloween.gui.impl.battle.full_stats', 'TabScre
 class GamefaceLoading(object):
     def __init__(self,owner):
         self.owner=owner
+        self.hookOwner=hooks.current or getattr(owner.config,'runtime_owner',None)
         self.children=weakref.WeakKeyDictionary()
         self.watched=set()
         from frameworks.wulf import ViewModel, ViewSettings
@@ -85,8 +86,14 @@ class GamefaceLoading(object):
         name,attribute=EXTENSION_TABS[kind]
         viewClass=getattr(sys.modules.get(name),attribute,None)
         if viewClass is None: return
+        # Late declarations must keep the component owner captured during start().
+        previous=hooks.current
+        hooks.current=self.hookOwner
+        try:
+            self.install(viewClass,'_onLoaded','tab',kind)
+        finally:
+            hooks.current=previous
         self.watched.add(kind)
-        self.install(viewClass,'_onLoaded','tab',kind)
         get_logger('Driftkings.PlayerPanelPro').info('Gameface roster watching %s.%s',name,attribute)
 
     def active_screens(self):

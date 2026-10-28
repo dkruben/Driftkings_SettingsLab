@@ -1,0 +1,11 @@
+{
+  "name": "driftkings-source-checks",
+  "private": true,
+  "scripts": {
+    "lint": "cd ../.. && eslint mod/res/gui/gameface --max-warnings 0",
+    "test": "cd ../.. && node tests/settings_panel/test_gameface.js"
+  },
+  "devDependencies": {
+    "eslint": "10.13.0"
+  }
+}

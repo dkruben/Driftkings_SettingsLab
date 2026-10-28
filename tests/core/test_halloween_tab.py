@@ -21,6 +21,18 @@ class View(object):
     def getChildView(self, resource):
         return self.children.get(resource)
 
+    def _onLoaded(self):
+        pass
+
+    def _onShown(self):
+        pass
+
+    def _onHidden(self):
+        pass
+
+    def _finalize(self):
+        pass
+
 
 class Model(object):
     def __init__(self):
@@ -48,13 +60,20 @@ class GamefaceTabTests(RuntimeTest):
         self.addCleanup(sys.modules.pop, MODULE, None)
         sys.modules.pop(MODULE, None)
 
-    def bridge(self):
+    def bridge(self, real_hooks=False):
         hooks = Hooks()
+        if real_hooks:
+            hook_api = self.load('core.hooks')
+            hook_api.hooks.current = 'driftkings.battle.team_panels'
+            hook_api.hooks.activate(hook_api.hooks.current)
+        else:
+            hook_api = module(override=hooks.override, hooks=module(current='driftkings.battle.team_panels'))
+        self.hook_api = hook_api
         self.refreshes = []
         self.owner = module(active=True, tabKind=lambda: self.kind,
                             refresh=lambda: self.refreshes.append(1), config=None)
 
-        class TabView(object):
+        class TabView(View):
             pass
 
         class Child(object):
@@ -77,12 +96,14 @@ class GamefaceTabTests(RuntimeTest):
             'driftkings._constants': module(GLOBAL=module(ENABLED='enabled'),
                                             TEAM_PANELS=module(PERFORMANCE='performance')),
             'driftkings.core.diagnostics': module(diagnostics=module(enabled=False)),
-            'driftkings.core.hooks': module(override=hooks.override),
+            'driftkings.core.hooks': hook_api,
         })
-        return api['GamefaceLoading'](self.owner), hooks
+        bridge = api['GamefaceLoading'](self.owner)
+        hook_api.hooks.current = None
+        return bridge, hooks
 
     def screen_module(self):
-        class TabScreen(object):
+        class TabScreen(View):
             pass
         sys.modules[MODULE] = module(TabScreen=TabScreen)
         return TabScreen
@@ -100,6 +121,26 @@ class GamefaceTabTests(RuntimeTest):
         view = View()
         hooks.get('TabView', '_onLoaded')(lambda view: None, view)
         self.assertEqual(view.children, {})
+
+    def test_late_hooks_use_the_active_component_owner(self):
+        self.kind = 'halloween'
+        bridge, _ = self.bridge(real_hooks=True)
+        screen = self.screen_module()
+        bridge.watch('halloween')
+        self.assertIsNone(self.hook_api.hooks.current)
+        view = screen()
+        view._onLoaded()
+        self.assertEqual(list(view.children), [77])
+        view._onHidden()
+        self.assertEqual(bridge.active_screens(), set())
+        view._onShown()
+        self.assertEqual(bridge.active_screens(), set(['tab']))
+        view._finalize()
+        self.assertEqual(bridge.active_screens(), set())
+        self.hook_api.hooks.deactivate('driftkings.battle.team_panels')
+        stopped = screen()
+        stopped._onLoaded()
+        self.assertEqual(stopped.children, {})
 
     def test_tab_screen_is_hooked_only_once_its_module_is_loaded(self):
         bridge, hooks = self.bridge()

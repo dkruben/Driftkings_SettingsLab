@@ -202,7 +202,7 @@ The structured property column has a fixed 470 UI-unit viewport and its own scro
 
 The beta 0.1.3-beta.2 defaults follow the EU profile: normal-mode distance fields are disabled, level and contour icons are enabled, and the normal rating template uses `XVMSymbol` with custom `!` text. Preserve the editable font name and original glyphs through the adapter boundary. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
 
-Run `npm test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
+Run `npm --prefix build_tools/javascript test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
 
 ## Naming and source attribution
 

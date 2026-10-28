@@ -14,6 +14,12 @@
     "Centralize shared constants and marker contracts while preserving Python 2.7, native WG enums, public names, settings keys and payload formats.",
     "Reduce redundant statistics processing and settings reads, validate settings drafts before publication, and skip identical Gameface payloads and preview redraws.",
     "Reuse battle calculations and minimap data; improve callback ownership, arena guards, event subscription rollback and carousel lifecycle cleanup.",
+    "Fix the inverted minimap gun-arc sector by compensating both custom sector lines by 180 degrees while preserving the camera direction. Verified in game; geometry and yaw-limit regression tests pass on Python 2.7 and Python 3.",
+    "Recognize Halloween difficulties (bonus types 101-103) as a separate battle mode. Add team-panel mode adapters; preserve random-battle panels and leave unsupported modes to the native client.",
+    "Colour native Halloween TAB player names by the configured rating, without the extra statistics table in the upper-left corner. Restore original colours on hide or when statistics are unavailable; keep the native event values, side panel and loading screen unchanged.",
+    "Fix late Halloween TAB hook ownership so the registered hooks run under the active team-panels component. Add regression checks with the real hook registry and native-name colour restoration. In-game acceptance of the new name colours remains pending.",
+    "Add regression coverage for battle-mode detection, native Halloween screen isolation, allies-only ordering, and 15v15/30v30 rosters. Core, settings-panel and Gameface checks pass; no new release or game installation is implied by the source integration.",
+    "Use Gameface-compatible style.color access for native Halloween TAB name colours. Avoid unsupported CSS priority APIs and add a regression case with the limited client style API; no additional panel or text nodes are created.",
     "Refresh documentation, remove obsolete reports and generated local artifacts, and update isolated test fixtures for the current contracts. No quantitative FPS gain is claimed.",
     "Target WoT 2.4.1.1 on EU, NA and ASIA. Preserve existing personal settings and keep stable 0.1.3 unchanged."
   ]
