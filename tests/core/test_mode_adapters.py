@@ -13,7 +13,7 @@ class AdapterTableTests(RuntimeTest):
         random = self.adapters.adapter_for('random')
         self.assertEqual((random.loading, random.panel, random.tab, random.enemies, random.order),
                          (True, True, True, True, 'native'))
-        self.assertEqual(random.team_size, 15)
+        self.assertEqual(random.team_size, 30)
         self.assertEqual(random.panel_modes, self.load('settings.settings_data').PROFILES)
 
     def test_halloween_is_allies_only_without_classic_modes_or_drawn_screens(self):

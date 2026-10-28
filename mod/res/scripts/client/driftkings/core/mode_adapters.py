@@ -14,7 +14,8 @@ ModeAdapter = namedtuple('ModeAdapter', ('mode', 'loading', 'panel', 'tab', 'ene
                                          'panel_modes', 'order'))
 
 ADAPTERS = {
-    'random': ModeAdapter('random', loading=True, panel=True, tab=True, enemies=True, team_size=15,
+    # RANDOM_RANGE includes EPIC_RANDOM (30 vs 30) besides the 15 vs 15 randoms.
+    'random': ModeAdapter('random', loading=True, panel=True, tab=True, enemies=True, team_size=30,
                           panel_modes=CLASSIC_PANEL_MODES, order='native'),
     # HWPlayersPanel (allies only, no panel modes), Gameface loading and TabScreen.
     # The panel AS3 layout is not in the reference sources, so nothing is drawn

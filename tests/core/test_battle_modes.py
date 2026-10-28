@@ -6,7 +6,7 @@ from support import RuntimeTest, module
 # EU 2.4.1.1 values; HALLOWEEN* are injected by the halloween extension.
 NAMES = {'UNKNOWN': 0, 'REGULAR': 1, 'TRAINING': 2, 'EVENT_BATTLES': 9, 'EPIC_BATTLE': 27, 'COMP7': 43,
          'WINBACK': 44, 'RANDOM_NP2': 46, 'HALLOWEEN': 101, 'HALLOWEEN_MEDIUM': 102, 'HALLOWEEN_HARD': 103,
-         'LAST_STAND': 107, 'BATTLE_ROYALE_SOLO': 29}
+         'LAST_STAND': 107, 'BATTLE_ROYALE_SOLO': 29, 'EPIC_RANDOM': 24}
 HALLOWEEN = ('HALLOWEEN', 'HALLOWEEN_MEDIUM', 'HALLOWEEN_HARD')
 
 
@@ -17,7 +17,7 @@ class BattleModeTests(RuntimeTest):
         self.bonus = None
 
     def context(self, names=NAMES):
-        enum = module(**dict(names, RANGE=tuple(names.values()), RANDOM_RANGE=(1, 46)))
+        enum = module(**dict(names, RANGE=tuple(names.values()), RANDOM_RANGE=(1, 24, 46)))
         return self.capabilities.BattleCapabilities(
             player=lambda: module(arena=module(bonusType=self.bonus)), session=lambda: None,
             modules={'constants': module(ARENA_BONUS_TYPE=enum)})
@@ -44,8 +44,8 @@ class BattleModeTests(RuntimeTest):
             self.assertEqual(self.mode(value, names), 'halloween', value)
 
     def test_other_modes_keep_their_classification(self):
-        expected = {'REGULAR': 'random', 'RANDOM_NP2': 'random', 'WINBACK': 'random', 'COMP7': 'comp7',
-                    'EPIC_BATTLE': 'frontline', 'EVENT_BATTLES': 'event', 'TRAINING': 'special',
+        expected = {'REGULAR': 'random', 'EPIC_RANDOM': 'random', 'RANDOM_NP2': 'random', 'WINBACK': 'random',
+                    'COMP7': 'comp7', 'EPIC_BATTLE': 'frontline', 'EVENT_BATTLES': 'event', 'TRAINING': 'special',
                     'LAST_STAND': 'special', 'BATTLE_ROYALE_SOLO': 'special', 'UNKNOWN': 'unknown'}
         for name, mode in expected.items():
             self.assertEqual(self.mode(NAMES[name]), mode, name)
