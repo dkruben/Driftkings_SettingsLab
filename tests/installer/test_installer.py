@@ -242,7 +242,7 @@ class GeneratorTests(unittest.TestCase):
             return types.SimpleNamespace(**{key: value for key, value in namespace.items() if not key.startswith('__')})
         filesystem = load('common/utils/filesystem.py')
         store = load('settings/store.py', {'driftkings.common.utils.filesystem': filesystem})
-        sections = load('settings/sections.py')
+        sections = load('settings/sections.py', {'driftkings._constants': load('_constants.py')})
         loader = load('settings/loader.py', {
             'driftkings.logger': load('logger.py'),
             'driftkings.settings.settings_data': types.SimpleNamespace(SettingsData=object, user_settings={}, part_name=lambda value: value),
@@ -274,7 +274,7 @@ class GeneratorTests(unittest.TestCase):
             return types.SimpleNamespace(**{key: value for key, value in namespace.items() if not key.startswith('__')})
         filesystem = load('common/utils/filesystem.py')
         store = load('settings/store.py', {'driftkings.common.utils.filesystem': filesystem})
-        sections = load('settings/sections.py')
+        sections = load('settings/sections.py', {'driftkings._constants': load('_constants.py')})
         loader = load('settings/loader.py', {
             'driftkings.logger': load('logger.py'),
             'driftkings.settings.settings_data': types.SimpleNamespace(SettingsData=object, user_settings={}, part_name=lambda value: value),

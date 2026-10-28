@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.4-beta.1",
+  "version": "0.1.4-beta.2",
   "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
@@ -8,10 +8,13 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "BETA NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors; visual acceptance in the Gameface client is pending.",
-    "Keep shared vehicle-marker reference actions inside the property column. Edit referenced model properties without replacing the reference, allow input fields to shrink, and resolve colour macros before assigning swatch CSS.",
-    "Use exactly two fictional carousel examples, T32 and Object 140, instead of account inventory/dossier snapshots. Calculate sample statistic colours through the live carousel colour API and the palette selected in the settings draft.",
-    "Align carousel preview base text colour/font size, independent icon size, field alignment, macro background colours and shadow options with the live card renderer. Anchor the native vehicle name to the right; remaining native-layout differences still need in-game validation.",
-    "Target WoT 2.4.1.1 on EU, NA and ASIA. Include regression coverage for shared-model edits, fictional sample isolation and carousel field rendering. Existing 0.1.3 settings are retained; the published stable release is unchanged."
+    "BETA NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors; full visual acceptance in the Gameface client is pending.",
+    "Fix vehicle-marker property editing and expose rating settings. Align the two fictional carousel preview cards with the native horizontal layout and the live renderer.",
+    "Add carousel hit-rate and zero-mark icons, separate actual and expected damage colours, and keep mixed numeric/macro settings editable without hiding the carousel page.",
+    "Centralize shared constants and marker contracts while preserving Python 2.7, native WG enums, public names, settings keys and payload formats.",
+    "Reduce redundant statistics processing and settings reads, validate settings drafts before publication, and skip identical Gameface payloads and preview redraws.",
+    "Reuse battle calculations and minimap data; improve callback ownership, arena guards, event subscription rollback and carousel lifecycle cleanup.",
+    "Refresh documentation, remove obsolete reports and generated local artifacts, and update isolated test fixtures for the current contracts. No quantitative FPS gain is claimed.",
+    "Target WoT 2.4.1.1 on EU, NA and ASIA. Preserve existing personal settings and keep stable 0.1.3 unchanged."
   ]
 }

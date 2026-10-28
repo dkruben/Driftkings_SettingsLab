@@ -20,7 +20,7 @@ Gameface usa os mesmos TTF em `res/gui/fonts/driftkings`, com declarações `@fo
 
 ## Origem e licença
 
-Recursos copiados sem alterações de `xvm-master/src/xvm_fonts/assets`, referência local do projeto [XVM](https://modxvm.com/en/). A licença GPL-3.0 distribuída nessa referência acompanha os TTF em [LICENSE.txt](../mod/res/gui/fonts/driftkings/LICENSE.txt), incluindo no WOTMOD. Os nomes originais das fontes e os créditos são preservados; não é necessário instalar o mod de origem. Os TTF são os recursos fonte utilizados para produzir os glifos Flash.
+Recursos copiados sem alterações de `xvm-master/src/xvm_fonts/assets`, referência local do projeto [XVM](https://modxvm.com/en/). A referência original distribui os recursos sob GPL-3.0; o texto dessa licença está disponível em [licence](../licence). Os nomes originais das fontes e os créditos são preservados; não é necessário instalar o mod de origem. Os TTF são os recursos fonte utilizados para produzir os glifos Flash.
 
 SHA-256 dos recursos importados:
 

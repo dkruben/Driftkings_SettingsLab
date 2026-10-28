@@ -1,82 +1,53 @@
-# Documentation status
+# Estado da documentação
 
-Updated: 27 October 2026. Commands and source paths in these guides are relative to the repository root unless explicitly stated otherwise.
+Atualizado em 28 de outubro de 2026. Os caminhos e comandos partem da raiz do repositório.
 
-## Release baseline
+## Referência atual
 
-- Beta: [0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2), built from `aec3da8` with 11 verified assets and an Ed25519-signed updater manifest.
-- Stable: [0.1.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3), targeting WoT 2.4.1.1, published from `7d7314d` with 11 verified assets and a settings-panel construction notice; release preparation and publication recorded in [PLANO_STABLE_0_1_3.md](PLANO_STABLE_0_1_3.md).
-- Game target: WoT `2.4.1.1`, Wargaming EU/NA/ASIA. Build source: configured NA installation; source reference: EU `2.4.1.5504`.
-- Canonical defaults: author's EU profile, including clock fields, panel positions, carousel and marker layouts. Settings-window scale: 140%; opacity: 94%. Existing personal configuration takes precedence.
+- Branch de desenvolvimento: `develop`.
+- Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
+- As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
+- O painel de configurações continua em construção. A ausência de erros num replay não valida todas as páginas, previews ou operações de gravação.
+- As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS.
 
-## Verified checks
+## Guias mantidos
 
-Current validation baseline: 446 Core and 27 settings-panel tests on Python 2.7/3, 36 installer/build tests on Python 3, Gameface regression suites and ESLint. Eighteen language catalogues contain 1491 component keys and 245 panel keys. The native build compiles 313 Python modules and verifies the full modpack; release-specific CI, installer and signature results are recorded in the stable plan.
+| Área | Documento |
+| --- | --- |
+| Instalação, funcionalidades e downloads | [README](../README.md) |
+| Desenvolvimento, verificações e publicação | [CONTRIBUTING](../CONTRIBUTING.md) |
+| Painel de configurações | [Relatório funcional](RELATORIO_PAINEL_CONFIGURACAO.md) |
+| Marcadores dos veículos | [Guia dos marcadores](vehicle_markers/README.md) |
+| Carrossel | [Guia do carrossel](vehicle_carousel/README.md) |
+| Preferências do lobby | [Guia](hangar_preferences/README.md) |
+| Fontes e caracteres | [Fontes](FONTES.md) |
+| Traduções | [Guia i18n](i18n/README.md) |
+| Áudio e Sexto Sentido | [Bancos](audioww/README.md) e [ícones](sixthsense_icons/README.md) |
+| Referências locais de desenvolvimento | [Fontes de desenvolvimento](FONTES_DESENVOLVIMENTO.md) |
+| Arquitetura Gameface | [Inventário e migração](PLANO_GAMEFACE.md) |
+| Arquitetura Flash/Scaleform | [Inventário e migração](PLANO_FLASH.md) |
+| Painel Grande Calibre | [Gameface](MainGun_Gameface.md) |
+| Otimização e pendências | [Plano](PLANO_OTIMIZACAO.md) e [auditoria final](AUDITORIA_FINAL_INTEGRACAO.md) |
 
-The all-pages settings test opens and applies every current feature definition with unchanged values. Marker tests cover property scrolling, font aliases, invalid references, sample toggles and limits. Source defaults and the generated Python fallback are synchronized. These checks do not establish pixel-perfect rendering in the client: the latest marker, font and layout changes still need visual acceptance in game.
+Os inventários de migração preservam o contexto histórico; a localização atual dos adaptadores usa `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`. Os estudos em `wn8-study/` são investigação, não métricas adicionais de produção. Os dados e scripts locais associados continuam excluídos do Git.
 
-## Documentation policy
+## Comportamentos e limites a preservar
 
-The [README](../README.md) and [contribution guide](../CONTRIBUTING.md) live at the repository root. Feature guides and historical reports live under `docs/`. The Git ignore rules include Markdown only; local JSON/CSV snapshots, study scripts and generated outputs remain excluded. Third-party dependencies and generated build trees keep their own files and are not project documentation.
+- Configurações de cor usam `#RRGGBB`; as APIs nativas recebem números através dos conversores existentes.
+- Preservar fontes, Unicode, aliases de fontes e identificadores externos necessários à compatibilidade.
+- Marcadores distinguem equipa, estado vivo/destruído e modo normal/ALT. O editor inclui modelos partilhados e secção de rating.
+- A preview do carrossel usa dois veículos fictícios; deve representar a geometria nativa horizontal e aplicar as mesmas regras de campos, macros e cores do renderer.
+- O carrossel dispõe de um ícone para zero marcas. Um perfil que oculte o campo através da opacidade pode continuar a escondê-lo.
+- O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
+- Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
+- As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
-Dated reviews retain their original evidence, line references, counts and conclusions. Update notes distinguish historical findings from the current implementation. No new source audit or statistical study is implied by reorganizing a report. Research prototypes under `wn8-study/` are not additional production ratings; reproduction requires the original local scripts and data.
+## Limpeza do projeto
 
-## Current implementation changes
+Foram retirados 14 relatórios e planos antigos de revisão, correção e publicação, substituídos pelos guias atuais e pela auditoria final. O conteúdo original continua recuperável no histórico Git. Foram também retirados bytecodes, caches, saídas de build regeneráveis e o replay de teste local de WoT 2.4.1.0. Ao todo, 1 704 ficheiros (incluindo 1 582 bytecodes), cerca de 72,9 MiB, foram movidos para `../Driftkings_SettingsLab_cleanup_20261028/`, com manifesto para recuperação. Uma pasta vazia adicional foi retirada. A revisão automática bloqueou a eliminação em lote; foi usada esta alternativa reversível.
 
-- The clock is configured under General settings, in `main.json` through `clock.enabled` and `clock.formats`.
-- HangarEfficiency is removed. Use vehicle carousel statistics, service-record ratings or the relevant Marks of Excellence panel.
-- Vehicle markers use the structured five-file layout without XMQP, team/state/ALT contexts and an editable tank sample. The property column has its own scrollbar.
-- ActionScript fields use the client font library. Marker `xvm`/`XVMSymbol` aliases resolve to `$FieldFont`; legacy private glyphs map to a supported bullet. Fixed colours use `#RRGGBB` with existing numeric converters.
-- WN8 uses random-battle statistics; WNX uses its own assistance-aware calculation and expected values. The EU battle overlay defaults to WN8, EFF and DIFF; WNX remains configurable.
+Os testes versionados continuam a visar módulos existentes e são usados pelo CI; foram mantidos. As dependências locais, preferências do editor, fontes, configurações, chave de assinatura e backups de perfis foram preservados. Esta limpeza não executa testes nem compila ou instala o mod.
 
-For current commands and release procedures, use [CONTRIBUTING.md](../CONTRIBUTING.md). For feature guides and historical reports, use the [project overview](../README.md).
+## Verificação da beta 0.1.4-beta.2
 
-## Naming changes after beta.2
-
-The source branch uses descriptive marker/statistics module names and the **Driftkings** palette at index 1. New templates use `stat-available`; installed profiles and statistics caches retain read compatibility. Original font names, provider URLs, integration IDs and upstream credits are preserved. These source changes do not replace the already-published beta.2 assets.
-
-## Colour format after beta.2
-
-Colour settings and defaults use `#RRGGBB`. Legacy numeric prefixes and bare hex strings are no longer accepted. Native APIs still receive numeric RGB/ARGB values through the existing converters. The settings panel saves hash-prefixed strings directly; HTML templates do not prepend another hash. Tests cover rejection of legacy strings and unchanged open/apply behaviour for the corrected defaults.
-
-## Python Gameface architecture after beta.2
-
-The development branch centralizes Python Gameface adapters under `driftkings/gameface`, with shared `core.py`, `payloads.py`, `registry.py`, and separate `batalha`/`hangar` packages. The 14 interface contracts still come from `interface_catalog.py`; native resource IDs and visual assets are preserved. Scaleform is now centralized under `flash`; functional calculations and data collection remain in the feature modules. See the [migration inventory and execution log](PLANO_GAMEFACE.md). Client acceptance checks remain pending; this refactor does not replace the published beta.2.
-
-Gameface refactor validation: 429 Core tests on Python 2.7/3, 27 settings tests on both runtimes, 33 installer tests, JavaScript/lint and the native debug build passed. [Source CI passed for c7189f8](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40421997019). The build validates 301 Python modules; visual assets and all non-Python catalogue fields are unchanged.
-
-## Python Flash/Scaleform architecture after beta.2
-
-The development branch centralizes Flash views, DAAPI metas and native presentation bridges under `driftkings/flash`. `flash/battle/registry.py` registers the native battle package and preserves the ten aliases from `interface_catalog.py`; `flash/core.py` owns the existing overlay scene. Shared HUD state, functional calculations and data collection remain outside the presentation layer. The Gameface package and AS3/SWF assets are unchanged. The [local plan](PLANO_FLASH.md) records the inventory, per-step commits, validation and client acceptance checks. No measured FPS improvement or new published release is implied.
-
-Flash refactor validation: 441 Core tests and 27 settings tests on Python 2.7/3, 33 installer tests, JavaScript/lint, catalogue/defaults/locales checks and the native WOTMOD build passed (317 Python modules). [Source CI passed for 56138ce](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40424997042). Native client acceptance and comparative performance measurements remain pending.
-
-## EU replay log corrections — 27 October 2026
-
-The battle clock no longer accesses unsupported Scaleform sharpness/thickness properties; MainGun and marks cards explicitly declare and use the native Warhelios regular/bold fonts. Replay calibration skips flat/inverted curves and uses the existing approximation without modifying installed caches or live-battle calculations. See the [EU log analysis](EU_LOG_2026-10-27.md) for evidence, 444 Core tests on both Python runtimes, native build results and pending client checks.
-
-## Settings panel functional report
-
-The [settings panel report](RELATORIO_PAINEL_CONFIGURACAO.md), in Portuguese, inventories navigation, editing/save behaviour, controls, previews, both profile mechanisms, updater/restart actions, battle restrictions, the 34 component definitions and all 23 backend actions. It documents the current implementation detail that Apply also persists values, with links to the source modules.
-
-## Fontes e símbolos — 27 outubro 2026
-
-Correção `4d1b961` com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40541534633): fontes de símbolos reais incorporadas nos dois SWF e disponibilizadas ao Gameface; adaptadores preservam Unicode, nomes de fontes e entidades HTML. Plano e validação em [PLANO_FONTES.md](PLANO_FONTES.md); recursos e limites em [FONTES.md](FONTES.md). Requer confirmação visual no cliente.
-
-## Painel redesenhado — 27 outubro 2026
-
-Integrada a interface do autor em `1a5b021`/`ddbf608`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40561989621), preservando o seletor de espectro original, fontes e contrato Python. As 35 páginas/1104 controlos são testadas com schemas reais e os 18 catálogos incluem 243 chaves de painel. Novas amostras: minimapa, HUD, texto e carrossel. [Plano e registo](PLANO_PAINEL_CONFIGURACOES.md); [relatório funcional atualizado](RELATORIO_PAINEL_CONFIGURACAO.md). Validação gráfica em jogo pendente: Computer Use/browser indisponíveis nesta sessão.
-
-## Limpeza de fontes e artefactos — 27 outubro 2026
-
-Retirados quatro módulos Python sem consumidor runtime, oito mapas Gameface não empacotados, o SWF antigo substituído pelo gerador e caches/saídas antigas de Wwise/installer. O aviso isolado do HangarEfficiency retirado foi consolidado neste estado. Mantidos os recursos ativos, fontes de áudio e estudos citados nos relatórios. [Inventário e validação](PLANO_LIMPEZA.md). O plano passa de 317 para 313 módulos Python, sem alterações às seleções de assets, defaults ou dependências.
-
-Validação da limpeza: 443 testes core em Python 2.7/3, testes frontend e 36 testes de instalação aprovados; 313 bytecodes, SWF de batalha e três auxiliares recompilados isoladamente. A build completa requer rever o alvo de jogo, pois as instalações EU/NA já estão em 2.4.1.1 e o projeto continua em 2.4.1.0.
-
-Limpeza enviada em `7be22a2`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40564708020). O plano documenta a remoção dos temporários da própria verificação.
-
-## Atualização da referência e alvo — 27 outubro 2026
-
-A atualização em WoT_Tools disponibilizou a referência EU 2.4.1.5504. Alvo de desenvolvimento atualizado para WoT 2.4.1.1, oito SWC sincronizados e contrato/hashes dos marcadores revistos em EU e NA. Os três patches Gameface mantêm operações e bytes de origem; metadados atualizados para NA #987. A build completa voltou a passar, resolvendo o bloqueio registado na limpeza. [Plano e evidência](PLANO_ATUALIZACAO_2_4_1_1.md). As releases publicadas continuam a visar 2.4.1.0; sem alteração de tag, publicação ou instalação EU. Aceitação visual em jogo pendente.
-
-Atualização do alvo enviada em `e019622`, com [CI aprovado](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40567140916). WOTMOD/ZIP de desenvolvimento regenerados para 2.4.1.1; hashes e verificações no plano.
+Metadados e changelog preparados em `build_data/release.json`, com `VERSION` e downloads alinhados. Antes da compilação passaram 449 testes Core e 27 testes do painel em Python 2.7 e Python 3, 36 testes do instalador em Python 3, suites JavaScript, ESLint, traduções, defaults, catálogo UI e contratos de build. Foram atualizadas apenas as dependências simuladas de três fixtures que ainda representavam os contratos anteriores do carrossel, eventos WG e constantes das secções. O aviso de painel em construção permanece.

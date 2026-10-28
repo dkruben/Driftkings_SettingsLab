@@ -41,6 +41,8 @@ class EnemySpottingStatusTests(RuntimeTest):
         i18n = {'UI_setting_Spotted_text': 'Spotted:', 'UI_setting_AssistRadio_text': 'Radio:',
                 'UI_setting_AssistTrack_text': 'Track:', 'UI_setting_AssistStun_text': 'Stun:'}
         self.api, self.hooks = game_source('battle/enemy_spotting_status.py', {
+            'driftkings.game_constants': module(BATTLE_EVENT_TYPE=EVENTS,
+                ASSIST_EVENTS=(EVENTS.RADIO_ASSIST, EVENTS.TRACK_ASSIST, EVENTS.STUN_ASSIST)),
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player),
             'driftkings.flash.battle.messages': module(sendPanelMessage=self.messages.append),

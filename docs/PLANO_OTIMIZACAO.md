@@ -5,8 +5,8 @@
 - Referência da análise: commit `9ebc163661ab`
 - Objetivo: eliminar processamento redundante, melhorar a robustez e otimizar o desempenho sem alterar o comportamento dos mods.
 - Última atualização: `2026-10-28`.
-- Estado: Fases 01–05 implementadas e revistas estaticamente; validação no cliente WoT pendente. Fase 06 não iniciada.
-- Entrega: alterações locais para revisão, sem commits nem pushes destas fases.
+- Estado: Fases 01–06 concluídas e revistas estaticamente; validação funcional completa no cliente WoT pendente.
+- Entrega: commit `202f476`, enviado para `origin/develop` por instrução explícita do autor.
 
 O plano está organizado em seis fases independentes. Cada fase deverá ser concluída e revista antes de avançar para a seguinte.
 
@@ -19,7 +19,7 @@ O plano está organizado em seis fases independentes. Cada fase deverá ser conc
 | 03 | Comunicação Gameface | Média | Reduzir serializações e atualizações desnecessárias | Implementada; revisão estática concluída |
 | 04 | Desempenho durante a batalha | Alta | Rever Vehicle Markers, Player Panels e minimapa | Implementada; revisão estática concluída |
 | 05 | Hooks, eventos e ciclo de vida | Média | Auditar registos, subscrições e limpeza de recursos | Implementada; revisão estática concluída |
-| 06 | Revisão de integração | Alta | Verificar contratos, compatibilidade e alterações acumuladas | Não iniciada; aguarda prompt específico |
+| 06 | Revisão de integração | Alta | Verificar contratos, compatibilidade e alterações acumuladas | Concluída; ver auditoria final |
 
 ## 2. Trabalhos por fase
 
@@ -68,7 +68,7 @@ As conclusões abaixo resultam de inspeção e verificações estáticas. Não r
 
 **Verificação:** sintaxe Python 2.7, referências, assinaturas existentes e campos de saída. Nenhum nome indefinido encontrado.
 
-**Contagem por inspeção:** com estatísticas válidas, `applyPlayer()` passa de oito para quatro cálculos de cores e de nove para uma consulta às configurações.
+**Contagem por inspeção:** com estatísticas válidas, `applyPlayer()` passa de oito para quatro cálculos de cores e de nove para cinco consultas às configurações, após a Fase 06 preservar as quatro chamadas públicas a `Statistics.getColor()`.
 
 ### Fase 02 — Sistema de configurações
 
@@ -194,16 +194,14 @@ As conclusões abaixo resultam de inspeção e verificações estáticas. Não r
 | Fase 03 | Reconstrução integral do estado em notificações independentes | Mantida para evitar valores desatualizados; qualquer cache adicional precisa de invalidação demonstrável |
 | Fase 05 | Ordem de instalação de hooks de terceiros e falhas nativas na remoção de subscrições | Exigem validação no cliente; não foram alteradas cadeias pertencentes a outros mods |
 | Fase 05 | Comportamento do backend WG perante callbacks já cancelados e falhas parciais de arranque | Proteções revistas estaticamente; ocorrência e recuperação efetivas ainda por validar no WoT |
-| Fases 01–05 | Compatibilidade funcional no WoT e resultados de desempenho | Pendente; sem medições quantitativas de CPU, memória ou FPS |
+| Fases 01–06 | Compatibilidade funcional no WoT e resultados de desempenho | Pendente; sem medições quantitativas de CPU, memória ou FPS |
 
 A validação futura no cliente deve abranger Apply/Save/Cancel/Discard/Reset/Undo, perfis, troca de idioma, captura de teclas, erros do updater, encerramento rápido da janela, morte, observação, replay, spotting e interação com outros mods. As falhas de gravação e de callbacks também continuam por validar.
 
 Para a Fase 05, ficam explicitamente pendentes entrada e saída de batalha, transição para espectador, troca de veículo observado, avanço e recuo em replay, batalhas consecutivas, arranques incompletos e encerramento com callbacks pendentes. A revisão estática não constitui garantia de funcionamento destes cenários no cliente.
 
-## 6. Próximos passos
+## 6. Fase 06 e próximos passos
 
-1. Aguardar o prompt específico da Fase 06; não iniciar automaticamente a revisão de integração.
-2. Na Fase 06, rever o conjunto acumulado das alterações, imports, contratos Python ↔ Flash ↔ Gameface e caminhos de falha.
-3. Manter identificadas as questões pendentes das fases anteriores, sem alargar silenciosamente o âmbito das correções.
-4. Distinguir as conclusões da revisão estática da validação efetiva no WoT, incluindo os cenários de ciclo de vida acima registados.
-5. Manter as alterações locais até existir instrução explícita para commit ou push.
+A revisão final preservou os contratos públicos e corrigiu a passagem indevida por cima de `Statistics.getColor()`. O [relatório completo](AUDITORIA_FINAL_INTEGRACAO.md) apresenta os ficheiros, verificações estáticas, riscos e checklist manual. As seis fases foram enviadas no commit `202f476`.
+
+Os replays NA observados em 28/10 não apresentaram exceções Python ou JavaScript registadas; isto não substitui a validação completa de configurações, lobby, ciclo de vida e compatibilidade com outros mods. Manter as pendências da auditoria e medir no cliente antes de atribuir ganhos de CPU, memória ou FPS.

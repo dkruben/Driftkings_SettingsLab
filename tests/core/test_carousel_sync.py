@@ -22,6 +22,7 @@ class CarouselSyncTests(RuntimeTest):
     def test_dossier_sync_between_hangar_views_invalidates_cached_statistics(self):
         class ControllerBase(object):
             def __init__(self):
+                self.active = False
                 self.views = {}
 
         event = SyncEvent()
