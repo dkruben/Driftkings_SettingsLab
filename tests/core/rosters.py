@@ -104,10 +104,8 @@ class Harness(object):
         self.view = module(_isDAAPIInited=lambda: True, as_setRosterS=self.sent.append,
                            isColorBlind=lambda: False)
         self.views.view = self.view
-        self.watched = []
         self.views.gameface = module(active_screens=lambda: set(), update=lambda enabled, rows:
-                                     harness.gameface.append((enabled, rows)), clear=lambda: None,
-                                     watch=self.watched.append)
+                                     harness.gameface.append((enabled, rows)), clear=lambda: None)
 
     def tick(self):
         self.views.tick()

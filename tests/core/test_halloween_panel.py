@@ -61,22 +61,9 @@ class HalloweenRowsTests(RuntimeTest):
         bot = self.views.contextCache[6][1]
         player = self.views.contextCache[2][1]
         self.assertEqual((bot['stat-available'], bot['stat-color'], bot['r']), ('', '', None))
-        # Halloween keeps its numbers (event_numbers): they are shown in its TAB table.
-        self.assertEqual((player['stat-available'], player['stat-color'], player['r']), ('stat', 'stat', 1800))
+        self.assertEqual((player['stat-available'], player['stat-color'], player['r']), ('', 'stat', None))
         self.assertEqual(rows[6]['name'], 'Ally Bot')
         self.assertEqual(self.views.failures, {})
-
-    def test_tab_summary_rows(self):
-        rows = self.rows()
-        self.assertEqual(rows[2]['summary'], {
-            'enabled': True, 'name': 'anna', 'clan': '', 'vehicle': 'Maus', 'alive': True, 'self': False,
-            'stats': True, 'rating': 'wn8', 'r': 1800, 'c:r': '#5A3175', 'winrate': 52, 'c:winrate': '#5A3175',
-            'battles': 5000, 'c:battles': '#5A3175'})
-        self.assertEqual((rows[6]['summary']['stats'], rows[6]['summary']['r']), (False, None))
-        self.assertEqual((rows[1]['summary']['self'], rows[3]['summary']['alive']), (True, False))
-        self.harness.data['tab']['enabled'] = False
-        self.views.rowCache.clear(); self.views.screenCache.clear()
-        self.assertFalse(any(row['summary']['enabled'] for row in self.rows().values()))
 
     def test_classic_panel_profiles_are_not_resolved(self):
         rows = self.rows()
@@ -86,4 +73,4 @@ class HalloweenRowsTests(RuntimeTest):
     def test_nothing_is_drawn_over_the_native_panel(self):
         payload = self.harness.tick()
         self.assertEqual((payload['enabled'], payload['rows']), (False, []))
-        self.assertTrue(self.harness.gameface[-1][0])
+        self.assertEqual(self.harness.gameface[-1], (False, []))
