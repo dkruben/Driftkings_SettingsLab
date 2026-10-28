@@ -11,12 +11,12 @@ import os
 import re
 import unittest
 
-from support import module
 import test_minimap_battle
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 LINES_AS = os.path.join(ROOT, 'flash_source', 'battle', 'src', 'driftkings', 'battle', 'components',
                         'minimap', 'minimaplines.as')
+UI_AS = os.path.join(os.path.dirname(LINES_AS), 'minimapenhancementsui.as')
 YAW_CORRECTION_ANGLE = 180.0
 
 
@@ -25,11 +25,11 @@ def heading(rotation_deg, art_deg):
     return (rotation_deg + art_deg) % 360.0
 
 
-def overlay_rotation(placeholder_deg):
-    """minimaplines.as: atan2(m.b, m.a) of a pure rotation matrix returns the same rotation."""
+def overlay_rotation(placeholder_deg, rotation_offset=0.0):
+    """minimaplines.as copies the native rotation and adds an offset in radians."""
     rad = math.radians(placeholder_deg)
     m_a, m_b = math.cos(rad), math.sin(rad)
-    return math.degrees(math.atan2(m_b, m_a)) % 360.0
+    return math.degrees(math.atan2(m_b, m_a) + rotation_offset) % 360.0
 
 
 class SectorGeometryTests(unittest.TestCase):
@@ -43,7 +43,7 @@ class SectorGeometryTests(unittest.TestCase):
 
     def overlay_sector_heading(self, yaw):
         placeholder = yaw - YAW_CORRECTION_ANGLE
-        return heading(overlay_rotation(placeholder), self.OVERLAY_ART)
+        return heading(overlay_rotation(placeholder, math.pi), self.OVERLAY_ART)
 
     def test_native_sector_points_where_the_yaw_limit_says(self):
         for yaw in (-90, -35, 0, 20, 90):
@@ -54,22 +54,24 @@ class SectorGeometryTests(unittest.TestCase):
             self.assertAlmostEqual(heading(overlay_rotation(rotation), self.OVERLAY_ART),
                                    heading(rotation, self.LINE_ART))
 
-    @unittest.expectedFailure
     def test_sector_overlay_matches_native_sector(self):
-        """Known defect: with customStyle + geometry the sector overlay is rotated 180 degrees off.
-
-        Remove ``expectedFailure`` when minimaplines.as compensates the native sector rotation.
-        """
+        """Both sector edges compensate the native art orientation, including asymmetric limits."""
         for yaw in (-90, -35, 0, 20, 90):
             self.assertAlmostEqual(self.overlay_sector_heading(yaw), self.native_sector_heading(yaw))
 
-    def test_flash_source_still_copies_rotation_without_compensation(self):
-        """Tripwire: when this fails, the Flash source changed; revisit the model above."""
+    def test_flash_source_applies_rotation_offset_only_to_sector_edges(self):
+        """Keep the model tied to the renderer and the camera/sector call sites."""
         with open(LINES_AS, 'rb') as handle:
             text = handle.read().decode('utf-8')
-        self.assertTrue(re.search(r'angle:Number\s*=\s*Math\.atan2\(m\.b, m\.a\)\s*;', text))
+        self.assertIn('rotationOffset:Number = 0', text)
+        self.assertTrue(re.search(r'angle:Number\s*=\s*Math\.atan2\(m\.b, m\.a\)\s*\+\s*rotationOffset\s*;', text))
         self.assertTrue(re.search(r'cosine:Number\s*=\s*Math\.cos\(angle\),\s*sine:Number\s*=\s*Math\.sin\(angle\)\s*;', text))
         self.assertIn('new Matrix(cosine, sine, -sine, cosine, m.tx, m.ty)', text)
+        with open(UI_AS, 'rb') as handle:
+            ui = handle.read().decode('utf-8')
+        for edge in ('sectorLeft', 'sectorRight'):
+            self.assertIn('lines.line(point.%s, options, options.lines.sectorColor, false, 100, Math.PI)' % edge, ui)
+        self.assertIn('lines.line(camera.directionLinePlaceholder, options, options.lines.directionColor, true, Number(options.lines.directionAlpha))', ui)
 
 
 class YawLimitsTests(unittest.TestCase):
