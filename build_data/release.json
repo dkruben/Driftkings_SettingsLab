@@ -9,6 +9,10 @@
   "author": "driftkings",
   "changelog": [
     "BETA NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors; full visual acceptance in the Gameface client is pending.",
+    "Adopt the reference vehicle-marker defaults without XMQP; preserve installed personal profiles and legacy text origins. Match Python and preview geometry, cache text layers per state, and keep recreated health bars below labels.",
+    "Bundle OpenWG Common 2.8.5.0000 and register the packaged fonts and aliases through its native provider. Preserve embedded Flash fonts and Gameface font resources; in-client font and layer validation remains pending.",
+    "Replace the symbol-font resource with the supplied DriftkingsFont.ttf, using dkm as the configurable font name and preserving the original glyphs and legacy font aliases in native registration, Flash and Gameface.",
+    "Keep roster view discovery active across empty loading-to-battle transitions so player-panel statistics can resume. Disable integrated marker distances by default to leave the dedicated target-distance module as the sole distance renderer.",
     "Fix vehicle-marker property editing and expose rating settings. Align the two fictional carousel preview cards with the native horizontal layout and the live renderer.",
     "Add carousel hit-rate and zero-mark icons, separate actual and expected damage colours, and keep mixed numeric/macro settings editable without hiding the carousel page.",
     "Centralize shared constants and marker contracts while preserving Python 2.7, native WG enums, public names, settings keys and payload formats.",

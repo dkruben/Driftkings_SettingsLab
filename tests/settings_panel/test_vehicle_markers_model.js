@@ -110,11 +110,11 @@ const markers = {enabled: markerGeneral.enabled, markers: Object.assign({}, mark
 model.STATE_KEYS.forEach(name => { markers[name] = JSON.parse(fs.readFileSync(path.join(markerDir, name + '.json'), 'utf8')); });
 const markerEnemy = model.state(markers, {group:'enemy',state:'alive',alt:false,hp:70});
 assert.strictEqual(JSON.stringify(markerEnemy.fields.map(item => item.name)), JSON.stringify(['Tank name','Tank HP','Rating','position']));
-assert.strictEqual(JSON.stringify([markerEnemy.fields[0].x, markerEnemy.fields[0].y, markerEnemy.fields[0].width]), JSON.stringify([-70, -51, 140]));
-assert.strictEqual(markerEnemy.fields[1].y, -35);
-assert.strictEqual(markerEnemy.fields[2].x, -160);
-assert(markerEnemy.fields[2].format.indexOf('<b>!</b>') >= 0);
-assert.strictEqual(markerEnemy.fields[2].textFormat.font, 'XVMSymbol');
+assert.strictEqual(JSON.stringify([markerEnemy.fields[0].x, markerEnemy.fields[0].y, markerEnemy.fields[0].width]), JSON.stringify([-70, -51.5, 140]));
+assert.strictEqual(markerEnemy.fields[1].y, -35.5);
+assert.strictEqual(markerEnemy.fields[2].x, -172);
+assert.strictEqual(markerEnemy.fields[2].format, '&#x115;');
+assert.strictEqual(markerEnemy.fields[2].textFormat.font, 'dkm');
 assert.deepStrictEqual([markerEnemy.config.healthBar.x, markerEnemy.config.healthBar.width, markerEnemy.config.healthBar.border.color], [-36, 70, '#000000']);
 assert.deepStrictEqual([markerEnemy.config.icons['class'].containerX, markerEnemy.config.icons['class'].containerY], [0, -16]);
 assert.strictEqual(markerEnemy.config.icons.damageIndicatorText.y, -41);

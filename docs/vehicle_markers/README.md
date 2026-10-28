@@ -74,8 +74,9 @@ the individual metrics and colors are also available. `{{xr}}` is the normalized
 normalized rating where the statistics module provides one (WN8/EFF); no normalized WNX
 value is invented. Anonymized or unavailable statistics remain unavailable.
 
-The EU-profile alive normal layout uses a coloured `!` in `XVMSymbol`, and ALT shows the
-selected rating. Both `xvm` and `XVMSymbol` use the original symbol font in the runtime
+The project defaults now follow the reference `default_wg` marker layout, with XMQP fields removed.
+Alive normal mode uses `&#x115;` in `dkm`, and ALT shows the
+selected rating. The legacy aliases `xvm` and `XVMSymbol` resolve to `DriftkingsFont` in the runtime
 and the editor. `&#x115;` retains its original glyph. Existing custom field arrays are preserved: use **Add rating** in the
 editor to insert the normal or ALT preset in any of the eight contexts.
 
@@ -200,7 +201,13 @@ stock/top turret variants and edited templates still require replay acceptance.
 
 The structured property column has a fixed 470 UI-unit viewport and its own scrollbar through `DK.dom.scrollbar`. Wheel events stay in that column; dragging reaches the final property. The scrollbar refreshes after tab/group changes and resize, hides when content fits, and removes deferred updates and resize listeners on disposal.
 
-The beta 0.1.3-beta.2 defaults follow the EU profile: normal-mode distance fields are disabled, level and contour icons are enabled, and the normal rating template uses `XVMSymbol` with custom `!` text. Preserve the editable font name and original glyphs through the adapter boundary. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
+The project defaults disable integrated distance to avoid duplicating the dedicated target-distance module; the level and contour icons remain disabled, following `default_wg`. Existing installed profiles retain their custom fields and positions. Fixed colours use `#RRGGBB`; ActionScript uses the existing numeric conversion helpers.
+
+`markers.textFieldsOffsetY` is the compatibility origin for the text-field layer: the new defaults use `-15.5`, matching the reference renderer. Profiles without this option retain an offset of zero. Distance, floating damage, native icons and the health bar have independent origins and do not receive this offset. Python and the editor preview apply the same conversion.
+
+Text layers are cached separately for each team/state/mode and only the active layer is visible. Recreated health bars remain below text; floating damage stays above it. Configuration replacement and native marker disposal remove all cached layers. Sticky/off-screen markers hide custom layers. Disabling the marker system preserves native settings and damage rendering.
+
+Native font registration is provided by the `driftkings.fonts` OpenWG package and its `net.openwg.fonts` dependency; see [Fontes](../FONTES.md). No XMQP registration, events or default fields are included. This integration retains the project's marker bridge and JSON references; it does not import the upstream mod framework or its networking subsystem.
 
 Run `npm --prefix build_tools/javascript test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
 

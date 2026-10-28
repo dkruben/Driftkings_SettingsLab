@@ -81,6 +81,8 @@ The packaged dependency is `res/wotmods/me.poliroid.modslistapi_1.8.0.wotmod`. I
 
 Start with `GameFace/README.md`, `python/openwg_gameface.py`, `resources/`, `as3/` and `tests/`. These paths were confirmed locally.
 
+Native font registration additionally uses `res/wotmods/net.openwg.common_2.8.5.0000.wotmod`, copied unchanged from `xvm-master/3rdparty_packages/net.openwg/`. Its SHA-256 is pinned in the build contract. The `driftkings.fonts` package depends on `net.openwg.fonts` for initialization order; no XMQP component is imported.
+
 The packaged dependency is `res/wotmods/net.openwg.gameface_1.2.2.wotmod`. Its SHA-256 matches the build contract. Match the relevant source revision to that package before adopting an API.
 
 The local README and Python implementation confirm that WG uses native `gui/gen_resources/*.json` registration from client 2.4.1. The older `on_ready`, `res_id_by_key`, `res_ids_by_mask` and `ModDynAccessor` APIs are deprecated placeholders on WG; `gf_mod_inject`, `ModInjectModel` and the JavaScript helpers remain supported by that reference implementation. Do not assume Lesta-specific paths or behavior apply to EU, NA or ASIA.

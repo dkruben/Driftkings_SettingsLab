@@ -6,9 +6,9 @@ package driftkings.utils
     public class fontlibrary
     {
         private static var initialized:Boolean = false;
-        [Embed(source="../../../../../mod/res/gui/fonts/driftkings/XVMSymbol.ttf", fontName="XVMSymbol", mimeType="application/x-font", embedAsCFF="false")]
+        [Embed(source="../../../../../mod/res/gui/fonts/driftkings/DriftkingsFont.ttf", fontName="dkm", mimeType="application/x-font", embedAsCFF="false")]
         private static const Face0:Class;
-        [Embed(source="../../../../../mod/res/gui/fonts/driftkings/XVMSymbol.ttf", fontName="xvm", mimeType="application/x-font", embedAsCFF="false")]
+        [Embed(source="../../../../../mod/res/gui/fonts/driftkings/DriftkingsFont.ttf", fontName="xvm", mimeType="application/x-font", embedAsCFF="false")]
         private static const Face1:Class;
         [Embed(source="../../../../../mod/res/gui/fonts/driftkings/VehicleType.ttf", fontName="VehicleType", mimeType="application/x-font", embedAsCFF="false")]
         private static const Face2:Class;
@@ -26,12 +26,17 @@ package driftkings.utils
         private static const Face8:Class;
         [Embed(source="../../../../../mod/res/gui/fonts/driftkings/ZurichCondMono.ttf", fontName="ZurichCondMono", mimeType="application/x-font", embedAsCFF="false")]
         private static const Face9:Class;
+        [Embed(source="../../../../../mod/res/gui/fonts/driftkings/DriftkingsFont.ttf", fontName="XVMSymbol", mimeType="application/x-font", embedAsCFF="false")]
+        private static const Face10:Class;
+
+        [Embed(source="../../../../../mod/res/gui/fonts/driftkings/DriftkingsFont.ttf", fontName="DriftkingsFont", mimeType="application/x-font", embedAsCFF="false")]
+        private static const Face11:Class;
 
         public static function initialize():void
         {
             if (initialized) return;
             initialized = true;
-            for each (var face:Class in [Face0, Face1, Face2, Face3, Face4, Face5, Face6, Face7, Face8, Face9]) Font.registerFont(face);
+            for each (var face:Class in [Face0, Face1, Face2, Face3, Face4, Face5, Face6, Face7, Face8, Face9, Face10, Face11]) Font.registerFont(face);
         }
     }
 }

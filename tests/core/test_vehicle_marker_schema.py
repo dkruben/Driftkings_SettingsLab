@@ -36,46 +36,46 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         self.assertEqual(normal['enemy']['textFields'], ['${def.tankName}', '${def.tankHp}', '${def.rating}', '${def.position}'])
         self.assertEqual(normal['ally']['damageText'], {'$ref': {'path': 'def.damageText'}})
 
-    def test_defaults_keep_marker_layout_and_eu_customizations(self):
+    def test_defaults_follow_reference_marker_layout(self):
         normal = self.documents['markersAliveNormal.json']
         self.assertEqual(normal['ally']['healthBar']['width'], 70)
         self.assertEqual(normal['ally']['healthBar']['damage']['color'], '{{c:dmg}}')
-        self.assertEqual(normal['def']['rating']['textFormat']['font'], 'XVMSymbol')
-        self.assertIn('<b>!</b>', normal['def']['rating']['format'])
+        self.assertEqual(normal['def']['rating']['textFormat']['font'], 'dkm')
+        self.assertEqual(normal['def']['rating']['format'], '&#x115;')
         self.assertEqual(normal['def']['tankName']['format'], '{{vehicle}}{{turret}}')
         self.assertEqual(self.documents['markersAliveExtended.json']['def']['hpPercent']['format'], '{{hp-ratio}}% / {{hp-max}}')
 
     def test_text_fields_use_marker_boxes_anchored_by_alignment(self):
         profile = self.profiles()['enemy']['alive']['normal']
         names = [field['name'] for field in profile['fields']]
-        # The EU layout disables the distance field in normal mode.
+        # Distance is a separate component, without the text layer compatibility offset.
         self.assertEqual(names, ['Tank name', 'Tank HP', 'Rating', 'position'])
         tank = profile['fields'][0]
-        self.assertEqual((tank['x'], tank['y'], tank['width'], tank['height']), (-70, -51, 140, 100))
+        self.assertEqual((tank['x'], tank['y'], tank['width'], tank['height']), (-70, -51.5, 140, 100))
         # The HP text sits inside the bar (-33..-21) and the tank name just above it.
         bar = profile['healthBar']
-        self.assertEqual(profile['fields'][1]['y'], -35)
+        self.assertEqual(profile['fields'][1]['y'], -35.5)
         self.assertTrue(bar['y'] - 3 <= profile['fields'][1]['y'] <= bar['y'])
         self.assertLessEqual(tank['y'] + 15, bar['y'])
         rating = profile['fields'][2]
         # The right-aligned box ends at the configured anchor; preserve the symbol font.
-        self.assertEqual((rating['x'], rating['align']), (-160, 'right'))
-        self.assertIn('<b>!</b>', rating['format'])
-        self.assertEqual(rating['textFormat']['font'], 'XVMSymbol')
+        self.assertEqual((rating['x'], rating['align']), (-172, 'right'))
+        self.assertEqual(rating['format'], '&#x115;')
+        self.assertEqual(rating['textFormat']['font'], 'dkm')
         self.assertEqual(rating['textFormat']['color'], '{{c:xr|#999999}}')
         self.assertEqual(profile['fields'][3]['shadow']['color'], '{{c:system}}')
 
     def test_damage_health_bar_and_native_flags(self):
         profile = self.profiles()['ally']['alive']['normal']
         damage = profile['damageText']
-        self.assertEqual((damage['x'], damage['y'], damage['width']), (-100, -66, 200))
+        self.assertEqual((damage['x'], damage['y'], damage['width']), (-100, -67, 200))
         self.assertEqual((damage['duration'], damage['rise']), (2, 40))
         self.assertEqual(damage['format'], '{{dmg}}')
         self.assertEqual(damage['textFormat']['color'], '{{c:dmg}}')
         for source in ('player', 'squad', 'other'):
             self.assertTrue(damage['sources'][source]['enabled'])
         bar = profile['healthBar']
-        self.assertEqual((bar['x'], bar['y'], bar['width'], bar['height']), (-36, -31, 70, 12))
+        self.assertEqual((bar['x'], bar['y'], bar['width'], bar['height']), (-36, -33, 70, 12))
         self.assertEqual(bar['border'], {'color': '#000000', 'alpha': 35, 'width': 1})
         self.assertEqual((bar['fill']['alpha'], bar['damage']['color'], bar['damage']['duration']), (50, '{{c:dmg}}', 1))
         self.assertFalse(bar['gradient']['enabled'])
@@ -89,9 +89,9 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         icons = self.profiles()['enemy']['alive']['normal']['icons']
         self.assertEqual((icons['class']['containerX'], icons['class']['containerY']), (0, -16))
         self.assertFalse(icons['class']['showSpeaker'])
-        self.assertTrue(icons['level']['enabled'])
-        self.assertEqual((icons['actionMarker']['y'], icons['hoverMarker']['y']), (-86, -92))
-        self.assertEqual(icons['hoverMarker']['glow'], {'enabled': True, 'x': 0, 'y': 150, 'alpha': 50})
+        self.assertFalse(icons['level']['enabled'])
+        self.assertEqual((icons['actionMarker']['y'], icons['hoverMarker']['y']), (-86, -88))
+        self.assertEqual(icons['hoverMarker']['glow'], {'enabled': True, 'x': 0, 'y': 85, 'alpha': 50})
         self.assertEqual((icons['damageIndicator']['x'], icons['damageIndicator']['y']), (53, -27))
         self.assertEqual((icons['damageIndicatorText']['x'], icons['damageIndicatorText']['y']), (67, -41))
         self.assertEqual(icons['vehicle']['tint'], {'color': '{{c:system}}', 'amount': 0})
@@ -106,7 +106,7 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         profile = self.profiles(data)['enemy']['alive']['normal']
         distance = profile['fields'][-1]
         self.assertEqual(distance['format'], '{{alive&&distance?{{distance}}m|}}')
-        self.assertEqual((distance['x'], distance['y'], distance['width']), (-50, -84, 100))
+        self.assertEqual((distance['x'], distance['y'], distance['width']), (-50, -66, 100))
         self.assertEqual((profile['icons']['class']['containerX'], profile['icons']['class']['containerY']), (4, -18))
         self.assertTrue(profile['icons']['class']['showSpeaker'])
         self.assertFalse(profile['icons']['damageIndicatorText']['enabled'])
@@ -135,6 +135,17 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         files = dict(self.schema.split(self.data))
         self.assertEqual(files['markers.json'], self.documents['markers.json'])
         self.assertEqual(self.schema.join(files), self.data)
+
+    def test_text_origin_does_not_move_distance_or_existing_profiles(self):
+        data = copy.deepcopy(self.data)
+        del data['markers']['textFieldsOffsetY']
+        profile = self.profiles(data)['enemy']['alive']['normal']
+        self.assertEqual(profile['fields'][0]['y'], -36)
+        self.assertNotIn('Vehicle distance', [field['name'] for field in profile['fields']])
+        for invalid in (None, True, '15', float('nan'), 1001):
+            data['markers']['textFieldsOffsetY'] = invalid
+            with self.assertRaises(ValueError):
+                self.profiles(data)
 
     def test_flash_never_uses_replace_callbacks(self):
         # Scaleform inserts the callback's source text instead of calling it.
@@ -166,7 +177,7 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         self.assertEqual(schema.adapt(data)['customFields']['ally']['alive']['normal'], [])
 
     def test_fonts_and_characters_are_preserved(self):
-        for font in ('xvm', 'XVMSymbol', 'Arial', u'Fonte \u00e1', '$FieldFont'):
+        for font in ('DriftkingsFont', 'xvm', 'XVMSymbol', 'Arial', u'Fonte \u00e1', '$FieldFont'):
             field = self.schema.text_field({'format': u'&#x115; <b>!</b> \u00e1 \u0416 \u4e2d', 'textFormat': {'font': font}})
             self.assertEqual(field['format'], u'&#x115; <b>!</b> \u00e1 \u0416 \u4e2d')
             self.assertEqual(field['textFormat']['font'], font)

@@ -231,7 +231,9 @@ class VehicleMarkersTests(RuntimeTest):
             prepare(data)
 
     def test_custom_bar_and_contour_preserve_account_preferences(self):
-        data = self.load('core.vehicle_markers.config').prepare(self.defaults())
+        options = self.defaults()
+        options['icons']['enemy']['alive']['normal']['vehicle']['enabled'] = True
+        data = self.load('core.vehicle_markers.config').prepare(options)
         apply = self.load('core.vehicle_markers.presentation').apply
         native = dict((team, {'markerBaseHpIndicator': True, 'markerAltHpIndicator': True,
                              'markerBaseIcon': True, 'markerAltIcon': True})
@@ -251,7 +253,7 @@ class VehicleMarkersTests(RuntimeTest):
         data['markersAliveNormal']['enemy']['textFields'] = [{'$ref': {'path': 'def.custom'}, 'y': -90}]
         result = self.load('core.vehicle_markers.config').prepare(data)
         field = result['customFields']['profiles']['enemy']['alive']['normal']['fields'][0]
-        self.assertEqual((field['x'], field['y']), (-30, -90))
+        self.assertEqual((field['x'], field['y']), (-30, -105.5))
         root = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, root)
         store = self.load('settings.vehicle_markers_store').VehicleMarkersStore(root)

@@ -38,6 +38,23 @@ class RandomRosterTests(RuntimeTest):
     def test_15_vs_15(self):
         self.check(15, 15)
 
+    def test_loading_gap_then_visible_panel_repopulates_flash_rows(self):
+        harness = Harness(self, battle(15, 15), 'random')
+        self.exchange(harness)
+        visibility = harness.views.screenClass()
+        visibility.reportScreens(False, True, False)
+        self.assertEqual(len(harness.tick()['rows']), 30)
+        visibility.reportScreens(False, False, False)
+        self.assertEqual(harness.tick()['rowOrder'], [])
+        # Flash must keep discovering native views while the wire roster is empty.
+        visibility.reportScreens(True, False, False)
+        payload = harness.tick()
+        self.assertEqual(len(payload['rowOrder']), 30)
+        self.assertEqual(len(payload['rowUpdates']), 30)
+        self.assertTrue(all('large' in row['panels'] for row in payload['rowUpdates']))
+        self.assertTrue(all(harness.views.contextCache[ident][1]['stat-available'] == 'stat'
+                            for ident in payload['rowOrder']))
+
     def test_30_vs_30_is_not_truncated(self):
         harness = self.check(30, 30)
         self.assertLessEqual(30, harness.views.adapter.team_size)

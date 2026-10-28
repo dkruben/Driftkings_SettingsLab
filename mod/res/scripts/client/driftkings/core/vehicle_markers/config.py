@@ -5,7 +5,7 @@ import copy
 from driftkings.core.vehicle_markers.colors import normalize as normalize_colors
 from driftkings.core.vehicle_markers.colors import palette
 from driftkings.core.vehicle_markers.damage import normalize as normalize_damage
-from driftkings.core.vehicle_markers.fields import normalize
+from driftkings.core.vehicle_markers.fields import normalize, number
 from driftkings.core.vehicle_markers.healthbar import normalize as normalize_healthbar
 from driftkings.core.vehicle_markers.icons import normalize as normalize_icons
 from driftkings.core.vehicle_markers.layouts import leaf, migrate, MODES, STATES, style_tree, TEAMS, validate_tree
@@ -35,6 +35,7 @@ def prepare(data):
     if type(result['enabled']) is not bool or type(result['debug']) is not bool:
         raise ValueError('enabled/debug must be boolean')
     result.setdefault('ratingType', 'wn8')
+    number(result.get('textFieldsOffsetY', 0), -1000, 1000)
     if result['ratingType'] not in ('wn8', 'wnx', 'eff'):
         raise ValueError('Invalid marker rating type')
     from driftkings.common.utils.color_rating_data import color_tables

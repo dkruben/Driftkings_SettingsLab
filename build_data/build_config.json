@@ -35,7 +35,17 @@
     ],
     "entrypoint": "gui/mods/mod_driftkings.py",
     "component_list": "driftkings/component_list.py",
-    "optimize": 0
+    "optimize": 0,
+    "additional_roots": [
+      {
+        "source_root": "mod/res/mods/openwg_packages",
+        "archive_root": "res/mods/openwg_packages",
+        "staging_root": "build/staging/res/mods/openwg_packages",
+        "include": [
+          "**/*.py"
+        ]
+      }
+    ]
   },
   "assets": {
     "exclude": [
@@ -65,6 +75,10 @@
       {
         "name": "net.openwg.gameface_1.2.2.wotmod",
         "sha256": "2bb65f28663e3ab34b5a1102a1bbd1f6e17a65e1f6a898a8645c4ab732b50184"
+      },
+      {
+        "name": "net.openwg.common_2.8.5.0000.wotmod",
+        "sha256": "f4680bb95857a7cbdb594ff7318c07784459fe5c316a52cb6a9f06c5b7917f37"
       }
     ]
   },

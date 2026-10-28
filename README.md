@@ -28,7 +28,7 @@ Stable **0.1.3** targets WoT **2.4.1.1**. Beta **0.1.4-beta.2** also targets WoT
 
 - **Vehicle markers:** separate layouts for allies/enemies, alive/destroyed vehicles and normal/ALT views; configurable text, ratings, health bars, icons and floating damage.
 - **Live tank preview:** edit marker fields, shared templates and JSON, and check team colours, HP and visibility. The property column has its own scrollbar.
-- **Updated defaults:** the author's EU profile for the clock, panel positions, carousel, minimap and markers. Settings-window scale starts at 140%, with 94% opacity.
+- **Updated defaults:** the author's EU profile for the clock, panel positions, carousel and minimap; vehicle markers follow the reference layout. Settings-window scale starts at 140%, with 94% opacity.
 - **Font and editor fixes:** corrected native font handling, marker font aliases, colour inputs, slider limits and reference errors.
 
 ## Installation
@@ -108,7 +108,7 @@ Ratings and progress displays are estimates; they do not guarantee a battle resu
 
 The integrated settings panel includes **profiles, themes, UI scale, translations and update channels**. Marker changes can be checked in the tank preview before applying them.
 
-Default configurations are based on the author's EU profile. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
+Default configurations are based on the author's EU profile, except vehicle markers, which now follow the reference layout. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
 
 To receive beta updates, select the **Beta** update channel in Driftkings settings. The `develop` branch carries beta development; `main` carries the stable version.
 
