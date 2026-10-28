@@ -5,6 +5,7 @@ NAME is the single configuration key for registry, defaults and translations.
 """
 from collections import namedtuple
 
+# Shared value records; safe to import outside the client.
 MinMax = namedtuple('MinMax', ('min', 'max'))
 ScreenBounds = namedtuple('ScreenBounds', ('x', 'y', 'width', 'height'))
 MarksStatistics = namedtuple('MarksStatistics', (
@@ -12,12 +13,20 @@ MarksStatistics = namedtuple('MarksStatistics', (
     'damage65', 'damage85', 'damage95', 'damage100'))
 BattleCurve = namedtuple('BattleCurve', (
     'levels', 'damages', 'statistics', 'target_damage', 'target_reachable', 'limit_reached'))
+# Shared marks of excellence rules.
 MARK_LEVELS = (0.0, 20.0, 40.0, 55.0, 65.0, 85.0, 95.0, 100.0)
 MARK_THRESHOLDS = (65, 85, 95)
 # Marks of excellence panels are shown only for tier 5 and above, where marks exist.
 MARKS_MIN_TIER = 5
 
 
+# Shared identifiers and policies, without resolving client-owned enums.
+SETTINGS_MOD_ID = 'dk.settings'
+# Random battles that update account statistics, including new/returning players.
+STATISTICS_BATTLES = ('REGULAR', 'RANDOM_NP2', 'WINBACK')
+
+
+# Configuration namespaces; NAME and option spellings are persisted contracts.
 class GLOBAL(object):
     ENABLED = 'enabled'
     X = 'x'
@@ -444,6 +453,20 @@ class GAME_LOG_MANAGER(object):
     WG_LOG_HIDE_ASSIST = 'wgLogHideAssist'
 
 
+class PROFILE_RATINGS(object):
+    NAME = 'profile_ratings'
+
+
+class VEHICLE_MARKERS(object):
+    NAME = "vehicle_markers"
+    # Persisted layout axes and document names shared by storage, settings and runtime.
+    TEAMS = ('ally', 'enemy')
+    STATES = ('alive', 'dead')
+    MODES = ('normal', 'extended')
+    STATE_KEYS = ('markersAliveNormal', 'markersAliveExtended', 'markersDeadNormal', 'markersDeadExtended')
+    FILES = ('markers.json',) + tuple(key + '.json' for key in STATE_KEYS)
+
+
 # Parent switch -> controls available only while it is enabled.
 HANDLER_VALUES = {
     SIXTH_SENSE_ALERT.NAME: {
@@ -455,7 +478,7 @@ HANDLER_VALUES = {
         SIXTH_SENSE_ALERT.SPOTTED_MESSAGE: (SIXTH_SENSE_ALERT.SPOTTED_TEXT,),
     },
     BATTLE_MARKS_OF_EXCELLENCE.NAME: {
-        'showTargets': ('gameface.showTargetDamage', 'gameface.showRequiredDamage'),
+        BATTLE_MARKS_OF_EXCELLENCE.SHOW_TARGETS: ('gameface.showTargetDamage', 'gameface.showRequiredDamage'),
         BATTLE_MARKS_OF_EXCELLENCE.BACKGROUND: ('gameface.backgroundOpacity',)},
     TARGET_INFORMATION.NAME: {TARGET_INFORMATION.BACKGROUND_ENABLED: (TARGET_INFORMATION.BACKGROUND_ALPHA,)},
     CREW_MANAGEMENT.NAME: {CREW_MANAGEMENT.CREW_AUTO_RETURN: (
@@ -508,6 +531,7 @@ HANDLER_VALUES = {
 }
 
 
+# Flash component aliases shared by registration and controllers.
 class BATTLE_ALIASES(object):
     DEBUG_PANEL = 'DriftkingsDebugPanel'
     PENETRATION_INDICATOR = 'ArmorCalculatorView'
@@ -519,11 +543,3 @@ class BATTLE_ALIASES(object):
     MINIMAP = 'MinimapEnhancementsView'
     PLAYERS_PANEL = 'DriftkingsRatingScreens'
     OVERLAY = 'DriftkingsOverlay'
-
-
-class PROFILE_RATINGS(object):
-    NAME = 'profile_ratings'
-
-
-class VEHICLE_MARKERS(object):
-    NAME = "vehicle_markers"

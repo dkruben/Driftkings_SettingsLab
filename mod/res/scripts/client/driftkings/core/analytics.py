@@ -22,6 +22,7 @@ except ImportError:
     import urllib.request as http
 
 from driftkings import VERSION
+from driftkings._constants import SETTINGS_MOD_ID as SETTINGS
 from driftkings.logger import get_logger, NAMESPACE
 
 LOG = get_logger('Driftkings.Analytics')
@@ -32,7 +33,6 @@ MEASUREMENT_ID = 'G-B7Z425MJ3L'
 API_SECRET = 'SD2sbCSKQACB-ILu408-EA'
 
 ENDPOINT = 'https://www.google-analytics.com/mp/collect?measurement_id=%s&api_secret=%s'
-SETTINGS = 'dk.settings'
 OPTION = 'analytics'
 IDENTITY = 'analytics_id'
 HEARTBEAT = 60.0

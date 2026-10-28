@@ -2,9 +2,11 @@
 """Independent team/state/mode layouts and lossless conversion of the first schema."""
 import copy
 
-TEAMS = ('ally', 'enemy')
-STATES = ('alive', 'dead')
-MODES = ('normal', 'extended')
+from driftkings._constants import VEHICLE_MARKERS
+
+TEAMS = VEHICLE_MARKERS.TEAMS
+STATES = VEHICLE_MARKERS.STATES
+MODES = VEHICLE_MARKERS.MODES
 
 
 def merge(base, override):

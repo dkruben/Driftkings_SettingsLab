@@ -21,7 +21,7 @@ from messenger.gui.Scaleform.data.contacts_data_provider import _ContactsCategor
 from messenger.storage import MessengerStorageDescriptor, UsersStorage
 from PlayerEvents import g_playerEvents
 
-from driftkings._constants import BATTLE_PREFERENCES, GLOBAL
+from driftkings._constants import BATTLE_ALIASES, BATTLE_PREFERENCES, GLOBAL
 from driftkings.common.utils.wgutils import getPlayer, isReplay, square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.fog_package import FogPackageController
@@ -40,7 +40,7 @@ fog_package = FogPackageController(config)
 
 
 def getBattleViews():
-    return (('DriftkingsDebugPanel', DebugPanelView, config),)
+    return ((BATTLE_ALIASES.DEBUG_PANEL, DebugPanelView, config),)
 
 
 # disable battle hints

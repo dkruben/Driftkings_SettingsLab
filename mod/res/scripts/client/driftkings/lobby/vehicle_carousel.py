@@ -10,7 +10,7 @@ from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 from gui.shared.utils.requesters import REQ_CRITERIA
 
-from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
+from driftkings._constants import GLOBAL, MARKS_MIN_TIER, VEHICLE_CAROUSEL
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core import carousel as layout
@@ -117,7 +117,7 @@ def collect(vehicle):
     values['damageRatio'] = ratio(values['avgDamage'], values['avgReceived'])
     values['damageHP'] = ratio(values['avgDamage'], vehicle.descriptor.maxHealth)
     values['marks'] = (number(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating'), 0) / 100
-                       if vehicle.level >= 5 and battles else None)
+                       if vehicle.level >= MARKS_MIN_TIER and battles else None)
     values['marksOnGun'] = number(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'marksOnGun'), 0)
     mastery = dossier.getTotalStats().getAchievement(MARK_OF_MASTERY_RECORD)
     # ClassProgressAchievement.NO_LVL is 5; clamping would turn it into Ace (4).

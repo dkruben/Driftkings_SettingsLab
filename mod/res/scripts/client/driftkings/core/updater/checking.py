@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Updater service checking behavior; state is owned by UpdaterService."""
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings import VERSION
 from driftkings.core.updater.shared import INTERVAL, LOG
 from driftkings.core.updater.state import AVAILABLE, CHECKING, ERROR, IDLE, INSTALLING, READY, RESTART_REQUIRED
@@ -13,7 +14,7 @@ class CheckMixin(object):
             return False
         now = self.clock()
         if not manual:
-            if not self.api.get('dk.settings', 'autoCheckUpdates', True):
+            if not self.api.get(SETTINGS_MOD_ID, 'autoCheckUpdates', True):
                 return False
             if self._last_attempt is not None and 0 <= now - self._last_attempt < INTERVAL:
                 return False
@@ -22,7 +23,7 @@ class CheckMixin(object):
         self._last_attempt = now
         self._generation += 1
         generation = self._generation
-        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        channel = self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')
         self.state.update(status=CHECKING, channel=channel, lastCheck=now, error=None, canDownload=False)
         if not self.active or generation != self._generation:
             return False

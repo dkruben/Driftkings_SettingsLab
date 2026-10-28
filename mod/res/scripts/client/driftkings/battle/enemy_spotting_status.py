@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from BattleFeedbackCommon import BATTLE_EVENT_TYPE
 from gui.battle_control.controllers.personal_efficiency_ctrl import (_AGGREGATED_DAMAGE_EFFICIENCY_TYPES,
                                                                      _createEfficiencyInfoFromFeedbackEvent)
 from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
@@ -10,6 +9,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event
 from driftkings.core.vehicle_images import resolve_vehicle_images
+from driftkings.game_constants import ASSIST_EVENTS, BATTLE_EVENT_TYPE
 from driftkings.settings.definitions.battle.enemy_spotting_status import EnemySpottingStatusSettings as Settings
 from driftkings.settings.service import settings_service
 
@@ -20,12 +20,7 @@ GENERATOR = {
     BATTLE_EVENT_TYPE.TRACK_ASSIST: ['UI_setting_AssistTrack_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_TRACK, ENEMY_SPOTTING_STATUS.ASSIST_TRACK],
     BATTLE_EVENT_TYPE.STUN_ASSIST: ['UI_setting_AssistStun_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_STUN, ENEMY_SPOTTING_STATUS.ASSIST_STUN]
 }
-SUPPORTED_EVENTS = (
-    BATTLE_EVENT_TYPE.SPOTTED,
-    BATTLE_EVENT_TYPE.RADIO_ASSIST,
-    BATTLE_EVENT_TYPE.TRACK_ASSIST,
-    BATTLE_EVENT_TYPE.STUN_ASSIST
-)
+SUPPORTED_EVENTS = (BATTLE_EVENT_TYPE.SPOTTED,) + ASSIST_EVENTS
 
 
 class SpottedLightController(object):

@@ -6,13 +6,13 @@ every edit, so the view can patch values without rebuilding the DOM.
 """
 import copy
 
+from driftkings._constants import SETTINGS_MOD_ID as CORE_ID
 from driftkings.settings.panel import logger
 from driftkings.settings.panel.controls import resolve_text
 from driftkings.settings.panel.session import EditSession, SaveError
 from driftkings.settings.panel.sound import SoundError
 
 MAX_REQUEST = 2097152
-CORE_ID = 'dk.settings'
 
 
 def calendar():

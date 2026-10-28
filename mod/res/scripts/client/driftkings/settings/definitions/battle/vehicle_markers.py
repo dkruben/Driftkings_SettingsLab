@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from driftkings._constants import VEHICLE_MARKERS
 from driftkings.common.utils.color_rating_data import color_tables
 from driftkings.core.vehicle_markers.colors import normalize, palette
 from driftkings.core.vehicle_markers.config import prepare
@@ -36,7 +37,7 @@ def sample_vehicle():
 
 
 class VehicleMarkersSettings(SectionDefinition):
-    NAME = 'vehicle_markers'
+    NAME = VEHICLE_MARKERS.NAME
     STORAGE_CLASS = VehicleMarkersStore
     STORAGE_FILES = FILES
 

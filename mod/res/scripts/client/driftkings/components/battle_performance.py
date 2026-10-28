@@ -10,7 +10,7 @@ from gui.Scaleform.daapi.view.battle.shared.ribbons_aggregator import RibbonsAgg
 from gui.Scaleform.daapi.view.battle.shared.ribbons_panel import BattleRibbonsPanel
 from gui.Scaleform.genConsts.BATTLE_EFFICIENCY_TYPES import BATTLE_EFFICIENCY_TYPES
 
-from driftkings._constants import BATTLE_PERFORMANCE, GLOBAL
+from driftkings._constants import BATTLE_PERFORMANCE, GLOBAL, STATISTICS_BATTLES
 from driftkings.common.utils import events
 from driftkings.common.utils.colorratting import getRelativePerformanceColor, getStatisticColor
 from driftkings.common.utils.formatting import replaceMacros
@@ -32,7 +32,7 @@ _results_views = weakref.WeakKeyDictionary()
 DEF_RESULTS_LEN = 16
 RANKED_OFFSET = 4
 # Battles that update the account statistics, including bot-filled randoms.
-SUPPORTED_BONUS_TYPES = set(getattr(ARENA_BONUS_TYPE, name) for name in ('REGULAR', 'RANDOM_NP2', 'WINBACK')
+SUPPORTED_BONUS_TYPES = set(getattr(ARENA_BONUS_TYPE, name) for name in STATISTICS_BATTLES
                             if hasattr(ARENA_BONUS_TYPE, name))
 EXCLUDED_BONUS_TYPES = {
     ARENA_BONUS_TYPE.EVENT_BATTLES,
