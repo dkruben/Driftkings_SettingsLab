@@ -39,7 +39,8 @@ class GamefaceLoading(object):
             @override(viewClass,event)
             def loading(original,view,*args,**kwargs):
                 result=original(view,*args,**kwargs)
-                if bridge.owner.active:
+                # Only modes whose adapter supports this TAB get the child view.
+                if bridge.owner.active and bridge.owner.supports(screen):
                     try:
                         resource=resource_id(gameface_spec('DriftkingsRatingPlayers')['resource'])
                         child=RatingView(ViewSettings(resource,model=RatingModel()))

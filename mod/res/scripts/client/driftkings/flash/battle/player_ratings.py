@@ -18,6 +18,7 @@ from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import override
+from driftkings.core.mode_adapters import adapter_for
 from driftkings.core.panel_model import Roster
 from driftkings.flash.battle.meta.players_panel import PlayersPanelMeta
 from driftkings.logger import get_logger
@@ -55,6 +56,8 @@ class RatingViews(object):
         self.panelSnapshot=None
         self.lastPayload=None
         self.failures={}
+        # Per-arena mode support; None leaves every screen to the native client.
+        self.adapter=self.adapterArena=None
         owner=self
         class RosterView(PlayersPanelMeta):
             def _populate(self):
@@ -137,6 +140,7 @@ class RatingViews(object):
         self.contextCache.clear()
         self.visibleScreens=set(('panel','loading','tab'))
         self.cacheConfig=self.cacheArena=self.lastPayload=None
+        self.adapter=self.adapterArena=None
         self.cacheVersion=-1
         if hasattr(self,'gameface'): self.gameface.clear()
         self.lastRequest=0
@@ -149,6 +153,26 @@ class RatingViews(object):
     def refresh(self,*args):
         if self.active and self.callback is None:
             self.callback=BigWorld.callback(0,self.tick)
+
+    def modeAdapter(self):
+        arena=getattr(BigWorld.player(),'arena',None)
+        if arena is None: return None
+        if arena is not self.adapterArena:
+            self.adapterArena=arena
+            mode=battle_capabilities.current_mode()
+            self.adapter=adapter_for(mode)
+            LOG.info('Team panels: mode=%s supported=%s',mode,
+                     ','.join(screen for screen in ('loading','panel','tab') if self.supports(screen)) or 'none')
+        return self.adapter
+
+    def supports(self,screen):
+        adapter=self.modeAdapter()
+        return adapter is not None and bool(getattr(adapter,screen))
+
+    def classicModes(self):
+        # Halloween's HWPlayersPanel inherits the classic hooks without having its modes.
+        adapter=self.modeAdapter()
+        return adapter is not None and bool(adapter.panel_modes)
 
     def captureOrder(self,original,controller,data,*args,**kwargs):
         result=original(controller,data,*args,**kwargs)
@@ -196,7 +220,7 @@ class RatingViews(object):
 
     def nativeMode(self,original,panel,mode):
         result=original(panel,mode)
-        if self.active:
+        if self.active and self.classicModes():
             self.panel=weakref.ref(panel)
             self.model.mode=profile_for_mode(mode)
             if not self.hovered and not self.alt: self.baseMode=mode
@@ -209,14 +233,16 @@ class RatingViews(object):
         result=original(panel)
         settings=settings_service.getComponentDict(self.config)[TEAM_PANELS.PLAYERS_PANEL]
         selected=settings.get('startMode')
-        if self.active and settings_service.getComponentDict(self.config)[GLOBAL.ENABLED] and settings[GLOBAL.ENABLED] and selected in PROFILES:
+        if (self.active and self.classicModes() and settings_service.getComponentDict(self.config)[GLOBAL.ENABLED]
+                and settings[GLOBAL.ENABLED] and selected in PROFILES):
             panel._mode=PROFILES.index(selected)
             panel.as_setPanelModeS(panel._mode)
         return result
 
     def nativeHover(self,original,panel,mode):
         settings = settings_service.getComponentDict(self.config)
-        if not self.active or not settings[GLOBAL.ENABLED] or not settings[TEAM_PANELS.PLAYERS_PANEL][GLOBAL.ENABLED]:
+        if (not self.active or not self.classicModes() or not settings[GLOBAL.ENABLED]
+                or not settings[TEAM_PANELS.PLAYERS_PANEL][GLOBAL.ENABLED]):
             return original(panel,mode)
         # Our Flash hit region owns expansion; native rollover would race it.
 
@@ -412,6 +438,7 @@ class RatingViews(object):
         if arena is None: return
         if arena is not self.arena:
             self.model.reset(); self.arena=arena; self.lastRequest=0
+        self.modeAdapter()
         # Statistics, Gameface and Flash fail independently: a broken TAB must not
         # freeze the side panel, and a persistent error must not flood the log.
         try:
@@ -425,12 +452,14 @@ class RatingViews(object):
             enabled=data[GLOBAL.ENABLED]
             screens=set(self.visibleScreens)
             if hasattr(self,'gameface'): screens.update(self.gameface.active_screens())
-            rows=self.rows(self.model.mode,screens) if enabled else []
+            # Unsupported screens are neither resolved nor sent; the native view stays intact.
+            screens=set(screen for screen in screens if self.supports(screen))
+            rows=self.rows(self.model.mode,screens) if enabled and screens else []
         except Exception:
             self.logFailure('Roster'); rows=None
         if rows is not None and hasattr(self,'gameface'):
             try:
-                self.gameface.update(enabled,rows)
+                self.gameface.update(enabled and self.supports('tab'),rows)
             except Exception:
                 self.logFailure('Gameface roster')
         try:
@@ -438,7 +467,7 @@ class RatingViews(object):
                 # The Flash panel settings are copied once per configuration version.
                 if self.panelSnapshot is None:
                     self.panelSnapshot=deepcopy(data[TEAM_PANELS.PLAYERS_PANEL])
-                payload={'enabled':enabled,
+                payload={'enabled':enabled and self.supports('panel'),
                     'rows':rows,'panel':self.panelSnapshot, 'mode':self.model.mode,
                     'loadingClock':{'enabled':data[TEAM_PANELS.LOADING][GLOBAL.ENABLED],
                                     'format':data[TEAM_PANELS.LOADING].get('clockFormat','')},
