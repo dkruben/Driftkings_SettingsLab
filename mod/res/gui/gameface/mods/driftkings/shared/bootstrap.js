@@ -106,6 +106,7 @@
             "scripts": [
                 "coui://gui/gameface/mods/driftkings/panel_gameface/rating_text.js",
                 "coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js",
+                "coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js",
                 "coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js"
             ],
             "styles": []

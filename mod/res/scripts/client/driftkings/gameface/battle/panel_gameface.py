@@ -3,20 +3,25 @@ from driftkings._constants import GLOBAL, TEAM_PANELS
 from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.service import settings_service
 
-"""Gameface roster bridge for the current random TAB."""
+"""Gameface roster bridge for the random TAB and the Halloween TAB table."""
 import json
 import math
+import sys
 import weakref
 
 from driftkings.core.diagnostics import diagnostics
 from driftkings.core.hooks import override
 from driftkings.logger import get_logger
 
+# Extension TAB views, hooked once their battle page has imported them.
+EXTENSION_TABS = {'halloween': ('halloween.gui.impl.battle.full_stats', 'TabScreen')}
+
 
 class GamefaceLoading(object):
     def __init__(self,owner):
         self.owner=owner
         self.children=weakref.WeakKeyDictionary()
+        self.watched=set()
         from frameworks.wulf import ViewModel, ViewSettings
         from frameworks.wulf.gui_constants import ShowingStatus
         from gui.impl.pub import ViewImpl
@@ -35,20 +40,20 @@ class GamefaceLoading(object):
             def _getEvents(self):
                 return tuple(super(RatingView,self)._getEvents()) + (
                     (self.getViewModel().onPerformance, bridge.reportPerformance),)
-        def install(viewClass,event,screen):
+        def install(viewClass,event,screen,kind):
             @override(viewClass,event)
             def loading(original,view,*args,**kwargs):
                 result=original(view,*args,**kwargs)
-                # Only modes whose adapter supports this TAB get the child view.
-                if bridge.owner.active and bridge.owner.supports(screen):
+                # Only the TAB view named by the mode adapter gets the child view.
+                if bridge.owner.active and bridge.owner.tabKind()==kind:
                     try:
                         resource=resource_id(gameface_spec('DriftkingsRatingPlayers')['resource'])
                         child=RatingView(ViewSettings(resource,model=RatingModel()))
                         view.setChildView(resource,child)
-                        bridge.children[view]={'child':child,'resource':resource,'screen':screen,'data':None,
+                        bridge.children[view]={'child':child,'resource':resource,'screen':screen,'kind':kind,'data':None,
                             'visible':view.showingStatus in (ShowingStatus.SHOWING,ShowingStatus.SHOWN)}
                         bridge.owner.refresh()
-                        get_logger('Driftkings.PlayerPanelPro').info('Gameface roster attached: %s',screen)
+                        get_logger('Driftkings.PlayerPanelPro').info('Gameface roster attached: %s (%s)',screen,kind)
                     except Exception:
                         get_logger('Driftkings.PlayerPanelPro').exception('Gameface roster bridge failed')
                 return result
@@ -66,11 +71,23 @@ class GamefaceLoading(object):
                     return result
             visibility('_onShown',True)
             visibility('_onHidden',False)
+        self.install=install
         try:
             from gui.impl.battle.battle_page.tab_view import TabView
-            install(TabView,'_onLoaded','tab')
+            install(TabView,'_onLoaded','tab','classic')
         except ImportError:
             get_logger('Driftkings.PlayerPanelPro').debug('TabView unavailable in this client')
+
+    def watch(self,kind):
+        # Importing an extension view from the lobby could run its battle code
+        # early: hook it only once the extension's own battle page loaded it.
+        if kind not in EXTENSION_TABS or kind in self.watched: return
+        name,attribute=EXTENSION_TABS[kind]
+        viewClass=getattr(sys.modules.get(name),attribute,None)
+        if viewClass is None: return
+        self.watched.add(kind)
+        self.install(viewClass,'_onLoaded','tab',kind)
+        get_logger('Driftkings.PlayerPanelPro').info('Gameface roster watching %s.%s',name,attribute)
 
     def active_screens(self):
         return set(record['screen'] for record in self.children.values() if record.get('visible',True))
@@ -104,7 +121,7 @@ class GamefaceLoading(object):
 
     def update(self,enabled,rows):
         if not self.children: return
-        result=None
+        result=table=None
         for view,record in list(self.children.items()):
             if view.getChildView(record['resource']) is not record['child']:
                 self.children.pop(view, None)
@@ -112,6 +129,13 @@ class GamefaceLoading(object):
             screen=record['screen']
             if not record.get('visible',True) or not enabled:
                 data={'enabled':False,'screen':screen,'rows':[]}
+            elif record.get('kind')=='halloween':
+                # A separate allies table: the native TabScreen rows are never touched.
+                if table is None:
+                    table=sorted((dict(row['summary'],id=row['id'],index=row['index']) for row in rows
+                                  if row.get('summary') and row['summary']['enabled']),key=lambda row:row['index'])
+                diagnostics_on=settings_service.getComponentDict(self.owner.config)[TEAM_PANELS.PERFORMANCE].get('diagnostics',False)
+                data={'enabled':enabled,'screen':'hwTab','rows':table,'diagnostics':diagnostics_on}
             else:
                 # Resolved rows are immutable snapshots, shared by active child views.
                 if result is None:

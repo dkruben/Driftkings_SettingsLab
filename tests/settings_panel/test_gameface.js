@@ -6,6 +6,7 @@ require('./test_all_pages.js');
 require('./test_vehicle_markers_model.js');
 require('./test_vehicle_markers_editor.js');
 require('./test_ratings.js');
+require('./test_halloween_tab.js');
 require('./test_main_gun.js');
 require('./test_flash_text.js');
 require('./test_profile_ratings.js');

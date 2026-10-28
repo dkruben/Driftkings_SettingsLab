@@ -8,20 +8,23 @@ from collections import namedtuple
 
 # Native PLAYERS_PANEL_STATE profiles of the classic panel (settings_data.PROFILES).
 CLASSIC_PANEL_MODES = ('none', 'short', 'medium', 'medium2', 'large')
+# tab: which TAB view gets the roster ('classic' TabView, 'halloween' TabScreen) or None.
 # order: 'native' follows the statistics exchange (captureOrder); 'mod' sorts the
 # roster here, for modes whose exchange is incomplete.
+# event_numbers: show numeric statistics although the mode is an event mode.
 ModeAdapter = namedtuple('ModeAdapter', ('mode', 'loading', 'panel', 'tab', 'enemies', 'team_size',
-                                         'panel_modes', 'order'))
+                                         'panel_modes', 'order', 'event_numbers'))
 
 ADAPTERS = {
     # RANDOM_RANGE includes EPIC_RANDOM (30 vs 30) besides the 15 vs 15 randoms.
-    'random': ModeAdapter('random', loading=True, panel=True, tab=True, enemies=True, team_size=30,
-                          panel_modes=CLASSIC_PANEL_MODES, order='native'),
+    'random': ModeAdapter('random', loading=True, panel=True, tab='classic', enemies=True, team_size=30,
+                          panel_modes=CLASSIC_PANEL_MODES, order='native', event_numbers=False),
     # HWPlayersPanel (allies only, no panel modes), Gameface loading and TabScreen.
     # The panel AS3 layout is not in the reference sources, so nothing is drawn
-    # over it until the alignment is validated in game.
-    'halloween': ModeAdapter('halloween', loading=False, panel=False, tab=False, enemies=False, team_size=5,
-                             panel_modes=(), order='mod'),
+    # over it until the alignment is validated in game. The TAB gets a separate
+    # allies table with numeric statistics, beside the native content.
+    'halloween': ModeAdapter('halloween', loading=False, panel=False, tab='halloween', enemies=False, team_size=5,
+                             panel_modes=(), order='mod', event_numbers=True),
 }
 
 
