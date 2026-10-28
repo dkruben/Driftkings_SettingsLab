@@ -15,8 +15,12 @@ assert.strictEqual(host.querySelector('.dk-car-favorite-img').style.left,'100%')
 assert.strictEqual(host.querySelector('.dk-car-tank-img').style.left,'50%');
 assert.strictEqual(host.querySelector('.dk-live-note').textContent,DK.t('car.note'));
 assert.strictEqual(DK.carouselPreview.macros('{{v.winrate%.1f}} {{v.c_winrate}}',vehicle),'55.5 #123456');
+assert.strictEqual(DK.carouselPreview.macros('{{v.c_tdb}} / {{v.c_wn8expd}}',
+    Object.assign({},vehicle,{colors:{avgDamage:'#123456',wn8expd:'#654321'}})),'#123456 / #654321');
 assert.strictEqual(DK.carouselPreview.macros('{{v.tfb?yes|no}}',vehicle),'no','zero frags is false like the live Python renderer');
 assert.strictEqual(DK.carouselPreview.macros('{{icon:marksOnGun}}',vehicle),'gui/maps/icons/marksOnGun/95x85/usa_2_marks.png');
+assert.strictEqual(DK.carouselPreview.macros('{{icon:marksOnGun}}',Object.assign({},vehicle,{stats:{marksOnGun:0}})),
+    'gui/maps/driftkings/carroucel/mark_0.png');
 preview.update(data.state.values[mod.id],{},null);
 assert(host.querySelectorAll('.dk-car-card').length>1,'standalone tools retain labeled examples');
 preview.dispose();DK.app.dispose();
@@ -30,9 +34,24 @@ fields.update({[id('carousel.cellType')]:1,[id(fieldPath+'color')]:'#123456',
     [id(fieldPath+'width')]:80,[id(fieldPath+'height')]:30,[id(fieldPath+'align')]:2,
     [id(fieldPath+'shadow.enabled')]:false});
 const field=fieldHost.querySelector('.dk-car-field');
+assert.strictEqual(fieldHost.querySelector('.dk-car-xp').style.left,'0%');
+assert.strictEqual(fieldHost.querySelector('.dk-car-level').style.right,'30rem');
+assert.strictEqual(fieldHost.querySelector('.dk-car-level').style.bottom,'25rem');
+assert.strictEqual(fieldHost.querySelector('.dk-car-name').style.right,'8rem');
+assert.strictEqual(fieldHost.querySelector('.dk-car-name').style.bottom,'6rem');
 assert.strictEqual(field.style.fontSize,'21rem');assert.strictEqual(field.style.color,'#123456');
 assert.strictEqual(field.style.justifyContent,'flex-end');
 assert.strictEqual(field.querySelector('img').style.width,'25rem','icon size is independent of field width');
 assert(!field.style.textShadow,'disabled field shadows stay disabled');
+const moved = {[id('carousel.cellType')]:1,
+    [id('carousel.normal.fields.level.dx')]:12,[id('carousel.normal.fields.level.dy')]:-3,
+    [id('carousel.normal.fields.level.scale')]:1.5,[id('carousel.normal.fields.level.alpha')]:40};
+fields.update(moved);
+assert.strictEqual(fieldHost.querySelector('.dk-car-level').style.transform,'translate(12rem,-3rem) scale(1.5)');
+assert.strictEqual(fieldHost.querySelector('.dk-car-level').style.right,'30rem','editing offsets preserves the native anchor');
+assert.strictEqual(fieldHost.querySelector('.dk-car-level').style.opacity,0.4);
+moved[id('carousel.normal.fields.level.enabled')]=false;
+fields.update(moved);
+assert.strictEqual(fieldHost.querySelector('.dk-car-level'),null,'native fields obey visibility');
 fields.dispose();next.DK.app.dispose();
 console.log('Carousel fictional data, native anchors, rating colours and fallback passed');

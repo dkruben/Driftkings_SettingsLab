@@ -8,7 +8,7 @@
     'use strict';
     var DK = window.DK, h = DK.h, t = DK.t;
     var SCALE = ['#FE0E00', '#FE7903', '#F8F400', '#A6FFA6', '#02C9B3', '#D042F3'];
-    var LIMITS = {winrate: [47, 49, 52, 57, 62], battles: [100, 300, 1000, 2000, 5000], hitsRatio: [60, 66, 72, 78, 84],
+    var LIMITS = {tdb: [500, 750, 1000, 1800, 2500], winrate: [47, 49, 52, 57, 62], battles: [100, 300, 1000, 2000, 5000], hitsRatio: [60, 66, 72, 78, 84],
                   damageRating: [20, 50, 65, 85, 95], wn8effd: [0.5, 0.7, 0.9, 1.2, 1.9], wn8: [300, 900, 1500, 2300, 3200]};
     var SHADOW = {alpha: 80, blur: 2, color: '#000000', distance: 0, angle: 0, enabled: true, strength: 2};
     var VEHICLES = [
@@ -23,9 +23,9 @@
     var CLASS_COLORS = {lightTank: '#53b329', mediumTank: '#1ea2d2', heavyTank: '#957d5b', 'AT-SPG': '#f13439', SPG: '#b87ab2'};
     // Approximate places of the client's own card elements, as fractions of the card.
     var NATIVE = {
-        flag: {x: 0, y: 0, w: 1, h: 1}, tankIcon: {x: 0.5, y: 0.5}, tankType: {x: 0.03, y: 0.04},
-        level: {x: 0.11, y: 0.03}, tankName: {x: 0.97, y: 0.80}, xp: {x: 0.80, y: 0.03}, favorite: {x: 1, y: 1},
-        info: {x: 0.30, y: 0.42}, progressionPoints: {x: 0.72, y: 0.82}
+        flag: {x: 0, y: 0, w: 1, h: 1}, tankIcon: {x: 0.5, y: 0.5}, tankType: {right: 8, bottom: 25},
+        level: {right: 30, bottom: 25}, tankName: {right: 8, bottom: 6}, xp: {x: 0, y: 0}, favorite: {x: 1, y: 1},
+        info: {x: 0.30, y: 0.42}, progressionPoints: {right: 8, top: 4}
     };
 
     function supports(mod) { return String(mod.id).split(':')[0] === 'legacy.CarouselStats'; }
@@ -44,7 +44,7 @@
             var key = name.slice(2);
             if (key === 'type') { return CLASS_COLORS[vehicle.type] || '#957d5b'; }
             if (vehicle.colors) { return vehicle.colors[aliases[key] || key] || null; }
-            return colorOf(key, vehicle.stats[key]);
+            return colorOf(key === 'wn8expd' ? 'tdb' : key, vehicle.stats[key]);
         }
         if (name === 'name') { return vehicle.name; }
         if (name === 'premium') { return vehicle.premium || null; }
@@ -65,8 +65,9 @@
         if (body.indexOf('icon:') === 0) {
             var kind = body.slice(5);
             if (kind === 'mastery' && vehicle.stats.mastery) { return DK.assets.mastery(vehicle.stats.mastery); }
-            if (kind === 'marksOnGun' && vehicle.stats.marksOnGun) {
+            if (kind === 'marksOnGun') {
                 var count = vehicle.stats.marksOnGun;
+                if (!count) { return 'gui/maps/driftkings/carroucel/mark_0.png'; }
                 return vehicle.colors ? 'gui/maps/icons/marksOnGun/95x85/' + vehicle.nation + '_' + count + '_' + (count === 1 ? 'mark' : 'marks') + '.png' : DK.assets.marks(count);
             }
             if (vehicle.colors) {
@@ -229,8 +230,11 @@
             if (!node) { return; }
             card.appendChild(node);
             node.style.position = 'absolute';
-            node.style.left = (place.x * 100) + '%';
-            node.style.top = (place.y * 100) + '%';
+            if (place.right !== undefined) { node.style.right = place.right + 'rem'; }
+            else { node.style.left = (place.x * 100) + '%'; }
+            if (place.bottom !== undefined) { node.style.bottom = place.bottom + 'rem'; }
+            else if (place.top !== undefined) { node.style.top = place.top + 'rem'; }
+            else { node.style.top = (place.y * 100) + '%'; }
             if (place.w) { node.style.width = (place.w * 100) + '%'; node.style.height = (place.h * 100) + '%'; }
             node.style.opacity = DK.clamp(Number(v(p + 'alpha', 100)), 0, 100) / 100;
             node.style.transform = 'translate(' + v(p + 'dx', 0) + 'rem,' + v(p + 'dy', 0) + 'rem) scale(' + v(p + 'scale', 1) + ')';
@@ -242,8 +246,7 @@
             } else if (key === 'favorite') {
                 node.style.width = '22rem'; node.style.height = '27rem';
                 node.style.transform = 'translate(-100%,-100%) ' + node.style.transform;
-            } else if (key === 'tankName') {
-                node.style.transform = 'translateX(-100%) ' + node.style.transform;
+
             } else if (key === 'flag') {
                 node.style.width = (profile === 'small' ? 120 : 128) + 'rem';
                 node.style.height = (profile === 'small' ? 90 : 96) + 'rem';
@@ -264,11 +267,12 @@
             });
             native(node, profile, 'tankIcon', vehicle, function () { return withFallback(h('img.dk-car-tank-img', {src: DK.asset(vehicle.image || DK.assets.tank(vehicle.tank))})); });
             native(node, profile, 'tankType', vehicle, function () { return withFallback(h('img.dk-car-type-img', {src: DK.asset(DK.assets.type(vehicle.type))})); });
-            native(node, profile, 'level', vehicle, function () { return withFallback(h('img.dk-car-level-img', {src: DK.asset(DK.assets.level(vehicle.tier))})); });
+            native(node, profile, 'level', vehicle, function () { return h('div.dk-car-level', {text: vehicle.level}); });
             native(node, profile, 'tankName', vehicle, function () { return h('div.dk-car-name' + (vehicle.premium ? '.is-premium' : ''), {text: vehicle.name}); });
-            native(node, profile, 'xp', vehicle, function () { return vehicle.xp ? h('div.dk-car-xp', {text: vehicle.xp}) : null; });
+            native(node, profile, 'xp', vehicle, function () { return vehicle.xp ? h('div.dk-car-xp', {text: '★ ' + vehicle.xp}) : null; });
             native(node, profile, 'favorite', vehicle, function () { return vehicle.favorite ? withFallback(h('img.dk-car-favorite-img', {src: DK.asset(DK.assets.favorite)})) : null; });
             native(node, profile, 'info', vehicle, function () { return vehicle.info ? h('div.dk-car-info', {text: t('car.inBattle')}) : null; });
+            native(node, profile, 'progressionPoints', vehicle, function () { return h('div.dk-car-progression', {text: vehicle.progression || '0/400'}); });
             layers.over = h('div.dk-car-layer', null, null, node);
             for (var i = 0; i < 64; i++) {
                 if (!has('carousel.' + profile + '.extraFields.' + i + '.x')) { break; }

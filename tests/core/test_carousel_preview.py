@@ -3,6 +3,32 @@ from support import RuntimeTest, game_source, module
 
 
 class CarouselPreviewTests(RuntimeTest):
+    def test_absolute_damage_colours_evaluate_each_value_independently(self):
+        api, _ = game_source('lobby/vehicle_carousel.py')
+        api['layout'] = self.load('core.carousel')
+        api['normalize_icon_paths'] = lambda value: value
+        api['settings_service'] = module(getComponentDict=lambda config: {})
+        calls = []
+        def color(metric, value, palette):
+            calls.append((metric, value))
+            return '#123456' if value == 2380 else '#654321'
+        api['getStatisticColor'] = color
+        result = api['render_macro']('{{v.c_tdb}} / {{v.c_wn8expd}}', {'avgDamage': 2380, 'wn8expd': 1950})
+        self.assertEqual(result, '#123456 / #654321')
+        self.assertEqual(calls, [('tdb', 2380), ('tdb', 1950)])
+
+    def test_zero_marks_icon_does_not_replace_earned_marks(self):
+        api, _ = game_source('lobby/vehicle_carousel.py')
+        api['layout'] = self.load('core.carousel')
+        api['normalize_icon_paths'] = lambda value: value
+        api['bounded'] = lambda value, low, high, default: default if value is None else value
+        self.assertEqual(api['render_macro']('{{icon:marksOnGun}}', {'marksOnGun': 0}),
+                         'coui://gui/maps/driftkings/carroucel/mark_0.png')
+        for rank in (1, 2, 3):
+            suffix = 'mark' if rank == 1 else 'marks'
+            self.assertEqual(api['render_macro']('{{icon:marksOnGun}}', {'marksOnGun': rank, 'nation': 'usa'}),
+                             'coui://gui/maps/icons/marksOnGun/95x85/usa_%d_%s.png' % (rank, suffix))
+
     def test_settings_preview_uses_the_draft_palette_only_for_the_carousel(self):
         requested = []
         api, _ = game_source('settings/panel/presenter.py', {

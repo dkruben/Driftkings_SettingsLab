@@ -45,3 +45,31 @@ O autor clarificou que a preview do carrossel pode usar dois veículos e estatí
 - Comparado o renderer de preview com `core.carousel.build_profile` e `vehicle_carousel/carousel_layout.js`: corrigidos cor/tamanho base do texto, tamanho independente do ícone, cor de fundo com macros, alinhamento flex e parâmetros de sombra. O nome do veículo passa a ancorar à direita.
 - Testes JavaScript/ESLint e testes específicos Python 2.7/3 aprovados. A reprodução visual das proporções nativas, das variantes normal/compacto e da ausência de cortes a 140% ainda necessita de confirmação no Gameface. Não se considera a preview integralmente equivalente ao renderer nativo.
 - A captura do carrossel real sem estatísticas não foi tratada como prova de falha de recolha: o autor esclareceu que a tarefa é a coerência da preview. Não foram alterados os hooks nem o renderer dos cartões reais nesta intervenção.
+
+## Persistência do corte na beta.1 — diagnóstico no EU
+
+- O WOTMOD instalado tem `markers.js` e `panel.css` com hashes iguais à release 0.1.4-beta.1. O arranque no game.log confirma a beta.1. A captura recente `shot_005.jpg`, indicada no log, também mostra a beta.1 e os inputs/botões comprimidos na margem direita. Não era ausência da atualização.
+- A tentativa anterior dependia de `flex-wrap` e `flex-basis: 100%` em referências aninhadas. Substituída por fluxo de blocos explícito para a linha e o contentor dos controlos, com campo e botão a ocupar a largura da coluna. Os grupos deixam igualmente de depender de wrapping.
+- Suite JavaScript e ESLint aprovados. A build de diagnóstico usa VERSION empacotada `0.1.4-beta.2`, modo debug, sem mudar a versão de fonte nem os ficheiros da release publicada: `build/debug/beta/0.1.4-beta.2`. Não foi instalada no EU ou publicada. Necessita de confirmação visual no cliente.
+
+## Secção Rating — 28 outubro 2026
+
+Acrescentado acesso direto a Rating na lista de elementos dos marcadores. A entrada encontra o campo de rating efetivamente usado pela equipa/estado/modo, incluindo referência ao modelo partilhado ou definição inline, e abre o mesmo editor de propriedades (enabled, x, y, alpha, formato, textFormat e shadow). Não duplica o modelo nem altera as referências. Teste de edição/gravação do interruptor no documento vivo/normal aprovado, juntamente com a suite JavaScript e ESLint. Build de diagnóstico beta.2 atualizada, sem publicação ou instalação no EU.
+
+## Base nativa dos cartões — 28 outubro 2026
+
+A anotação do autor distingue os campos originais (multiplicador, nível, tipo e nome) dos campos acrescentados pelo mod. Corrigidas as âncoras de preview: multiplicador no topo esquerdo, nível/tipo e nome no fundo direito, antes de aplicar enabled/dx/dy/alpha/scale do perfil. Removido o badge verde inventado; usadas a bandeira `hangar/carousel/cards/flags/x400x300` e a textura nativa `corners/multiplier.png`, confirmadas nos pacotes EU. O contador de progressão tem representação na preview e respeita a opção correspondente. Testes verificam âncoras, preservação das posições base ao mudar offsets, escala, opacidade e visibilidade. Mantêm-se dois exemplos fictícios e a necessidade de validação visual no Gameface. Sem alterar a release publicada ou o renderer real.
+
+## Ícone da taxa de acerto — 28 outubro 2026
+
+Proposta de mira metálica dourada aprovada pelo autor. Substituído shooter.png por PNG RGBA de 32×32, exportado mecanicamente da imagem gerada aprovada, preservando transparência. O caminho existente e a apresentação configurada de 18×18 permanecem válidos para o carrossel e a preview. Sem publicação ou instalação no EU.
+
+## Ícone para zero marcas — 28 outubro 2026
+
+Aprovada a proposta de cano sem estrela, adaptada com o gerador de imagens a partir da referência nativa `usa_1_mark.png`. Guardada como `mod/res/gui/maps/driftkings/carroucel/mark_0.png`, PNG RGBA transparente de 64×64. Macro de marcas devolve este ícone para zero, conservando as imagens nativas por nação para 1–3; preview alinhada com o mesmo comportamento. No default normal, substituída a opacidade condicional `{{v.marksOnGun?100|0}}` por 100; fallback Python e snapshot regenerados. Perfis pessoais antigos podem manter a condição: é necessário retirar essa condição para visualizar o estado sem marca. Não se reescreveram os perfis EU. Testes Python/JavaScript, lint e build data aprovados. Ainda não incluído numa nova build nem publicado.
+
+## Cores de dano independentes — 28 outubro 2026
+
+Mantida `v.c_tdb` para dano médio absoluto e acrescentado mapeamento de `v.c_wn8expd` à mesma escala de dano absoluto, avaliada com o valor esperado. `v.c_wn8effd` continua a representar a razão dano/esperado. A preview acompanha os valores separados; testes confirmam duas chamadas com valores distintos e permitem cores diferentes. Cores podem coincidir se os valores pertencerem à mesma faixa. Alteração local, ainda sem nova build.
+
+Validação antes do commit pedido em 28 outubro: 448 testes core, suite JavaScript, ESLint, defaults e build data aprovados. Alterações registadas em develop; sem push, publicação ou instalação no EU neste passo.

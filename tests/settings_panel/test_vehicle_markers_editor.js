@@ -51,6 +51,9 @@ const shared=DK.markers.create(host,mod,{commit:(...v)=>commits.push(v),action()
 shared.update(data.state.values[mod.id],{disabled:[],changed:[]});
 byText(mod.preview.labels.textFields).fire('click');
 const reference=host.querySelector('.is-reference');assert(reference,'string references have a dedicated wrapping row');
+assert.strictEqual(reference.style.display,'block');
+assert.strictEqual(reference.querySelector('.dk-mk-input').style.display,'block');
+assert.strictEqual(reference.querySelector('.dk-mk-input').style.width,'100%');
 reference.querySelector('button').fire('click');
 assert(host.querySelector('.dk-mk-title').textContent.includes('def'));
 const formatRow=host.querySelectorAll('[data-property]').find(n=>/def\.tankName\.format$/.test(n.getAttribute('data-property')));
@@ -59,5 +62,16 @@ formatRow.querySelector('input').value='Updated {{vehicle}}';formatRow.querySele
 const saved=JSON.parse(commits[commits.length-1][1]);
 assert.strictEqual(saved.def.tankName.format,'Updated {{vehicle}}');
 assert.strictEqual(saved.ally.textFields[0], '${def.tankName}', 'editing shared properties preserves the reference');
+byText(mod.preview.labels.ratingType,host.querySelector('.dk-markers-list')).fire('click');
+assert(host.querySelector('.dk-mk-title').textContent.includes('rating'));
+for(const property of ['enabled','x','y','alpha','format']) {
+    assert(host.querySelectorAll('[data-property]').some(n=>n.getAttribute('data-property').endsWith('def.rating.'+property)),property);
+}
+const ratingOn=host.querySelectorAll('[data-property]').find(n=>n.getAttribute('data-property').endsWith('def.rating.enabled'));
+ratingOn.querySelector('.dk-switch').fire('click');
+const ratingSaved=JSON.parse(commits[commits.length-1][1]);
+assert.strictEqual(ratingSaved.def.rating.enabled,false);
+assert.strictEqual(commits[commits.length-1][0],mod.preview.bindings.markersAliveNormal);
+assert.strictEqual(ratingSaved.ally.textFields[3],'${def.rating}');
 shared.dispose();DK.app.dispose();
 console.log('Redesigned markers: destroyed/Alt scope, empty arrays, original fonts, invalid JSON and immutable drafts passed');

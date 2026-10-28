@@ -38,7 +38,7 @@ ICONS = {
 }
 COLOR_KEYS = {
     'wn8': 'wn8', 'eff': 'eff', 'xwn8': 'x', 'xeff': 'x',
-    'winRate': 'winrate', 'avgDamage': 'tdb', 'marks': 'mog',
+    'winRate': 'winrate', 'avgDamage': 'tdb', 'wn8expd': 'tdb', 'marks': 'mog',
     'damageRatio': 'damageRatio', 'damageHP': 'damageHP',
     'hitRate': 'hitsRatio', 'avgFrags': 'tfb', 'avgSpotted': 'tsb',
     'battles': 't_battles'
@@ -143,7 +143,7 @@ def render_macro(template, values):
             rank = int(bounded(values.get('marksOnGun'), 0, 3, 0))
             nation = values.get('nation', 'ussr')
             suffix = 'mark' if rank == 1 else 'marks'
-            return 'coui://gui/maps/icons/marksOnGun/95x85/%s_%d_%s.png' % (nation, rank, suffix) if rank else ''
+            return 'coui://gui/maps/icons/marksOnGun/95x85/%s_%d_%s.png' % (nation, rank, suffix) if rank else 'coui://gui/maps/driftkings/carroucel/mark_0.png'
         if key == 'mastery':
             rank = values.get('mastery')
             rank = int(rank) if rank in (1, 2, 3, 4) else 0

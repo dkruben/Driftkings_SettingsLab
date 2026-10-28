@@ -356,7 +356,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-markers-editor { flex: 1 1 auto; min-width: 0; overflow: hidden; padding-right: 14rem; }
 .dk-mk-title { margin-bottom: 8rem; font-size: 12rem; font-weight: 700; letter-spacing: 1.2rem; text-transform: uppercase; color: #8c8677; }
 .dk-mk-row { display: flex; align-items: center; min-height: 34rem; border-bottom: 1rem solid rgba(74, 70, 62, 0.3); }
-.dk-mk-row.is-group { flex-wrap: wrap; padding: 6rem 0; }
+.dk-mk-row.is-group { display: block; width: 100%; padding: 6rem 0; }
 .dk-mk-label { width: 150rem; flex-shrink: 0; padding-right: 10rem; font-size: 12.5rem; color: #b3ae9f; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dk-mk-row.is-group > .dk-mk-label { width: 100%; font-weight: 700; color: #e8e4da; }
 .dk-mk-input { display: flex; align-items: center; flex: 1 1 auto; min-width: 0; }
@@ -485,7 +485,8 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-car-level { font-size: 14rem; font-weight: 700; color: #f2e3b5; }
 .dk-car-name { font-size: 15rem; color: #e8e4da; white-space: nowrap; text-shadow: 0 0 3rem #000000; }
 .dk-car-name.is-premium { color: #ffa759; }
-.dk-car-xp { padding: 1rem 6rem; border-radius: 3rem; background: #2e6f3e; font-size: 12rem; font-weight: 700; }
+.dk-car-xp { padding: 3rem 4rem; background: url('coui://gui/maps/icons/hangar/carousel/cards/corners/multiplier.png') left top / contain no-repeat; color: #eeede9; font-size: 13rem; font-weight: 700; text-shadow: 0 1rem 3rem #000000; }
+.dk-car-progression { font-size: 12rem; color: #c8c8b5; text-shadow: 0 1rem 3rem #000000; }
 .dk-car-favorite { color: #f2c14e; font-size: 14rem; }
 .dk-car-info { font-size: 13rem; color: #ffd24a; text-shadow: 0 0 3rem #000000; white-space: nowrap; }
 .dk-car-field { position: absolute; display: flex; align-items: center; white-space: nowrap; line-height: 1.1; }
@@ -530,9 +531,9 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 
 /* Reference actions must stay inside the property column, including at 140% UI scale. */
 .dk-mk-input > .dk-field { flex: 1 1 0; min-width: 0; }
-.dk-mk-row.is-reference { flex-wrap: wrap; padding: 6rem 0; }
+.dk-mk-row.is-reference { display: block; width: 100%; padding: 6rem 0; }
 .dk-mk-row.is-reference > .dk-mk-label { width: 100%; margin-bottom: 4rem; }
-.dk-mk-row.is-reference > .dk-mk-input { flex: 1 1 100%; flex-wrap: wrap; }
-.dk-mk-row.is-reference .dk-field { flex-basis: 100%; }
-.dk-mk-row.is-reference .dk-button { width: 100%; margin: 6rem 0 0; white-space: normal; }
+.dk-mk-row.is-reference > .dk-mk-input { display: block; width: 100%; }
+.dk-mk-row.is-reference .dk-field { display: block; width: 100%; }
+.dk-mk-row.is-reference .dk-button { display: block; width: 100%; margin: 6rem 0 0; white-space: normal; }
 .dk-mk-group { min-width: 0; }

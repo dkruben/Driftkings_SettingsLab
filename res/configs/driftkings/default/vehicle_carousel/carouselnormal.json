@@ -74,7 +74,7 @@
       "width": 10,
       "x": 10,
       "y": 70,
-      "alpha": "{{v.marksOnGun?100|0}}",
+      "alpha": 100,
       "format": "<img src='{{icon:marksOnGun}}' width='16' height='16'>"
     },
     {

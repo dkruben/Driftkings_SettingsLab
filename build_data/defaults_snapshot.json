@@ -224,7 +224,7 @@
     {
       "path": "default/vehicle_carousel/carouselnormal.json",
       "source_sha256": "86d8fccfbfc61ed70d22c4426b287223f38a533e84c72da93b9bb581306c3f13",
-      "sha256": "460107e0c914063fa35ef30f81722e377abdeef288fb1c027d04c7c56f7104ee"
+      "sha256": "540b67ae2e2ae7dce6a6eac46fbf5d65c917045dbc80a61ffb9942e0fb152d12"
     },
     {
       "path": "default/vehicle_carousel/carouselsmall.json",
