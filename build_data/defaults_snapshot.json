@@ -16,7 +16,7 @@
     {
       "path": "default/artillery_blast_radius.json",
       "source_sha256": "9b8e680b9bb8d28c4c1cf42e6a3e8ae2de612b2f9f447fb6bd347ce332e9e833",
-      "sha256": "e42110d536cc504be141e3b2b1828a79d028e68e66e64e87c44d928ce12592ff"
+      "sha256": "e7fa6e67f74983d9db1e47ed8d1c79c5f47e2700768427a8d5743c5d612d9b09"
     },
     {
       "path": "default/autoaim_target_indicator.json",

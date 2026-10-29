@@ -15,7 +15,7 @@
   ],
   "enabled": true,
   "modelPathDot": "objects/artydot.model",
-  "modelPathSplash": "objects/artysplash.model",
+  "modelPathSplash": "objects/artysplash_ground.model",
   "showDotOnDefault": true,
   "showModeArcade": false,
   "showModeArty": true,

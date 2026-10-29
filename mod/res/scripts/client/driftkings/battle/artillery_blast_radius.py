@@ -28,6 +28,7 @@ class ArtySplashController(object):
         self.modelSplash = None
         self.modelDot = None
         self.modelSplashCircle = None
+        self.modelSplashCircleInner = None
         self.modelSplashVisible = False
         self.modelDotVisible = False
         self.modelSplashKeyPressed = False
@@ -69,12 +70,23 @@ class ArtySplashController(object):
                 self.modelDot.model.scale = (0.5, 0.5, 0.5)
             self.modelSplash.model.visible = False
             self.modelDot.model.visible = False
-            self.modelSplashCircle = BigWorld.PyTerrainSelectedArea()
+            # Render two rings as terrain-projected decals. The ground-only
+            # model used as their anchor has a fully transparent diffuse map,
+            # so the old 3D splash sphere is not rendered.
             player = BigWorld.player()
             if player is not None:
-                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model', Math.Vector2(2.0, 2.0), 0.5, int("#FFFFFFFF"[1:], 16), player.spaceID)
-            self.modelSplash.model.root.attach(self.modelSplashCircle)
-            self.modelSplashCircle.enableAccurateCollision(False)
+                ring_model = 'content/Interface/CheckPoint/CheckPoint_yellow_black.model'
+                self.modelSplashCircle = BigWorld.PyTerrainSelectedArea()
+                self.modelSplashCircle.setup(ring_model, Math.Vector2(2.0, 2.0), 0.5,
+                                             0xFF22D3EE, player.spaceID)
+                self.modelSplash.model.root.attach(self.modelSplashCircle)
+                self.modelSplashCircle.enableAccurateCollision(False)
+
+                self.modelSplashCircleInner = BigWorld.PyTerrainSelectedArea()
+                self.modelSplashCircleInner.setup(ring_model, Math.Vector2(1.55, 1.55), 0.5,
+                                                  0x6622D3EE, player.spaceID)
+                self.modelSplash.model.root.attach(self.modelSplashCircleInner)
+                self.modelSplashCircleInner.enableAccurateCollision(False)
 
     def stopBattle(self):
         keyboard.unsubscribe(self.injectButton)
@@ -84,8 +96,9 @@ class ArtySplashController(object):
         self.modelSplashKeyPressed = False
         self.modelDotKeyPressed = False
         if self.modelSplash is not None:
-            if self.modelSplashCircle is not None and self.modelSplashCircle.attached:
-                self.modelSplash.model.root.detach(self.modelSplashCircle)
+            for ring in (self.modelSplashCircle, self.modelSplashCircleInner):
+                if ring is not None and ring.attached:
+                    self.modelSplash.model.root.detach(ring)
             self.modelSplash.clear()
         if self.modelDot is not None:
             self.modelDot.clear()
@@ -93,6 +106,7 @@ class ArtySplashController(object):
         self.modelDot = None
         self.scaleSplash = None
         self.modelSplashCircle = None
+        self.modelSplashCircleInner = None
         self.player = None
 
     def working(self):
@@ -146,8 +160,9 @@ class ArtySplashController(object):
             if not self.modelSplashKeyPressed:
                 self.modelSplashVisible = settings[ARTILLERY_BLAST_RADIUS.SHOW_SPLASH_ON_DEFAULT]
             self.modelSplash.model.position = markerPosition
-            if self.modelSplashCircle is not None:
-                self.modelSplashCircle.updateHeights()
+            for ring in (self.modelSplashCircle, self.modelSplashCircleInner):
+                if ring is not None:
+                    ring.updateHeights()
         if self.modelDot is not None and self.modelDot.model:
             if not self.modelDotKeyPressed:
                 self.modelDotVisible = settings[ARTILLERY_BLAST_RADIUS.SHOW_DOT_ON_DEFAULT]

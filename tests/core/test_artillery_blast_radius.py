@@ -27,12 +27,17 @@ class ArtilleryBlastRadiusTests(RuntimeTest):
         super(ArtilleryBlastRadiusTests, self).setUp()
         self.data = dict(DEFAULTS)
         self.keys, self.messages = set(), []
+        self.terrain_area_calls, self.terrain_height_updates = [], []
         self.mode, self.kind, self.tag, self.marker = 'strategic', 'HIGH_EXPLOSIVE', 'SPG', [(1, 2, 3)]
-        area = lambda: module(setup=lambda *args: None, enableAccurateCollision=lambda value: None,
-                              updateHeights=lambda: None, attached=True)
+        area = lambda: module(
+            setup=lambda *args: self.terrain_area_calls.append(args),
+            enableAccurateCollision=lambda value: None,
+            updateHeights=lambda: self.terrain_height_updates.append(True),
+            attached=True)
         self.api, _ = game_source('battle/artillery_blast_radius.py', {
             'driftkings.settings.service': Settings(self.data).service(),
-            'BigWorld': module(Model=module(), PyTerrainSelectedArea=area, player=lambda: None),
+            'BigWorld': module(Model=module(), PyTerrainSelectedArea=area, player=lambda: module(spaceID=7)),
+            'Math': module(Vector2=lambda x, y: (x, y)),
             'AvatarInputHandler.aih_global_binding': module(CTRL_MODE_NAME=MODES),
             'gui.shared.gui_items': module(Vehicle=module(getVehicleClassTag=lambda tags: self.tag)),
             'gui.shared.gui_items.Vehicle': module(VEHICLE_CLASS_NAME=module(SPG='SPG')),
@@ -64,6 +69,11 @@ class ArtilleryBlastRadiusTests(RuntimeTest):
         model = self.controller.modelSplash.model
         self.assertEqual((model.scale, model.position), ((4.5, 4.5, 4.5), (1, 2, 3)))
         self.assertEqual(self.controller.modelDot.model.scale, (0.5, 0.5, 0.5))
+        self.assertEqual(self.controller.modelSplash.path, 'objects/artysplash_ground.model')
+        self.assertEqual(len(self.terrain_area_calls), 2)
+        self.assertEqual(self.terrain_area_calls[0][1:4], ((2.0, 2.0), 0.5, 0xFF22D3EE))
+        self.assertEqual(self.terrain_area_calls[1][1:4], ((1.55, 1.55), 0.5, 0x6622D3EE))
+        self.assertEqual(len(self.terrain_height_updates), 2)
 
     def test_hidden_for_other_shells_classes_and_unselected_modes(self):
         for change in (dict(kind='ARMOR_PIERCING'), dict(tag='heavyTank'), dict(mode='arcade'), dict(mode='sniper'), dict(marker=None)):
