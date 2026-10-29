@@ -9,7 +9,8 @@
   "author": "driftkings",
   "changelog": [
     "BETA NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors; full visual acceptance in the Gameface client is pending.",
-    "Adopt the reference vehicle-marker defaults without XMQP; preserve installed personal profiles and legacy text origins. Match Python and preview geometry, cache text layers per state, and keep recreated health bars below labels.",
+    "Fix intermittent Account Manager clipping with a fullscreen modal viewport and CSS centering; focus the panel and capture Escape before internal controls. Show a mask for saved passwords, reveal them only on request, preserve unchanged passwords on save, and draw checkbox ticks in CSS independently of font glyphs. Build and Gameface regression checks pass; the user confirmed the fixes in the NA client.",
+    "Adopt the reference vehicle-marker defaults; preserve installed personal profiles and legacy text origins. Match Python and preview geometry, cache text layers per state, and keep recreated health bars below labels.",
     "Keep fonts self-contained in Flash and Gameface, preserving dkm and existing aliases. Remove OpenWG Common and its Python font registration package to avoid unrelated GPU settings, FPS limits and native modules. The user reports working fonts and no observed lag in the NA client after removal; a controlled FPS comparison remains pending.",
     "Replace the symbol-font resource with the supplied DriftkingsFont.ttf, using dkm as the configurable font name and preserving the original glyphs and legacy font aliases in Flash and Gameface.",
     "Keep roster view discovery active across empty loading-to-battle transitions so player-panel statistics can resume. Disable integrated marker distances by default to leave the dedicated target-distance module as the sole distance renderer.",
