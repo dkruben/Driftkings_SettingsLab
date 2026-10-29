@@ -207,7 +207,7 @@ The project defaults disable integrated distance to avoid duplicating the dedica
 
 Text layers are cached separately for each team/state/mode and only the active layer is visible. Recreated health bars remain below text; floating damage stays above it. Configuration replacement and native marker disposal remove all cached layers. Sticky/off-screen markers hide custom layers. Disabling the marker system preserves native settings and damage rendering.
 
-Native font registration is provided by the `driftkings.fonts` OpenWG package and its `net.openwg.fonts` dependency; see [Fontes](../FONTES.md). No XMQP registration, events or default fields are included. This integration retains the project's marker bridge and JSON references; it does not import the upstream mod framework or its networking subsystem.
+Font glyphs and aliases are embedded in both Flash movies and registered with `Font.registerFont`; Gameface loads the packaged TTFs through `@font-face`. OpenWG Common is not required; see [Fontes](../FONTES.md). No XMQP registration, events or default fields are included. This integration retains the project's marker bridge and JSON references; it does not import the upstream mod framework or its networking subsystem.
 
 Run `npm --prefix build_tools/javascript test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
 

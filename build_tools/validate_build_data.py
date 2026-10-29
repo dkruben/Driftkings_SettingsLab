@@ -122,20 +122,16 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
         require(key not in owners, 'Duplicate archive target %s (%s, %s)' % (target, owners.get(key), owner))
         owners[key] = owner
 
-    for group in [config['python']] + config['python'].get('additional_roots', []):
-        source_root = input_path(root, group['source_root'])
-        relative_path(group['archive_root'])
-        input_path(root, group['staging_root'])
-        python_files = set()
-        for pattern in group['include']:
-            python_files.update(p for p in source_root.glob(pattern) if p.is_file())
-        require(python_files, 'No Python sources: ' + group['source_root'])
-        for path in sorted(python_files):
-            source = path.relative_to(source_root).as_posix()
-            input_path(root, path.relative_to(root).as_posix())
-            target = group['archive_root'] + '/' + str(PurePosixPath(source).with_suffix('.pyc'))
-            claim(target, 'python')
-            plan['python'].append({'source': path.relative_to(root).as_posix(), 'target': target})
+    python_files = set()
+    for pattern in config['python']['include']:
+        python_files.update(p for p in python_root.glob(pattern) if p.is_file())
+    for path in sorted(python_files):
+        source = path.relative_to(python_root).as_posix()
+        input_path(root, path.relative_to(root).as_posix())
+        target = config['python']['archive_root'] + '/' + str(PurePosixPath(source).with_suffix('.pyc'))
+        claim(target, 'python')
+        plan['python'].append({'source': path.relative_to(root).as_posix(), 'target': target})
+    require(python_files, 'No Python sources')
     require((python_root / config['python']['entrypoint']).is_file(), 'Missing mod entrypoint')
     active_entrypoints, declared_configs = [], set()
     manifests = read_components(root, config['components']['source'])

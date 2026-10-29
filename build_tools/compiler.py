@@ -239,12 +239,8 @@ def publish_local(root, candidate, destination, config, generated, compiled, pla
     for name, source in generated.items():
         atomic_copy(source, output_path(root, name))
     for item in plan['python']:
-        for group in [config['python']] + config['python'].get('additional_roots', []):
-            prefix = group['archive_root'] + '/'
-            if item['target'].startswith(prefix):
-                name = item['target'][len(prefix):]
-                atomic_copy(compiled / item['target'], output_path(root, group['staging_root'] + '/' + name))
-                break
+        name = item['target'][len(config['python']['archive_root']) + 1:]
+        atomic_copy(compiled / item['target'], output_path(root, config['python']['staging_root'] + '/' + name))
 
 
 def build(args):

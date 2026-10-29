@@ -10,9 +10,11 @@ A biblioteca `flash_source/shared/as3/driftkings/utils/fontlibrary.as` incorpora
 
 Gameface usa os mesmos TTF em `res/gui/fonts/driftkings`, com declarações `@font-face` partilhadas entre as páginas e o carregador de vistas injetadas. O alias `mono` usa a fonte real, em vez do substituto genérico `monospace`. Os aliases nativos usam a fonte carregada pela vista.
 
-O pacote `driftkings.fonts`, em `res/mods/openwg_packages`, regista agora os cinco TTF e os sete aliases no fornecedor nativo `openwg_fonts`. O carregador OpenWG executa este pacote depois da dependência `net.openwg.fonts`; não é a ordem alfabética dos ficheiros `gui/mods` que determina a inicialização. Os caminhos `gui/fonts/driftkings/*.ttf` pertencem ao VFS do cliente; o fornecedor extrai os recursos arquivados para a sua cache quando necessário. A inicialização repetida do pacote não repete os registos. A finalização não remove aliases globais que outros mods possam usar.
+As fontes Flash são registadas uma vez por biblioteca com `Font.registerFont`, a partir dos glifos incorporados nos próprios SWF. Não há registo Python, DLL adicional ou pacote `driftkings.fonts`. O Gameface continua a carregar os TTF pelos seus `@font-face`. Os nomes `dkm`, `DriftkingsFont`, `xvm` e `XVMSymbol` mantêm o mesmo mapa de símbolos.
 
-A distribuição inclui `net.openwg.common_2.8.5.0000.wotmod`, sem alterações, proveniente do checkout local de referência. O SHA-256 fica fixado em `build_data/build_config.json`, tal como nas restantes dependências. Esta biblioteca inclui componentes nativos além do fornecedor de fontes; a compilação e os testes locais não comprovam a sua execução no cliente. Confirmar no `game.log` os registos `OpenWG/Fonts` e os glifos numa batalha após instalar a nova build. Os SWF mantêm os recursos incorporados, e Gameface mantém os seus `@font-face`.
+O OpenWG Common foi retirado da distribuição: o seu registo de fontes também carregava módulos de GPU, áudio, rede, profiler e outros serviços, além de introduzir limites de FPS e opções na interface nativa. A dependência OpenWG Gameface, usada pelo painel, é separada e mantém-se. Esta remoção isola essa variável para comparação; não demonstra, por si só, a causa de uma quebra de FPS em batalha.
+
+A seleção continua em `embedFonts = false`, para preservar fontes do cliente e HTML com fontes diferentes no mesmo campo. Segundo a documentação Scaleform, os glifos locais incorporados continuam disponíveis como alternativa quando a biblioteca do cliente e o fornecedor de fontes não resolvem o nome. Não se força `embedFonts = true` em todos os textos, pois isso impediria a utilização normal dos aliases localizados do jogo.
 
 Os campos dos marcadores usam também antialiasing avançado, caixas de tamanho fixo e `TextFieldEx.setNoTranslate`, seguindo o comportamento de referência sem traduzir nomes, macros resolvidos ou símbolos.
 
@@ -44,6 +46,6 @@ Nenhuma fonte contém todos os caracteres possíveis. Uma fonte adicional só po
 
 A ordem de procura segue a [documentação Scaleform](https://help.autodesk.com/cloudhelp/ENU/Scaleform-Help/scaleform_help/font/part_3.html). Esta alteração não modifica perfis pessoais nem os recursos/fontes de outros mods.
 
-Validação da substituição: build nativa concluída; testes do registo de fontes, schema dos marcadores em Python 2.7 e Gameface passaram. As tabelas DefineFont3 dos dois SWF contêm doze nomes incorporados; `dkm`, `DriftkingsFont`, `xvm` e `XVMSymbol` incluem 114 glifos e U+0115. A confirmação visual no cliente continua pendente.
+Validação da substituição: build nativa concluída; testes dos recursos e aliases incorporados, schema dos marcadores em Python 2.7 e Gameface passaram. As tabelas DefineFont3 dos dois SWF contêm doze nomes incorporados; `dkm`, `DriftkingsFont`, `xvm` e `XVMSymbol` incluem 114 glifos e U+0115. O utilizador confirmou funcionamento e ausência de lag observado no cliente NA após a remoção do Common. Não foi realizada uma comparação controlada de FPS.
 
 O log EU de 27 outubro, 16:08, continha dois avisos Gameface para `monospace` (pesos 400/700). A substituição desse nome genérico pela fonte `mono` carregada é incluída nesta correção.

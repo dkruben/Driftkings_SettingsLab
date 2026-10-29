@@ -653,11 +653,6 @@
           "source": "mod/res/gui/gameface/mods/driftkings/shared/fonts.css",
           "target": "res/gui/gameface/mods/driftkings/shared/fonts.css",
           "generator": null
-        },
-        {
-          "source": "mod/res/mods/openwg_packages/driftkings_fonts/package.json",
-          "target": "res/mods/openwg_packages/driftkings_fonts/package.json",
-          "generator": null
         }
       ]
     },
