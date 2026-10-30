@@ -9,6 +9,7 @@ from importlib import import_module
 
 import BigWorld
 from Event import Event, EventManager
+import GUI
 import Keys
 import Math
 
@@ -16,7 +17,6 @@ from driftkings._constants import BATTLE_ALIASES
 from driftkings.core.hud_visibility import hudVisibility
 from driftkings.core.keyboard import keyboard
 from driftkings.flash.battle.meta.distance_marker import DistanceMarkerMeta
-import GUI
 
 
 def _component():

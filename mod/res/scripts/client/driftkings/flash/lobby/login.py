@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Native Scaleform login form bridge used by the accounts service."""
+from gui import GUI_SETTINGS
 from gui.Scaleform.daapi.view.login.login_modes.wgc_mode import WgcMode
 from gui.Scaleform.daapi.view.login.LoginView import LoginView
 
 from driftkings.core.hooks import override
-from gui import GUI_SETTINGS
 
 
 def install_login_hooks(controller):

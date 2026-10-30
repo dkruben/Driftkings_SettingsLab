@@ -6,6 +6,7 @@ import os
 import BigWorld
 from CurrentVehicle import g_currentVehicle
 from external_strings_utils import unicode_from_utf8
+from gui import SystemMessages
 from gui.Scaleform.daapi.view.lobby.cyberSport.VehicleSelectorPopup import VehicleSelectorPopup
 from gui.shared.gui_items.processors.tankman import TankmanReturn, TankmanUnload
 from gui.shared.utils import decorators
@@ -21,7 +22,6 @@ from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.settings.definitions.lobby.crew_management import CrewManagementSettings as Settings
 from driftkings.settings.service import settings_service
-from gui import SystemMessages
 
 
 def getCachePath():

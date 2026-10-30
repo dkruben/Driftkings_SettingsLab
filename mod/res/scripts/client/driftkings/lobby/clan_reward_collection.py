@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from adisp import adisp_process
+from gui import SystemMessages
 from gui.clans.clan_cache import g_clanCache
 from gui.clans.data_wrapper.clan_supply import DataNames, PointStatus, QuestStatus
 from gui.impl import backport
@@ -18,7 +19,6 @@ from driftkings._constants import CLAN_REWARD_COLLECTION, GLOBAL
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.clan_reward_collection import ClanRewardCollectionSettings as Settings
 from driftkings.settings.service import settings_service
-from gui import SystemMessages
 
 LOG = get_logger('driftkings.lobby.clan_reward_collection')
 
