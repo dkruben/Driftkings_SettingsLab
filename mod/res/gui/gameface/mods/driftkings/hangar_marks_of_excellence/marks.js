@@ -9,7 +9,7 @@
     var GAP = 8, FALLBACK_WIDTH = 319, FALLBACK_TOP = .45;
     var root = K.node('div', 'dk-moe', document.body);
     var card = K.node('div', 'dk-moe-card', root);
-    var hover = K.node('div', 'dk-moe-card__hover', card);
+    K.node('div', 'dk-moe-card__hover', card);
     var iconBox = K.node('div', 'dk-moe-card__icon', card), icon = K.node('img', '', iconBox);
     icon.alt = '';
     var body = K.node('div', 'dk-moe-card__body', card);
