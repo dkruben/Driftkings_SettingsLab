@@ -51,6 +51,14 @@ def nation_label(nation):
         return nation
 
 
+def mark_icon(nation, marks):
+    """Native gun-mark image for the card; with no mark yet the one-mark image is shown dimmed."""
+    if not nation:
+        return ''
+    count = max(1, min(3, int(finite(marks))))
+    return 'coui://gui/maps/icons/marksOnGun/67x71/%s_%d_%s.png' % (nation, count, 'mark' if count == 1 else 'marks')
+
+
 def goal(percent, moving_average, tier, selection=0, earned_marks=0):
     return hangar_goal(percent, moving_average, tier, selection, earned_marks)
 
@@ -376,6 +384,8 @@ class MarksOnGunData(object):
             'winRate': self._format_float(data['winRate']) + '%' if data['battles'] else '--',
             'battles': self._format_int(data['battles'])
         })
+        result['markColor'] = getStatisticColor('mog', data['damageRating'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING])
+        result['markIcon'] = mark_icon(data['nation'], result['displayMarks'])
         result['milestone'] = milestone_model(data['damageRating'], data['earnedMarks'])
         if result['milestone']['completed']:
             result['targetDamage'] = result['damageNeeded'] = None

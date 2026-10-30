@@ -1,23 +1,50 @@
-/* Full hangar panel; shared geometry and metallic palette live in marks_panel.css. */
-.dk-mog--full .dk-mog__percent { font-size:74rem; }
-.dk-mog--full .dk-mog__metrics { margin-bottom:7rem; }
-.dk-mog--full .dk-mog__history { min-height:40rem; }
-.dk-mog--dense .dk-mog__percent { font-size:60rem; }
-.dk-mog--dense .dk-mog__metric { padding:0 9rem; }
-/* The hangar panel usually runs at a small scale: keep the secondary text readable. */
-.dk-mog--full .dk-mog__vehicle,
-.dk-mog--full .dk-mog__next { font-size:17rem; }
-.dk-mog--full .dk-mog__label { font-size:15rem; }
-.dk-mog--full .dk-mog__note,
-.dk-mog--full .dk-mog__muted,
-.dk-mog--full .dk-mog__footer,
-.dk-mog--full .dk-mog__axis,
-.dk-mog--full .dk-mog__ref { font-size:15rem; }
-.dk-mog--full .dk-mog__footer { flex-wrap:wrap; }
-.dk-mog--full .dk-mog__footer span { margin-right:12rem; }
-.dk-mog--full .dk-mog__tickname { font-size:15rem; width:52rem; margin-left:-26rem; }
-.dk-mog--full .dk-mog__scale { padding-bottom:25rem; }
-.dk-mog--full .dk-mog__ticks { height:21rem; }
-.dk-mog--dense .dk-mog__history,
-.dk-mog--dense .dk-mog__note,
-.dk-mog--dense .dk-mog__footer { display:none; }
+/* Hangar marks card and side panel, styled after the native mission column (HangarWidget / QuestCard).
+   Shared bar, graph and star pieces come from shared/marks_panel.css. */
+.dk-moe { position:fixed; display:none; z-index:20; font-family:Warhelios; color:#eae6d8; pointer-events:auto; }
+.dk-moe-card { position:relative; display:flex; flex-direction:row; align-items:center; box-sizing:border-box; height:64rem; padding:0 12rem 0 0; border:1rem solid rgba(255,255,255,.16); background:rgba(17,18,18,.35); cursor:pointer; text-shadow:0 0 7rem rgba(23,23,23,.4),0 0 4rem rgba(23,23,23,.25),0 1rem rgba(0,0,0,.3); }
+.dk-moe-card__hover { position:absolute; top:3rem; right:3rem; bottom:3rem; left:3rem; background:#ffffff; opacity:0; transition:opacity .1s ease-in-out; }
+.dk-moe-card:hover .dk-moe-card__hover, .dk-moe--open .dk-moe-card__hover { opacity:.05; }
+.dk-moe-card__icon { display:flex; align-items:center; justify-content:center; width:52rem; height:100%; flex-shrink:0; }
+.dk-moe-card__icon img { width:38rem; height:40rem; }
+.dk-moe-card__body { display:flex; flex-direction:column; justify-content:center; flex:1; min-width:0; padding-left:4rem; }
+.dk-moe-card__title { font-size:18rem; line-height:1.3em; color:rgba(234,230,216,.9); white-space:nowrap; letter-spacing:.02em; }
+.dk-moe-card__message { font-size:14rem; line-height:1.2; color:rgba(234,230,216,.6); }
+.dk-moe-card .dk-mog__stars { margin-top:3rem; }
+.dk-moe-card .dk-mog__star { width:16rem; height:16rem; margin:0 3rem 0 0; }
+.dk-moe-card__side { display:flex; flex-direction:column; align-items:flex-end; justify-content:center; flex-shrink:0; }
+.dk-moe-card__percent { font-size:22rem; font-weight:bold; line-height:1.2; }
+.dk-moe-card__more { display:flex; flex-direction:row; align-items:center; margin-top:2rem; font-size:14rem; color:rgba(234,230,216,.6); transition:color .1s ease-in-out; }
+.dk-moe-card:hover .dk-moe-card__more, .dk-moe--open .dk-moe-card__more { color:rgba(234,230,216,.95); }
+/* Points left, toward the side panel. */
+.dk-moe-card__caret { width:0; height:0; margin-left:5rem; border-style:solid; border-color:transparent; border-width:4rem 5rem 4rem 0; border-right-color:rgba(234,230,216,.6); }
+.dk-moe--open .dk-moe-card__caret { border-width:4rem 0 4rem 5rem; border-right-color:transparent; border-left-color:rgba(234,230,216,.95); }
+
+.dk-moe-detail { position:absolute; display:none; right:100%; top:0; width:440rem; margin-right:8rem; box-sizing:border-box; padding:14rem 18rem 16rem; border:1rem solid rgba(255,255,255,.16); background:rgba(17,18,18,.92); box-shadow:0 8rem 24rem rgba(0,0,0,.6); cursor:default; text-shadow:0 1rem 1rem rgba(0,0,0,.4); }
+.dk-moe-detail__head { display:flex; flex-direction:row; align-items:center; justify-content:space-between; padding-bottom:10rem; margin-bottom:10rem; border-bottom:1rem solid rgba(255,255,255,.12); }
+.dk-moe-detail__title { font-size:20rem; font-weight:bold; color:#eae6d8; }
+.dk-moe-detail__close { width:24rem; height:24rem; margin-left:12rem; font-size:24rem; line-height:22rem; text-align:center; color:rgba(234,230,216,.6); cursor:pointer; }
+.dk-moe-detail__close:hover { color:#ffffff; }
+.dk-moe-detail__vehicle { font-size:16rem; color:rgba(234,230,216,.75); margin-bottom:8rem; }
+.dk-moe-detail__hero { display:flex; flex-direction:row; align-items:center; justify-content:space-between; }
+.dk-moe-detail__label { font-size:14rem; letter-spacing:1rem; text-transform:uppercase; color:rgba(234,230,216,.6); }
+.dk-moe-detail__percent { font-size:44rem; font-weight:bold; line-height:1.15; }
+.dk-moe-detail .dk-mog__star { width:26rem; height:26rem; margin:0 0 0 4rem; }
+.dk-moe-detail__progress { margin-top:6rem; }
+.dk-moe-detail .dk-mog__bar { height:10rem; margin:10rem 0; padding:1rem; border:1rem solid rgba(255,255,255,.2); border-radius:0; background:rgba(0,0,0,.45); }
+.dk-moe-detail .dk-mog__fill { border-radius:0; background-image:none; box-shadow:none; }
+.dk-moe-detail .dk-mog__tick { top:-4rem; height:16rem; background:rgba(255,255,255,.35); }
+.dk-moe-detail .dk-mog__tick--hit { background:#ffffff; box-shadow:none; }
+.dk-moe-detail .dk-mog__scale { padding-bottom:20rem; }
+.dk-moe-detail .dk-mog__ticks { height:18rem; }
+.dk-moe-detail .dk-mog__tickname { font-size:14rem; width:50rem; margin-left:-25rem; color:rgba(234,230,216,.55); }
+.dk-moe-detail .dk-mog__tickname--hit { color:#eae6d8; }
+.dk-moe-detail__next { display:flex; flex-direction:row; justify-content:space-between; font-size:15rem; color:rgba(234,230,216,.75); }
+.dk-moe-detail__metrics { display:flex; flex-direction:row; margin:12rem 0 8rem; padding:10rem 0; border-top:1rem solid rgba(255,255,255,.12); border-bottom:1rem solid rgba(255,255,255,.12); }
+.dk-moe-detail__metric { display:flex; flex-direction:column; flex:1; padding:0 12rem; border-left:1rem solid rgba(255,255,255,.12); }
+.dk-moe-detail__metric:first-child { padding-left:0; border-left:0; }
+.dk-moe-detail__value { font-size:24rem; font-weight:bold; color:#eae6d8; margin-top:2rem; }
+.dk-moe-detail__muted { font-size:14rem; line-height:1.3; color:rgba(234,230,216,.55); }
+.dk-moe-detail__history { margin-top:10rem; }
+.dk-moe-detail .dk-mog__graph { border-color:rgba(255,255,255,.2); }
+.dk-moe-detail .dk-mog__axis, .dk-moe-detail .dk-mog__ref { font-size:13rem; }
+.dk-moe-detail__footer { display:flex; flex-direction:column; margin-top:10rem; padding-top:8rem; border-top:1rem solid rgba(255,255,255,.12); font-size:14rem; line-height:1.4; color:rgba(234,230,216,.7); }

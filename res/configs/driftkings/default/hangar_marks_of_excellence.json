@@ -1,15 +1,7 @@
 {
-  "card": {
-    "accentColor": "#E8C55A",
-    "backgroundAlpha": 0.82,
-    "backgroundColor": "#0B141B",
-    "titleColor": "#E8E4DA"
-  },
   "colorRating": 0,
-  "compactMode": true,
   "enabled": true,
   "gameface": {
-    "scale": 0.55,
     "showAdvancedStatistics": true,
     "showDamageStatistics": true,
     "showHistory": true,
@@ -19,14 +11,7 @@
   },
   "goalSelection": 0,
   "historyBattles": 10,
-  "panel": {
-    "alignX": "right",
-    "alignY": "center",
-    "x": -48.0,
-    "y": 96.0
-  },
   "showInHangar": true,
   "showInStatistic": true,
-  "showTooltipTargets": true,
-  "textLock": false
+  "showTooltipTargets": true
 }

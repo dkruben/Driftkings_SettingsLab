@@ -12,7 +12,7 @@ from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.gameface.lobby.common import card_payload, HangarController, install_card, publish_card
 from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.service import affects, settings_service
-from driftkings.views.marks_model import moved_panel, number_locale
+from driftkings.views.marks_model import number_locale
 
 FEATURE = 'DriftkingsMarksOnGunHangar'
 RESOURCE = gameface_spec(FEATURE)['resource']
@@ -24,15 +24,10 @@ def _component():
 
 
 def get_view_config(config):
+    """The card is placed under the native mission column, so only content switches remain."""
     settings = settings_service.getComponentDict(config)
-    panel = dict(settings[HANGAR_MARKS_OF_EXCELLENCE.PANEL])
-    panel['compactMode'] = bool(settings[HANGAR_MARKS_OF_EXCELLENCE.COMPACT_MODE])
-    panel['locked'] = bool(settings[HANGAR_MARKS_OF_EXCELLENCE.TEXT_LOCK])
+    panel = dict(settings.get(HANGAR_MARKS_OF_EXCELLENCE.GAMEFACE, {}))
     panel['visible'] = bool(settings[GLOBAL.ENABLED] and settings[HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR])
-    panel.update(settings.get(HANGAR_MARKS_OF_EXCELLENCE.GAMEFACE, {}))
-    card = settings[HANGAR_MARKS_OF_EXCELLENCE.CARD]
-    for key in ('titleColor', 'backgroundColor', 'backgroundAlpha', 'accentColor'):
-        panel[key] = card[key]
     scale = settings.get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0)
     for level in MARK_THRESHOLDS:
         panel['starColor%s' % level] = getStatisticColor('mog', level, scale)
@@ -63,10 +58,8 @@ class MarksOnGunHangarController(HangarController):
 
     def onApplySettings(self, changes=None):
         if changes is None or affects(changes, GLOBAL.ENABLED, HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR,
-                HANGAR_MARKS_OF_EXCELLENCE.TEXT_LOCK, HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION,
-                HANGAR_MARKS_OF_EXCELLENCE.COMPACT_MODE, HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES,
-                HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING,
-                HANGAR_MARKS_OF_EXCELLENCE.PANEL, HANGAR_MARKS_OF_EXCELLENCE.CARD, HANGAR_MARKS_OF_EXCELLENCE.GAMEFACE):
+                HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION, HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES,
+                HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, HANGAR_MARKS_OF_EXCELLENCE.GAMEFACE):
             super(MarksOnGunHangarController, self).onApplySettings(changes)
 
 
@@ -78,12 +71,11 @@ def install_gameface():
 
     class MarksModel(ViewModel):
         def __init__(self):
-            super(MarksModel, self).__init__(properties=3, commands=1)
+            super(MarksModel, self).__init__(properties=3, commands=0)
 
         def _initialize(self):
             super(MarksModel, self)._initialize()
             self._addStringProperty('payload', '{}')
-            self.onSavePosition = self._addCommand('onSavePosition')
             attach_assets(self, FEATURE)
 
     class MarksView(ViewComponent):
@@ -96,8 +88,7 @@ def install_gameface():
 
         def _getEvents(self):
             return ((g_currentVehicle.onChanged, self.refresh),
-                    (ServicesLocator.itemsCache.onSyncCompleted, self.refresh),
-                    (self.getViewModel().onSavePosition, self.savePosition))
+                    (ServicesLocator.itemsCache.onSyncCompleted, self.refresh))
 
         def _onLoading(self, *args, **kwargs):
             super(MarksView, self)._onLoading(*args, **kwargs)
@@ -135,14 +126,5 @@ def install_gameface():
                 _component().LOG.exception('Could not update Gameface hangar card')
                 with self.getViewModel().transaction() as model:
                     model._setString(0, '{"config":{"visible":false}}')
-
-        def savePosition(self, args):
-            settings = settings_service.getComponentDict(_component().hangar_marks_of_excellence_settings)
-            if settings[HANGAR_MARKS_OF_EXCELLENCE.TEXT_LOCK]:
-                return
-            panel = moved_panel(settings[HANGAR_MARKS_OF_EXCELLENCE.PANEL], args)
-            if panel is None:
-                return
-            settings_service.apply(_component().hangar_marks_of_excellence_settings, {HANGAR_MARKS_OF_EXCELLENCE.PANEL: panel})
 
     install_card(_component, MarksView, __name__, RESOURCE)

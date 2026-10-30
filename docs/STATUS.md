@@ -56,6 +56,14 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
+## Marcas do hangar junto à coluna de missões — 2026-10-30
+
+O painel livre e arrastável das marcas no hangar foi substituído por um cartão compacto colocado por baixo da coluna nativa de missões (`HangarScreen_userMissions_*`, o widget `HangarWidget` de `mono/hangar/main`), com a mesma largura e o estilo das linhas de missão. O cartão mostra o ícone de marca da nação, a marca consolidada com a cor do colorrating escolhido e as estrelas. "Ver mais" abre à esquerda um painel lateral com o resto (veículo, barra com 65/85/95%, EMA, objetivo, histórico e estatísticas); fecha com o ×, Esc ou um clique fora.
+
+O cartão não entra na árvore React do jogo: a coluna é posicionada pelas suas próprias animações, por isso o cartão mede-a e é recolocado enquanto está visível. Sem a coluna fica junto à margem direita. Saíram as definições `panel`, `card`, `compactMode`, `textLock` e `gameface.scale`, e os textos correspondentes; os perfis antigos mantêm essas chaves sem efeito. Ainda não foi validado no cliente.
+
+As fontes Warhelios do cliente não têm estrelas, setas, triângulos nem ✓; esses símbolos passaram a imagens (`shared/assets/star*.png`) ou formas CSS nos painéis de marcas, na janela de definições e no gestor de contas.
+
 ## Vida do veículo migrada para Gameface — 2026-10-30
 
 A barra de pontos de vida passou de Flash (`ownhealthui.as`) para uma vista Gameface própria, filha da HUD nativa (`RandomHUDView`), com a arte Driftkings em `gameface/mods/driftkings/vehicle_health/` (moldura, emblema e logótipo; enchimento, riscas e texto desenhados em CSS). A cor segue `avgColor`; a posição usa `x`/`y`/`alignX`/`alignY` e a barra pode ser arrastada em batalha com Ctrl. O AS3, a vista DAAPI, o meta e o alias Flash foram retirados; o registo Flash passa a ter nove contratos e os defaults deixam de ter `colors`.

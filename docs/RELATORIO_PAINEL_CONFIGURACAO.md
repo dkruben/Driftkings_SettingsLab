@@ -229,7 +229,7 @@ As tabelas seguintes descrevem o âmbito das definições; ativar uma função n
 | --- | --- | --- |
 | [`clan_reward_collection`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/clan_reward_collection.py) | Recolha de recompensas do clã | Configuração da ativação da recolha de recompensas do clã. |
 | [`crew_management`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/crew_management.py) | Gestão da tripulação | Retorno automático, notificações, exclusões e resumos de progressão/XP da tripulação. |
-| [`hangar_marks_of_excellence`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/hangar_marks_of_excellence.py) | Marcas de excelência no hangar | Painel do lobby, objetivos, histórico, cores, tooltips e posição. |
+| [`hangar_marks_of_excellence`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/hangar_marks_of_excellence.py) | Marcas de excelência no hangar | Cartão sob a coluna de missões com painel "Ver mais", objetivos, histórico, colorrating e tooltips. |
 | [`hangar_preferences`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/hangar_preferences.py) | Opções do hangar | Widgets/botões do lobby, munição, contadores, chat, login e opções relacionadas. |
 | [`profile_ratings`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/profile_ratings.py) | Ratings do registo de serviço | WN8, cores e limites de sobrevivência/dano recebido no registo de serviço. |
 | [`tech_tree_marks_of_excellence`](../mod/res/scripts/client/driftkings/settings/definitions/lobby/tech_tree_marks_of_excellence.py) | Marcas de excelência na árvore tecnológica | Marcas, mestria, nomes coloridos e offsets dos indicadores na árvore. |

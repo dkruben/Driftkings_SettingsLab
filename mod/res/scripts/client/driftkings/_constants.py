@@ -424,14 +424,10 @@ class HANGAR_MARKS_OF_EXCELLENCE(object):
     NAME = 'hangar_marks_of_excellence'
     SHOW_IN_HANGAR = 'showInHangar'
     SHOW_IN_STATISTIC = 'showInStatistic'
-    TEXT_LOCK = 'textLock'
     GOAL_SELECTION = 'goalSelection'
-    COMPACT_MODE = 'compactMode'
     HISTORY_BATTLES = 'historyBattles'
     SHOW_TOOLTIP_TARGETS = 'showTooltipTargets'
     COLOR_RATING = 'colorRating'
-    PANEL = 'panel'
-    CARD = 'card'
 
 
 class TECH_TREE_MARKS_OF_EXCELLENCE(object):
