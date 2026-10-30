@@ -1,3 +1,29 @@
 {
-  "presets": []
+  "presets": [
+    {
+      "key": "complete",
+      "labels": {
+        "en": "Complete (every component)",
+        "pt": "Completo (todos os componentes)",
+        "cs": "Kompletní (všechny komponenty)",
+        "de": "Vollständig (alle Komponenten)",
+        "es": "Completo (todos los componentes)",
+        "fr": "Complet (tous les composants)",
+        "hu": "Teljes (minden összetevő)",
+        "it": "Completo (tutti i componenti)",
+        "ja": "完全（すべてのコンポーネント）",
+        "ko": "전체 (모든 구성 요소)",
+        "pl": "Pełny (wszystkie komponenty)",
+        "ru": "Полная (все компоненты)",
+        "th": "ครบชุด (ทุกส่วนประกอบ)",
+        "tr": "Tam (tüm bileşenler)",
+        "uk": "Повна (усі компоненти)"
+      },
+      "disabled": [],
+      "enabled": [
+        "aiming_countdown",
+        "shell_flight_time"
+      ]
+    }
+  ]
 }

@@ -17,6 +17,8 @@ DefaultDirName={sd}\Games\World_of_Tanks
 DisableProgramGroupPage=yes
 DisableDirPage=no
 AppendDefaultDirName=no
+; The game folder always exists; ClientError validates it instead of a generic overwrite prompt.
+DirExistsWarning=no
 UsePreviousAppDir=no
 UsePreviousLanguage=no
 UsePreviousGroup=no
@@ -26,8 +28,12 @@ UsePreviousSetupType=no
 UsePreviousTasks=no
 PrivilegesRequired=lowest
 MinVersion=10.0
-WizardStyle=modern
+; Dark custom style matching the Driftkings artwork; branding.generated.iss adds the game background.
+WizardStyle=modern dark
+WizardBackColor=#15120f
+WizardSizePercent=130,130
 LicenseFile={#RepoRoot}\licence
+InfoBeforeFile={#InputDir}\changelog.generated.txt
 OutputDir={#InstallerOutput}
 OutputBaseFilename=Driftkings-{#BuildVersion}-WoT-{#GameVersion}-Setup
 UninstallFilesDir={app}\mods\configs\driftkings\installer
@@ -37,33 +43,12 @@ RestartApplications=no
 Compression=lzma2
 SolidCompression=yes
 
-[Languages]
-Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "pt"; MessagesFile: "compiler:Languages\Portuguese.isl"
-
 [Dirs]
 Name: "{app}\mods\configs\driftkings\sixthsense"; Flags: uninsneveruninstall
 Name: "{app}\mods\configs\driftkings\images"; Flags: uninsneveruninstall
 
-[CustomMessages]
-en.Recommended=Recommended (author defaults)
-en.Customized=Custom
-en.WrongClient=Select the World of Tanks {#GameVersion} game folder (supported realms: {#SupportedRealmsText}).
-en.ChooseRoot=Select the game root containing version.xml and res/packages. Registered clients and common game folders are listed above.
-en.DetectedClient=Detected: %s | %s | %s
-en.CloseGame=Close World of Tanks before installing.
-en.ProcessCheckFailed=Cannot verify whether World of Tanks is running. Installation stopped.
-en.PreserveSettings=An existing profile was found. All existing JSON settings will be preserved.
-; PT
-pt.Recommended=Recomendado (predefinições do autor)
-pt.Customized=Personalizado
-pt.WrongClient=Seleciona a pasta do World of Tanks {#GameVersion} (realms suportados: {#SupportedRealmsText}).
-pt.ChooseRoot=Seleciona a raiz do jogo com version.xml e res/packages. A lista inclui clientes registados e pastas habituais de jogos.
-pt.DetectedClient=Detetado: %s | %s | %s
-pt.CloseGame=Fecha o World of Tanks antes de instalar.
-pt.ProcessCheckFailed=Não foi possível verificar se o World of Tanks está aberto. Instalação interrompida.
-pt.PreserveSettings=Foi encontrado um perfil existente. Todos os JSON de configuração serão preservados.
-
+; Languages, wizard texts and component names come from installer/setup/messages.json and the mod YAML catalogues.
+#include InputDir + "\languages.generated.iss"
 #include InputDir + "\branding.generated.iss"
 #include InputDir + "\payload.generated.iss"
 #include InputDir + "\previews.generated.iss"

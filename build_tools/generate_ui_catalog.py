@@ -24,7 +24,7 @@ def read_catalog(root=ROOT):
             if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)}
 
 
-def installer_catalog(root=ROOT):
+def installer_catalog(root=ROOT, languages=('en', 'pt')):
     """Installer choices come from canonical JSON and the same UI translations."""
     try:
         from .components import read_components
@@ -36,7 +36,7 @@ def installer_catalog(root=ROOT):
     config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
     manifests = {item['id']: item for item in read_components(root, config['components']['source'])}
     catalogs = {lang: catalog(root / ('mod/res/mods/driftkings/text/' + lang + '.yml'))
-                for lang in ('en', 'pt')}
+                for lang in languages}
     choices = []
     for path in sorted((root / config['defaults']['source_root'] / 'default').glob('*.json')):
         values = json.loads(path.read_text(encoding='utf-8'))

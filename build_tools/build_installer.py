@@ -19,6 +19,9 @@ from build_tools.validate_installer_assets import validate as validate_assets
 from build_tools.modpack import verify as verify_modpack
 
 
+BACK_IMAGE_OPACITY = 60
+
+
 def text(value):
     require(isinstance(value, str) and value.strip(), 'Missing installer text')
     return re.sub(r'<[^>]*>', '', value).replace('\r', '').replace('\n', '%n')
@@ -32,12 +35,34 @@ def quoted(value):
     return '"' + value.replace('"', '""') + '"'
 
 
+def installer_messages(root=ROOT):
+    """Wizard languages and texts; English is the fallback for any language a text omits."""
+    document = read_json(Path(root) / 'installer/setup/messages.json')
+    require(set(document) == {'languages', 'custom_messages', 'messages'}, 'Invalid installer messages')
+    languages = document['languages']
+    require(isinstance(languages, dict) and {'en', 'pt'} <= set(languages) and
+            all(re.fullmatch(r'[a-z]{2}', code) and isinstance(path, str) and path.startswith('compiler:')
+                for code, path in languages.items()), 'Installer languages require en, pt and compiler language files')
+    for section in ('custom_messages', 'messages'):
+        for key, values in document[section].items():
+            require(re.fullmatch(r'[A-Za-z][A-Za-z0-9]*', key) and isinstance(values, dict) and
+                    {'en', 'pt'} <= set(values) <= set(languages), 'Invalid installer message: ' + key)
+            # Placeholders and preprocessor values must survive translation.
+            expected = sorted(re.findall(r'%s|%n|\{#\w+\}', values['en']))
+            for lang, value in values.items():
+                text(value)
+                require(sorted(re.findall(r'%s|%n|\{#\w+\}', value)) == expected,
+                        'Installer message placeholders differ: %s/%s' % (lang, key))
+    return document
+
+
 def definitions(root=ROOT):
     root = Path(root)
-    components = installer_catalog(root)
+    languages = tuple(installer_messages(root)['languages'])
+    components = installer_catalog(root, languages)
     by_name = {entry['key']: entry for entry in components}
     catalogs = {lang: catalog(root / ('mod/res/mods/driftkings/text/' + lang + '.yml'))
-                for lang in ('en', 'pt')}
+                for lang in languages}
     options = read_json(root / 'installer/setup/options.json')
     presets = read_json(root / 'installer/setup/presets.json')
     require(set(options) == {'options'} and isinstance(options['options'], list), 'Invalid installer options')
@@ -58,13 +83,19 @@ def definitions(root=ROOT):
         extras.append(dict(item, default=values[item['key']], labels=labels, file=component['file']))
     seen = {'recommended', 'custom'}
     for preset in presets['presets']:
-        require(set(preset) == {'key', 'labels', 'disabled'} and isinstance(preset['key'], str) and
+        # "disabled" turns off recommended components; optional "enabled" turns on components that are off by default.
+        require({'key', 'labels', 'disabled'} <= set(preset) <= {'key', 'labels', 'disabled', 'enabled'} and
+                isinstance(preset['key'], str) and
                 re.fullmatch(r'[a-z][a-z0-9_]*', preset['key']) is not None and preset['key'] not in seen,
                 'Invalid or duplicate preset key')
         seen.add(preset['key'])
         require(isinstance(preset['disabled'], list) and len(set(preset['disabled'])) == len(preset['disabled']) and
                 set(preset['disabled']).issubset(by_name), 'Unknown or duplicate disabled preset component')
-        require(set(preset['labels']) == {'en', 'pt'}, 'Preset requires en and pt labels')
+        preset.setdefault('enabled', [])
+        require(isinstance(preset['enabled'], list) and len(set(preset['enabled'])) == len(preset['enabled']) and
+                set(preset['enabled']).issubset(by_name) and not set(preset['enabled']) & set(preset['disabled']),
+                'Unknown, duplicate or conflicting enabled preset component')
+        require({'en', 'pt'} <= set(preset['labels']) <= set(languages), 'Preset requires en and pt labels in installer languages')
         for value in preset['labels'].values():
             text(value)
     return components, extras, presets['presets']
@@ -100,11 +131,21 @@ def generate_components(root=ROOT, output=None):
     output = Path(output) if output else root / 'build/installer_input'
     output.mkdir(parents=True, exist_ok=True)
     components, options, presets = definitions(root)
+    wizard = installer_messages(root)
     messages = []
     def message(key, values):
+        # The unprefixed entry is Inno's fallback for languages without their own text.
+        messages.append(key + '=' + text(values['en']))
         for lang, value in values.items():
             messages.append(lang + '.' + key + '=' + text(value))
         return '{cm:' + key + '}'
+    for key, values in wizard['custom_messages'].items():
+        message(key, values)
+    languages = ['[Languages]'] + ['Name: ' + quoted(code) + '; MessagesFile: ' + quoted(path)
+                                   for code, path in wizard['languages'].items()]
+    overrides = ['[Messages]'] + [lang + '.' + key + '=' + text(value)
+                                  for key, values in wizard['messages'].items() for lang, value in values.items()]
+    (output / 'languages.generated.iss').write_text('\n'.join(languages + [''] + overrides) + '\n', encoding='utf-8-sig')
     types = ['[Types]', 'Name: "recommended"; Description: "{cm:Recommended}"',
              'Name: "custom"; Description: "{cm:Customized}"; Flags: iscustom']
     for preset in presets:
@@ -120,7 +161,10 @@ def generate_components(root=ROOT, output=None):
         preview_descriptions.append('group_' + group)
         for entry in members:
             name = group + '\\' + entry['key']
-            included = (['recommended'] + [preset['key'] for preset in presets if entry['key'] not in preset['disabled']]) if entry['default'] else []
+            if entry['default']:
+                included = ['recommended'] + [preset['key'] for preset in presets if entry['key'] not in preset['disabled']]
+            else:
+                included = [preset['key'] for preset in presets if entry['key'] in preset['enabled']]
             row = 'Name: ' + quoted(name) + '; Description: ' + quoted(message('component_' + entry['key'], entry['labels']))
             if included:
                 row += '; Types: ' + ' '.join(included)
@@ -165,11 +209,15 @@ end;
     (output / 'previews.generated.iss').write_text('[Files]\n' + '\n'.join(preview_files) + '\n', encoding='utf-8-sig')
     branding = ['[Setup]']
     for directive, stem, extensions in [('SetupIconFile', 'setup-icon', ('.ico',)), ('WizardImageFile', 'wizard-large', ('.bmp', '.png')),
-                                        ('WizardSmallImageFile', 'wizard-small', ('.bmp', '.png'))]:
+                                        ('WizardSmallImageFile', 'wizard-small', ('.bmp', '.png')),
+                                        ('WizardBackImageFile', 'wizard-back', ('.png', '.bmp'))]:
         for extension in extensions:
             path = root / 'installer/setup/assets/branding' / (stem + extension)
             if path.is_file():
                 branding.append(directive + '=' + str(path.resolve()))
+                if directive == 'WizardBackImageFile':
+                    # Keep page text readable over the game artwork.
+                    branding.append('WizardBackImageOpacity=' + str(BACK_IMAGE_OPACITY))
                 break
     (output / 'branding.generated.iss').write_text('\n'.join(branding) + '\n', encoding='utf-8-sig')
     (output / 'choices.generated.json').write_text(json.dumps(dict(components=components, options=options, presets=presets),
@@ -213,6 +261,11 @@ def prepare_payload(root, artifacts, output):
     conflicts.extend(['  except', '    Result := GetExceptionMessage;', '  end;', 'end;'])
     verification.append('end;')
     (output / 'payload.generated.iss').write_text('\n'.join(rows + ['[Code]'] + conflicts + verification) + '\n', encoding='utf-8-sig')
+    # "What's new" page: the signed manifest's changelog, not a separately edited copy.
+    notes = ['Driftkings %s - World of Tanks %s' % (manifest['version'], manifest['gameVersion'])]
+    for line in manifest.get('changelog', []):
+        notes += ['', '• ' + line]
+    (output / 'changelog.generated.txt').write_bytes(('\r\n'.join(notes) + '\r\n').encode('utf-8-sig'))
     realms = supported_realms(config)
     metadata = dict(RepoRoot=str(root.resolve()), BuildVersion=manifest['version'], GameVersion=manifest['gameVersion'],
                     GameRealm=report['realm'], SupportedRealms='|' + '|'.join(realms) + '|',

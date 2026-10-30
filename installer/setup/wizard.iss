@@ -1,14 +1,28 @@
 // All component names, paths and option keys come from the generated include.
+const
+  LB_ITEMFROMPOINT = $01A9;
+
 function GetDriveType(RootPath: String): Cardinal;
   external 'GetDriveTypeW@kernel32.dll stdcall';
+function SetTimer(hWnd: HWND; nIDEvent, uElapse: LongWord; lpTimerFunc: LongWord): LongWord;
+  external 'SetTimer@user32.dll stdcall';
+function KillTimer(hWnd: HWND; uIDEvent: LongWord): BOOL;
+  external 'KillTimer@user32.dll stdcall';
+function GetCursorPos(var lpPoint: TPoint): BOOL;
+  external 'GetCursorPos@user32.dll stdcall';
+function ScreenToClient(hWnd: HWND; var lpPoint: TPoint): BOOL;
+  external 'ScreenToClient@user32.dll stdcall';
 var
-  ResetConfig, PreserveProfile: Boolean;
+  ResetConfig, ResetRequested, PreserveProfile: Boolean;
   Preview: TBitmapImage;
-  SelectedRoot: String;
+  SelectedRoot, ConfigBackup: String;
   Installations: TStringList;
   InstallationList: TNewComboBox;
   ClientNotice: TNewStaticText;
   Description, PreserveNotice: TNewStaticText;
+  KeepProfileRadio, ResetProfileRadio: TNewRadioButton;
+  HoverTimer: LongWord;
+  PreviewIndex: Integer;
 
 // AppId is finalized after validation, separately for every game root.
 function InstallationId(Param: String): String;
@@ -85,13 +99,13 @@ begin
   end;
 end;
 
-procedure UpdatePreview(Sender: TObject);
+procedure ShowPreview(Index: Integer);
 var
-  Index, AvailableWidth, AvailableHeight, Width, Height: Integer;
+  AvailableWidth, AvailableHeight, Width, Height: Integer;
   Filename: String;
 begin
+  PreviewIndex := Index;
   Preview.Visible := False;
-  Index := WizardForm.ComponentsList.ItemIndex;
   Description.Caption := '';
   if (Index < 0) or (Index >= PreviewCount) then Exit;
   Description.Caption := CustomMessage(PreviewMessage(Index));
@@ -116,9 +130,32 @@ begin
   end;
 end;
 
+procedure UpdatePreview(Sender: TObject);
+begin
+  ShowPreview(WizardForm.ComponentsList.ItemIndex);
+end;
+
 procedure PreviewKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   UpdatePreview(Sender);
+end;
+
+// The component under the mouse previews immediately; clicks and keys keep working as before.
+procedure HoverTimerProc(Wnd: HWND; Msg: LongWord; IdEvent: LongWord; Time: LongWord);
+var
+  Point: TPoint;
+  Item: LongInt;
+  List: TNewCheckListBox;
+begin
+  if WizardForm.CurPageID <> wpSelectComponents then Exit;
+  List := WizardForm.ComponentsList;
+  if not GetCursorPos(Point) or not ScreenToClient(List.Handle, Point) then Exit;
+  if (Point.X < 0) or (Point.Y < 0) or (Point.X >= List.ClientWidth) or (Point.Y >= List.ClientHeight) then Exit;
+  Item := SendMessage(List.Handle, LB_ITEMFROMPOINT, 0, (Point.Y shl 16) or (Point.X and $FFFF));
+  // The high word is non-zero when the point lies outside every item.
+  if (Item shr 16) <> 0 then Exit;
+  Item := Item and $FFFF;
+  if (Item < List.Items.Count) and (Item <> PreviewIndex) then ShowPreview(Item);
 end;
 
 function XmlValue(const Data, Name: String): String;
@@ -189,6 +226,23 @@ begin
   Result := '';
 end;
 
+// An existing profile is kept unless the user (or /RESETCONFIG=1) asks to choose components again.
+procedure RefreshProfileChoice;
+var
+  Existing: Boolean;
+begin
+  Existing := HasProfile;
+  PreserveNotice.Visible := Existing;
+  KeepProfileRadio.Visible := Existing;
+  ResetProfileRadio.Visible := Existing;
+  ResetConfig := ResetRequested or (Existing and ResetProfileRadio.Checked);
+end;
+
+procedure ProfileChoiceClick(Sender: TObject);
+begin
+  RefreshProfileChoice;
+end;
+
 procedure RefreshClient(Sender: TObject);
 var
   Root, Version, Realm: String;
@@ -197,7 +251,7 @@ begin
   if (Root <> '') and ReadClient(Root, Version, Realm) then
     ClientNotice.Caption := Format(CustomMessage('DetectedClient'), [Realm, Version, Root])
   else ClientNotice.Caption := CustomMessage('ChooseRoot');
-  PreserveNotice.Visible := HasProfile and not ResetConfig;
+  RefreshProfileChoice;
 end;
 
 procedure SelectInstallation(Sender: TObject);
@@ -307,13 +361,18 @@ begin
   if CurPageID <> wpSelectDir then Exit;
   Error := ClientError;
   Result := Error = '';
-  if Result then WizardForm.DirEdit.Text := GameRoot(WizardDirValue)
+  if Result then begin
+    WizardForm.DirEdit.Text := GameRoot(WizardDirValue);
+    RefreshProfileChoice;
+  end
   else MsgBox(Error, mbError, MB_OK);
 end;
 
 procedure InitializeWizard;
 begin
-  ResetConfig := ExpandConstant('{param:RESETCONFIG|0}') = '1';
+  ResetRequested := ExpandConstant('{param:RESETCONFIG|0}') = '1';
+  ResetConfig := ResetRequested;
+  PreviewIndex := -1;
   WizardForm.ComponentsList.Width := WizardForm.ComponentsList.Width * 3 div 5;
   Description := TNewStaticText.Create(WizardForm);
   Description.Parent := WizardForm.SelectComponentsPage;
@@ -335,13 +394,33 @@ begin
   PreserveNotice := TNewStaticText.Create(WizardForm);
   PreserveNotice.Parent := WizardForm.SelectDirPage;
   PreserveNotice.Left := WizardForm.DirEdit.Left;
-  PreserveNotice.Top := WizardForm.SelectDirPage.ClientHeight - ScaleY(45);
+  PreserveNotice.Top := WizardForm.SelectDirPage.ClientHeight - ScaleY(86);
   PreserveNotice.Width := WizardForm.SelectDirPage.ClientWidth - PreserveNotice.Left;
-  PreserveNotice.Height := ScaleY(40);
+  PreserveNotice.Height := ScaleY(34);
   PreserveNotice.AutoSize := False;
   PreserveNotice.WordWrap := True;
-  PreserveNotice.Caption := CustomMessage('PreserveSettings');
+  PreserveNotice.Caption := CustomMessage('ProfileFound');
   PreserveNotice.Visible := False;
+  KeepProfileRadio := TNewRadioButton.Create(WizardForm);
+  KeepProfileRadio.Parent := WizardForm.SelectDirPage;
+  KeepProfileRadio.Left := PreserveNotice.Left;
+  KeepProfileRadio.Top := PreserveNotice.Top + PreserveNotice.Height + ScaleY(4);
+  KeepProfileRadio.Width := PreserveNotice.Width;
+  KeepProfileRadio.Height := ScaleY(20);
+  KeepProfileRadio.Caption := CustomMessage('KeepProfile');
+  KeepProfileRadio.Checked := not ResetRequested;
+  KeepProfileRadio.OnClick := @ProfileChoiceClick;
+  KeepProfileRadio.Visible := False;
+  ResetProfileRadio := TNewRadioButton.Create(WizardForm);
+  ResetProfileRadio.Parent := WizardForm.SelectDirPage;
+  ResetProfileRadio.Left := PreserveNotice.Left;
+  ResetProfileRadio.Top := KeepProfileRadio.Top + KeepProfileRadio.Height + ScaleY(2);
+  ResetProfileRadio.Width := PreserveNotice.Width;
+  ResetProfileRadio.Height := ScaleY(20);
+  ResetProfileRadio.Caption := CustomMessage('ResetProfile');
+  ResetProfileRadio.Checked := ResetRequested;
+  ResetProfileRadio.OnClick := @ProfileChoiceClick;
+  ResetProfileRadio.Visible := False;
   Installations := TStringList.Create;
   InstallationList := TNewComboBox.Create(WizardForm);
   InstallationList.Parent := WizardForm.SelectDirPage;
@@ -360,12 +439,50 @@ begin
   ClientNotice.WordWrap := True;
   WizardForm.DirEdit.OnChange := @RefreshClient;
   DiscoverInstallations;
+  HoverTimer := SetTimer(0, 0, 150, CreateCallback(@HoverTimerProc));
+end;
+
+procedure DeinitializeSetup;
+begin
+  if HoverTimer <> 0 then KillTimer(0, HoverTimer);
+end;
+
+// Finished page: what was installed, for which client, and what happened to the profile.
+function InstallSummary: String;
+var
+  Version, Realm: String;
+begin
+  Result := Format(CustomMessage('SummaryInstalled'), ['{#BuildVersion}', '{#GameVersion}']);
+  if ReadClient(SelectedRoot, Version, Realm) then
+    Result := Result + #13#10 + Format(CustomMessage('DetectedClient'), [Realm, Version, SelectedRoot]);
+  if PreserveProfile then Result := Result + #13#10#13#10 + CustomMessage('SummaryPreserved')
+  else if ConfigBackup <> '' then Result := Result + #13#10#13#10 + Format(CustomMessage('SummaryReset'), [ConfigBackup])
+  else Result := Result + #13#10#13#10 + CustomMessage('SummaryCreated');
+  Result := Result + #13#10#13#10 + CustomMessage('SummaryNext');
+end;
+
+// Before any click or hover, show the first component that has artwork.
+function FirstPreviewIndex: Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to PreviewCount - 1 do
+    if PreviewFile(I) <> '' then begin
+      Result := I;
+      Exit;
+    end;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = wpSelectComponents then UpdatePreview(WizardForm.ComponentsList);
-  PreserveNotice.Visible := HasProfile and not ResetConfig;
+  if CurPageID = wpSelectComponents then
+    if WizardForm.ComponentsList.ItemIndex >= 0 then UpdatePreview(WizardForm.ComponentsList)
+    else ShowPreview(FirstPreviewIndex);
+  if CurPageID = wpFinished then begin
+    WizardForm.FinishedLabel.Caption := InstallSummary;
+    WizardForm.AdjustLabelHeight(WizardForm.FinishedLabel);
+  end;
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
@@ -504,6 +621,7 @@ begin
             RaiseException('Configuration backup failed; originals have not been changed');
         end;
       end;
+      ConfigBackup := Backup;
       Started := True;
       for I := 0 to Files.Count - 1 do
         if not DeleteFile(ConfigRoot + '\' + Files[I]) then RaiseException('Cannot reset configuration');

@@ -43,11 +43,12 @@ Stable **0.1.4** and beta **0.1.5-beta.1** both target WoT **2.4.1.1**. The beta
 ### Windows installer
 
 1. Close World of Tanks.
-2. Download the installer for your chosen release.
-3. Select your game installation and the components you want enabled.
-4. Start the game and open **Driftkings settings** through the mods list.
+2. Download the installer for your chosen release and pick your language.
+3. Read what's new, then select your game installation.
+4. Choose **Recommended**, **Complete** or **Custom** and pick the components you want enabled; each one shows a preview.
+5. Start the game and open **Driftkings settings** through the mods list.
 
-The installer checks the game version and region, installs the required dependencies and preserves existing profiles when reinstalling.
+The installer checks the game version and region, installs the required dependencies and keeps existing profiles when reinstalling. To choose the components again, select **Reset to defaults and choose the components again** on the folder page; your current settings are backed up first.
 
 ### Manual installation
 

@@ -24,18 +24,19 @@ from build_tools.validate_build_data import build_plan, client_realm
 
 from support.build_assets import png
 
+CRLF = chr(13) + chr(10)
+
 
 class GeneratorTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        for relative in ('res/configs/driftkings', 'installer/setup'):
+        for relative in ('res/configs/driftkings', 'installer/setup', 'mod/res/mods/driftkings/text'):
             shutil.copytree(ROOT / relative, self.root / relative,
                             ignore=shutil.ignore_patterns('*.png', '*.bmp', '*.ico') if relative == 'installer/setup' else None)
         for relative in ('build_data/build_config.json', 'build_data/components.json',
-                         'mod/res/scripts/client/driftkings/_constants.py',
-                         'mod/res/mods/driftkings/text/en.yml', 'mod/res/mods/driftkings/text/pt.yml'):
+                         'mod/res/scripts/client/driftkings/_constants.py'):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, path)
@@ -92,7 +93,7 @@ class GeneratorTests(unittest.TestCase):
         out = self.root / 'generated'
         components, options, presets = generate_components(self.root, out)
         script = (out / 'components.generated.iss').read_text(encoding='utf-8-sig')
-        self.assertEqual(len(presets), 0)
+        self.assertEqual([preset['key'] for preset in presets], ['complete'])
         self.assertEqual([(entry['component'], entry['key']) for entry in options], [('sixth_sense_alert', 'userSound')])
         for entry in components:
             self.assertIn('Name: "' + entry['group'] + '\\' + entry['key'] + '"', script)
@@ -104,6 +105,19 @@ class GeneratorTests(unittest.TestCase):
         first = (out / 'components.generated.iss').read_bytes()
         generate_components(self.root, out)
         self.assertEqual((out / 'components.generated.iss').read_bytes(), first)
+
+    def test_complete_preset_also_enables_components_that_are_off_by_default(self):
+        components, _, _ = generate_components(self.root, self.root / 'generated')
+        script = (self.root / 'generated/components.generated.iss').read_text(encoding='utf-8-sig')
+        self.assertIn('Name: "complete"; Description: "{cm:preset_complete}"', script)
+        for entry in components:
+            line = next(line for line in script.splitlines() if 'Name: "' + entry['group'] + '\\' + entry['key'] + '"' in line)
+            self.assertTrue(line.endswith('; Types: recommended complete' if entry['default'] else '; Types: complete'), line)
+        path = self.root / 'installer/setup/presets.json'
+        path.write_text(json.dumps({'presets': [{'key': 'bad', 'labels': {'en': 'Bad', 'pt': 'Mau'},
+                                                'disabled': ['clan_reward_collection'], 'enabled': ['clan_reward_collection']}]}))
+        with self.assertRaisesRegex(ValueError, 'conflicting enabled'):
+            definitions(self.root)
 
     def test_recommended_and_two_disabled_choices_only_generate_minimal_differences(self):
         components, options, _ = definitions(self.root)
@@ -127,6 +141,12 @@ class GeneratorTests(unittest.TestCase):
         self.assertIn('preview_clan_reward_collection.png', (out / 'previews.generated.iss').read_text(encoding='utf-8-sig'))
         self.assertIn('WizardImageFile=', (out / 'branding.generated.iss').read_text(encoding='utf-8-sig'))
         self.assertNotIn('SetupIconFile=', (out / 'branding.generated.iss').read_text(encoding='utf-8-sig'))
+        self.assertNotIn('WizardBackImageFile=', (out / 'branding.generated.iss').read_text(encoding='utf-8-sig'))
+        (self.root / 'installer/setup/assets/branding/wizard-back.png').write_bytes(png())
+        generate_components(self.root, out)
+        branding = (out / 'branding.generated.iss').read_text(encoding='utf-8-sig').splitlines()
+        background = next(index for index, line in enumerate(branding) if line.startswith('WizardBackImageFile='))
+        self.assertEqual(branding[background + 1], 'WizardBackImageOpacity=60')
 
     def test_declarative_options_and_presets_reject_unknown_or_non_boolean_keys(self):
         path = self.root / 'installer/setup/options.json'
@@ -179,7 +199,7 @@ class GeneratorTests(unittest.TestCase):
         modpack = create_modpack(artifacts, version, 'stable', game, {'mods/configs/driftkings/default/example.json': b'{}'})
         code = (artifacts / names[0]).read_bytes()
         manifest = dict(version=version, channel='stable', gameVersion=game, size=len(code), sha256=hashlib.sha256(code).hexdigest(),
-                        schema=2, modpack=modpack)
+                        schema=2, modpack=modpack, changelog=['First change.', 'Second change.'])
         (artifacts / 'release.json').write_text(json.dumps(manifest))
         (artifacts / 'modpack.json').write_text(json.dumps(modpack))
         inputs = {path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -189,6 +209,9 @@ class GeneratorTests(unittest.TestCase):
         generate_components(self.root, out)
         prepare_payload(self.root, artifacts, out)
         payload = (out / 'payload.generated.iss').read_bytes()
+        # The "What's new" page reproduces the signed manifest changelog with Windows line endings.
+        self.assertEqual((out / 'changelog.generated.txt').read_bytes().decode('utf-8-sig').split(CRLF),
+                         ['Driftkings 1.0.0 - World of Tanks ' + game, '', '\u2022 First change.', '', '\u2022 Second change.', ''])
         script = payload.decode('utf-8-sig')
         metadata = (out / 'metadata.generated.iss').read_text(encoding='utf-8-sig')
         self.assertIn('#define SupportedRealms "|EU|NA|ASIA|"', metadata)
