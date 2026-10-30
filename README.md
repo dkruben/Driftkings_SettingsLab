@@ -2,7 +2,7 @@
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
-[![Beta 0.1.4-beta.2](https://img.shields.io/badge/Beta-0.1.4--beta.2-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)
+[![Beta 0.1.5-beta.1](https://img.shields.io/badge/Beta-0.1.5--beta.1-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.1)
 [![Stable 0.1.4](https://img.shields.io/badge/Stable-0.1.4-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)
 
 # Driftkings Modpack
@@ -18,11 +18,17 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
 | **[Stable 0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1.zip) |
-| **[Beta 0.1.4-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1.zip) |
+| **[Beta 0.1.5-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.1)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.1/Driftkings-0.1.5-beta.1-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.1/Driftkings-0.1.5-beta.1-WoT-2.4.1.1.zip) |
 
-Stable **0.1.4** targets WoT **2.4.1.1** and supersedes beta **0.1.4-beta.2**, which remains listed for reference.
+Stable **0.1.4** and beta **0.1.5-beta.1** both target WoT **2.4.1.1**. The beta retires legacy font and macro names; check custom profiles before installing it.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
+
+### What's new in 0.1.5-beta.1
+
+- **Legacy names removed:** the `xvm` and `XVMSymbol` font aliases and the `{{xvm-stat}}` macro no longer work. Use `dkm` and `{{stat-available}}` in custom profiles; the default settings already do.
+- **Validated in game:** `dkm` fonts in markers, team panels and the carousel, and rating colours on Halloween TAB player names (NA 2.4.1.1).
+- **Release tooling:** stricter signing and tag protection, and builds that work with EU, NA and ASIA clients.
 
 ### What's new in 0.1.4
 

@@ -12,7 +12,7 @@ Atualizado em 2026-10-30. Os caminhos e comandos partem da raiz do repositório.
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão stable publicada: `0.1.4`; beta anterior `0.1.4-beta.2`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Versão stable publicada: `0.1.4`. Versão em preparação na `develop`: beta `0.1.5-beta.1`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
