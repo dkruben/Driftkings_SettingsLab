@@ -94,7 +94,7 @@ class TargetDistanceTests(RuntimeTest):
 
 class EntryPointTests(RuntimeTest):
     def test_view_modules_register_their_battle_view(self):
-        for name, view in (('aiming_countdown', 'DispersionTimer'), ('shell_flight_time', None), ('vehicle_health', None)):
+        for name, view in (('aiming_countdown', 'DispersionTimer'), ('shell_flight_time', None)):
             api, _ = game_source('battle/%s.py' % name, real=('driftkings._constants',))
             views = api['getBattleViews']()
             self.assertEqual(len(views), 1, name)

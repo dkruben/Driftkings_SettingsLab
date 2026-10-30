@@ -555,7 +555,6 @@ class BATTLE_ALIASES(object):
     AIMING_COUNTDOWN = 'DispersionTimerView'
     TARGET_DISTANCE = 'DistanceMarkerView'
     SHELL_FLIGHT_TIME = 'FlightTimerView'
-    VEHICLE_HEALTH = 'OwnHealthView'
     SIXTH_SENSE_ALERT = 'SixthSenseView'
     MINIMAP = 'MinimapEnhancementsView'
     PLAYERS_PANEL = 'DriftkingsRatingScreens'

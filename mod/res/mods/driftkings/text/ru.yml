@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Показывать значки"
 # vehicle_health
 vehicle_health.UI_description: "Прочность техники"
 vehicle_health.UI_setting_x_text: "Позиция X"
-vehicle_health.UI_setting_x_tooltip: "Смещение полосы прочности по горизонтали от прицела, в пикселях. Отрицательные значения сдвигают её влево."
+vehicle_health.UI_setting_x_tooltip: "Положение полосы прочности по горизонтали в пикселях от её точки привязки на экране (по умолчанию внизу по центру). В бою её также можно перетащить, удерживая Ctrl."
 vehicle_health.UI_setting_y_text: "Позиция Y"
-vehicle_health.UI_setting_y_tooltip: "Смещение полосы прочности по вертикали от прицела, в пикселях. Отрицательные значения сдвигают её вверх."
+vehicle_health.UI_setting_y_tooltip: "Положение полосы прочности по вертикали в пикселях от её точки привязки на экране (по умолчанию внизу по центру). Отрицательные значения сдвигают её вверх. В бою её также можно перетащить, удерживая Ctrl."
 
 # Settings panel
 panel.actionFailed: "Акция провалилась. См. game.log."

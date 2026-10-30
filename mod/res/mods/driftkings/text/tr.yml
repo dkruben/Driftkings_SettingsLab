@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Simgeleri göster"
 # vehicle_health
 vehicle_health.UI_description: "Araç can puanı"
 vehicle_health.UI_setting_x_text: "Konum X"
-vehicle_health.UI_setting_x_tooltip: "Can çubuğunun nişangâha göre yatay kayması, piksel. Negatif değerler onu sola taşır."
+vehicle_health.UI_setting_x_tooltip: "Can çubuğunun yatay konumu (piksel), ekrandaki sabitleme noktasından itibaren (varsayılan: alt orta). Savaşta Ctrl tuşunu basılı tutarak da sürükleyebilirsiniz."
 vehicle_health.UI_setting_y_text: "Y Konumu"
-vehicle_health.UI_setting_y_tooltip: "Can çubuğunun nişangâha göre dikey kayması, piksel. Negatif değerler onu yukarı taşır."
+vehicle_health.UI_setting_y_tooltip: "Can çubuğunun dikey konumu (piksel), ekrandaki sabitleme noktasından itibaren (varsayılan: alt orta). Negatif değerler onu yukarı taşır. Savaşta Ctrl tuşunu basılı tutarak da sürükleyebilirsiniz."
 
 # Settings panel
 panel.actionFailed: "Eylem başarısız oldu. game.log'ye bakın."

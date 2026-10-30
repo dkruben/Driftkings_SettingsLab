@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "アイコンを表示する"
 # vehicle_health
 vehicle_health.UI_description: "車輌の耐久値"
 vehicle_health.UI_setting_x_text: "位置X"
-vehicle_health.UI_setting_x_tooltip: "照準器からのHPバーの水平方向のずれ（ピクセル）。負の値で左に移動します。"
+vehicle_health.UI_setting_x_tooltip: "HPバーの水平位置（ピクセル）。画面上の基準位置（既定は下中央）からの距離です。戦闘中は Ctrl を押しながらドラッグして移動することもできます。"
 vehicle_health.UI_setting_y_text: "位置Y"
-vehicle_health.UI_setting_y_tooltip: "照準器からのHPバーの垂直方向のずれ（ピクセル）。負の値で上に移動します。"
+vehicle_health.UI_setting_y_tooltip: "HPバーの垂直位置（ピクセル）。画面上の基準位置（既定は下中央）からの距離です。負の値で上に移動します。戦闘中は Ctrl を押しながらドラッグして移動することもできます。"
 
 # Settings panel
 panel.actionFailed: "アクションは失敗しました。 game.logを参照してください。"

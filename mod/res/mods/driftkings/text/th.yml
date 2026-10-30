@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "แสดงไอคอน"
 # vehicle_health
 vehicle_health.UI_description: "พลังชีวิตพาหนะ"
 vehicle_health.UI_setting_x_text: "ตำแหน่ง X"
-vehicle_health.UI_setting_x_tooltip: "ระยะเลื่อนแนวนอนของแถบพลังชีวิตจากศูนย์เล็ง หน่วยเป็นพิกเซล ค่าติดลบจะเลื่อนไปทางซ้าย"
+vehicle_health.UI_setting_x_tooltip: "ตำแหน่งแนวนอนของแถบพลังชีวิตเป็นพิกเซล นับจากจุดยึดบนหน้าจอ (ค่าเริ่มต้นคือกึ่งกลางด้านล่าง) ระหว่างการรบสามารถกด Ctrl ค้างไว้แล้วลากได้ด้วย"
 vehicle_health.UI_setting_y_text: "ตำแหน่ง Y"
-vehicle_health.UI_setting_y_tooltip: "ระยะเลื่อนแนวตั้งของแถบพลังชีวิตจากศูนย์เล็ง หน่วยเป็นพิกเซล ค่าติดลบจะเลื่อนขึ้น"
+vehicle_health.UI_setting_y_tooltip: "ตำแหน่งแนวตั้งของแถบพลังชีวิตเป็นพิกเซล นับจากจุดยึดบนหน้าจอ (ค่าเริ่มต้นคือกึ่งกลางด้านล่าง) ค่าติดลบจะเลื่อนขึ้น ระหว่างการรบสามารถกด Ctrl ค้างไว้แล้วลากได้ด้วย"
 
 # Settings panel
 panel.actionFailed: "การดำเนินการล้มเหลว ดู game.log"

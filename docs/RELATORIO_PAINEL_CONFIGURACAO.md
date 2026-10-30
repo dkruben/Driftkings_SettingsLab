@@ -220,7 +220,7 @@ As tabelas seguintes descrevem o âmbito das definições; ativar uma função n
 | [`target_information`](../mod/res/scripts/client/driftkings/settings/definitions/battle/target_information.py) | Informações do alvo | Template, alvo elegível, tecla alternativa, atraso, fundo e posição. |
 | [`team_panels`](../mod/res/scripts/client/driftkings/settings/definitions/battle/team_panels.py) | Painéis das equipas e carregamento | Perfis de layout, templates, HP, deteção, ratings e variantes painel/carregamento/TAB. |
 | [`third_person_zoom`](../mod/res/scripts/client/driftkings/settings/definitions/battle/third_person_zoom.py) | Zoom da câmara exterior | Configuração dos modos/valores do zoom exterior. |
-| [`vehicle_health`](../mod/res/scripts/client/driftkings/settings/definitions/battle/vehicle_health.py) | Pontos de vida do veículo | Apresentação dos pontos de vida e posição. |
+| [`vehicle_health`](../mod/res/scripts/client/driftkings/settings/definitions/battle/vehicle_health.py) | Pontos de vida do veículo | Barra Gameface com a moldura Driftkings; posição X/Y a partir da âncora no ecrã (por defeito em baixo ao centro) e arrasto em batalha com Ctrl. Sem barra nas páginas de batalha sem HUD Gameface (Halloween, Fort Rush). |
 | [`vehicle_markers`](../mod/res/scripts/client/driftkings/settings/definitions/battle/vehicle_markers.py) | Marcadores dos veículos | Editor estruturado e amostra descritos na secção 5. |
 
 ### Lobby/hangar

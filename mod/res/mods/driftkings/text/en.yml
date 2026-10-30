@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Show icons"
 # vehicle_health
 vehicle_health.UI_description: "Vehicle health"
 vehicle_health.UI_setting_x_text: "Position X"
-vehicle_health.UI_setting_x_tooltip: "Horizontal offset of the health bar from the crosshair, in pixels. Negative values move it left."
+vehicle_health.UI_setting_x_tooltip: "Horizontal position of the health bar in pixels, from its screen anchor (bottom centre by default). In battle you can also drag it while holding Ctrl."
 vehicle_health.UI_setting_y_text: "Position Y"
-vehicle_health.UI_setting_y_tooltip: "Vertical offset of the health bar from the crosshair, in pixels. Negative values move it up."
+vehicle_health.UI_setting_y_tooltip: "Vertical position of the health bar in pixels, from its screen anchor (bottom centre by default). Negative values move it up. In battle you can also drag it while holding Ctrl."
 
 # Settings panel
 panel.actionFailed: "The action failed. See game.log."

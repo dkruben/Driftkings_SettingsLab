@@ -3,7 +3,7 @@
    aparece destacado; os outros elementos do mod aparecem esbatidos para se verem sobreposições.
    Origens das posições, confirmadas no código do mod:
    - tempo de fecho da mira e tempo de voo: deslocamento a partir da mira (crosshairdisplayable);
-   - vida do veículo: barra de 180x22 centrada em x, a partir do fundo ao centro (ownhealthui);
+   - vida do veículo: barra Gameface de 480x78 a partir da âncora alignX/alignY (vehicle_health.js);
    - marcas de excelência: painel alinhado à direita e ao centro vertical (panel.alignX/alignY);
    - Grande Calibre: a partir do canto superior esquerdo (textPosition);
    - distância ao alvo: a partir do marcador do veículo;
@@ -14,8 +14,9 @@
     var W = 1920, H = 1080, CX = W / 2, CY = H / 2;
     var MARKER = {x: CX + 300, y: CY - 210};       // sample enemy vehicle marker
     var SAMPLE = DK.sample, PLAYER = SAMPLE.player;
-    // Own health: the T32 at 79%, written and coloured as flash/battle/vehicle_health.py does it.
+    // Own health: the T32 at 79%, written and coloured as gameface/battle/vehicle_health.py does it.
     var OWN_HP = Math.round(PLAYER.maxHp * 0.79);
+    var HEALTH_W = 480, HEALTH_H = 78;
     // High Caliber target: max(1000, 20% of the enemy team's HP) (battle/high_caliber_progress.py), 62% dealt.
     var ENEMY_HP = SAMPLE.enemies.reduce(function (sum, item) { return sum + item.maxHp; }, 0);
     var HC_TARGET = Math.max(1000, Math.ceil(ENEMY_HP * 0.2)), HC_PROGRESS = 62;
@@ -59,12 +60,17 @@
     }
     function health(stage, v) {
         if (!v('enabled', true)) { return null; }
-        // Default avgColor: saturation 0.7, brightness 0.9 (settings/default_values.py).
         var percent = OWN_HP / PLAYER.maxHp, fill = h('div.dk-hud-health-fill');
         fill.style.width = (percent * 100) + '%';
-        fill.style.backgroundColor = percentColor(percent, 0.7, 0.9);
-        var bar = h('div.dk-hud-health', null, [fill, h('div.dk-hud-health-text', {text: OWN_HP + ' - ' + (percent * 100).toFixed(2) + '%'})], stage);
-        px(bar, CX + v('x', 0) - 90, H + v('y', -80));
+        fill.style.backgroundColor = percentColor(percent, v('avgColor.saturation', 0.7), v('avgColor.brightness', 0.9));
+        var bar = h('div.dk-hud-health', null, [h('div.dk-hud-health-track', null, [fill]),
+            h('img.dk-hud-health-frame', {src: 'coui://gui/gameface/mods/driftkings/vehicle_health/frame.png'}),
+            h('div.dk-hud-health-text', {text: OWN_HP + ' / ' + PLAYER.maxHp})], stage);
+        // Anchored like the battle bar (shared kit position): x/y offsets from alignX/alignY.
+        var x = v('x', 0), y = v('y', -80), alignX = v('alignX', 'center'), alignY = v('alignY', 'bottom');
+        var left = alignX === 'right' ? W - HEALTH_W + x : alignX === 'center' ? (W - HEALTH_W) / 2 + x : x;
+        var top = alignY === 'bottom' ? H - HEALTH_H + y : alignY === 'center' ? (H - HEALTH_H) / 2 + y : y;
+        px(bar, left, top);
         return bar;
     }
     function marks(stage, v) {

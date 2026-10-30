@@ -447,9 +447,13 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-hud-aim-dot { position: absolute; left: 40rem; top: 40rem; width: 4rem; height: 4rem; background: #ffffff; }
 .dk-hud-text { position: absolute; width: 500rem; min-height: 24rem; white-space: nowrap; }
 .dk-hud-text.has-shadow, .dk-hud-panel, .dk-hud-box { text-shadow: 0 0 4rem #000000; }
-.dk-hud-health { position: absolute; width: 180rem; height: 22rem; border: 2rem solid rgba(0, 0, 0, 0.8); background: rgba(0, 0, 0, 0.45); }
+/* Own health: same frame and slot box as vehicle_health/vehicle_health.css. */
+.dk-hud-health { position: absolute; width: 480rem; height: 78rem; }
+.dk-hud-health-frame { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.dk-hud-health-track, .dk-hud-health-text { position: absolute; left: 19.78%; top: 48.06%; width: 69.61%; height: 24.73%; }
+.dk-hud-health-track { overflow: hidden; background: #1a1c1e; }
 .dk-hud-health-fill { width: 79%; height: 100%; background: #80d639; }
-.dk-hud-health-text { position: absolute; left: 0; right: 0; top: -1rem; text-align: center; font-size: 16rem; color: #ffffff; text-shadow: 0 0 3rem #000000; }
+.dk-hud-health-text { display: flex; align-items: center; justify-content: center; font-size: 15rem; font-weight: 700; color: #f4f8f0; text-shadow: 0 0 3rem #000000; }
 .dk-hud-panel { position: absolute; padding: 8rem 12rem; border-radius: 4rem; color: #ffffff; line-height: 1.3; }
 .dk-hud-panel-title { font-weight: 700; }
 .dk-hud-panel-sub { opacity: 0.8; }

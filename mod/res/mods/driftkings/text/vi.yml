@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Hiển thị biểu tượng"
 # vehicle_health
 vehicle_health.UI_description: "Máu của xe"
 vehicle_health.UI_setting_x_text: "Vị trí X"
-vehicle_health.UI_setting_x_tooltip: "Độ lệch ngang của thanh máu so với tâm ngắm, tính bằng pixel. Giá trị âm dời sang trái."
+vehicle_health.UI_setting_x_tooltip: "Vị trí ngang của thanh máu tính bằng pixel, tính từ điểm neo trên màn hình (mặc định ở giữa phía dưới). Trong trận, bạn cũng có thể giữ Ctrl để kéo thanh máu."
 vehicle_health.UI_setting_y_text: "Vị trí Y"
-vehicle_health.UI_setting_y_tooltip: "Độ lệch dọc của thanh máu so với tâm ngắm, tính bằng pixel. Giá trị âm dời lên trên."
+vehicle_health.UI_setting_y_tooltip: "Vị trí dọc của thanh máu tính bằng pixel, tính từ điểm neo trên màn hình (mặc định ở giữa phía dưới). Giá trị âm dời thanh máu lên trên. Trong trận, bạn cũng có thể giữ Ctrl để kéo thanh máu."
 
 # Settings panel
 panel.actionFailed: "Hành động này không thành công. Xem game.log."

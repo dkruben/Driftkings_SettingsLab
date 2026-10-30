@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Ikonok megjelenítése"
 # vehicle_health
 vehicle_health.UI_description: "Jármű életerőpontjai"
 vehicle_health.UI_setting_x_text: "X pozíció"
-vehicle_health.UI_setting_x_tooltip: "Az életerősáv vízszintes eltolása a célkereszttől, pixelben. A negatív érték balra mozgatja."
+vehicle_health.UI_setting_x_tooltip: "Az életerősáv vízszintes helyzete pixelben, a képernyőn lévő rögzítési pontjától (alapértelmezés: lent középen). Csatában a Ctrl lenyomva tartásával át is húzhatod."
 vehicle_health.UI_setting_y_text: "Y pozíció"
-vehicle_health.UI_setting_y_tooltip: "Az életerősáv függőleges eltolása a célkereszttől, pixelben. A negatív érték felfelé mozgatja."
+vehicle_health.UI_setting_y_tooltip: "Az életerősáv függőleges helyzete pixelben, a képernyőn lévő rögzítési pontjától (alapértelmezés: lent középen). A negatív érték felfelé mozgatja. Csatában a Ctrl lenyomva tartásával át is húzhatod."
 
 # Settings panel
 panel.actionFailed: "Az akció meghiúsult. Lásd: game.log."

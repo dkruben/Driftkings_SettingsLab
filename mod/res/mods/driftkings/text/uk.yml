@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Показувати значки"
 # vehicle_health
 vehicle_health.UI_description: "Міцність техніки"
 vehicle_health.UI_setting_x_text: "Позиція X"
-vehicle_health.UI_setting_x_tooltip: "Зсув смуги міцності по горизонталі від приціла, у пікселях. Від'ємні значення зсувають її ліворуч."
+vehicle_health.UI_setting_x_tooltip: "Положення смуги міцності по горизонталі в пікселях від її точки прив’язки на екрані (типово внизу по центру). У бою її також можна перетягнути, утримуючи Ctrl."
 vehicle_health.UI_setting_y_text: "Позиція Y"
-vehicle_health.UI_setting_y_tooltip: "Зсув смуги міцності по вертикалі від приціла, у пікселях. Від'ємні значення зсувають її вгору."
+vehicle_health.UI_setting_y_tooltip: "Положення смуги міцності по вертикалі в пікселях від її точки прив’язки на екрані (типово внизу по центру). Від’ємні значення зсувають її вгору. У бою її також можна перетягнути, утримуючи Ctrl."
 
 # Settings panel
 panel.actionFailed: "Дія не вдалася. Див. game.log."

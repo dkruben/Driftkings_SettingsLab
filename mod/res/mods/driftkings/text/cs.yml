@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Zobrazit ikony"
 # vehicle_health
 vehicle_health.UI_description: "Body výdrže vozidla"
 vehicle_health.UI_setting_x_text: "Pozice X"
-vehicle_health.UI_setting_x_tooltip: "Vodorovný posun ukazatele zdraví od zaměřovače v pixelech. Záporné hodnoty jej posunou doleva."
+vehicle_health.UI_setting_x_tooltip: "Vodorovná pozice ukazatele zdraví v pixelech od jeho ukotvení na obrazovce (výchozí je dole uprostřed). V bitvě jej můžete také přetáhnout se stisknutým Ctrl."
 vehicle_health.UI_setting_y_text: "Pozice Y"
-vehicle_health.UI_setting_y_tooltip: "Svislý posun ukazatele zdraví od zaměřovače v pixelech. Záporné hodnoty jej posunou nahoru."
+vehicle_health.UI_setting_y_tooltip: "Svislá pozice ukazatele zdraví v pixelech od jeho ukotvení na obrazovce (výchozí je dole uprostřed). Záporné hodnoty jej posunou nahoru. V bitvě jej můžete také přetáhnout se stisknutým Ctrl."
 
 # Settings panel
 panel.actionFailed: "Akce se nezdařila. Viz game.log."

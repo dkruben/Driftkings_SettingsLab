@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "显示图标"
 # vehicle_health
 vehicle_health.UI_description: "战车生命值"
 vehicle_health.UI_setting_x_text: "位置 X"
-vehicle_health.UI_setting_x_tooltip: "血条相对准星的水平偏移（像素）。负值向左移动。"
+vehicle_health.UI_setting_x_tooltip: "血条的水平位置（像素），从其屏幕锚点算起（默认为底部中央）。战斗中也可以按住 Ctrl 拖动。"
 vehicle_health.UI_setting_y_text: "位置 Y"
-vehicle_health.UI_setting_y_tooltip: "血条相对准星的垂直偏移（像素）。负值向上移动。"
+vehicle_health.UI_setting_y_tooltip: "血条的垂直位置（像素），从其屏幕锚点算起（默认为底部中央）。负值向上移动。战斗中也可以按住 Ctrl 拖动。"
 
 # Settings panel
 panel.actionFailed: "行动失败了。请参阅game.log。"

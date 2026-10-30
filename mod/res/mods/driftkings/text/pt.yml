@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Mostrar ícones"
 # vehicle_health
 vehicle_health.UI_description: "Pontos de vida do veículo"
 vehicle_health.UI_setting_x_text: "Posição X"
-vehicle_health.UI_setting_x_tooltip: "Desvio horizontal da barra de vida em relação à mira, em píxeis. Valores negativos movem-na para a esquerda."
+vehicle_health.UI_setting_x_tooltip: "Posição horizontal da barra de vida em píxeis, a partir da sua âncora no ecrã (em baixo ao centro, por predefinição). Em batalha também a podes arrastar mantendo o Ctrl premido."
 vehicle_health.UI_setting_y_text: "Posição Y"
-vehicle_health.UI_setting_y_tooltip: "Desvio vertical da barra de vida em relação à mira, em píxeis. Valores negativos movem-na para cima."
+vehicle_health.UI_setting_y_tooltip: "Posição vertical da barra de vida em píxeis, a partir da sua âncora no ecrã (em baixo ao centro, por predefinição). Valores negativos movem-na para cima. Em batalha também a podes arrastar mantendo o Ctrl premido."
 
 # Settings panel
 panel.actionFailed: "A ação falhou. Consulte o game.log."

@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Afficher les icônes"
 # vehicle_health
 vehicle_health.UI_description: "Points de structure du véhicule"
 vehicle_health.UI_setting_x_text: "Poste X"
-vehicle_health.UI_setting_x_tooltip: "Décalage horizontal de la barre de vie par rapport au réticule, en pixels. Les valeurs négatives la déplacent vers la gauche."
+vehicle_health.UI_setting_x_tooltip: "Position horizontale de la barre de vie en pixels, depuis son ancrage à l'écran (en bas au centre par défaut). En bataille, vous pouvez aussi la déplacer en maintenant Ctrl."
 vehicle_health.UI_setting_y_text: "Poste Y"
-vehicle_health.UI_setting_y_tooltip: "Décalage vertical de la barre de vie par rapport au réticule, en pixels. Les valeurs négatives la déplacent vers le haut."
+vehicle_health.UI_setting_y_tooltip: "Position verticale de la barre de vie en pixels, depuis son ancrage à l'écran (en bas au centre par défaut). Les valeurs négatives la font monter. En bataille, vous pouvez aussi la déplacer en maintenant Ctrl."
 
 # Settings panel
 panel.actionFailed: "L'action a échoué. Voir game.log."

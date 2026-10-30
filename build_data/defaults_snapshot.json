@@ -233,7 +233,7 @@
     {
       "path": "default/vehicle_health.json",
       "source_sha256": "645517d8333109cfabb14e2a73405d77affe459611bb55a2ebddfbe323de3e22",
-      "sha256": "c613427fa69c26a1cca0e5b48c181395d9b4375654d0106514082434d319c15a"
+      "sha256": "6526b14a6bea2fd3c6973203660e41cae2d53d1fe825bdfb1357e0639fa85597"
     },
     {
       "path": "default/vehicle_markers/markers.json",

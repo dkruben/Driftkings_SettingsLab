@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "顯示圖示"
 # vehicle_health
 vehicle_health.UI_description: "車輛血量"
 vehicle_health.UI_setting_x_text: "位置 X"
-vehicle_health.UI_setting_x_tooltip: "血條相對準星的水平偏移（像素）。負值向左移動。"
+vehicle_health.UI_setting_x_tooltip: "血條的水平位置（像素），從其螢幕錨點算起（預設為底部中央）。戰鬥中也可以按住 Ctrl 拖曳。"
 vehicle_health.UI_setting_y_text: "位置 Y"
-vehicle_health.UI_setting_y_tooltip: "血條相對準星的垂直偏移（像素）。負值向上移動。"
+vehicle_health.UI_setting_y_tooltip: "血條的垂直位置（像素），從其螢幕錨點算起（預設為底部中央）。負值向上移動。戰鬥中也可以按住 Ctrl 拖曳。"
 
 # Settings panel
 panel.actionFailed: "行動失敗了。請參閱game.log。"

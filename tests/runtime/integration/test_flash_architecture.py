@@ -31,9 +31,9 @@ class FlashArchitectureTests(RuntimeTest):
             'driftkings.core.hud_visibility': module(hudVisibility=None),
             'driftkings.settings.service': module(settings_service=None)})
 
-    def test_all_ten_runtime_views_resolve_their_real_meta_contract(self):
+    def test_all_nine_runtime_views_resolve_their_real_meta_contract(self):
         catalog = self.load('interface_catalog')
-        self.assertEqual(len(catalog.FLASH_COMPONENTS), 10)
+        self.assertEqual(len(catalog.FLASH_COMPONENTS), 9)
         base = module(**self.meta())
         dependencies = {'driftkings.flash.battle.meta.base': base,
                         'driftkings.core.diagnostics': module(diagnostics=module(enabled=False))}
@@ -57,7 +57,7 @@ class FlashArchitectureTests(RuntimeTest):
             self.assertEqual(view.FLASH_CLASS, spec['as3'])
             registry.register(alias, view, config)
             self.assertRaises(ValueError, registry.register, alias, view, config)
-        self.assertEqual(len(registry.definitions), 10)
+        self.assertEqual(len(registry.definitions), 9)
 
     def test_daapi_methods_still_exist_in_the_preserved_as3_sources(self):
         methods = set()

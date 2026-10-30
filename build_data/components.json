@@ -373,6 +373,10 @@
       "entrypoint": "battle.vehicle_health",
       "config_files": [
         "default/vehicle_health.json"
+      ],
+      "assets": [
+        "mod/res/gui/gameface/mods/driftkings/vehicle_health/**",
+        "mod/res/gui/gen_resources/driftkings.vehicle_health.json"
       ]
     },
     "profile_ratings": {

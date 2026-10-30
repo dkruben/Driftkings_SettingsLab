@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Pokaż ikony"
 # vehicle_health
 vehicle_health.UI_description: "Punkty wytrzymałości pojazdu"
 vehicle_health.UI_setting_x_text: "Pozycja X"
-vehicle_health.UI_setting_x_tooltip: "Przesunięcie paska życia w poziomie względem celownika, w pikselach. Wartości ujemne przesuwają go w lewo."
+vehicle_health.UI_setting_x_tooltip: "Pozioma pozycja paska życia w pikselach, liczona od jego punktu zakotwiczenia na ekranie (domyślnie na dole pośrodku). W bitwie możesz go też przeciągnąć, przytrzymując Ctrl."
 vehicle_health.UI_setting_y_text: "Pozycja Y"
-vehicle_health.UI_setting_y_tooltip: "Przesunięcie paska życia w pionie względem celownika, w pikselach. Wartości ujemne przesuwają go w górę."
+vehicle_health.UI_setting_y_tooltip: "Pionowa pozycja paska życia w pikselach, liczona od jego punktu zakotwiczenia na ekranie (domyślnie na dole pośrodku). Wartości ujemne przesuwają go w górę. W bitwie możesz go też przeciągnąć, przytrzymując Ctrl."
 
 # Settings panel
 panel.actionFailed: "Akcja nie powiodła się. Patrz game.log."

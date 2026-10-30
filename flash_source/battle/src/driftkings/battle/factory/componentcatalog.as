@@ -6,7 +6,6 @@ package driftkings.battle.factory
     import driftkings.battle.components.dispersion_timer.dispersiontimerui;
     import driftkings.battle.components.distance_marker.distancemarkerui;
     import driftkings.battle.components.flight_timer.flighttimerui;
-    import driftkings.battle.components.health.ownhealthui;
     import driftkings.battle.components.minimap.minimapenhancementsui;
     import driftkings.battle.components.overlay.overlayui;
     import driftkings.battle.components.ratings.ratingscreens;
@@ -25,7 +24,6 @@ package driftkings.battle.factory
                 DriftkingsRatingScreens:ratingscreens,
                 FlightTimerView:flighttimerui,
                 MinimapEnhancementsView:minimapenhancementsui,
-                OwnHealthView:ownhealthui,
                 SixthSenseView:sixthsenseui
             };
         if (surface == "ratings") return {

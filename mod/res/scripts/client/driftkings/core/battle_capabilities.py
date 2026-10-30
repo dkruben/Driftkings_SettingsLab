@@ -127,6 +127,20 @@ class BattleCapabilities(object):
         return self.is_in_battle() and (self.is_white_tiger() or call(self._gui(), 'isEventBattle') is True or
             self._match('ARENA_BONUS_TYPE', self._bonus(), ('EVENT_BATTLES', 'EVENT_BATTLES_2', 'EVENT_RANDOM', 'TOURNAMENT_EVENT')))
 
+    def has_gameface_hud(self):
+        """True when the battle page also loads the native Gameface HUD that hosts the mod's cards.
+
+        Most modes do; some event pages (Halloween, Fort Rush) only load their Scaleform page."""
+        if not self.is_in_battle():
+            return False
+        views = self.modules.get('gui.Scaleform.daapi.settings.views')
+        pages = read(views, 'VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE')
+        alias = read(read(views, 'VIEW_ALIAS'), 'RANDOM_BATTLE_HUD')
+        if not isinstance(pages, dict) or alias is None:
+            return False
+        config = pages.get(call(self._visitor(), 'getArenaGuiType'), read(views, 'RANDOM_BATTLE_PAGE_CONFIG', ()))
+        return alias in (config or ())
+
     def is_special(self):
         return self.current_mode() in ('comp7', 'frontline', 'event', 'white_tiger', 'halloween', 'special')
 

@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "아이콘 표시"
 # vehicle_health
 vehicle_health.UI_description: "전차 내구도"
 vehicle_health.UI_setting_x_text: "위치 X"
-vehicle_health.UI_setting_x_tooltip: "조준선에서 HP 막대의 가로 위치 차이(픽셀)입니다. 음수 값은 왼쪽으로 이동합니다."
+vehicle_health.UI_setting_x_tooltip: "HP 막대의 가로 위치(픽셀)로, 화면 기준점(기본값: 아래 가운데)에서의 거리입니다. 전투 중에는 Ctrl을 누른 채 끌어서 옮길 수도 있습니다."
 vehicle_health.UI_setting_y_text: "위치 Y"
-vehicle_health.UI_setting_y_tooltip: "조준선에서 HP 막대의 세로 위치 차이(픽셀)입니다. 음수 값은 위로 이동합니다."
+vehicle_health.UI_setting_y_tooltip: "HP 막대의 세로 위치(픽셀)로, 화면 기준점(기본값: 아래 가운데)에서의 거리입니다. 음수 값은 위로 이동합니다. 전투 중에는 Ctrl을 누른 채 끌어서 옮길 수도 있습니다."
 
 # Settings panel
 panel.actionFailed: "작업이 실패했습니다. game.log을 참조하세요."

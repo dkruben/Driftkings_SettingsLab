@@ -1173,9 +1173,9 @@ vehicle_carousel.UI_setting_showIcons_text: "Symbole anzeigen"
 # vehicle_health
 vehicle_health.UI_description: "Fahrzeugtrefferpunkte"
 vehicle_health.UI_setting_x_text: "Position X"
-vehicle_health.UI_setting_x_tooltip: "Horizontaler Abstand der Lebensanzeige vom Fadenkreuz in Pixeln. Negative Werte verschieben sie nach links."
+vehicle_health.UI_setting_x_tooltip: "Horizontale Position der Lebensanzeige in Pixeln, gemessen von ihrem Bildschirmanker (standardmäßig unten mittig). Im Gefecht lässt sie sich auch mit gedrückter Strg-Taste verschieben."
 vehicle_health.UI_setting_y_text: "Position Y"
-vehicle_health.UI_setting_y_tooltip: "Vertikaler Abstand der Lebensanzeige vom Fadenkreuz in Pixeln. Negative Werte verschieben sie nach oben."
+vehicle_health.UI_setting_y_tooltip: "Vertikale Position der Lebensanzeige in Pixeln, gemessen von ihrem Bildschirmanker (standardmäßig unten mittig). Negative Werte verschieben sie nach oben. Im Gefecht lässt sie sich auch mit gedrückter Strg-Taste verschieben."
 
 # Settings panel
 panel.actionFailed: "Die Aktion ist fehlgeschlagen. Siehe game.log."
