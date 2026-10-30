@@ -38,11 +38,12 @@ def select_version(root, release, requested, channel):
     tree = ast.parse(source.read_text(encoding='utf-8'))
     current = next(ast.literal_eval(node.value) for node in tree.body if isinstance(node, ast.Assign)
                    and any(isinstance(t, ast.Name) and t.id == 'VERSION' for t in node.targets))
-    configured = version_contract(root).Version(release['version'])
+    contract = version_contract(root)
+    configured = contract.Version(release['version'])
     configured_channel = 'beta' if configured.prerelease else 'stable'
     require(release['channel'] == configured_channel and configured.allowed(configured_channel),
             'Configured release version and channel disagree')
-    version = version_contract(root).Version(requested or configured.text)
+    version = contract.Version(requested or configured.text)
     resolved = 'beta' if version.prerelease else 'stable'
     require(channel in ('auto', resolved), 'Version and channel disagree: %s / %s' % (version.text, channel))
     require(version.allowed(resolved), 'Only beta/rc prereleases are supported by the updater')
@@ -243,16 +244,88 @@ def publish_local(root, candidate, destination, config, generated, compiled, pla
         atomic_copy(compiled / item['target'], output_path(root, config['python']['staging_root'] + '/' + name))
 
 
-def build(args):
-    root = ROOT
-    config = read_json(root / 'build_data/build_config.json')
-    release = read_json(root / 'build_data/release.json')
+def check_release_identity(root, release):
     require(release['schema_version'] == 1, 'Unsupported release schema')
     require(release['package_id'] == 'driftkings.unified', 'Package identity must match the native installer contract')
     endpoint_tree = ast.parse((root / 'mod/res/scripts/client/driftkings/core/updater/endpoints.py').read_text(encoding='utf-8'))
     repository = next(ast.literal_eval(n.value) for n in endpoint_tree.body if isinstance(n, ast.Assign)
                       and any(isinstance(t, ast.Name) and t.id == 'REPOSITORY' for t in n.targets))
     require(release['repository'] == repository, 'Release repository must match the packaged updater')
+
+
+def check_client(root, config, tools):
+    """Confirm the read-only game installation and reference snapshot; return the client realm."""
+    version_xml = ET.parse(Path(tools['game_root']) / 'version.xml')
+    require(version_contract(root).normalize_game_version(version_xml.findtext('version')) == config['game']['version'], 'Installed game version differs from build target')
+    realm = client_realm(version_xml.findtext('meta/realm'), config)
+    reference = Path(tools['reference_root']) / '.version_name'
+    require(reference.read_text(encoding='utf-8-sig').strip() == config['reference']['version'], 'Reference source version mismatch')
+    return realm
+
+
+def python_overrides(root, config, release, version, components):
+    """Generated sources compiled in place of their checked-in counterparts."""
+    python_spec = config['python']
+    runtime_relative = Path(release['version_source']).relative_to(python_spec['source_root']).as_posix()
+    runtime_target = python_spec['archive_root'] + '/' + str(Path(runtime_relative).with_suffix('.pyc')).replace('\\', '/')
+    component_target = python_spec['archive_root'] + '/' + str(Path(python_spec['component_list']).with_suffix('.pyc')).replace('\\', '/')
+    overrides = {runtime_target: override_version((root / release['version_source']).read_text(encoding='utf-8'), version),
+                 component_target: '# Generated from enabled build manifests.\nCOMPONENTS = %r\n' % (tuple(components),)}
+    defaults_relative = Path(DEFAULT_VALUES).relative_to(python_spec['source_root']).with_suffix('.pyc').as_posix()
+    overrides[python_spec['archive_root'] + '/' + defaults_relative] = render_defaults(root)
+    return overrides
+
+
+def package_entries(root, release, plan, compiled, generated, version):
+    entries = {item['target']: (compiled / item['target']).read_bytes() for item in plan['python']}
+    for item in plan['assets']:
+        require(item['target'] not in entries, 'Duplicate archive target')
+        entries[item['target']] = (generated[item['source']] if item['generator'] else root / item['source']).read_bytes()
+    require('meta.xml' not in entries, 'Manifest overrides package metadata')
+    entries['meta.xml'] = metadata(release, version)
+    return entries
+
+
+def read_changelog(release, path):
+    changelog = release['changelog']
+    if path:
+        changelog = [line.strip() for line in Path(path).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
+    require(isinstance(changelog, list) and len(changelog) <= 50 and all(isinstance(s, str) and len(s) <= 500 for s in changelog), 'Invalid changelog')
+    return changelog
+
+
+def write_distribution(root, config, plan, candidate, package, version, channel):
+    """Write the defaults archive, dependency copies and manual-installation ZIP; return the defaults."""
+    game_version = config['game']['version']
+    defaults = {item['target']: (root / item['source']).read_bytes() for item in plan['defaults']}
+    zip_entries(candidate / 'Driftkings-defaults.zip', defaults, zipfile.ZIP_DEFLATED)
+    distribution = {'mods/' + game_version + '/driftkings.wotmod': package.read_bytes(),
+                    'Driftkings-defaults.zip': (candidate / 'Driftkings-defaults.zip').read_bytes()}
+    for name in plan['dependencies']:
+        path = root / name
+        target = candidate / 'dependencies' / path.name
+        target.parent.mkdir(exist_ok=True)
+        shutil.copyfile(path, target)
+        distribution['mods/' + game_version + '/' + path.name] = path.read_bytes()
+    instructions = ('Driftkings %s (%s), World of Tanks %s\n\n'
+                    'Extract the mods directory into the game directory.\n'
+                    'First installation: extract Driftkings-defaults.zip only when no Driftkings settings exist.\n'
+                    'Updates: keep your existing mods/configs/driftkings settings.\n'
+                    'No game files were installed by this build.\n') % (version, channel, game_version)
+    distribution['INSTALL.txt'] = instructions.encode('utf-8')
+    zip_entries(candidate / ('Driftkings-%s-WoT-%s.zip' % (version, game_version)), distribution, zipfile.ZIP_DEFLATED)
+    return defaults
+
+
+def artifact_files(candidate):
+    return [p for p in sorted(candidate.rglob('*')) if p.is_file()]
+
+
+def build(args):
+    root = ROOT
+    config = read_json(root / 'build_data/build_config.json')
+    release = read_json(root / 'build_data/release.json')
+    check_release_identity(root, release)
     version, channel, source_version = select_version(root, release, args.version, args.channel)
     tools = discover(root, vars(args))
     plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
@@ -263,12 +336,7 @@ def build(args):
                               python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults'])), indent=2))
         return destination
     require_tools(tools)
-    game = Path(tools['game_root'])
-    version_xml = ET.parse(game / 'version.xml')
-    require(version_contract(root).normalize_game_version(version_xml.findtext('version')) == config['game']['version'], 'Installed game version differs from build target')
-    realm = client_realm(version_xml.findtext('meta/realm'), config)
-    reference = Path(tools['reference_root']) / '.version_name'
-    require(reference.read_text(encoding='utf-8-sig').strip() == config['reference']['version'], 'Reference source version mismatch')
+    realm = check_client(root, config, tools)
     if not args.keep_source_version:
         sync_release_version(root, release, version, channel)
         source_version = version
@@ -283,14 +351,7 @@ def build(args):
         inventory = source_inventory(root, plan)
         report['inputs'] = inventory
         components = sorted(c['entrypoint'] for c in plan['components'] if c['enabled'] and c['kind'] == 'feature')
-        python_spec = config['python']
-        runtime_relative = Path(release['version_source']).relative_to(python_spec['source_root']).as_posix()
-        runtime_target = python_spec['archive_root'] + '/' + str(Path(runtime_relative).with_suffix('.pyc')).replace('\\', '/')
-        component_target = python_spec['archive_root'] + '/' + str(Path(python_spec['component_list']).with_suffix('.pyc')).replace('\\', '/')
-        overrides = {runtime_target: override_version((root / release['version_source']).read_text(encoding='utf-8'), version),
-                     component_target: '# Generated from enabled build manifests.\nCOMPONENTS = %r\n' % (tuple(components),)}
-        defaults_relative = Path(DEFAULT_VALUES).relative_to(python_spec['source_root']).with_suffix('.pyc').as_posix()
-        overrides[python_spec['archive_root'] + '/' + defaults_relative] = render_defaults(root)
+        overrides = python_overrides(root, config, release, version, components)
         epoch = int(os.environ.get('SOURCE_DATE_EPOCH', report['git']['epoch']))
         require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
         compiled = run / 'compiled'
@@ -298,57 +359,34 @@ def build(args):
         report['python'] = run_worker(tools, run, dict(action='compile', files=[dict(source=str(root / i['source']), target=i['target']) for i in plan['python']],
                                                     output=str(compiled), overrides=overrides, epoch=epoch), 'python')
         generated = generate(root, config, plan, tools, run)
-        entries = {item['target']: (compiled / item['target']).read_bytes() for item in plan['python']}
-        for item in plan['assets']:
-            require(item['target'] not in entries, 'Duplicate archive target')
-            entries[item['target']] = (generated[item['source']] if item['generator'] else root / item['source']).read_bytes()
-        require('meta.xml' not in entries, 'Manifest overrides package metadata')
-        entries['meta.xml'] = metadata(release, version)
+        entries = package_entries(root, release, plan, compiled, generated, version)
         candidate = destination.parent / ('.' + version + '-' + stamp)
         candidate.mkdir(parents=True)
         package = candidate / 'driftkings.wotmod'
         zip_entries(package, entries)
         verify_package(package, entries, version, release['package_id'])
-        changelog = release['changelog']
-        if args.changelog:
-            changelog = [line.strip() for line in Path(args.changelog).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
-        require(isinstance(changelog, list) and len(changelog) <= 50 and all(isinstance(s, str) and len(s) <= 500 for s in changelog), 'Invalid changelog')
         release_manifest = dict(schema=1, version=version, channel=channel, gameVersion=config['game']['version'],
                                 file='driftkings.wotmod', size=package.stat().st_size, sha256=sha(package),
-                                download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (release['repository'], version), changelog=changelog)
-        defaults = {item['target']: (root / item['source']).read_bytes() for item in plan['defaults']}
-        zip_entries(candidate / 'Driftkings-defaults.zip', defaults, zipfile.ZIP_DEFLATED)
-        distribution = {'mods/' + config['game']['version'] + '/driftkings.wotmod': package.read_bytes(),
-                        'Driftkings-defaults.zip': (candidate / 'Driftkings-defaults.zip').read_bytes()}
-        for name in plan['dependencies']:
-            path = root / name
-            target = candidate / 'dependencies' / path.name
-            target.parent.mkdir(exist_ok=True)
-            shutil.copyfile(path, target)
-            distribution['mods/' + config['game']['version'] + '/' + path.name] = path.read_bytes()
-        instructions = ('Driftkings %s (%s), World of Tanks %s\n\n'
-                        'Extract the mods directory into the game directory.\n'
-                        'First installation: extract Driftkings-defaults.zip only when no Driftkings settings exist.\n'
-                        'Updates: keep your existing mods/configs/driftkings settings.\n'
-                        'No game files were installed by this build.\n') % (version, channel, config['game']['version'])
-        distribution['INSTALL.txt'] = instructions.encode('utf-8')
-        zip_entries(candidate / ('Driftkings-%s-WoT-%s.zip' % (version, config['game']['version'])), distribution, zipfile.ZIP_DEFLATED)
+                                download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (release['repository'], version),
+                                changelog=read_changelog(release, args.changelog))
+        defaults = write_distribution(root, config, plan, candidate, package, version, channel)
         modpack = create_modpack(candidate, version, channel, config['game']['version'], defaults)
         write_json(candidate / 'modpack.json', modpack)
         release_manifest.update(schema=2, modpack=modpack)
         write_json(candidate / 'release.json', release_manifest)
+        expected_defaults, selector, _ = assemble_defaults(root)
         report['verification'] = run_worker(tools, run, dict(action='verify', package=str(package), manifest=str(candidate / 'release.json'),
                                                            modpack=str(candidate / 'modpack.json'),
                                                            version=version, channel=channel, game_version=config['game']['version'], components=components,
-                                                           defaults=assemble_defaults(root)[0], selector=assemble_defaults(root)[1]), 'verify')
+                                                           defaults=expected_defaults, selector=selector), 'verify')
         require(source_inventory(root, plan) == inventory, 'Build inputs changed during compilation; previous output preserved')
         report.update(status='success', publishable=bool(args.mode == 'release'),
                       counts=dict(components=len(components), python=len(plan['python']), assets=len(plan['assets']), entries=len(entries), defaults=len(defaults)),
                       generated={name: sha(path) for name, path in generated.items()}, seconds=round(time.monotonic() - started, 3))
         report['artifacts'] = {p.relative_to(candidate).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
-                               for p in sorted(candidate.rglob('*')) if p.is_file()}
+                               for p in artifact_files(candidate)}
         write_json(candidate / 'build-report.json', report)
-        sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix()) for p in sorted(candidate.rglob('*')) if p.is_file()) + '\n'
+        sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix()) for p in artifact_files(candidate)) + '\n'
         (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
         publish_local(root, candidate, destination, config, generated, compiled, plan)
         write_json(run / 'build-report.json', report)
