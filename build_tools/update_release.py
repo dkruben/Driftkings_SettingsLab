@@ -1,4 +1,7 @@
-"""Rebuild an existing release using its GitHub notes; sign locally, optionally upload."""
+"""Rebuild an existing release from its tagged revision using its GitHub notes; sign locally, optionally upload.
+
+The published tag is never moved: the checkout must already be the commit the tag points to.
+"""
 import argparse
 import json
 from pathlib import Path
@@ -26,6 +29,23 @@ def changelog_lines(body):
     return lines
 
 
+def tag_commit(refs, tag):
+    """Resolve a tag from `git ls-remote` output, preferring the peeled commit of an annotated tag."""
+    found = {}
+    for line in refs.splitlines():
+        if line.strip():
+            digest, name = line.split(None, 1)
+            found[name.strip()] = digest
+    commit = found.get('refs/tags/%s^{}' % tag) or found.get('refs/tags/' + tag)
+    require(commit, 'Published tag %s was not found on origin' % tag)
+    return commit
+
+
+def require_tagged_revision(commit, head, tag):
+    require(commit == head, 'Tag %s points to %s, not the checkout %s. Check out the tagged commit to rebuild '
+            'its assets, or publish the changes as a new version; the tag is never moved.' % (tag, commit[:12], head[:12]))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version', help='Existing version; defaults to build_data/release.json')
@@ -46,6 +66,9 @@ def main():
              '--json', 'tagName,body,isDraft,isPrerelease'], cwd=ROOT))
         require(remote['tagName'] == tag and not remote['isDraft'] and
                 remote['isPrerelease'] == (channel == 'beta'), 'Release identity/channel mismatch')
+        tagged = tag_commit(subprocess.check_output(
+            ['git', 'ls-remote', 'origin', 'refs/tags/' + tag, 'refs/tags/%s^{}' % tag], cwd=ROOT).decode('utf-8'), tag)
+        require_tagged_revision(tagged, subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip(), tag)
         lines = changelog_lines(remote['body'])
         require(args.key.is_file(), 'Local release signing key is missing')
         with tempfile.TemporaryDirectory(prefix='dk-release-notes-') as temporary:
@@ -66,10 +89,9 @@ def main():
             require(head == report['git']['commit'] and
                     not subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT).strip(),
                     'Checkout changed during the build')
+            require_tagged_revision(tagged, head, tag)
             subprocess.run(['gh', 'release', 'upload', tag, '--repo', release['repository'], '--clobber'] +
                            [str(path) for path in files], cwd=ROOT, check=True)
-            # Align the source archive with the exact revision used to compile the assets.
-            subprocess.run(['git', 'push', 'origin', head + ':refs/tags/' + tag, '--force'], cwd=ROOT, check=True)
             print('Updated %s with %d verified assets and GitHub release notes' % (tag, len(files)))
         else:
             print('Prepared and signed %s; no upload. Use --publish to update GitHub.' % folder)

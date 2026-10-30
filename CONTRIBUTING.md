@@ -252,6 +252,10 @@ Clients that predate this feature do not verify signatures; they must update onc
 
 The publisher rejects dirty builds or a checkout that differs from the recorded source revision. A release includes the installer, distribution ZIP, defaults, dependencies, WOTMOD, modpack manifest, signed updater manifest, build report and checksums. Never publish the private signing seed.
 
+### Rebuilding the assets of a published release
+
+`python build_tools/update_release.py [--version <version>]` rebuilds, signs and previews the assets of an existing release, using its GitHub notes as the changelog; `--publish` replaces those assets with `gh release upload --clobber`. It is a recovery tool for the same source revision, such as an incomplete upload or corrected release notes. The checkout must be clean and be the exact commit the published tag points to; otherwise the script stops. It never moves or force-pushes a tag. Code changes require a new version.
+
 ## Pull requests
 
 - Keep changes focused; one concern per pull request.
