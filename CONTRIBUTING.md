@@ -236,7 +236,7 @@ Restart the client and check `<game-root>/game.log` plus the affected UI/mode. R
 The updater authenticates `release.json` with an Ed25519 signature. **Signature verification is active:** `TRUSTED_KEYS` in `core/updater/signature.py` already contains a trusted public key. Published release manifests must be signed with a corresponding private key.
 
 1. Use the existing trusted signing key for releases. Only when provisioning a new key, run `python build_tools/sign_release.py --generate release-signing.key` and add its public key to `TRUSTED_KEYS`. Keep private keys offline, outside the repository and CI, and back them up.
-2. For each release, after the build: `python build_tools/sign_release.py <version-folder> --key release-signing.key`. This writes `release.json.sig`, and `publish_release.py` verifies it and uploads it with the other assets.
+2. For each release, after the build: `python build_tools/sign_release.py <version-folder> --key release-signing.key`. This writes `release.json.sig`, and `publish_release.py` verifies it and uploads it with the other assets. Publication always requires a valid signature from a key in `TRUSTED_KEYS`: the publisher refuses unsigned releases and stops if `TRUSTED_KEYS` is empty.
 3. To rotate a key, ship a release that lists both the old and the new public keys before retiring the old one.
 
 Clients that predate this feature do not verify signatures; they must update once to get the check.

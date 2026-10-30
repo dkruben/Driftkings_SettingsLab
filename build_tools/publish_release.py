@@ -21,6 +21,18 @@ def signature_module():
     return load_signature()
 
 
+def verify_signature(folder, signature):
+    """Every published manifest must carry a signature from a trusted key; returns the asset name."""
+    require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty in signature.py; releases cannot be published unsigned')
+    path = folder / signature.SIGNATURE_ASSET
+    require(path.is_file(), 'Missing %s; run build_tools/sign_release.py first' % signature.SIGNATURE_ASSET)
+    try:
+        signature.verify_manifest((folder / 'release.json').read_bytes(), path.read_bytes(), signature.TRUSTED_KEYS)
+    except ValueError as error:
+        raise ValueError('Release manifest signature is not valid for a trusted key: %s' % error)
+    return signature.SIGNATURE_ASSET
+
+
 def prepare(folder):
     folder = folder.resolve()
     report = read_json(folder / 'build-report.json')
@@ -60,18 +72,7 @@ def prepare(folder):
         require(sha(input_path(folder, name)) == digest, 'Checksum mismatch: ' + name)
     require(covered == set(report['artifacts']) | {'build-report.json'}, 'Incomplete checksum inventory')
     names = set(report['artifacts']) | {'build-report.json', 'SHA256SUMS.txt'}
-    signature = signature_module()
-    if signature.enforced() or (folder / signature.SIGNATURE_ASSET).exists():
-        require((folder / signature.SIGNATURE_ASSET).is_file(),
-                'Missing %s; run build_tools/sign_release.py first' % signature.SIGNATURE_ASSET)
-        signed = (folder / signature.SIGNATURE_ASSET).read_bytes()
-        keys = signature.TRUSTED_KEYS
-        require(keys, 'A signature was produced but TRUSTED_KEYS is empty in signature.py')
-        try:
-            signature.verify_manifest((folder / 'release.json').read_bytes(), signed)
-        except ValueError as error:
-            raise SystemExit('Release manifest signature is not valid for a trusted key: %s' % error)
-        names.add(signature.SIGNATURE_ASSET)
+    names.add(verify_signature(folder, signature_module()))
     files = [folder / name for name in sorted(names)]
     require(len({path.name.lower() for path in files}) == len(files), 'Release assets have duplicate filenames')
     command = ['gh', 'release', 'create', 'v' + version.text, '--repo', release['repository'],
