@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 30 de outubro de 2026. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-10-30. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -28,14 +28,22 @@ Atualizado em 30 de outubro de 2026. Os caminhos e comandos partem da raiz do re
 | Painel de configurações | [Relatório funcional](RELATORIO_PAINEL_CONFIGURACAO.md) |
 | Marcadores dos veículos | [Guia dos marcadores](vehicle_markers/README.md) |
 | Carrossel | [Guia do carrossel](vehicle_carousel/README.md) |
+| Modo Halloween | [Halloween mode](halloween/README.md) |
 | Preferências do lobby | [Guia](hangar_preferences/README.md) |
-| Fontes e caracteres | [Fontes](FONTES.md) |
+| Fontes e caracteres | [Fonts and characters](fonts/README.md) |
 | Traduções | [Guia i18n](i18n/README.md) |
 | Áudio e Sexto Sentido | [Bancos](audioww/README.md) e [ícones](sixthsense_icons/README.md) |
-| Referências locais de desenvolvimento | [Development References](DEVELOPMENT_REFERENCE.md); [guia português histórico](FONTES_DESENVOLVIMENTO.md) |
+| Referências locais de desenvolvimento | [Development References](DEVELOPMENT_REFERENCE.md) |
 | Otimização e pendências | [Auditoria final](AUDITORIA_FINAL_INTEGRACAO.md) |
 
 Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`; os contratos ativos estão em `interface_catalog.py`. Os planos de migração concluídos e os estudos antigos foram retirados de `docs`. Os dados locais dos estudos foram preservados em `../Driftkings_SettingsLab_docs_backup_20261028/`; os relatórios versionados continuam recuperáveis no histórico Git. As pendências da otimização permanecem na auditoria final.
+
+### Convenções da documentação
+
+- Guias técnicos de funcionalidades ficam em inglês, cada um em `docs/<área>/README.md`; os guias transversais (`DEVELOPMENT_REFERENCE.md`, `CONTRIBUTING.md`) também estão em inglês.
+- Relatórios de estado, auditoria e funcionamento do painel ficam em português, em `docs/` com nome em maiúsculas: este documento, `AUDITORIA_FINAL_INTEGRACAO.md` e `RELATORIO_PAINEL_CONFIGURACAO.md`.
+- As datas usam o formato ISO `AAAA-MM-DD` quando indicam a revisão de um documento.
+- Planos concluídos passam a guia da funcionalidade ou são retirados; o histórico Git conserva as versões anteriores. Em 2026-10-30, `FONTES.md` passou a `fonts/README.md`, `PLANO_HALLOWEEN.md` passou a `halloween/README.md` e `FONTES_DESENVOLVIMENTO.md` foi retirado.
 
 ## Comportamentos e limites a preservar
 
@@ -50,7 +58,7 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 
 ## Alterações e validação de 29 de outubro
 
-- **Fontes:** OpenWG Common e o pacote Python `driftkings.fonts` foram retirados. As fontes são incorporadas/registadas nos dois SWF e carregadas por `@font-face` no Gameface; preservar `dkm`, aliases existentes e fontes nativas. OpenWG Gameface permanece como dependência separada, juntamente com ModsList.
+- **Fontes:** OpenWG Common e o pacote Python `driftkings.fonts` foram retirados. As fontes são incorporadas/registadas nos dois SWF e carregadas por `@font-face` no Gameface; preservar `dkm`, `DriftkingsFont` e as fontes nativas; os aliases antigos foram retirados em 2026-10-30. OpenWG Gameface permanece como dependência separada, juntamente com ModsList.
 - **Desempenho:** o utilizador confirmou fontes funcionais e ausência de lag observado no NA após a remoção do Common. Não existe comparação A/B válida que quantifique FPS ou prove a causa da quebra anterior. Não reintroduzir Common apenas para registar as fontes já incorporadas.
 - **Marcadores e estatísticas:** defaults seguem o layout de referência sem XMQP; distância integrada desativada por defeito para manter o módulo independente «Distância ao alvo». A descoberta das vistas dos Player Panels continua ativa durante transições sem linhas. Preservar perfis pessoais; a configuração instalada pode diferir dos defaults.
 - **Account Manager:** janela modal com área completa do cliente e centragem CSS, foco e captura de Esc; campo de palavra-passe guardada mascarado, revelação apenas a pedido e manutenção do valor ao guardar sem o alterar. Vistos desenhados em CSS sem depender de um glifo da fonte. O utilizador confirmou funcionamento no cliente NA `2.4.1.1 #987`.

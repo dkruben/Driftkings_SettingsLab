@@ -3,8 +3,6 @@ import math
 import re
 from xml.sax.saxutils import escape
 
-from driftkings.core.legacy_names import MACRO_ALIASES
-
 try:
     text_type = unicode
 except NameError:
@@ -52,7 +50,6 @@ class Macros(object):
         self.dependencies = dependencies
 
     def value(self, name):
-        name = MACRO_ALIASES.get(name, name)
         # {{i18n:KEY}}; legacy {{l10n:KEY}} reads the same translations.
         if name.startswith(('i18n:', 'l10n:')):
             return self.translations.get(name[5:], name[5:])

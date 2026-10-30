@@ -5,7 +5,6 @@ import math
 import re
 
 from driftkings.common.utils.compat import string_types
-from driftkings.core.legacy_names import MACRO_ALIASES
 from driftkings.core.vehicle_markers.expressions import validate as validate_expression
 
 SHADOW = {'enabled': True, 'distance': 0, 'angle': 0, 'color': '#000000',
@@ -20,7 +19,6 @@ MACROS.update('c:' + key for key in ('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xe
 MACROS.update(('turret', 'stock-turret', 'turret-vulnerability', 'distance', 'dist', 'alive', 'dead', 'ally', 'enemy', 'player', 'squad', 'anonym', 'vtype'))
 # Marker battle macros: {{battletype}} is empty in random battles, {{position}} is the team list order.
 MACROS.update(('battletype', 'position'))
-MACROS.update(MACRO_ALIASES)
 
 
 def template(value, extra_macros=()):

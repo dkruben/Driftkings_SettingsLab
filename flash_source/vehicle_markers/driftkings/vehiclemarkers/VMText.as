@@ -107,7 +107,6 @@ package driftkings.vehiclemarkers
                 values["c:" + metric] = stats && stats["c:" + metric] ? stats["c:" + metric] : VMState.config.colors.team.unknown;
             }
             values["stat-available"] = Boolean(stats && stats["stat-available"]);
-            values["xvm-stat"] = values["stat-available"]; // Legacy profile macro.
             values["a:r"] = values["stat-available"] ? 100 : 0;
             for each (var keyName:String in ["stock-turret", "turret-vulnerability", "distance", "dist", "ally", "enemy", "player", "squad", "anonym", "battletype", "position"])
                 values[keyName] = stats ? stats[keyName] : null;

@@ -15,7 +15,7 @@ This guide explains how the code is organised and how to make a change safely. S
 - Regenerate `settings/default_values.py` with the defaults tool and `shared/bootstrap.js` with the UI catalogue tool. The compiler generates the packaged `component_list.py` from enabled manifests; keep the checked-in component list aligned with those manifests.
 - Write fixed colours as `#RRGGBB`. Reuse `colorutils.parse`, `nativestate.color` or `VMState.rgb` where ActionScript needs a numeric colour. Keep bit masks and format-compatibility parsers separate from colour literals.
 - Colour settings require the `#` prefix. Legacy numeric prefixes and bare hex strings are rejected; do not restore prefix-preserving save logic or automatic conversion of old colour strings. Keep actual native numeric colours as numbers at the API boundary. HTML templates consume the complete colour value, including `#`, so do not add a second prefix.
-- Configurable ActionScript text fields allow device/shared-library lookup (`embedFonts = false`) and embedded symbol fonts. Preserve `$FieldFont`/`$TitleFont`, configured font names, Unicode and HTML entities. Never map symbol fonts to text fonts or replace their glyphs. The marker SWF must retain embedded font tags and remapped class bindings as well as its ABC. See [font resources and credits](docs/FONTES.md).
+- Configurable ActionScript text fields allow device/shared-library lookup (`embedFonts = false`) and embedded symbol fonts. Preserve `$FieldFont`/`$TitleFont`, configured font names, Unicode and HTML entities. Never map symbol fonts to text fonts or replace their glyphs. The marker SWF must retain embedded font tags and remapped class bindings as well as its ABC. See [font resources and credits](docs/fonts/README.md).
 
 ## Branches and release channels
 
@@ -72,7 +72,7 @@ Keep DAAPI views, metas, AS3 payload transport, native Flash registration and pr
 
 `_constants.py` owns shared engine-free keys, aliases and values. `game_constants.py` owns WG enums and groups derived from them; it may import client APIs. Reuse existing constants and keep implementation-only values local. Preserve public keys, JSON names and aliases, and do not introduce a WG dependency into portable modules through their imports.
 
-Fonts are self-contained in Flash (`Font.registerFont` and embedded tags) and Gameface (`@font-face`). OpenWG Common was removed after the NA performance investigation; it is not needed to register these packaged fonts. The retained OpenWG Gameface dependency is separate. See [fonts](docs/FONTES.md) for aliases and credits, and [status](docs/STATUS.md) for the limits of in-game validation.
+Fonts are self-contained in Flash (`Font.registerFont` and embedded tags) and Gameface (`@font-face`). OpenWG Common was removed after the NA performance investigation; it is not needed to register these packaged fonts. The retained OpenWG Gameface dependency is separate. See [fonts](docs/fonts/README.md) for aliases and credits, and [status](docs/STATUS.md) for the limits of in-game validation.
 
 ### Account Manager
 
@@ -291,8 +291,8 @@ HP textures at 72 x 24 pixels; the current EU-profile default displays the HP im
 
 Use descriptive internal names: `core/vehicle_markers/schema.py` for marker layouts, `stats/vehinfo.py` for rating tables and normalized scales and `colors/driftkings.json` for palette index 1. Keep numeric palette indices and all existing colour thresholds unchanged when renaming a palette.
 
-New templates use `{{stat-available}}`. `core/legacy_names.py` retains the old macro and cache filename only as read aliases for installed profiles. The Python renderer, settings validator, ActionScript markers and Gameface sample must continue accepting those legacy templates. New cache downloads use `ratingScales.json`; an existing legacy cache remains readable with its validation and refresh timestamps.
+Templates use `{{stat-available}}`, and rating scales are cached as `ratingScales.json`. The former macro and cache names are no longer read; installed profiles must use the current names.
 
-External service URLs, third-party module detection paths, source attribution and the `xvm`/`XVMSymbol` font names keep their original spelling. They are compatibility or provenance identifiers, not names for Driftkings components. Do not create old-name wrapper modules or duplicate palette assets.
+External service URLs, third-party module detection paths and source attribution keep their original spelling. They are compatibility or provenance identifiers, not names for Driftkings components. Do not create old-name wrapper modules or duplicate palette assets.
 
 The source Wwise project keeps its WAV/WWU/WPROJ inputs. Its `.cache`, `GeneratedSoundBanks`, validation cache and generated `Wwise.dat` files are local outputs. Keep them out of Git, together with generated battle SWFs and installer helper output. The supported build regenerates the battle movie from `flash_source`; the retired `res_map` declarations are not used by the current Gameface dependency.

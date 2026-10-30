@@ -5,6 +5,7 @@
 - Data: `2026-10-28`
 - Base de comparação: `9ebc163661ab0e04d8be65dbc119b8184a3f3ddc`
 - Estado da entrega: alterações locais, sem commit nem push.
+- Nota de 2026-10-30: as alterações auditadas foram integradas no commit `202f476`; a linha anterior descreve apenas o momento da auditoria.
 
 ## A. Resumo executivo
 

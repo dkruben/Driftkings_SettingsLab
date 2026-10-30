@@ -1,8 +1,6 @@
-/* Font names and glyph maps are preserved; see docs/FONTES.md for credits. */
+/* Font names and glyph maps are preserved; see docs/fonts/README.md for credits. */
 @font-face { font-family: 'dkm'; src: url('coui://gui/fonts/driftkings/DriftkingsFont.ttf'); }
 @font-face { font-family: 'DriftkingsFont'; src: url('coui://gui/fonts/driftkings/DriftkingsFont.ttf'); }
-@font-face { font-family: 'XVMSymbol'; src: url('coui://gui/fonts/driftkings/DriftkingsFont.ttf'); }
-@font-face { font-family: 'xvm'; src: url('coui://gui/fonts/driftkings/DriftkingsFont.ttf'); }
 @font-face { font-family: 'VehicleType'; src: url('coui://gui/fonts/driftkings/VehicleType.ttf'); }
 @font-face { font-family: 'vtype'; src: url('coui://gui/fonts/driftkings/VehicleType.ttf'); }
 @font-face { font-family: 'DynamicDefault'; src: url('coui://gui/fonts/driftkings/DynamicDefault.ttf'); }

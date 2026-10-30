@@ -32,5 +32,7 @@ class EmbeddedFontAssetTests(unittest.TestCase):
         for name, path in embedded.items():
             self.assertEqual(path, gameface[name])
             self.assertTrue(path.is_file())
-        for name in ('dkm', 'DriftkingsFont', 'xvm', 'XVMSymbol'):
+        for name in ('dkm', 'DriftkingsFont'):
             self.assertEqual(embedded[name].name, 'DriftkingsFont.ttf')
+        # The legacy xvm/XVMSymbol aliases were retired in favour of dkm.
+        self.assertFalse({'xvm', 'XVMSymbol'} & (set(embedded) | set(gameface)))

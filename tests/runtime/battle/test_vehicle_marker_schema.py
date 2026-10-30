@@ -177,7 +177,7 @@ class VehicleMarkerSchemaTests(RuntimeTest):
         self.assertEqual(schema.adapt(data)['customFields']['ally']['alive']['normal'], [])
 
     def test_fonts_and_characters_are_preserved(self):
-        for font in ('DriftkingsFont', 'xvm', 'XVMSymbol', 'Arial', u'Fonte \u00e1', '$FieldFont'):
+        for font in ('dkm', 'DriftkingsFont', 'Arial', u'Fonte \u00e1', '$FieldFont'):
             field = self.schema.text_field({'format': u'&#x115; <b>!</b> \u00e1 \u0416 \u4e2d', 'textFormat': {'font': font}})
             self.assertEqual(field['format'], u'&#x115; <b>!</b> \u00e1 \u0416 \u4e2d')
             self.assertEqual(field['textFormat']['font'], font)

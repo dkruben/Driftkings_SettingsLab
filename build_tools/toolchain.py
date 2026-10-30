@@ -48,7 +48,7 @@ def discover(root, overrides):
     java = Path(os.environ.get('ProgramFiles', 'C:/Program Files')) / 'Java'
     result['java'] = choose('java', sorted(java.glob('jre1.8*/bin/java.exe'), reverse=True) + [shutil.which('java')])
     result['csc'] = choose('csc', [Path(os.environ.get('WINDIR', 'C:/windows')) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'])
-    result['rabcdasm_home'] = choose('rabcdasm_home', [root.parent / 'WoT_Tools/xvm-master/src_build/bin/windows_i686/rabcdasm'], directory=True)
+    result['rabcdasm_home'] = choose('rabcdasm_home', [], directory=True)
     result['game_root'] = choose('game_root', [], directory=True)
     result['reference_root'] = choose('reference_root', [], directory=True)
     return result

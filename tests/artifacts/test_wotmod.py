@@ -47,7 +47,7 @@ class PackagedFontTests(unittest.TestCase):
     def test_rating_glyph_survives_native_marker_injection(self):
         for movie in MOVIES:
             fonts = embedded_fonts(self.archive.read(movie))
-            for alias in ('dkm', 'DriftkingsFont', 'xvm', 'XVMSymbol'):
+            for alias in ('dkm', 'DriftkingsFont'):
                 self.assertIn(0x115, fonts[alias], '%s: missing rating glyph in %s' % (movie, alias))
 
     def test_ttf_resources_ship_without_native_registration_package(self):

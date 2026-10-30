@@ -150,7 +150,6 @@
         values['stock-turret']=!!sample.turret; values['turret-vulnerability']=sample.turret || 'none';
         values.turret=sample.turret==='high'?config.turretMarkers.highVulnerability:sample.turret==='low'?config.turretMarkers.lowVulnerability:sample.turret==='unknown'?config.turretMarkers.unknown:'';
         values['a:r']=values['stat-available']?100:0;
-        values['xvm-stat']=values['stat-available']; // Legacy profile macro.
         values.nick=sample.name || 'DriftKings'; values.clan='[DK]';
         values['hp-max']=values.maxHp; values['hp-ratio']=values.hpPercent; values['c:system']=values['c:team'];
         values.distance=values.dist=sample.distance===undefined?350:sample.distance;

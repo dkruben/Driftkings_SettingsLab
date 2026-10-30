@@ -23,7 +23,7 @@ Configurable ActionScript text fields allow shared-library, device and embedded 
 lookup with `embedFonts = false`. Keep `$FieldFont` and `$TitleFont` as client aliases.
 The real symbol fonts are included in both Flash movies and Gameface; configured names,
 Unicode and HTML entities are preserved. Font resources, credits and coverage limits are
-listed in [Fontes e caracteres](../FONTES.md).
+listed in [Fonts and characters](../fonts/README.md).
 
 Configuration lives in the active profile's `vehicle_markers` directory and
 uses a structured five-file marker layout, without XMQP: `markers.json` plus
@@ -76,8 +76,8 @@ value is invented. Anonymized or unavailable statistics remain unavailable.
 
 The project defaults now follow the reference `default_wg` marker layout, with XMQP fields removed.
 Alive normal mode uses `&#x115;` in `dkm`, and ALT shows the
-selected rating. The legacy aliases `xvm` and `XVMSymbol` resolve to `DriftkingsFont` in the runtime
-and the editor. `&#x115;` retains its original glyph. Existing custom field arrays are preserved: use **Add rating** in the
+selected rating. Use `dkm` or `DriftkingsFont` for this glyph
+in the runtime and the editor. `&#x115;` retains its original glyph. Existing custom field arrays are preserved: use **Add rating** in the
 editor to insert the normal or ALT preset in any of the eight contexts.
 
 Text fields support structured `name`, `textFormat` (font, size, color, bold,
@@ -207,12 +207,12 @@ The project defaults disable integrated distance to avoid duplicating the dedica
 
 Text layers are cached separately for each team/state/mode and only the active layer is visible. Recreated health bars remain below text; floating damage stays above it. Configuration replacement and native marker disposal remove all cached layers. Sticky/off-screen markers hide custom layers. Disabling the marker system preserves native settings and damage rendering.
 
-Font glyphs and aliases are embedded in both Flash movies and registered with `Font.registerFont`; Gameface loads the packaged TTFs through `@font-face`. OpenWG Common is not required; see [Fontes](../FONTES.md). No XMQP registration, events or default fields are included. This integration retains the project's marker bridge and JSON references; it does not import the upstream mod framework or its networking subsystem.
+Font glyphs and aliases are embedded in both Flash movies and registered with `Font.registerFont`; Gameface loads the packaged TTFs through `@font-face`. OpenWG Common is not required; see [Fonts](../fonts/README.md). No XMQP registration, events or default fields are included. This integration retains the project's marker bridge and JSON references; it does not import the upstream mod framework or its networking subsystem.
 
 Run `npm --prefix build_tools/javascript test` for the preview/editor and Python/JavaScript adapter mapping, and the Core suite for geometry, references, aliases and damage policies. See the [contribution guide](../../CONTRIBUTING.md) and [current status](../STATUS.md). Paths in this guide are relative to the repository root or the `driftkings` client package as indicated.
 
 ## Naming and source attribution
 
-The project palette is named **Driftkings**, retaining index 1 and the existing thresholds/colours. New macros use `{{stat-available}}`; the old macro spelling is accepted only for profile compatibility. Source code lives in `core/vehicle_markers/schema.py`, not a provider-named module.
+The project palette is named **Driftkings**, retaining index 1 and the existing thresholds/colours. Macros use `{{stat-available}}`; the former macro name is no longer accepted. Source code lives in `core/vehicle_markers/schema.py`, not a provider-named module.
 
-The layout and rating-scale references were originally adapted from XVM's `default_wg` configuration. This attribution is retained; the `xvm` and `XVMSymbol` font names also remain valid. Provider URLs and external-mod detection identifiers are unchanged where required for interoperability.
+The layout and rating-scale references were originally adapted from XVM's `default_wg` configuration. This attribution is retained. Provider URLs and external-mod detection identifiers are unchanged where required for interoperability.

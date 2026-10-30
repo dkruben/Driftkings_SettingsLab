@@ -1,10 +1,10 @@
 # Development References
 
-Reference baseline verified on **28 October 2026** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
+Reference baseline verified on **2026-10-28** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
 
 This guide identifies the sources used to develop Driftkings SettingsLab. These paths describe the maintainer's Windows workspace; they are not bundled with this repository. Other developers may store them elsewhere. The build contract fixes the reference version; each machine sets the reference and game locations in the ignored `build_data/toolchain.local.json`.
 
-Updated on **29 October 2026** for current dependency and handoff context. Read [STATUS.md](STATUS.md) first for the development revision, in-game validation and remaining work, then [CONTRIBUTING.md](../CONTRIBUTING.md) for architecture and build/install commands. This document describes reference sources, not the entire project state. Verify dated versions against the current build contract before using them.
+Updated on **2026-10-29** for current dependency and handoff context, and on **2026-10-30** for local build paths. Read [STATUS.md](STATUS.md) first for the development revision, in-game validation and remaining work, then [CONTRIBUTING.md](../CONTRIBUTING.md) for architecture and build/install commands. This document describes reference sources, not the entire project state. Verify dated versions against the current build contract before using them.
 
 ## Reference locations
 
@@ -14,7 +14,6 @@ Local tools root: `E:/Wot_Mods_/Drift_Kings_ModPack/WoT_Tools`.
 | --- | --- | --- |
 | WoT SRC EU | `wot-src-EU/` | Current production reference for Python APIs, signatures, events, models, battle modes and Scaleform code; selected by the build contract. |
 | WoT SRC CT | `wot-src-CT/` | Common Test snapshot for comparison. Check its version before treating it as newer than production. |
-| XVM | `xvm-master/` | Implementation examples for cameras, crew, carousel, minimap, configuration and component lifecycle. |
 | ModsList | `ModList/` | Mods-panel API and UI integration, including WULF resources and dependencies. |
 | OpenWG Gameface | `GameFace/` | Resource registration, UI injection and JavaScript integration. |
 
@@ -59,21 +58,6 @@ The following paths were confirmed under both `wot-src-EU/` and `wot-src-CT/`:
 
 Before changing a hook, find the original method and inspect its lifecycle, arguments, return value and callers. Confirm the affected mode: lobby, normal battle, replay, training/Topography or a special event. A successful import alone does not establish mode support.
 
-### XVM
-
-These starting points were confirmed under `xvm-master/`:
-
-| Area | Paths |
-| --- | --- |
-| Camera and zoom | `src/xvm_battle_camera/` |
-| Crew and tooltips | `src/xvm_crew/`, `src/xvm_tooltips/` |
-| Lobby and carousel | `src/xvm_tankcarousel/`, `src/xvm_hangar/`, `src/xvm_techtree/` |
-| Battle, minimap and replay | `src/xvm_battle/`, `src/xvm_battle_minimap/`, `src/xvm_battle_replay/` |
-| Vehicle markers and font reference | `src/xvm_actionscript/swf_xvm/xvm_vehiclemarkers_ui/`, `src/xvm_fonts/` |
-| Distributed configuration examples | `release/` |
-
-Trace each configuration field to the code that consumes it. XVM is an implementation reference, not Driftkings' configuration specification. Preserve Driftkings defaults and presentation, and check dependencies, client compatibility, licensing and credits before incorporating external code or assets.
-
 ### ModsList
 
 Start with `ModList/README.md`, then inspect `python/`, `resources/` and `as3/`. These paths were confirmed locally.
@@ -88,7 +72,7 @@ The packaged dependency is `res/wotmods/net.openwg.gameface_1.2.2.wotmod`. Its S
 
 The local README and Python implementation confirm that WG uses native `gui/gen_resources/*.json` registration from client 2.4.1. The older `on_ready`, `res_id_by_key`, `res_ids_by_mask` and `ModDynAccessor` APIs are deprecated placeholders on WG; `gf_mod_inject`, `ModInjectModel` and the JavaScript helpers remain supported by that reference implementation. Do not assume Lesta-specific paths or behavior apply to EU, NA or ASIA.
 
-OpenWG Common is not a runtime dependency of the current build. The earlier native font-registration package was removed; packaged Flash fonts use embedded glyphs and `Font.registerFont`, and Gameface uses `@font-face`. Keep Common distinct from the retained OpenWG Gameface dependency. Consult [font details](FONTES.md) and [current validation](STATUS.md) before changing this choice. Native WG movie classes with Lesta-named namespaces can belong to the original pinned movie; their names alone are not evidence of an added RU-server dependency.
+OpenWG Common is not a runtime dependency of the current build. The earlier native font-registration package was removed; packaged Flash fonts use embedded glyphs and `Font.registerFont`, and Gameface uses `@font-face`. Keep Common distinct from the retained OpenWG Gameface dependency. Consult [font details](fonts/README.md) and [current validation](STATUS.md) before changing this choice. Native WG movie classes with Lesta-named namespaces can belong to the original pinned movie; their names alone are not evidence of an added RU-server dependency.
 
 Gameface's DOM/CSS support is not identical to a desktop browser. The NA client log showed that `style.getPropertyPriority` is unavailable. Keep adapters compatible with the actual client and validate visual changes in game; browser-style test doubles alone do not prove API support.
 
@@ -140,4 +124,4 @@ Evidence used in this review:
 - [`build_config.json`](../build_data/build_config.json) and SHA-256 checks of both packaged UI dependencies.
 - [`package.json`](../build_tools/javascript/package.json), npm scripts and the CI workflow.
 
-[`FONTES_DESENVOLVIMENTO.md`](FONTES_DESENVOLVIMENTO.md) is the older Portuguese companion guide; dated statements there should be checked against the current contract and this verification.
+The older Portuguese companion guide, `FONTES_DESENVOLVIMENTO.md`, was retired; it remains recoverable from the Git history.

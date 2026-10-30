@@ -31,7 +31,7 @@ variants reuse the existing `es` and `pt` catalogs. `zh-SG` resolves to `zh_cn`;
 `zh-TW` and `zh-HK` resolve to `zh_tw`. The Chinese scripts stay separate.
 
 All 18 catalogs contain the same 1491 component keys and 170 panel keys as
-`en.yml` (validated 26/10/2026). Missing entries and prose still in English were
+`en.yml` (validated 2026-10-26). Missing entries and prose still in English were
 completed with machine translation. Existing localized text was preserved. New
 translations need native-speaker review; complete key coverage is not a
 linguistic quality rating.

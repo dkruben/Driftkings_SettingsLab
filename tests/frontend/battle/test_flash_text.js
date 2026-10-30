@@ -50,7 +50,7 @@ for (const size of ['8', '40']) {
     assert.strictEqual(result.childNodes[0].style.fontSize, size + 'rem');
 }
 assert.strictEqual(output(element('div', {}, [element('font', {face: 'Times New Roman'}, [])]), options).childNodes[0].style.fontFamily, 'Times New Roman');
-for (const face of ['XVMSymbol', 'xvm', 'Fonte Ã¡', 'å­—ä½“']) {
+for (const face of ['dkm', 'DriftkingsFont', 'Fonte Ã¡', 'å­—ä½“']) {
     const result = output(element('div', {}, [element('font', {face}, [text('Ã¡ Ð– ä¸­ !')])]), options);
     assert.strictEqual(result.childNodes[0].style.fontFamily, face);
     assert.strictEqual(result.childNodes[0].childNodes[0].nodeValue, 'Ã¡ Ð– ä¸­ !');

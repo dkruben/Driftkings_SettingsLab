@@ -2,7 +2,6 @@
 """Static macro diagnostics; unknown data is reported, never evaluated as code."""
 import re
 
-from driftkings.core.legacy_names import MACRO_ALIASES
 from driftkings.core.panel_macros import partition
 
 KNOWN=set(('name nick clan clannb veh-id vehicle vehicle-short vehiclename level rlevel vtype vtype-key vtype-l nation '
@@ -36,7 +35,7 @@ def macro_issues(text,config):
         if key.startswith(('i18n:', 'l10n:')): continue
         if key=='hp-ratio' or key.startswith('hp-ratio:'): continue
         if key.startswith('my-'): key=key[3:]
-        if MACRO_ALIASES.get(key, key) in KNOWN: continue
+        if key in KNOWN: continue
         if key.startswith(('c:','a:')) and key[2:] in KNOWN: continue
         issues.append('Unknown macro: '+key)
     return sorted(set(issues))

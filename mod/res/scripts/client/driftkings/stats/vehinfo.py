@@ -237,13 +237,9 @@ class ScaleValues(object):
             return False
 
     def _readCache(self, filename):
-        from driftkings.core.legacy_names import CACHE_ALIASES
         path = os.path.join(self.config_path, filename)
         try:
             recoverFile(path)
-            if not os.path.isfile(path) and filename in CACHE_ALIASES:
-                path = os.path.join(self.config_path, CACHE_ALIASES[filename])
-                recoverFile(path)
             with open(path, 'rb') as stream:
                 data = json.loads(stream.read().decode('utf-8-sig'))
             if not isinstance(data, dict):
@@ -355,11 +351,10 @@ class ScaleValues(object):
         callback(HANGAR_CHECK_INTERVAL, self._checkUpdates)
 
     def _loadRefreshState(self):
-        from driftkings.core.legacy_names import CACHE_ALIASES
         data = self._readCache('refresh-state.json')
         self._refreshState = {}
         for filename, url, validate in self.SOURCES:
-            entry = data.get(filename, data.get(CACHE_ALIASES.get(filename)))
+            entry = data.get(filename)
             if isinstance(entry, dict) and all(
                     finite_number(entry.get(key, 0)) and entry.get(key, 0) >= 0 for key in ('success', 'retry')):
                 self._refreshState[filename] = entry

@@ -1,7 +1,7 @@
 # Relatório funcional do painel de configuração
 
 **Projeto:** Driftkings SettingsLab  
-**Data:** 27 outubro 2026  
+**Data:** 2026-10-27  
 **Referência analisada:** branch `develop`, integração do painel redesenhado iniciada em `1a5b021`.
 
 O painel **DriftkingsModSettings** centraliza a edição das definições registadas pelos componentes. Apresenta controlos, valida os valores, encaminha alterações para os serviços dos mods e gere a gravação, perfis, pré-visualizações, atualizações e reinícios. As funções descritas foram verificadas no código; a disponibilidade efetiva das páginas depende dos componentes carregados e do contexto do cliente.

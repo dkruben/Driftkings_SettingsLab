@@ -41,19 +41,16 @@ class StatsTests(RuntimeTest):
             return data
         return module(read=read, close=lambda: None)
 
-    def test_legacy_scale_cache_and_refresh_times_remain_readable(self):
+    def test_retired_scale_cache_name_is_ignored(self):
         legacy = os.path.join(self.directory, 'xvmScales.json')
-        original = b'{"xwn8": [100, 200]}'
         with open(legacy, 'wb') as stream:
-            stream.write(original)
+            stream.write(b'{"xwn8": [100, 200]}')
         self.scale._loadRatingScaleData()
-        self.assertEqual(self.scale.calculateRatingScale('wn8', 150), 1)
-        with open(legacy, 'rb') as stream:
-            self.assertEqual(stream.read(), original)
+        self.assertEqual(self.scale.calculateRatingScale('wn8', 150), -1)
         with open(os.path.join(self.directory, 'refresh-state.json'), 'wb') as stream:
             stream.write(json.dumps({'xvmScales.json': {'success': 1000, 'retry': 0}}).encode('utf-8'))
         self.scale._loadRefreshState()
-        self.assertEqual(self.scale._refreshState['ratingScales.json']['success'], 1000)
+        self.assertNotIn('ratingScales.json', self.scale._refreshState)
         with open(os.path.join(self.directory, 'ratingScales.json'), 'wb') as stream:
             stream.write(b'{"xwn8": [300, 400]}')
         self.scale._loadRatingScaleData()

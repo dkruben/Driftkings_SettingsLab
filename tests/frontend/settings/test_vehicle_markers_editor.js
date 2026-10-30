@@ -29,8 +29,8 @@ const choice=host.querySelectorAll('.dk-markers-choice');
 choice[0].querySelectorAll('button')[1].fire('click');
 byText(mod.preview.labels.textFields).fire('click');
 // Native font names and Unicode remain available to the preview renderer.
-const rich=document.createElement('div');DK.richText.render(rich,'<font face="XVMSymbol">&#x115;!</font>');
-assert.strictEqual(rich.querySelector('span').style.fontFamily,'XVMSymbol');
+const rich=document.createElement('div');DK.richText.render(rich,'<font face="dkm">&#x115;!</font>');
+assert.strictEqual(rich.querySelector('span').style.fontFamily,'dkm');
 assert.strictEqual(rich.textContent,'\u0115!');
 DK.richText.render(rich,'A&#39;B &lt;b&gt; &amp; &#128512;');
 assert.strictEqual(rich.textContent,"A'B <b> & \uD83D\uDE00");

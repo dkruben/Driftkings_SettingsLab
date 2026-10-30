@@ -67,8 +67,8 @@ assert.strictEqual(model.text('{{wn8}} {{eff}} {{wnx}}',ratingConfig,sample),'20
 assert.strictEqual(model.text('{{stat-available?100|0}}',ratingConfig,Object.assign({},sample,{statsAvailable:false})),'0');
 assert.strictEqual(model.text('{{r|--}}',ratingConfig,Object.assign({},sample,{statsAvailable:false})),'--');
 assert.strictEqual(model.text('{{stat-available?{{r}}|--}}',ratingConfig,sample),'1800');
-assert.strictEqual(model.text('{{xvm-stat?{{r}}|--}}',ratingConfig,sample),'1800');
-assert.strictEqual(model.text('{{xvm-stat?100|0}}',ratingConfig,Object.assign({},sample,{statsAvailable:false})),'0');
+assert.strictEqual(model.text('{{stat-available?{{r}}|--}}',ratingConfig,sample),'1800');
+assert.strictEqual(model.text('{{stat-available?100|0}}',ratingConfig,Object.assign({},sample,{statsAvailable:false})),'0');
 assert.strictEqual(model.text('{{r%.1f}}',ratingConfig,sample),'1800.0');
 assert.strictEqual(model.ratingField(false).textFormat.color,'{{c:xr}}');
 assert.strictEqual(model.ratingField(true).format,'{{r}}');
@@ -123,7 +123,7 @@ assert.strictEqual(model.state(markers, {group:'ally',state:'dead',alt:false,hp:
 assert.strictEqual(JSON.stringify(model.wiring(markers, 'ally', 'dead', 'extended')), JSON.stringify({key:'markersDeadExtended', part:'ally', path:['markersDeadExtended','ally']}));
 assert.throws(() => model.state(Object.assign({}, markers, {markers: Object.assign({}, markers.markers, {ally: {alive: {normal: '${other.json:ally}'}}})}), {group:'ally',state:'alive',alt:false,hp:70}));
 console.log('Vehicle marker schema adapter matches the Python mapping');
-['xvm', 'XVMSymbol', 'Arial', 'Fonte á', '$FieldFont'].forEach(font => {
+['dkm', 'DriftkingsFont', 'Arial', 'Fonte á', '$FieldFont'].forEach(font => {
     const custom = JSON.parse(JSON.stringify(markers));
     custom.markersAliveNormal.def.rating.textFormat.font = font;
     custom.markersAliveNormal.def.rating.format = '&#x115; <b>!</b> á Ж 中';
