@@ -1,8 +1,10 @@
 # Development References
 
-Verified on **28 October 2026** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
+Reference baseline verified on **28 October 2026** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
 
 This guide identifies the sources used to develop Driftkings SettingsLab. These paths describe the maintainer's Windows workspace; they are not bundled with this repository. Other developers may store them elsewhere. The build contract is authoritative for the reference selected by the compiler.
+
+Updated on **29 October 2026** for current dependency and handoff context. Read [STATUS.md](STATUS.md) first for the development revision, in-game validation and remaining work, then [CONTRIBUTING.md](../CONTRIBUTING.md) for architecture and build/install commands. This document describes reference sources, not the entire project state. Verify dated versions against the current build contract before using them.
 
 ## Reference locations
 
@@ -67,6 +69,7 @@ These starting points were confirmed under `xvm-master/`:
 | Crew and tooltips | `src/xvm_crew/`, `src/xvm_tooltips/` |
 | Lobby and carousel | `src/xvm_tankcarousel/`, `src/xvm_hangar/`, `src/xvm_techtree/` |
 | Battle, minimap and replay | `src/xvm_battle/`, `src/xvm_battle_minimap/`, `src/xvm_battle_replay/` |
+| Vehicle markers and font reference | `src/xvm_actionscript/swf_xvm/xvm_vehiclemarkers_ui/`, `src/xvm_fonts/` |
 | Distributed configuration examples | `release/` |
 
 Trace each configuration field to the code that consumes it. XVM is an implementation reference, not Driftkings' configuration specification. Preserve Driftkings defaults and presentation, and check dependencies, client compatibility, licensing and credits before incorporating external code or assets.
@@ -81,10 +84,11 @@ The packaged dependency is `res/wotmods/me.poliroid.modslistapi_1.8.0.wotmod`. I
 
 Start with `GameFace/README.md`, `python/openwg_gameface.py`, `resources/`, `as3/` and `tests/`. These paths were confirmed locally.
 
-
 The packaged dependency is `res/wotmods/net.openwg.gameface_1.2.2.wotmod`. Its SHA-256 matches the build contract. Match the relevant source revision to that package before adopting an API.
 
 The local README and Python implementation confirm that WG uses native `gui/gen_resources/*.json` registration from client 2.4.1. The older `on_ready`, `res_id_by_key`, `res_ids_by_mask` and `ModDynAccessor` APIs are deprecated placeholders on WG; `gf_mod_inject`, `ModInjectModel` and the JavaScript helpers remain supported by that reference implementation. Do not assume Lesta-specific paths or behavior apply to EU, NA or ASIA.
+
+OpenWG Common is not a runtime dependency of the current build. The earlier native font-registration package was removed; packaged Flash fonts use embedded glyphs and `Font.registerFont`, and Gameface uses `@font-face`. Keep Common distinct from the retained OpenWG Gameface dependency. Consult [font details](FONTES.md) and [current validation](STATUS.md) before changing this choice. Native WG movie classes with Lesta-named namespaces can belong to the original pinned movie; their names alone are not evidence of an added RU-server dependency.
 
 Gameface's DOM/CSS support is not identical to a desktop browser. The NA client log showed that `style.getPropertyPriority` is unavailable. Keep adapters compatible with the actual client and validate visual changes in game; browser-style test doubles alone do not prove API support.
 

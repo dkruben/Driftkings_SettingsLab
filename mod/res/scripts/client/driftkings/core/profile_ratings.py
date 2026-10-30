@@ -3,6 +3,8 @@
 import math
 from collections import namedtuple
 
+from driftkings._constants import WN8_EXPECTED_FIELDS
+
 # Same fields as the client's VehiclesDossiersCut: readers use .battlesCount or record[0].
 VehicleCut = namedtuple('VehicleCut', ('battlesCount', 'wins', 'xp'))
 
@@ -108,7 +110,7 @@ def account_wn8(stats, expected):
         if not count:
             continue
         data = expected(vehicle_id) or {}
-        values = [data.get(key) for key in ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')]
+        values = [data.get(key) for key in WN8_EXPECTED_FIELDS]
         if any(value is None or value <= 0 or math.isnan(float(value)) or math.isinf(float(value)) for value in values):
             return None
         for index, value in enumerate(values):

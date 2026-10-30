@@ -2,6 +2,8 @@
 """Minimap presentation policy; no game dependencies."""
 import re
 
+from driftkings._constants import MINIMAP_ENHANCEMENTS
+
 try:
     text_type = unicode
 except NameError:
@@ -150,12 +152,12 @@ def validate(data):
             raise ValueError('Invalid minimap section: ' + name)
     for key in CIRCLES:
         value = data['circles'].get(key)
-        if not isinstance(value, dict) or value.get('mode') not in ('client', 'on', 'off'):
+        if not isinstance(value, dict) or value.get('mode') not in MINIMAP_ENHANCEMENTS.LINE_MODES:
             raise ValueError('Invalid minimap circle: ' + key)
         numeric(value.get('alpha'), 0, 100)
         stroke(value)
     for key in ('direction', 'sector'):
-        if data['lines'].get(key) not in ('client', 'on', 'off'):
+        if data['lines'].get(key) not in MINIMAP_ENHANCEMENTS.LINE_MODES:
             raise ValueError('Invalid minimap line mode')
     shell = data['circles'].get('shell')
     if not isinstance(shell, dict) or shell.get('mode') not in ('on', 'off'):
@@ -169,11 +171,11 @@ def validate(data):
     for key in ('directionColor', 'sectorColor', 'hullColor'):
         if not re.match(r'^#[a-fA-F0-9]{6}$', str(data['lines'].get(key, ''))):
             raise ValueError('Invalid minimap line color')
-    for key in ('normal', 'alternative', 'dead', 'lost'):
+    for key in MINIMAP_ENHANCEMENTS.LABEL_STATES:
         value = data['labels'].get(key)
         if not isinstance(value, (str, text_type)) or len(value) > 256:
             raise ValueError('Invalid minimap label')
-    for key in ('alternativeEnabled', 'zoom', 'center'):
+    for key in MINIMAP_ENHANCEMENTS.PRESENTATION_SWITCHES:
         if type(data['presentation'].get(key)) is not bool:
             raise ValueError('Invalid minimap presentation switch')
     for section, key in (('labels', 'enabled'), ('lines', 'customStyle')):
@@ -205,7 +207,7 @@ def validate(data):
     labels = data['labels']
     if labels.get('align') not in ('left', 'center', 'right'):
         raise ValueError('Invalid label alignment')
-    for key in ('ally', 'enemy', 'squad', 'alternativeAlly', 'alternativeEnemy', 'alternativeSquad'):
+    for key in MINIMAP_ENHANCEMENTS.LABEL_TEAM_KEYS:
         if not isinstance(labels.get(key), (str, text_type)) or len(labels[key]) > 256:
             raise ValueError('Invalid label format: ' + key)
     for section, keys in (('labels', ('shadow', 'customColors', 'avoidOverlap')),
@@ -214,7 +216,7 @@ def validate(data):
         for key in keys:
             if type(data[section].get(key)) is not bool:
                 raise ValueError('Invalid minimap switch: ' + section + '.' + key)
-    for key in ('allyColor', 'enemyColor', 'squadColor', 'teamKillerColor', 'deadColor'):
+    for key in MINIMAP_ENHANCEMENTS.LABEL_COLOR_KEYS:
         color(labels.get(key))
     if type(labels.get('teamColors')) is not bool:
         raise ValueError('Invalid minimap switch: labels.teamColors')
@@ -247,7 +249,7 @@ def validate(data):
         numeric(data['icons'].get(key), 0, 100)
     numeric(data['lostMarker'].get('minimumAlpha'), 0, 100)
     hp = data['health']
-    if hp.get('visibility') not in ('always', 'key', 'never') or hp.get('mode') not in ('value', 'percent', 'bar'):
+    if hp.get('visibility') not in ('always', 'key', 'never') or hp.get('mode') not in MINIMAP_ENHANCEMENTS.HEALTH_MODES:
         raise ValueError('Invalid minimap health mode')
     numeric(hp.get('width'), 10, 100)
     numeric(hp.get('height'), 1, 10)

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from driftkings._constants import GLOBAL, MINIMAP_ENHANCEMENTS
+from driftkings.game_constants import CTRL_MODE_NAME
 from driftkings.settings.service import settings_service
 
 """Presentation adapter for MinimapPlugins; gameplay state stays in its component."""
 from importlib import import_module
 
-from aih_constants import CTRL_MODE_NAME
 from gui.battle_control.avatar_getter import getInputHandler
 
 from driftkings.common.utils.game import checkKeys

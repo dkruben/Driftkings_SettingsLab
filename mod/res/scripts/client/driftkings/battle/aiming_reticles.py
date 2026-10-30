@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import aih_constants
-from aih_constants import CTRL_MODE_NAME, GUN_MARKER_FLAG, GUN_MARKER_TYPE
+from aih_constants import GUN_MARKER_FLAG
 import AvatarInputHandler
 from AvatarInputHandler.gun_marker_ctrl import _SPGGunMarkerController
 import BattleReplay
 import BigWorld
-from constants import AIMING_MODE, ARENA_PERIOD, SERVER_TICK_LENGTH
+from constants import AIMING_MODE, SERVER_TICK_LENGTH
 from gui.Scaleform.daapi.view.battle.shared.crosshair import gm_factory
 from helpers import dependency
 import Math
@@ -15,6 +15,7 @@ import VehicleGunRotator
 from driftkings._constants import AIMING_RETICLES, GLOBAL
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
+from driftkings.game_constants import ARENA_PERIOD, CTRL_MODE_NAME, GUN_MARKER_TYPE
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.aiming_reticles import AimingReticlesSettings as Settings
 from driftkings.settings.service import affects, settings_service

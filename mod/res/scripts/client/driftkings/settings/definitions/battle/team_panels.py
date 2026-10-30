@@ -49,7 +49,7 @@ def player_panel_columns(config):
         title='.'.join(path[1:]) if path[0]==TEAM_PANELS.TEMPLATES else key
         item=nested_field(path, labels.get('UI_panel_'+key,title), 'TextInput', tab=tab)
         if key==TEAM_PANELS.HP_VISIBILITY:
-            choices=['always','hold','never']
+            choices=list(TEAM_PANELS.HP_VISIBILITIES)
             item.update(type='Dropdown',options=[{'label':labels.get('UI_panel_hp_'+mode,fallback)} for mode,fallback in
                         zip(choices,('Always visible','While the key is held','Never visible'))],optionValues=choices)
         elif key==TEAM_PANELS.HP_KEY: item['type']='HotKey'
@@ -75,7 +75,7 @@ def player_panel_columns(config):
         if item['varName']==TEAM_PANELS.COLOR_SCALE:
             item.update(type='Dropdown',options=[{'label':entry['ScaleColor']} for entry in color_tables])
         elif item['varName']==TEAM_PANELS.RATING:
-            choices=['wn8','eff','wgr','winrate','xwn8','xeff']
+            choices=list(TEAM_PANELS.RATINGS)
             item.update(type='Dropdown',options=[{'label':name} for name in choices],optionValues=choices)
     for key,value in sorted(settings_service.getComponentDict(config)[TEAM_PANELS.PLAYERS_PANEL].items()): add([TEAM_PANELS.PLAYERS_PANEL,key],value,general)
     for path,title in (([TEAM_PANELS.LOADING],labels['UI_panel_loadingTab']),([TEAM_PANELS.TAB],'TAB')):

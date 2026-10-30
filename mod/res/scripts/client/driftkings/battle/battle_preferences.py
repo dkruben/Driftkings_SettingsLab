@@ -22,6 +22,7 @@ from messenger.storage import MessengerStorageDescriptor, UsersStorage
 from PlayerEvents import g_playerEvents
 
 from driftkings._constants import BATTLE_ALIASES, BATTLE_PREFERENCES, GLOBAL
+from driftkings.common.utils.formatting import hexToDecimal
 from driftkings.common.utils.wgutils import getPlayer, isReplay, square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.fog_package import FogPackageController
@@ -110,7 +111,7 @@ def new_getBorderColor(func, self, colorBlind):
         color = scheme['rgba'] / 255
         return color
     elif settings[GLOBAL.ENABLED]:
-        color = int(settings[GLOBAL.COLOR][1:], 16)
+        color = hexToDecimal(settings[GLOBAL.COLOR])
         alpha = int(100)
         red = ((color & 0xff0000) >> 16) / 255.0
         green = ((color & 0x00ff00) >> 8) / 255.0

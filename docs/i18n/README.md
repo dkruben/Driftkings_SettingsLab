@@ -38,7 +38,7 @@ linguistic quality rating.
 
 `python build_tools/validate_locales.py` checks exact key coverage, value types,
 nonempty strings, formatting macros, HTML and colors. It also reports values that are still
-an English phrase (`untranslated`); `tests/installer/test_locales.py` keeps that at zero,
+an English phrase (`untranslated`); `tests/build/test_locales.py` keeps that at zero,
 except for names listed in `ENGLISH_NAMES`. The compiler runs this
 validation before building. Add new English keys to every catalog in the same
 change. Names and identifiers may legitimately be identical across languages.

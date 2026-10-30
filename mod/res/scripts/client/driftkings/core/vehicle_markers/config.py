@@ -2,6 +2,8 @@
 """Prepare a validated runtime payload without rewriting editable JSON sections."""
 import copy
 
+from driftkings._constants import VEHICLE_MARKERS
+
 from driftkings.core.vehicle_markers.colors import normalize as normalize_colors
 from driftkings.core.vehicle_markers.colors import palette
 from driftkings.core.vehicle_markers.damage import normalize as normalize_damage
@@ -36,7 +38,7 @@ def prepare(data):
         raise ValueError('enabled/debug must be boolean')
     result.setdefault('ratingType', 'wn8')
     number(result.get('textFieldsOffsetY', 0), -1000, 1000)
-    if result['ratingType'] not in ('wn8', 'wnx', 'eff'):
+    if result['ratingType'] not in VEHICLE_MARKERS.RATINGS:
         raise ValueError('Invalid marker rating type')
     from driftkings.common.utils.color_rating_data import color_tables
     if type(result['colorRating']) is not int or not 0 <= result['colorRating'] < len(color_tables):

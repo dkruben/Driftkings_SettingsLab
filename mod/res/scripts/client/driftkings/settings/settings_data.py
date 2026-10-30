@@ -25,7 +25,7 @@ HOTKEY_FIELDS = {
 }
 HOTKEYS = dict((component, dict((key, copy.deepcopy(DEFAULTS[component][key])) for key in fields))
                for component, fields in HOTKEY_FIELDS.items())
-PROFILES = ('none', 'short', 'medium', 'medium2', 'large')
+PROFILES = TEAM_PANELS.MODES
 
 
 def defaults(component):

@@ -41,7 +41,7 @@ Sem o AS3 do `HWPlayersPanel` não há forma segura de alinhar as linhas. Por is
 - O payload `hwTab` tem uma linha por aliado (`summary`): nome, clã, veículo, vivo, próprio, rating configurado, % de vitórias e batalhas, com as cores da escala. Respeita o interruptor do TAB nas definições. Não lê o modelo nativo (o `TabScreen` não tem `playerList`).
 - `panel_gameface/halloween_tab.js` colore apenas os nomes nativos por correspondência exata e única (`PlayerInfo_base__tabWindow_` / `PlayerInfo_userName_`, verificados no bundle NA 2.4.1.1). Usa `style.color` e restaura o valor original quando deixa de ser necessário. Reutiliza o temporizador existente para acompanhar recriações das linhas, sem reescrever cores inalteradas. Não cria elementos nem altera nomes, danos, abates ou anomalias.
 - Não há settings novas, cabeçalhos ou texto traduzível adicionais.
-- Testes: `tests/core/test_halloween_tab.py` (hooks e payload) e `tests/settings_panel/test_halloween_tab.js` (ausência de painel adicional, associação por nome, mudanças de cor, recriação de linhas e restauro dos estilos nativos).
+- Testes: `tests/runtime/battle/test_halloween_tab.py` (hooks e payload) e `tests/frontend/battle/test_halloween_tab.js` (ausência de painel adicional, associação por nome, mudanças de cor, recriação de linhas e restauro dos estilos nativos).
 
 ### Opções avaliadas
 

@@ -10,7 +10,7 @@ from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 from gui.shared.utils.requesters import REQ_CRITERIA
 
-from driftkings._constants import GLOBAL, MARKS_MIN_TIER, VEHICLE_CAROUSEL
+from driftkings._constants import GLOBAL, MARKS_MIN_TIER, VEHICLE_CAROUSEL, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core import carousel as layout
@@ -69,7 +69,7 @@ def ratings(values, expected, tier):
         # Classic Efficiency Rating, using this vehicle's tier and random-battle averages.
         result['eff'] = (damage * 10.0 / (tier + 2) * (0.23 + 0.02 * tier)
                          + frags * 250 + spots * 150 + math.log(1 + max(0, capture), 1.732) * 150 + defence * 150)
-    keys = ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')
+    keys = WN8_EXPECTED_FIELDS
     exp = [number((expected or {}).get(k)) for k in keys]
     raw = (damage, frags, spots, defence, values.get('winRate'))
     if all(x is not None and x > 0 for x in exp) and all(x is not None for x in raw):

@@ -6,8 +6,10 @@ no panel mode is forced and native hooks only pass through.
 """
 from collections import namedtuple
 
+from driftkings._constants import TEAM_PANELS
+
 # Native PLAYERS_PANEL_STATE profiles of the classic panel (settings_data.PROFILES).
-CLASSIC_PANEL_MODES = ('none', 'short', 'medium', 'medium2', 'large')
+CLASSIC_PANEL_MODES = TEAM_PANELS.MODES
 # tab: which TAB view gets the roster ('classic' TabView, 'halloween' TabScreen) or None.
 # order: 'native' follows the statistics exchange (captureOrder); 'mod' sorts the
 # roster here, for modes whose exchange is incomplete.

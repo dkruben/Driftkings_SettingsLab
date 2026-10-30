@@ -48,12 +48,12 @@ class VehicleCarouselSettings(SectionDefinition):
             return nested_field(path, title, kind, low, high, values, step, labels)
         columns[0].append(nested([VEHICLE_CAROUSEL.CAROUSEL,'cellType'], tr('layout'), 'Dropdown', choices=[('default',tr('auto')),('normal',tr('normal')),('small',tr('small'))]))
         columns[1].append(nested([VEHICLE_CAROUSEL.CAROUSEL,'rows'], tr('rows'), 'Slider', 0, 4))
-        for index, key in enumerate(('backgroundAlpha', 'slotBackgroundAlpha', 'slotBorderAlpha', 'slotSelectedBorderAlpha', 'edgeFadeAlpha')):
+        for index, key in enumerate(VEHICLE_CAROUSEL.ALPHA_FIELDS):
             columns[index % 2].append(nested([VEHICLE_CAROUSEL.CAROUSEL, key], tr(key), 'Slider', 0, 100))
         columns[1].append(nested([VEHICLE_CAROUSEL.CAROUSEL, 'scrollingSpeed'], tr('scrollingSpeed'), 'Slider', 0.1, 10))
-        for index, key in enumerate(('hideBuyTank', 'hideBuySlot', 'hideRestoreTank', 'showTotalSlots', 'showUsedSlots', 'enableLockBackground', 'suppressCarouselTooltips')):
+        for index, key in enumerate(VEHICLE_CAROUSEL.SWITCHES):
             columns[index % 2].append(nested([VEHICLE_CAROUSEL.CAROUSEL, key], tr(key), 'CheckBox'))
-        for index, key in enumerate(('params', 'bonus', 'favorite', 'elite', 'premium')):
+        for index, key in enumerate(VEHICLE_CAROUSEL.FILTERS):
             columns[index % 2].append(nested([VEHICLE_CAROUSEL.CAROUSEL, 'filters', key, GLOBAL.ENABLED], tr('filter') + ': ' + tr('filterFavorite' if key == 'favorite' else key), 'CheckBox'))
         for index, key in enumerate(('horizontal', 'vertical')):
             columns[index].append(nested([VEHICLE_CAROUSEL.CAROUSEL, 'filtersPadding', key], tr('filterSpacing') + ': ' + tr(key), 'Slider', 0, 40))
@@ -63,7 +63,7 @@ class VehicleCarouselSettings(SectionDefinition):
             profile = self.data[VEHICLE_CAROUSEL.CAROUSEL][mode]
             target=columns[col]
             target.append(caption(tr(mode)))
-            for key,low,high in (('width',80,600),('height',35,400),('gap',0,40)):
+            for key,low,high in VEHICLE_CAROUSEL.CELL_BOUNDS:
                 target.append(nested([VEHICLE_CAROUSEL.CAROUSEL,mode,key],tr(mode)+': '+tr(key),'Slider',low,high))
             for name in layout.FIELD_NAMES:
                 path=[VEHICLE_CAROUSEL.CAROUSEL,mode,'fields',name]

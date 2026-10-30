@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Native Flash crosshair containers, AS3 linkages and marker factories."""
 from account_helpers.settings_core.settings_constants import GRAPHICS, SPGAim
-from aih_constants import GUN_MARKER_TYPE
 from gui.battle_control.battle_constants import CROSSHAIR_VIEW_ID
 from gui.Scaleform.daapi.view.battle.shared import SharedPage
 from gui.Scaleform.daapi.view.battle.shared.crosshair import CrosshairPanelContainer, gm_factory
@@ -15,6 +14,7 @@ from helpers import dependency
 from skeletons.account_helpers.settings_core import ISettingsCore
 
 from driftkings.core.hooks import override
+from driftkings.game_constants import GUN_MARKER_TYPE
 from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Flash.Reticles')

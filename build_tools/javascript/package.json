@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "lint": "cd ../.. && eslint mod/res/gui/gameface --max-warnings 0",
-    "test": "cd ../.. && node tests/settings_panel/test_gameface.js"
+    "test": "cd ../.. && node tests/run_frontend.js"
   },
   "devDependencies": {
     "eslint": "10.13.0"

@@ -55,7 +55,7 @@ class VehicleMarkersSettings(SectionDefinition):
                            choices=range(len(color_tables)), choice_labels=[table['ScaleColor'] for table in color_tables],
                            tooltip=self.i18n['UI_setting_colorRating_tooltip']))
         items.append(field(['markers', 'ratingType'], self.i18n['UI_preview_ratingType'], 'Dropdown',
-                           choices=('wn8', 'wnx', 'eff'), choice_labels=('WN8', 'WNX', 'EFF'),
+                           choices=VEHICLE_MARKERS.RATINGS, choice_labels=('WN8', 'WNX', 'EFF'),
                            tooltip=self.i18n['UI_preview_ratingType']))
         # One editor per marker file: markers.json, then the four state files.
         for key in ('markers',) + STATE_KEYS:
@@ -75,7 +75,7 @@ class VehicleMarkersSettings(SectionDefinition):
                              'damageColors': shared['damageColors'],
                              'ratings': dict((metric, rating_values({'battles': 15000, 'wn8': 2000, 'wnx': 1800,
                                  'eff': 1400, 'xwn8': 75, 'xeff': 65, 'winrate': 55}, metric, index))
-                                 for metric in ('wn8', 'wnx', 'eff'))})
+                                 for metric in VEHICLE_MARKERS.RATINGS)})
         vehicle = sample_vehicle()
         return {'kind': 'vehicleMarkers', 'labels': labels,
                 'palettes': palettes, 'vehicle': vehicle,

@@ -6,9 +6,9 @@ from xml.sax.saxutils import escape
 from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
 from nations import NAMES
 
-from driftkings._constants import GLOBAL, TARGET_INFORMATION
+from driftkings._constants import GLOBAL, ROMAN_NUMERALS, TARGET_INFORMATION
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import getPlayer, getTarget
+from driftkings.common.utils.wgutils import getEntity, getPlayer, getTarget
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.gun_stats import damage_per_minute, reload_with_equipment
@@ -19,7 +19,7 @@ from driftkings.settings.service import affects, settings_service
 from driftkings.flash.battle.target_information import Flash
 
 COMPARE_MACROS = ['compareDelim', 'compareColor']
-ROMAN_LEVELS = ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII')
+ROMAN_LEVELS = ROMAN_NUMERALS
 # Keep the seven preset IDs stable for existing user configurations.
 # Reload and DPM are descriptor/base values, not inferred enemy equipment.
 def _field(label, value):
@@ -488,8 +488,7 @@ class InfoPanel(DataConstants):
             return
         if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
             return
-        import BigWorld
-        entity = BigWorld.entity(vehicleID)
+        entity = getEntity(vehicleID)
         if entity is not None and self.isConditions(entity):
             self.onUpdateVehicle(entity)
         else:

@@ -1,20 +1,9 @@
 # -*- coding: utf-8 -*-
 """Feed the existing statistics cache to native marker names; no parallel HTTP worker."""
-import math
-
 from driftkings.common.utils.colorratting import getStatisticColor
+from driftkings.common.utils.numbers import nonnegative_number as numeric
 
 METRICS = ('wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles')
-
-
-def numeric(value):
-    if isinstance(value, bool):
-        return None
-    try:
-        value = float(value)
-        return value if value >= 0 and not math.isnan(value) and not math.isinf(value) else None
-    except (TypeError, ValueError, OverflowError):
-        return None
 
 
 def values(info, rating='wn8', scale=0, minimum=1, anonymized=False):

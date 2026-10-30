@@ -3,6 +3,8 @@
 import copy
 import os
 
+from driftkings._constants import VEHICLE_CAROUSEL
+
 from driftkings.core.carousel import config_defaults, profile_shadow
 from driftkings.core.carousel_options import from_carousel, SORT_KEYS
 from driftkings.settings.store import JsonDocuments, merge, read_object, recover_file
@@ -27,10 +29,10 @@ def validate(parts):
         raise ValueError('Carousel toggles must be boolean')
     if type(general.get('colorRating')) is not int or general['colorRating'] < 0:
         raise ValueError('Invalid carousel color table')
-    for key in ('hideBuyTank', 'hideBuySlot', 'hideRestoreTank', 'showTotalSlots', 'showUsedSlots', 'enableLockBackground', 'suppressCarouselTooltips'):
+    for key in VEHICLE_CAROUSEL.SWITCHES:
         if type(general[key]) is not bool:
             raise ValueError('Invalid carousel switch: ' + key)
-    for key in ('backgroundAlpha', 'slotBackgroundAlpha', 'slotBorderAlpha', 'slotSelectedBorderAlpha', 'edgeFadeAlpha'):
+    for key in VEHICLE_CAROUSEL.ALPHA_FIELDS:
         if type(general[key]) not in (int, float) or not 0 <= general[key] <= 100:
             raise ValueError('Invalid carousel opacity: ' + key)
     if type(general['scrollingSpeed']) not in (int, float) or not 0.1 <= general['scrollingSpeed'] <= 10:
@@ -44,7 +46,7 @@ def validate(parts):
         raise ValueError('Unsupported carousel sorting criterion')
     if not isinstance(general['filters'], dict) or not isinstance(general['filtersPadding'], dict):
         raise ValueError('Invalid carousel filter settings')
-    for key in ('params', 'bonus', 'favorite', 'elite', 'premium'):
+    for key in VEHICLE_CAROUSEL.FILTERS:
         if not isinstance(general['filters'].get(key), dict) or type(general['filters'][key].get('enabled')) is not bool:
             raise ValueError('Invalid filter visibility')
     for key in ('horizontal', 'vertical'):
@@ -52,7 +54,7 @@ def validate(parts):
         if type(value) not in (int, float) or not 0 <= value <= 40:
             raise ValueError('Invalid filter spacing')
     for profile in parts[1:]:
-        for key, low, high in (('width', 80, 600), ('height', 35, 400), ('gap', 0, 40)):
+        for key, low, high in VEHICLE_CAROUSEL.CELL_BOUNDS:
             if type(profile.get(key)) not in (int, float) or not low <= profile[key] <= high:
                 raise ValueError('Invalid carousel cell dimensions: ' + key)
         if not isinstance(profile.get('fields'), dict) or not isinstance(profile.get('extraFields'), list):

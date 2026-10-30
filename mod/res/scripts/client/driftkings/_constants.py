@@ -24,6 +24,9 @@ MARKS_MIN_TIER = 5
 SETTINGS_MOD_ID = 'dk.settings'
 # Random battles that update account statistics, including new/returning players.
 STATISTICS_BATTLES = ('REGULAR', 'RANDOM_NP2', 'WINBACK')
+# Shared ordered statistical and presentation contracts.
+WN8_EXPECTED_FIELDS = ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')
+ROMAN_NUMERALS = ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII')
 
 
 # Configuration namespaces; NAME and option spellings are persisted contracts.
@@ -222,6 +225,12 @@ class BATTLE_MARKS_OF_EXCELLENCE(object):
 
 
 class MINIMAP_ENHANCEMENTS(object):
+    LABEL_STATES = ('normal', 'alternative', 'dead', 'lost')
+    LABEL_TEAM_KEYS = ('ally', 'enemy', 'squad', 'alternativeAlly', 'alternativeEnemy', 'alternativeSquad')
+    LABEL_COLOR_KEYS = ('allyColor', 'enemyColor', 'squadColor', 'teamKillerColor', 'deadColor')
+    PRESENTATION_SWITCHES = ('alternativeEnabled', 'zoom', 'center')
+    LINE_MODES = ('client', 'on', 'off')
+    HEALTH_MODES = ('value', 'percent', 'bar')
     NAME = 'minimap_enhancements'
     MINIMAP_SCHEMA = 'minimapSchema'
     PERMANENT_MINIMAP_DEATH = 'permanentMinimapDeath'
@@ -258,6 +267,9 @@ class VEHICLE_HEALTH(object):
 
 
 class TEAM_PANELS(object):
+    MODES = ('none', 'short', 'medium', 'medium2', 'large')
+    RATINGS = ('wn8', 'eff', 'wgr', 'winrate', 'xwn8', 'xeff')
+    HP_VISIBILITIES = ('always', 'hold', 'never')
     NAME = 'team_panels'
     STATS_ENABLED = 'statsEnabled'
     COLOR_SCALE = 'colorScale'
@@ -352,6 +364,10 @@ class CLAN_REWARD_COLLECTION(object):
 
 
 class VEHICLE_CAROUSEL(object):
+    ALPHA_FIELDS = ('backgroundAlpha', 'slotBackgroundAlpha', 'slotBorderAlpha', 'slotSelectedBorderAlpha', 'edgeFadeAlpha')
+    SWITCHES = ('hideBuyTank', 'hideBuySlot', 'hideRestoreTank', 'showTotalSlots', 'showUsedSlots', 'enableLockBackground', 'suppressCarouselTooltips')
+    FILTERS = ('params', 'bonus', 'favorite', 'elite', 'premium')
+    CELL_BOUNDS = (('width', 80, 600), ('height', 35, 400), ('gap', 0, 40))
     NAME = 'vehicle_carousel'
     SORTING_CRITERIA = 'sortingCriteria'
     NATIONS_ORDER = 'nationsOrder'
@@ -458,6 +474,7 @@ class PROFILE_RATINGS(object):
 
 
 class VEHICLE_MARKERS(object):
+    RATINGS = ('wn8', 'wnx', 'eff')
     NAME = "vehicle_markers"
     # Persisted layout axes and document names shared by storage, settings and runtime.
     TEAMS = ('ally', 'enemy')
@@ -494,7 +511,7 @@ HANDLER_VALUES = {
             MINIMAP_ENHANCEMENTS.COLOR_DRAW_CIRCLE, MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE,
             MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE, MINIMAP_ENHANCEMENTS.COLOR_VIEW_CIRCLE),
         MINIMAP_ENHANCEMENTS.LABELS + '.customColors': tuple(MINIMAP_ENHANCEMENTS.LABELS + '.' + key
-            for key in ('allyColor', 'enemyColor', 'squadColor', 'teamKillerColor', 'deadColor')),
+            for key in MINIMAP_ENHANCEMENTS.LABEL_COLOR_KEYS),
         MINIMAP_ENHANCEMENTS.NEARBY + '.enabled': tuple(MINIMAP_ENHANCEMENTS.NEARBY + '.' + key
             for key in ('range', 'distance', 'color', 'alpha')),
         MINIMAP_ENHANCEMENTS.LABELS + '.avoidOverlap': (MINIMAP_ENHANCEMENTS.LABELS + '.compactLength',),

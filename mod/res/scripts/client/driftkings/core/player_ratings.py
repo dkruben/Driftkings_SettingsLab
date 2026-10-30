@@ -20,7 +20,7 @@ from helpers import dependency
 from messenger import g_settings
 from skeletons.gui.battle_session import IBattleSessionProvider
 
-from driftkings._constants import GLOBAL, TEAM_PANELS
+from driftkings._constants import GLOBAL, TEAM_PANELS, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
@@ -293,7 +293,7 @@ class CalculatorRating(object):
     def _expectedFromVehicleData(vehicleData):
         if vehicleData is None:
             return None
-        if not all(vehicleData.get(key) is not None for key in ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')):
+        if not all(vehicleData.get(key) is not None for key in WN8_EXPECTED_FIELDS):
             return None
         try:
             expected = {
