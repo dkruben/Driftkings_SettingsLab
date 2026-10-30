@@ -5,20 +5,6 @@ catalog performs no engine initialization and creates no views.
 """
 FLASH_LIBRARY = 'driftkingsbattle.swf'
 FLASH_COMPONENTS = {
-    'ArmorCalculatorView': {
-        'as3': 'driftkings.battle.components.armor_calculator.armorcalculatorui',
-        'component': 'battle.penetration_indicator',
-        'python': 'driftkings.flash.battle.penetration_indicator.ArmorCalculator',
-        'section': 'penetration_indicator',
-        'surfaces': ['battle']
-    },
-    'DispersionTimerView': {
-        'as3': 'driftkings.battle.components.dispersion_timer.dispersiontimerui',
-        'component': 'battle.aiming_countdown',
-        'python': 'driftkings.flash.battle.aiming_countdown.DispersionTimer',
-        'section': 'aiming_countdown',
-        'surfaces': ['battle']
-    },
     'DistanceMarkerView': {
         'as3': 'driftkings.battle.components.distance_marker.distancemarkerui',
         'component': 'battle.target_distance',
@@ -46,13 +32,6 @@ FLASH_COMPONENTS = {
         'python': 'driftkings.flash.battle.player_ratings.RatingViews',
         'section': 'team_panels',
         'surfaces': ['battle', 'ratings']
-    },
-    'FlightTimerView': {
-        'as3': 'driftkings.battle.components.flight_timer.flighttimerui',
-        'component': 'battle.shell_flight_time',
-        'python': 'driftkings.flash.battle.shell_flight_time.FlightTime',
-        'section': 'shell_flight_time',
-        'surfaces': ['battle']
     },
     'MinimapEnhancementsView': {
         'as3': 'driftkings.battle.components.minimap.minimapenhancementsui',
@@ -92,6 +71,33 @@ GAMEFACE = {
         'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/health_bar.js', 'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.js'],
         'section': 'vehicle_health',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/health_bar.css', 'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css']},
+    'DriftkingsAimingCountdown': {
+        'context': 'battle',
+        'layout': 'coui://gui/gameface/mods/driftkings/aiming_countdown/model.html',
+        'owner': '__dkAimingCountdown',
+        'python': 'driftkings.gameface.battle.reticle_texts',
+        'resource': 'mods/driftkings/aiming_countdown/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/reticle_text.js', 'coui://gui/gameface/mods/driftkings/aiming_countdown/aiming_countdown.js'],
+        'section': 'aiming_countdown',
+        'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
+    'DriftkingsFlightTime': {
+        'context': 'battle',
+        'layout': 'coui://gui/gameface/mods/driftkings/shell_flight_time/model.html',
+        'owner': '__dkFlightTime',
+        'python': 'driftkings.gameface.battle.reticle_texts',
+        'resource': 'mods/driftkings/shell_flight_time/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/reticle_text.js', 'coui://gui/gameface/mods/driftkings/shell_flight_time/shell_flight_time.js'],
+        'section': 'shell_flight_time',
+        'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
+    'DriftkingsPenetration': {
+        'context': 'battle',
+        'layout': 'coui://gui/gameface/mods/driftkings/penetration_indicator/model.html',
+        'owner': '__dkPenetration',
+        'python': 'driftkings.gameface.battle.reticle_texts',
+        'resource': 'mods/driftkings/penetration_indicator/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/reticle_text.js', 'coui://gui/gameface/mods/driftkings/penetration_indicator/penetration_indicator.js'],
+        'section': 'penetration_indicator',
+        'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsMainGun': {
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/high_caliber_gameface/model.html',

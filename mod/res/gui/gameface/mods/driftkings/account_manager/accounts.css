@@ -33,10 +33,10 @@ body.modal { display: flex; align-items: center; justify-content: center; width:
 .icon-button.enter { border-color: #7d704f; background: linear-gradient(#51472d, #322e22); }
 .icon-button.delete:hover { border-color: #a66551; background: linear-gradient(#553930, #332520); }
 .action-icon { width: 20rem; height: 20rem; flex-shrink: 0; background-position: center; background-repeat: no-repeat; }
-.icon-enter { background-image: url('assets/enter.png'); background-size: 10rem 18rem; }
-.icon-edit { background-image: url('assets/edit.png'); background-size: 16rem 16rem; }
-.icon-delete { background-image: url('assets/delete.png'); background-size: 24rem 24rem; }
-.icon-add { background-image: url('assets/add.png'); background-size: 20rem 20rem; margin-right: 4rem; }
+.icon-enter { background-image: url('assets/enter.svg'); background-size: 10rem 18rem; }
+.icon-edit { background-image: url('assets/edit.svg'); background-size: 16rem 16rem; }
+.icon-delete { background-image: url('assets/delete.svg'); background-size: 24rem 24rem; }
+.icon-add { background-image: url('assets/add.svg'); background-size: 20rem 20rem; margin-right: 4rem; }
 .footer { display: flex; align-items: center; justify-content: space-between; height: 34rem; flex-shrink: 0; margin-top: 12rem; }
 .add-account { min-width: 92rem; }
 .check { min-width: 0; justify-content: flex-start; height: 26rem; padding: 0; border: none; background: transparent; font-size: 13rem; }

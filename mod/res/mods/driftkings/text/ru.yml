@@ -54,9 +54,9 @@ aiming_countdown.UI_setting_red_tooltip: "Цвет таймера, пока св
 aiming_countdown.UI_setting_template_text: "Шаблон"
 aiming_countdown.UI_setting_template_tooltip: "Текст таймера. Макросы: %(timer).1fs оставшееся время сведения, %(percent)d%% прогресс сведения, %(color)s цвет текущего прогресса."
 aiming_countdown.UI_setting_x_text: "Позиция X"
-aiming_countdown.UI_setting_x_tooltip: "Смещение таймера по горизонтали от прицела, в пикселях. Отрицательные значения сдвигают его влево."
+aiming_countdown.UI_setting_x_tooltip: "Смещение текста от прицела по горизонтали в единицах интерфейса. Отрицательные значения сдвигают его влево. В бою зажмите Ctrl и перетащите текст."
 aiming_countdown.UI_setting_y_text: "Позиция Y"
-aiming_countdown.UI_setting_y_tooltip: "Смещение таймера по вертикали от прицела, в пикселях. Отрицательные значения сдвигают его вверх."
+aiming_countdown.UI_setting_y_tooltip: "Смещение текста от прицела по вертикали в единицах интерфейса. Отрицательные значения сдвигают его вверх."
 aiming_countdown.UI_setting_yellow_text: "<font color='#%(yellow)s'>Текущий цвет: #%(yellow)s</font>"
 aiming_countdown.UI_setting_yellow_tooltip: "Цвет таймера, пока сведение выполнено на 35–49%."
 
@@ -791,6 +791,12 @@ penetration_indicator.UI_noDamage: "Критический удар, без ур
 penetration_indicator.UI_ricochet: "Рикошет"
 penetration_indicator.UI_setting_displayOnAllies_text: "Отображение на союзниках"
 penetration_indicator.UI_setting_displayOnAllies_tooltip: "Показывает индикатор брони и пробития и при прицеливании в союзные машины."
+penetration_indicator.UI_setting_template_text: "Шаблон"
+penetration_indicator.UI_setting_template_tooltip: "Текст индикатора. Макросы: %(countedArmor)d, %(piercingPower)d, %(piercingReserve)d, %(caliber)d, %(color)s, %(ricochet)s, %(noDamage)s, %(message)s."
+penetration_indicator.UI_setting_positionX_text: "Позиция X"
+penetration_indicator.UI_setting_positionX_tooltip: "Смещение текста от прицела по горизонтали в единицах интерфейса. Отрицательные значения сдвигают его влево. В бою зажмите Ctrl и перетащите текст."
+penetration_indicator.UI_setting_positionY_text: "Позиция Y"
+penetration_indicator.UI_setting_positionY_tooltip: "Смещение текста от прицела по вертикали в единицах интерфейса. Отрицательные значения сдвигают его вверх."
 
 # repair_controls
 repair_controls.UI_description: "Управление ремонтом"
@@ -828,9 +834,9 @@ shell_flight_time.UI_setting_spgOnly_tooltip: "Показывает таймер
 shell_flight_time.UI_setting_template_text: "Шаблон"
 shell_flight_time.UI_setting_template_tooltip: "Текст таймера. Макросы: %(flightTime).1fs время полёта снаряда, %(distance)dm расстояние до точки прицеливания."
 shell_flight_time.UI_setting_x_text: "Позиция X"
-shell_flight_time.UI_setting_x_tooltip: "Смещение таймера по горизонтали от прицела, в пикселях. Отрицательные значения сдвигают его влево."
+shell_flight_time.UI_setting_x_tooltip: "Смещение текста от прицела по горизонтали в единицах интерфейса. Отрицательные значения сдвигают его влево. В бою зажмите Ctrl и перетащите текст."
 shell_flight_time.UI_setting_y_text: "Позиция Y"
-shell_flight_time.UI_setting_y_tooltip: "Смещение таймера по вертикали от прицела, в пикселях. Отрицательные значения сдвигают его вверх."
+shell_flight_time.UI_setting_y_tooltip: "Смещение текста от прицела по вертикали в единицах интерфейса. Отрицательные значения сдвигают его вверх."
 
 # sixth_sense_alert
 sixth_sense_alert.UI_description: "Сигнал Шестого чувства"
@@ -1813,3 +1819,4 @@ vehicle_health.UI_health_brightness: "Яркость"
 panel.hud.health: "Прочность"
 vehicle_health.UI_setting_style_tooltip: "Выберите рамку полосы прочности."
 vehicle_health.UI_health_color_tooltip: "Динамический цвет в зависимости от оставшейся прочности."
+vehicle_health.UI_health_minimal: "Минимализм"

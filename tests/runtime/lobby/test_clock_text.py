@@ -8,7 +8,7 @@ from support import RuntimeTest, source, module
 
 class MainClockSettingsTests(RuntimeTest):
     FORMATS = [{'x': 4, 'y': 93, 'screenHAlign': 'right',
-                'format': "<img src='gui/maps/driftkings/clock/clockbg.png'>"},
+                'format': "<img src='gui/maps/custom/clock.png'>"},
                {'x': -10, 'y': 80, 'textFormat': {'align': 'right', 'valign': 'bottom'},
                 'format': "<font size='36'>%H:%M</font>"}]
     HANGAR_CLOCK = {'clock': False, 'clockBackground': True, 'clockScale': 125, 'clockX': -456, 'clockY': 123,
@@ -43,7 +43,7 @@ class MainClockSettingsTests(RuntimeTest):
         self.assertTrue(self.defaults['enabled'])
         self.assertTrue(self.defaults['clock']['enabled'])
         self.assertEqual(self.defaults['clock']['formats'][0]['format'],
-                         "<img src='gui/maps/driftkings/clock/clockbg.png'>")
+                         "<img src='gui/maps/driftkings/clock/clockbg.svg'>")
         self.assertEqual(self.main(), self.defaults['clock'])
 
     def test_clock_object_is_kept_and_saving_other_options_keeps_it(self):

@@ -548,8 +548,8 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-tri.is-up { border-width: 0 4rem 6rem 4rem; border-bottom-color: #b3ae9f; }
 .dk-tri.is-down { border-width: 6rem 4rem 0 4rem; border-top-color: #b3ae9f; }
 .dk-tri.is-right { border-width: 5rem 0 5rem 7rem; border-left-color: #7a7466; }
-.dk-star { display: inline-block; width: 14rem; height: 14rem; margin-right: 2rem; vertical-align: middle; background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.png'); background-size: 100% 100%; background-repeat: no-repeat; }
-.dk-star.is-earned { background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star.png'); }
-.dk-car-badge.is-star { background: url('coui://gui/gameface/mods/driftkings/shared/assets/star.png') center / 100% 100% no-repeat; }
+.dk-star { display: inline-block; width: 14rem; height: 14rem; margin-right: 2rem; vertical-align: middle; background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.svg'); background-size: 100% 100%; background-repeat: no-repeat; }
+.dk-star.is-earned { background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg'); }
+.dk-car-badge.is-star { background: url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg') center / 100% 100% no-repeat; }
 .dk-mk-icon.is-hoverMarker:before { content: ""; position: absolute; left: 4rem; top: 6rem; width: 0; height: 0; border-style: solid; border-color: transparent; border-width: 12rem 7rem 0 7rem; border-top-color: #ffffff; }
 .dk-mk-icon.is-vehicleStatusMarker:before { content: ""; position: absolute; left: 5rem; top: 5rem; width: 12rem; height: 12rem; border-radius: 6rem; background: #ffffff; }

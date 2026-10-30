@@ -84,7 +84,7 @@
     },
     {
       "path": "default/main.json",
-      "sha256": "345066b42ecf3dd8ccf81a589449671589a130fb2b74b18aa8f7d8f4daa374f1"
+      "sha256": "29f9e6551c8209c9c471ae43d42cccc7db556929c0260249df3674e4260301b2"
     },
     {
       "path": "default/minimap_enhancements.json",
@@ -223,7 +223,7 @@
     {
       "path": "default/vehicle_carousel/carouselnormal.json",
       "source_sha256": "86d8fccfbfc61ed70d22c4426b287223f38a533e84c72da93b9bb581306c3f13",
-      "sha256": "540b67ae2e2ae7dce6a6eac46fbf5d65c917045dbc80a61ffb9942e0fb152d12"
+      "sha256": "1744b5d25e24a542880c0e5f4f4dcd4f9dda53a259db7ca4088b1f1cd3ddc547"
     },
     {
       "path": "default/vehicle_carousel/carouselsmall.json",

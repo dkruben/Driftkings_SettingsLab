@@ -1,7 +1,7 @@
 {
   "extraFields": [
     {
-      "format": "<img src='gui/maps/driftkings/carroucel/battles.png' width='16' height='16'>",
+      "format": "<img src='gui/maps/driftkings/carroucel/battles.svg' width='16' height='16'>",
       "shadow": "$ref:textFieldShadow",
       "x": 145,
       "y": 26,
@@ -16,7 +16,7 @@
     },
     {
       "alpha": "{{v.winrate?100|0}}",
-      "format": "<img src='gui/maps/driftkings/carroucel/wins.png' width='16' height='16'>",
+      "format": "<img src='gui/maps/driftkings/carroucel/wins.svg' width='16' height='16'>",
       "shadow": "$ref:textFieldShadow",
       "x": 145,
       "y": 50
@@ -30,7 +30,7 @@
     },
     {
       "alpha": "{{v.hitsRatio?100|0}}",
-      "format": "<img src='gui/maps/driftkings/carroucel/shooter.png' width='18' height='18'>",
+      "format": "<img src='gui/maps/driftkings/carroucel/shooter.svg' width='18' height='18'>",
       "shadow": "$ref:textFieldShadow",
       "x": 8,
       "y": 91
@@ -43,7 +43,7 @@
       "y": 90
     },
     {
-      "format": "<img src='gui/maps/driftkings/carroucel/damage.png' width='20' height='20'>",
+      "format": "<img src='gui/maps/driftkings/carroucel/damage.svg' width='20' height='20'>",
       "shadow": "$ref:textFieldShadow",
       "x": 8,
       "y": 109,
@@ -95,7 +95,7 @@
     {
       "alpha": "{{v.selected?100|0}}",
       "enabled": true,
-      "format": "<img src='gui/maps/driftkings/carroucel/{{v.c_type}}.png' width='208' height='140'>",
+      "format": "<img src='gui/maps/driftkings/carroucel/{{v.c_type}}.svg' width='208' height='140'>",
       "height": 100,
       "layer": "substrate",
       "width": 160,

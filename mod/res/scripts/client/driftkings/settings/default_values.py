@@ -21,7 +21,7 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '7cc536ea1f3765c39c503df836c28
  'default/hangar_marks_of_excellence.json': 'eaab68c09e894b95bf53ea310173ccc83682c652093e35830af4083c3e826df2',
  'default/hangar_preferences.json': 'd3aa2c82e4f9755e23936f22eb860a7b6cf23b355a81e8b020524d1030d1f695',
  'default/high_caliber_progress.json': '3182d6d6e00097742cde8ad01b801e18203aba471bec768f4e96024f26c85856',
- 'default/main.json': 'e866fa58fd1d7f0664597b4b857dbf451d36ad6e40518e54ff32eb549d7aea3f',
+ 'default/main.json': 'e8775d432273561c8ed1955f6d9419924dad09c0a3d8fb5c57239588523c797e',
  'default/minimap_enhancements/minimap.json': 'e46d300c40cc80c7e5c6d2a2415a9185ff595e878c470a349f89ad9068c8c832',
  'default/minimap_enhancements/minimap_circles.json': 'a07d8d3849efa5c22e9b2170f0d49325aaad00ba4e162d77c8cbb2d61e02d8b6',
  'default/minimap_enhancements/minimap_labels.json': '8493739fade648368a8b2f69cf1242ee2f26f4783b5f76af4fac2b00c3bf6574',
@@ -48,7 +48,7 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '7cc536ea1f3765c39c503df836c28
  'default/tech_tree_marks_of_excellence.json': '9b5a79c75e5f188727137b545d8fa1b765afa196271204476a1ecd5cf9466e62',
  'default/third_person_zoom.json': '1ff0d367944ae905d511b944dc1bfd758b8f510c26de37b91b74069ac0d78b09',
  'default/vehicle_carousel/carousel.json': '5e572d8e5375d76d9d887b5bef90fcf4dbedc37162a20aee1a3812937833ec73',
- 'default/vehicle_carousel/carouselnormal.json': '3d8acd01a4ffe8f0a327807fd961d4f80e6b1d1189d1954fe1c5e11589d2b1f3',
+ 'default/vehicle_carousel/carouselnormal.json': '9f50fb6f9f4c1122b948851fc648965b3210b6085d2397cfab2efa3fccb0ca26',
  'default/vehicle_carousel/carouselsmall.json': 'fc82697a9698283d4fb1b9bb8e229594d3f25888ddb770172a3de75018231b9e',
  'default/vehicle_health.json': 'a27918342dc7292d4d3c27dbacda73c6679e62716e4e8275722aa9ed14f6b693',
  'default/vehicle_markers/markers.json': 'a601bc6e06d7240a1306438f6150c7ac701279c3a7f2929d5cb380850439fa58',
@@ -292,7 +292,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                            'textLock': False,
                            'textPosition': {'alignX': 'left', 'alignY': 'top', 'x': 0.0, 'y': 446.0}},
  'main': {'clock': {'enabled': True,
-                    'formats': [{'format': "<img src='gui/maps/driftkings/clock/clockbg.png'>",
+                    'formats': [{'format': "<img src='gui/maps/driftkings/clock/clockbg.svg'>",
                                  'height': 0,
                                  'screenHAlign': 'right',
                                  'shadow': {'alpha': 100,
@@ -1096,7 +1096,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                      'italy'],
                                    'normal': {'extraFields': [{'alpha': '{{v.battles?100|0}}',
                                                                'format': '<img '
-                                                                         "src='gui/maps/driftkings/carroucel/battles.png' "
+                                                                         "src='gui/maps/driftkings/carroucel/battles.svg' "
                                                                          "width='16' height='16'>",
                                                                'shadow': '$ref:textFieldShadow',
                                                                'x': 145,
@@ -1109,7 +1109,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                'y': 26},
                                                               {'alpha': '{{v.winrate?100|0}}',
                                                                'format': '<img '
-                                                                         "src='gui/maps/driftkings/carroucel/wins.png' "
+                                                                         "src='gui/maps/driftkings/carroucel/wins.svg' "
                                                                          "width='16' height='16'>",
                                                                'shadow': '$ref:textFieldShadow',
                                                                'x': 145,
@@ -1122,7 +1122,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                'y': 46},
                                                               {'alpha': '{{v.hitsRatio?100|0}}',
                                                                'format': '<img '
-                                                                         "src='gui/maps/driftkings/carroucel/shooter.png' "
+                                                                         "src='gui/maps/driftkings/carroucel/shooter.svg' "
                                                                          "width='18' height='18'>",
                                                                'shadow': '$ref:textFieldShadow',
                                                                'x': 8,
@@ -1135,7 +1135,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                                'y': 90},
                                                               {'alpha': '{{v.tfb?100|0}}',
                                                                'format': '<img '
-                                                                         "src='gui/maps/driftkings/carroucel/damage.png' "
+                                                                         "src='gui/maps/driftkings/carroucel/damage.svg' "
                                                                          "width='20' height='20'>",
                                                                'shadow': '$ref:textFieldShadow',
                                                                'x': 8,
@@ -1181,7 +1181,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                               {'alpha': '{{v.selected?100|0}}',
                                                                'enabled': True,
                                                                'format': '<img '
-                                                                         "src='gui/maps/driftkings/carroucel/{{v.c_type}}.png' "
+                                                                         "src='gui/maps/driftkings/carroucel/{{v.c_type}}.svg' "
                                                                          "width='208' height='140'>",
                                                                'height': 100,
                                                                'layer': 'substrate',

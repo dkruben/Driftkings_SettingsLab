@@ -2,7 +2,8 @@
    Ecrã 1920x1080 em miniatura (batalha, ou hangar para o relógio). O elemento do módulo aberto
    aparece destacado; os outros elementos do mod aparecem esbatidos para se verem sobreposições.
    Origens das posições, confirmadas no código do mod:
-   - tempo de fecho da mira e tempo de voo: deslocamento a partir da mira (crosshairdisplayable);
+   - tempo de fecho da mira, tempo de voo e penetração: deslocamento a partir da mira, como os textos Gameface
+     de shared/reticle_text.js (a penetração fica centrada no deslocamento);
    - vida do veículo: barra Gameface de 480x78 a partir da âncora alignX/alignY (vehicle_health.js);
    - marcas de excelência: painel alinhado à direita e ao centro vertical (panel.alignX/alignY);
    - Grande Calibre: a partir do canto superior esquerdo (textPosition);
@@ -21,6 +22,7 @@
     var MODULES = {
         'legacy.DispersionTimer': {scene: 'battle', draw: aimTimer},
         'legacy.FlightTimer': {scene: 'battle', draw: flightTimer},
+        'legacy.ArmorCalculator': {scene: 'battle', draw: penetration},
         'legacy.OwnHealth': {scene: 'battle', draw: health},
         'legacy.MarksOnGunBattle': {scene: 'battle', draw: marks},
         'legacy.MainGun': {scene: 'battle', draw: highCaliber},
@@ -48,13 +50,21 @@
     }
 
     /* Elements -------------------------------------------------------------- */
+    // Sizes of the battle texts in shared/reticle_text.css.
     function aimTimer(stage, v) {
         if (!v('enabled', false)) { return null; }
-        return text(stage, v('template', ''), CX + v('x', 60), CY + v('y', 110), {extra: {color: v('green', '#A6FFA6')}});
+        return text(stage, v('template', ''), CX + v('x', 60), CY + v('y', 110), {size: 18, extra: {color: v('green', '#A6FFA6')}});
     }
     function flightTimer(stage, v) {
         if (!v('enabled', false)) { return null; }
-        return text(stage, v('template', ''), CX + v('x', 100), CY + v('y', 100), {});
+        return text(stage, v('template', ''), CX + v('x', 100), CY + v('y', 100), {size: 18});
+    }
+    function penetration(stage, v) {
+        if (!v('enabled', true)) { return null; }
+        // Centred on the offset, like the battle text; the sample marker colour is "pierced".
+        var node = text(stage, v('template', ''), CX + v('position.x', 0) - 250, CY + v('position.y', 40), {size: 20, extra: {color: '#60CB00'}});
+        node.style.textAlign = 'center';
+        return node;
     }
     function health(stage, v, level) {
         if (!v('enabled', true)) { return null; }

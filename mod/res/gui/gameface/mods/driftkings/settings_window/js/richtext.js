@@ -27,7 +27,8 @@
         battles: 12450, avgDamage: 2380, damage: 350, dmg: 350, icons: '••', vehicles: 'IS-7, Obj. 140', vehicle: 'T32', name: 'Driftking',
         nick: 'Driftking', clan: '[DK]', hp: 1304, 'hp-max': 1650, 'hp-ratio': 79, level: 'VIII', tier: 8, type: 'HT', vtype: 'HT',
         pos: 'E5', cellsize: 100, frags: 2, kills: 2, assist: 820, blocked: 640, spotted: 3, marks: 2, mark: 87.4, mastery: 'M',
-        'squad-num': '', place: 3, time: '04:32'
+        'squad-num': '', place: 3, time: '04:32', countedArmor: 168, piercingPower: 225, piercingReserve: 57, caliber: 105,
+        ricochet: '', noDamage: '', message: ''
     };
     var SAMPLE_COLORS = {wn8: '#02C9B3', eff: '#A6FFA6', wtr: '#D042F3', xte: '#A6FFA6', winrate: '#A6FFA6', dmg: '#F8F400', hp: '#80D639'};
 

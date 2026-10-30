@@ -9,6 +9,17 @@
     document.head.appendChild(fonts);
     /* GENERATED CATALOG START */
     var features = {
+        "DriftkingsAimingCountdown": {
+            "owner": "__dkAimingCountdown",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
+                "coui://gui/gameface/mods/driftkings/aiming_countdown/aiming_countdown.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
+            ]
+        },
         "DriftkingsCarouselStats": {
             "owner": "__dkCarouselStats",
             "scripts": [
@@ -35,6 +46,17 @@
                 "coui://gui/gameface/mods/driftkings/crew_progression/crew.js"
             ],
             "styles": []
+        },
+        "DriftkingsFlightTime": {
+            "owner": "__dkFlightTime",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
+                "coui://gui/gameface/mods/driftkings/shell_flight_time/shell_flight_time.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
+            ]
         },
         "DriftkingsHangarClock": {
             "owner": "__dkHangarClock",
@@ -104,6 +126,17 @@
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/health_bar.css",
                 "coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css"
+            ]
+        },
+        "DriftkingsPenetration": {
+            "owner": "__dkPenetration",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
+                "coui://gui/gameface/mods/driftkings/penetration_indicator/penetration_indicator.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
             ]
         },
         "DriftkingsProfileRatings": {

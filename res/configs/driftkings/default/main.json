@@ -6,7 +6,7 @@
         "x": 8,
         "y": 100,
         "screenHAlign": "right",
-        "format": "<img src='gui/maps/driftkings/clock/clockbg.png'>",
+        "format": "<img src='gui/maps/driftkings/clock/clockbg.svg'>",
         "height": 0,
         "shadow": {
           "alpha": 100,

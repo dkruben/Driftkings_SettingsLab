@@ -13,14 +13,17 @@
 .dk-health__track {
     overflow: hidden;
     background-color: #1a1c1e;
-    background-image: url('coui://gui/gameface/mods/driftkings/vehicle_health/assets/stripes.png');
+    background-image: linear-gradient(135deg, rgba(255,255,255,.08) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.08) 75%, transparent 75%);
     background-repeat: repeat;
     background-size: 12rem 12rem;
 }
 .dk-health__fill { position: absolute; left: 0; top: 0; width: 0; height: 100%; background-color: #3fc23a; transition: width 250ms linear, background-color 250ms linear; }
 .dk-health__stripes, .dk-health__gloss { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
-.dk-health__stripes { background-image: url('coui://gui/gameface/mods/driftkings/vehicle_health/assets/stripes.png'); background-repeat: repeat; background-size: 12rem 12rem; }
+.dk-health__stripes { background-image: linear-gradient(135deg, rgba(255,255,255,.08) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.08) 75%, transparent 75%); background-repeat: repeat; background-size: 12rem 12rem; }
 .dk-health__gloss { background-image: linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,255,255,.08) 48%, rgba(0,0,0,.2) 100%); }
 .dk-health__image { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
 .dk-health__frame { position: absolute; left: 0; width: 100%; }
 .dk-health__text { display: flex; align-items: center; justify-content: center; color: #f4f8f0; font-size: 15rem; font-weight: 700; white-space: nowrap; text-shadow: 0 0 3rem rgba(0,0,0,.95), 1rem 1rem 1rem rgba(0,0,0,.9), -1rem -1rem 1rem rgba(0,0,0,.6); pointer-events: none; }
+.dk-health[data-health-style="minimal"] .dk-health__track { background-image: none; background-color: #202326; box-shadow: 0 0 0 2rem #101214; }
+.dk-health[data-health-style="minimal"] .dk-health__stripes,
+.dk-health[data-health-style="minimal"] .dk-health__gloss { display: none; }

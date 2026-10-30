@@ -14,7 +14,7 @@ def resource_image(path):
     for prefix in ('img://', 'coui://'):
         if path.startswith(prefix):
             path = path[len(prefix):]
-    if not path.lower().endswith(('.png', '.jpg', '.jpeg')) or any(part in ('', '..', '.') for part in path.split('/')):
+    if not path.lower().endswith(('.png', '.jpg', '.jpeg', '.svg')) or any(part in ('', '..', '.') for part in path.split('/')):
         return ''
     if path.startswith('gui/') and ':' not in path:
         return 'coui://' + path

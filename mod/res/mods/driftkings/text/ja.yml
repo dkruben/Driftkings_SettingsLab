@@ -54,9 +54,9 @@ aiming_countdown.UI_setting_red_tooltip: "照準の完了が15%未満の間の�
 aiming_countdown.UI_setting_template_text: "テンプレート"
 aiming_countdown.UI_setting_template_tooltip: "タイマーのテキスト。マクロ: %(timer).1fs 残りの照準時間、%(percent)d%% 照準の進行度、%(color)s 現在の進行度の色。"
 aiming_countdown.UI_setting_x_text: "位置X"
-aiming_countdown.UI_setting_x_tooltip: "照準器からのタイマーの水平方向のずれ（ピクセル）。負の値で左に移動します。"
+aiming_countdown.UI_setting_x_tooltip: "照準からのテキストの水平オフセット（インターフェース単位）。負の値で左に移動します。戦闘中は Ctrl を押しながらテキストをドラッグできます。"
 aiming_countdown.UI_setting_y_text: "位置Y"
-aiming_countdown.UI_setting_y_tooltip: "照準器からのタイマーの垂直方向のずれ（ピクセル）。負の値で上に移動します。"
+aiming_countdown.UI_setting_y_tooltip: "照準からのテキストの垂直オフセット（インターフェース単位）。負の値で上に移動します。"
 aiming_countdown.UI_setting_yellow_text: "<font color='#%(yellow)s'>現在の色: #%(yellow)s</font>"
 aiming_countdown.UI_setting_yellow_tooltip: "照準が35～49%完了している間のタイマーの色。"
 
@@ -791,6 +791,12 @@ penetration_indicator.UI_noDamage: "クリティカルヒット、ノーダメ�
 penetration_indicator.UI_ricochet: "跳弾"
 penetration_indicator.UI_setting_displayOnAllies_text: "味方に表示"
 penetration_indicator.UI_setting_displayOnAllies_tooltip: "味方車両を狙っているときも装甲と貫通のインジケーターを表示します。"
+penetration_indicator.UI_setting_template_text: "テンプレート"
+penetration_indicator.UI_setting_template_tooltip: "インジケーターのテキスト。マクロ: %(countedArmor)d, %(piercingPower)d, %(piercingReserve)d, %(caliber)d, %(color)s, %(ricochet)s, %(noDamage)s, %(message)s。"
+penetration_indicator.UI_setting_positionX_text: "位置 X"
+penetration_indicator.UI_setting_positionX_tooltip: "照準からのテキストの水平オフセット（インターフェース単位）。負の値で左に移動します。戦闘中は Ctrl を押しながらテキストをドラッグできます。"
+penetration_indicator.UI_setting_positionY_text: "位置 Y"
+penetration_indicator.UI_setting_positionY_tooltip: "照準からのテキストの垂直オフセット（インターフェース単位）。負の値で上に移動します。"
 
 # repair_controls
 repair_controls.UI_description: "修理操作"
@@ -828,9 +834,9 @@ shell_flight_time.UI_setting_spgOnly_tooltip: "自走砲に乗っているとき
 shell_flight_time.UI_setting_template_text: "テンプレート"
 shell_flight_time.UI_setting_template_tooltip: "タイマーのテキスト。マクロ: %(flightTime).1fs 砲弾の飛翔時間、%(distance)dm 照準点までの距離。"
 shell_flight_time.UI_setting_x_text: "位置X"
-shell_flight_time.UI_setting_x_tooltip: "照準器からのタイマーの水平方向のずれ（ピクセル）。負の値で左に移動します。"
+shell_flight_time.UI_setting_x_tooltip: "照準からのテキストの水平オフセット（インターフェース単位）。負の値で左に移動します。戦闘中は Ctrl を押しながらテキストをドラッグできます。"
 shell_flight_time.UI_setting_y_text: "位置Y"
-shell_flight_time.UI_setting_y_tooltip: "照準器からのタイマーの垂直方向のずれ（ピクセル）。負の値で上に移動します。"
+shell_flight_time.UI_setting_y_tooltip: "照準からのテキストの垂直オフセット（インターフェース単位）。負の値で上に移動します。"
 
 # sixth_sense_alert
 sixth_sense_alert.UI_description: "第六感の警告"
@@ -1813,3 +1819,4 @@ vehicle_health.UI_health_brightness: "明るさ"
 panel.hud.health: "HP"
 vehicle_health.UI_setting_style_tooltip: "HPバーのフレームを選択します。"
 vehicle_health.UI_health_color_tooltip: "残りHPに応じて色が変化します。"
+vehicle_health.UI_health_minimal: "ミニマル"

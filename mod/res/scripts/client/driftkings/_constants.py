@@ -64,6 +64,7 @@ class PENETRATION_INDICATOR(object):
     NAME = 'penetration_indicator'
     DISPLAY_ON_ALLIES = 'displayOnAllies'
     MESSAGES = 'messages'
+    POSITION = 'position'
     TEMPLATE = 'template'
 
 
@@ -260,7 +261,7 @@ class VEHICLE_HEALTH(object):
     NAME = 'vehicle_health'
     AVG_COLOR = 'avgColor'
     STYLE = 'style'
-    STYLES = ('classic', 'bastion', 'vanguard', 'ion')
+    STYLES = ('classic', 'bastion', 'vanguard', 'ion', 'minimal')
 
 
 class TEAM_PANELS(object):
@@ -554,10 +555,7 @@ HANDLER_VALUES = {
 # Flash component aliases shared by registration and controllers.
 class BATTLE_ALIASES(object):
     DEBUG_PANEL = 'DriftkingsDebugPanel'
-    PENETRATION_INDICATOR = 'ArmorCalculatorView'
-    AIMING_COUNTDOWN = 'DispersionTimerView'
     TARGET_DISTANCE = 'DistanceMarkerView'
-    SHELL_FLIGHT_TIME = 'FlightTimerView'
     SIXTH_SENSE_ALERT = 'SixthSenseView'
     MINIMAP = 'MinimapEnhancementsView'
     PLAYERS_PANEL = 'DriftkingsRatingScreens'

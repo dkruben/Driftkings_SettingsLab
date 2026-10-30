@@ -1,0 +1,11 @@
+[
+  {
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/driftkings/shell_flight_time/model.html",
+    "parameters": {
+      "entrance": "main",
+      "impl": "gameface"
+    },
+    "id": "R.mods.driftkings.shell_flight_time.model"
+  }
+]

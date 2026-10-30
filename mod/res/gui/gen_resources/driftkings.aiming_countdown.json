@@ -1,0 +1,11 @@
+[
+  {
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/driftkings/aiming_countdown/model.html",
+    "parameters": {
+      "entrance": "main",
+      "impl": "gameface"
+    },
+    "id": "R.mods.driftkings.aiming_countdown.model"
+  }
+]

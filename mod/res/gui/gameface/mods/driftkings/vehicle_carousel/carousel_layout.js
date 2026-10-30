@@ -18,15 +18,20 @@
     }
     function localIcon(value, images) {
         if (typeof value !== 'string' || value.indexOf('..') !== -1) return '';
-        // Owned PNGs arrive through ResMgr, including names containing '#'.
+        // SVG loads directly through Gameface; '#' is part of the filename, not a URL fragment.
+        var owned = value.replace(/^(coui|img):\/\//, '');
+        if (/^gui\/maps\/driftkings\/carroucel\/[#a-z0-9_-]+\.svg$/.test(owned)) {
+            return 'coui://' + owned.replace(/#/g, '%23');
+        }
+        // PNGs arrive through ResMgr, including names containing '#'.
         // Never interpret the legacy mods/ path as an external file override.
         if (/^gui\/maps\/driftkings\/carroucel\/[#a-z0-9_-]+\.png$/.test(value)) {
             var image = images && images[value];
             return typeof image === 'string' && /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(image) ? image : '';
         }
         value = value.replace(/^img:\/\//,'coui://');
-        if (/^gui\/[a-zA-Z0-9_./-]+\.(png|dds|webp)$/i.test(value)) value='coui://'+value;
-        return /^coui:\/\/gui\/[a-zA-Z0-9_./-]+\.(png|dds|webp)$/i.test(value) ? value : '';
+        if (/^gui\/[a-zA-Z0-9_./-]+\.(png|svg|dds|webp)$/i.test(value)) value='coui://'+value;
+        return /^coui:\/\/gui\/[a-zA-Z0-9_./-]+\.(png|svg|dds|webp)$/i.test(value) ? value : '';
     }
     function profileName(type, doubled) { return type === 'normal' || type === 'small' ? type : doubled ? 'small' : 'normal'; }
     function rgba(value, alpha) {

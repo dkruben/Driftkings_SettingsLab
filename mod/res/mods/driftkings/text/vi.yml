@@ -54,9 +54,9 @@ aiming_countdown.UI_setting_red_tooltip: "Màu bộ đếm khi việc ngắm ho�
 aiming_countdown.UI_setting_template_text: "Bản mẫu"
 aiming_countdown.UI_setting_template_tooltip: "Văn bản của bộ đếm. Macro: %(timer).1fs thời gian ngắm còn lại, %(percent)d%% tiến độ ngắm, %(color)s màu của tiến độ hiện tại."
 aiming_countdown.UI_setting_x_text: "Vị trí X"
-aiming_countdown.UI_setting_x_tooltip: "Độ lệch ngang của bộ đếm so với tâm ngắm, tính bằng pixel. Giá trị âm dời sang trái."
+aiming_countdown.UI_setting_x_tooltip: "Độ lệch ngang của văn bản so với tâm ngắm, theo đơn vị giao diện. Giá trị âm dịch sang trái. Trong trận, giữ Ctrl và kéo văn bản."
 aiming_countdown.UI_setting_y_text: "Vị trí Y"
-aiming_countdown.UI_setting_y_tooltip: "Độ lệch dọc của bộ đếm so với tâm ngắm, tính bằng pixel. Giá trị âm dời lên trên."
+aiming_countdown.UI_setting_y_tooltip: "Độ lệch dọc của văn bản so với tâm ngắm, theo đơn vị giao diện. Giá trị âm dịch lên trên."
 aiming_countdown.UI_setting_yellow_text: "<font color='#%(yellow)s'>Màu hiện tại: #%(yellow)s</font>"
 aiming_countdown.UI_setting_yellow_tooltip: "Màu bộ đếm khi việc ngắm đã hoàn tất 35–49%."
 
@@ -791,6 +791,12 @@ penetration_indicator.UI_noDamage: "Đòn chí mạng, không gây sát thương
 penetration_indicator.UI_ricochet: "Bật nảy"
 penetration_indicator.UI_setting_displayOnAllies_text: "Hiển thị trên đồng minh"
 penetration_indicator.UI_setting_displayOnAllies_tooltip: "Cũng hiển thị chỉ báo giáp và xuyên khi ngắm vào xe đồng minh."
+penetration_indicator.UI_setting_template_text: "Mẫu"
+penetration_indicator.UI_setting_template_tooltip: "Văn bản của chỉ báo. Macro: %(countedArmor)d, %(piercingPower)d, %(piercingReserve)d, %(caliber)d, %(color)s, %(ricochet)s, %(noDamage)s, %(message)s."
+penetration_indicator.UI_setting_positionX_text: "Vị trí X"
+penetration_indicator.UI_setting_positionX_tooltip: "Độ lệch ngang của văn bản so với tâm ngắm, theo đơn vị giao diện. Giá trị âm dịch sang trái. Trong trận, giữ Ctrl và kéo văn bản."
+penetration_indicator.UI_setting_positionY_text: "Vị trí Y"
+penetration_indicator.UI_setting_positionY_tooltip: "Độ lệch dọc của văn bản so với tâm ngắm, theo đơn vị giao diện. Giá trị âm dịch lên trên."
 
 # repair_controls
 repair_controls.UI_description: "Điều khiển sửa chữa"
@@ -828,9 +834,9 @@ shell_flight_time.UI_setting_spgOnly_tooltip: "Chỉ hiển thị bộ đếm kh
 shell_flight_time.UI_setting_template_text: "Bản mẫu"
 shell_flight_time.UI_setting_template_tooltip: "Văn bản của bộ đếm. Macro: %(flightTime).1fs thời gian bay của đạn, %(distance)dm khoảng cách tới điểm ngắm."
 shell_flight_time.UI_setting_x_text: "Vị trí X"
-shell_flight_time.UI_setting_x_tooltip: "Độ lệch ngang của bộ đếm so với tâm ngắm, tính bằng pixel. Giá trị âm dời sang trái."
+shell_flight_time.UI_setting_x_tooltip: "Độ lệch ngang của văn bản so với tâm ngắm, theo đơn vị giao diện. Giá trị âm dịch sang trái. Trong trận, giữ Ctrl và kéo văn bản."
 shell_flight_time.UI_setting_y_text: "Vị trí Y"
-shell_flight_time.UI_setting_y_tooltip: "Độ lệch dọc của bộ đếm so với tâm ngắm, tính bằng pixel. Giá trị âm dời lên trên."
+shell_flight_time.UI_setting_y_tooltip: "Độ lệch dọc của văn bản so với tâm ngắm, theo đơn vị giao diện. Giá trị âm dịch lên trên."
 
 # sixth_sense_alert
 sixth_sense_alert.UI_description: "Cảnh báo Giác quan thứ sáu"
@@ -1813,3 +1819,4 @@ vehicle_health.UI_health_brightness: "Độ sáng"
 panel.hud.health: "Máu"
 vehicle_health.UI_setting_style_tooltip: "Chọn khung thanh máu."
 vehicle_health.UI_health_color_tooltip: "Màu thay đổi theo lượng máu còn lại."
+vehicle_health.UI_health_minimal: "Tối giản"

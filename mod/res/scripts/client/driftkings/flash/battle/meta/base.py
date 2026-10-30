@@ -110,9 +110,3 @@ class BattleMeta(HudMeta):
 
     def isColorBlind(self):
         return bool(self.settingsCore.getSetting(GRAPHICS.COLOR_BLIND))
-
-
-class CrosshairMeta(BattleMeta):
-    def as_onCrosshairPositionChangedS(self, x, y):
-        if self._isDAAPIInited():
-            return self.flashObject.as_onCrosshairPositionChanged(x, y)

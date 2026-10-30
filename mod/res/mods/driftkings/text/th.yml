@@ -54,9 +54,9 @@ aiming_countdown.UI_setting_red_tooltip: "สีของตัวจับเ�
 aiming_countdown.UI_setting_template_text: "แม่แบบ"
 aiming_countdown.UI_setting_template_tooltip: "ข้อความของตัวจับเวลา มาโคร: %(timer).1fs เวลาเล็งที่เหลือ, %(percent)d%% ความคืบหน้าการเล็ง, %(color)s สีของความคืบหน้าปัจจุบัน"
 aiming_countdown.UI_setting_x_text: "ตำแหน่ง X"
-aiming_countdown.UI_setting_x_tooltip: "ระยะเลื่อนแนวนอนของตัวจับเวลาจากศูนย์เล็ง หน่วยเป็นพิกเซล ค่าติดลบจะเลื่อนไปทางซ้าย"
+aiming_countdown.UI_setting_x_tooltip: "ระยะเลื่อนแนวนอนของข้อความจากศูนย์เล็ง เป็นหน่วยของอินเทอร์เฟซ ค่าติดลบจะเลื่อนไปทางซ้าย ระหว่างการรบ กด Ctrl ค้างไว้แล้วลากข้อความ"
 aiming_countdown.UI_setting_y_text: "ตำแหน่ง Y"
-aiming_countdown.UI_setting_y_tooltip: "ระยะเลื่อนแนวตั้งของตัวจับเวลาจากศูนย์เล็ง หน่วยเป็นพิกเซล ค่าติดลบจะเลื่อนขึ้น"
+aiming_countdown.UI_setting_y_tooltip: "ระยะเลื่อนแนวตั้งของข้อความจากศูนย์เล็ง เป็นหน่วยของอินเทอร์เฟซ ค่าติดลบจะเลื่อนขึ้น"
 aiming_countdown.UI_setting_yellow_text: "<font color='#%(yellow)s'>สีปัจจุบัน: #%(yellow)s</font>"
 aiming_countdown.UI_setting_yellow_tooltip: "สีของตัวจับเวลาขณะที่การเล็งเสร็จ 35–49%"
 
@@ -791,6 +791,12 @@ penetration_indicator.UI_noDamage: "โจมตีคริติคอล ไ�
 penetration_indicator.UI_ricochet: "แฉลบ"
 penetration_indicator.UI_setting_displayOnAllies_text: "แสดงผลบนพันธมิตร"
 penetration_indicator.UI_setting_displayOnAllies_tooltip: "แสดงตัวบ่งชี้เกราะและการเจาะเกราะเมื่อเล็งยานพันธมิตรด้วย"
+penetration_indicator.UI_setting_template_text: "แม่แบบ"
+penetration_indicator.UI_setting_template_tooltip: "ข้อความของตัวบ่งชี้ มาโคร: %(countedArmor)d, %(piercingPower)d, %(piercingReserve)d, %(caliber)d, %(color)s, %(ricochet)s, %(noDamage)s, %(message)s"
+penetration_indicator.UI_setting_positionX_text: "ตำแหน่ง X"
+penetration_indicator.UI_setting_positionX_tooltip: "ระยะเลื่อนแนวนอนของข้อความจากศูนย์เล็ง เป็นหน่วยของอินเทอร์เฟซ ค่าติดลบจะเลื่อนไปทางซ้าย ระหว่างการรบ กด Ctrl ค้างไว้แล้วลากข้อความ"
+penetration_indicator.UI_setting_positionY_text: "ตำแหน่ง Y"
+penetration_indicator.UI_setting_positionY_tooltip: "ระยะเลื่อนแนวตั้งของข้อความจากศูนย์เล็ง เป็นหน่วยของอินเทอร์เฟซ ค่าติดลบจะเลื่อนขึ้น"
 
 # repair_controls
 repair_controls.UI_description: "การควบคุมการซ่อม"
@@ -828,9 +834,9 @@ shell_flight_time.UI_setting_spgOnly_tooltip: "แสดงตัวจับเ
 shell_flight_time.UI_setting_template_text: "แม่แบบ"
 shell_flight_time.UI_setting_template_tooltip: "ข้อความของตัวจับเวลา มาโคร: %(flightTime).1fs เวลาบินของกระสุน, %(distance)dm ระยะถึงจุดเล็ง"
 shell_flight_time.UI_setting_x_text: "ตำแหน่ง X"
-shell_flight_time.UI_setting_x_tooltip: "ระยะเลื่อนแนวนอนของตัวจับเวลาจากศูนย์เล็ง หน่วยเป็นพิกเซล ค่าติดลบจะเลื่อนไปทางซ้าย"
+shell_flight_time.UI_setting_x_tooltip: "ระยะเลื่อนแนวนอนของข้อความจากศูนย์เล็ง เป็นหน่วยของอินเทอร์เฟซ ค่าติดลบจะเลื่อนไปทางซ้าย ระหว่างการรบ กด Ctrl ค้างไว้แล้วลากข้อความ"
 shell_flight_time.UI_setting_y_text: "ตำแหน่ง Y"
-shell_flight_time.UI_setting_y_tooltip: "ระยะเลื่อนแนวตั้งของตัวจับเวลาจากศูนย์เล็ง หน่วยเป็นพิกเซล ค่าติดลบจะเลื่อนขึ้น"
+shell_flight_time.UI_setting_y_tooltip: "ระยะเลื่อนแนวตั้งของข้อความจากศูนย์เล็ง เป็นหน่วยของอินเทอร์เฟซ ค่าติดลบจะเลื่อนขึ้น"
 
 # sixth_sense_alert
 sixth_sense_alert.UI_description: "การเตือนสัมผัสที่หก"
@@ -1813,3 +1819,4 @@ vehicle_health.UI_health_brightness: "ความสว่าง"
 panel.hud.health: "ความทนทาน"
 vehicle_health.UI_setting_style_tooltip: "เลือกกรอบของแถบความทนทาน"
 vehicle_health.UI_health_color_tooltip: "สีเปลี่ยนตามความทนทานที่เหลือ"
+vehicle_health.UI_health_minimal: "มินิมอล"

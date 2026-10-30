@@ -7,7 +7,8 @@
         {name: 'classic', file: 'frame.png', width: 480, height: 78, canvas: [960, 156], crop: [0, 156], slot: [189.888, 74.9736, 668.256, 38.5788]},
         {name: 'bastion', file: 'bastion.png', width: 480, height: 110, canvas: [1536, 1024], crop: [352, 352], slot: [279, 469, 1090, 109]},
         {name: 'vanguard', file: 'vanguard.png', width: 480, height: 120, canvas: [1536, 1024], crop: [288, 384], slot: [253, 405, 1167, 174]},
-        {name: 'ion', file: 'ion.png', width: 480, height: 94, canvas: [1536, 1024], crop: [370, 300.8], slot: [273, 461, 1074, 123]}
+        {name: 'ion', file: 'ion.png', width: 480, height: 94, canvas: [1536, 1024], crop: [370, 300.8], slot: [273, 461, 1074, 123]},
+        {name: 'minimal', file: null, width: 340, height: 24, canvas: [340, 24], crop: [0, 24], slot: [2, 2, 336, 20]}
     ];
     function preset(value) { return typeof value === 'number' && value === Math.floor(value) && STYLES[value] ? STYLES[value] : STYLES[0]; }
     function node(tag, name, parent) {
@@ -40,7 +41,8 @@
             [track, label].forEach(function (element) {
                 Object.keys(area).forEach(function (key) { element.style[key] = area[key]; });
             });
-            frame.src = BASE + skin.file;
+            imageBox.style.display = skin.file ? '' : 'none';
+            if (skin.file) { frame.src = BASE + skin.file; }
             frame.style.top = -skin.crop[0] / skin.crop[1] * 100 + '%';
             frame.style.height = skin.canvas[1] / skin.crop[1] * 100 + '%';
         }

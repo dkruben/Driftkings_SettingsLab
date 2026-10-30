@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Carousel PNGs from the resource tree mounted by the client's .wotmod loader."""
+"""Carousel images from the resource tree mounted by the client's .wotmod loader."""
 import base64
 import os
 import re
@@ -7,8 +7,8 @@ import re
 from driftkings.logger import get_logger
 
 RESOURCE_ROOT = 'gui/maps/driftkings/carroucel/'
-ICON_PATH = re.compile(r'gui/maps/driftkings/carroucel/[#a-z0-9_-]+\.png')
-SAVED_ICON_PATH = re.compile(r'(?:(?:coui|img)://)?(?:gui/maps|mods)/driftkings/carroucel/([^\s\'"<>/]+\.png)', re.IGNORECASE)
+ICON_PATH = re.compile(r'gui/maps/driftkings/carroucel/[#a-z0-9_-]+\.(?:png|svg)')
+SAVED_ICON_PATH = re.compile(r'(?:(?:coui|img)://)?(?:gui/maps|mods)/driftkings/carroucel/([^\s\'"<>/]+\.(?:png|svg))', re.IGNORECASE)
 MAX_IMAGE_SIZE = 2 * 1024 * 1024
 
 
@@ -42,6 +42,10 @@ class CarouselImages(object):
         if not ICON_PATH.match(path) or ICON_PATH.match(path).group(0) != path:
             return ''
         resource = path
+        # SVG needs the Gameface image loader, not the binary PNG reader in ResMgr.
+        # Gameface loads packaged SVG directly, as it does for the clock and UI icons.
+        if resource.endswith('.svg'):
+            return 'coui://' + resource.replace('#', '%23')
         if resource in self.cache:
             return self.cache[resource]
         try:
@@ -57,8 +61,12 @@ class CarouselImages(object):
                 data = section.asBinary if section is not None else None
         except (IOError, OSError, ValueError):
             data = None
-        if data and len(data) <= MAX_IMAGE_SIZE and data.startswith(b'\x89PNG\r\n\x1a\n'):
-            result = 'data:image/png;base64,' + base64.b64encode(data).decode('ascii')
+        mime = None
+        if data and len(data) <= MAX_IMAGE_SIZE:
+            if resource.endswith('.png') and data.startswith(b'\x89PNG\r\n\x1a\n'):
+                mime = 'image/png'
+        if mime is not None:
+            result = 'data:%s;base64,' % mime + base64.b64encode(data).decode('ascii')
             if len(self.cache) >= 32:
                 self.cache.clear()
             self.cache[resource] = result
@@ -76,5 +84,5 @@ class CarouselImages(object):
                 for field in profile.get('extraFields', ()):
                     if field.get('showIcons', True):
                         for key in ('src', 'format'):
-                            paths.update(ICON_PATH.findall(field.get(key, '')))
+                            paths.update(path for path in ICON_PATH.findall(field.get(key, '')) if path.endswith('.png'))
         return dict((path, self.resolve(path)) for path in sorted(paths))

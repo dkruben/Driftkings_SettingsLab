@@ -92,7 +92,7 @@ class OwnHealthGamefaceTests(RuntimeTest):
     def test_selected_style_is_published_without_changing_health_or_position(self):
         self.adapter.startBattle()
         original = self.published[-1]
-        for style in range(4):
+        for style in range(5):
             self.settings['style'] = style
             self.adapter.onSettingsChanged('vehicle_health', {'style': style})
             payload, config, enabled = self.published[-1]
@@ -133,23 +133,23 @@ class HealthStyleSettingsTests(RuntimeTest):
         values = {'enabled': True, 'x': 32, 'y': -60}
         result = self.definition.normalize_loaded(values)
         self.assertEqual(result, {'enabled': True, 'x': 32, 'y': -60, 'style': 0})
-        for value in (True, '1', -1, 4, None):
+        for value in (True, '1', -1, 5, None):
             self.assertEqual(self.definition.normalize_loaded({'style': value})['style'], 0)
 
-    def test_style_changes_accept_only_the_four_integer_choices(self):
-        for value in range(4):
+    def test_style_changes_accept_only_the_five_integer_choices(self):
+        for value in range(5):
             self.assertEqual(self.definition.normalize_changes({'style': value}, {'style': value})['style'], value)
-        for value in (True, '1', -1, 4, 1.5, None):
+        for value in (True, '1', -1, 5, 1.5, None):
             with self.assertRaises(ValueError):
                 self.definition.normalize_changes({'style': value}, {'style': value})
 
     def test_named_style_and_colour_controls_use_stable_setting_keys(self):
         self.definition.i18n = dict(('UI_health_' + key, key) for key in
-                                   ('classic', 'bastion', 'vanguard', 'ion', 'saturation', 'brightness', 'color_tooltip'))
+                                   ('classic', 'bastion', 'vanguard', 'ion', 'minimal', 'saturation', 'brightness', 'color_tooltip'))
         columns = self.definition.getControlColumns()
         self.assertEqual(columns[0][0]['varName'], 'style')
         self.assertEqual([item['label'] for item in columns[0][0]['options']],
-                         ['classic', 'bastion', 'vanguard', 'ion'])
+                         ['classic', 'bastion', 'vanguard', 'ion', 'minimal'])
         self.assertEqual([item['path'] for item in columns[1]],
                          [['avgColor', 'saturation'], ['avgColor', 'brightness']])
 

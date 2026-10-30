@@ -3,16 +3,18 @@ from AvatarInputHandler.gun_marker_ctrl import _CrosshairShotResults, computePie
 from DestructibleEntity import DestructibleEntity
 from Vehicle import Vehicle
 
-from driftkings._constants import BATTLE_ALIASES
-from driftkings.flash.battle.penetration_indicator import ArmorCalculator
+from driftkings.common.utils import events
+from driftkings.core.battle_capabilities import battle_capabilities
+from driftkings.core.hooks import on_event
 from driftkings.game_constants import SHELL_MECHANICS_TYPE, SHELL_TYPES
+from driftkings.gameface.battle.reticle_texts import PenetrationAdapter
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.penetration_indicator import PenetrationIndicatorSettings
 
 LOG = get_logger('driftkings.battle.penetration_indicator')
 
-AS_BATTLE = BATTLE_ALIASES.PENETRATION_INDICATOR
 penetration_indicator_settings = PenetrationIndicatorSettings()
+g_gameface = None
 
 
 class _ShotResult(_CrosshairShotResults):
@@ -127,8 +129,30 @@ class _ShotResultAll(_ShotResult):
         return cls._result(gunMarker, multiplier, player)
 
 
-def getBattleViews():
-    return ((AS_BATTLE, ArmorCalculator, penetration_indicator_settings),)
+@on_event(events.PlayerAvatar.startGUI.after)
+def new_startGUI(*args):
+    if g_gameface is not None and battle_capabilities.has_gameface_hud():
+        g_gameface.startBattle()
+
+
+@on_event(events.PlayerAvatar.destroyGUI.before)
+def new_destroyGUI(*args):
+    if g_gameface is not None:
+        g_gameface.stopBattle()
+
+
+def init():
+    global g_gameface
+    if g_gameface is None:
+        g_gameface = PenetrationAdapter()
+        g_gameface.install()
+
+
+def fini():
+    global g_gameface
+    if g_gameface is not None:
+        g_gameface.dispose()
+        g_gameface = None
 
 from driftkings.flash.battle.penetration_hooks import configure
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Small battle modules: server turret sync, distance marker lifecycle and view entry points."""
+"""Small battle modules: server turret sync, distance marker lifecycle and WN8."""
 from support import RuntimeTest, Settings, game_source, module, source
 
 create_range = source('common/utils/wgutils.py', {'BigWorld': module()})['create_range']
@@ -90,17 +90,6 @@ class TargetDistanceTests(RuntimeTest):
         self.data['enabled'] = False
         self.hooks.get('VehicleMarkerPlugin', 'start')(lambda plugin: None, module(_clazz='markers'))
         self.assertEqual(self.created, [])
-
-
-class EntryPointTests(RuntimeTest):
-    def test_view_modules_register_their_battle_view(self):
-        for name, view in (('aiming_countdown', 'DispersionTimer'), ('shell_flight_time', None)):
-            api, _ = game_source('battle/%s.py' % name, real=('driftkings._constants',))
-            views = api['getBattleViews']()
-            self.assertEqual(len(views), 1, name)
-            alias, view_class, config = views[0]
-            self.assertIs(config, api[name + '_settings'], name)
-            self.assertTrue(alias, name)
 
 
 class BattlePerformanceWn8Tests(RuntimeTest):

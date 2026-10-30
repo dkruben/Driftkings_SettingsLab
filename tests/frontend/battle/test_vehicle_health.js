@@ -15,7 +15,17 @@ filenames.forEach((name,index)=>{
     assert.strictEqual(host.style.height,kit.preset(index).height+'rem');
     assert.strictEqual(host.children.length,1,'style changes reuse the same bar nodes');
 });
-for(const value of [-1,4,1.5,'1',null,true,Infinity]){
+bar.render({style:4,percent:.5,color:'#12AB34',text:'1200 / 2400'});
+assert.strictEqual(host.getAttribute('data-health-style'),'minimal');
+assert.strictEqual(host.style.width,'340rem');
+assert.strictEqual(host.style.height,'24rem');
+assert.strictEqual(host.querySelector('.dk-health__image').style.display,'none');
+assert.strictEqual(host.querySelector('.dk-health__fill').style.width,'50%');
+assert.strictEqual(host.querySelector('.dk-health__text').textContent,'1200 / 2400');
+bar.render({style:1,percent:.5});
+assert.strictEqual(host.querySelector('.dk-health__image').style.display,'');
+assert.strictEqual(host.querySelector('.dk-health__frame').src.endsWith('/bastion.png'),true);
+for(const value of [-1,5,1.5,'1',null,true,Infinity]){
     bar.render({style:value,percent:NaN,color:'invalid',text:''});
     assert.strictEqual(host.getAttribute('data-health-style'),'classic');
     assert.strictEqual(host.querySelector('.dk-health__fill').style.width,'0%');
@@ -48,6 +58,11 @@ preview.update(values);
 assert.strictEqual(previewHost.querySelector('.dk-health__frame').src.endsWith('/assets/frame.png'),true);
 preview.preview(id('style'),2);
 assert.strictEqual(previewHost.querySelector('.is-current').getAttribute('data-health-style'),'vanguard');
+preview.preview(id('style'),4);
+assert.strictEqual(previewHost.querySelector('.is-current').getAttribute('data-health-style'),'minimal');
+assert.strictEqual(previewHost.querySelector('.is-current').style.width,'340rem');
+assert.strictEqual(previewHost.querySelector('.dk-health__image').style.display,'none');
+preview.preview(id('style'),2);
 const range=previewHost.querySelector('input'), sent=env.sent.length;
 range.value=10;range.fire('input');
 assert.strictEqual(previewHost.querySelector('.dk-health__fill').style.width,'10%');
@@ -65,4 +80,4 @@ preview.preview(id('enabled'),false);
 assert.strictEqual(previewHost.querySelector('.is-current'),null);
 preview.dispose();assert.strictEqual(previewHost.children.length,0);
 DK.app.dispose();
-console.log('Health bar: four styles, shared battle/preview renderer, HP samples and live colour passed');
+console.log('Health bar: five styles, shared battle/preview renderer, HP samples and live colour passed');

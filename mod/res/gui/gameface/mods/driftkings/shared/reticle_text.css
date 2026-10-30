@@ -1,0 +1,21 @@
+@font-face { font-family: Warhelios; src: url('coui://gui/gameface/fonts/Warhelios-Bold.ttf'); font-weight: 700; }
+/* Texts beside the crosshair. Sizes and the dark glow follow the retired Flash fields
+   ($TitleFont 18, penetration 20, GlowFilter black 0.55). */
+.dk-reticle-text {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    font-family: Warhelios;
+    font-weight: 700;
+    font-size: 18rem;
+    line-height: 1.2;
+    color: #ffffff;
+    white-space: nowrap;
+    pointer-events: none;
+    text-shadow: 0 0 2rem rgba(0, 0, 0, 0.55), 0 0 2rem rgba(0, 0, 0, 0.55), 1rem 1rem 1rem rgba(0, 0, 0, 0.55);
+}
+.dk-reticle-text--penetration { font-size: 20rem; }
+.dk-reticle-text__content { display: flex; flex-direction: column; }
+/* An empty line keeps its height, as in Flash (the penetration template starts with an optional line). */
+.dk-reticle-text__line { display: flex; flex-direction: row; align-items: baseline; min-height: 22rem; }
+.dk-reticle-text--penetration .dk-reticle-text__line { min-height: 24rem; }

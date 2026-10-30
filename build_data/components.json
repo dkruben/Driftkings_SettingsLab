@@ -12,6 +12,10 @@
       "entrypoint": "battle.aiming_countdown",
       "config_files": [
         "default/aiming_countdown.json"
+      ],
+      "assets": [
+        "mod/res/gui/gameface/mods/driftkings/aiming_countdown/**",
+        "mod/res/gui/gen_resources/driftkings.aiming_countdown.json"
       ]
     },
     "aiming_reticles": {
@@ -186,7 +190,7 @@
         "mod/res/gui/gameface/mods/driftkings/main/clock.js",
         "mod/res/gui/gameface/mods/driftkings/main/clock.html",
         "mod/res/gui/gen_resources/driftkings.main.json",
-        "mod/res/gui/maps/driftkings/clock/clockbg.png"
+        "mod/res/gui/maps/driftkings/clock/clockbg.svg"
       ]
     },
     "minimap_enhancements": {
@@ -206,6 +210,10 @@
       "entrypoint": "battle.penetration_indicator",
       "config_files": [
         "default/penetration_indicator.json"
+      ],
+      "assets": [
+        "mod/res/gui/gameface/mods/driftkings/penetration_indicator/**",
+        "mod/res/gui/gen_resources/driftkings.penetration_indicator.json"
       ]
     },
     "repair_controls": {
@@ -231,6 +239,10 @@
       "entrypoint": "battle.shell_flight_time",
       "config_files": [
         "default/shell_flight_time.json"
+      ],
+      "assets": [
+        "mod/res/gui/gameface/mods/driftkings/shell_flight_time/**",
+        "mod/res/gui/gen_resources/driftkings.shell_flight_time.json"
       ]
     },
     "sixth_sense_alert": {
@@ -344,6 +356,8 @@
         "mod/res/gui/gameface/mods/driftkings/shared/health_bar.css",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.css",
         "mod/res/gui/gameface/mods/driftkings/shared/flash_text.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/reticle_text.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/reticle_text.css",
         "mod/res/gui/gameface/mods/driftkings/shared/assets/**",
         "mod/res/mods/driftkings/text/**",
         "mod/res/gui/fonts/driftkings/**",

@@ -15,7 +15,7 @@ class GamefaceArchitectureTests(RuntimeTest):
 
     def test_catalog_implementations_exist_in_the_correct_context(self):
         catalog = self.load('interface_catalog').GAMEFACE
-        self.assertEqual(len(catalog), 15)
+        self.assertEqual(len(catalog), 18)
         resources = set()
         owners = set()
         for name, spec in catalog.items():

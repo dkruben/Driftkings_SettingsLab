@@ -56,6 +56,12 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
+## Textos junto à mira migrados para Gameface — 2026-10-30
+
+A contagem de pontaria, o tempo de voo do projétil e o indicador de penetração passaram de Flash (`dispersiontimerui.as`, `flighttimerui.as`, `armorcalculatorui.as` e a base `crosshairdisplayable.as`) para três vistas Gameface filhas da HUD nativa (`RandomHUDView`), com um renderizador partilhado (`shared/reticle_text.js` e `.css`) e os adaptadores em `gameface/battle/reticle_texts.py`. Como no Flash, cada texto fica na posição da mira mais o desvio `x`/`y` do módulo (`position.x`/`position.y` na penetração), em unidades da interface; na vista estratégica a âncora é o centro do ecrã. Os templates Flash (cor, tamanho, `b`/`i`/`u`, `br`) são convertidos em linhas de texto.
+
+Em batalha, com Ctrl, cada texto pode ser arrastado e o novo desvio é gravado nas definições do próprio módulo. As vistas DAAPI, os metas, o `CrosshairMeta` e os aliases Flash foram retirados; o registo Flash passa a ter seis contratos. As páginas sem HUD Gameface (Halloween e Fort Rush) deixam de mostrar estes textos. Ainda não foi validado no cliente.
+
 ## Marcas do hangar junto à coluna de missões — 2026-10-30
 
 O painel livre e arrastável das marcas no hangar foi substituído por um cartão compacto colocado por baixo da coluna nativa de missões (`HangarScreen_userMissions_*`, o widget `HangarWidget` de `mono/hangar/main`), com a mesma largura e o estilo das linhas de missão. O cartão mostra o ícone de marca da nação, a marca consolidada com a cor do colorrating escolhido e as estrelas. "Ver mais" abre à esquerda um painel lateral com o resto (veículo, barra com 65/85/95%, EMA, objetivo, histórico e estatísticas); fecha com o ×, Esc ou um clique fora.
@@ -66,7 +72,7 @@ As fontes Warhelios do cliente não têm estrelas, setas, triângulos nem ✓; e
 
 ## Vida do veículo migrada para Gameface — 2026-10-30
 
-A barra de pontos de vida passou de Flash (`ownhealthui.as`) para uma vista Gameface própria, filha da HUD nativa (`RandomHUDView`), com a arte Driftkings em `gameface/mods/driftkings/vehicle_health/` (moldura, emblema e logótipo; enchimento, riscas e texto desenhados em CSS). A cor segue `avgColor`; a posição usa `x`/`y`/`alignX`/`alignY` e a barra pode ser arrastada em batalha com Ctrl. O AS3, a vista DAAPI, o meta e o alias Flash foram retirados; o registo Flash passa a ter nove contratos e os defaults deixam de ter `colors`.
+A barra de pontos de vida passou de Flash (`ownhealthui.as`) para uma vista Gameface própria, filha da HUD nativa (`RandomHUDView`), com a arte Driftkings em `gameface/mods/driftkings/vehicle_health/` (moldura, emblema e logótipo; enchimento, riscas e texto desenhados em CSS). A cor segue `avgColor`; a posição usa `x`/`y`/`alignX`/`alignY` e a barra pode ser arrastada em batalha com Ctrl. O AS3, a vista DAAPI, o meta e o alias Flash foram retirados; o registo Flash passou então a ter nove contratos e os defaults deixam de ter `colors`.
 
 As páginas de batalha que não carregam a HUD Gameface (Halloween e Fort Rush, segundo `VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE` e as extensões da referência EU) deixam de mostrar a barra. O utilizador validou no cliente EU a posição inicial, a atualização com dano e o arrasto.
 

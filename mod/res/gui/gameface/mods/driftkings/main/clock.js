@@ -58,8 +58,8 @@
     }
 
     function clockImage(src) {
-        // Only packaged game resources, such as gui/maps/driftkings/clock/clockbg.png.
-        return /^(?:coui:\/\/)?gui\/[a-zA-Z0-9_./-]+\.(png|dds|webp)$/i.test(src) && src.indexOf('..') < 0 ? src.replace(/^(?!coui:\/\/)/, 'coui://') : '';
+        // Only packaged game resources, such as gui/maps/driftkings/clock/clockbg.svg.
+        return /^(?:coui:\/\/)?gui\/[a-zA-Z0-9_./-]+\.(png|svg|dds|webp)$/i.test(src) && src.indexOf('..') < 0 ? src.replace(/^(?!coui:\/\/)/, 'coui://') : '';
     }
 
     // Flash HTML text is laid out line by line: each <br> ends a line, and the enclosing

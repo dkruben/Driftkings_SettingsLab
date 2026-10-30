@@ -7,6 +7,10 @@ from driftkings.settings.service import settings_service
 
 
 class BattleCardAdapter(object):
+    # Texts that come and go with the aim (penetration) would fill the log; they report only the
+    # first visibility change at info level and the rest at debug.
+    QUIET_VISIBILITY = False
+
     def __init__(self, feature, namespace, log, title, active=False):
         self.feature = feature
         self.namespace = namespace
@@ -187,7 +191,8 @@ class BattleCardAdapter(object):
                 publish_card(child, outgoing)
                 visible = outgoing['config']['visible']
                 if visible != child._lastVisible:
-                    self.log.info('Gameface battle panel visible=%s state=%s', visible, outgoing.get('state'))
+                    report = self.log.debug if self.QUIET_VISIBILITY and child._lastVisible is not None else self.log.info
+                    report('Gameface battle panel visible=%s state=%s', visible, outgoing.get('state'))
                     child._lastVisible = visible
             except Exception:
                 self.log.exception('Could not publish %s battle data', self.title)

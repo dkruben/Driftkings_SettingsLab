@@ -13,8 +13,8 @@
 .dk-mog__label { color:#a5b6bf; text-transform:uppercase; letter-spacing:1.3rem; font-size:13rem; }
 .dk-mog__hero { display:flex; align-items:center; justify-content:space-between; }
 .dk-mog__percent { font-size:70rem; line-height:1.15; font-weight:bold; color:#f1d677; text-shadow:0 2rem 3rem #000,0 0 18rem rgba(235,198,77,.2); }
-.dk-mog__star { display:inline-block; width:44rem; height:44rem; margin:0 3rem; background-image:url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.png'); background-size:100% 100%; background-repeat:no-repeat; }
-.dk-mog__star--earned { background-image:url('coui://gui/gameface/mods/driftkings/shared/assets/star.png'); }
+.dk-mog__star { display:inline-block; width:44rem; height:44rem; margin:0 3rem; background-image:url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.svg'); background-size:100% 100%; background-repeat:no-repeat; }
+.dk-mog__star--earned { background-image:url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg'); }
 .dk-mog__bar { position:relative; height:14rem; background:#0b1116; border:1rem solid #57717c; border-radius:4rem; margin:12rem 0; padding:2rem; }
 .dk-mog__fill { height:100%; background:linear-gradient(0deg,#b78525,#ffe989); border-radius:2rem; box-shadow:0 0 7rem rgba(240,198,60,.45); }
 .dk-mog__next { display:flex; justify-content:space-between; color:#b0bec5; margin-top:6rem; font-size:14rem; }
