@@ -1,129 +1,65 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "components": {
     "account_manager": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "components.account_manager",
-      "config_files": [],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/account_manager/**",
-          "target": "res/gui/gameface/mods/driftkings/account_manager/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.account_manager.json",
-          "target": "res/gui/gen_resources/driftkings.account_manager.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/account_manager/**",
+        "mod/res/gui/gen_resources/driftkings.account_manager.json"
       ]
     },
     "aiming_countdown": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.aiming_countdown",
       "config_files": [
         "default/aiming_countdown.json"
-      ],
-      "assets": []
+      ]
     },
     "aiming_reticles": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.aiming_reticles",
       "config_files": [
         "default/aiming_reticles.json"
-      ],
-      "assets": []
+      ]
     },
     "artillery_blast_radius": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.artillery_blast_radius",
       "config_files": [
         "default/artillery_blast_radius.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/objects/**",
-          "target": "res/objects/**",
-          "generator": null
-        }
+        "mod/res/objects/**"
       ]
     },
     "autoaim_target_indicator": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.autoaim_target_indicator",
       "config_files": [
         "default/autoaim_target_indicator.json"
-      ],
-      "assets": []
+      ]
     },
     "battle_marks_of_excellence": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.battle_marks_of_excellence",
       "config_files": [
         "default/battle_marks_of_excellence.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.js",
-          "target": "res/gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css",
-          "target": "res/gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/battle_marks_of_excellence/model.html",
-          "target": "res/gui/gameface/mods/driftkings/battle_marks_of_excellence/model.html",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.battle_marks_of_excellence.json",
-          "target": "res/gui/gen_resources/driftkings.battle_marks_of_excellence.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.js",
+        "mod/res/gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css",
+        "mod/res/gui/gameface/mods/driftkings/battle_marks_of_excellence/model.html",
+        "mod/res/gui/gen_resources/driftkings.battle_marks_of_excellence.json"
       ]
     },
     "battle_performance": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "components.battle_performance",
       "config_files": [
         "default/battle_performance.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/battle_performance/model.html",
-          "target": "res/gui/gameface/mods/driftkings/battle_performance/model.html",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/battle_performance/results.css",
-          "target": "res/gui/gameface/mods/driftkings/battle_performance/results.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/battle_performance/results.js",
-          "target": "res/gui/gameface/mods/driftkings/battle_performance/results.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.battle_performance.json",
-          "target": "res/gui/gen_resources/driftkings.battle_performance.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/model.html",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/results.css",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/results.js",
+        "mod/res/gui/gen_resources/driftkings.battle_performance.json"
       ]
     },
     "battle_preferences": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.battle_preferences",
       "config_files": [
         "default/battle_preferences.json"
@@ -142,74 +78,38 @@
       ]
     },
     "battle_statistics": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.battle_statistics",
       "config_files": [
         "default/battle_statistics.json"
-      ],
-      "assets": []
+      ]
     },
     "clan_reward_collection": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.clan_reward_collection",
       "config_files": [
         "default/clan_reward_collection.json"
-      ],
-      "assets": []
+      ]
     },
     "common": {
       "kind": "shared",
-      "enabled": true,
-      "entrypoint": null,
-      "config_files": [],
       "assets": [
-        {
-          "source": "mod/res/mods/driftkings/colors/**",
-          "target": "res/mods/driftkings/colors/**",
-          "generator": null
-        },
+        "mod/res/mods/driftkings/colors/**",
         {
           "source": "licence",
-          "target": "licence",
-          "generator": null
+          "target": "licence"
         },
-        {
-          "source": "mod/res/gui/maps/icons/driftkings/**",
-          "target": "res/gui/maps/icons/driftkings/**",
-          "generator": null
-        }
+        "mod/res/gui/maps/icons/driftkings/**"
       ]
     },
     "crew_management": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.crew_management",
       "config_files": [
         "default/crew_management.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/crew_progression/**",
-          "target": "res/gui/gameface/mods/driftkings/crew_progression/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.crew_progression.json",
-          "target": "res/gui/gen_resources/driftkings.crew_progression.json",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/crew_details/**",
-          "target": "res/gui/gameface/mods/driftkings/crew_details/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.crew_details.json",
-          "target": "res/gui/gen_resources/driftkings.crew_details.json",
-          "generator": null
-        },
+        "mod/res/gui/gameface/mods/driftkings/crew_progression/**",
+        "mod/res/gui/gen_resources/driftkings.crew_progression.json",
+        "mod/res/gui/gameface/mods/driftkings/crew_details/**",
+        "mod/res/gui/gen_resources/driftkings.crew_details.json",
         {
           "source": "build/gameface/crew/BarracksView.js",
           "target": "res/gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.js",
@@ -223,151 +123,73 @@
       ]
     },
     "enemy_spotting_status": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.enemy_spotting_status",
       "config_files": [
         "default/enemy_spotting_status.json"
-      ],
-      "assets": []
+      ]
     },
     "game_log_manager": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "components.game_log_manager",
       "config_files": [
         "default/game_log_manager.json"
-      ],
-      "assets": []
+      ]
     },
     "gun_traverse_limits": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.gun_traverse_limits",
       "config_files": [
         "default/gun_traverse_limits.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/aimingangles/**",
-          "target": "res/gui/aimingangles/**",
-          "generator": null
-        }
+        "mod/res/gui/aimingangles/**"
       ]
     },
     "hangar_marks_of_excellence": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.hangar_marks_of_excellence",
       "config_files": [
         "default/hangar_marks_of_excellence.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css",
-          "target": "res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js",
-          "target": "res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html",
-          "target": "res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.hangar_marks_of_excellence.json",
-          "target": "res/gui/gen_resources/driftkings.hangar_marks_of_excellence.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css",
+        "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js",
+        "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html",
+        "mod/res/gui/gen_resources/driftkings.hangar_marks_of_excellence.json"
       ]
     },
     "hangar_preferences": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.hangar_preferences",
       "config_files": [
         "default/hangar_preferences.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.js",
-          "target": "res/gui/gameface/mods/driftkings/hangar_preferences/header_options.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.hangar_preferences.json",
-          "target": "res/gui/gen_resources/driftkings.hangar_preferences.json",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.html",
-          "target": "res/gui/gameface/mods/driftkings/hangar_preferences/header_options.html",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.js",
+        "mod/res/gui/gen_resources/driftkings.hangar_preferences.json",
+        "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.html"
       ]
     },
     "high_caliber_progress": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.high_caliber_progress",
       "config_files": [
         "default/high_caliber_progress.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/high_caliber_gameface/**",
-          "target": "res/gui/gameface/mods/driftkings/high_caliber_gameface/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.high_caliber_gameface.json",
-          "target": "res/gui/gen_resources/driftkings.high_caliber_gameface.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/high_caliber_gameface/**",
+        "mod/res/gui/gen_resources/driftkings.high_caliber_gameface.json"
       ]
     },
     "main": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "components.main",
       "config_files": [
         "default/main.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/main/clock.css",
-          "target": "res/gui/gameface/mods/driftkings/main/clock.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/main/clock.js",
-          "target": "res/gui/gameface/mods/driftkings/main/clock.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/main/clock.html",
-          "target": "res/gui/gameface/mods/driftkings/main/clock.html",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.main.json",
-          "target": "res/gui/gen_resources/driftkings.main.json",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/maps/driftkings/clock/clockbg.png",
-          "target": "res/gui/maps/driftkings/clock/clockbg.png",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/main/clock.css",
+        "mod/res/gui/gameface/mods/driftkings/main/clock.js",
+        "mod/res/gui/gameface/mods/driftkings/main/clock.html",
+        "mod/res/gui/gen_resources/driftkings.main.json",
+        "mod/res/gui/maps/driftkings/clock/clockbg.png"
       ]
     },
     "minimap_enhancements": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.minimap_enhancements",
       "config_files": [
         "default/minimap_enhancements.json",
@@ -377,138 +199,79 @@
         "default/minimap_enhancements/minimap_lines.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/maps/driftkings/minimap/**",
-          "target": "res/gui/maps/driftkings/minimap/**",
-          "generator": null
-        }
+        "mod/res/gui/maps/driftkings/minimap/**"
       ]
     },
     "penetration_indicator": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.penetration_indicator",
       "config_files": [
         "default/penetration_indicator.json"
-      ],
-      "assets": []
+      ]
     },
     "repair_controls": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.repair_controls",
       "config_files": [
         "default/repair_controls.json"
-      ],
-      "assets": []
+      ]
     },
     "server_turret_sync": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.server_turret_sync",
       "config_files": [
         "default/server_turret_sync.json"
-      ],
-      "assets": []
+      ]
     },
     "settings_panel": {
       "kind": "shared",
-      "enabled": true,
-      "entrypoint": null,
-      "config_files": [],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/settings_window/**",
-          "target": "res/gui/gameface/mods/driftkings/settings_window/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.settings_window.json",
-          "target": "res/gui/gen_resources/driftkings.settings_window.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/settings_window/**",
+        "mod/res/gui/gen_resources/driftkings.settings_window.json"
       ]
     },
     "shell_flight_time": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.shell_flight_time",
       "config_files": [
         "default/shell_flight_time.json"
-      ],
-      "assets": []
+      ]
     },
     "sixth_sense_alert": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.sixth_sense_alert",
       "config_files": [
         "default/sixth_sense_alert.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/audioww/driftkings_sixthsense.bnk",
-          "target": "res/audioww/driftkings_sixthsense.bnk",
-          "generator": null
-        },
-        {
-          "source": "mod/res/audioww/driftkings_sixthsense.xml",
-          "target": "res/audioww/driftkings_sixthsense.xml",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/maps/icons/sixthsense/**",
-          "target": "res/gui/maps/icons/sixthsense/**",
-          "generator": null
-        }
+        "mod/res/audioww/driftkings_sixthsense.bnk",
+        "mod/res/audioww/driftkings_sixthsense.xml",
+        "mod/res/gui/maps/icons/sixthsense/**"
       ]
     },
     "sniper_camera": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.sniper_camera",
       "config_files": [
         "default/sniper_camera.json"
-      ],
-      "assets": []
+      ]
     },
     "sound_bank_loader": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "components.sound_bank_loader",
       "config_files": [
         "default/sound_bank_loader.json"
-      ],
-      "assets": []
+      ]
     },
     "stats": {
-      "kind": "shared",
-      "enabled": true,
-      "entrypoint": null,
-      "config_files": [],
-      "assets": []
+      "kind": "shared"
     },
     "target_distance": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.target_distance",
       "config_files": [
         "default/target_distance.json"
-      ],
-      "assets": []
+      ]
     },
     "target_information": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.target_information",
       "config_files": [
         "default/target_information.json"
-      ],
-      "assets": []
+      ]
     },
     "team_panels": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.team_panels",
       "config_files": [
         "default/team_panels/battleloading.json",
@@ -522,72 +285,32 @@
         "default/team_panels/statisticform.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/panel_gameface/**",
-          "target": "res/gui/gameface/mods/driftkings/panel_gameface/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.panel_gameface.json",
-          "target": "res/gui/gen_resources/driftkings.panel_gameface.json",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/maps/driftkings/playerpanelpro/hp/**",
-          "target": "res/gui/maps/driftkings/playerpanelpro/hp/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/maps/driftkings/playerpanelpro/spotted/**",
-          "target": "res/gui/maps/driftkings/playerpanelpro/spotted/**",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/panel_gameface/**",
+        "mod/res/gui/gen_resources/driftkings.panel_gameface.json",
+        "mod/res/gui/maps/driftkings/playerpanelpro/hp/**",
+        "mod/res/gui/maps/driftkings/playerpanelpro/spotted/**"
       ]
     },
     "tech_tree_marks_of_excellence": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.tech_tree_marks_of_excellence",
       "config_files": [
         "default/tech_tree_marks_of_excellence.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css",
-          "target": "res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.js",
-          "target": "res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/model.html",
-          "target": "res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/model.html",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.tech_tree_marks_of_excellence.json",
-          "target": "res/gui/gen_resources/driftkings.tech_tree_marks_of_excellence.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css",
+        "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.js",
+        "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/model.html",
+        "mod/res/gui/gen_resources/driftkings.tech_tree_marks_of_excellence.json"
       ]
     },
     "third_person_zoom": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.third_person_zoom",
       "config_files": [
         "default/third_person_zoom.json"
-      ],
-      "assets": []
+      ]
     },
     "ui": {
       "kind": "shared",
-      "enabled": true,
-      "entrypoint": null,
-      "config_files": [],
       "assets": [
         {
           "source": "build/native/updater/Driftkings.UpdateInstaller.exe",
@@ -614,51 +337,17 @@
           "target": "res/gui/flash/driftkingsbattle.swf",
           "generator": "battle_flash"
         },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js",
-          "target": "res/gui/gameface/mods/driftkings/shared/bootstrap.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/shared/marks_tokens.css",
-          "target": "res/gui/gameface/mods/driftkings/shared/marks_tokens.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js",
-          "target": "res/gui/gameface/mods/driftkings/shared/marks_panel.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.css",
-          "target": "res/gui/gameface/mods/driftkings/shared/marks_panel.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/shared/flash_text.js",
-          "target": "res/gui/gameface/mods/driftkings/shared/flash_text.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/mods/driftkings/text/**",
-          "target": "res/mods/driftkings/text/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/fonts/driftkings/**",
-          "target": "res/gui/fonts/driftkings/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/shared/fonts.css",
-          "target": "res/gui/gameface/mods/driftkings/shared/fonts.css",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/marks_tokens.css",
+        "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.css",
+        "mod/res/gui/gameface/mods/driftkings/shared/flash_text.js",
+        "mod/res/mods/driftkings/text/**",
+        "mod/res/gui/fonts/driftkings/**",
+        "mod/res/gui/gameface/mods/driftkings/shared/fonts.css"
       ]
     },
     "vehicle_carousel": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.vehicle_carousel",
       "config_files": [
         "default/vehicle_carousel/carousel.json",
@@ -671,75 +360,32 @@
           "target": "res/gui/gameface/_dist/production/mono/hangar/main/bundle.js",
           "generator": "carousel_bridge"
         },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css",
-          "target": "res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.js",
-          "target": "res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
-          "target": "res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
-          "target": "res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/model.html",
-          "target": "res/gui/gameface/mods/driftkings/vehicle_carousel/model.html",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.vehicle_carousel.json",
-          "target": "res/gui/gen_resources/driftkings.vehicle_carousel.json",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/maps/driftkings/carroucel/**",
-          "target": "res/gui/maps/driftkings/carroucel/**",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css",
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.js",
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/model.html",
+        "mod/res/gui/gen_resources/driftkings.vehicle_carousel.json",
+        "mod/res/gui/maps/driftkings/carroucel/**"
       ]
     },
     "vehicle_health": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.vehicle_health",
       "config_files": [
         "default/vehicle_health.json"
-      ],
-      "assets": []
+      ]
     },
     "profile_ratings": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "lobby.profile_ratings",
       "config_files": [
         "default/profile_ratings.json"
       ],
       "assets": [
-        {
-          "source": "mod/res/gui/gameface/mods/driftkings/profile_ratings/**",
-          "target": "res/gui/gameface/mods/driftkings/profile_ratings/**",
-          "generator": null
-        },
-        {
-          "source": "mod/res/gui/gen_resources/driftkings.profile_ratings.json",
-          "target": "res/gui/gen_resources/driftkings.profile_ratings.json",
-          "generator": null
-        }
+        "mod/res/gui/gameface/mods/driftkings/profile_ratings/**",
+        "mod/res/gui/gen_resources/driftkings.profile_ratings.json"
       ]
     },
     "vehicle_markers": {
-      "kind": "feature",
-      "enabled": true,
       "entrypoint": "battle.vehicle_markers",
       "config_files": [
         "default/vehicle_markers/markers.json",

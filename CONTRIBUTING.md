@@ -157,7 +157,7 @@ Keep custom text and macros configurable. Use the native UI scale for Gameface l
 1. Create the module under `battle/`, `lobby/` or `components/` with `init()` (and `fini()` if it holds state).
 2. Declare its hooks with the decorators above; keep calculations in a pure module under `core/` when possible.
 3. Add its defaults JSON, settings definition, constants and translations.
-4. Register its entry point and assets in `build_data/components.json`, keep `component_list.py` aligned, and register any presentation in `interface_catalog.py`. Regenerate the UI catalogue if needed, then run `python build_tools/validate_build_data.py`.
+4. Register its entry point and assets in `build_data/components.json`, keep `component_list.py` aligned, and register any presentation in `interface_catalog.py`. Regenerate the UI catalogue if needed, then run `python build_tools/validate_build_data.py`. The manifest is compact: `kind` defaults to `feature`, `enabled` to `true`, and `config_files`/`assets` to empty lists. A string asset such as `"mod/res/gui/example/**"` is packaged at the same path without `mod/`; use an object with `source`, `target` and optional `generator` for anything else.
 5. Add tests for any pure logic.
 
 ## Testing
