@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from collections import namedtuple
 import math
 import re
 import weakref
@@ -29,29 +28,12 @@ from driftkings.stats.vehinfo import calculateRatingScale, calculateXTE, getVehi
 LOG = get_logger('Driftkings.BattleEfficiency')
 _results_views = weakref.WeakKeyDictionary()
 
-DEF_RESULTS_LEN = 16
-RANKED_OFFSET = 4
 # Battles that update the account statistics, including bot-filled randoms.
 SUPPORTED_BONUS_TYPES = set(create_range(ARENA_BONUS_TYPE, STATISTICS_BATTLES))
-EXCLUDED_BONUS_TYPES = {
-    ARENA_BONUS_TYPE.EVENT_BATTLES,
-    ARENA_BONUS_TYPE.EPIC_RANDOM,
-    ARENA_BONUS_TYPE.EPIC_RANDOM_TRAINING,
-    ARENA_BONUS_TYPE.EPIC_BATTLE
-}
-DataIDs = namedtuple('DataIDs', ('damageDealt', 'spotted', 'kills', 'defAndCap_vehWOStun', 'defAndCap_vehWStun'))
-data_ids = DataIDs(3, 11, 12, 14, 17)
 
 
 g_flash = None
 config = Settings()
-
-
-def getDataIds(offset):
-    if not offset:
-        return data_ids
-    else:
-        return DataIDs(*(value + offset for value in data_ids))
 
 
 class EfficiencyCalculator(object):
