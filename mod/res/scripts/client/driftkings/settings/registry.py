@@ -7,7 +7,7 @@ import re
 
 from driftkings.core.keycodes import valid_key_code
 from driftkings.logger import get_logger
-from driftkings.common.utils.compat import string_types
+from driftkings.common.utils.compat import string_types, text_type
 
 LOG = get_logger('Driftkings.Settings.Validation')
 
@@ -69,6 +69,14 @@ class SettingsRegistry(object):
                 raise ValueError('Unknown setting: ' + key)
             try: defaultValues[key] = copy.deepcopy(path_value(defaults, path))
             except (KeyError, IndexError, TypeError): defaultValues[key] = copy.deepcopy(active[key])
+            # Carousel numeric properties also accept macro expressions. The saved
+            # value and the canonical default can therefore need different widgets.
+            if (config.NAME == 'vehicle_carousel' and 'extraFields' in path
+                    and path[-1] in ('x', 'y', 'width', 'height', 'fontSize', 'iconSize', 'alpha')
+                    and any(isinstance(source[key], string_types) for source in (active, defaultValues))):
+                control['type'] = 'TextInput'
+                for source in (active, defaultValues):
+                    source[key] = text_type(source[key])
             control.setdefault('text', config.i18n.get('UI_setting_' + key + '_text', key))
             if not control.get('tooltip'):
                 control['tooltip'] = nested_description(path, config.i18n)

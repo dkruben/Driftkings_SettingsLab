@@ -3,7 +3,7 @@
     "damageText": {
       "enabled": true,
       "x": 0,
-      "y": -66,
+      "y": -67,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -31,7 +31,7 @@
       "name": "Tank name",
       "enabled": true,
       "x": 0,
-      "y": -51,
+      "y": -36,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -56,7 +56,7 @@
       "name": "Player name",
       "enabled": true,
       "x": 0,
-      "y": -66,
+      "y": -51,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -81,7 +81,7 @@
       "name": "Tank HP",
       "enabled": true,
       "x": 0,
-      "y": -35,
+      "y": -20,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -105,13 +105,13 @@
     "rating": {
       "name": "Rating",
       "enabled": true,
-      "x": -20,
-      "y": -20,
+      "x": -32,
+      "y": -21,
       "alpha": "{{stat-available?100|0}}",
       "align": "right",
       "textFormat": {
-        "font": "XVMSymbol",
-        "size": 14,
+        "font": "dkm",
+        "size": 17,
         "color": "{{c:xr|#999999}}",
         "bold": false,
         "italic": false
@@ -125,13 +125,13 @@
         "blur": 2,
         "strength": 1
       },
-      "format": "<font color='#EFEFEF'><font color='{{c:r}}'><b>!</b></font></font>"
+      "format": "&#x115;"
     },
     "position": {
       "name": "position",
       "enabled": true,
       "x": 0,
-      "y": -66,
+      "y": -51,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -167,7 +167,7 @@
     "healthBar": {
       "enabled": true,
       "x": -36,
-      "y": -31,
+      "y": -33,
       "alpha": 100,
       "color": null,
       "lcolor": null,
@@ -205,7 +205,7 @@
     "vehicleDist": {
       "enabled": false,
       "x": 0,
-      "y": -81,
+      "y": -66,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -226,17 +226,17 @@
       }
     },
     "contourIcon": {
-      "enabled": true,
+      "enabled": false,
       "x": 6,
-      "y": -70,
+      "y": -65,
       "alpha": 100,
       "color": null,
       "amount": 0
     },
     "levelIcon": {
-      "enabled": true,
+      "enabled": false,
       "x": 0,
-      "y": -58,
+      "y": -21,
       "alpha": 100
     },
     "actionMarker": {
@@ -248,12 +248,12 @@
     "hoverMarker": {
       "enabled": true,
       "x": 0,
-      "y": -92,
+      "y": -88,
       "alpha": 100,
       "glow": {
         "enabled": true,
         "x": 0,
-        "y": 150,
+        "y": 85,
         "alpha": 50
       }
     },
@@ -329,7 +329,7 @@
     "vehicleDist": {
       "enabled": false,
       "x": 0,
-      "y": -84,
+      "y": -66,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -350,17 +350,17 @@
       }
     },
     "contourIcon": {
-      "enabled": true,
+      "enabled": false,
       "x": 6,
-      "y": -70,
+      "y": -65,
       "alpha": 100,
       "color": null,
       "amount": 0
     },
     "levelIcon": {
-      "enabled": true,
+      "enabled": false,
       "x": 0,
-      "y": -58,
+      "y": -21,
       "alpha": 100
     },
     "actionMarker": {
@@ -372,12 +372,12 @@
     "hoverMarker": {
       "enabled": true,
       "x": 0,
-      "y": -92,
+      "y": -88,
       "alpha": 100,
       "glow": {
         "enabled": true,
         "x": 0,
-        "y": 150,
+        "y": 85,
         "alpha": 50
       }
     },

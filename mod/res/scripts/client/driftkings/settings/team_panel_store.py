@@ -3,6 +3,8 @@
 import copy
 import os
 
+from driftkings._constants import TEAM_PANELS
+
 from driftkings.core.keycodes import valid_key_code
 from driftkings.logger import get_logger
 from driftkings.settings.panel_validation import macro_issues
@@ -59,7 +61,7 @@ def resolve_fields(entries, templates):
 def validate(data):
     if data.get('schemaVersion') != 2:
         raise ValueError('PlayerPanelPro requires schemaVersion 2')
-    if data.get('rating') not in ('wn8', 'eff', 'wgr', 'winrate', 'xwn8', 'xeff'):
+    if data.get('rating') not in TEAM_PANELS.RATINGS:
         raise ValueError('Invalid rating')
     if type(data.get('colorScale')) is not int or data['colorScale'] < 0:
         raise ValueError('Invalid color scale')
@@ -67,7 +69,7 @@ def validate(data):
         if type(data.get(key)) is not bool:
             raise ValueError('Invalid switch: ' + key)
     performance=data['performance']
-    if data.get('hpVisibility') not in ('always','hold','never'):
+    if data.get('hpVisibility') not in TEAM_PANELS.HP_VISIBILITIES:
         raise ValueError('general.json: hpVisibility: expected always, hold or never')
     keys=data.get('hpKey')
     if not isinstance(keys,list) or not 1 <= len(keys) <= 4 or any(

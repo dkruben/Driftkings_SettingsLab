@@ -18,6 +18,7 @@ from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import override
+from driftkings.core.mode_adapters import adapter_for, roster_order
 from driftkings.core.panel_model import Roster
 from driftkings.flash.battle.meta.players_panel import PlayersPanelMeta
 from driftkings.logger import get_logger
@@ -55,6 +56,8 @@ class RatingViews(object):
         self.panelSnapshot=None
         self.lastPayload=None
         self.failures={}
+        # Per-arena mode support; None leaves every screen to the native client.
+        self.adapter=self.adapterArena=None
         owner=self
         class RosterView(PlayersPanelMeta):
             def _populate(self):
@@ -137,6 +140,7 @@ class RatingViews(object):
         self.contextCache.clear()
         self.visibleScreens=set(('panel','loading','tab'))
         self.cacheConfig=self.cacheArena=self.lastPayload=None
+        self.adapter=self.adapterArena=None
         self.cacheVersion=-1
         if hasattr(self,'gameface'): self.gameface.clear()
         self.lastRequest=0
@@ -150,6 +154,42 @@ class RatingViews(object):
         if self.active and self.callback is None:
             self.callback=BigWorld.callback(0,self.tick)
 
+    def modeAdapter(self):
+        arena=getattr(BigWorld.player(),'arena',None)
+        if arena is None: return None
+        if arena is not self.adapterArena:
+            self.adapterArena=arena
+            mode=battle_capabilities.current_mode()
+            self.adapter=adapter_for(mode)
+            LOG.info('Team panels: mode=%s supported=%s',mode,
+                     ','.join(screen for screen in ('loading','panel','tab') if self.supports(screen)) or 'none')
+        return self.adapter
+
+    def supports(self,screen):
+        adapter=self.modeAdapter()
+        return adapter is not None and bool(getattr(adapter,screen))
+
+    def tabKind(self):
+        adapter=self.modeAdapter()
+        return adapter.tab if adapter is not None else None
+
+    def summary(self,values,data,enabled):
+        # Halloween TAB: a fixed allies table drawn beside the native one.
+        result=dict((key,values.get(key)) for key in ('r','c:r','winrate','c:winrate','battles','c:battles'))
+        result.update({'enabled':bool(enabled),'name':values['name'],'clan':values['clannb'],
+                       'vehicle':values['vehicle-short'],'alive':bool(values['alive']),'self':bool(values['player']),
+                       'stats':bool(values['stat-available']),'rating':data[TEAM_PANELS.RATING]})
+        return result
+
+    def classicModes(self):
+        # Halloween's HWPlayersPanel inherits the classic hooks without having its modes.
+        adapter=self.modeAdapter()
+        return adapter is not None and bool(adapter.panel_modes)
+
+    def nativeOrder(self):
+        adapter=self.modeAdapter()
+        return adapter is None or adapter.order=='native'
+
     def captureOrder(self,original,controller,data,*args,**kwargs):
         result=original(controller,data,*args,**kwargs)
         if self.active and isinstance(data,dict):
@@ -158,7 +198,8 @@ class RatingViews(object):
                 self.model.reset(); self.arena=arena
             for side in ('left','right'):
                 ids=data.get(side+'ItemsIDs')
-                if ids is not None: self.model.set_order(side,ids)
+                # Halloween's exchange empties the enemy side; its order is sorted in rows().
+                if ids is not None and self.nativeOrder(): self.model.set_order(side,ids)
             for entries in data.values():
                 if not isinstance(entries,(tuple,list)): continue
                 for entry in entries:
@@ -196,7 +237,7 @@ class RatingViews(object):
 
     def nativeMode(self,original,panel,mode):
         result=original(panel,mode)
-        if self.active:
+        if self.active and self.classicModes():
             self.panel=weakref.ref(panel)
             self.model.mode=profile_for_mode(mode)
             if not self.hovered and not self.alt: self.baseMode=mode
@@ -209,14 +250,16 @@ class RatingViews(object):
         result=original(panel)
         settings=settings_service.getComponentDict(self.config)[TEAM_PANELS.PLAYERS_PANEL]
         selected=settings.get('startMode')
-        if self.active and settings_service.getComponentDict(self.config)[GLOBAL.ENABLED] and settings[GLOBAL.ENABLED] and selected in PROFILES:
+        if (self.active and self.classicModes() and settings_service.getComponentDict(self.config)[GLOBAL.ENABLED]
+                and settings[GLOBAL.ENABLED] and selected in PROFILES):
             panel._mode=PROFILES.index(selected)
             panel.as_setPanelModeS(panel._mode)
         return result
 
     def nativeHover(self,original,panel,mode):
         settings = settings_service.getComponentDict(self.config)
-        if not self.active or not settings[GLOBAL.ENABLED] or not settings[TEAM_PANELS.PLAYERS_PANEL][GLOBAL.ENABLED]:
+        if (not self.active or not self.classicModes() or not settings[GLOBAL.ENABLED]
+                or not settings[TEAM_PANELS.PLAYERS_PANEL][GLOBAL.ENABLED]):
             return original(panel,mode)
         # Our Flash hit region owns expansion; native rollover would race it.
 
@@ -294,6 +337,7 @@ class RatingViews(object):
             self.rowCache.clear()
             self.screenCache.clear()
         if not data[TEAM_PANELS.PERFORMANCE].get('diagnostics',False): self.invalidationCauses.clear()
+        adapter=self.modeAdapter()
         if arena is not self.cacheArena or self.cacheVersion!=self.configVersion:
             changes = SettingsChanges(data, changed_paths(self.cacheConfig or {}, data))
             new_arena = arena is not self.cacheArena
@@ -304,7 +348,8 @@ class RatingViews(object):
                 TEAM_PANELS.HP_VISIBILITY, TEAM_PANELS.HP_KEY)
             if new_arena:
                 self.screenCache.clear()
-                self.model.restricted=battle_capabilities.is_event_mode()
+                self.model.restricted=(battle_capabilities.is_event_mode()
+                                       and not (adapter is not None and adapter.event_numbers))
             # Keep rendered screens whose formats and macro inputs did not change.
             for cache in self.screenCache.values():
                 for key in list(cache):
@@ -335,14 +380,23 @@ class RatingViews(object):
                     for item in value: track(item)
             track(data)
             self.trackedKeys=None if dynamic[0] else tracked
-        self.model.sync(arena.vehicles)
+        team=getattr(player,'team',0)
+        # Allies-only modes leave enemies, bots and bosses to the native view.
+        vehicles=arena.vehicles if adapter is None or adapter.enemies else dict(
+            (ident,vehicle) for ident,vehicle in arena.vehicles.items() if vehicle.get('team')==team)
+        self.model.sync(vehicles)
+        if adapter is not None and adapter.order=='mod':
+            ordered=roster_order(vehicles)
+            self.model.set_order('left',[ident for ident in ordered if vehicles[ident].get('team')==team])
+            self.model.set_order('right',[ident for ident in ordered if vehicles[ident].get('team')!=team])
         contexts={}
         ownID=getattr(player,'playerVehicleID',0)
         self.resolvedRows=0
         colorblind=bool(getattr(self.view,'isColorBlind',lambda: False)())
         shared=(colorblind,ownID,getattr(player,'team',0),self.model.mode,self.model.widths,getattr(arena,'guiType',None),CURRENT_REALM,self.model.restricted,
                 any(m.get('hasSelectedBadge') for m in self.model.metadata.values()))
-        for ident,vehicle in arena.vehicles.items():
+        for ident,vehicle in vehicles.items():
+            # Mode entities (accountDBID 0) resolve as players without statistics.
             stats=self.stats.getPlayersInfo(vehicle.get('accountDBID',0))
             vtype=vehicle.get('vehicleType'); descriptor=getattr(vtype,'type',None)
             typeStamp=tuple(getattr(vtype,key,None) for key in ('level','maxHealth'))+tuple(getattr(descriptor,key,None) for key in ('compactDescr','userString','shortUserString','name'))
@@ -362,11 +416,12 @@ class RatingViews(object):
         rows=[]
         hotkeys=tuple(frozenset(keys if self.trackedKeys is None else keys.intersection(self.trackedKeys)) for keys in (self.model.keys,self.model.toggled))
         profiles=data[TEAM_PANELS.PROFILES] if mode is None else {mode:data[TEAM_PANELS.PROFILES][mode]}
+        # The classic short/medium/large profiles do not apply to panels without those modes.
+        if adapter is not None and not adapter.panel_modes: profiles={}
         active=frozenset(('panel','loading','tab') if screens is None else screens)
         for cache in (self.rowCache,self.contextCache,self.screenCache):
             for ident in set(cache)-set(contexts): cache.pop(ident,None)
         for ident,values in contexts.items():
-            vehicle=arena.vehicles[ident]
             values.update(own)
             side='Left' if values['ally'] else 'Right'
             ids=self.model.order[side.lower()]
@@ -398,6 +453,8 @@ class RatingViews(object):
                     row[screen]=result
                     rebuilt=rebuilt or changed
                 else: row[screen]={'enabled':False}
+            if adapter is not None and adapter.tab=='halloween' and 'tab' in active:
+                row['summary']=self.summary(values,data,row['tab'].get('enabled',True))
             if rebuilt: self.resolvedRows+=1
             self.rowCache[ident]=(deepcopy(stamp),row)
             rows.append(row)
@@ -412,6 +469,7 @@ class RatingViews(object):
         if arena is None: return
         if arena is not self.arena:
             self.model.reset(); self.arena=arena; self.lastRequest=0
+        self.modeAdapter()
         # Statistics, Gameface and Flash fail independently: a broken TAB must not
         # freeze the side panel, and a persistent error must not flood the log.
         try:
@@ -425,12 +483,15 @@ class RatingViews(object):
             enabled=data[GLOBAL.ENABLED]
             screens=set(self.visibleScreens)
             if hasattr(self,'gameface'): screens.update(self.gameface.active_screens())
-            rows=self.rows(self.model.mode,screens) if enabled else []
+            # Unsupported screens are neither resolved nor sent; the native view stays intact.
+            screens=set(screen for screen in screens if self.supports(screen))
+            rows=self.rows(self.model.mode,screens) if enabled and screens else []
         except Exception:
             self.logFailure('Roster'); rows=None
         if rows is not None and hasattr(self,'gameface'):
             try:
-                self.gameface.update(enabled,rows)
+                self.gameface.watch(self.tabKind())
+                self.gameface.update(enabled and self.supports('tab'),rows)
             except Exception:
                 self.logFailure('Gameface roster')
         try:
@@ -438,8 +499,11 @@ class RatingViews(object):
                 # The Flash panel settings are copied once per configuration version.
                 if self.panelSnapshot is None:
                     self.panelSnapshot=deepcopy(data[TEAM_PANELS.PLAYERS_PANEL])
-                payload={'enabled':enabled,
-                    'rows':rows,'panel':self.panelSnapshot, 'mode':self.model.mode,
+                # Rows resolved only for a Gameface TAB are not sent to an undrawn Flash panel.
+                drawn=enabled and self.supports('panel')
+                flashRows=rows if drawn else []
+                payload={'enabled':drawn,
+                    'rows':flashRows,'panel':self.panelSnapshot, 'mode':self.model.mode,
                     'loadingClock':{'enabled':data[TEAM_PANELS.LOADING][GLOBAL.ENABLED],
                                     'format':data[TEAM_PANELS.LOADING].get('clockFormat','')},
                     'diagnostics':data[TEAM_PANELS.PERFORMANCE].get('diagnostics',False),
@@ -451,10 +515,10 @@ class RatingViews(object):
                     if self.lastPayload is not None:
                         previous=dict((row['id'],row) for row in self.lastPayload['rows'])
                         wire.pop('rows')
-                        wire['rowUpdates']=[row for row in rows if previous.get(row['id'])!=row]
-                        wire['rowOrder']=[row['id'] for row in rows]
+                        wire['rowUpdates']=[row for row in flashRows if previous.get(row['id'])!=row]
+                        wire['rowOrder']=[row['id'] for row in flashRows]
                     self.view.as_setRosterS(wire)
-                    if payload['diagnostics']: self.metrics['sent']+=len(wire.get('rowUpdates',rows))
+                    if payload['diagnostics']: self.metrics['sent']+=len(wire.get('rowUpdates',flashRows))
                     # Cached rows are replaced, never edited; only settings need
                     # a snapshot to detect edits made by the configuration UI.
                     self.lastPayload=payload

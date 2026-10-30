@@ -224,7 +224,7 @@
     {
       "path": "default/vehicle_carousel/carouselnormal.json",
       "source_sha256": "86d8fccfbfc61ed70d22c4426b287223f38a533e84c72da93b9bb581306c3f13",
-      "sha256": "460107e0c914063fa35ef30f81722e377abdeef288fb1c027d04c7c56f7104ee"
+      "sha256": "540b67ae2e2ae7dce6a6eac46fbf5d65c917045dbc80a61ffb9942e0fb152d12"
     },
     {
       "path": "default/vehicle_carousel/carouselsmall.json",
@@ -238,15 +238,15 @@
     },
     {
       "path": "default/vehicle_markers/markers.json",
-      "sha256": "6a50d5234ad42da0bb48d6a5f9eab4fd09b18eeb1dfe3d1833d70527b318d32d"
+      "sha256": "523ea449b411453a81cc20a7ec88e3aab60c59ae8c4b97fbc97ab20472c8e229"
     },
     {
       "path": "default/vehicle_markers/markersAliveExtended.json",
-      "sha256": "26b53d1745af5ffbaa3d1087ef0bfd47b88ef5e465fceec3623624452388d69c"
+      "sha256": "a1551bb7661b2f2435c51d0ae9823b2dfd17bfdca12421394854230373328a72"
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "ca444beb0c23a220043235162191281f5f648e3f4128d9f5379327833758d92b"
+      "sha256": "e48fe93e27f3d6927dc2e313ae3b20260e1b20082344a37db755bed70cadf806"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",

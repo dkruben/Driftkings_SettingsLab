@@ -2,7 +2,6 @@
 """Presentation adapter for FlightTimer; gameplay state stays in its component."""
 from collections import defaultdict
 
-from aih_constants import CTRL_MODE_NAME
 from gui.battle_control import avatar_getter
 from math_utils import VectorConstant
 
@@ -11,6 +10,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.aiming_timing import flight_time
 from driftkings.core.battle_policy import battle_policy
 from driftkings.flash.battle.meta.flight_timer import FlightTimeMeta
+from driftkings.game_constants import CTRL_MODE_NAME
 
 
 class FlightTime(FlightTimeMeta):

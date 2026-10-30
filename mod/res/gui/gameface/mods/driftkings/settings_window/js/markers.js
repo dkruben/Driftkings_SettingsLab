@@ -311,6 +311,17 @@
             var d = doc(FILES[sel.state][sel.mode]), team = d && d[sel.team];
             return team ? Object.keys(team) : [];
         }
+        function ratingPath() {
+            var d = doc(FILES[sel.state][sel.mode]), fields = d && d[sel.team] && d[sel.team].textFields;
+            if (!DK.isArray(fields)) { return null; }
+            for (var i = 0; i < fields.length; i++) {
+                var ref = refPath(fields[i]), value = ref ? getPath(d, ref) : fields[i];
+                if (value && typeof value === 'object' && ((ref && ref[ref.length - 1] === 'rating') || String(value.name).toLowerCase() === 'rating')) {
+                    return {path: ref || [sel.team, 'textFields', i], shared: !!ref};
+                }
+            }
+            return null;
+        }
         function renderList() {
             DK.clear(list);
             var generalItem = h('button.dk-mk-item' + (sel.path && sel.path.file === 'markers' ? '.is-selected' : ''), {text: t('markers.general')}, null, list);
@@ -320,6 +331,11 @@
                 var item = h('button.dk-mk-item' + (current ? '.is-selected' : ''), {text: label(preview, key)}, null, list);
                 item.addEventListener('click', function (event) { DK.stop(event); sel.path = {path: [sel.team, key]}; render(); });
             });
+            var rating = ratingPath();
+            if (rating) {
+                var ratingItem = h('button.dk-mk-item' + (sel.path && DK.same(sel.path.path, rating.path) ? '.is-selected' : ''), {text: label(preview, 'ratingType')}, null, list);
+                ratingItem.addEventListener('click', function (event) { DK.stop(event); sel.path = rating; editor.scrollTop = 0; render(); });
+            }
         }
 
         /* Generic form ------------------------------------------------------ */
@@ -359,7 +375,7 @@
                 numberField.addEventListener('blur', commitNumber);
             } else if (isColorKey(key, value)) {
                 var swatch = h('button.dk-swatch', null, [h('span.dk-swatch-fill')], input);
-                swatch.firstChild.style.backgroundColor = value || 'transparent';
+                swatch.firstChild.style.backgroundColor = color(value, 'transparent');
                 var colorField=h('input.dk-field',{type:'text',value:value||'',placeholder:label(preview,'team'),readOnly:readOnly},null,input);
                 function readColor(){var next=colorField.value||null;if(next!==value){save(next);}}
                 colorField.addEventListener('blur',readColor);
@@ -372,6 +388,14 @@
                 if (value !== null) { h('button.dk-button.is-small', {text: '×', title: t('clearSecret', ''), onclick: function (event) { DK.stop(event); if (!readOnly) { save(null); } }}, null, input); }
             } else if (value === null || typeof value === 'string') {
                 var ref = refPath(value);
+                if (ref) {
+                    // Gameface keeps wrapped flex items beyond the editor edge. Stack these
+                    // controls in normal block flow, without percentage flex-basis values.
+                    DK.toggle(row, 'is-reference', true);
+                    row.style.display = 'block'; row.style.width = '100%';
+                    row.firstChild.style.width = '100%';
+                    input.style.display = 'block'; input.style.width = '100%';
+                }
                 var textField = h('input.dk-field', {type: 'text', value: value === null ? '' : value, placeholder: 'null', readOnly: readOnly}, null, input);
                 var commitText = function () {
                     var next = textField.value === '' && value === null ? null : textField.value;

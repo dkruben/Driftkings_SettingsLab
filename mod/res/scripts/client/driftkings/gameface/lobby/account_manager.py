@@ -130,6 +130,9 @@ class AccountsView(ViewImpl):
                 self.editing = {'id': '', 'title': '', 'email': '', 'cluster': 0}
             elif action == 'edit':
                 self.editing = service.edit(data['id'])
+            elif action == 'revealPassword' and self.editing and self.editing.get('id'):
+                account = service.find(self.editing['id'])
+                self.editing['password'] = service.unprotect(account['password'])
             elif action == 'cancel':
                 self.editing = None
             elif action == 'save':
@@ -158,7 +161,8 @@ class AccountsWindow(WindowImpl):
         self.launcher = launcher
         self._accountsReady = False
         self._launcherPosition = (24, 80)
-        flags = WindowFlags.WINDOW if launcher else WindowFlags.WINDOW | WindowFlags.WINDOW_MODAL
+        flags = WindowFlags.WINDOW if launcher else (WindowFlags.WINDOW | WindowFlags.WINDOW_MODAL |
+                                                    WindowFlags.WINDOW_FULLSCREEN)
         super(AccountsWindow, self).__init__(flags, content=AccountsView(controller, launcher),
                                             layer=WindowLayer.WINDOW if launcher else WindowLayer.TOP_WINDOW)
 
@@ -178,8 +182,6 @@ class AccountsWindow(WindowImpl):
             return
         if self.launcher:
             self.move(*self._launcherPosition)
-        else:
-            self.center()
 
     def _finalize(self):
         self._accountsReady = False

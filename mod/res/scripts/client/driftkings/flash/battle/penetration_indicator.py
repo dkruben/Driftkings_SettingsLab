@@ -2,13 +2,13 @@
 """Presentation adapter for ArmorCalculator; gameplay state stays in its component."""
 from collections import defaultdict
 
-from aih_constants import CTRL_MODE_NAME
 from gui.battle_control import avatar_getter
 from helpers import dependency
 from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import PENETRATION_INDICATOR
 from driftkings.flash.battle.meta.armor_calculator import ArmorCalculatorMeta
+from driftkings.game_constants import CTRL_MODE_NAME
 from driftkings.settings.service import settings_service
 from driftkings.ui.common.events import g_events
 

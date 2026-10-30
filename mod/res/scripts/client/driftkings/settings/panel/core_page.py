@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """The framework's own page, declared through the public API like any other mod."""
+from driftkings._constants import SETTINGS_MOD_ID as CORE_ID
 from driftkings.i18n import panel as locales
 from driftkings.settings.panel import logger
-from driftkings.settings.panel.presenter import CORE_ID
 
 _listeners = []
 

@@ -444,12 +444,19 @@
 
     function hide() {
         tabData = null; renderTab(null);
+        if (window.DKHalloweenTab) { window.DKHalloweenTab.hide(); }
     }
     function render(payload) {
         var data;
         try { data = JSON.parse(payload || '{}'); } catch (e) { data = {}; }
-        // Only the random-battle TAB is supported; any other payload hides the overlay.
-        if (data.screen === 'tab') { tabData = data; renderTab(data); return; }
+        // The random-battle TAB is drawn over its rows; the Halloween TAB gets a separate table.
+        if (data.screen === 'tab') {
+            if (window.DKHalloweenTab) { window.DKHalloweenTab.hide(); }
+            tabData = data; renderTab(data); return;
+        }
+        if (data.screen === 'hwTab' && window.DKHalloweenTab) {
+            tabData = null; renderTab(null); window.DKHalloweenTab.render(data); return;
+        }
         hide();
     }
     function refresh(pollLayout) {
@@ -469,6 +476,7 @@
             // Native model events include clocks, reserves and other TAB data.
             // They must not redraw every roster field when our payload is equal.
             else if (tabData && pollLayout === true) { renderTab(tabData); }
+            else if (pollLayout === true && window.DKHalloweenTab) { window.DKHalloweenTab.refresh(); }
             return;
         }
         lastPayload = null; hide(); diagnosticModel=null;

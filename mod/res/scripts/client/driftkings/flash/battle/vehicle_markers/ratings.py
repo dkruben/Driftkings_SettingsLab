@@ -61,11 +61,15 @@ class Ratings(object):
                 self.stats.loadStats()
             self.ticks += 1
             rows = []
-            if arena is not None:
+            if arena is not None and arena.vehicles:
+                # One synchronous roster operation; keep dynamic context per vehicle.
+                enabled = self.stats.enabled()
+                minimum = self.minimum()
+                rating = self.settings.get('ratingType', 'wn8')
+                scale = self.settings.get('colorRating', 0)
                 for ident, vehicle in sorted(arena.vehicles.items()):
-                    info = self.stats.getPlayersInfo(vehicle.get('accountDBID', 0)) if self.stats.enabled() else None
-                    row = values(info, self.settings.get('ratingType', 'wn8'), self.settings.get('colorRating', 0),
-                                 self.minimum(), bool(vehicle.get('isAnonymized')))
+                    info = self.stats.getPlayersInfo(vehicle.get('accountDBID', 0)) if enabled else None
+                    row = values(info, rating, scale, minimum, bool(vehicle.get('isAnonymized')))
                     row.update(self.context(ident, vehicle, self.distance))
                     rows.append({'name': vehicle.get('name', ''), 'values': row})
             for key, record in list(self.managers.items()):

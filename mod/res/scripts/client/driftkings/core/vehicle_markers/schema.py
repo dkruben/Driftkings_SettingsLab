@@ -8,14 +8,16 @@ their alignment, damage text 200x100 boxes and vehicle distance 100x100 boxes.
 import copy
 import re
 
+from driftkings._constants import VEHICLE_MARKERS
 from driftkings.common.utils.compat import string_types
 from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
+from driftkings.core.vehicle_markers.fields import number
 from driftkings.core.vehicle_markers.references import resolve
 
-STATE_KEYS = ('markersAliveNormal', 'markersAliveExtended', 'markersDeadNormal', 'markersDeadExtended')
-FILES = ('markers.json',) + tuple(key + '.json' for key in STATE_KEYS)
+STATE_KEYS = VEHICLE_MARKERS.STATE_KEYS
+FILES = VEHICLE_MARKERS.FILES
 WIRING = re.compile(r'^\$\{(markers(?:Alive|Dead)(?:Normal|Extended))\.json:(ally|enemy)\}$')
-GENERAL = {'debug': False, 'colorRating': 0, 'ratingType': 'wn8',
+GENERAL = {'debug': False, 'colorRating': 0, 'ratingType': 'wn8', 'textFieldsOffsetY': 0,
            'turretMarkers': {'highVulnerability': '*', 'lowVulnerability': "'"}, 'colors': {}}
 TEXT_STYLE = ('font', 'size', 'color', 'bold', 'italic')
 SHADOW = ('enabled', 'distance', 'angle', 'color', 'alpha', 'blur', 'strength')
@@ -183,6 +185,7 @@ def adapt(data):
     enabled = data['enabled']
     result = copy.deepcopy(GENERAL)
     result.update(dict((key, copy.deepcopy(markers[key])) for key in GENERAL if key in markers))
+    number(result['textFieldsOffsetY'], -1000, 1000)
     result.update(enabled=enabled, schemaVersion=2, markers={'enabled': enabled},
                   customFields={'enabled': enabled}, healthBar={'enabled': enabled},
                   damageText={'enabled': enabled}, icons={'enabled': enabled})
@@ -202,6 +205,8 @@ def adapt(data):
                 if not enabled:
                     continue
                 fields = [text_field(item) for item in (options.get('textFields') or []) if isinstance(item, dict)]
+                for field in fields:
+                    field['y'] += result['textFieldsOffsetY']
                 distance = part(options, 'vehicleDist')
                 if distance.get('enabled'):
                     fields.append(distance_field(distance))

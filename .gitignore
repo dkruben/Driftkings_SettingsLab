@@ -86,8 +86,7 @@ flash_source/**/obj/
 /build_tools/tests/
 /build_tools/common_startup_probe_py27.py
 
-# Local test suites and tool caches
-tests/
+# Local tool caches
 test/
 .pytest_cache/
 .mypy_cache/
@@ -100,34 +99,15 @@ htmlcov/
 !/docs/**/
 !/docs/**/*.md
 
-# Pure settings-panel regression tests are part of the source project.
+# Runtime, frontend, build and artifact tests are source-controlled.
 !/tests/
-/tests/*
-!/tests/settings_panel/
-/tests/settings_panel/*
-!/tests/settings_panel/test_*.py
-!/tests/settings_panel/test_*.js
-!/tests/settings_panel/dom_fixture.js
-!/tests/settings_panel/schema_fixture.js
-!/tests/settings_panel/export_schema.py
-
-# Portable Core regression tests are also source-controlled.
-!/tests/core/
-/tests/core/*
-!/tests/core/*.py
-!/tests/core/fixtures/
-/tests/core/fixtures/*
-!/tests/core/fixtures/wnx_reference.json
-
-# Shared fixtures read by both the Python and the JavaScript marker tests.
-!/tests/fixtures/
-/tests/fixtures/*
-!/tests/fixtures/vehicle_marker_conditions.json
-
-# Build-time installer generation and media validation tests.
-!/tests/installer/
-/tests/installer/*
-!/tests/installer/*.py
+/tests/**
+!/tests/**/
+!/tests/**/*.py
+!/tests/**/*.js
+!/tests/fixtures/*.json
+/tests/**/__pycache__/
+/tests/**/node_modules/
 
 # Installer artwork is supplied locally; keep directory markers and guides tracked.
 /installer/setup/assets/branding/*.png

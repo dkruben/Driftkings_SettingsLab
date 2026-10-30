@@ -4,7 +4,8 @@
 html { font-size: 1px; }
 html, body { margin: 0; padding: 0; overflow: hidden; background: transparent; }
 body, input { font-family: Warhelios; font-size: 14rem; font-weight: 400; color: #c8c8b5; }
-#accounts { width: 420rem; height: 170rem; }
+#accounts { width: 420rem; height: 170rem; outline: none; }
+body.modal { display: flex; align-items: center; justify-content: center; width: 100vw; height: 100vh; }
 .button { display: flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 82rem; height: 28rem; padding: 0 12rem; border: 1rem solid #686555; background: linear-gradient(#49483c, #262721); color: #c8c8b5; cursor: pointer; }
 .button:hover { color: #fff2cd; background: linear-gradient(#625c44, #343127); }
 .primary { border-color: #90816a; }
@@ -41,8 +42,9 @@ body, input { font-family: Warhelios; font-size: 14rem; font-weight: 400; color:
 .check { min-width: 0; justify-content: flex-start; height: 26rem; padding: 0; border: none; background: transparent; font-size: 13rem; }
 .check:hover { background: transparent; }
 .check-box { display: flex; align-items: center; justify-content: center; width: 14rem; height: 14rem; margin-right: 5rem; border: 1rem solid #79775e; background: #151612; color: #e5d89b; }
+.check-box.checked::after { content: ''; width: 4rem; height: 8rem; border-right: 2rem solid #e5d89b; border-bottom: 2rem solid #e5d89b; transform: translateY(-1rem) rotate(45deg); }
 .check-label { color: #c8c8b5; }
-.form { flex: 1; padding: 3rem 0; }
+.form { flex: 1; min-height: 0; overflow-y: auto; padding: 3rem 0; }
 .field { display: flex; align-items: center; margin-bottom: 8rem; }
 .field-label { width: 82rem; flex-shrink: 0; font-size: 13rem; }
 .text-input { flex: 1; min-width: 0; height: 25rem; padding: 2rem 6rem; border: 1rem solid #595c52; background: #0d100f; color: #eee9cf; }

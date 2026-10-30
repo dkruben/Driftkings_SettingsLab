@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from driftkings._constants import TEAM_PANELS
+from driftkings._constants import ROMAN_NUMERALS, TEAM_PANELS
 from driftkings.core.panel_macros import Macros, truth
 from driftkings.settings.team_panel_store import resolve_fields
 
-ROMAN=('','I','II','III','IV','V','VI','VII','VIII','IX','X','XI')
+# Preserve the panel macro's existing zero slot and upper bound (tier XI).
+ROMAN=('',) + ROMAN_NUMERALS[:-1]
 TYPES={'lightTank':'LT','mediumTank':'MT','heavyTank':'HT','AT-SPG':'TD','SPG':'SPG'}
 # Numeric account and vehicle statistics hidden in event modes (colours are kept).
 STATISTICS=('wn8','eff','wgr','winrate','xwn8','xeff','battles','kb','r','xr','t-kb','t-hb',
@@ -107,7 +108,7 @@ class Roster(object):
             'a:spotted':100 if state in ('spotted','lost') and data[TEAM_PANELS.SPOTTED_ENABLED] else 0,
             'c:system':'#FFDD33' if own else ('#96FF00' if ally else '#F50800'),
             'sys-color-key':'player' if own else ('ally' if ally else 'enemy'),
-            'stat-available':'stat' if available else '', 'pp.mode':('none','short','medium','medium2','large').index(self.mode),
+            'stat-available':'stat' if available else '', 'pp.mode':TEAM_PANELS.MODES.index(self.mode),
             'pp.widthLeft':self.widths[0],'pp.widthRight':self.widths[1],
             'squad-num':vehicle.get('prebattleID') or None,
             'rankBadgeId':vehicle.get('rankBadgeId'), 'bp-stage':vehicle.get('bpStage'),

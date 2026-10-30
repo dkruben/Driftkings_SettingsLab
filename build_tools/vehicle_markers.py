@@ -16,6 +16,13 @@ def build(root, destination, spec, tools, game_root):
         raise ValueError('Vehicle marker native movie changed; review the pinned patch before building')
     binary = Path(tools['rabcdasm_home'])
     sdk = Path(tools['flex_home'])
+    libraries = root / 'flash_source/shared/swc/manifest.json'
+    external_libraries = []
+    for item in json.loads(libraries.read_text(encoding='utf-8'))['libraries']:
+        library = libraries.parent / item['name']
+        if hashlib.sha256(library.read_bytes()).hexdigest().lower() != item['sha256'].lower():
+            raise ValueError('Flash library hash mismatch: ' + item['name'])
+        external_libraries.append('-compiler.external-library-path+=' + str(library))
     with tempfile.TemporaryDirectory(prefix='vehicle-markers-', dir=str(destination.parent)) as directory:
         work = Path(directory)
         def run(command):
@@ -23,6 +30,7 @@ def build(root, destination, spec, tools, game_root):
         helper = work / 'fields.swf'
         run([tools['java'], '-Xmx512m', '-jar', tools['mxmlc_jar'], '+flexlib=' + str(sdk / 'frameworks'),
              '-load-config=', '-compiler.theme=', '-compiler.external-library-path=' + tools['playerglobal'],
+             *external_libraries,
              '-target-player=11.0', '-swf-version=13', '-debug=false', '-compiler.strict=true',
              '-compiler.source-path+=' + str(root / 'flash_source/shared/as3'),
              '-compiler.library-path=' + str(sdk / 'frameworks/libs/framework.swc'),

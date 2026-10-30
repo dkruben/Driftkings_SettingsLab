@@ -10,7 +10,7 @@ from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 from gui.shared.utils.requesters import REQ_CRITERIA
 
-from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
+from driftkings._constants import GLOBAL, MARKS_MIN_TIER, VEHICLE_CAROUSEL, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core import carousel as layout
@@ -38,7 +38,7 @@ ICONS = {
 }
 COLOR_KEYS = {
     'wn8': 'wn8', 'eff': 'eff', 'xwn8': 'x', 'xeff': 'x',
-    'winRate': 'winrate', 'avgDamage': 'tdb', 'marks': 'mog',
+    'winRate': 'winrate', 'avgDamage': 'tdb', 'wn8expd': 'tdb', 'marks': 'mog',
     'damageRatio': 'damageRatio', 'damageHP': 'damageHP',
     'hitRate': 'hitsRatio', 'avgFrags': 'tfb', 'avgSpotted': 'tsb',
     'battles': 't_battles'
@@ -69,7 +69,7 @@ def ratings(values, expected, tier):
         # Classic Efficiency Rating, using this vehicle's tier and random-battle averages.
         result['eff'] = (damage * 10.0 / (tier + 2) * (0.23 + 0.02 * tier)
                          + frags * 250 + spots * 150 + math.log(1 + max(0, capture), 1.732) * 150 + defence * 150)
-    keys = ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')
+    keys = WN8_EXPECTED_FIELDS
     exp = [number((expected or {}).get(k)) for k in keys]
     raw = (damage, frags, spots, defence, values.get('winRate'))
     if all(x is not None and x > 0 for x in exp) and all(x is not None for x in raw):
@@ -117,7 +117,7 @@ def collect(vehicle):
     values['damageRatio'] = ratio(values['avgDamage'], values['avgReceived'])
     values['damageHP'] = ratio(values['avgDamage'], vehicle.descriptor.maxHealth)
     values['marks'] = (number(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating'), 0) / 100
-                       if vehicle.level >= 5 and battles else None)
+                       if vehicle.level >= MARKS_MIN_TIER and battles else None)
     values['marksOnGun'] = number(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'marksOnGun'), 0)
     mastery = dossier.getTotalStats().getAchievement(MARK_OF_MASTERY_RECORD)
     # ClassProgressAchievement.NO_LVL is 5; clamping would turn it into Ace (4).
@@ -143,7 +143,7 @@ def render_macro(template, values):
             rank = int(bounded(values.get('marksOnGun'), 0, 3, 0))
             nation = values.get('nation', 'ussr')
             suffix = 'mark' if rank == 1 else 'marks'
-            return 'coui://gui/maps/icons/marksOnGun/95x85/%s_%d_%s.png' % (nation, rank, suffix) if rank else ''
+            return 'coui://gui/maps/icons/marksOnGun/95x85/%s_%d_%s.png' % (nation, rank, suffix) if rank else 'coui://gui/maps/driftkings/carroucel/mark_0.png'
         if key == 'mastery':
             rank = values.get('mastery')
             rank = int(rank) if rank in (1, 2, 3, 4) else 0
@@ -171,29 +171,22 @@ class CarouselData(object):
             self.invalidate()
 
     def preview_cards(self, palette=0):
-        """Bounded, read-only inventory snapshot for the settings preview."""
-        self._sync_account()
-        inventory = ServicesLocator.itemsCache.items.getVehicles(REQ_CRITERIA.INVENTORY)
-        selected = g_currentVehicle.intCD if g_currentVehicle.isPresent() else None
-        cards = []
-        for cd in sorted(inventory, key=lambda key: (key != selected, key))[:4]:
-            vehicle = inventory[cd]
-            try:
-                if cd not in self.cache:
-                    self.cache[cd] = collect(vehicle)
-                values = dict(self.cache[cd], selected=cd == selected)
-                colors = dict((key, getStatisticColor(COLOR_KEYS.get(key, key), value, palette))
-                              for key, value in values.items() if isinstance(value, (int, float)) and not isinstance(value, bool))
-                cards.append({'id': cd, 'name': vehicle.shortUserName, 'nation': vehicle.nationName,
-                              'tank': vehicle.name.split(':')[-1].lower(), 'image': vehicle.icon,
-                              'tier': vehicle.level, 'level': str(vehicle.level), 'type': vehicle.type,
-                              'premium': bool(vehicle.isPremium), 'selected': cd == selected,
-                              'favorite': bool(vehicle.isFavorite), 'info': bool(vehicle.isInBattle),
-                              'xp': 'x%s' % vehicle.dailyXPFactor if vehicle.dailyXPFactor > 1 else '',
-                              'stats': values, 'colors': colors})
-            except Exception:
-                LOG.debug('Preview dossier unavailable for %s', cd, exc_info=True)
-        return {'source': 'inventory', 'vehicles': cards, 'nativeRows': next(iter(g_rowModels.values()), 1)}
+        """Two fictional cards using the same statistic colour API as live cards."""
+        examples = [
+            {'name': 'T32', 'nation': 'usa', 'tank': 'a12_t32', 'tier': 8, 'level': 'VIII',
+             'type': 'heavyTank', 'premium': False, 'selected': True, 'favorite': True, 'xp': 'x2',
+             'stats': {'battles': 1245, 'winRate': 54.3, 'hitRate': 78.4, 'avgDamage': 2380,
+                       'avgFrags': 1.0, 'wn8expd': 1950, 'wn8effd': 1.22, 'wn8': 2150,
+                       'battletiermin': 8, 'battletiermax': 10, 'marksOnGun': 2, 'marks': 87.4, 'mastery': 3}},
+            {'name': 'Obj. 140', 'nation': 'ussr', 'tank': 'r97_object_140', 'tier': 10, 'level': 'X',
+             'type': 'mediumTank', 'premium': False, 'selected': False, 'info': True, 'xp': 'x2',
+             'stats': {'battles': 312, 'winRate': 48.6, 'hitRate': 70.2, 'avgDamage': 3150,
+                       'avgFrags': 1.0, 'wn8expd': 3400, 'wn8effd': 0.93, 'wn8': 1420,
+                       'battletiermin': 10, 'battletiermax': 10, 'marksOnGun': 0, 'marks': 41.2, 'mastery': 1}}]
+        for card in examples:
+            card['colors'] = dict((key, getStatisticColor(COLOR_KEYS.get(key, key), value, palette))
+                                  for key, value in card['stats'].items())
+        return {'source': 'examples', 'vehicles': examples, 'nativeRows': next(iter(g_rowModels.values()), 1)}
 
     def build_panel_model(self, requested):
         settings = settings_service.getComponentDict(config)

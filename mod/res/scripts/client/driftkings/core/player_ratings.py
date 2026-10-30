@@ -20,10 +20,11 @@ from helpers import dependency
 from messenger import g_settings
 from skeletons.gui.battle_session import IBattleSessionProvider
 
-from driftkings._constants import GLOBAL, TEAM_PANELS
+from driftkings._constants import GLOBAL, TEAM_PANELS, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
+from driftkings.core.panel_macros import uses_tdv
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import calculateRatingScale, getVehicleInfoData, scaleValuesInstance
@@ -48,6 +49,11 @@ def tank_damage_ratio(stats, maxHP):
     if not battles or battles < 0 or not maxHP or maxHP < 0 or damage is None:
         return MISSING
     return damage / float(battles * maxHP)
+
+
+def _rating_color(rating, value, scale):
+    # Player-panel templates already provide the leading '#'.
+    return getStatisticColor(rating, value, scale).lstrip('#')
 
 
 class RatingFormatter(string.Formatter):
@@ -88,7 +94,7 @@ def format_rating(template, info, vehicle, available, scale=0):
             colors[key[2:]] = str(value).lstrip('#')
     for metric in ('wn8', 'wnx', 'winrate', 'battles', 'eff', 'wgr', 'xwn8', 'xeff', 't_battles', 't_winrate', 'tdv'):
         source = {'t_battles': 'battles', 't_winrate': 'winrate'}.get(metric, metric)
-        colors[metric] = getStatisticColor(source, values[metric], scale).lstrip('#') if available and values[metric] != MISSING else 'AAAAAA'
+        colors[metric] = _rating_color(source, values[metric], scale) if available and values[metric] != MISSING else 'AAAAAA'
     colors['tBattles'] = colors['t_battles']
     colors['kb'] = colors['battles']
     rating = (info or {}).get('_rating', 'wn8')
@@ -287,7 +293,7 @@ class CalculatorRating(object):
     def _expectedFromVehicleData(vehicleData):
         if vehicleData is None:
             return None
-        if not all(vehicleData.get(key) is not None for key in ('wn8expDamage', 'wn8expFrag', 'wn8expSpot', 'wn8expDef', 'wn8expWinRate')):
+        if not all(vehicleData.get(key) is not None for key in WN8_EXPECTED_FIELDS):
             return None
         try:
             expected = {
@@ -361,12 +367,12 @@ class CalculatorRating(object):
         if values[3] > 0:
             for key in values[1]:
                 values[1][key] /= values[3]
-            CalculatorRating._wn8Cache[tankId] = values[1].copy()
+            CalculatorRating._wn8Cache[tankId] = values[1]
             return CalculatorRating._wn8Cache[tankId]
         if values[2] > 0:
             for key in values[0]:
                 values[0][key] /= values[2]
-            CalculatorRating._wn8Cache[tankId] = values[0].copy()
+            CalculatorRating._wn8Cache[tankId] = values[0]
             return CalculatorRating._wn8Cache[tankId]
         return None
 
@@ -469,7 +475,7 @@ class Statistics(object):
                     if hasattr(random, method):
                         tank['statistics'][key] = getattr(random, method)()
             # Vehicle dossiers already cached by the client; never fetch them here.
-            if 'tdv' in json.dumps(settings):
+            if uses_tdv(settings):
                 damage = {}
                 for tankID, dossier in items.getVehicleDossiersIterator():
                     block = dossier['a15x15']
@@ -528,15 +534,17 @@ class Statistics(object):
             tankFields = ['random.battles', 'mark_of_mastery', 'random.wins', 'random.damage_dealt', 'tank_id']
             tankFields += ['random.' + key for key in ('frags', 'spotted', 'radio_assisted_damage',
                                                       'track_assisted_damage', 'stun_assisted_damage')]
+            accountFields = ','.join(accountFields)
+            tankFields = ','.join(tankFields)
             regionAccounts = ','.join(regions[region])
-            infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts, extra='statistics.random', fields=','.join(accountFields))
+            infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts, extra='statistics.random', fields=accountFields)
             if infoResponse:
                 dataInfo.update(infoResponse)
             # tanks/stats accepts one account per request. Keep its random
             # counts paired with the account's random totals, never all-mode data.
             for databaseID in regions[region]:
                 tanks_response = g_event.request(region, 'wot/tanks/stats', account_id=databaseID,
-                                                 extra='random', fields=','.join(tankFields))
+                                                 extra='random', fields=tankFields)
                 if tanks_response and databaseID in tanks_response:
                     entries = tanks_response[databaseID]
                     dataTanks[databaseID] = None if entries is None else [
@@ -596,10 +604,6 @@ class Statistics(object):
         playerInfo['lang'] = 'en'
         playerInfo['nick'] = playerInfo['name'] + playerInfo['clan']
         playerInfo['short_nick'] = playerInfo['name']
-        playerInfo['c_wn8'] = self.getColor('wn8', playerInfo['wn8'])
-        playerInfo['c_battles'] = self.getColor('battles', playerInfo['battles'])
-        playerInfo['c_winrate'] = self.getColor('winrate', playerInfo['winrate'])
-        playerInfo['c_tBattles'] = self.getColor('t_battles', playerInfo['t_battles'])
         cachedData = self.statsCache.get(dbID, None) if settings[TEAM_PANELS.PERFORMANCE]['cacheEnabled'] else None
         if cachedData and dbID not in dataInfo:
             cacheAge = time.time() - self.cacheTimestamp.get(dbID, 0)
@@ -638,10 +642,12 @@ class Statistics(object):
                 playerInfo['xwn8'] = g_calRating.xwn8(playerInfo['wn8'])
                 playerInfo['eff'] = g_calRating.eff(avgDmg, avgDef, avgCap, avgSpot, playerInfo['level'], avgFrags)
                 playerInfo['xeff'] = g_calRating.xeff(playerInfo['eff'])
-                playerInfo['c_wn8'] = self.getColor('wn8', playerInfo['wn8'])
-                playerInfo['c_winrate'] = self.getColor('winrate',  playerInfo['winrate'])
-                playerInfo['c_battles'] = self.getColor('battles', playerInfo['battles'])
-                playerInfo['c_tBattles'] = self.getColor('t_battles', playerInfo['t_battles'])
+
+        # Resolve colours once, after either the default or populated metrics are final.
+        playerInfo['c_wn8'] = self.getColor('wn8', playerInfo['wn8'])
+        playerInfo['c_battles'] = self.getColor('battles', playerInfo['battles'])
+        playerInfo['c_winrate'] = self.getColor('winrate', playerInfo['winrate'])
+        playerInfo['c_tBattles'] = self.getColor('t_battles', playerInfo['t_battles'])
 
     def getPlayersInfo(self, accountDBID):
         return self.playersInfo.get(str(accountDBID), None)
@@ -672,7 +678,7 @@ class Statistics(object):
     @staticmethod
     def getColor(rating, value):
         # Player-panel templates already provide the leading '#'.
-        return getStatisticColor(rating, value, settings_service.getComponentDict(config).get(TEAM_PANELS.COLOR_SCALE, 0)).lstrip('#')
+        return _rating_color(rating, value, settings_service.getComponentDict(config).get(TEAM_PANELS.COLOR_SCALE, 0))
 
     def pollStats(self):
         self._poll = None
@@ -710,7 +716,9 @@ class Statistics(object):
         ids = sorted(set(str(pl.get('accountDBID', 0)) for pl in arena.vehicles.values()
                          if pl.get('accountDBID', 0) > 0))
         cachedInfo, cachedTanks, missing = {}, {}, []
-        wantsDamage = 'tdv' in json.dumps(settings_service.getComponentDict(config))
+        settings = settings_service.getComponentDict(config)
+        performance = settings[TEAM_PANELS.PERFORMANCE]
+        wantsDamage = uses_tdv(settings)
         currentTanks = {}
         signatures = {}
         for vehicleID, vehicle in arena.vehicles.items():
@@ -722,10 +730,10 @@ class Statistics(object):
                 currentTanks[dbID] = tankID
         for dbID in ids:
             local = self._localStats if dbID == self._localAccount else None
-            cached = local or (self.statsCache.get(dbID) if settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE]['cacheEnabled'] else None)
-            if cached and (local or time.time() - self.cacheTimestamp.get(dbID, 0) < settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE]['cacheExpiry']):
+            cached = local or (self.statsCache.get(dbID) if performance['cacheEnabled'] else None)
+            if cached and (local or time.time() - self.cacheTimestamp.get(dbID, 0) < performance['cacheExpiry']):
                 signature = tuple(sorted(signatures.get(dbID, [])))
-                stamp = (id(cached), signature, settings_service.getComponentDict(config).get(TEAM_PANELS.COLOR_SCALE, 0))
+                stamp = (id(cached), signature, settings.get(TEAM_PANELS.COLOR_SCALE, 0))
                 if self._appliedCache.get(dbID) != stamp:
                     cachedInfo[dbID], cachedTanks[dbID] = cached['info'], cached['tanks']
                     self._appliedCache[dbID] = stamp

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Format the native Flash statistics and vehicle dossier fields."""
 from driftkings.common.utils.colorratting import getColor, getRatingColors, getStatisticColor
+from driftkings.common.utils.formatting import hexToDecimal
 from driftkings.core.hooks import override
 from driftkings.core.profile_ratings import account_wn8, parse_thresholds, pure_random_stats, vehicle_wn8
 from driftkings.logger import get_logger
@@ -195,7 +196,7 @@ def install():
         scale = settings_service.getComponentDict('profile_ratings').get('colorScale', 0)
 
         def color(metric, value):
-            return int(getStatisticColor(metric, value, scale).lstrip('#'), 16)
+            return hexToDecimal(getStatisticColor(metric, value, scale))
 
         for row in rows:
             # WN8 is defined for random battles only. Never use win rate as a

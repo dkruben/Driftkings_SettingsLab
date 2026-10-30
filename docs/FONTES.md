@@ -10,9 +10,17 @@ A biblioteca `flash_source/shared/as3/driftkings/utils/fontlibrary.as` incorpora
 
 Gameface usa os mesmos TTF em `res/gui/fonts/driftkings`, com declarações `@font-face` partilhadas entre as páginas e o carregador de vistas injetadas. O alias `mono` usa a fonte real, em vez do substituto genérico `monospace`. Os aliases nativos usam a fonte carregada pela vista.
 
+As fontes Flash são registadas uma vez por biblioteca com `Font.registerFont`, a partir dos glifos incorporados nos próprios SWF. Não há registo Python, DLL adicional ou pacote `driftkings.fonts`. O Gameface continua a carregar os TTF pelos seus `@font-face`. Os nomes `dkm`, `DriftkingsFont`, `xvm` e `XVMSymbol` mantêm o mesmo mapa de símbolos.
+
+O OpenWG Common foi retirado da distribuição: o seu registo de fontes também carregava módulos de GPU, áudio, rede, profiler e outros serviços, além de introduzir limites de FPS e opções na interface nativa. A dependência OpenWG Gameface, usada pelo painel, é separada e mantém-se. Esta remoção isola essa variável para comparação; não demonstra, por si só, a causa de uma quebra de FPS em batalha.
+
+A seleção continua em `embedFonts = false`, para preservar fontes do cliente e HTML com fontes diferentes no mesmo campo. Segundo a documentação Scaleform, os glifos locais incorporados continuam disponíveis como alternativa quando a biblioteca do cliente e o fornecedor de fontes não resolvem o nome. Não se força `embedFonts = true` em todos os textos, pois isso impediria a utilização normal dos aliases localizados do jogo.
+
+Os campos dos marcadores usam também antialiasing avançado, caixas de tamanho fixo e `TextFieldEx.setNoTranslate`, seguindo o comportamento de referência sem traduzir nomes, macros resolvidos ou símbolos.
+
 | Recurso | Nomes disponíveis | Autor indicado no TTF |
 | --- | --- | --- |
-| XVMSymbol.ttf | XVMSymbol, xvm | demon2597, 2012–2019 |
+| DriftkingsFont.ttf | dkm, DriftkingsFont, xvm, XVMSymbol | DriftkingsMods, 2020–2026 (metadados fornecidos); glifos originais de demon2597 |
 | VehicleType.ttf | VehicleType, vtype | XSerzHX, 2015–2018 |
 | DynamicDefault.ttf | DynamicDefault, dynamic | XSerzHX, 2015–2018 |
 | DynamicOutline.ttf | DynamicOutline, dynamic2 | XSerzHX, 2015–2018 |
@@ -20,14 +28,16 @@ Gameface usa os mesmos TTF em `res/gui/fonts/driftkings`, com declarações `@fo
 
 ## Origem e licença
 
-Recursos copiados sem alterações de `xvm-master/src/xvm_fonts/assets`, referência local do projeto [XVM](https://modxvm.com/en/). A licença GPL-3.0 distribuída nessa referência acompanha os TTF em [LICENSE.txt](../mod/res/gui/fonts/driftkings/LICENSE.txt), incluindo no WOTMOD. Os nomes originais das fontes e os créditos são preservados; não é necessário instalar o mod de origem. Os TTF são os recursos fonte utilizados para produzir os glifos Flash.
+As quatro fontes auxiliares foram copiadas sem alterações de `xvm-master/src/xvm_fonts/assets`, referência local do projeto [XVM](https://modxvm.com/en/). A referência original distribui os recursos sob GPL-3.0; o texto dessa licença está disponível em [licence](../licence). Os aliases originais e os créditos são preservados; não é necessário instalar o mod de origem. Os TTF são os recursos fonte utilizados para produzir os glifos Flash.
+
+`DriftkingsFont.ttf` foi fornecida pelo utilizador em `F:/SantaAureliaRP/to_install`, sem alterações ao ficheiro. Substitui o recurso `XVMSymbol.ttf`: a inspeção confirmou os mesmos 114 caracteres e a tabela de contornos `glyf` idêntica à fonte anterior. Preservam-se por isso os créditos dos glifos originais. Os defaults usam `dkm`; os aliases `xvm` e `XVMSymbol` apontam para esse recurso nos três renderizadores.
 
 SHA-256 dos recursos importados:
 
 - `DynamicDefault.ttf`: `2f03c81e256ee51e1ee25707084aba3af8ce4eb891ccd4e0880e2c138b20da82`
 - `DynamicOutline.ttf`: `3285c29f35987d6f561c11577691eded906a6c995bd5850c14aa4fdd0748b345`
 - `VehicleType.ttf`: `7452d77dbe0f7ad2e9fae422395106434426c632865633ddd5dfecc3c29572f7`
-- `XVMSymbol.ttf`: `e5bf2810132586a08fcdb887494c86d64d7f28f21e7d4ba5e7c6a66b5632e5f5`
+- `DriftkingsFont.ttf`: `368e8ecd244dd6f9dbd805883d9c1bc6a108b39ad1bcc05c39b775e9f3c550da`
 - `ZurichCondMono.ttf`: `6158cb45aff173627540a798b66140c2084a042c353b8ed8497047fc9d340ec6`
 
 ## Cobertura e validação
@@ -36,6 +46,6 @@ Nenhuma fonte contém todos os caracteres possíveis. Uma fonte adicional só po
 
 A ordem de procura segue a [documentação Scaleform](https://help.autodesk.com/cloudhelp/ENU/Scaleform-Help/scaleform_help/font/part_3.html). Esta alteração não modifica perfis pessoais nem os recursos/fontes de outros mods.
 
-Validação local: 444 testes core em Python 2.7 e 3; 36 testes de instalação/build, incluindo remapeamento de IDs e ordenação de tags; testes Gameface, ESLint e build nativa. A inspeção das tabelas DefineFont3 confirma dez nomes incorporados em cada SWF, incluindo `!` e U+0115 em `XVMSymbol`/`xvm`. A confirmação visual dos marcadores, minimapa, painéis e carrossel em batalha continua pendente.
+Validação da substituição: build nativa concluída; testes dos recursos e aliases incorporados, schema dos marcadores em Python 2.7 e Gameface passaram. As tabelas DefineFont3 dos dois SWF contêm doze nomes incorporados; `dkm`, `DriftkingsFont`, `xvm` e `XVMSymbol` incluem 114 glifos e U+0115. O utilizador confirmou funcionamento e ausência de lag observado no cliente NA após a remoção do Common. Não foi realizada uma comparação controlada de FPS.
 
 O log EU de 27 outubro, 16:08, continha dois avisos Gameface para `monospace` (pesos 400/700). A substituição desse nome genérico pela fonte `mono` carregada é incluída nesta correção.

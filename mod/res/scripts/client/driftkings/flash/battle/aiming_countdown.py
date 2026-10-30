@@ -2,7 +2,6 @@
 """Presentation adapter for DispersionTimer; gameplay state stays in its component."""
 from collections import defaultdict
 
-from aih_constants import CTRL_MODE_NAME
 from gui.battle_control.avatar_getter import getInputHandler
 from helpers import dependency
 from skeletons.gui.battle_session import IBattleSessionProvider
@@ -11,6 +10,7 @@ from driftkings._constants import AIMING_COUNTDOWN
 from driftkings.core.aiming_timing import dispersion_timing
 from driftkings.core.battle_events import battleEvents
 from driftkings.flash.battle.meta.dispersion_timer import DispersionTimerMeta
+from driftkings.game_constants import CTRL_MODE_NAME
 from driftkings.logger import get_logger
 
 LOG = get_logger('driftkings.flash.battle.aiming_countdown')

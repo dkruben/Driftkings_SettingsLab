@@ -3,7 +3,6 @@ from functools import partial
 import math
 
 from account_helpers.settings_core.options import InterfaceScaleSetting
-from aih_constants import CTRL_MODE_NAME
 from Avatar import PlayerAvatar
 from AvatarInputHandler import AvatarInputHandler, MapCaseMode
 from AvatarInputHandler.cameras import FovExtended
@@ -19,6 +18,7 @@ from driftkings.common.utils import events
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event, override
+from driftkings.game_constants import CTRL_MODE_NAME
 from driftkings.settings.definitions.battle.gun_traverse_limits import GunTraverseLimitsSettings as Settings
 from driftkings.flash.battle.gun_traverse_limits import AimingAnglesView
 

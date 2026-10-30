@@ -4,6 +4,7 @@ import copy
 import hashlib
 import re
 
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings.settings.dependencies import option_dependencies
 from driftkings.settings.panel import logger
 from driftkings.settings.panel.controls import Control, text_type
@@ -71,7 +72,7 @@ class SectionPanelBinding(object):
     def _register(self, key):
         config = self.registry.entries[key][0]
         if hasattr(config, 'loadLang'):
-            preference = self.api.get('dk.settings', 'language', 'auto')
+            preference = self.api.get(SETTINGS_MOD_ID, 'language', 'auto')
             config.lang = self.api.client_language if preference == 'auto' else preference
             config.loadLang()
         data = self.registry.describe(key)

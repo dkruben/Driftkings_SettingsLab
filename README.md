@@ -2,7 +2,7 @@
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
-[![Beta 0.1.3-beta.2](https://img.shields.io/badge/Beta-0.1.3--beta.2-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)
+[![Beta 0.1.4-beta.2](https://img.shields.io/badge/Beta-0.1.4--beta.2-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)
 [![Stable 0.1.3](https://img.shields.io/badge/Stable-0.1.3-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3)
 
 # Driftkings Modpack
@@ -18,9 +18,9 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
 | **[Stable 0.1.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3/Driftkings-0.1.3-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3/Driftkings-0.1.3-WoT-2.4.1.1.zip) |
-| **[Beta 0.1.3-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3-beta.2/Driftkings-0.1.3-beta.2-WoT-2.4.1.0.zip) |
+| **[Beta 0.1.4-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1.zip) |
 
-Stable **0.1.3** targets WoT **2.4.1.1**. The archived beta **0.1.3-beta.2** targets WoT **2.4.1.0**.
+Stable **0.1.3** targets WoT **2.4.1.1**. Beta **0.1.4-beta.2** also targets WoT **2.4.1.1**, with further settings-panel fixes and two fictional carousel preview cards.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
@@ -28,7 +28,7 @@ Stable **0.1.3** targets WoT **2.4.1.1**. The archived beta **0.1.3-beta.2** tar
 
 - **Vehicle markers:** separate layouts for allies/enemies, alive/destroyed vehicles and normal/ALT views; configurable text, ratings, health bars, icons and floating damage.
 - **Live tank preview:** edit marker fields, shared templates and JSON, and check team colours, HP and visibility. The property column has its own scrollbar.
-- **Updated defaults:** the author's EU profile for the clock, panel positions, carousel, minimap and markers. Settings-window scale starts at 140%, with 94% opacity.
+- **Updated defaults:** the author's EU profile for the clock, panel positions, carousel and minimap; vehicle markers follow the reference layout. Settings-window scale starts at 140%, with 94% opacity.
 - **Font and editor fixes:** corrected native font handling, marker font aliases, colour inputs, slider limits and reference errors.
 
 ## Installation
@@ -108,7 +108,7 @@ Ratings and progress displays are estimates; they do not guarantee a battle resu
 
 The integrated settings panel includes **profiles, themes, UI scale, translations and update channels**. Marker changes can be checked in the tank preview before applying them.
 
-Default configurations are based on the author's EU profile. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
+Default configurations are based on the author's EU profile, except vehicle markers, which now follow the reference layout. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
 
 To receive beta updates, select the **Beta** update channel in Driftkings settings. The `develop` branch carries beta development; `main` carries the stable version.
 
@@ -134,13 +134,13 @@ Anonymous usage statistics are **off by default**. You can enable them in settin
 
 Supports Wargaming **EU, NA and ASIA** clients for **WoT 2.4.1.1**. Mir Tankov/RU is outside the project's scope.
 
-The stable release has prior in-game validation. Beta 0.1.3-beta.2 passed package verification and GitHub Actions, including Python 2/3 and Gameface tests. Its latest marker, font and layout changes still need visual confirmation in game.
+The stable release has prior in-game validation. Beta 0.1.4-beta.2 passed package verification and GitHub Actions, including Python 2/3 and Gameface tests. Its latest marker, font and layout changes still need visual confirmation in game.
 
 ## Development
 
 The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
-Version `0.1.3` includes the redesigned settings panel with option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Automated/package checks are recorded in the [stable release plan](docs/PLANO_STABLE_0_1_3.md); the latest visual changes still need in-game acceptance.
+Version `0.1.3` includes the redesigned settings panel with option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3); the latest visual changes still need in-game acceptance.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 

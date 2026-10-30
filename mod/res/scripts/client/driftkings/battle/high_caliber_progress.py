@@ -6,7 +6,7 @@ from gui.battle_control.arena_info import vos_collections
 from gui.battle_control.battle_constants import FEEDBACK_EVENT_ID
 
 from driftkings._constants import GLOBAL, HIGH_CALIBER_PROGRESS
-from driftkings.common.utils.wgutils import getPlayer
+from driftkings.common.utils.wgutils import create_range, getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
 from driftkings.core.high_caliber import project
@@ -16,7 +16,7 @@ from driftkings.settings.service import settings_service
 from driftkings.gameface.battle.high_caliber_gameface import MainGunAdapter
 
 # RANDOM_NP2 battles use the RANDOM GUI; WINBACK has its own.
-RANDOM_GUI_TYPES = tuple(getattr(ARENA_GUI_TYPE, name) for name in ('RANDOM', 'EPIC_RANDOM', 'WINBACK') if hasattr(ARENA_GUI_TYPE, name))
+RANDOM_GUI_TYPES = create_range(ARENA_GUI_TYPE, ('RANDOM', 'EPIC_RANDOM', 'WINBACK'))
 
 g_gameface = None
 config = Settings()

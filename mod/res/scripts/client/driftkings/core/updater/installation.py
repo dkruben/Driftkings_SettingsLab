@@ -3,6 +3,7 @@
 import os
 import threading
 
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings.core.updater.shared import LOG
 from driftkings.core.updater.state import ERROR, INSTALLING, READY
 
@@ -34,7 +35,7 @@ class InstallMixin(object):
             ticket = os.path.join(os.path.dirname(self._ready_path), 'install.json')
             self._previous_result_stamp = self.results.result_stamp(self._ready_path) if self.results is not None else None
             action = self.installer.resume if os.path.lexists(ticket) else self.installer.schedule
-            started = action(self._ready_path, getattr(self.api, 'client_version', None), self.api.get('dk.settings', 'updateChannel', 'stable'), self._safe_install_context)
+            started = action(self._ready_path, getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'), self._safe_install_context)
             if not started:
                 self._install_pending = False
                 self.state.update(status=READY)
@@ -78,7 +79,7 @@ class InstallMixin(object):
         generation = self._install_generation
         ready = self._ready_path
         client = getattr(self.api, 'client_version', None)
-        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        channel = self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')
         permit = threading.Event()
         permit.set()
         self._prepare_permit = permit

@@ -56,18 +56,18 @@ class MinimapEnhancementsSettings(SectionDefinition):
             labels = [self.i18n.get('UI_mode_' + value, value) for value in choices] if choices else None
             return nested_field([section, key], title, kind, low, high, choices, choice_labels=labels)
         # Centred/zoomed minimap: general options, kept together and ahead of the labels.
-        for key in ('alternativeEnabled', 'zoom', 'center'):
+        for key in MINIMAP_ENHANCEMENTS.PRESENTATION_SWITCHES:
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.PRESENTATION, key))
         columns[0].append(slider(MINIMAP_ENHANCEMENTS.ZOOM_FACTOR, 1.0, 3.0, 0.1, '{{value}}'))
         for key, low, high in (('sizeIndex', 0, 5), ('normalAlpha', 10, 100), ('alternativeAlpha', 10, 100), ('backgroundAlpha', 0, 100)):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.PRESENTATION, key, 'Slider', low, high))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, GLOBAL.ENABLED))
-        for key in ('normal', 'alternative', 'dead', 'lost'):
+        for key in MINIMAP_ENHANCEMENTS.LABEL_STATES:
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key, 'TextInput'))
         for key, low, high in (('fontSize', 8, 24), (GLOBAL.ALPHA, 0, 100)):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key, 'Slider', low, high))
         for key in ('direction', 'sector'):
-            columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, key, 'Dropdown', choices=['client', 'on', 'off']))
+            columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, key, 'Dropdown', choices=list(MINIMAP_ENHANCEMENTS.LINE_MODES)))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, 'customStyle'))
         for key in ('directionColor', 'sectorColor'):
             columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, key, 'ColorChoice'))
@@ -93,7 +93,7 @@ class MinimapEnhancementsSettings(SectionDefinition):
         for key in policy.CIRCLES:
             for field, kind in (('mode', 'Dropdown'), (GLOBAL.ALPHA, 'Slider')):
                 item = nested(MINIMAP_ENHANCEMENTS.CIRCLES, key, kind, 0 if field == GLOBAL.ALPHA else None, 100,
-                               ['client', 'on', 'off'] if field == 'mode' else None)
+                               list(MINIMAP_ENHANCEMENTS.LINE_MODES) if field == 'mode' else None)
                 item['path'].append(field)
                 item['varName'] += '.' + field
                 item['text'] += ' / ' + self.i18n.get('UI_field_' + field, field)
@@ -106,14 +106,14 @@ class MinimapEnhancementsSettings(SectionDefinition):
             item['varName'] += '.' + field
             item['text'] += ' / ' + self.i18n.get('UI_field_' + field, field)
             columns[1].append(item)
-        for key in ('ally', 'enemy', 'squad', 'alternativeAlly', 'alternativeEnemy', 'alternativeSquad'):
+        for key in MINIMAP_ENHANCEMENTS.LABEL_TEAM_KEYS:
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key, 'TextInput'))
         for key in ('x', 'y'):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key, 'Slider', -100, 100))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, 'align', 'Dropdown', choices=['left', 'center', 'right']))
         for key in ('shadow', 'teamColors', 'customColors', 'avoidOverlap'):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key))
-        for key in ('allyColor', 'enemyColor', 'squadColor', 'teamKillerColor', 'deadColor'):
+        for key in MINIMAP_ENHANCEMENTS.LABEL_COLOR_KEYS:
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key, 'ColorChoice'))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, 'compactLength', 'Slider', 4, 40))
         for key in ('scale', 'deadScale', 'lostScale', 'selfScale'):
@@ -124,7 +124,7 @@ class MinimapEnhancementsSettings(SectionDefinition):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.ICONS, key, 'Slider', 0, 100))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.ICONS, 'selfColor', 'ColorChoice'))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'visibility', 'Dropdown', choices=['never', 'key', 'always']))
-        columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'mode', 'Dropdown', choices=['value', 'percent', 'bar']))
+        columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'mode', 'Dropdown', choices=list(MINIMAP_ENHANCEMENTS.HEALTH_MODES)))
         for key, low, high in (('x', -100, 100), ('y', -100, 100), ('width', 10, 100), ('height', 1, 10), ('fontSize', 8, 24)):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, key, 'Slider', low, high))
         for key in ('icon', 'showSeconds', 'fade'):

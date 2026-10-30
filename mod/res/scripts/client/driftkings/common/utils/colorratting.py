@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import math
 
-__all__ = ('color_tables', 'getRatingColors', 'getColor', 'getStatisticColor',
-           'getRatingPaletteColor', 'getComparisonColor', 'getMoeDamageColor', 'getRelativePerformanceColor')
-
-
-# color_tables stays importable from here for the settings definitions (checked by tests/core/test_colors.py).
+# color_tables stays importable from here for the settings definitions (checked by tests/runtime/core/test_colors.py).
 from driftkings.common.utils.color_rating_data import color_tables, MOE_LEVELS
 from driftkings.core.tomato_colors import color as gradient_color
+
+__all__ = ('color_tables', 'getRatingColors', 'getColor', 'getStatisticColor',
+           'getRatingPaletteColor', 'getComparisonColor', 'getMoeDamageColor', 'getRelativePerformanceColor')
 
 
 def getRatingColors(index=0):

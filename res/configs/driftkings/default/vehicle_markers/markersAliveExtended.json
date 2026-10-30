@@ -31,7 +31,7 @@
       "name": "Player name",
       "enabled": true,
       "x": 0,
-      "y": -51,
+      "y": -36,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -56,7 +56,7 @@
       "name": "Percent of HP",
       "enabled": true,
       "x": 0,
-      "y": -35,
+      "y": -20,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -81,12 +81,12 @@
       "name": "Rating",
       "enabled": true,
       "x": 0,
-      "y": -70,
+      "y": -51,
       "alpha": 100,
       "align": "center",
       "textFormat": {
         "font": "$FieldFont",
-        "size": 14,
+        "size": 13,
         "color": "{{c:xr}}",
         "bold": false,
         "italic": false
@@ -155,7 +155,7 @@
     "vehicleDist": {
       "enabled": false,
       "x": 0,
-      "y": -81,
+      "y": -66,
       "alpha": 100,
       "align": "center",
       "textFormat": {
@@ -278,7 +278,7 @@
     "vehicleDist": {
       "enabled": false,
       "x": 0,
-      "y": -81,
+      "y": -66,
       "alpha": 100,
       "align": "center",
       "textFormat": {

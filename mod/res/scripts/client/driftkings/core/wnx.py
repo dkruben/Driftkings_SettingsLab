@@ -3,6 +3,8 @@
 import math
 import re
 
+from driftkings.common.utils.numbers import nonnegative_number as number
+
 _expected = {}
 
 
@@ -49,16 +51,6 @@ def set_reference(document):
     _expected = document['data']
 
 
-def number(value):
-    if isinstance(value, bool):
-        return None
-    try:
-        value = float(value)
-        return value if value >= 0 and not math.isnan(value) and not math.isinf(value) else None
-    except (TypeError, ValueError, OverflowError):
-        return None
-
-
 def calculate(damage, frags, spots, assistance, expected, overall=False):
     """Single-vehicle calculator rounding matches Tomato.gg; totals use its overall rounding."""
     if not isinstance(expected, dict):
@@ -96,7 +88,6 @@ def calculate_overall(records):
             actual[index] += values[index]
             exp[index] += battles * targets[index]
     return calculate(*(actual + [dict(zip(('damage', 'frags', 'spots', 'assist'), exp)), True]))
-
 
 
 def get_expected(vehicle_id):

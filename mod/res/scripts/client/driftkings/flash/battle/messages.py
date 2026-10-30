@@ -2,7 +2,9 @@
 """Native Flash battle message transport."""
 from functools import partial
 
-from BigWorld import callback
+import BigWorld
+
+from driftkings.core.callbacks import callback
 
 
 def sendPanelMessage(text='', colour='Green', panel='Player'):
@@ -24,12 +26,22 @@ def sendPanelMessage(text='', colour='Green', panel='Player'):
         - 'Yellow': Yellow color.
         - 'Self': Self color.
     """
+    arena = getattr(BigWorld.player(), 'arena', None)
+    if arena is not None:
+        _sendPanelMessage(text, colour, panel, arena)
+
+
+def _sendPanelMessage(text, colour, panel, arena):
+    # A delayed message belongs to its original battle, never the next one.
+    if getattr(BigWorld.player(), 'arena', None) is not arena:
+        return
     from gui.Scaleform.framework import WindowLayer
     from gui.shared.personality import ServicesLocator
-    battle_page = ServicesLocator.appLoader.getDefBattleApp().containerManager.getContainer(WindowLayer.VIEW).getView()
+    app = ServicesLocator.appLoader.getDefBattleApp()
+    battle_page = app.containerManager.getContainer(WindowLayer.VIEW).getView() if app is not None else None
     if battle_page is not None:
         getattr(battle_page.components['battle%sMessages' % panel], 'as_show%sMessageS' % colour, None)(None, text)
     else:
-        callback(0.5, partial(sendPanelMessage, text, colour, panel))
+        callback(0.5, partial(_sendPanelMessage, text, colour, panel, arena))
 
 

@@ -2,7 +2,9 @@
 """Descriptive section names, with aliases for existing profiles and translations."""
 import re
 
-LEGACY_NAMES = {'VehicleMarkers': 'vehicle_markers',
+from driftkings._constants import VEHICLE_MARKERS
+
+LEGACY_NAMES = {'VehicleMarkers': VEHICLE_MARKERS.NAME,
  'AccountManager': 'account_manager',
  'AimingAngles': 'gun_traverse_limits',
  'ArcadeZoom': 'third_person_zoom',
@@ -68,7 +70,7 @@ PREVIOUS_SECTIONS = {'aiming_angles': 'gun_traverse_limits',
  'sixth_sense': 'sixth_sense_alert',
  'spotted_extended_light': 'enemy_spotting_status',
  'zoom_extended': 'sniper_camera'}
-COMPONENT_NAMES = {'VehicleMarkers': 'vehicle_markers',
+COMPONENT_NAMES = {'VehicleMarkers': VEHICLE_MARKERS.NAME,
  'AccountManager': 'account_manager',
  'AimingCountdown': 'aiming_countdown',
  'AimingReticles': 'aiming_reticles',

@@ -61,7 +61,7 @@
     }
 
     function create(host, mod) {
-        var ids = {}, values = {}, overrides = {}, alt = false, images = {};
+        var ids = {}, values = {}, overrides = {}, alt = false, images = {}, lastInput = null;
         var defs = {};
         mod.controls.forEach(function (def) { defs[def.id] = def; });
         function v(name, fallback) {
@@ -364,7 +364,12 @@
         }
 
         return {
-            update: function (next) { values = next || {}; overrides = {}; draw(); },
+            update: function (next) {
+                var input = JSON.stringify(next || {});
+                var changed = input !== lastInput || Object.keys(overrides).length > 0;
+                values = next || {}; overrides = {};
+                if (changed) { draw(); lastInput = input; }
+            },
             preview: function (key, value) { overrides[key] = value; draw(); },
             redraw: draw,
             node: root,

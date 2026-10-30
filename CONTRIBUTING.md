@@ -1,12 +1,12 @@
 # Contributing to Driftkings
 
-This guide explains how the code is organised and how to make a change safely. For building and installing, see the [README](README.md). Run all commands below from the repository root. The README and contribution guide live at the repository root; other Markdown documentation lives under `docs/`; repository paths in code spans are relative to the repository root.
+This guide explains how the code is organised and how to make a change safely. Start with [project status](docs/STATUS.md) and [development references](docs/DEVELOPMENT_REFERENCE.md). For user installation, see the [README](README.md); local compilation and client installation are described below. Run all commands below from the repository root. The README and contribution guide live at the repository root; other Markdown documentation lives under `docs/`; repository paths in code spans are relative to the repository root.
 
 ## Ground rules
 
 - **Client scripts run on Python 2.7** (the World of Tanks client). Write code that is valid on both 2.7 and 3: no f-strings, no type hints, no `nonlocal`, no keyword-only arguments. CI parses every client source with Python 2.7.
 - **Keep Python imports alphabetical in three groups**, separated by a blank line: Python standard libraries, game libraries, then Driftkings modules. Keep conditional and local imports in their existing execution scope. Run `python -m isort mod/res/scripts/client` to apply the client configuration, or add `--check-only` to check it.
-- **Gameface JavaScript is ES5.** `npm run lint` enforces this.
+- **Gameface JavaScript is ES5.** `npm --prefix build_tools/javascript run lint` enforces this.
 - Vehicle markers build from a SHA-256-pinned native movie. Configure RABCDAsm with
   `DK_RABCDASM_HOME` or `--rabcdasm-home`; see the [vehicle marker guide](docs/vehicle_markers/README.md).
 - **Use `logging`, never `print`.** Import `get_logger` from `driftkings.logger` and declare `LOG = get_logger('Driftkings.<Area>')`. The shared factory preserves client-owned handlers and output. Use `LOG.exception(...)` inside `except` blocks so the traceback reaches the game log.
@@ -36,8 +36,8 @@ This guide explains how the code is organised and how to make a change safely. F
 | `flash_source` | ActionScript sources for the battle SWFs |
 | `installer` | Windows installer script and the native C# helper |
 | `build_data`, `build_tools` | Build contracts, validators, compiler and release tooling |
-| `tests` | Portable tests (`core`, `settings_panel`, `installer`) |
-| `docs` | Project overview, contribution guide, feature guides and dated audit reports; research data/scripts remain local |
+| `tests` | Runtime, frontend, build and optional compiled-artifact suites; shared support and synthetic fixtures |
+| `docs` | Project status, references, feature guides and dated audit reports; README and CONTRIBUTIBUTING remain at the root |
 
 Inside the client package:
 
@@ -62,11 +62,21 @@ Inside the client package:
 
 ### Gameface presentation
 
-Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. See the [migration plan and inventory](docs/PLANO_GAMEFACE.md) for dependencies, validation and in-game checks.
+Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. Use `interface_catalog.py` for the active contracts and the [settings-panel report](docs/RELATORIO_PAINEL_CONFIGURACAO.md) for the configuration flow; confirm affected views in the client.
 
 ### Flash/Scaleform presentation
 
-Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.battle`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [Flash migration plan](docs/PLANO_FLASH.md) for the inventory, dependencies, tests and pending client checks; structural changes alone do not establish an FPS improvement.
+Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.battle`; its registry uses the ten contracts in `interface_catalog.py`. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching, BattleLabel/CachedBattleLabel and the existing hook registry. See the [vehicle-marker guide](docs/vehicle_markers/README.md) and `flash/battle/registry.py` for the current integration. Structural changes alone do not establish an FPS improvement.
+
+### Shared constants and fonts
+
+`_constants.py` owns shared engine-free keys, aliases and values. `game_constants.py` owns WG enums and groups derived from them; it may import client APIs. Reuse existing constants and keep implementation-only values local. Preserve public keys, JSON names and aliases, and do not introduce a WG dependency into portable modules through their imports.
+
+Fonts are self-contained in Flash (`Font.registerFont` and embedded tags) and Gameface (`@font-face`). OpenWG Common was removed after the NA performance investigation; it is not needed to register these packaged fonts. The retained OpenWG Gameface dependency is separate. See [fonts](docs/FONTES.md) for aliases and credits, and [status](docs/STATUS.md) for the limits of in-game validation.
+
+### Account Manager
+
+Account storage and operations are in `components/account_manager.py` and `core/accounts.py`; the native login bridge is `flash/lobby/login.py`, and presentation is `gameface/lobby/account_manager.py` plus the `account_manager/` frontend. Preserve the fullscreen modal viewport and CSS centering; only the launcher resizes its native view. Keep focus, Escape handling and listener cleanup intact. Saved-password masks are placeholders, not replacement values; retrieve the stored password only on explicit reveal in the active edit form. Do not put credentials in list payloads, logs, fixtures using real accounts, or documentation.
 
 ### Hooks
 
@@ -90,7 +100,7 @@ Hooks are declared at import time and **owned by their component**. They are onl
 - A component's settings class lives in `settings/definitions/<area>/<name>.py` and extends `SectionDefinition`. Read values through `settings_service.getComponentDict(config)` and react to changes with `affects(changes, ...)`.
 - Names and menu text come from `mod/res/mods/driftkings/text/<code>.yml`. Add and translate new keys in **all 18 languages**, preserving formatting placeholders, then run `python build_tools/validate_locales.py`. English is the runtime fallback; CI requires complete translations.
 
-The beta defaults follow the author's active EU profile. The settings window starts at 140% scale and 94% opacity. Preserve personal profiles when applying updates; a default change is not permission to overwrite installed settings, caches or media. Update the canonical JSON, generated Python fallback and defaults snapshot together.
+The beta defaults follow the author's active EU profile, except vehicle markers, whose defaults follow the reference layout. The settings window starts at 140% scale and 94% opacity. Preserve personal profiles when applying updates; a default change is not permission to overwrite installed settings, caches or media. Update the canonical JSON, generated Python fallback and defaults snapshot together.
 
 When changing a settings declaration, verify that it opens and applies without changes through `SettingsRegistry`. `test_current_defaults_open_and_apply_through_every_settings_page` checks this for every current feature definition, including nested JSON and hotkeys. For the marker editor, also check the property scrollbar, wheel propagation, tab/group changes and resize; reuse `DK.dom.scrollbar` and dispose resize listeners and deferred updates.
 
@@ -152,12 +162,13 @@ Keep custom text and macros configurable. Use the native UI scale for Gameface l
 
 ## Testing
 
+The npm manifests and local JavaScript dependencies live in `build_tools/javascript/`. Run the commands below from the repository root; the scripts keep lint and test execution rooted at the project directory.
+
 Run these before opening a pull request. They cover the main local checks; the complete sequence is defined in `.github/workflows/`:
 
 ```bash
-python -m unittest discover -s tests/core -p 'test_*.py'
-python -m unittest discover -s tests/settings_panel -p 'test_*.py'
-python -m unittest discover -s tests/installer -p 'test_*.py'
+python -B tests/run_python.py --suite runtime
+python -B tests/run_python.py --suite build
 python build_tools/validate_build_data.py
 python build_tools/validate_locales.py
 python build_tools/generate_defaults.py --check
@@ -165,20 +176,60 @@ python build_tools/generate_ui_catalog.py
 python build_tools/build_installer.py
 python -m pip install pyflakes
 python build_tools/check_undefined_names.py
-npm ci --ignore-scripts
-npm run lint
-npm test
+npm --prefix build_tools/javascript ci --ignore-scripts
+npm --prefix build_tools/javascript run lint
+npm --prefix build_tools/javascript test
 ```
 
-`npm test` runs all current Gameface regression suites, including the settings window and ratings helpers.
+`npm --prefix build_tools/javascript test` runs all current Gameface regression suites, including the settings window and ratings helpers.
 
-`npm test` also renders the 35 live settings schemas (1104 controls) through the redesigned frontend. Its Python 3 exporter reuses the existing engine-stub fixture; no generated schema snapshots are committed. Keep the spectrum picker in `color_picker.js` and its `colors.js` math; the redesign's HSV picker is not shipped. New interface strings belong to the shared YAML catalogues.
+`npm --prefix build_tools/javascript test` also renders the 35 live settings schemas (1104 controls) through the redesigned frontend. Its Python 3 exporter reuses the existing engine-stub fixture; no generated schema snapshots are committed. Keep the spectrum picker in `color_picker.js` and its `colors.js` math; the redesign's HSV picker is not shipped. New interface strings belong to the shared YAML catalogues.
 
-`tests/core` and `tests/settings_panel` also run on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image. Tests load real production modules through `tests/core/support.py` with the engine stubbed at the import boundary, so avoid importing `BigWorld`, `gui.*` or `Avatar` from code you want to test.
+`tests/runtime` also runs on Python 2.7 in CI; if you have Docker you can reproduce that with the `python:2.7` image and `python -B tests/run_python.py --suite runtime`. Build and artifact suites require Python 3; frontend runs on Node and its schema exporter uses Python 3. Tests load production modules through `tests/support/__init__.py`, with the engine stubbed at the import boundary. Keep portable production logic independent of `BigWorld`, `gui.*` and `Avatar`.
+
+The test tree is organised by responsibility:
+
+| Folder | Scope |
+| --- | --- |
+| `tests/runtime/core` | Portable calculations, statistics, filesystem, hooks and updater |
+| `tests/runtime/settings` | Settings validation, profiles, localisation and controls |
+| `tests/runtime/battle`, `tests/runtime/lobby` | Feature policies and simulated native integrations |
+| `tests/runtime/integration` | Bootstrap, architecture, contracts and engine-free import boundaries |
+| `tests/frontend/settings`, `battle`, `lobby` | JavaScript state, DOM and lifecycle regressions |
+| `tests/build` | Compiler, packaging, installer, media and source resource contracts |
+| `tests/artifacts` | Opt-in validation of actual compiled WOTMOD resources and embedded SWF fonts |
+| `tests/support`, `tests/fixtures` | Shared helpers and synthetic reference data; not tests to discover |
+
+Use `python -B tests/run_python.py --suite runtime --group lobby` for a focused group, `--list` to inspect discovery, or `--suite all` for runtime plus build on Python 3. The runner fails when a selected group has no tests. `npm --prefix build_tools/javascript test` discovers all `test_*.js` files in the three frontend groups; no manual suite list is needed. Run a single frontend file directly with Node when diagnosing a failure.
+
+After a local build, optionally check its actual SWFs and font glyphs:
+
+```sh
+python -B tests/run_python.py --suite artifacts --wotmod build/debug/beta/0.1.4-beta.2/driftkings.wotmod
+```
+
+Use the actual artifact path for the version under review. This suite is deliberately separate from `--suite all` and source CI: it requires a compiled package and fails if the requested package is absent. It does not compile, install, contact a server or prove visual correctness in Scaleform.
+
+Put shared setup in `support`, not in another `test_*` module. Preserve isolation of mocked imports and cleanup of events/callbacks. For critical WG contracts, supply explicit test boundaries that reject unknown attributes; automatic stubs are only an isolation convenience, not API verification. Source-text assertions check structural contracts, not runtime behaviour. DOM doubles do not implement CSS layout or prove that a glyph is visible; record in-game acceptance separately.
 
 Stable `0.1.2` had earlier in-game validation. Stable `0.1.3` uses the tested development sources and package-validation workflow. Its latest marker/font/layout changes still need visual confirmation in game. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
 
-The release baseline has 413 Core tests and 27 settings-panel tests on both Python 2.7 and Python 3, plus 33 installer tests on Python 3 and the Gameface regression suites. Counts describe this baseline, not a fixed requirement for later changes.
+Current verification results are dated in [STATUS.md](docs/STATUS.md). Test counts are evidence of a particular run, not a coverage percentage or a fixed requirement for later changes.
+
+## Local build and client installation
+
+Build tooling runs with Python 3; the compiler needs a Python 2.7 host (or the supported Mercurial host), Java/Flex with the configured libraries, RABCDAsm and the C# compiler for native helpers. Discover and validate local tools with:
+
+```sh
+python -B build_tools/compiler.py --mode debug --channel beta --plan
+python -B build_tools/compiler.py --mode debug --channel beta
+```
+
+Use `--game-root` to override the game installation used as a read-only build input. Tool overrides are listed by `python build_tools/compiler.py --help`; discovery is implemented in `build_tools/toolchain.py`, including `DK_*` environment variables. The native marker lock must match the selected client. Debug artifacts are written to `build/debug/beta/<version>/`; use the build report and the compiler's reported destination rather than an old staging file. Compilation neither installs the mod nor publishes a release.
+
+For a local game test, close the target client, back up its current `mods/<game-version>/driftkings.wotmod`, then copy the newly built WOTMOD there. Verify the copied hash and check dependencies against `build_data/build_config.json`. Install defaults only when missing; do not overwrite personal profiles under `mods/configs/driftkings`. Do not remove unrelated mods. On a client previously using OpenWG Common for this project, quarantine its package and Common-owned caches/configs to a local backup; retain OpenWG Gameface and check whether other installed mods require Common before changing their dependencies.
+
+Restart the client and check `<game-root>/game.log` plus the affected UI/mode. Record what was actually tested; portable tests and a clean log do not establish complete visual acceptance. Local backups and performance captures stay outside tracked sources. Before a release, follow the clean-checkout, signing and publication procedure below; committing/pushing changes does not publish release assets.
 
 ## Signing releases
 

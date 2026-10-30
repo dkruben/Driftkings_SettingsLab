@@ -66,7 +66,7 @@ package driftkings.battle.components.ratings
             if (!dirty && now-lastRender<100) return;
             lastRender=now; dirty=false;
             extra.begin();
-            if (!payload.enabled || !payload.rows.length) { panels.restore(); state.restore(); extra.end(); bindings.clear(); return; }
+            if (!payload.enabled) { panels.restore(); state.restore(); extra.end(); bindings.clear(); return; }
             state.begin();
             panels.begin();
             var checkpoint:int;
@@ -82,7 +82,11 @@ package driftkings.battle.components.ratings
                     ++profiler.scans;
                     profiler.search+=getTimer()-checkpoint;
                 }
-                drawViews();
+                // Visibility produces the Python rows. Discover views even when the
+                // loading screen has closed and no rows are currently requested.
+                reportVisibleScreens();
+                if (payload.rows.length) drawViews();
+                else { panels.restore(); state.restore(); }
             }
             catch(error:Error)
             {
@@ -98,10 +102,8 @@ package driftkings.battle.components.ratings
             profiler.drawn+=panels.drawn; profiler.reused+=panels.reused;
             profiler.finish(now,Boolean(payload.diagnostics),reportPerformance);
         }
-        // Draws every visible view, then reports what changed to Python.
-        private function drawViews():void
+        private function reportVisibleScreens():void
         {
-            tables.matched=0;
             var visiblePanel:Boolean=false,visibleLoading:Boolean=false,visibleTab:Boolean=false;
             for each (var binding:Object in bindings.list)
             {
@@ -109,6 +111,18 @@ package driftkings.battle.components.ratings
                 if (binding.screen=="panel") visiblePanel=true;
                 else if (binding.screen=="tab") visibleTab=true;
                 else visibleLoading=true;
+            }
+            var screens:String=[visiblePanel,visibleLoading,visibleTab].join(",");
+            if (screens!==lastScreens && reportScreens!=null)
+            { lastScreens=screens; reportScreens(visiblePanel,visibleLoading,visibleTab); }
+        }
+        // Draws every visible view, then reports what changed to Python.
+        private function drawViews():void
+        {
+            tables.matched=0;
+            for each (var binding:Object in bindings.list)
+            {
+                if (!viewbindings.showing(binding.owner as DisplayObject)) continue;
                 var checkpoint:int=getTimer();
                 if (binding.screen=="panel")
                 { panels.draw(binding.owner,payload); profiler.panel+=getTimer()-checkpoint; }
@@ -123,9 +137,6 @@ package driftkings.battle.components.ratings
                     profiler.table+=getTimer()-checkpoint;
                 }
             }
-            var screens:String=[visiblePanel,visibleLoading,visibleTab].join(",");
-            if (screens!==lastScreens && reportScreens!=null)
-            { lastScreens=screens; reportScreens(visiblePanel,visibleLoading,visibleTab); }
             var widths:String=panels.widths.join(",");
             if (widths!=lastWidths && reportWidths!=null)
             { lastWidths=widths; reportWidths(panels.widths[0],panels.widths[1]); }

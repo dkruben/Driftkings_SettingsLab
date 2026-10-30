@@ -65,4 +65,4 @@ No README Gameface consultado, WG 2.4.1 utiliza registo nativo `gui/gen_resource
 
 Este guia descreve referências locais de desenvolvimento. Não copiar os SRC, repositórios externos ou snapshots de consulta para `mod/` ou para o GitHub. A versão pública contém apenas documentação Markdown; os ficheiros locais de estudo não são distribuídos. Nenhum destes caminhos constitui uma nova dependência de runtime; o contrato da build continua a ser a fonte de verdade para a compilação.
 
-Atualização de 27 outubro 2026: SWC sincronizados com a referência 2.4.1.5504, alvo 2.4.1.1 e novo hash dos marcadores verificado em EU/NA. [Plano e validação](PLANO_ATUALIZACAO_2_4_1_1.md). Os hashes dos três recursos Gameface usados pelos patches mantêm-se idênticos.
+Atualização de 27 outubro 2026: SWC sincronizados com a referência 2.4.1.5504, alvo 2.4.1.1 e novo hash dos marcadores verificado em EU/NA. [Estado e referências atuais](STATUS.md). Os hashes dos três recursos Gameface usados pelos patches mantêm-se idênticos.

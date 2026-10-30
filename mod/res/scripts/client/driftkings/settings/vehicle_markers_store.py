@@ -2,6 +2,7 @@
 import copy
 import os
 
+from driftkings._constants import VEHICLE_MARKERS
 from driftkings.core.vehicle_markers.config import prepare
 from driftkings.core.vehicle_markers.references import defaults as merge_defaults
 from driftkings.core.vehicle_markers.schema import FILES, join, legacy_general, split
@@ -44,7 +45,7 @@ class VehicleMarkersStore(JsonDocuments):
         if documents is None:
             documents = self.read(FILES)
         selected = join(documents)
-        result = merge_defaults(defaults('vehicle_markers'), dict((key, value) for key, value in selected.items()
+        result = merge_defaults(defaults(VEHICLE_MARKERS.NAME), dict((key, value) for key, value in selected.items()
                                                                  if key == 'enabled' or value))
         prepare(result)
         if any(not os.path.isfile(self.path(name)) for name in FILES):

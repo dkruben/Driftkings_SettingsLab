@@ -36,6 +36,7 @@ package driftkings.vehiclemarkers
 
         public static function damageEnabled(marker:Object, health:int):Boolean
         {
+            if (!VMState.config || !VMState.config.enabled) return false;
             // updateHealth updates HP before the separate destroyed-state event arrives.
             var selected:Object = VMState.profile(marker, health <= 0);
             if (!selected) return false;
@@ -49,6 +50,7 @@ package driftkings.vehiclemarkers
         {
             try
             {
+                if (!VMState.config || !VMState.config.enabled) return;
                 var selected:Object = VMState.profile(marker, newHealth <= 0);
                 if (!selected || !selected.damageText || !model) return;
                 var source:String = flag == 2 ? "player" : flag == 1 ? "squad" : "other";

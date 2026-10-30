@@ -3,23 +3,25 @@
 (function () {
     'use strict';
     var DK = window.DK;
-    var handlers = null, callbackId = null, lastSchema = null, lastState = null, disposed = false;
+    var handlers = null, callbackId = null, lastSchema = null, lastState = null, currentState = null, disposed = false;
 
     function parse(text) { try { return JSON.parse(text || '{}'); } catch (error) { return null; } }
     function read() {
         var model = window.model;
         if (!model || !handlers) { return; }
-        // Only the payload that changed is parsed; the schema rarely changes.
+        var schemaChanged = false, stateChanged = false;
+        // Only changed JSON is parsed; a new schema reuses the latest valid state.
         if (model.schema !== lastSchema) {
             lastSchema = model.schema;
             var schema = parse(lastSchema);
-            if (schema && schema.mods) { handlers.schema(schema); }
+            if (schema && schema.mods) { handlers.schema(schema); schemaChanged = true; }
         }
         if (model.state !== lastState) {
             lastState = model.state;
             var state = parse(lastState);
-            if (state && state.values) { handlers.state(state); }
+            if (state && state.values) { currentState = state; stateChanged = true; }
         }
+        if ((schemaChanged || stateChanged) && currentState) { handlers.state(currentState); }
     }
     function changed(data, indexes, ids) {
         if (disposed || (ids && ids.indexOf && ids.indexOf(callbackId) < 0)) { return; }
@@ -65,7 +67,7 @@
             engine.off('clientResized', resized);
             engine.off('self.onScaleUpdated', resized);
             if (callbackId !== null) { viewEnv.removeDataChangedCallback(callbackId, 0); }
-            handlers = null;
+            handlers = null; currentState = null;
         }
     };
 }());

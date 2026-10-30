@@ -67,7 +67,7 @@
         overlay.addEventListener('mousedown', function (event) { if (event.target === overlay && options.dismissable !== false) { closeModal(entry, 'outside'); } });
         stack.push(entry);
         var first = options.focus || focusables(panel)[0];
-        setTimeout(function () { DK.focus(first); }, 0);
+        entry.focusTimer = setTimeout(function () { entry.focusTimer = null; DK.focus(first); }, 0);
         entry.close = function (reason) { closeModal(entry, reason || 'code'); };
         return entry;
     }
@@ -75,6 +75,7 @@
         var index = stack.indexOf(entry);
         if (index < 0) { return; }
         stack.splice(index, 1);
+        if (entry.focusTimer !== null) { clearTimeout(entry.focusTimer); entry.focusTimer = null; }
         DK.remove(entry.overlay);
         DK.focus(entry.origin);
         if (entry.onClose) { entry.onClose(reason); }

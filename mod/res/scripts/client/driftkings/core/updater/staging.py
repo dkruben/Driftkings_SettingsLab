@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Updater service staging behavior; state is owned by UpdaterService."""
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings.core.updater.shared import LOG
 from driftkings.core.updater.state import AVAILABLE, DOWNLOADING, ERROR, READY, VERIFYING
 
@@ -10,7 +11,7 @@ class StagingMixin(object):
         if (not self.active or self.downloader.busy or not self.state.snapshot()['canDownload'] or
                 self.state.snapshot()['status'] not in (AVAILABLE, ERROR) or manifest is None or
                 not manifest.compatible(getattr(self.api, 'client_version', None)) or
-                not manifest.version.allowed(self.api.get('dk.settings', 'updateChannel', 'stable'))):
+                not manifest.version.allowed(self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))):
             return False
         self._generation += 1
         generation = self._generation
@@ -58,9 +59,9 @@ class StagingMixin(object):
         if self.file_work is not None:
             return self._recover_staging_async()
         try:
-            path = self.installer.recover_ready(getattr(self.api, 'client_version', None), self.api.get('dk.settings', 'updateChannel', 'stable'))
+            path = self.installer.recover_ready(getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
             if path:
-                manifest = self.installer.validate_stage(path, getattr(self.api, 'client_version', None), self.api.get('dk.settings', 'updateChannel', 'stable'))
+                manifest = self.installer.validate_stage(path, getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
                 self._ready_path = path
                 self.checker.selected_manifest = manifest
                 self.state.update(status=READY, latestVersion=manifest.version.text, changelog=list(manifest.changelog), compatible=True, error=None, canDownload=False, canCancel=False, downloadPercent=100)
@@ -75,7 +76,7 @@ class StagingMixin(object):
         self._recovery_busy = True
         generation = self._generation
         client = getattr(self.api, 'client_version', None)
-        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        channel = self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')
         def task():
             path = self.installer.recover_ready(client, channel)
             return (path, self.installer.validate_stage(path, client, channel) if path else None)

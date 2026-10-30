@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Updater service receipts behavior; state is owned by UpdaterService."""
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings.core.updater.shared import LOG
 from driftkings.core.updater.state import AVAILABLE, READY, RESTART_REQUIRED
 
@@ -25,7 +26,7 @@ class ReceiptMixin(object):
         ready = self._ready_path
         cancelled = self._cancel_requested
         client = getattr(self.api, 'client_version', None)
-        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        channel = self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')
         def task():
             before = self.results.proof_signature(ready) if self.results is not None else None
             result = self.installer.result(ready)
@@ -99,14 +100,14 @@ class ReceiptMixin(object):
                         if probe is not None:
                             valid = probe['stageValid']
                         else:
-                            self.installer.validate_stage(self._ready_path, getattr(self.api, 'client_version', None), self.api.get('dk.settings', 'updateChannel', 'stable'))
+                            self.installer.validate_stage(self._ready_path, getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
                     except Exception:
                         valid = False
                         LOG.warning('Cancelled update staging is not eligible for reuse', exc_info=True)
                     self._install_generation += 1
                     self._install_pending = self._install_armed = self._cancel_requested = False
                     manifest = self.checker.selected_manifest
-                    can_download = bool(not valid and manifest is not None and manifest.compatible(getattr(self.api, 'client_version', None)) and manifest.version.allowed(self.api.get('dk.settings', 'updateChannel', 'stable')))
+                    can_download = bool(not valid and manifest is not None and manifest.compatible(getattr(self.api, 'client_version', None)) and manifest.version.allowed(self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')))
                     if not valid:
                         self._ready_path = None
                     self.state.update(status=READY if valid else AVAILABLE, canDownload=can_download, installScheduled=False, cancellingInstall=False, error=None, lastInstallResult=dict(status='cancelled', version=self.state.snapshot()['latestVersion'], error=None))

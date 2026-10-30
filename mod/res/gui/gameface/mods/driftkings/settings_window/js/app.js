@@ -205,7 +205,7 @@
         });
         ui.navEmpty = h('div.dk-nav-empty', null, null, ui.nav);
         page = null;
-        if (state) { onState(state); }
+        // The bridge delivers the matching state once after this schema callback.
     }
     function select(id) {
         if (state && state.selected !== id) { send('select', {mod: id}); }
@@ -237,6 +237,7 @@
     }
     function disposePage() {
         if (!page) { return; }
+        if (page.liveTimer !== null && page.liveTimer !== undefined) { clearTimeout(page.liveTimer); }
         Object.keys(page.controls).forEach(function (id) { page.controls[id].dispose(); });
         if (page.markers) { page.markers.dispose(); }
         if (page.live) { page.live.dispose(); }
@@ -258,7 +259,11 @@
             page.live = live.create(ui.liveHost, mod);
             DK.toggle(ui.window, 'has-live', true);
             // Draw again once the wider column has been laid out.
-            setTimeout(function () { if (page && page.live) { page.live.redraw(); } }, 0);
+            var livePage = page;
+            page.liveTimer = setTimeout(function () {
+                livePage.liveTimer = null;
+                if (!disposed && page === livePage && livePage.live) { livePage.live.redraw(); }
+            }, 0);
         }
         if (!mod) {
             ui.title.textContent = ''; ui.crumb.textContent = ''; ui.description.textContent = '';

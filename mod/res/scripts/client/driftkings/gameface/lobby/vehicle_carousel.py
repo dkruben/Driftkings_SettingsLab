@@ -41,21 +41,39 @@ def get_view_config(config, row_models):
 
 class CarouselController(HangarController):
     def start(self):
+        if self.active:
+            return
+        cache = ServicesLocator.itemsCache
         settings_service.onModSettingsChanged.connect(self.onSettingsChanged, VEHICLE_CAROUSEL)
-        # Dossier synchronization can finish while the hangar view is destroyed.
-        ServicesLocator.itemsCache.onSyncCompleted += self.onItemsSyncCompleted
+        try:
+            # Remember the exact service whose event owns this subscription.
+            cache.onSyncCompleted += self.onItemsSyncCompleted
+        except Exception:
+            settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)
+            raise
+        self._syncCache = cache
+        self.active = True
 
     def stop(self):
-        ServicesLocator.itemsCache.onSyncCompleted -= self.onItemsSyncCompleted
-        settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)
+        if not self.active:
+            return
+        self.active = False
+        try:
+            self._syncCache.onSyncCompleted -= self.onItemsSyncCompleted
+        finally:
+            self._syncCache = None
+            settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)
 
     def onItemsSyncCompleted(self, *args):
+        if not self.active:
+            return
         _component().g_data.invalidate()
         for child in list(self.views.values()):
             child.refresh()
 
     def onSettingsChanged(self, component, changes):
-        self.onApplySettings(changes)
+        if self.active:
+            self.onApplySettings(changes)
 
     def onApplySettings(self, changes=None):
         all_settings = changes is None

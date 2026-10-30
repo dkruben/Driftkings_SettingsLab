@@ -11,7 +11,10 @@ package driftkings.vehiclemarkers
     import flash.geom.Matrix;
     import driftkings.utils.fontlibrary;
     import flash.text.TextField;
+    import flash.text.AntiAliasType;
+    import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
+    import scaleform.gfx.TextFieldEx;
     import flash.utils.Dictionary;
     import flash.utils.getTimer;
 
@@ -50,6 +53,10 @@ package driftkings.vehiclemarkers
             var field:TextField = new TextField();
             // Device lookup also permits the client's font provider and embedded fallback.
             field.embedFonts = false;
+            field.autoSize = TextFieldAutoSize.NONE;
+            field.antiAliasType = AntiAliasType.ADVANCED;
+            TextFieldEx.setNoTranslate(field, true);
+            TextFieldEx.setVerticalAlign(field, TextFieldEx.VALIGN_NONE);
             field.mouseEnabled = field.selectable = false;
             field.width = options.width; field.height = options.height;
             field.x = options.x; field.y = options.y;

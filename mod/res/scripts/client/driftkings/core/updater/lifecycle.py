@@ -2,6 +2,7 @@
 """Updater service lifecycle behavior; state is owned by UpdaterService."""
 import os
 
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings import VERSION
 from driftkings.core.updater.shared import LOG
 from driftkings.core.updater.state import IDLE, RESTART_REQUIRED
@@ -136,7 +137,7 @@ class LifecycleMixin(object):
             self.api.updater = None
 
     def _preferences_changed(self, changes):
-        channel = self.api.get('dk.settings', 'updateChannel', 'stable')
+        channel = self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')
         if channel != self.state.snapshot()['channel']:
             if self._install_pending or self._install_armed:
                 # The staged version already has explicit consent. Preferences

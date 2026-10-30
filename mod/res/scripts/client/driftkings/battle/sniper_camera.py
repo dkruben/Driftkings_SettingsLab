@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from aih_constants import CTRL_MODE_NAME
 from AvatarInputHandler.control_modes import SniperControlMode
 from AvatarInputHandler.DynamicCameras.SniperCamera import SniperCamera
 from helpers.bound_effects import ModelBoundEffects
@@ -10,6 +9,7 @@ from driftkings._constants import GLOBAL, SNIPER_CAMERA
 from driftkings.common.utils.wgutils import getPlayer, isReplay
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
+from driftkings.game_constants import CTRL_MODE_NAME
 from driftkings.settings.definitions.battle.sniper_camera import SniperCameraSettings as Settings
 from driftkings.settings.service import settings_service
 

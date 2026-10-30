@@ -35,7 +35,7 @@
         var mark = node('span', '', 'check-box');
         control.appendChild(mark); control.appendChild(node('span', text, 'check-label'));
         control.setAttribute('role', 'checkbox'); control.setAttribute('aria-label', text);
-        function update() { mark.textContent = checked ? '\u2713' : ''; control.setAttribute('aria-checked', String(checked)); }
+        function update() { mark.className = 'check-box' + (checked ? ' checked' : ''); control.setAttribute('aria-checked', String(checked)); }
         update(); return control;
     }
     function tooltip(show, title, description) {
@@ -87,7 +87,10 @@
     function layout() {
         if (disposed || !current) { return; }
         var size = dimensions();
+        document.body.className = current.launcher ? '' : 'modal';
         root.style.width = size[0] + 'rem'; root.style.height = size[1] + 'rem';
+        // The modal owns the client area; never shrink its native viewport to the panel.
+        if (!current.launcher) { return; }
         if (frame !== null) { cancelAnimationFrame(frame); }
         // Wulf must receive the size after the document has laid out, not before
         // inserting the content. A fixed root avoids a circular 100% viewport size.
@@ -121,6 +124,7 @@
         if (data.editing) { editForm(panel, data, error); }
         else { draft = null; accountList(panel, data); }
         root.appendChild(panel); layout();
+        root.tabIndex = -1; root.focus();
     }
     function serverPicker(servers, value, change) {
         var wrapper = node('div', undefined, 'picker'), selected = value, menu = node('div', undefined, 'options hidden');
@@ -164,8 +168,16 @@
         }
         var title = field(labels.name, 'text', draft.title, 'title');
         var email = field(labels.email, 'text', draft.email, 'email');
-        var password = field(labels.password, 'password', '');
-        form.appendChild(checkbox(labels.showPassword, false, function (value) { password.type = value ? 'text' : 'password'; }));
+        var revealed = typeof account.password === 'string';
+        var password = field(labels.password, revealed ? 'text' : 'password', revealed ? account.password : '');
+        if (account.id) { password.placeholder = '********'; }
+        form.appendChild(checkbox(labels.showPassword, revealed, function (value) {
+            if (value && account.id && !password.value && !revealed) {
+                send('revealPassword');
+            } else {
+                password.type = value ? 'text' : 'password';
+            }
+        }));
         if (account.id) { form.appendChild(node('div', labels.keepPassword, 'hint')); }
         var serverField = node('div', undefined, 'field');
         serverField.appendChild(node('div', labels.server, 'field-label'));
@@ -247,7 +259,7 @@
         engine.off('self.onLoaded', layout);
         if (callbackId !== null) { viewEnv.removeDataChangedCallback(callbackId, 0); }
         draft = null; formSave = null; current = null; root.textContent = '';
-        window.removeEventListener('keydown', keydown); window.removeEventListener('unload', dispose);
+        window.removeEventListener('keydown', keydown, true); window.removeEventListener('unload', dispose);
     }
     engine.whenReady.then(function () {
         if (disposed) { return; }
@@ -257,5 +269,5 @@
         engine.on('self.onLoaded', layout);
         render();
     });
-    window.addEventListener('keydown', keydown); window.addEventListener('unload', dispose);
+    window.addEventListener('keydown', keydown, true); window.addEventListener('unload', dispose);
 }());

@@ -96,7 +96,8 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
             ranges.update(vehicleClass=self._vehicleClass, vehicleNames=names)
             self._publishRanges()
         limits = info.vehicleType.turretYawLimits
-        extended = settings_service.getComponentDict(config)[GLOBAL.ENABLED] and settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.YAW]
+        settings = settings_service.getComponentDict(config)
+        extended = settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.YAW]
         updated = (degrees(limits[0]), degrees(limits[1])) if limits is not None and (extended or info.isSPG()) else None
         if updated != self.__yawLimits:
             self.__clearYawLimit()
@@ -383,21 +384,23 @@ class ArenaVehiclesPlugin(plugins.ArenaVehiclesPlugin):
         values = dict(vehicle=info.getDisplayedName(), name=info.player.name, level=info.vehicleType.level,
                       type=info.vehicleType.classTag, state=state, group=group, lostSeconds=age)
         values.update(policy.health_values(current, maximum))
-        text = policy.label(settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LABELS], values, controller.minimapZoom)
-        if state == 'dead' and not settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.SHOW_NAMES]:
+        settings = settings_service.getComponentDict(config)
+        lost_style = settings[MINIMAP_ENHANCEMENTS.LOST_MARKER]
+        text = policy.label(settings[MINIMAP_ENHANCEMENTS.LABELS], values, controller.minimapZoom)
+        if state == 'dead' and not settings[MINIMAP_ENHANCEMENTS.SHOW_NAMES]:
             text = ''
-        if state == 'lost' and settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LOST_MARKER]['showSeconds']:
+        if state == 'lost' and lost_style['showSeconds']:
             text += ' [%ss]' % age
         opacity = 100
-        if state == 'lost' and settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LOST_MARKER]['fade']:
-            minimum = settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LOST_MARKER]['minimumAlpha']
+        if state == 'lost' and lost_style['fade']:
+            minimum = lost_style['minimumAlpha']
             # Permanent markers fade over a minute, then stay at the minimum opacity.
-            window = settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LAST_POSITION_DURATION] or 60
+            window = settings[MINIMAP_ENHANCEMENTS.LAST_POSITION_DURATION] or 60
             opacity = max(minimum, 100 - (100 - minimum) * age / float(max(1, window)))
         payload = dict(id=vehicleID, text=text, group=group, guiLabel=gui, state=state, hp=values['hp'],
                        percent=values['hpPercent'], alpha=opacity,
-                       color=policy.marker_color(group, state, settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LOST_MARKER]),
-                       lostColor=policy.lost_color(group, settings_service.getComponentDict(config)[MINIMAP_ENHANCEMENTS.LOST_MARKER]))
+                       color=policy.marker_color(group, state, lost_style),
+                       lostColor=policy.lost_color(group, lost_style))
         if self._presentations.get(vehicleID) == payload:
             return
         self._presentations[vehicleID] = payload

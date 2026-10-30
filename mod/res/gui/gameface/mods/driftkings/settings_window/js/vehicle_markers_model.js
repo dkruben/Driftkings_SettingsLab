@@ -272,7 +272,9 @@
                     result.markers[team][state][mode]={vehicleName:false,playerName:false,hp:'hidden',healthBar:false,
                         vehicleIcon:!!(options.contourIcon || {}).enabled,levelIcon:!!(options.levelIcon || {}).enabled,damage:true};
                     if (!enabled) { return; }
-                    var fields=(options.textFields || []).filter(function (item) { return item && typeof item==='object'; }).map(function (item) { return textField(item,[140,100]); });
+                    var fields=(options.textFields || []).filter(function (item) { return item && typeof item==='object'; }).map(function (item) {
+                        var field=textField(item,[140,100]); field.y+=get(raw.markers,'textFieldsOffsetY',0); return field;
+                    });
                     if ((options.vehicleDist || {}).enabled) {
                         var distance=textField(options.vehicleDist,[100,100],'{{alive&&distance?{{distance}}m|}}'); distance.name='Vehicle distance'; fields.push(distance);
                     }

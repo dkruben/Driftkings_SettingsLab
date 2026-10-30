@@ -147,8 +147,9 @@ package driftkings.battle.components.minimap
                 arrowColor.color = colorutils.parse(options.icons.selfColor);
                 point.arrowPlaceholder.transform.colorTransform = arrowColor;
             }
-            lines.line(point.sectorLeft, options, options.lines.sectorColor);
-            lines.line(point.sectorRight, options, options.lines.sectorColor);
+            // Native sector art points down (+y); our geometry points up (-y).
+            lines.line(point.sectorLeft, options, options.lines.sectorColor, false, 100, Math.PI);
+            lines.line(point.sectorRight, options, options.lines.sectorColor, false, 100, Math.PI);
             lines.hull(point, options);
         }
 

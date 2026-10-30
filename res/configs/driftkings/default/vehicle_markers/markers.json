@@ -1,21 +1,9 @@
 {
   "markers": {
     "enabled": true,
-    "debug": false,
-    "colorRating": 0,
-    "ratingType": "wn8",
     "turretMarkers": {
       "highVulnerability": "*",
       "lowVulnerability": "'"
-    },
-    "colors": {
-      "colorBlind": {
-        "enabled": true,
-        "team": {
-          "enemy": "#C48CFF",
-          "teamKiller": "#66CCFF"
-        }
-      }
     },
     "ally": {
       "alive": {
@@ -36,6 +24,10 @@
         "normal": "${markersDeadNormal.json:enemy}",
         "extended": "${markersDeadExtended.json:enemy}"
       }
-    }
+    },
+    "debug": false,
+    "colorRating": 0,
+    "ratingType": "wn8",
+    "textFieldsOffsetY": -15.5
   }
 }

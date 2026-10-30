@@ -2,19 +2,20 @@
 """Read-only battle context queries; no subscriptions, hooks or module rules."""
 import sys
 
+from driftkings._constants import STATISTICS_BATTLES
 from driftkings.core.mod_compatibility import read
 from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.BattleCapabilities')
-# Battles that update the account statistics: random battles, including the
-# bot-filled ones for new (RANDOM_NP2) and returning (WINBACK) players.
-STATISTICS_BATTLES = ('REGULAR', 'RANDOM_NP2', 'WINBACK')
 # Everything else outside this list is an event mode (Halloween, Last Stand,
 # Fort Rush, Fun Random, Battle Royale, Story Mode, client extensions...).
 STANDARD_BATTLES = STATISTICS_BATTLES + (
     'EPIC_RANDOM', 'EPIC_RANDOM_TRAINING', 'EPIC_BATTLE', 'EPIC_BATTLE_TRAINING', 'TRAINING', 'MAPS_TRAINING',
     'MAPBOX', 'TOURNAMENT', 'TOURNAMENT_REGULAR', 'TOURNAMENT_CLAN', 'CLAN', 'CYBERSPORT', 'GLOBAL_MAP',
     'SORTIE_2', 'FORT_BATTLE_2', 'RANKED', 'COMP7', 'TOURNAMENT_COMP7', 'TRAINING_COMP7', 'COMP7_LIGHT')
+# The halloween extension injects these names into ARENA_BONUS_TYPE at start-up.
+# The values are the fallback when a name is missing from the enum.
+HALLOWEEN_BATTLES = (('HALLOWEEN', 101), ('HALLOWEEN_MEDIUM', 102), ('HALLOWEEN_HARD', 103))
 
 
 def call(obj, name, *args):
@@ -74,6 +75,13 @@ class BattleCapabilities(object):
     def is_comp7(self):
         return self.is_in_battle() and self._match('ARENA_BONUS_TYPE', self._bonus(), ('COMP7', 'TOURNAMENT_COMP7', 'TRAINING_COMP7', 'COMP7_LIGHT'))
 
+    def is_halloween(self):
+        if not self.is_in_battle():
+            return False
+        value = self._bonus()
+        enum = read(self.modules.get('constants'), 'ARENA_BONUS_TYPE')
+        return value is not None and any(value == read(enum, name, default) for name, default in HALLOWEEN_BATTLES)
+
     def is_regular(self):
         # Economy/marks rules require REGULAR, not the wider RANDOM_RANGE.
         return self.is_in_battle() and self._match('ARENA_BONUS_TYPE', self._bonus(), ('REGULAR',))
@@ -120,7 +128,7 @@ class BattleCapabilities(object):
             self._match('ARENA_BONUS_TYPE', self._bonus(), ('EVENT_BATTLES', 'EVENT_BATTLES_2', 'EVENT_RANDOM', 'TOURNAMENT_EVENT')))
 
     def is_special(self):
-        return self.current_mode() in ('comp7', 'frontline', 'event', 'white_tiger', 'special')
+        return self.current_mode() in ('comp7', 'frontline', 'event', 'white_tiger', 'halloween', 'special')
 
     def is_spg(self):
         if not self.is_in_battle():
@@ -136,6 +144,8 @@ class BattleCapabilities(object):
             except Exception:
                 in_hangar = False
             mode = 'hangar' if in_hangar else 'unknown'
+        elif self.is_halloween():
+            mode = 'halloween'
         elif self.is_white_tiger():
             mode = 'white_tiger'
         elif self.is_comp7():
@@ -195,6 +205,7 @@ is_comp7 = battle_capabilities.is_comp7
 is_frontline = battle_capabilities.is_frontline
 is_replay = battle_capabilities.is_replay
 is_event = battle_capabilities.is_event
+is_halloween = battle_capabilities.is_halloween
 is_white_tiger = battle_capabilities.is_white_tiger
 is_special = battle_capabilities.is_special
 is_spg = battle_capabilities.is_spg

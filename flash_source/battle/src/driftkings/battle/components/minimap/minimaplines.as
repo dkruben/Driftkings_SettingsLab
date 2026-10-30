@@ -29,7 +29,7 @@ package driftkings.battle.components.minimap
         }
 
         // opacity: extra factor in 0..100 (the camera line's own opacity).
-        public function line(target:DisplayObject, options:Object, color:String, withMarks:Boolean = false, opacity:Number = 100):void
+        public function line(target:DisplayObject, options:Object, color:String, withMarks:Boolean = false, opacity:Number = 100, rotationOffset:Number = 0):void
         {
             if (!target) return;
             var lines:Object = options.lines;
@@ -47,8 +47,9 @@ package driftkings.battle.components.minimap
                 var shape:Sprite = stored.shape;
                 // Copy position and rotation only: a scaled native placeholder
                 // must not stretch a line measured in metres.
-                var m:Matrix = target.transform.matrix, angle:Number = Math.atan2(m.b, m.a);
-                shape.transform.matrix = new Matrix(Math.cos(angle), Math.sin(angle), -Math.sin(angle), Math.cos(angle), m.tx, m.ty);
+                var m:Matrix = target.transform.matrix, angle:Number = Math.atan2(m.b, m.a) + rotationOffset;
+                var cosine:Number = Math.cos(angle), sine:Number = Math.sin(angle);
+                shape.transform.matrix = new Matrix(cosine, sine, -sine, cosine, m.tx, m.ty);
                 shape.visible = target.visible;
                 var length:Number = scale.metres(shape, Number(lines.length));
                 var step:Number = marks ? scale.metres(shape, Number(lines.marks)) : 0;

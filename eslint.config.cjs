@@ -33,7 +33,8 @@ module.exports = [
         files: ["mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
             "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
             "mod/res/gui/gameface/mods/driftkings/panel_gameface/rating_rows.js",
-            "mod/res/gui/gameface/mods/driftkings/panel_gameface/rating_text.js"],
+            "mod/res/gui/gameface/mods/driftkings/panel_gameface/rating_text.js",
+            "mod/res/gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js"],
         languageOptions: { globals: { module: "readonly" } }
     }
 ];
