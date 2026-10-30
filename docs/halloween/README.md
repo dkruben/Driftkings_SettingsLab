@@ -2,7 +2,7 @@
 
 Moved from `docs/PLANO_HALLOWEEN.md`, translated and condensed on 2026-10-30; the full option analysis remains in the Git history.
 
-Integrated in `develop` and stable 0.1.4 (originally `feature/halloween-mode-adapters`). The TAB name colours were accepted in game on 2026-10-30 (NA `2.4.1.1 #987`); the remaining checks are listed under [Pending in-game validation](#pending-in-game-validation).
+Integrated in `develop` and stable 0.1.4 (originally `feature/halloween-mode-adapters`). All in-game checks were accepted on 2026-10-30 (NA `2.4.1.1 #987`); see [In-game acceptance](#in-game-acceptance).
 
 ## Scope
 
@@ -56,13 +56,13 @@ The NA log of 28 October 2026 showed `TypeError: style.getPropertyPriority is no
 
 ## In-game acceptance
 
-- 2026-10-30, NA `2.4.1.1 #987`: the maintainer confirmed that the native Halloween TAB names receive the configured rating colours. The same behaviour is reported for EU and ASIA clients of the same version, without a separately recorded test.
+2026-10-30, NA `2.4.1.1 #987`. The maintainer confirmed every check below in game; the log of the development build from `a7eda3a` (0.1.5-beta.1) records a complete Halloween battle with no Driftkings warnings, errors or tracebacks. EU and ASIA clients of the same version are reported to behave the same, without a separately recorded test.
 
-## Pending in-game validation
-
+- The native Halloween TAB names receive the configured rating colours; no extra panel appears, names without statistics stay intact, event data (damage, kills, anomalies) is unchanged, and original colours return when the TAB closes or is disabled.
 - The native Halloween panel shows no mod text on top and no mode changes (`medium2`/`large`).
-- The log shows `Team panels: mode=halloween supported=tab`, `Gameface roster watching halloween.gui.impl.battle.full_stats.TabScreen` and, when the TAB opens, `Gameface roster attached: tab (halloween)`.
-- In the Halloween TAB no extra panel appears, names without statistics stay intact, event data (damage, kills, anomalies) is unchanged, and original colours return when the TAB closes or is disabled.
+- The log shows `mode=halloween`, `Team panels: mode=halloween supported=tab`, `Gameface roster watching halloween.gui.impl.battle.full_stats.TabScreen` and, when the TAB opens, `Gameface roster attached: tab (halloween)`. Statistics-dependent features (marks of excellence, battle statistics, High Caliber) stay disabled with `requires_statistics_battle`, and markers keep the native `HalloweenMarkersManager` presentation.
 - The Halloween loading screen matches the native one.
 - Random battles are unchanged (panel, loading and TAB).
 - Other modes (comp7, frontline, training, events) keep their native views without the mod roster.
+
+The two `minWidth` warnings logged by `coui://halloween/.../lib.js` on the battle results screen come from the native event UI, not from the mod.

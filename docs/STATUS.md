@@ -74,6 +74,14 @@ O utilizador testou no cliente NA `2.4.1.1 #987` a build de desenvolvimento post
 
 O utilizador indica comportamento igual nos clientes EU e ASIA da mesma versão; não foi registado um teste separado nesses clientes. A validação não abrange as restantes pendências abaixo.
 
+### Build limpa de `a7eda3a` instalada no NA
+
+A build debug `0.1.5-beta.1` de `a7eda3a` (imports ordenados, builds reproduzíveis e helpers C# compilados com Roslyn `/deterministic`) foi instalada no NA com backup em `build/local-backups/wotmod-20261030T021346/`. O `game.log` regista três arranques com 35 componentes e 13 serviços ativos, `failures=[]`, sem tracebacks nem avisos/erros do Driftkings.
+
+- **Nevoeiro:** o helper compilado com Roslyn desligou e voltou a ligar o nevoeiro com reinício coordenado (`2.4.1.1:ok:off` e `2.4.1.1:ok:on`).
+- **Halloween:** batalha completa com `mode=halloween`, TAB anexado e regresso ao hangar; o utilizador confirmou todas as verificações do [guia Halloween](halloween/README.md#in-game-acceptance).
+- **Por confirmar:** o `UpdateInstaller.exe` (só corre quando houver uma versão mais recente para instalar) e o `WindowsFiles.exe` (não usado nesta sessão).
+
 ## Alterações e validação de 29 de outubro
 
 - **Fontes:** OpenWG Common e o pacote Python `driftkings.fonts` foram retirados. As fontes são incorporadas/registadas nos dois SWF e carregadas por `@font-face` no Gameface; preservar `dkm`, `DriftkingsFont` e as fontes nativas; os aliases antigos foram retirados em 2026-10-30. OpenWG Gameface permanece como dependência separada, juntamente com ModsList.
@@ -85,7 +93,8 @@ O utilizador indica comportamento igual nos clientes EU e ASIA da mesma versão;
 ### Pendências e limites atuais
 
 - O painel de configurações continua em construção; a validação do Account Manager não valida todas as páginas, previews, perfis e falhas de gravação.
-- A aceitação visual das cores dos nomes no TAB Halloween foi confirmada em 2026-10-30 (NA `2.4.1.1 #987`); os restantes pontos do [guia Halloween](halloween/README.md#pending-in-game-validation) continuam por confirmar.
+- O modo Halloween foi aceite no jogo em 2026-10-30 (NA `2.4.1.1 #987`): TAB, painel, carregamento, log e restantes modos; ver o [guia Halloween](halloween/README.md#in-game-acceptance).
+- Os helpers `UpdateInstaller.exe` e `WindowsFiles.exe`, agora compilados com Roslyn, ainda não foram exercitados no jogo.
 - Medições comparáveis de FPS/CPU/memória e a matriz completa de modos/replay/estados dos marcadores continuam por realizar; não atribuir ganhos quantitativos sem medição.
 - Os riscos históricos de aplicação/gravação parcial, normalização externa e invalidação de estatísticas permanecem na [auditoria final](AUDITORIA_FINAL_INTEGRACAO.md). Essa auditoria é datada: a frase final «sem commit nem push» descreve o momento da auditoria, anterior à integração `202f476`.
 
