@@ -19,12 +19,11 @@ from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.core.accounts import AccountError, AccountService
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event
+from driftkings.flash.lobby.login import fill_credentials, install_login_hooks, launcher_position, prepare_login
 from driftkings.i18n import catalog
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.settings.settings_data import defaults
-
-from driftkings.flash.lobby.login import fill_credentials, install_login_hooks, launcher_position, prepare_login
 
 LOG = get_logger('Driftkings.AccountManager')
 

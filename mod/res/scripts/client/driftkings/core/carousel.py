@@ -3,8 +3,8 @@
 import math
 import re
 
-from driftkings.settings.settings_data import defaults as component_defaults
 from driftkings.common.utils.compat import string_types, text_type
+from driftkings.settings.settings_data import defaults as component_defaults
 
 FIELD_NAMES = ('flag', 'tankIcon', 'tankType', 'level', 'xp', 'tankName', 'info', 'favorite', 'progressionPoints', 'infoImg', 'rentInfo', 'crystalsIcon', 'coreBorder')
 ALIASES = {'tdb': 'avgDamage', 'winrate': 'winRate', 't_battles': 'battles', 'damageRating': 'marks', 'name': 'vehicle', 'tier': 'level', 'tfb': 'avgFrags', 'hitsRatio': 'hitRate', 'markOfMastery': 'mastery'}

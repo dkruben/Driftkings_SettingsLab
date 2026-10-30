@@ -9,11 +9,11 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 from driftkings import VERSION
+from driftkings.common.utils.compat import string_types
 from driftkings.common.utils.filesystem import file_sha256 as digest
 from driftkings.core.updater.downloader import safe_directory, validate_download, validate_package
 from driftkings.core.updater.manifest import bounded_json, Manifest, MAX_MANIFEST
 from driftkings.core.updater.versioning import normalize_game_version, Version
-from driftkings.common.utils.compat import string_types
 
 HELPER_RESOURCE = 'gui/driftkings/updater/Driftkings.UpdateInstaller.exe'
 INFO_RESOURCE = 'gui/driftkings/updater/helper.json'

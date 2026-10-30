@@ -3,10 +3,10 @@
 import json
 import re
 
+from driftkings.common.utils.compat import integer_types, string_types
 from driftkings.core.updater.endpoints import official_release_url
 from driftkings.core.updater.inventory import Inventory
 from driftkings.core.updater.versioning import game_key, normalize_game_version, Version
-from driftkings.common.utils.compat import integer_types, string_types
 
 MAX_MANIFEST = 64 * 1024
 MAX_PACKAGE = 64 * 1024 * 1024

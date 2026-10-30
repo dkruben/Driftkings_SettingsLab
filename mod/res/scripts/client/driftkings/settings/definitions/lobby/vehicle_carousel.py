@@ -3,13 +3,13 @@ import re
 
 from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
 from driftkings.common.utils.colorratting import color_tables
+from driftkings.common.utils.compat import string_types
 from driftkings.core import carousel as layout
 from driftkings.settings.controls_schema import caption, control
 from driftkings.settings.controls_schema import field as nested_field
 from driftkings.settings.controls_schema import options
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_carousel_store import CarouselStore, FILES
-from driftkings.common.utils.compat import string_types
 
 
 class VehicleCarouselSettings(SectionDefinition):

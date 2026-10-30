@@ -10,8 +10,8 @@ import re
 
 from driftkings._constants import VEHICLE_MARKERS
 from driftkings.common.utils.compat import string_types
-from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
 from driftkings.core.vehicle_markers.fields import number
+from driftkings.core.vehicle_markers.layouts import MODES, STATES, TEAMS
 from driftkings.core.vehicle_markers.references import resolve
 
 STATE_KEYS = VEHICLE_MARKERS.STATE_KEYS

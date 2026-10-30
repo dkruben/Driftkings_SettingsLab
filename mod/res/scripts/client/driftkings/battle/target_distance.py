@@ -4,10 +4,10 @@ from gui.Scaleform.daapi.view.battle.shared.markers2d.vehicle_plugins import Veh
 
 from driftkings._constants import GLOBAL
 from driftkings.core.hooks import override
+from driftkings.flash.battle.target_distance import ALIAS, DistanceMarkerController, DistanceMarkerView
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.target_distance import TargetDistanceSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.flash.battle.target_distance import ALIAS, DistanceMarkerController, DistanceMarkerView
 
 LOG = get_logger('driftkings.battle.target_distance')
 

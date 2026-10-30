@@ -2,8 +2,8 @@
 """Updater service lifecycle behavior; state is owned by UpdaterService."""
 import os
 
-from driftkings._constants import SETTINGS_MOD_ID
 from driftkings import VERSION
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings.core.updater.shared import LOG
 from driftkings.core.updater.state import IDLE, RESTART_REQUIRED
 

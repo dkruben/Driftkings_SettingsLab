@@ -19,12 +19,12 @@ from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event, override
 from driftkings.core.wnx import calculate as calculate_wnx
 from driftkings.core.wnx import get_expected as get_wnx_expected
+from driftkings.flash.battle.battle_performance import _startFlash
+from driftkings.gameface.lobby.battle_performance import install_results_gameface
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.stats.vehinfo import calculateXTE, calculateRatingScale, getVehicleInfoData
-from driftkings.flash.battle.battle_performance import _startFlash
-from driftkings.gameface.lobby.battle_performance import install_results_gameface
+from driftkings.stats.vehinfo import calculateRatingScale, calculateXTE, getVehicleInfoData
 
 LOG = get_logger('Driftkings.BattleEfficiency')
 _results_views = weakref.WeakKeyDictionary()

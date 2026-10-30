@@ -6,7 +6,7 @@ config = ProfileRatingsSettings()
 
 
 def init():
-    from driftkings.gameface.lobby.profile_ratings import install
     from driftkings.flash.lobby.profile_statistics import install as install_statistics
+    from driftkings.gameface.lobby.profile_ratings import install
     install()
     install_statistics()

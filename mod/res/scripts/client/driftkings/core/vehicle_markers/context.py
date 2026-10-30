@@ -9,9 +9,9 @@ _positions = {'arena': None, 'values': {}}
 def team_order(arena, team):
     """Vehicle ids of one team in the client's player-panel order (WG sort key)."""
     try:
+        from gui.battle_control.arena_info import vos_collections
         from helpers import dependency
         from skeletons.gui.battle_session import IBattleSessionProvider
-        from gui.battle_control.arena_info import vos_collections
         provider = dependency.instance(IBattleSessionProvider).getArenaDP()
         collection = vos_collections.AllyItemsCollection() if provider.isAllyTeam(team) else vos_collections.EnemyItemsCollection()
         return list(collection.ids(provider))

@@ -4,7 +4,7 @@ import copy
 import os
 
 from driftkings._constants import TEAM_PANELS
-
+from driftkings.common.utils.compat import string_types
 from driftkings.core.keycodes import valid_key_code
 from driftkings.logger import get_logger
 from driftkings.settings.panel_validation import macro_issues
@@ -12,7 +12,6 @@ from driftkings.settings.settings_data import defaults as component_defaults
 from driftkings.settings.settings_data import PROFILES
 from driftkings.settings.store import JsonDocuments, merge
 from driftkings.settings.store import read_object as read_json
-from driftkings.common.utils.compat import string_types
 
 FILES = ('general.json', 'playerspanel.json', 'battleloading.json', 'statisticform.json') + tuple('panel%s.json' % name.lower() for name in PROFILES)
 GENERAL = ('schemaVersion', 'enabled', 'statsEnabled', 'colorScale', 'rating', 'performance', 'hpEnabled', 'hpVisibility', 'hpKey', 'spottedEnabled')

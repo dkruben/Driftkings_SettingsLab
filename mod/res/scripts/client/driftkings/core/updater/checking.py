@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Updater service checking behavior; state is owned by UpdaterService."""
-from driftkings._constants import SETTINGS_MOD_ID
 from driftkings import VERSION
+from driftkings._constants import SETTINGS_MOD_ID
 from driftkings.core.updater.shared import INTERVAL, LOG
 from driftkings.core.updater.state import AVAILABLE, CHECKING, ERROR, IDLE, INSTALLING, READY, RESTART_REQUIRED
 

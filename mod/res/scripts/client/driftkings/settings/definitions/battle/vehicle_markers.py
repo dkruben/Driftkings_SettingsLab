@@ -9,7 +9,6 @@ from driftkings.settings.controls_schema import field
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_markers_store import VehicleMarkersStore
 
-
 # Sample vehicle for the marker preview. The client's vehicle cache supplies the live values; these come from
 # res/scripts/item_defs/vehicles/usa (list.xml: tier 8 heavyTank; A12_T32.xml: hull 1320 + top turret 330 HP).
 SAMPLE_VEHICLE = {'name': 'usa:A12_T32', 'vehicle': 'T32', 'level': 8, 'vtype': 'heavyTank', 'maxHp': 1650}

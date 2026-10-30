@@ -29,6 +29,7 @@ def carousel_preview(selected, values):
         return None
     try:
         import hashlib
+
         from driftkings.lobby.vehicle_carousel import g_data
         palette_id = 'field_' + hashlib.sha1(b'colorRating').hexdigest()[:16]
         return g_data.preview_cards(values.get(selected, {}).get(palette_id, 0))

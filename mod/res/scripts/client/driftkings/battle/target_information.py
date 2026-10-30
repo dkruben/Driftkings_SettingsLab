@@ -13,10 +13,10 @@ from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.gun_stats import damage_per_minute, reload_with_equipment
 from driftkings.core.vehicle_images import resolve_vehicle_images
+from driftkings.flash.battle.target_information import Flash
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.target_information import TargetInformationSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.flash.battle.target_information import Flash
 
 COMPARE_MACROS = ['compareDelim', 'compareColor']
 ROMAN_LEVELS = ROMAN_NUMERALS

@@ -21,10 +21,10 @@ from driftkings.core.callbacks import callback
 from driftkings.core.hooks import on_event, override, overrideClassMethod, overrideMethod
 from driftkings.core.introspection import find_attr_name
 from driftkings.core.settings_controller import SettingsController
+from driftkings.gameface.lobby.hangar_preferences import install_header_options
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.gameface.lobby.hangar_preferences import install_header_options
 
 LOG = get_logger('driftkings.lobby.hangar_preferences')
 
@@ -282,7 +282,9 @@ def fini():
 # Import registers the presentation hooks with the current component owner.
 
 from driftkings.gameface.lobby.native_preferences import install as install_native_preferences
+
 install_native_preferences(config, _overrideIfAvailable)
 
 from driftkings.flash.lobby.native_preferences import install as install_flash_preferences
+
 install_flash_preferences(config, _overrideIfAvailable, LOG)

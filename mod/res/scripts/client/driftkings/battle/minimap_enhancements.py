@@ -105,4 +105,5 @@ def fini():
     controller.dispose()
 
 from driftkings.flash.battle.minimap_plugins import configure
+
 configure(config, controller, PERSONAL, VEHICLES, VIEWS)

@@ -3,7 +3,6 @@
 import copy
 
 from driftkings._constants import VEHICLE_MARKERS
-
 from driftkings.core.vehicle_markers.colors import normalize as normalize_colors
 from driftkings.core.vehicle_markers.colors import palette
 from driftkings.core.vehicle_markers.damage import normalize as normalize_damage

@@ -4,11 +4,11 @@ from gui.battle_control.controllers.personal_efficiency_ctrl import (_AGGREGATED
 from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
 
 from driftkings._constants import ENEMY_SPOTTING_STATUS, GLOBAL
-from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event
 from driftkings.core.vehicle_images import resolve_vehicle_images
+from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.game_constants import ASSIST_EVENTS, BATTLE_EVENT_TYPE
 from driftkings.settings.definitions.battle.enemy_spotting_status import EnemySpottingStatusSettings as Settings
 from driftkings.settings.service import settings_service

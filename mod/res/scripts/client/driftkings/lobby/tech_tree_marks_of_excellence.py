@@ -9,11 +9,11 @@ from gui.shared.personality import ServicesLocator
 from driftkings._constants import GLOBAL, TECH_TREE_MARKS_OF_EXCELLENCE
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.settings_controller import SettingsController
+from driftkings.gameface.lobby.tech_tree_marks_of_excellence import install
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.tech_tree_marks_of_excellence import \
     TechTreeMarksOfExcellenceSettings as Settings
 from driftkings.settings.service import affects, settings_service
-from driftkings.gameface.lobby.tech_tree_marks_of_excellence import install
 
 LOG = get_logger('Driftkings.MarksOnGunTechTree')
 _views = weakref.WeakKeyDictionary()

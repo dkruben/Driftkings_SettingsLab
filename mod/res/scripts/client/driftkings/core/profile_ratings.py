@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Account WN8 from random-battle dossier totals and weighted expectations."""
-import math
 from collections import namedtuple
+import math
 
 from driftkings._constants import WN8_EXPECTED_FIELDS
 

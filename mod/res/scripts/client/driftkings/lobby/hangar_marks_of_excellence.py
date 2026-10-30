@@ -403,7 +403,7 @@ g_data = MarksOnGunData()
 
 
 from driftkings.gameface.lobby.hangar_marks_of_excellence import (get_view_config, install_gameface,
-                                                                MarksOnGunHangarController)
+                                                                  MarksOnGunHangarController)
 
 
 @override(MarkOnGunAchievement, 'getUserCondition')

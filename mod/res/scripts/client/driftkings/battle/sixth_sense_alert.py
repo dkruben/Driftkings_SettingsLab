@@ -11,9 +11,9 @@ from driftkings.common.utils.chat import sendChatMessage
 from driftkings.common.utils.wgutils import getPlayer, square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.hooks import override
+from driftkings.flash.battle.sixth_sense_alert import set_native_visible, SixthSense
 from driftkings.settings.definitions.battle.sixth_sense_alert import SixthSenseAlertSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.flash.battle.sixth_sense_alert import SixthSense, set_native_visible
 
 AS_BATTLE = BATTLE_ALIASES.SIXTH_SENSE_ALERT
 config = Settings()

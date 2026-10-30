@@ -27,11 +27,11 @@ from driftkings.common.utils.wgutils import getPlayer, isReplay, square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.fog_package import FogPackageController
 from driftkings.core.hooks import override
+from driftkings.flash.battle.debug_panel import DebugPanelView
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings as Settings
 from driftkings.settings.service import settings_service
 from driftkings.ui import g_events
-from driftkings.flash.battle.debug_panel import DebugPanelView
 
 LOG = get_logger('driftkings.battle.battle_preferences')
 
@@ -264,4 +264,5 @@ def fini():
 
 
 from driftkings.flash.battle.preferences_hooks import install as install_flash_preferences
+
 install_flash_preferences(config, _getAttackerName)

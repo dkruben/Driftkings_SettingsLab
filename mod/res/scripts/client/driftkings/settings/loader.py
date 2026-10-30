@@ -7,11 +7,11 @@ import re
 import shutil
 import tempfile
 
+from driftkings.common.utils.compat import number_types, string_types
 from driftkings.logger import get_logger
 from driftkings.settings.default_values import SELECTOR
 from driftkings.settings.settings_data import part_name, SettingsData, user_settings
 from driftkings.settings.store import merge, read_object, recover_file, SettingsStore
-from driftkings.common.utils.compat import number_types, string_types
 
 LOG = get_logger('Driftkings.Settings')
 

@@ -5,9 +5,9 @@ import json
 import math
 import re
 
+from driftkings.common.utils.compat import string_types, text_type
 from driftkings.core.keycodes import valid_key_code
 from driftkings.logger import get_logger
-from driftkings.common.utils.compat import string_types, text_type
 
 LOG = get_logger('Driftkings.Settings.Validation')
 

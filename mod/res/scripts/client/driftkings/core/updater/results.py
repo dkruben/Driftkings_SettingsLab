@@ -7,11 +7,11 @@ import re
 import time
 
 from driftkings import VERSION
+from driftkings.common.utils.compat import integer_types, string_types
 from driftkings.core.updater.installer import digest, read_json, validate_package, write_new
 from driftkings.core.updater.manifest import Manifest
 from driftkings.core.updater.versioning import normalize_game_version, Version
 from driftkings.logger import get_logger
-from driftkings.common.utils.compat import integer_types, string_types
 
 LOG = get_logger('Driftkings.Updater')
 FINAL_STATUSES = frozenset(('installed', 'rolledBack', 'rolled_back', 'cancelled', 'error', 'failed'))

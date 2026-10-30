@@ -4,7 +4,6 @@ import copy
 import os
 
 from driftkings._constants import VEHICLE_CAROUSEL
-
 from driftkings.core.carousel import config_defaults, profile_shadow
 from driftkings.core.carousel_options import from_carousel, SORT_KEYS
 from driftkings.settings.store import JsonDocuments, merge, read_object, recover_file

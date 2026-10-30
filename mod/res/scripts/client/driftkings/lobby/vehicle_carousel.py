@@ -21,7 +21,7 @@ from driftkings.core.hooks import override
 from driftkings.core.wnx import calculate as calculate_wnx
 from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.gameface.lobby.vehicle_carousel import (CarouselController, get_view_config, install_carousel_layout,
-                                                         install_gameface, restore_carousel_layout)
+                                                        install_gameface, restore_carousel_layout)
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings as Settings
 from driftkings.settings.service import settings_service

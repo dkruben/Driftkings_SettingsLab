@@ -15,7 +15,6 @@ from driftkings.common.utils import events
 from driftkings.common.utils.achievement_dossiers import getAchievementDossier
 from driftkings.common.utils.colorratting import getMoeDamageColor, getStatisticColor
 from driftkings.common.utils.game import checkKeys
-from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
@@ -25,11 +24,12 @@ from driftkings.core.hooks import on_event, override
 from driftkings.core.keyboard import keyboard
 from driftkings.core.marks_calculator import (battle_curve, battle_estimate, battle_target, ceil_damage,
                                               combined_damage, replay_calibration, statistics, valid_calibration)
+from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.game_constants import BATTLE_EVENT_TYPE, DAMAGE_EVENTS
+from driftkings.gameface.battle.battle_marks_of_excellence import BattleMarksAdapter
 from driftkings.settings.definitions.battle.battle_marks_of_excellence import \
     BattleMarksOfExcellenceSettings as Settings
 from driftkings.settings.service import settings_service
-from driftkings.gameface.battle.battle_marks_of_excellence import BattleMarksAdapter
 from driftkings.views.marks_model import compact_model
 
 

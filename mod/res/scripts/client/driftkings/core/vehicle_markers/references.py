@@ -3,8 +3,8 @@
 import copy
 import re
 
-from driftkings.core.vehicle_markers.layouts import merge
 from driftkings.common.utils.compat import string_types
+from driftkings.core.vehicle_markers.layouts import merge
 
 PATH = re.compile(r'^def(?:\.[A-Za-z0-9_-]+)+$')
 
