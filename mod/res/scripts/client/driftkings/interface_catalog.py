@@ -89,9 +89,9 @@ GAMEFACE = {
         'owner': '__dkOwnHealth',
         'python': 'driftkings.gameface.battle.vehicle_health',
         'resource': 'mods/driftkings/vehicle_health/model',
-        'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.js'],
+        'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/health_bar.js', 'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.js'],
         'section': 'vehicle_health',
-        'styles': ['coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css']},
+        'styles': ['coui://gui/gameface/mods/driftkings/shared/health_bar.css', 'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css']},
     'DriftkingsMainGun': {
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/high_caliber_gameface/model.html',
@@ -163,10 +163,10 @@ GAMEFACE = {
                     'coui://gui/gameface/mods/driftkings/settings_window/js/colors.js', 'coui://gui/gameface/mods/driftkings/settings_window/js/color_picker.js',
                     'coui://gui/gameface/mods/driftkings/settings_window/js/controls.js', 'coui://gui/gameface/mods/driftkings/settings_window/js/vehicle_markers_model.js',
                     'coui://gui/gameface/mods/driftkings/settings_window/js/markers.js', 'coui://gui/gameface/mods/driftkings/settings_window/js/minimap.js',
-                    'coui://gui/gameface/mods/driftkings/settings_window/js/richtext.js', 'coui://gui/gameface/mods/driftkings/settings_window/js/hud.js',
+                    'coui://gui/gameface/mods/driftkings/settings_window/js/richtext.js', 'coui://gui/gameface/mods/driftkings/shared/health_bar.js', 'coui://gui/gameface/mods/driftkings/settings_window/js/hud.js',
                     'coui://gui/gameface/mods/driftkings/settings_window/js/carousel.js', 'coui://gui/gameface/mods/driftkings/settings_window/js/app.js'],
         'section': 'driftkings',
-        'styles': ['coui://gui/gameface/mods/driftkings/shared/fonts.css', 'coui://gui/gameface/mods/driftkings/settings_window/css/panel.css', 'coui://gui/gameface/mods/driftkings/settings_window/css/color_picker.css']
+        'styles': ['coui://gui/gameface/mods/driftkings/shared/fonts.css', 'coui://gui/gameface/mods/driftkings/shared/health_bar.css', 'coui://gui/gameface/mods/driftkings/settings_window/css/panel.css', 'coui://gui/gameface/mods/driftkings/settings_window/css/color_picker.css']
     },
     'DriftkingsHangarClock': {
         'context': 'hangar',

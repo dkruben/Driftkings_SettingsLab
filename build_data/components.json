@@ -340,8 +340,11 @@
         "mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_tokens.css",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/health_bar.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/health_bar.css",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.css",
         "mod/res/gui/gameface/mods/driftkings/shared/flash_text.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/assets/**",
         "mod/res/mods/driftkings/text/**",
         "mod/res/gui/fonts/driftkings/**",
         "mod/res/gui/gameface/mods/driftkings/shared/fonts.css"

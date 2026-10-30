@@ -259,6 +259,8 @@ class MINIMAP_ENHANCEMENTS(object):
 class VEHICLE_HEALTH(object):
     NAME = 'vehicle_health'
     AVG_COLOR = 'avgColor'
+    STYLE = 'style'
+    STYLES = ('classic', 'bastion', 'vanguard', 'ion')
 
 
 class TEAM_PANELS(object):

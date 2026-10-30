@@ -39,6 +39,18 @@ def has_marks_tier(vehicle=None):
     return vehicle is not None and vehicle.level >= MARKS_MIN_TIER
 
 
+def nation_label(nation):
+    """Localized nation name; the internal code is the fallback."""
+    if not nation:
+        return nation
+    try:
+        from gui.impl import backport
+        from gui.impl.gen import R
+        return backport.text(R.strings.nations.dyn(nation)()) or nation
+    except Exception:
+        return nation
+
+
 def goal(percent, moving_average, tier, selection=0, earned_marks=0):
     return hangar_goal(percent, moving_average, tier, selection, earned_marks)
 
@@ -341,7 +353,7 @@ class MarksOnGunData(object):
                 if mastery else '')
         result.update({
             'state': 'data', 'vehicle': unicode(data['vehicleName']), 'tier': data['tier'],
-            'vehicleId': data['vehicleID'], 'nation': data['nation'],
+            'vehicleId': data['vehicleID'], 'nation': nation_label(data['nation']),
             'currentMark': data['damageRating'],
             'averageDirect': data['averageDirect'] if data['battles'] else None,
             'averageAssist': data['averageAssist'] if data['battles'] else None,

@@ -23,8 +23,9 @@
         var step = range[3] || 1;
         return typeof value === 'number' && value >= range[0] && value <= range[1] && Math.abs(Math.round(value / step) * step - value) < 1e-9;
     }
-    // The battle draws these from the marker SWF; the preview stands in with a glyph.
-    var ICON_ELEMENTS = {actionMarker: '!', hoverMarker: '▼', vehicleStatusMarker: '●', damageIndicator: '✦'};
+    // The battle draws these from the marker SWF; the preview stands in with a glyph or, where
+    // Warhelios has none, an empty node shaped by CSS (.dk-mk-icon.is-<key>).
+    var ICON_ELEMENTS = {actionMarker: '!', hoverMarker: '', vehicleStatusMarker: '', damageIndicator: '*'};
     // Client images for the sample vehicle (gui/maps/icons, as Vehicle.py and respawn_utils.py name them).
     var IMAGE_ELEMENTS = {vehicleIcon: 'typeIcon', levelIcon: 'levelIcon', contourIcon: 'contour'};
 
@@ -261,11 +262,11 @@
                 } else if (IMAGE_ELEMENTS[key] && vehicle[IMAGE_ELEMENTS[key]]) {
                     node = h('div.dk-mk-image.is-' + key, null, null, anchor);
                     var image = h('img', {src: DK.asset(vehicle[IMAGE_ELEMENTS[key]])}, null, node);
-                    image.addEventListener('error', function () { DK.remove(image); node.textContent = key === 'levelIcon' ? String(vehicle.level || '') : '◆'; });
+                    image.addEventListener('error', function () { DK.remove(image); node.textContent = key === 'levelIcon' ? String(vehicle.level || '') : '•'; });
                     // The contour tint mixes the team colour into the image, as the battle marker does.
                     if (key === 'contourIcon' && item.amount) { node.style.backgroundColor = DK.rgba(color(item.color, base), item.amount / 100); }
                 } else if (ICON_ELEMENTS[key]) {
-                    node = h('div.dk-mk-icon', {text: ICON_ELEMENTS[key]}, null, anchor);
+                    node = h('div.dk-mk-icon.is-' + key, {text: ICON_ELEMENTS[key]}, null, anchor);
                     node.style.color = color(item.color, base);
                 } else { return; }
                 node.style.left = x + 'rem'; node.style.top = y + 'rem';

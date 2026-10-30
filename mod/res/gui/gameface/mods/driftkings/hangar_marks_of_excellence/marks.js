@@ -41,7 +41,7 @@
         K.show(scale.fill,cfg.showProgress!==false); K.show(next,cfg.showProgress!==false);
         K.style(scale.fill,'backgroundImage','linear-gradient(0deg,'+accent+',#fff1ab)');
         K.text(nextLabel,milestone.completed?K.label(data,'completed',''):K.label(data,'next','')+' '+milestone.nextMilestone+'%');
-        K.text(gap,milestone.completed?'':K.formatted(milestone.gap,1)+' '+K.label(data,'gapUnit','')+' '+K.label(data,'remaining',''));
+        K.text(gap,milestone.completed?'':K.formatted(milestone.gap,2)+' '+K.label(data,'gapUnit','')+' '+K.label(data,'remaining',''));
         K.show(metrics,valid&&cfg.showDamageStatistics!==false);
         ['ema','expected','needed'].forEach(function(key,i){ K.text(cards[i].label,K.label(data,key,'')); });
         K.text(cards[2].label,K.label(data,'emaGap',''));
@@ -57,7 +57,8 @@
         if (resized) { chart.invalidate(); }
         if (sufficient&&!cfg.compactMode&&cfg.showHistory!==false&&valid) { chart.draw(samples); }
         K.text(historyInfo,sufficient?K.label(data,'historyNote',''):K.label(data,'waiting',''));
-        K.text(range,sufficient?samples[0].battles+' → '+samples[samples.length-1].battles+' · '+K.percent(samples[0].percent)+' → '+K.percent(samples[samples.length-1].percent):'');
+        // Warhelios has no arrow glyph; » is in the font.
+        K.text(range,sufficient?samples[0].battles+' » '+samples[samples.length-1].battles+' · '+K.percent(samples[0].percent)+' » '+K.percent(samples[samples.length-1].percent):'');
         K.show(advanced,valid&&cfg.showAdvancedStatistics!==false);
         K.text(averages,K.label(data,'direct','')+': '+K.formatted(data.averageDirect)+' · '+K.label(data,'assist','')+': '+K.formatted(data.averageAssist));
         K.text(achievements,'WN8 '+(data.wn8||'\u2014')+' · '+(data.winRate||'\u2014')+' · '+(data.mastery||'\u2014'));

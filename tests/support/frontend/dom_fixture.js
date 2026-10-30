@@ -84,7 +84,14 @@ function createEnvironment(){
     const scripts=html.match(/js\/[a-z_]+\.js/g).map(s=>s.slice(3));
     const catalog=fs.readFileSync(path.join(root,'mod/res/scripts/client/driftkings/interface_catalog.py'),'utf8');
     assert.deepStrictEqual(catalog.match(/settings_window\/js\/[a-z_]+\.js/g).map(s=>s.split('/').pop()),scripts);
-    scripts.forEach(name=>{
+    const sources=Array.from(html.matchAll(/<script src="([^"]+)"/g),match=>match[1]);
+    sources.forEach(url=>{
+        if(url.indexOf('coui://')===0){
+            const relative=url.replace('coui://gui/gameface/','mod/res/gui/gameface/');
+            vm.runInContext(fs.readFileSync(path.join(root,relative),'utf8'),context,{filename:relative});
+            return;
+        }
+        const name=path.basename(url);
         if(name==='bridge.js'){
             window.DK.bridge={start(next){callbacks=next;},send(action,data){sent.push([action,data||{}]);},unit:()=>1,
                 clientRem:()=>({width:window.innerWidth,height:window.innerHeight}),dispose(){}};

@@ -6,6 +6,7 @@
     "saturation": 0.7
   },
   "enabled": true,
+  "style": 0,
   "x": 0,
   "y": -80
 }

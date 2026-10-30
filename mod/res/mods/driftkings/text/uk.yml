@@ -223,7 +223,7 @@ clan_reward_collection.UI_setting_enabled_tooltip: "Увімкнути/вимк�
 # common
 common.UI_mog_accent: "Акцентний колір"
 common.UI_mog_advanced: "Розширена статистика"
-common.UI_mog_approximate: "РЕПЛЕЙ ≈ ПРИБЛИЗНО"
+common.UI_mog_approximate: "РЕПЛЕЙ ~ ПРИБЛИЗНО"
 common.UI_mog_assist: "Середня допомога (максимальна категорія)"
 common.UI_mog_battle: "У БОЮ"
 common.UI_mog_battles: "Бої"
@@ -1813,3 +1813,13 @@ panel.slider.fine: "Shift + перетягування: точне налашт�
 panel.slider.step: "Один крок (Shift: десять)"
 
 panel.constructionNotice: "Панель налаштувань перебуває в розробці. В оформленні та попередньому перегляді можливі помилки."
+vehicle_health.UI_setting_style_text: "Стиль смуги"
+vehicle_health.UI_health_classic: "Класичний"
+vehicle_health.UI_health_bastion: "Бастіон"
+vehicle_health.UI_health_vanguard: "Авангард"
+vehicle_health.UI_health_ion: "Іон"
+vehicle_health.UI_health_saturation: "Насиченість"
+vehicle_health.UI_health_brightness: "Яскравість"
+panel.hud.health: "Міцність"
+vehicle_health.UI_setting_style_tooltip: "Виберіть рамку смуги міцності."
+vehicle_health.UI_health_color_tooltip: "Динамічний колір залежно від залишку міцності."

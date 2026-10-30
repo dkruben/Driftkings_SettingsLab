@@ -62,5 +62,6 @@ class OwnHealthAdapter(BattleCardAdapter):
         enabled = bool(self.active and self.visible and self.hudVisible and settings[GLOBAL.ENABLED]
                        and state['battle'] and state['alive'] and maximum > 0)
         payload = {'percent': percent, 'text': '%d / %d' % (current, maximum),
+                   'style': settings.get(VEHICLE_HEALTH.STYLE, 0),
                    'color': percentToRgb(percent, **settings[VEHICLE_HEALTH.AVG_COLOR])}
         self.publish(payload, config, enabled)

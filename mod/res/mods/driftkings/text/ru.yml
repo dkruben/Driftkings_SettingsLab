@@ -223,7 +223,7 @@ clan_reward_collection.UI_setting_enabled_tooltip: "Включить/отклю�
 # common
 common.UI_mog_accent: "Акцентный цвет"
 common.UI_mog_advanced: "Расширенная статистика"
-common.UI_mog_approximate: "РЕПЛЕЙ ≈ ПРИБЛИЗИТЕЛЬНО"
+common.UI_mog_approximate: "РЕПЛЕЙ ~ ПРИБЛИЗИТЕЛЬНО"
 common.UI_mog_assist: "Средняя помощь (максимальная категория)"
 common.UI_mog_battle: "В БОЮ"
 common.UI_mog_battles: "Бои"
@@ -1813,3 +1813,13 @@ panel.slider.fine: "Shift + перетаскивание: точная наст�
 panel.slider.step: "Один шаг (Shift: десять)"
 
 panel.constructionNotice: "Панель настроек находится в разработке. В оформлении и предпросмотре возможны ошибки."
+vehicle_health.UI_setting_style_text: "Стиль полосы"
+vehicle_health.UI_health_classic: "Классический"
+vehicle_health.UI_health_bastion: "Бастион"
+vehicle_health.UI_health_vanguard: "Авангард"
+vehicle_health.UI_health_ion: "Ион"
+vehicle_health.UI_health_saturation: "Насыщенность"
+vehicle_health.UI_health_brightness: "Яркость"
+panel.hud.health: "Прочность"
+vehicle_health.UI_setting_style_tooltip: "Выберите рамку полосы прочности."
+vehicle_health.UI_health_color_tooltip: "Динамический цвет в зависимости от оставшейся прочности."

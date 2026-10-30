@@ -5,14 +5,16 @@
 .dk-mog:before { content:""; position:absolute; top:-2rem; left:14rem; width:48rem; height:3rem; background:#8de6ee; box-shadow:0 0 8rem rgba(74,225,242,.6); }
 .dk-mog:after { content:""; position:absolute; bottom:-2rem; right:14rem; width:38rem; height:3rem; background:#dec16e; }
 .dk-mog__header { display:flex; align-items:center; justify-content:space-between; padding-bottom:11rem; margin-bottom:12rem; border-bottom:1rem solid #34505a; }
-.dk-mog__brand { font-size:27rem; font-weight:bold; font-style:italic; letter-spacing:.5rem; }
+/* Gameface lays children out as a column by default; these rows must be explicit. */
+.dk-mog__brand { display:flex; flex-direction:row; align-items:center; font-size:27rem; font-weight:bold; letter-spacing:.5rem; }
+.dk-mog__stars { display:flex; flex-direction:row; align-items:center; }
 .dk-mog__logo { color:#e8c55a; margin-right:12rem; letter-spacing:0; font-size:28rem; }
 .dk-mog__context { font-size:12rem; letter-spacing:3rem; color:#e8c55a; }
 .dk-mog__label { color:#a5b6bf; text-transform:uppercase; letter-spacing:1.3rem; font-size:13rem; }
 .dk-mog__hero { display:flex; align-items:center; justify-content:space-between; }
 .dk-mog__percent { font-size:70rem; line-height:1.15; font-weight:bold; color:#f1d677; text-shadow:0 2rem 3rem #000,0 0 18rem rgba(235,198,77,.2); }
-.dk-mog__star { font-size:48rem; color:#627781; padding:0 4rem; text-shadow:0 2rem 2rem #000; }
-.dk-mog__star--earned { color:#ecd797; text-shadow:1rem 1rem 0 #815c25,-1rem -1rem 0 #fff6d0,0 0 12rem rgba(220,178,64,.3); }
+.dk-mog__star { display:inline-block; width:44rem; height:44rem; margin:0 3rem; background-image:url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.png'); background-size:100% 100%; background-repeat:no-repeat; }
+.dk-mog__star--earned { background-image:url('coui://gui/gameface/mods/driftkings/shared/assets/star.png'); }
 .dk-mog__bar { position:relative; height:14rem; background:#0b1116; border:1rem solid #57717c; border-radius:4rem; margin:12rem 0; padding:2rem; }
 .dk-mog__fill { height:100%; background:linear-gradient(0deg,#b78525,#ffe989); border-radius:2rem; box-shadow:0 0 7rem rgba(240,198,60,.45); }
 .dk-mog__next { display:flex; justify-content:space-between; color:#b0bec5; margin-top:6rem; font-size:14rem; }
@@ -41,7 +43,7 @@
 .dk-mog--compact .dk-mog__brand { font-size:21rem; }
 .dk-mog--compact .dk-mog__context { font-size:12rem; letter-spacing:2rem; }
 .dk-mog--compact .dk-mog__percent { font-size:45rem; }
-.dk-mog--compact .dk-mog__star { font-size:26rem; }
+.dk-mog--compact .dk-mog__star { width:26rem; height:26rem; margin:0 2rem; }
 .dk-mog--compact .dk-mog__metrics { margin:6rem 0; padding:9rem 0; }
 .dk-mog--compact .dk-mog__overview { display:flex; align-items:center; }
 .dk-mog--compact .dk-mog__overview .dk-mog__hero { flex:1; margin-right:14rem; }
@@ -69,7 +71,7 @@
 .dk-mog--mini .dk-mog__label { display:none; }
 .dk-mog--mini .dk-mog__overview { margin-bottom:0; }
 .dk-mog--mini .dk-mog__percent { font-size:38rem; }
-.dk-mog--mini .dk-mog__star { font-size:22rem; padding:0 2rem; }
+.dk-mog--mini .dk-mog__star { width:22rem; height:22rem; margin:0 2rem; }
 .dk-mog--mini .dk-mog__metric--combined, .dk-mog--mini .dk-mog__metric--target { display:none; }
 .dk-mog--mini .dk-mog__overview .dk-mog__metrics { margin:0; padding:0 0 0 12rem; }
 .dk-mog--mini .dk-mog__metric { padding:0; border:0; }

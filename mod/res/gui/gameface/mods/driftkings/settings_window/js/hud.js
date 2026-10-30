@@ -15,8 +15,6 @@
     var MARKER = {x: CX + 300, y: CY - 210};       // sample enemy vehicle marker
     var SAMPLE = DK.sample, PLAYER = SAMPLE.player;
     // Own health: the T32 at 79%, written and coloured as gameface/battle/vehicle_health.py does it.
-    var OWN_HP = Math.round(PLAYER.maxHp * 0.79);
-    var HEALTH_W = 480, HEALTH_H = 78;
     // High Caliber target: max(1000, 20% of the enemy team's HP) (battle/high_caliber_progress.py), 62% dealt.
     var ENEMY_HP = SAMPLE.enemies.reduce(function (sum, item) { return sum + item.maxHp; }, 0);
     var HC_TARGET = Math.max(1000, Math.ceil(ENEMY_HP * 0.2)), HC_PROGRESS = 62;
@@ -58,19 +56,19 @@
         if (!v('enabled', false)) { return null; }
         return text(stage, v('template', ''), CX + v('x', 100), CY + v('y', 100), {});
     }
-    function health(stage, v) {
+    function health(stage, v, level) {
         if (!v('enabled', true)) { return null; }
-        var percent = OWN_HP / PLAYER.maxHp, fill = h('div.dk-hud-health-fill');
-        fill.style.width = (percent * 100) + '%';
-        fill.style.backgroundColor = percentColor(percent, v('avgColor.saturation', 0.7), v('avgColor.brightness', 0.9));
-        var bar = h('div.dk-hud-health', null, [h('div.dk-hud-health-track', null, [fill]),
-            h('img.dk-hud-health-frame', {src: 'coui://gui/gameface/mods/driftkings/vehicle_health/frame.png'}),
-            h('div.dk-hud-health-text', {text: OWN_HP + ' / ' + PLAYER.maxHp})], stage);
+        var current = Math.round(PLAYER.maxHp * (typeof level === 'number' ? level : 0.79));
+        var percent = current / PLAYER.maxHp, style = v('style', 0), skin = window.__dkHealthBar.preset(style);
+        var bar = h('div.dk-health.dk-hud-health', null, null, stage);
+        window.__dkHealthBar.create(bar).render({style: style, percent: percent,
+            color: percentColor(percent, v('avgColor.saturation', 0.7), v('avgColor.brightness', 0.9)),
+            text: current + ' / ' + PLAYER.maxHp});
         // Anchored like the battle bar (shared kit position): x/y offsets from alignX/alignY.
         var x = v('x', 0), y = v('y', -80), alignX = v('alignX', 'center'), alignY = v('alignY', 'bottom');
-        var left = alignX === 'right' ? W - HEALTH_W + x : alignX === 'center' ? (W - HEALTH_W) / 2 + x : x;
-        var top = alignY === 'bottom' ? H - HEALTH_H + y : alignY === 'center' ? (H - HEALTH_H) / 2 + y : y;
-        px(bar, left, top);
+        var left = alignX === 'right' ? W - skin.width + x : alignX === 'center' ? (W - skin.width) / 2 + x : x;
+        var top = alignY === 'bottom' ? H - skin.height + y : alignY === 'center' ? (H - skin.height) / 2 + y : y;
+        px(bar, Math.max(0, Math.min(W - skin.width, left)), Math.max(0, Math.min(H - skin.height, top)));
         return bar;
     }
     function marks(stage, v) {
@@ -80,10 +78,11 @@
         panel.style.width = Math.round((mini ? 210 : 280) * scale) + 'rem';
         panel.style.fontSize = Math.round(15 * scale) + 'rem';
         if (v('background', false)) { panel.style.backgroundColor = 'rgba(0,0,0,' + v('gameface.backgroundOpacity', 0.65) + ')'; }
-        h('div.dk-hud-panel-title', {text: '★★☆  87.4%', style: {color: accent}}, null, panel);
-        if (v('showDelta', true)) { h('div', {text: '▲ +0.62%'}, null, panel); }
+        // Stars are images in the battle panel too: Warhelios has no star glyphs.
+        h('div.dk-hud-panel-title', {style: {color: accent}}, [h('i.dk-star.is-earned'), h('i.dk-star.is-earned'), h('i.dk-star'), '  87.4%'], panel);
+        if (v('showDelta', true)) { h('div', {text: '+0.62%'}, null, panel); }
         if (!mini && v('showDamage', true)) { h('div', {text: '2 380 / 3 500'}, null, panel); }
-        if (!mini && v('gameface.showTargetDamage', true)) { h('div', {text: '88% → 3 720'}, null, panel); }
+        if (!mini && v('gameface.showTargetDamage', true)) { h('div', {text: '88% » 3 720'}, null, panel); }
         var width = (mini ? 210 : 280) * scale;
         // Anchored to the right edge and the vertical centre.
         px(panel, W + v('panel.x', 0) - width - 8, CY + v('panel.y', -177));
@@ -151,7 +150,7 @@
     /* Component --------------------------------------------------------------- */
     function create(host, mod) {
         var current = key(mod), info = MODULES[current], all = {}, overrides = {};
-        var root = h('div.dk-live', null, null, host), zoomed = true;
+        var root = h('div.dk-live', null, null, host), zoomed = true, sampleHealth = 79;
         var head = h('div.dk-live-head', null, [h('span.dk-detail-kicker', {text: t('hud.title')})], root);
         h('div.dk-spacer', null, null, head);
         var views = h('div.dk-segments', null, null, head);
@@ -162,6 +161,24 @@
         close.addEventListener('click', function (event) { DK.stop(event); setZoom(true); });
         var frame = h('div.dk-hud-frame' + (info.scene === 'hangar' ? '.is-hangar' : ''), null, null, root);
         var stage = h('div.dk-hud-stage', null, null, frame);
+        if (current === 'legacy.OwnHealth') {
+            var samples = h('div.dk-health-preview-controls', null, null, root);
+            var healthValue = h('span.dk-health-preview-value', null, null, samples);
+            var healthRange = h('input', {type: 'range', min: 0, max: 100, step: 1, value: sampleHealth,
+                'aria-label': t('hud.health')}, null, samples);
+            function setHealth(value) {
+                sampleHealth = Math.max(0, Math.min(100, Number(value) || 0));
+                healthRange.value = sampleHealth;
+                healthValue.textContent = t('hud.health') + ': ' + sampleHealth + '%';
+                draw();
+            }
+            healthValue.textContent = t('hud.health') + ': ' + sampleHealth + '%';
+            healthRange.addEventListener('input', function () { setHealth(healthRange.value); });
+            [100, 75, 40, 10].forEach(function (value) {
+                var button = h('button.dk-segment', {text: value + '%'}, null, samples);
+                button.addEventListener('click', function (event) { DK.stop(event); setHealth(value); });
+            });
+        }
         h('div.dk-live-note', {text: t(info.scene === 'hangar' ? 'hud.noteHangar' : 'hud.note')}, null, root);
 
         function reader(modId) {
@@ -194,7 +211,7 @@
                 var node = MODULES[other].draw(stage, reader(modId));
                 if (node) { DK.toggle(node, 'is-other', true); }
             });
-            var mine = info.draw(stage, reader(mod.id));
+            var mine = info.draw(stage, reader(mod.id), current === 'legacy.OwnHealth' ? sampleHealth / 100 : undefined);
             if (mine) { DK.toggle(mine, 'is-current', true); }
             else { h('div.dk-hud-off', {text: t('module.off')}, null, stage); }
             focus(mine);

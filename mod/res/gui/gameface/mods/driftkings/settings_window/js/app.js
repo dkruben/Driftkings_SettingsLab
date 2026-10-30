@@ -157,7 +157,7 @@
         ui.construction.textContent = t('constructionNotice');
         ui.close.title = t('close') + ' (Esc)';
         ui.themeReset.textContent = t('resetTheme');
-        ui.undo.textContent = '↶  ' + t('undo'); ui.undo.title = t('undoHint', '') + ' (Ctrl+Z)';
+        ui.undo.textContent = t('undo'); ui.undo.title = t('undoHint', '') + ' (Ctrl+Z)';
         ui.profiles.textContent = t('profiles'); ui.reset.textContent = t('reset'); ui.reset.title = t('resetHint', '');
         ui.cancel.textContent = t('cancel'); ui.cancel.title = t('cancelHint', '');
         ui.apply.textContent = t('apply'); ui.apply.title = t('applyHint', '');
@@ -400,7 +400,7 @@
         if (count) { pill(count === 1 ? t('changes.one') : tf('changes.many', {n: count}), 'accent'); }
         if (current.status && current.status !== 'active') { pill(statusText(id)[0], 'error', true); }
         if (restartNeeded(id)) { pill(t('status.restart'), 'warning', true); }
-        (mod.dependencies || []).forEach(function (d) { pill((d.installed ? '✓ ' : '') + (d.installed ? t('status.available') : t('dependencyMissing')) + ': ' + d.id, d.installed ? 'ok' : 'warning', !d.installed); });
+        (mod.dependencies || []).forEach(function (d) { pill((d.installed ? t('status.available') : t('dependencyMissing')) + ': ' + d.id, d.installed ? 'ok' : 'warning', !d.installed); });
         if (mod.version) { pill((id === CORE ? 'Driftkings ' : t('version') + ' ') + mod.version); }
         if (mod.author) { pill(mod.author); }
         ((state.compatibilityWarnings || {})[id] || []).forEach(function (warning) {
@@ -487,8 +487,10 @@
             if (compact) { return; }
             h('div.dk-spacer', null, null, panel);
             var keys = h('div.dk-detail-keys', null, [h('div.dk-detail-kicker', {text: t('detail.keys')})], panel);
-            [['Ctrl F', 'keys.search'], ['Ctrl S', 'keys.save'], ['Ctrl Z', 'keys.undo'], ['Ctrl ↑ ↓', 'keys.module'], ['Esc', 'keys.close']].forEach(function (item) {
-                h('div.dk-detail-key', null, [h('span.dk-kbd', {text: item[0]}), h('span', {text: t(item[1])})], keys);
+            // Warhelios has no arrow glyphs; the arrow keys are drawn with CSS.
+            var arrows = ['Ctrl ', h('i.dk-tri.is-up'), ' ', h('i.dk-tri.is-down')];
+            [['Ctrl F', 'keys.search'], ['Ctrl S', 'keys.save'], ['Ctrl Z', 'keys.undo'], [arrows, 'keys.module'], ['Esc', 'keys.close']].forEach(function (item) {
+                h('div.dk-detail-key', null, [h('span.dk-kbd', null, item[0]), h('span', {text: t(item[1])})], keys);
             });
             return;
         }
@@ -702,7 +704,7 @@
             if (def.type === 'password') { h('div.dk-value.is-new', {text: t('modified')}, null, values); }
             else {
                 valueNode(values, 'is-old', def, before);
-                h('div.dk-review-arrow', {text: '→'}, null, values);
+                h('div.dk-review-arrow', null, h('i.dk-tri.is-right'), values);
                 valueNode(values, 'is-new', def, (state.values[id] || {})[def.id]);
             }
             button(row, t('review.go'), function () { goTo(id, def.id); }, 'is-small');

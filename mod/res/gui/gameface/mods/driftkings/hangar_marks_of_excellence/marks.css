@@ -4,6 +4,20 @@
 .dk-mog--full .dk-mog__history { min-height:40rem; }
 .dk-mog--dense .dk-mog__percent { font-size:60rem; }
 .dk-mog--dense .dk-mog__metric { padding:0 9rem; }
+/* The hangar panel usually runs at a small scale: keep the secondary text readable. */
+.dk-mog--full .dk-mog__vehicle,
+.dk-mog--full .dk-mog__next { font-size:17rem; }
+.dk-mog--full .dk-mog__label { font-size:15rem; }
+.dk-mog--full .dk-mog__note,
+.dk-mog--full .dk-mog__muted,
+.dk-mog--full .dk-mog__footer,
+.dk-mog--full .dk-mog__axis,
+.dk-mog--full .dk-mog__ref { font-size:15rem; }
+.dk-mog--full .dk-mog__footer { flex-wrap:wrap; }
+.dk-mog--full .dk-mog__footer span { margin-right:12rem; }
+.dk-mog--full .dk-mog__tickname { font-size:15rem; width:52rem; margin-left:-26rem; }
+.dk-mog--full .dk-mog__scale { padding-bottom:25rem; }
+.dk-mog--full .dk-mog__ticks { height:21rem; }
 .dk-mog--dense .dk-mog__history,
 .dk-mog--dense .dk-mog__note,
 .dk-mog--dense .dk-mog__footer { display:none; }

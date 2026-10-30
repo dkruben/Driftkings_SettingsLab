@@ -447,10 +447,12 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-hud-aim-dot { position: absolute; left: 40rem; top: 40rem; width: 4rem; height: 4rem; background: #ffffff; }
 .dk-hud-text { position: absolute; width: 500rem; min-height: 24rem; white-space: nowrap; }
 .dk-hud-text.has-shadow, .dk-hud-panel, .dk-hud-box { text-shadow: 0 0 4rem #000000; }
-/* Own health: same frame and slot box as vehicle_health/vehicle_health.css. */
-.dk-hud-health { position: absolute; width: 480rem; height: 78rem; }
-.dk-hud-health-frame { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
-.dk-hud-health-track, .dk-hud-health-text { position: absolute; left: 19.78%; top: 48.06%; width: 69.61%; height: 24.73%; }
+/* Health uses the same renderer, frames and slot geometry as the battle HUD. */
+.dk-hud-health { position: absolute; }
+.dk-health-preview-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8rem; padding: 10rem 0; }
+.dk-health-preview-controls input { min-width: 90rem; flex: 1; }
+.dk-health-preview-value { min-width: 95rem; color: #cfcfcf; font-size: 12rem; }
+
 .dk-hud-health-track { overflow: hidden; background: #1a1c1e; }
 .dk-hud-health-fill { width: 79%; height: 100%; background: #80d639; }
 .dk-hud-health-text { display: flex; align-items: center; justify-content: center; font-size: 15rem; font-weight: 700; color: #f4f8f0; text-shadow: 0 0 3rem #000000; }
@@ -541,3 +543,13 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-mk-row.is-reference .dk-field { display: block; width: 100%; }
 .dk-mk-row.is-reference .dk-button { display: block; width: 100%; margin: 6rem 0 0; white-space: normal; }
 .dk-mk-group { min-width: 0; }
+/* Warhelios has no arrow, star or shape glyphs: these stand in for them. */
+.dk-tri { display: inline-block; width: 0; height: 0; border-style: solid; border-color: transparent; vertical-align: middle; }
+.dk-tri.is-up { border-width: 0 4rem 6rem 4rem; border-bottom-color: #b3ae9f; }
+.dk-tri.is-down { border-width: 6rem 4rem 0 4rem; border-top-color: #b3ae9f; }
+.dk-tri.is-right { border-width: 5rem 0 5rem 7rem; border-left-color: #7a7466; }
+.dk-star { display: inline-block; width: 14rem; height: 14rem; margin-right: 2rem; vertical-align: middle; background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.png'); background-size: 100% 100%; background-repeat: no-repeat; }
+.dk-star.is-earned { background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star.png'); }
+.dk-car-badge.is-star { background: url('coui://gui/gameface/mods/driftkings/shared/assets/star.png') center / 100% 100% no-repeat; }
+.dk-mk-icon.is-hoverMarker:before { content: ""; position: absolute; left: 4rem; top: 6rem; width: 0; height: 0; border-style: solid; border-color: transparent; border-width: 12rem 7rem 0 7rem; border-top-color: #ffffff; }
+.dk-mk-icon.is-vehicleStatusMarker:before { content: ""; position: absolute; left: 5rem; top: 5rem; width: 12rem; height: 12rem; border-radius: 6rem; background: #ffffff; }

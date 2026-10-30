@@ -132,10 +132,11 @@
             for (var i = 0; i < servers.length; i++) { if (servers[i].id === selected) { return servers[i].label; } }
             return '-';
         };
-        var toggle = button(selectedLabel() + ' \u25be', function () { menu.className = 'options'; dropdown = close; }, 'select');
+        // The caret is drawn by .select:after; Warhelios has no triangle glyphs.
+        var toggle = button(selectedLabel(), function () { menu.className = 'options'; dropdown = close; }, 'select');
         toggle.setAttribute('role', 'combobox'); toggle.setAttribute('aria-expanded', 'false');
         function close() { menu.className = 'options hidden'; toggle.setAttribute('aria-expanded', 'false'); dropdown = null; }
-        function choose(id) { selected = id; toggle.textContent = selectedLabel() + ' \u25be'; change(id); close(); toggle.focus(); }
+        function choose(id) { selected = id; toggle.textContent = selectedLabel(); change(id); close(); toggle.focus(); }
         toggle.onclick = function (event) {
             handled(event);
             if (dropdown) { close(); } else { menu.className = 'options'; toggle.setAttribute('aria-expanded', 'true'); dropdown = close; }

@@ -139,7 +139,8 @@
         src = image(src);
         if (!src) { return; }
         if (src.indexOf('dkicon:') === 0) {
-            var badge = h('span.dk-car-badge', {text: src.slice(7) === 'mastery' ? 'M' : '★'}, null, parent);
+            var mastery = src.slice(7) === 'mastery';
+            var badge = h('span.dk-car-badge' + (mastery ? '' : '.is-star'), {text: mastery ? 'M' : ''}, null, parent);
             if (width) { badge.style.width = width + 'rem'; badge.style.height = (height || width) + 'rem'; badge.style.fontSize = Math.round((height || width) * 0.6) + 'rem'; }
             return;
         }
@@ -269,7 +270,7 @@
             native(node, profile, 'tankType', vehicle, function () { return withFallback(h('img.dk-car-type-img', {src: DK.asset(DK.assets.type(vehicle.type))})); });
             native(node, profile, 'level', vehicle, function () { return h('div.dk-car-level', {text: vehicle.level}); });
             native(node, profile, 'tankName', vehicle, function () { return h('div.dk-car-name' + (vehicle.premium ? '.is-premium' : ''), {text: vehicle.name}); });
-            native(node, profile, 'xp', vehicle, function () { return vehicle.xp ? h('div.dk-car-xp', {text: '★ ' + vehicle.xp}) : null; });
+            native(node, profile, 'xp', vehicle, function () { return vehicle.xp ? h('div.dk-car-xp', null, [h('i.dk-star.is-earned'), ' ' + vehicle.xp]) : null; });
             native(node, profile, 'favorite', vehicle, function () { return vehicle.favorite ? withFallback(h('img.dk-car-favorite-img', {src: DK.asset(DK.assets.favorite)})) : null; });
             native(node, profile, 'info', vehicle, function () { return vehicle.info ? h('div.dk-car-info', {text: t('car.inBattle')}) : null; });
             native(node, profile, 'progressionPoints', vehicle, function () { return h('div.dk-car-progression', {text: vehicle.progression || '0/400'}); });

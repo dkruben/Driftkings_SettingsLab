@@ -26,3 +26,10 @@
 }
 
 .dk-tech-marks__percent { color:#E8E4DA; }
+.dk-tech-marks__symbol {
+    display: inline-block;
+    margin-right: 4rem;
+    background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}

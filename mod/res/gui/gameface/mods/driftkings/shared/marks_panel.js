@@ -40,13 +40,15 @@
         return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
     }
     function label(data, key, fallback) { return (data.labels || {})[key] || fallback; }
+    // Warhelios has no star glyphs, so the marks are drawn from shared/assets images.
     function stars(parent) {
-        return [0, 1, 2].map(function () { return node('span', 'dk-mog__star', parent, '\u2606'); });
+        var row = node('div', 'dk-mog__stars', parent);
+        return [0, 1, 2].map(function () { return node('span', 'dk-mog__star', row); });
     }
     function updateStars(items, count) {
         items.forEach(function (item, index) {
-            text(item, index < count ? '\u2605' : '\u2606');
-            item.className = 'dk-mog__star' + (index < count ? ' dk-mog__star--earned' : '');
+            var cls = 'dk-mog__star' + (index < count ? ' dk-mog__star--earned' : '');
+            if (item.className !== cls) { item.className = cls; }
         });
     }
     function graph(parent) {

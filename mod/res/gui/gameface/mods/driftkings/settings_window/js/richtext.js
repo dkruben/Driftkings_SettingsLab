@@ -24,7 +24,7 @@
     }
     var SAMPLE = {
         timer: 1.8, percent: 76, flightTime: 1.42, distance: 315, dist: 315, wn8: 2150, eff: 1650, wtr: 7400, xte: 82, winrate: 54.2, diff: '+120',
-        battles: 12450, avgDamage: 2380, damage: 350, dmg: 350, icons: '◆◆', vehicles: 'IS-7, Obj. 140', vehicle: 'T32', name: 'Driftking',
+        battles: 12450, avgDamage: 2380, damage: 350, dmg: 350, icons: '••', vehicles: 'IS-7, Obj. 140', vehicle: 'T32', name: 'Driftking',
         nick: 'Driftking', clan: '[DK]', hp: 1304, 'hp-max': 1650, 'hp-ratio': 79, level: 'VIII', tier: 8, type: 'HT', vtype: 'HT',
         pos: 'E5', cellsize: 100, frags: 2, kills: 2, assist: 820, blocked: 640, spotted: 3, marks: 2, mark: 87.4, mastery: 'M',
         'squad-num': '', place: 3, time: '04:32'

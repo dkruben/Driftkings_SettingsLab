@@ -40,8 +40,8 @@ def delta_model(value):
         return {'text': u'\u2014', 'direction': 'unknown'}
     value = round(value, 2)
     direction = 'positive' if value > 0 else 'negative' if value < 0 else 'zero'
-    symbol = u'\u25b2' if value > 0 else u'\u25bc' if value < 0 else u'\u2014'
-    return {'text': symbol + ' ' + ('%+.2f%%' % value if value else '0.00%'), 'direction': direction}
+    # Warhelios has no triangle glyphs: the sign and the direction colour carry the trend.
+    return {'text': '%+.2f%%' % value if value else '0.00%', 'direction': direction}
 
 
 def milestone_model(percent, earned=0):
