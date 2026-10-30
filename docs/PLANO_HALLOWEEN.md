@@ -3,7 +3,7 @@
 ## Âmbito
 
 - Modo Halloween: `ARENA_BONUS_TYPE` `HALLOWEEN=101`, `HALLOWEEN_MEDIUM=102`, `HALLOWEEN_HARD=103`, injetados pela extensão `halloween` (`halloween_common/halloween_constants.py`, `ConstInjector`).
-- Estado atual do mod (branch `feature/halloween-mode-adapters`):
+- Estado atual do mod (integrado em `develop` e na stable 0.1.4; branch original `feature/halloween-mode-adapters`):
   - `core/battle_capabilities.py` devolve o modo `halloween` (antes era `special`). O Halloween continua a ser um modo de evento para `is_special()` e `is_event_mode()`.
   - `core/mode_adapters.py` declara o que cada modo suporta. Só existem `random` (comportamento anterior) e `halloween`. Os modos sem adaptador ficam com as vistas nativas intactas.
   - No Halloween, o roster do mod tem só aliados, ordenados no mod como o `HWSortKey` nativo (equipa, vivos primeiro, classe, nome do veículo, nome do jogador). As entidades do modo (bots, bosses, `accountDBID` 0) ficam como linhas sem estatísticas. Os perfis short/medium/large do painel clássico não são usados.

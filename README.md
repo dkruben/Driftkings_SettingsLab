@@ -20,7 +20,7 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 | **[Stable 0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1.zip) |
 | **[Beta 0.1.4-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1.zip) |
 
-Stable **0.1.4** targets WoT **2.4.1.1**. Beta **0.1.4-beta.2** also targets WoT **2.4.1.1**, with further settings-panel fixes and two fictional carousel preview cards.
+Stable **0.1.4** targets WoT **2.4.1.1** and supersedes beta **0.1.4-beta.2**, which remains listed for reference.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 

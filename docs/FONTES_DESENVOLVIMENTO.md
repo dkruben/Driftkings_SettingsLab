@@ -1,6 +1,6 @@
 # Fontes locais de desenvolvimento — Driftkings
 
-Guia atualizado em 26/10/2026 para a beta 0.1.3-beta.2. Os Markdown de `docs/` fazem parte do repositório; dados, scripts e snapshots locais de investigação continuam excluídos. A documentação não integra os pacotes do mod. Ver o [estado atual](STATUS.md).
+Guia histórico, redigido em 26/10/2026 para a beta 0.1.3-beta.2. Para a stable 0.1.4 e as referências verificadas, consultar [Development References](DEVELOPMENT_REFERENCE.md). Os Markdown de `docs/` fazem parte do repositório; dados, scripts e snapshots locais de investigação continuam excluídos. A documentação não integra os pacotes do mod. Ver o [estado atual](STATUS.md).
 
 ## Localização e prioridade
 

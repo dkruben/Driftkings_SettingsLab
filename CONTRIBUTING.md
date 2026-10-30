@@ -37,7 +37,7 @@ This guide explains how the code is organised and how to make a change safely. S
 | `installer` | Windows installer script and the native C# helper |
 | `build_data`, `build_tools` | Build contracts, validators, compiler and release tooling |
 | `tests` | Runtime, frontend, build and optional compiled-artifact suites; shared support and synthetic fixtures |
-| `docs` | Project status, references, feature guides and dated audit reports; README and CONTRIBUTIBUTING remain at the root |
+| `docs` | Project status, references, feature guides and dated audit reports; README and CONTRIBUTING remain at the root |
 
 Inside the client package:
 
