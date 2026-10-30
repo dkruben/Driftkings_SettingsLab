@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 from pathlib import Path, PurePosixPath
+import sys
 import zipfile
 
 try:
@@ -38,6 +39,24 @@ def read_json(path):
             result[key] = value
         return result
     return json.loads(path.read_text(encoding='utf-8-sig'), object_pairs_hook=unique_pairs)
+
+
+def supported_realms(config):
+    """Realms whose clients the build and installer accept."""
+    realms = config['game'].get('supported_realms')
+    require(isinstance(realms, list) and realms and
+            all(isinstance(item, str) and re.fullmatch(r'[A-Z]{2,5}', item) for item in realms) and
+            len(set(realms)) == len(realms),
+            'Invalid supported_realms: a list of unique uppercase realm codes is required')
+    return realms
+
+
+def client_realm(text, config):
+    """Normalize a version.xml realm and require it to be supported; SEA is the former ASIA name."""
+    realm = (text or '').strip().upper()
+    realm = 'ASIA' if realm == 'SEA' else realm
+    require(realm in supported_realms(config), 'Unsupported game realm: %s' % (realm or 'missing'))
+    return realm
 
 
 def relative_path(value):
@@ -100,6 +119,9 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
     root = Path(root).resolve()
     config = read_json(root / 'build_data/build_config.json')
     require(config['schema_version'] == 1, 'Unsupported build schema')
+    require(not {'root', 'realm'} & set(config['game']) and 'root' not in config['reference'],
+            'Machine-specific game/reference paths belong in build_data/toolchain.local.json')
+    supported_realms(config)
     require(config['python']['version'] == '2.7', 'WoT client requires Python 2.7 bytecode')
     require(config['python']['optimize'] == 0, 'Only Python optimize=0 is supported for the runtime contract')
     require(config['package']['name'] == 'driftkings.wotmod', 'Package filename must match the updater contract')
@@ -257,7 +279,7 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
             require(spec['implementation'] == 'replace_exact', 'Unsupported patch implementation')
             patch = read_json(input_path(root, spec['patch_file']))
             require(patch['schema_version'] == 1 and patch['game_version'] == config['game']['version']
-                    and patch['realm'] == config['game']['realm'] and patch['resource'] == spec['resource'],
+                    and patch['realm'] in config['game']['supported_realms'] and patch['resource'] == spec['resource'],
                     'Carousel patch target mismatch')
             require(patch['operations'], 'Empty carousel patch')
             for operation in patch['operations']:
@@ -265,10 +287,11 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                         and operation['find'] and isinstance(operation['replace'], str)
                         and type(operation['count']) is int and operation['count'] > 0, 'Invalid carousel patch operation')
             if check_game:
+                require(game_root, 'A game installation is required to check game resources')
                 raw = None
                 for name in spec['game_packages']:
                     relative_path(name)
-                    package = Path(game_root or config['game']['root']) / name
+                    package = Path(game_root) / name
                     require(package.is_file(), 'Missing game resource package: %s' % package)
                     with zipfile.ZipFile(package) as archive:
                         if spec['resource'] in archive.namelist():
@@ -292,10 +315,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check-generated', action='store_true', help='Require generated outputs to exist')
     parser.add_argument('--check-game', action='store_true', help='Verify carousel patches against read-only game packages')
+    parser.add_argument('--game-root', help='Read-only game installation; defaults to the local toolchain configuration')
     parser.add_argument('--write-plan', type=Path, help='Write a resolved JSON plan for compiler development')
     args = parser.parse_args()
     try:
-        plan = build_plan(check_generated=args.check_generated, check_game=args.check_game)
+        game_root = None
+        if args.check_game:
+            if str(ROOT) not in sys.path:
+                sys.path.insert(0, str(ROOT))
+            from build_tools.toolchain import discover, require_game_root
+            game_root = require_game_root(discover(ROOT, dict(game_root=args.game_root)))
+        plan = build_plan(check_generated=args.check_generated, check_game=args.check_game, game_root=game_root)
     except (ValueError, KeyError, TypeError, OSError, StopIteration, zipfile.BadZipFile) as error:
         parser.exit(1, 'Build data error: %s\n' % error)
     if args.write_plan:

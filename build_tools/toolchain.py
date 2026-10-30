@@ -5,12 +5,15 @@ import shutil
 
 from build_tools.validate_build_data import read_json, require
 
+# Machine-specific locations: build_data/toolchain.local.json, DK_<KEY> or --<key>; never the build contract.
+KEYS = ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home',
+        'game_root', 'reference_root')
+
 
 def discover(root, overrides):
     local = root / 'build_data/toolchain.local.json'
     settings = read_json(local) if local.exists() else {}
-    keys = ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home')
-    require(not set(settings) - set(keys), 'Unknown local toolchain field')
+    require(not set(settings) - set(KEYS), 'Unknown local toolchain field')
 
     def configured(key):
         return overrides.get(key) or os.environ.get('DK_' + key.upper()) or settings.get(key)
@@ -46,11 +49,20 @@ def discover(root, overrides):
     result['java'] = choose('java', sorted(java.glob('jre1.8*/bin/java.exe'), reverse=True) + [shutil.which('java')])
     result['csc'] = choose('csc', [Path(os.environ.get('WINDIR', 'C:/windows')) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'])
     result['rabcdasm_home'] = choose('rabcdasm_home', [root.parent / 'WoT_Tools/xvm-master/src_build/bin/windows_i686/rabcdasm'], directory=True)
+    result['game_root'] = choose('game_root', [], directory=True)
+    result['reference_root'] = choose('reference_root', [], directory=True)
     return result
+
+
+def require_game_root(tools):
+    require(tools['game_root'], 'Game installation missing; set game_root in build_data/toolchain.local.json, '
+            'DK_GAME_ROOT or --game-root')
+    return tools['game_root']
 
 
 def require_tools(tools):
     require(tools['python27'] or tools['hg'], 'Python 2.7 host missing; set --python27 or --hg')
-    for name in ('flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home'):
+    require_game_root(tools)
+    for name in ('flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home', 'reference_root'):
         require(tools[name], 'Missing build dependency: %s; configure toolchain.local.json or --%s' % (name, name.replace('_', '-')))
     require((Path(tools['flex_home']) / 'frameworks/libs/framework.swc').is_file(), 'Missing Flex framework.swc')

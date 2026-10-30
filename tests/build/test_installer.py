@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 from build_tools.build_installer import definitions, generate_components, partial_choices, prepare_payload, supported_realms, attach_installer
 from build_tools.generate_ui_catalog import installer_catalog
 from build_tools.modpack import create as create_modpack
+from build_tools.validate_build_data import build_plan, client_realm
 
 
 from support.build_assets import png
@@ -183,7 +184,7 @@ class GeneratorTests(unittest.TestCase):
         (artifacts / 'modpack.json').write_text(json.dumps(modpack))
         inputs = {path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                   for path in (self.root / 'res/configs/driftkings').rglob('*.json')}
-        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm=config['game']['realm'], inputs=inputs)))
+        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='EU', inputs=inputs)))
         out = self.root / 'generated'
         generate_components(self.root, out)
         prepare_payload(self.root, artifacts, out)
@@ -208,17 +209,31 @@ class GeneratorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Invalid installer payload'):
             prepare_payload(self.root, artifacts, out)
 
-    def test_supported_realms_are_validated_and_include_the_build_realm(self):
+    def test_supported_realms_are_validated(self):
         config = json.loads((self.root / 'build_data/build_config.json').read_text())
         self.assertEqual(supported_realms(config), ['EU', 'NA', 'ASIA'])
-        del config['game']['supported_realms']
-        self.assertEqual(supported_realms(config), [config['game']['realm']])
-        build = config['game']['realm']
-        other = 'EU' if build != 'EU' else 'NA'
-        for invalid in ([], [build, build], [build.lower()], [other], [build, 1]):
+        for invalid in (None, [], ['NA', 'NA'], ['na'], ['NA', 1]):
             config['game']['supported_realms'] = invalid
             with self.assertRaisesRegex(ValueError, 'Invalid supported_realms'):
                 supported_realms(config)
+
+    def test_any_supported_client_realm_can_build(self):
+        config = json.loads((self.root / 'build_data/build_config.json').read_text())
+        self.assertEqual([client_realm(text, config) for text in ('EU', ' na ', 'ASIA', 'SEA')], ['EU', 'NA', 'ASIA', 'ASIA'])
+        for text in ('RU', '', None):
+            with self.assertRaisesRegex(ValueError, 'Unsupported game realm'):
+                client_realm(text, config)
+
+    def test_build_contract_keeps_machine_paths_local(self):
+        config = json.loads((ROOT / 'build_data/build_config.json').read_text())
+        self.assertNotIn('root', config['game'])
+        self.assertNotIn('realm', config['game'])
+        self.assertNotIn('root', config['reference'])
+        self.assertNotIn('source_root', json.loads((ROOT / 'build_data/defaults_snapshot.json').read_text()))
+        config['game']['root'] = 'C:/Games/World_of_Tanks'
+        (self.root / 'build_data/build_config.json').write_text(json.dumps(config))
+        with self.assertRaisesRegex(ValueError, 'toolchain.local.json'):
+            build_plan(self.root)
 
     def test_runtime_loader_merges_partial_file_without_rewriting_it(self):
         client = ROOT / 'mod/res/scripts/client/driftkings'

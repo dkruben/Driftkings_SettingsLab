@@ -19,8 +19,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from build_tools.package_tools import metadata, sha, validate_swf, verify_package, write_json, zip_entries
-from build_tools.toolchain import discover, require_tools
-from build_tools.validate_build_data import apply_patch_set, build_plan, input_path, read_json, require
+from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
+from build_tools.validate_build_data import apply_patch_set, build_plan, client_realm, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
 
@@ -149,11 +149,11 @@ def generate(root, config, plan, tools, run):
             validate_swf(destination.read_bytes())
         elif spec['kind'] == 'vehicle_markers':
             from build_tools.vehicle_markers import build as build_vehicle_markers
-            build_vehicle_markers(root, destination, spec, tools, config['game']['root'])
+            build_vehicle_markers(root, destination, spec, tools, tools['game_root'])
         elif spec['kind'] == 'gameface_patch':
             raw = None
             for package in spec['game_packages']:
-                with zipfile.ZipFile(Path(config['game']['root']) / package) as archive:
+                with zipfile.ZipFile(Path(tools['game_root']) / package) as archive:
                     if spec['resource'] in archive.namelist():
                         require(raw is None, 'Ambiguous Gameface resource')
                         raw = archive.read(spec['resource'])
@@ -254,10 +254,8 @@ def build(args):
                       and any(isinstance(t, ast.Name) and t.id == 'REPOSITORY' for t in n.targets))
     require(release['repository'] == repository, 'Release repository must match the packaged updater')
     version, channel, source_version = select_version(root, release, args.version, args.channel)
-    if args.game_root:
-        config['game']['root'] = str(Path(args.game_root).resolve())
-    plan = build_plan(root, check_component_list=False, game_root=config['game']['root'], check_defaults=False)
     tools = discover(root, vars(args))
+    plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
     destination = output_path(root, config['package']['release_root' if args.mode == 'release' else 'debug_root'] + '/' + channel + '/' + version)
     if args.plan:
         print(json.dumps(dict(version=version, source_version=source_version, channel=channel, mode=args.mode,
@@ -265,11 +263,11 @@ def build(args):
                               python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults'])), indent=2))
         return destination
     require_tools(tools)
-    game = Path(config['game']['root'])
+    game = Path(tools['game_root'])
     version_xml = ET.parse(game / 'version.xml')
     require(version_contract(root).normalize_game_version(version_xml.findtext('version')) == config['game']['version'], 'Installed game version differs from build target')
-    require((version_xml.findtext('meta/realm') or '').strip() == config['game']['realm'], 'Installed game realm differs from build target')
-    reference = Path(config['reference']['root']) / '.version_name'
+    realm = client_realm(version_xml.findtext('meta/realm'), config)
+    reference = Path(tools['reference_root']) / '.version_name'
     require(reference.read_text(encoding='utf-8-sig').strip() == config['reference']['version'], 'Reference source version mismatch')
     if not args.keep_source_version:
         sync_release_version(root, release, version, channel)
@@ -279,7 +277,7 @@ def build(args):
     run.mkdir(parents=True)
     report = dict(schema=1, status='running', version=version, source_version=source_version, channel=channel,
                   mode=args.mode, publishable=False, gameVersion=config['game']['version'],
-                  realm=config['game']['realm'], tools=tools, git=git_state(root), logs=str(run / 'logs'))
+                  realm=realm, tools=tools, git=git_state(root), logs=str(run / 'logs'))
     started = time.monotonic()
     try:
         inventory = source_inventory(root, plan)
@@ -372,8 +370,9 @@ def main():
     parser.add_argument('--game-root', help='Read-only game installation override')
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
     parser.add_argument('--plan', action='store_true', help='Display version, outputs and tool discovery without building')
-    for key in ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc', 'rabcdasm_home'):
-        parser.add_argument('--' + key.replace('_', '-'), dest=key)
+    for key in TOOL_KEYS:
+        if key != 'game_root':
+            parser.add_argument('--' + key.replace('_', '-'), dest=key)
     args = parser.parse_args()
     try:
         build(args)

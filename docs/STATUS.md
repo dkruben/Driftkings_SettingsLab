@@ -89,7 +89,7 @@ Os testes completos, as 14 suites frontend, os defaults e o catálogo UI passara
 
 ## Build e instalação local
 
-Os comandos e requisitos estão em [CONTRIBUTING — Local build and client installation](../CONTRIBUTING.md#local-build-and-client-installation). O cliente configurado é `D:/Games/World_of_Tanks_NA`; confirmar o contrato e `version.xml` antes de instalar. O log é `<game-root>/game.log`.
+Os comandos e requisitos estão em [CONTRIBUTING — Local build and client installation](../CONTRIBUTING.md#local-build-and-client-installation). O cliente local é `D:/Games/World_of_Tanks_NA`, definido em `build_data/toolchain.local.json` (`game_root`, fora do Git). A build aceita clientes EU, NA ou ASIA da versão do contrato; confirmar `version.xml` antes de instalar. O log é `<game-root>/game.log`.
 
 As instalações recentes guardaram backups em `build/local-backups/`, fora dos pacotes e do Git. Os ficheiros gerados pelo Common foram movidos para backup, não apagados definitivamente. Preservar as configurações pessoais em `<game-root>/mods/configs/driftkings` e não divulgar contas, palavras-passe, tokens ou logs completos sem ocultar os dados pessoais.
 

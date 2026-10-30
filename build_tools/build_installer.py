@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
 
 from build_tools.generate_ui_catalog import installer_catalog
 from build_tools.validate_locales import catalog
-from build_tools.validate_build_data import build_plan, read_json, require
+from build_tools.validate_build_data import build_plan, read_json, require, supported_realms
 from build_tools.validate_installer_assets import validate as validate_assets
 from build_tools.modpack import verify as verify_modpack
 
@@ -177,17 +177,6 @@ end;
     return components, options, presets
 
 
-def supported_realms(config):
-    """Realms whose clients the installer accepts; the build realm must be one of them."""
-    game = config['game']
-    realms = game.get('supported_realms', [game['realm']])
-    require(isinstance(realms, list) and realms and
-            all(isinstance(item, str) and re.fullmatch(r'[A-Z]{2,5}', item) for item in realms) and
-            len(set(realms)) == len(realms) and game['realm'] in realms,
-            'Invalid supported_realms: uppercase unique realm codes that include the build realm are required')
-    return realms
-
-
 def prepare_payload(root, artifacts, output):
     artifacts = Path(artifacts).resolve()
     manifest = read_json(artifacts / 'release.json')
@@ -195,7 +184,7 @@ def prepare_payload(root, artifacts, output):
     require(report['status'] == 'success' and manifest['version'] == report['version'], 'Invalid installer build artifacts')
     inventory = verify_modpack(artifacts, manifest, read_json(artifacts / 'modpack.json'))
     config = read_json(root / 'build_data/build_config.json')
-    require(manifest['gameVersion'] == config['game']['version'] and report['realm'] == config['game']['realm'],
+    require(manifest['gameVersion'] == config['game']['version'] and report['realm'] in supported_realms(config),
             'Installer artifacts target another client')
     # Choices must correspond to the actual defaults already present in this build.
     defaults = root / config['defaults']['source_root']

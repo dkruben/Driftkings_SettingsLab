@@ -2,7 +2,7 @@
 
 Reference baseline verified on **28 October 2026** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
 
-This guide identifies the sources used to develop Driftkings SettingsLab. These paths describe the maintainer's Windows workspace; they are not bundled with this repository. Other developers may store them elsewhere. The build contract is authoritative for the reference selected by the compiler.
+This guide identifies the sources used to develop Driftkings SettingsLab. These paths describe the maintainer's Windows workspace; they are not bundled with this repository. Other developers may store them elsewhere. The build contract fixes the reference version; each machine sets the reference and game locations in the ignored `build_data/toolchain.local.json`.
 
 Updated on **29 October 2026** for current dependency and handoff context. Read [STATUS.md](STATUS.md) first for the development revision, in-game validation and remaining work, then [CONTRIBUTING.md](../CONTRIBUTING.md) for architecture and build/install commands. This document describes reference sources, not the entire project state. Verify dated versions against the current build contract before using them.
 
@@ -31,10 +31,10 @@ The `Atualizados/` directory also exists under the tools root, but was empty whe
 | CT SRC snapshot | `2.4.1.5466` | `wot-src-CT/.version_name` |
 | CT source client | `v.2.4.1.0 Common Test #960`, realm `CT` | `wot-src-CT/sources/version.xml` |
 | Build game target | `2.4.1.1` | Build contract, `game.version` |
-| Configured game root | `D:/Games/World_of_Tanks_NA` | Build contract, `game.root` |
+| Configured game root | `D:/Games/World_of_Tanks_NA` | Local `build_data/toolchain.local.json`, `game_root` |
 | Installed NA client | `v.2.4.1.1 #987`, realm `NA` | Installed client's `version.xml` |
 | Supported realms | `EU`, `NA`, `ASIA` | Build contract, `game.supported_realms` |
-| Selected source | `WoT_Tools/wot-src-EU`, snapshot `2.4.1.5504` | Build contract, `reference` |
+| Selected source | `WoT_Tools/wot-src-EU`, snapshot `2.4.1.5504` | Build contract `reference.version`; local `reference_root` |
 | Reference policy | `read_only: true` | Build contract; this declares the intended access policy, not filesystem permissions |
 
 The snapshot number and the game installation version are different identifiers. The EU reference and the installed NA client also have different build numbers. Verify changed APIs and behavior against the target client; these labels do not prove identical implementations.
