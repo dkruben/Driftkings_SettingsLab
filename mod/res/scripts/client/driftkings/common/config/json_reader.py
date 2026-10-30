@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import binascii
 import codecs
 from collections import OrderedDict
@@ -8,13 +7,11 @@ import os
 import re
 import zlib
 
-from driftkings.common.config.utils import smart_update
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.logger import get_logger
+from driftkings.settings.config_utils import smart_update
 
 LOG = get_logger('Driftkings.Config')
-
-__all__ = ('loadJson',)
 
 
 class JSONObjectEncoder(json.JSONEncoder):

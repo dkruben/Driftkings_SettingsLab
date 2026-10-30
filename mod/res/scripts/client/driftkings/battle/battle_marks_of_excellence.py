@@ -27,8 +27,7 @@ from driftkings.core.marks_calculator import (battle_curve, battle_estimate, bat
 from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.game_constants import BATTLE_EVENT_TYPE, DAMAGE_EVENTS
 from driftkings.gameface.battle.battle_marks_of_excellence import BattleMarksAdapter
-from driftkings.settings.definitions.battle.battle_marks_of_excellence import \
-    BattleMarksOfExcellenceSettings as Settings
+from driftkings.settings.definitions.battle.battle_marks_of_excellence import BattleMarksOfExcellenceSettings
 from driftkings.settings.service import settings_service
 from driftkings.views.marks_model import compact_model
 
@@ -100,7 +99,7 @@ class Worker(object):
                     self.requestNewData(self.damageRating, self.movingAvgDamage)
 
     def onBattleEvents(self, events):
-        if not g_panel.active or not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
         guiSessionProvider = getPlayer().guiSessionProvider
         if guiSessionProvider.shared.vehicleState.getControllingVehicleID() == getPlayer().playerVehicleID:
@@ -124,7 +123,7 @@ class Worker(object):
             self.calc()
 
     def shots(self, avatar, newHealth, attackerID):
-        if not g_panel.active or not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
         if not avatar.isStarted:
             return
@@ -182,33 +181,33 @@ class Worker(object):
     def calcBattlePercents(self):
         self.levels, self.damages, stats, current_damage, within_limit, unavailable = battle_curve(
             self.values, self.damageRating, self.movingAvgDamage,
-            settings_service.getComponentDict(config)[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_BATTLE_HALF_PERCENTS])
+            settings_service.getComponentDict(battle_marks_of_excellence_settings)[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_BATTLE_HALF_PERCENTS])
         _, _, p20, p40, p55, p65, p85, p95, p100 = stats
         if unavailable:
             self.initiated = False
         self.battleDamageRatingIndex = [0, p20, p40, p55, p65, p85, p95, p100]
 
     def keyPressed(self, event):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(battle_marks_of_excellence_settings)
         if not settings[GLOBAL.ENABLED] or not event.isKeyDown():
             return
         player = getPlayer()
         if not player.arena or not battle_policy.decision('battle_marks_of_excellence')[0]:
             return
         if checkKeys(settings[BATTLE_MARKS_OF_EXCELLENCE.BUTTON_RESET]):
-            defaults = config.getSettingsDefaults()
-            settings_service.apply(config, {
+            defaults = battle_marks_of_excellence_settings.getSettingsDefaults()
+            settings_service.apply(battle_marks_of_excellence_settings, {
                 BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT: defaults[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT],
                 BATTLE_MARKS_OF_EXCELLENCE.PANEL: defaults[BATTLE_MARKS_OF_EXCELLENCE.PANEL]})
         elif checkKeys(settings[BATTLE_MARKS_OF_EXCELLENCE.BUTTON_SIZE_UP]):
-            settings_service.apply(config, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
+            settings_service.apply(battle_marks_of_excellence_settings, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
                 min(1000, settings[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT] + 10)})
         elif checkKeys(settings[BATTLE_MARKS_OF_EXCELLENCE.BUTTON_SIZE_DOWN]):
-            settings_service.apply(config, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
+            settings_service.apply(battle_marks_of_excellence_settings, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
                 max(10, settings[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT] - 10)})
 
     def calc(self):
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
         if not self.level:
             return
@@ -243,11 +242,11 @@ class Worker(object):
             self.calc()
 
     def startBattle(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(battle_marks_of_excellence_settings)
         if not settings[GLOBAL.ENABLED]:
             return
         if settings[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_BATTLE]:
-            message = 'Mod: Marks of Excellence %s [by github.com/spoter]' % config.NAME
+            message = 'Mod: Marks of Excellence %s [by github.com/spoter]' % battle_marks_of_excellence_settings.NAME
             message += '\nRe-Worked for [Driftkings]'
             color = 'Purple'
             sendPanelMessage(message, color)
@@ -278,7 +277,7 @@ class Worker(object):
         if dBid not in marks_cache.values:
             marks_cache.values[dBid] = {}
         if self.replay:
-            settings = settings_service.getComponentDict(config)
+            settings = settings_service.getComponentDict(battle_marks_of_excellence_settings)
             values, self.approximate = replay_calibration(
                 marks_cache.values, dBid, self.name, settings[BATTLE_MARKS_OF_EXCELLENCE.REPLAY_BASE_PERCENT],
                 settings[BATTLE_MARKS_OF_EXCELLENCE.REPLAY_BASE_DAMAGE], self.dateTime)
@@ -336,8 +335,8 @@ class Worker(object):
 
 
 g_panel = BattleMarksAdapter()
-config = Settings()
-marks_cache = MarksBattleCache(config.NAME)
+battle_marks_of_excellence_settings = BattleMarksOfExcellenceSettings()
+marks_cache = MarksBattleCache(battle_marks_of_excellence_settings.NAME)
 marks_cache.load(quiet=False)
 worker = Worker()
 
@@ -383,7 +382,7 @@ def new_destroyGUI(*args):
 
 @override(MarkOnGunAchievement, 'getUserCondition')
 def new_getUserCondition(func, *args):
-    if settings_service.getComponentDict(config)[GLOBAL.ENABLED] and settings_service.getComponentDict(config)[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC]:
+    if settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED] and settings_service.getComponentDict(battle_marks_of_excellence_settings)[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC]:
         targetData = getAchievementDossier(args[0])
         if targetData is not None:
             damage = ProfileUtils.getValueOrUnavailable(ProfileUtils.getValueOrUnavailable(targetData.getRandomStats().getAvgDamage()))
@@ -396,7 +395,7 @@ def new_getUserCondition(func, *args):
             if damageRating:
                 pC, dC, p20, p40, p55, p65, p85, p95, p100 = worker.calcStatistics(damageRating, movingAvgDamage)
                 levels = [p20, p40, p55, p65, p85, p95, p100]
-                index = settings_service.getComponentDict(config).get(BATTLE_MARKS_OF_EXCELLENCE.COLOR_RATING, 0)
+                index = settings_service.getComponentDict(battle_marks_of_excellence_settings).get(BATTLE_MARKS_OF_EXCELLENCE.COLOR_RATING, 0)
                 data = {
                     'nextPercent': '%.0f' % pC,
                     'needDamage': '<font color="%s">%s</font>' % (getMoeDamageColor(int(dC), levels, index), int(dC)),
@@ -412,7 +411,7 @@ def new_getUserCondition(func, *args):
                 }
                 data.update(('c%s' % level, getStatisticColor('mog', level, index))
                             for level in map(int, MARK_LEVELS[1:]))
-                temp = config.i18n['UI_tooltips'].format(**data)
+                temp = battle_marks_of_excellence_settings.i18n['UI_tooltips'].format(**data)
                 return temp
     return func(*args)
 

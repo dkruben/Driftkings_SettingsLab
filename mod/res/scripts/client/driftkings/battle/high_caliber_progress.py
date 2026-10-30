@@ -12,14 +12,14 @@ from driftkings.core.battle_policy import battle_policy
 from driftkings.core.high_caliber import project
 from driftkings.core.hooks import on_event
 from driftkings.gameface.battle.high_caliber_gameface import MainGunAdapter
-from driftkings.settings.definitions.battle.high_caliber_progress import HighCaliberProgressSettings as Settings
+from driftkings.settings.definitions.battle.high_caliber_progress import HighCaliberProgressSettings
 from driftkings.settings.service import settings_service
 
 # RANDOM_NP2 battles use the RANDOM GUI; WINBACK has its own.
 RANDOM_GUI_TYPES = create_range(ARENA_GUI_TYPE, ('RANDOM', 'EPIC_RANDOM', 'WINBACK'))
 
 g_gameface = None
-config = Settings()
+high_caliber_progress_settings = HighCaliberProgressSettings()
 
 
 class MainGun(object):
@@ -31,7 +31,7 @@ class MainGun(object):
 
     @property
     def showMainGun(self):
-        return settings_service.getComponentDict(config)[HIGH_CALIBER_PROGRESS.HIGH_CALIBER_PROGRESS]['enabled'] and scl.guiType in RANDOM_GUI_TYPES
+        return settings_service.getComponentDict(high_caliber_progress_settings)[HIGH_CALIBER_PROGRESS.HIGH_CALIBER_PROGRESS]['enabled'] and scl.guiType in RANDOM_GUI_TYPES
 
     def battleLoading(self):
         enemy_health = scl.health.get(scl.enemyTeam)
@@ -65,7 +65,7 @@ class MainGun(object):
                 self.updateMainGun()
 
     def updateMainGun(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(high_caliber_progress_settings)
         player = getPlayer()
         visible = bool(scl.inBattle and settings[GLOBAL.ENABLED] and player and player.arena
                        and battle_policy.decision('high_caliber_progress')[0]

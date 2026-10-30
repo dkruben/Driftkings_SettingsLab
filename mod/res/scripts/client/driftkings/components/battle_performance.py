@@ -21,7 +21,7 @@ from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.flash.battle.battle_performance import _startFlash
 from driftkings.gameface.lobby.battle_performance import install_results_gameface
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings as Settings
+from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings
 from driftkings.settings.service import affects, settings_service
 from driftkings.stats.vehinfo import calculateRatingScale, calculateXTE, getVehicleInfoData
 
@@ -33,7 +33,7 @@ SUPPORTED_BONUS_TYPES = set(create_range(ARENA_BONUS_TYPE, STATISTICS_BATTLES))
 
 
 g_flash = None
-config = Settings()
+battle_performance_settings = BattlePerformanceSettings()
 
 
 class EfficiencyCalculator(object):
@@ -168,13 +168,13 @@ class BattleEfficiency(object):
 
     @staticmethod
     def read_colors(rating_color, rating_value, damage=None, expected_damage=None):
-        palette = settings_service.getComponentDict(config).get(BATTLE_PERFORMANCE.COLOR_RATTING, 0)
+        palette = settings_service.getComponentDict(battle_performance_settings).get(BATTLE_PERFORMANCE.COLOR_RATTING, 0)
         if rating_color == 'diff':
             return getRelativePerformanceColor(damage, expected_damage, palette)
         return getStatisticColor(rating_color, rating_value, palette)
 
     def startBattle(self):
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED] or g_flash is None:
+        if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED] or g_flash is None:
             return
         result = g_calculator.calc(self._stats['damage'], self._stats['spotted'], self._stats['frags'], self._stats['defence'], self._stats['capture'])
         self._stats.update(dict(zip(['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'dmg', 'diff'], result)))
@@ -186,7 +186,7 @@ class BattleEfficiency(object):
         self.updateFormatString()
 
     def updateFormatString(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(battle_performance_settings)
         player = getPlayer()
         arena = getattr(player, 'arena', None)
         if not settings[GLOBAL.ENABLED] or arena is None or arena.bonusType not in SUPPORTED_BONUS_TYPES:
@@ -218,7 +218,7 @@ g_calculator = EfficiencyCalculator()
 
 @on_event(battleEvents.appearanceDetailed)
 def new_onAppearanceReady(self, vehicle):
-    if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+    if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
         return
     if vehicle.id == self.playerVehicleID:
         g_calculator.registerVInfoData(vehicle.typeDescriptor.type.compactDescr)
@@ -246,7 +246,7 @@ class _EfficiencyListener(object):
 
     @staticmethod
     def onTotalEfficiencyUpdated(diff):
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
             return
         changed = False
         if PERSONAL_EFFICIENCY_TYPE.DAMAGE in diff:
@@ -273,7 +273,7 @@ def new_startGUI(*args):
 
 @override(RibbonsAggregator, 'suspend')
 def new_suspend(func, self):
-    if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+    if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
         func(self)
         return
     self.resume()
@@ -282,7 +282,7 @@ def new_suspend(func, self):
 @override(BattleRibbonsPanel, '_BattleRibbonsPanel__addRibbon')
 def new_addRibbon(func, self, ribbonID, ribbonType='', leftFieldStr='', **kwargs):
     func(self, ribbonID, ribbonType, leftFieldStr, **kwargs)
-    if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+    if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
         return
     if ribbonType not in (BATTLE_EFFICIENCY_TYPES.DETECTION, BATTLE_EFFICIENCY_TYPES.DESTRUCTION, BATTLE_EFFICIENCY_TYPES.DEFENCE, BATTLE_EFFICIENCY_TYPES.CAPTURE):
         return
@@ -339,7 +339,7 @@ def make_results_payload(battle_results):
         macros['{c:%s}' % key] = g_battleEfficiency.read_colors(key, value, summary.damageDealt, expected_damage)
     # Historical templates also advertised this shared X-scale color macro.
     macros['{c:x}'] = macros['{c:xwn8}']
-    template = settings_service.getComponentDict(config)[BATTLE_PERFORMANCE.BATTLE_RESULTS_FORMAT]
+    template = settings_service.getComponentDict(battle_performance_settings)[BATTLE_PERFORMANCE.BATTLE_RESULTS_FORMAT]
     # The native BattleInfo already owns the map and mode. Remove the legacy
     # header before expanding macros, preserving the user's rating template.
     template = re.sub(u'\\{mapName\\}\\s*[-\u2013\u2014]?\\s*\\{battleType\\}\\s*', '', template)

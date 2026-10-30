@@ -6,13 +6,13 @@ from driftkings._constants import GLOBAL
 from driftkings.core.hooks import override
 from driftkings.flash.battle.target_distance import ALIAS, DistanceMarkerController, DistanceMarkerView
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.target_distance import TargetDistanceSettings as Settings
+from driftkings.settings.definitions.battle.target_distance import TargetDistanceSettings
 from driftkings.settings.service import settings_service
 
 LOG = get_logger('driftkings.battle.target_distance')
 
 g_distanceMarker = None
-config = Settings()
+target_distance_settings = TargetDistanceSettings()
 
 
 @override(AvatarInputHandler, 'handleMouseEvent')
@@ -28,7 +28,7 @@ def start(func, self):
     func(self)
     try:
         global g_distanceMarker
-        if g_distanceMarker is None and settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if g_distanceMarker is None and settings_service.getComponentDict(target_distance_settings)[GLOBAL.ENABLED]:
             g_distanceMarker = DistanceMarkerController(self._clazz)
     except Exception as e:
         LOG.error(('Failed to create distance marker app: {}').format(e) , exc_info=True)
@@ -54,4 +54,4 @@ def fini():
 
 
 def getBattleViews():
-    return ((ALIAS, DistanceMarkerView, config),)
+    return ((ALIAS, DistanceMarkerView, target_distance_settings),)

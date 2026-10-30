@@ -6,7 +6,7 @@ from time import strftime
 from driftkings._constants import BATTLE_PREFERENCES, GLOBAL
 from driftkings.flash.battle.meta.debug_panel import DebugPanelMeta
 from driftkings.settings.service import settings_service
-from driftkings.ui import CyclicTimerEvent
+from driftkings.ui.utils.timers import CyclicTimerEvent
 
 
 class DebugPanelView(DebugPanelMeta):

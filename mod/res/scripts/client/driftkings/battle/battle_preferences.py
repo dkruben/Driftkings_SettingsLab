@@ -8,6 +8,7 @@ from Avatar import PlayerAvatar
 from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
 import CommandMapping
 from comp7_core.gui.battle_control.controllers.sound_ctrls.comp7_battle_sounds import _EquipmentZoneSoundPlayer
+from CurrentVehicle import g_currentVehicle
 from gui.battle_control.arena_info.arena_vos import VehicleTypeInfoVO
 from gui.battle_control.arena_visitor import _ClientArenaVisitor
 from gui.battle_control.battle_constants import VEHICLE_VIEW_STATE
@@ -17,6 +18,7 @@ from gui.doc_loaders import GuiColorsLoader
 from gui.game_control.special_sound_ctrl import SpecialSoundCtrl
 from gui.Scaleform.daapi.view.battle.shared.timers_panel import TimersPanel
 from gui.shared.gui_items.processors.vehicle import VehicleAutoBattleBoosterEquipProcessor
+from gui.shared.personality import ServicesLocator
 from messenger.gui.Scaleform.data.contacts_data_provider import _ContactsCategories
 from messenger.storage import MessengerStorageDescriptor, UsersStorage
 from PlayerEvents import g_playerEvents
@@ -29,19 +31,19 @@ from driftkings.core.fog_package import FogPackageController
 from driftkings.core.hooks import override
 from driftkings.flash.battle.debug_panel import DebugPanelView
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings as Settings
+from driftkings.settings.definitions.battle.battle_preferences import BattlePreferencesSettings
 from driftkings.settings.service import settings_service
-from driftkings.ui import g_events
 
 LOG = get_logger('driftkings.battle.battle_preferences')
 
 _cache = set()
-config = Settings()
-fog_package = FogPackageController(config)
+battle_preferences_settings = BattlePreferencesSettings()
+fog_package = FogPackageController(battle_preferences_settings)
+_itemsCache = None
 
 
 def getBattleViews():
-    return ((BATTLE_ALIASES.DEBUG_PANEL, DebugPanelView, config),)
+    return ((BATTLE_ALIASES.DEBUG_PANEL, DebugPanelView, battle_preferences_settings),)
 
 
 # disable battle hints
@@ -51,7 +53,7 @@ def getBattleViews():
 @override(SpecialSoundCtrl, '__setSpecialVoiceByTankmen')
 @override(SpecialSoundCtrl, '__setSpecialVoiceByCommanderSkinID')
 def new_setSoundMode(func, *args, **kwargs):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.DISABLE_SOUND_COMMANDER]:
         return False
     return func(*args, **kwargs)
@@ -60,7 +62,7 @@ def new_setSoundMode(func, *args, **kwargs):
 # disable dogTag
 @override(_ClientArenaVisitor, 'hasDogTag')
 def new_hasDogTag(func, *args, **kwargs):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     if settings[GLOBAL.ENABLED] and not settings.get(BATTLE_PREFERENCES.SHOW_POSTMORTEM_DOG_TAG, True):
         return False
     return func(*args, **kwargs)
@@ -78,7 +80,7 @@ def new_hasDogTag(func, *args, **kwargs):
 # disable battle artillery_stun_effect sound
 @override(TimersPanel, '__playStunSoundIfNeed')
 def new_playStunSoundIfNeed(func, *args, **kwargs):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     if settings[GLOBAL.ENABLED] and settings.get(BATTLE_PREFERENCES.STUN_SOUND, False):
         return None
     return func(*args, **kwargs)
@@ -86,7 +88,7 @@ def new_playStunSoundIfNeed(func, *args, **kwargs):
 
 @override(_EquipmentZoneSoundPlayer, '_onVehicleStateUpdated')
 def new_onVehicleStateUpdated(func, self, state, value):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     if state == VEHICLE_VIEW_STATE.STUN and settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.STUN_SOUND]:
         return
     return func(self, state, value)
@@ -95,7 +97,7 @@ def new_onVehicleStateUpdated(func, self, state, value):
 # mute battle bases
 @override(BattleTeamsBasesController, '__playCaptureSound')
 def new_muteCaptureSound(func, *args):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     if not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.MUTE_TEAM_BASE_SOUND]:
         return func(*args)
 
@@ -103,7 +105,7 @@ def new_muteCaptureSound(func, *args):
 # border color
 @override(ArenaBorderController, '_ArenaBorderController__getCurrentColor')
 def new_getBorderColor(func, self, colorBlind):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     result = func(self, colorBlind)
     if not settings[GLOBAL.ENABLED]:
         colors = GuiColorsLoader.load()
@@ -123,20 +125,20 @@ def new_getBorderColor(func, self, colorBlind):
 
 # Friends
 def showFriends():
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     return settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.SHOW_FRIENDS] and not isReplay()
 
 
 @override(VehicleTypeInfoVO, '__init__')
 def new_VehicleTypeInfoVO(func, self, *args, **kwargs):
     func(self, *args, **kwargs)
-    if settings_service.getComponentDict(config)[GLOBAL.ENABLED] and showFriends():
+    if settings_service.getComponentDict(battle_preferences_settings)[GLOBAL.ENABLED] and showFriends():
         self.isPremiumIGR |= kwargs.get('accountDBID') in _cache
 
 
 @override(VehicleTypeInfoVO, 'update')
 def new_VehicleTypeInfoVO_update(func, self, *args, **kwargs):
-    if settings_service.getComponentDict(config)[GLOBAL.ENABLED] and showFriends():
+    if settings_service.getComponentDict(battle_preferences_settings)[GLOBAL.ENABLED] and showFriends():
         result = func(self, *args, **kwargs)
         if hasattr(self, 'isPremiumIGR'):
             self.isPremiumIGR |= kwargs.get('accountDBID') in _cache
@@ -157,7 +159,7 @@ def onReload(avatar):
     macro['load'] = '0'
     if reloadingState:
         macro['load'] = str(int(math.ceil(reloadingState.getTimeLeft())))
-    template = settings_service.getComponentDict(config)[BATTLE_PREFERENCES.LOAD_TXT]
+    template = settings_service.getComponentDict(battle_preferences_settings)[BATTLE_PREFERENCES.LOAD_TXT]
     try:
         message = template % macro if '%(' in template else template.format(**macro)
     except (IndexError, KeyError, ValueError):
@@ -173,7 +175,7 @@ def onReload(avatar):
 
 @override(PlayerAvatar, 'handleKey')
 def new__handleKey(func, self, isDown, key, mods):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     result = func(self, isDown, key, mods)
     if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.CLIP_LOAD]:
         cmdMap = CommandMapping.g_instance
@@ -225,7 +227,7 @@ def isSpecialVehicle(vehicle):
 
 
 def onVehicleChanged(vehicle):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(battle_preferences_settings)
     if not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.DIRECTIVES_ONLY_FROM_STORAGE]:
         return
     if vehicle is None or vehicle.isLocked or isSpecialVehicle(vehicle):
@@ -242,6 +244,11 @@ def onVehicleChanged(vehicle):
             LOG.info(('VehicleAutoBattleBoosterEquipProcessor: value={} vehicle={}, booster={}').format(value, vehicle.userName, battleBooster.userName))
 
 
+def _onCurrentVehicleChanged(*_):
+    if g_currentVehicle.isPresent():
+        onVehicleChanged(g_currentVehicle.item)
+
+
 def __onGuiCacheSyncCompleted(_):
     _cache.clear()
     users = MessengerStorageDescriptor(UsersStorage).get().getList(_ContactsCategories().getCriteria())
@@ -249,20 +256,31 @@ def __onGuiCacheSyncCompleted(_):
 
 
 def init():
+    global _itemsCache
+    if _itemsCache is not None:
+        return
     try:
         fog_package.start()
     except Exception as error:
         LOG.info(('Fog package unavailable: {}').format(error))
     g_playerEvents.onGuiCacheSyncCompleted += __onGuiCacheSyncCompleted
-    g_events.onVehicleChangedDelayed += onVehicleChanged
+    g_currentVehicle.onChanged += _onCurrentVehicleChanged
+    _itemsCache = ServicesLocator.itemsCache
+    _itemsCache.onSyncCompleted += _onCurrentVehicleChanged
+    _onCurrentVehicleChanged()
 
 
 def fini():
+    global _itemsCache
+    if _itemsCache is None:
+        return
     fog_package.stop()
     g_playerEvents.onGuiCacheSyncCompleted -= __onGuiCacheSyncCompleted
-    g_events.onVehicleChangedDelayed -= onVehicleChanged
+    g_currentVehicle.onChanged -= _onCurrentVehicleChanged
+    _itemsCache.onSyncCompleted -= _onCurrentVehicleChanged
+    _itemsCache = None
 
 
 from driftkings.flash.battle.preferences_hooks import install as install_flash_preferences
 
-install_flash_preferences(config, _getAttackerName)
+install_flash_preferences(battle_preferences_settings, _getAttackerName)

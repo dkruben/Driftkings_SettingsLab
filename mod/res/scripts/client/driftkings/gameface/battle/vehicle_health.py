@@ -42,7 +42,7 @@ class OwnHealthAdapter(BattleCardAdapter):
 
     def savePosition(self, child, args):
         # Dragged with the battle cursor (Ctrl); the position lands in the same settings as the sliders.
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().vehicle_health_settings)
         if not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible:
             return
         panel = moved_panel(dict((key, settings[key]) for key in POSITION_KEYS), args)
@@ -50,10 +50,10 @@ class OwnHealthAdapter(BattleCardAdapter):
             return
         for key in (GLOBAL.X, GLOBAL.Y):
             panel[key] = max(-POSITION_LIMIT, min(POSITION_LIMIT, int(round(panel[key]))))
-        settings_service.apply(_component().config, panel)
+        settings_service.apply(_component().vehicle_health_settings, panel)
 
     def refresh(self):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().vehicle_health_settings)
         state = _component().tracker.state
         config = dict((key, settings[key]) for key in POSITION_KEYS)
         config['locked'] = False

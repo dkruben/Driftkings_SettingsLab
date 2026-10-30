@@ -75,9 +75,9 @@ class Flash(object):
             overlays.update(self.name[name], data)
 
     def __updatePosition(self, alias, props):
-        if not self.active or str(alias) != str(_component().config.NAME):
+        if not self.active or str(alias) != str(_component().target_information_settings.NAME):
             return
-        position = dict(settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION])
+        position = dict(settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION])
         changed = False
         for key in ('x', 'y'):
             value = props.get(key)
@@ -85,11 +85,11 @@ class Flash(object):
                 position[key] = value
                 changed = True
         if changed:
-            settings_service.apply(_component().config, {TARGET_INFORMATION.TEXT_POSITION: position})
+            settings_service.apply(_component().target_information_settings, {TARGET_INFORMATION.TEXT_POSITION: position})
 
     def setup(self):
-        settings = settings_service.getComponentDict(_component().config)
-        self.name = {ElementType.LABEL: '%s' % _component().config.NAME}
+        settings = settings_service.getComponentDict(_component().target_information_settings)
+        self.name = {ElementType.LABEL: '%s' % _component().target_information_settings.NAME}
         self.data = {
             ElementType.LABEL: {
                 'x': 0,
@@ -121,10 +121,10 @@ class Flash(object):
     def applyConfig(self):
         if overlays is None or ElementType is None or ElementType.LABEL not in self.name:
             return
-        shadow = dict(settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_SHADOW])
-        label_data = dict(settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION])
+        shadow = dict(settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_SHADOW])
+        label_data = dict(settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION])
         label_data.update({
-            'drag': not settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_LOCK],
+            'drag': not settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_LOCK],
             'border': False,
             'background': False,
             'alpha': 1.0,
@@ -132,7 +132,7 @@ class Flash(object):
                 'color': '#20252B', 'borderColor': '#49535D',
                 'border': True, 'fill': True, 'thickness': 1,
                 'margin': 12, 'ellipseWidth': 10,
-                'alpha': max(0.0, min(1.0, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.BACKGROUND_ALPHA])) if settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.BACKGROUND_ENABLED] else 0.0
+                'alpha': max(0.0, min(1.0, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.BACKGROUND_ALPHA])) if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.BACKGROUND_ENABLED] else 0.0
             },
             'shadow': shadow
         })
@@ -144,7 +144,7 @@ class Flash(object):
         # structured tab tags are not native TextField HTML tags.
         text = re.sub(r'<tab\s*/?>', '\t', text, flags=re.IGNORECASE)
         text = re.sub(r'<br\s*/?>', '<br>', text, flags=re.IGNORECASE)
-        style = settings_service.getComponentDict(_component().config).get(TARGET_INFORMATION.TEXT_FORMAT, {})
+        style = settings_service.getComponentDict(_component().target_information_settings).get(TARGET_INFORMATION.TEXT_FORMAT, {})
         if style and text:
             # Old defaults used -12 and collapsed 14px text onto adjacent lines.
             # Apply the fix at presentation time, including existing profiles.
@@ -175,25 +175,25 @@ class Flash(object):
         curScr = GUI.screenResolution()
         scale = max(0.1, float(self.settingsCore.interfaceScale.get()))
         xMo, yMo = curScr[0] / scale, curScr[1] / scale
-        x = settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION].get('x', None)
-        if settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.LEFT:
-            x = self.screenFix(xMo, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['x'], 1)
-        elif settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.RIGHT:
-            x = self.screenFix(xMo, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['x'], -1)
-        elif settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.CENTER:
-            x = self.screenFix(xMo, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['x'], 0)
-        if x is not None and x != settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['x']:
-            settings_service.apply(_component().config, {TARGET_INFORMATION.TEXT_POSITION: {'x': x}}, persist=False)
+        x = settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION].get('x', None)
+        if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.LEFT:
+            x = self.screenFix(xMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x'], 1)
+        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.RIGHT:
+            x = self.screenFix(xMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x'], -1)
+        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.CENTER:
+            x = self.screenFix(xMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x'], 0)
+        if x is not None and x != settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x']:
+            settings_service.apply(_component().target_information_settings, {TARGET_INFORMATION.TEXT_POSITION: {'x': x}}, persist=False)
             self.data[ElementType.LABEL]['x'] = x
-        y = settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION].get('y', None)
-        if settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.TOP:
-            y = self.screenFix(yMo, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['y'], 1)
-        elif settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.BOTTOM:
-            y = self.screenFix(yMo, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['y'], -1)
-        elif settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.CENTER:
-            y = self.screenFix(yMo, settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['y'], 0)
-        if y is not None and y != settings_service.getComponentDict(_component().config)[TARGET_INFORMATION.TEXT_POSITION]['y']:
-            settings_service.apply(_component().config, {TARGET_INFORMATION.TEXT_POSITION: {'y': y}}, persist=False)
+        y = settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION].get('y', None)
+        if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.TOP:
+            y = self.screenFix(yMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y'], 1)
+        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.BOTTOM:
+            y = self.screenFix(yMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y'], -1)
+        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.CENTER:
+            y = self.screenFix(yMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y'], 0)
+        if y is not None and y != settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y']:
+            settings_service.apply(_component().target_information_settings, {TARGET_INFORMATION.TEXT_POSITION: {'y': y}}, persist=False)
             self.data[ElementType.LABEL]['y'] = y
         self.updateObject(ElementType.LABEL, {'x': x, 'y': y})
 

@@ -30,9 +30,17 @@ class BattlePreferencesTests(RuntimeTest):
         self.scheduled, self.square = [], 'E5'
         arena = module(vehicles={1: {'name': 'Bob', 'vehicleType': module(type=module(shortUserString='T-34'))}})
         self.player = module(arena=arena)
+        Signal = self.load('core.signals').Signal
+        self.current = module(isPresent=lambda: self.current.item is not None,
+                              item=None, onChanged=Signal())
+        self.cache = module(onSyncCompleted=Signal())
+        self.player_events = module(onGuiCacheSyncCompleted=Signal())
         wg = module(getPlayer=lambda: self.player, isReplay=lambda: False,
                     square_position=module(getSquarePosition=lambda: self.square))
         deps = {
+            'CurrentVehicle': module(g_currentVehicle=self.current),
+            'gui.shared.personality': module(ServicesLocator=module(itemsCache=self.cache)),
+            'PlayerEvents': module(g_playerEvents=self.player_events),
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.utils.wgutils': wg,
             'driftkings.core.callbacks': module(callback=lambda delay, function: self.scheduled.append(function)),
@@ -41,7 +49,7 @@ class BattlePreferencesTests(RuntimeTest):
                                           real=('driftkings._constants', 'driftkings.common.utils.formatting'))
         deps['driftkings.core.hooks'] = self.hooks
         bridge, _ = game_source('flash/battle/preferences_hooks.py', deps, real=('driftkings._constants',))
-        bridge['install'](self.api['config'], self.api['_getAttackerName'])
+        bridge['install'](self.api['battle_preferences_settings'], self.api['_getAttackerName'])
 
     def wrap(self, *spec, **kwargs):
         # spec is (target, method, *args); keyword arguments go to the wrapper.
@@ -204,6 +212,37 @@ class BattlePreferencesTests(RuntimeTest):
         self.data['enabled'] = False
         self.api['onVehicleChanged'](self.booster_vehicle(2))
         self.assertEqual(len(changes), 2)
+
+    def test_directives_follow_selection_and_inventory_sync_and_unsubscribe(self):
+        changes = []
+        self.api['changeValue'] = lambda vehicle, value: changes.append((vehicle.userName, value))
+        self.current.item = self.booster_vehicle(2)
+        self.api['init']()
+        self.api['init']()
+        self.assertEqual(changes, [('Tank', True)])
+        self.assertEqual(len(self.current.onChanged), 1)
+        self.assertEqual(len(self.cache.onSyncCompleted), 1)
+        self.current.item = self.booster_vehicle(0, auto=True)
+        self.current.onChanged()
+        self.assertEqual(changes[-1], ('Tank', False))
+        self.current.item = self.booster_vehicle(0)
+        self.cache.onSyncCompleted('inventory', {})
+        self.assertEqual(len(changes), 2)
+        self.current.item = self.booster_vehicle(2)
+        self.cache.onSyncCompleted('inventory', {})
+        self.assertEqual(changes[-1], ('Tank', True))
+        self.current.item = None
+        self.current.onChanged()
+        self.assertEqual(len(changes), 3)
+        self.api['fini']()
+        self.api['fini']()
+        self.assertEqual(len(self.current.onChanged), 0)
+        self.assertEqual(len(self.cache.onSyncCompleted), 0)
+        self.assertEqual(len(self.player_events.onGuiCacheSyncCompleted), 0)
+        self.current.item = self.booster_vehicle(2)
+        self.current.onChanged()
+        self.cache.onSyncCompleted('inventory', {})
+        self.assertEqual(len(changes), 3)
 
     def test_border_uses_the_configured_colour(self):
         red, green, blue, alpha = self.hooks.get('ArenaBorderController', '_ArenaBorderController__getCurrentColor')(Native(), 'ctrl', False)

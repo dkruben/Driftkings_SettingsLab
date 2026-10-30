@@ -123,10 +123,10 @@ def install_gameface():
             try:
                 parent = self._hangarRef()
                 visible = bool(parent is not None and _component().g_controller.visible.get(parent, False)
-                               and settings_service.getComponentDict(_component().config)[GLOBAL.ENABLED] and settings_service.getComponentDict(_component().config)[HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR]
+                               and settings_service.getComponentDict(_component().hangar_marks_of_excellence_settings)[GLOBAL.ENABLED] and settings_service.getComponentDict(_component().hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR]
                                and _component().has_marks_tier())
                 payload = card_payload(self._lastPayload, kwargs.get('config_only', False), visible,
-                                       lambda: get_view_config(_component().config), _component().g_data.build_panel_model)
+                                       lambda: get_view_config(_component().hangar_marks_of_excellence_settings), _component().g_data.build_panel_model)
                 publish_card(self, payload)
             except Exception:
                 from driftkings.core.marks_state import marks_state
@@ -137,12 +137,12 @@ def install_gameface():
                     model._setString(0, '{"config":{"visible":false}}')
 
         def savePosition(self, args):
-            settings = settings_service.getComponentDict(_component().config)
+            settings = settings_service.getComponentDict(_component().hangar_marks_of_excellence_settings)
             if settings[HANGAR_MARKS_OF_EXCELLENCE.TEXT_LOCK]:
                 return
             panel = moved_panel(settings[HANGAR_MARKS_OF_EXCELLENCE.PANEL], args)
             if panel is None:
                 return
-            settings_service.apply(_component().config, {HANGAR_MARKS_OF_EXCELLENCE.PANEL: panel})
+            settings_service.apply(_component().hangar_marks_of_excellence_settings, {HANGAR_MARKS_OF_EXCELLENCE.PANEL: panel})
 
     install_card(_component, MarksView, __name__, RESOURCE)

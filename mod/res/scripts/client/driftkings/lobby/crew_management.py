@@ -20,7 +20,7 @@ from driftkings.common.utils.exceptions import log_exceptions
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
-from driftkings.settings.definitions.lobby.crew_management import CrewManagementSettings as Settings
+from driftkings.settings.definitions.lobby.crew_management import CrewManagementSettings
 from driftkings.settings.service import settings_service
 
 
@@ -87,7 +87,7 @@ def removeIgnoredVehicle(vehicle_id):
 
 
 ignored_vehicles = openIgnoredVehicles()
-config = Settings()
+crew_management_settings = CrewManagementSettings()
 
 
 class Crew(object):
@@ -116,7 +116,7 @@ class Crew(object):
         if not g_currentVehicle.isPresent():
             return
         result = yield TankmanReturn(g_currentVehicle.item).request()
-        if result and result.userMsg and print_message and settings_service.getComponentDict(config)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
+        if result and result.userMsg and print_message and settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
             SystemMessages.pushI18nMessage(result.userMsg, type=result.sysMsgType)
 
     @decorators.adisp_process('crewReturning')
@@ -129,11 +129,11 @@ class Crew(object):
         if not g_currentVehicle.isPresent():
             return
         result = yield TankmanUnload(g_currentVehicle.item.invID).request()
-        if result and result.userMsg and settings_service.getComponentDict(config)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
+        if result and result.userMsg and settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
             SystemMessages.pushI18nMessage(result.userMsg, type=result.sysMsgType)
 
     def handleVehicleChange(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(crew_management_settings)
         if not settings[GLOBAL.ENABLED]:
             return
         if settings[CREW_MANAGEMENT.CREW_AUTO_RETURN] and settings[CREW_MANAGEMENT.CREW_RETURN_BY_DEFAULT]:
@@ -159,7 +159,7 @@ class Crew(object):
 
     @log_exceptions
     def handlePopupSelect(self, items):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(crew_management_settings)
         if not items or not settings[GLOBAL.ENABLED] or not settings[CREW_MANAGEMENT.CREW_AUTO_RETURN]:
             return
         if len(items) == 1:
@@ -195,13 +195,13 @@ class Crew(object):
         if str(g_currentVehicle.item.invID) in ignored_vehicles:
             return
         if not self.isLastCrewAvailable():
-            if settings_service.getComponentDict(config)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
-                SystemMessages.pushMessage(config.i18n['UI_message_crewNotAvailable'], type=SystemMessages.SM_TYPE.Warning)
+            if settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
+                SystemMessages.pushMessage(crew_management_settings.i18n['UI_message_crewNotAvailable'], type=SystemMessages.SM_TYPE.Warning)
             return
         self.processReturnCrew()
 
     def toggleAutoReturnForCurrentVehicle(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(crew_management_settings)
         if not g_currentVehicle.isPresent():
             return False
         vehicle_id = str(g_currentVehicle.item.invID)
@@ -233,7 +233,7 @@ class Crew(object):
         for vehicle in vehicles.values():
             if str(vehicle.invID) in ignored_vehicles:
                 continue
-            if settings_service.getComponentDict(config)[CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES] and vehicle.isPremium:
+            if settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES] and vehicle.isPremium:
                 continue
             if not (vehicle.isCrewFull or vehicle.isInBattle or vehicle.isLocked):
                 self.processReturnCrewForVehicleSelectorPopup(vehicle)
@@ -243,7 +243,7 @@ g_crew = Crew()
 
 from driftkings.gameface.lobby import crew_progression as progression_view
 
-progression_view.install(config)
+progression_view.install(crew_management_settings)
 
 
 @override(VehicleSelectorPopup, 'onSelectVehicles')

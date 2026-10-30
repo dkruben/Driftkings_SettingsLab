@@ -9,15 +9,15 @@ from driftkings._constants import MinMax
 from driftkings.core.camera_settings import options
 from driftkings.core.hooks import override
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.third_person_zoom import ThirdPersonZoomSettings as Settings
+from driftkings.settings.definitions.battle.third_person_zoom import ThirdPersonZoomSettings
 from driftkings.settings.service import settings_service
 
 LOG = get_logger('Driftkings.Camera')
-config = Settings()
+third_person_zoom_settings = ThirdPersonZoomSettings()
 
 
 def _options(mode):
-    return options(settings_service.getComponentDict(config), mode)
+    return options(settings_service.getComponentDict(third_person_zoom_settings), mode)
 
 
 def _arcadeMode(camera):

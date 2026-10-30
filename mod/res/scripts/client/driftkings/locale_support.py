@@ -20,6 +20,7 @@ ALIASES = {
 }
 
 
+# Returns the language code for a given language identifier.
 def language_code(language):
     code = str(language or 'en').strip().lower().replace('-', '_')
     if code in ALIASES:

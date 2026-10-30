@@ -14,7 +14,7 @@ from driftkings.core.hooks import override
 from driftkings.core.keyboard import keyboard
 from driftkings.core.signals import Signal
 from driftkings.logger import get_logger
-from driftkings.ui import g_events
+from driftkings.ui.common.events import g_events
 
 LOG = get_logger('Driftkings.BattleEvents')
 
@@ -59,6 +59,7 @@ class BattleEvents(object):
                 self.hooked = True
             g_events.onBattleLoaded += self.onLoaded
             self.bound = True
+            g_events.start()
             keyboard.subscribe(self.onKey)
             self.bindSession()
         except Exception:
@@ -75,6 +76,7 @@ class BattleEvents(object):
             if self.bound:
                 g_events.onBattleLoaded -= self.onLoaded
                 self.bound = False
+                g_events.stop()
             keyboard.unsubscribe(self.onKey)
 
     def detachArena(self):

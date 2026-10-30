@@ -11,8 +11,7 @@ from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.settings_controller import SettingsController
 from driftkings.gameface.lobby.tech_tree_marks_of_excellence import install
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.lobby.tech_tree_marks_of_excellence import \
-    TechTreeMarksOfExcellenceSettings as Settings
+from driftkings.settings.definitions.lobby.tech_tree_marks_of_excellence import TechTreeMarksOfExcellenceSettings
 from driftkings.settings.service import affects, settings_service
 
 LOG = get_logger('Driftkings.MarksOnGunTechTree')
@@ -39,7 +38,7 @@ class TechTreeController(SettingsController):
                 LOG.exception('Could not apply tech tree settings to the active view')
 
 
-config = Settings()
+tech_tree_marks_of_excellence_settings = TechTreeMarksOfExcellenceSettings()
 controller = TechTreeController()
 
 
@@ -59,7 +58,7 @@ def vehicle_marks(vehicle_id):
 def make_payload(vehicle_ids, records=None):
     # Raw dossier values belong to the open view; colors follow current settings.
     records = {} if records is None else records
-    data = settings_service.getComponentDict(config)
+    data = settings_service.getComponentDict(tech_tree_marks_of_excellence_settings)
     enabled = bool(data.get(GLOBAL.ENABLED) and data.get(TECH_TREE_MARKS_OF_EXCELLENCE.SHOW_IN_TECH_TREE))
     vehicles = {}
     if enabled:

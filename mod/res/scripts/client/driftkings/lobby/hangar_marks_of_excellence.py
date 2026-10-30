@@ -79,14 +79,14 @@ def trend(history, vehicle_id, last_battles=10):
             'points': [p['percent'] for p in selected], 'samples': [dict(p) for p in selected]}
 
 
-from driftkings.settings.definitions.lobby.hangar_marks_of_excellence import HangarMarksOfExcellenceSettings as Settings
+from driftkings.settings.definitions.lobby.hangar_marks_of_excellence import HangarMarksOfExcellenceSettings
 
 
 def read_colors(rating_color, rating_value):
-    return getStatisticColor(rating_color, rating_value, settings_service.getComponentDict(config).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
+    return getStatisticColor(rating_color, rating_value, settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
 
 
-config = Settings()
+hangar_marks_of_excellence_settings = HangarMarksOfExcellenceSettings()
 
 
 class MarksOnGunData(object):
@@ -115,12 +115,12 @@ class MarksOnGunData(object):
 
     @staticmethod
     def _format_int(value):
-        return '{:,}'.format(int(value)).replace(',', number_locale(config.lang)['groupSeparator'])
+        return '{:,}'.format(int(value)).replace(',', number_locale(hangar_marks_of_excellence_settings.lang)['groupSeparator'])
 
     @staticmethod
     def _format_float(value, digits=2):
         fmt = '%%.%sf' % digits
-        return (fmt % float(value)).replace('.', number_locale(config.lang)['decimalSeparator'])
+        return (fmt % float(value)).replace('.', number_locale(hangar_marks_of_excellence_settings.lang)['decimalSeparator'])
 
     @staticmethod
     def _escape_html(value):
@@ -131,7 +131,7 @@ class MarksOnGunData(object):
         return self._MASTERY_LABELS.get(int(value or 0), '--')
 
     def _pick_color(self, value, levels):
-        return getMoeDamageColor(value, levels, settings_service.getComponentDict(config).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
+        return getMoeDamageColor(value, levels, settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
 
     def _color_by_wn8(self, wn8):
         return read_colors('wn8', wn8)
@@ -310,15 +310,15 @@ class MarksOnGunData(object):
             'c95': c95,
             'c100': c100
         }
-        template = config.i18n['UI_tooltipsFull'] if settings_service.getComponentDict(config)[HANGAR_MARKS_OF_EXCELLENCE.SHOW_TOOLTIP_TARGETS] else config.i18n['UI_tooltips']
+        template = hangar_marks_of_excellence_settings.i18n['UI_tooltipsFull'] if settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.SHOW_TOOLTIP_TARGETS] else hangar_marks_of_excellence_settings.i18n['UI_tooltips']
         return template.format(**ctx)
 
     def build_panel_model(self):
-        result = {'config': get_view_config(config), 'state': 'empty',
-                  'vehicle': config.i18n['UI_panel_chooseVehicle'], 'message': config.i18n['UI_panel_selectVehicle'],
-                  'labels': {key[9:]: value for key, value in config.i18n.items() if key.startswith('UI_panel_')}}
-        result['labels'].update((key[7:], value) for key, value in config.i18n.items() if key.startswith('UI_mog_'))
-        result['labels']['title'] = config.i18n['UI_description']
+        result = {'config': get_view_config(hangar_marks_of_excellence_settings), 'state': 'empty',
+                  'vehicle': hangar_marks_of_excellence_settings.i18n['UI_panel_chooseVehicle'], 'message': hangar_marks_of_excellence_settings.i18n['UI_panel_selectVehicle'],
+                  'labels': {key[9:]: value for key, value in hangar_marks_of_excellence_settings.i18n.items() if key.startswith('UI_panel_')}}
+        result['labels'].update((key[7:], value) for key, value in hangar_marks_of_excellence_settings.i18n.items() if key.startswith('UI_mog_'))
+        result['labels']['title'] = hangar_marks_of_excellence_settings.i18n['UI_description']
         if not g_currentVehicle.isPresent():
             marks_state.clear('hangar')
             return result
@@ -328,12 +328,12 @@ class MarksOnGunData(object):
         if data is None:
             marks_state.clear('hangar')
             result.update(vehicle=unicode(g_currentVehicle.item.shortUserName),
-                          message=config.i18n['UI_panel_noDossier'])
+                          message=hangar_marks_of_excellence_settings.i18n['UI_panel_noDossier'])
             return result
         target = goal(data['damageRating'], data['movingAvgDamage'], data['tier'],
-                      settings_service.getComponentDict(config)[HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION], data['earnedMarks'])
+                      settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION], data['earnedMarks'])
         if not target['eligible']:
-            result['message'] = config.i18n['UI_panel_tierLimit']
+            result['message'] = hangar_marks_of_excellence_settings.i18n['UI_panel_tierLimit']
         recent = g_history.observe(data) if target['eligible'] else {'delta': None, 'battles': 0}
         rank = data['masteryValue']
         mastery = int(rank) if rank in (1, 2, 3, 4) else 0
@@ -357,7 +357,7 @@ class MarksOnGunData(object):
             'earnedMarks': max(0, min(3, int(finite(data['earnedMarks'])))),
             'average': self._format_int(data['movingAvgDamage']),
             'estimate': '~' + self._format_int(target['estimate']) if target['estimate'] is not None else '--',
-            'mastery': config.i18n['UI_panel_mastery%s' % mastery] if mastery else '--',
+            'mastery': hangar_marks_of_excellence_settings.i18n['UI_panel_mastery%s' % mastery] if mastery else '--',
             'masteryIcon': 'coui://' + icon if icon else '',
             'wn8': self._format_int(data['wn8']) if data['wn8'] else '--',
             'wn8Color': data['wn8Color'], 'winRateColor': data['winRateColor'],
@@ -384,7 +384,7 @@ class ProgressHistory(object):
         name = 'progress_%s' % int(account)
         if account != self.account:
             self.account = account
-            loaded = loadJson(config.NAME, name, {'vehicles': {}}, self.cachePath)
+            loaded = loadJson(hangar_marks_of_excellence_settings.NAME, name, {'vehicles': {}}, self.cachePath)
             self.data = {'vehicles': {}}
             if isinstance(loaded, dict) and isinstance(loaded.get('vehicles'), dict):
                 for vehicle, points in loaded['vehicles'].items():
@@ -393,8 +393,8 @@ class ProgressHistory(object):
                             if isinstance(point, dict) and all(k in point for k in ('battles', 'percent', 'average')):
                                 record_snapshot(self.data, vehicle, point['battles'], point['percent'], point['average'])
         if record_snapshot(self.data, data['vehicleID'], data['randomBattles'], data['damageRating'], data['movingAvgDamage']):
-            loadJson(config.NAME, name, self.data, self.cachePath, True, quiet=True)
-        return trend(self.data, data['vehicleID'], settings_service.getComponentDict(config)[HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES])
+            loadJson(hangar_marks_of_excellence_settings.NAME, name, self.data, self.cachePath, True, quiet=True)
+        return trend(self.data, data['vehicleID'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES])
 
 
 g_history = ProgressHistory()
@@ -409,7 +409,7 @@ from driftkings.gameface.lobby.hangar_marks_of_excellence import (get_view_confi
 @override(MarkOnGunAchievement, 'getUserCondition')
 @log_exceptions
 def new__getUserCondition(func, *args):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_marks_of_excellence_settings)
     dossier = getAchievementDossier(args[0])
     if settings[GLOBAL.ENABLED] and settings[HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC] and dossier is not None:
         tooltip = g_data.build_tooltip(dossier)

@@ -17,7 +17,7 @@ from skeletons.gui.web import IWebController
 
 from driftkings._constants import CLAN_REWARD_COLLECTION, GLOBAL
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.lobby.clan_reward_collection import ClanRewardCollectionSettings as Settings
+from driftkings.settings.definitions.lobby.clan_reward_collection import ClanRewardCollectionSettings
 from driftkings.settings.service import settings_service
 
 LOG = get_logger('driftkings.lobby.clan_reward_collection')
@@ -143,8 +143,8 @@ class AutoClaimClanReward(object):
 
 
 # Create global instance
-config = Settings()
-g_autoClaimClanReward = AutoClaimClanReward(config)
+clan_reward_collection_settings = ClanRewardCollectionSettings()
+g_autoClaimClanReward = AutoClaimClanReward(clan_reward_collection_settings)
 
 
 def fini():

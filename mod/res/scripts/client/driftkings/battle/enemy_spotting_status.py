@@ -10,7 +10,7 @@ from driftkings.core.hooks import on_event
 from driftkings.core.vehicle_images import resolve_vehicle_images
 from driftkings.flash.battle.messages import sendPanelMessage
 from driftkings.game_constants import ASSIST_EVENTS, BATTLE_EVENT_TYPE
-from driftkings.settings.definitions.battle.enemy_spotting_status import EnemySpottingStatusSettings as Settings
+from driftkings.settings.definitions.battle.enemy_spotting_status import EnemySpottingStatusSettings
 from driftkings.settings.service import settings_service
 
 SOUND_LIST = (ENEMY_SPOTTING_STATUS.SOUND_SPOTTED, ENEMY_SPOTTING_STATUS.SOUND_ASSIST)
@@ -28,7 +28,6 @@ class SpottedLightController(object):
         self.config = config
         self.format_str = {}
         self.format_recreate()
-
 
     def check_macros(self, macros):
         return any(macros in settings_service.getComponentDict(self.config)[text_type] for text_type in [ENEMY_SPOTTING_STATUS.SPOTTED, ENEMY_SPOTTING_STATUS.ASSIST_RADIO, ENEMY_SPOTTING_STATUS.ASSIST_TRACK, ENEMY_SPOTTING_STATUS.ASSIST_STUN])
@@ -112,8 +111,8 @@ class SpottedLightController(object):
             sendPanelMessage("<font color='%s'>%s</font>" % (color, message))
 
 
-config = Settings()
-controller = SpottedLightController(config)
+enemy_spotting_status_settings = EnemySpottingStatusSettings()
+controller = SpottedLightController(enemy_spotting_status_settings)
 
 
 @on_event(battleEvents.feedback)

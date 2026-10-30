@@ -25,7 +25,7 @@ def _component():
 
 class MinimapEnhancementsView(MinimapMeta):
     def __init__(self):
-        super(MinimapEnhancementsView, self).__init__(_component().config.NAME)
+        super(MinimapEnhancementsView, self).__init__(_component().minimap_settings.NAME)
         self._releaseCallback = None
 
 
@@ -67,7 +67,7 @@ class MinimapEnhancementsView(MinimapMeta):
         from driftkings.settings.registry import registry
         if not _component().controller._active:
             return
-        if registry.isOpen or not checkKeys(settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.BUTTON]):
+        if registry.isOpen or not checkKeys(settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.BUTTON]):
             _component().controller.setAlternative(False)
         elif _component().controller.minimapZoom:
             self._releaseCallback = callback(0.1, self._checkRelease)
@@ -81,8 +81,8 @@ class MinimapEnhancementsView(MinimapMeta):
         if hasCompetingMarkers():
             return
         # Epic's segmented map keeps its native positioning; labels still switch.
-        options = dict(settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.PRESENTATION])
-        data = settings_service.getComponentDict(_component().config)
+        options = dict(settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.PRESENTATION])
+        data = settings_service.getComponentDict(_component().minimap_settings)
         for section in ('icons', 'health', 'lostMarker', 'mapSize', 'circles', 'extraCircles', 'nearby'):
             options[section] = data[section]
         visitor = _component().controller.sessionProvider.arenaVisitor
@@ -90,14 +90,14 @@ class MinimapEnhancementsView(MinimapMeta):
         options['mapWidth'], options['mapHeight'] = int(top[0] - bottom[0]), int(top[1] - bottom[1])
         info = _component().controller.sessionProvider.getArenaDP().getVehicleInfo()
         options['vehicleClass'] = info.vehicleType.classTag
-        options.update(enabled=settings_service.getComponentDict(_component().config)[GLOBAL.ENABLED],
+        options.update(enabled=settings_service.getComponentDict(_component().minimap_settings)[GLOBAL.ENABLED],
                        alternative=bool(pressed),
                        zoom=bool(options['zoom'] and _component().controller.notEpicBattle),
-                       scale=min(settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.ZOOM_FACTOR], settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX]),
-                       labels=settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.LABELS],
-                       lines=settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.LINES],
-                       artilleryAim=settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.ARTILLERY_AIM],
-                       showVehicleTypes=settings_service.getComponentDict(_component().config)[MINIMAP_ENHANCEMENTS.SHOW_VEHICLE_TYPES]
+                       scale=min(settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.ZOOM_FACTOR], settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX]),
+                       labels=settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.LABELS],
+                       lines=settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.LINES],
+                       artilleryAim=settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.ARTILLERY_AIM],
+                       showVehicleTypes=settings_service.getComponentDict(_component().minimap_settings)[MINIMAP_ENHANCEMENTS.SHOW_VEHICLE_TYPES]
                        )
         self.as_minimapPresentationS(options)
 

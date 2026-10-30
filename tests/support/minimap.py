@@ -115,7 +115,7 @@ class MinimapFixture(RuntimeTest):
             'driftkings.core.hooks': module(override=lambda *args: (lambda function: function)),
             'driftkings.core.keyboard': module(keyboard=module(subscribe=lambda handler: None, unsubscribe=lambda handler: None)),
             'driftkings.settings.service': module(settings_service=service),
-            'driftkings.ui': module(g_events=module(onAltKey=lambda pressed: None)),
+            'driftkings.ui.common.events': module(g_events=module(onAltKey=lambda pressed: None)),
             'driftkings.settings.definitions.battle.minimap_enhancements': module(MinimapEnhancementsSettings=object),
             'driftkings.flash.battle.minimap_enhancements': module(MinimapEnhancementsView=object),
         }

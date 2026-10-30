@@ -23,7 +23,7 @@ from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.gameface.lobby.vehicle_carousel import (CarouselController, get_view_config, install_carousel_layout,
                                                         install_gameface, restore_carousel_layout)
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings as Settings
+from driftkings.settings.definitions.lobby.vehicle_carousel import VehicleCarouselSettings
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import calculateRatingScale, getVehicleInfoData
 
@@ -137,7 +137,7 @@ def collect(vehicle):
 
 def render_macro(template, values):
     def color(key, value):
-        return getStatisticColor(COLOR_KEYS.get(key, key), value, settings_service.getComponentDict(config).get(VEHICLE_CAROUSEL.COLOR_RATING, 1))
+        return getStatisticColor(COLOR_KEYS.get(key, key), value, settings_service.getComponentDict(vehicle_carousel_settings).get(VEHICLE_CAROUSEL.COLOR_RATING, 1))
     def icon(key):
         if key == 'marksOnGun':
             rank = int(bounded(values.get('marksOnGun'), 0, 3, 0))
@@ -152,7 +152,7 @@ def render_macro(template, values):
     return normalize_icon_paths(layout.render(template, values, color, icon))
 
 
-config = Settings()
+vehicle_carousel_settings = VehicleCarouselSettings()
 
 
 class CarouselData(object):
@@ -189,9 +189,9 @@ class CarouselData(object):
         return {'source': 'examples', 'vehicles': examples, 'nativeRows': next(iter(g_rowModels.values()), 1)}
 
     def build_panel_model(self, requested):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(vehicle_carousel_settings)
         self._sync_account()
-        result = {'config': get_view_config(config, g_rowModels), 'vehicles': {}}
+        result = {'config': get_view_config(vehicle_carousel_settings, g_rowModels), 'vehicles': {}}
         inventory = ServicesLocator.itemsCache.items.getVehicles(REQ_CRITERIA.INVENTORY)
         criteria = set(key.lstrip('-') for key in settings[VEHICLE_CAROUSEL.CAROUSEL]['sorting_criteria'])
         result['sortValues'] = {}

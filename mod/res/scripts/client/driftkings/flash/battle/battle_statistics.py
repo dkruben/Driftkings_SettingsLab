@@ -18,7 +18,7 @@ def _component():
 
 class Flash(CachedBattleLabel):
     def __init__(self, section, params):
-        super(Flash, self).__init__(section, _component, BATTLE_STATISTICS.TEXT_POSITION, BATTLE_STATISTICS)
+        super(Flash, self).__init__(section, _component().battle_statistics_settings, BATTLE_STATISTICS.TEXT_POSITION, BATTLE_STATISTICS)
         self.font = params['font']
         self.size = params['size']
         self.color = params['color']
@@ -52,4 +52,4 @@ class Flash(CachedBattleLabel):
 
 
 def _startFlash():
-    _component().g_flash = Flash(_component().config.NAME, settings_service.getComponentDict(_component().config)[BATTLE_STATISTICS.TEXT_FORMAT])
+    _component().g_flash = Flash(_component().battle_statistics_settings.NAME, settings_service.getComponentDict(_component().battle_statistics_settings)[BATTLE_STATISTICS.TEXT_FORMAT])

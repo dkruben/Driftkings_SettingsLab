@@ -27,7 +27,7 @@
 .dk-health__track {
     overflow: hidden;
     background-color: #1a1c1e;
-    background-image: url('stripes.png');
+    background-image: url('assets/stripes.png');
     background-repeat: repeat;
     background-size: 12rem 12rem;
 }
@@ -49,7 +49,7 @@
     height: 100%;
 }
 .dk-health__stripes {
-    background-image: url('stripes.png');
+    background-image: url('assets/stripes.png');
     background-repeat: repeat;
     background-size: 12rem 12rem;
 }

@@ -20,7 +20,7 @@ from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event, override
 from driftkings.flash.battle.gun_traverse_limits import AimingAnglesView
 from driftkings.game_constants import CTRL_MODE_NAME
-from driftkings.settings.definitions.battle.gun_traverse_limits import GunTraverseLimitsSettings as Settings
+from driftkings.settings.definitions.battle.gun_traverse_limits import GunTraverseLimitsSettings
 
 ARCADE_MODE = 'arc'
 SNIPER_MODE = 'sn'
@@ -321,8 +321,8 @@ class AimingAnglesController(AimingAnglesView):
         return (self.dataVert[1] + _y) if self.isAlive else -COORDINATE_OFF_SCREEN
 
 
-config = Settings()
-controller = AimingAnglesController(config)
+gun_traverse_limits_settings = GunTraverseLimitsSettings()
+controller = AimingAnglesController(gun_traverse_limits_settings)
 
 
 def init():

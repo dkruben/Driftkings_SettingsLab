@@ -12,11 +12,11 @@ from driftkings.common.utils.wgutils import getPlayer, square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.hooks import override
 from driftkings.flash.battle.sixth_sense_alert import set_native_visible, SixthSense
-from driftkings.settings.definitions.battle.sixth_sense_alert import SixthSenseAlertSettings as Settings
+from driftkings.settings.definitions.battle.sixth_sense_alert import SixthSenseAlertSettings
 from driftkings.settings.service import settings_service
 
 AS_BATTLE = BATTLE_ALIASES.SIXTH_SENSE_ALERT
-config = Settings()
+sixth_sense_alert_settings = SixthSenseAlertSettings()
 
 
 class MessagesSpotted(object):
@@ -26,7 +26,7 @@ class MessagesSpotted(object):
         self.last_position = None
 
     def sendMessage(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(sixth_sense_alert_settings)
         self.macro['pos'] = square_position.getSquarePosition()
         if self.macro['pos'] != self.last_position:
             message = settings[SIXTH_SENSE_ALERT.SPOTTED_TEXT] % self.macro
@@ -37,7 +37,7 @@ class MessagesSpotted(object):
     def helpMessage(self):
         def message(avatar):
             avatar.guiSessionProvider.shared.chatCommands.handleChatCommand(BATTLE_CHAT_COMMAND_NAMES.SOS)
-        if settings_service.getComponentDict(config)[SIXTH_SENSE_ALERT.HELP_MESSAGE]:
+        if settings_service.getComponentDict(sixth_sense_alert_settings)[SIXTH_SENSE_ALERT.HELP_MESSAGE]:
             callback(self.__time, partial(message, getPlayer()))
 
 
@@ -50,7 +50,7 @@ def prepare_sixth_sense_mp3(func, self, event):
     # The native indicator prepares its custom MP3 independently of our Wwise
     # event. Leave all other MP3 events and the disabled-mod fallback intact.
     if event == 'sixthSense' and g_view is not None:
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(sixth_sense_alert_settings)
         if (settings[GLOBAL.ENABLED] and settings[SIXTH_SENSE_ALERT.USER_SOUND]
                 and not settings[SIXTH_SENSE_ALERT.PLAY_TICK_SOUND]):
             return
@@ -59,7 +59,7 @@ def prepare_sixth_sense_mp3(func, self, event):
 
 @override(SixthSenseIndicator, '_sixthSenseToggle')
 def new__sixthSenseToggle(func, self, isVisible, force):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(sixth_sense_alert_settings)
     func(self, isVisible, force)
     # Never suppress the game's alert unless our replacement has loaded its icon.
     replacement = (g_view is not None and getattr(g_view, 'iconReady', False) and settings[GLOBAL.ENABLED])
@@ -76,4 +76,4 @@ def new__sixthSenseToggle(func, self, isVisible, force):
 
 
 def getBattleViews():
-    return ((AS_BATTLE, SixthSense, config),)
+    return ((AS_BATTLE, SixthSense, sixth_sense_alert_settings),)

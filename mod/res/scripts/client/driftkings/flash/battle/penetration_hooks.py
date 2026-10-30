@@ -7,7 +7,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
-from driftkings.ui import g_events
+from driftkings.ui.common.events import g_events
 
 LOG = get_logger('driftkings.battle.penetration_indicator')
 

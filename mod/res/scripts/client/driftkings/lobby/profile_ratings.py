@@ -2,7 +2,7 @@
 """Independent native service-record ratings component."""
 from driftkings.settings.definitions.lobby.profile_ratings import ProfileRatingsSettings
 
-config = ProfileRatingsSettings()
+profile_ratings_settings = ProfileRatingsSettings()
 
 
 def init():

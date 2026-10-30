@@ -43,7 +43,7 @@ class OwnHealthGamefaceTests(RuntimeTest):
         self.settings = {'enabled': True, 'x': 0, 'y': -80, 'alignX': 'center', 'alignY': 'bottom',
                          'avgColor': {'brightness': 0.9, 'saturation': 0.7}}
         self.tracker = module(state={'current': 1860, 'maximum': 2400, 'alive': True, 'battle': True})
-        component = module(config='vehicle_health', tracker=self.tracker)
+        component = module(vehicle_health_settings='vehicle_health', tracker=self.tracker)
         service = Settings(self.settings)
         self.applied = []
         service.apply = lambda config, values: self.applied.append((config, values))

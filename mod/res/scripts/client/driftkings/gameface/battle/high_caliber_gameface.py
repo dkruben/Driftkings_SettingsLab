@@ -29,7 +29,7 @@ class MainGunAdapter(BattleCardAdapter):
         hudVisibility.detach(self)
 
     def savePosition(self, child, args):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().high_caliber_progress_settings)
         if (not self.active or not self.hudVisible or not child._guiVisible
                 or not child._cursorVisible or settings.get('textLock', False)
                 or not _component().mainGuns.payload.get('visible')):
@@ -37,10 +37,10 @@ class MainGunAdapter(BattleCardAdapter):
         panel = moved_panel(settings[HIGH_CALIBER_PROGRESS.TEXT_POSITION], args)
         if panel is None:
             return
-        settings_service.apply(_component().config, {HIGH_CALIBER_PROGRESS.TEXT_POSITION: panel})
+        settings_service.apply(_component().high_caliber_progress_settings, {HIGH_CALIBER_PROGRESS.TEXT_POSITION: panel})
 
     def refresh(self):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().high_caliber_progress_settings)
         config = dict(settings.get('gameface', {}))
         config.update(settings[HIGH_CALIBER_PROGRESS.TEXT_POSITION])
         config.update(locked=settings['textLock'],
@@ -50,10 +50,10 @@ class MainGunAdapter(BattleCardAdapter):
         payload = dict(_component().mainGuns.payload)
         enabled = bool(self.active and self.visible and self.hudVisible and settings[GLOBAL.ENABLED]
                        and payload.get('visible'))
-        labels = _component().config.i18n
+        labels = _component().high_caliber_progress_settings.i18n
         unavailable = payload.get('state') == 'unavailable'
         value = payload.get('damage', 0) if payload.get('state') == 'achieved' else payload.get('remaining', 0)
-        group = number_locale(_component().config.lang)['groupSeparator']
+        group = number_locale(_component().high_caliber_progress_settings.lang)['groupSeparator']
         payload.update(config=config,
                        primaryText=labels['UI_hc_unavailable'] if unavailable else
                        u'{:,}'.format(int(value)).replace(',', group) + ' HP',

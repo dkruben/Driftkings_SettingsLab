@@ -121,7 +121,7 @@ def install_clock_gameface():
             try:
                 parent = self._hangarRef()
                 controller = _component().g_clockController
-                data = settings_service.getComponentDict(_component().config)
+                data = settings_service.getComponentDict(_component().main_settings)
                 clock = data[MAIN.CLOCK]
                 # main.enabled switches every general option; clock.enabled only the clock.
                 visible = bool(controller.active and parent is not None and controller.visible.get(parent, False)
@@ -130,7 +130,7 @@ def install_clock_gameface():
                 payload['config']['visible'] = visible
                 payload['config']['locale'] = getClientLanguage().replace('_', '-')
                 payload['config']['calendar'] = calendar_names()
-                hangar = settings_service.getComponentDict(_hangar().config)
+                hangar = settings_service.getComponentDict(_hangar().hangar_preferences_settings)
                 payload['config']['hidePrestige'] = bool(hangar[GLOBAL.ENABLED] and not hangar[HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET])
                 publish_card(self, payload)
             except Exception:

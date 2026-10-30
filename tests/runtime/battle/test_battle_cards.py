@@ -173,7 +173,7 @@ class BattleCardTests(RuntimeTest):
         service = self.deps['driftkings.settings.service'].settings_service
         service.getComponentDict = lambda config: settings
         service.apply = lambda config, values: changes.append(values)
-        component = module(config=module(lang='en', i18n={'UI_description': 'Marks'}))
+        component = module(battle_marks_of_excellence_settings=module(lang='en', i18n={'UI_description': 'Marks'}))
         deps = dict(self.deps)
         deps.update({
             'importlib': module(import_module=lambda name: component),

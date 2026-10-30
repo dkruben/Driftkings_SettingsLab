@@ -7,13 +7,14 @@ from skeletons.gui.battle_session import IBattleSessionProvider
 from driftkings._constants import BATTLE_ALIASES, GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.common.utils.game import checkKeys
 from driftkings.core.keyboard import keyboard
+from driftkings.flash.battle.minimap_enhancements import MinimapEnhancementsView
+from driftkings.flash.battle.minimap_plugins import configure
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.minimap_enhancements import MinimapEnhancementsSettings as Settings
+from driftkings.settings.definitions.battle.minimap_enhancements import MinimapEnhancementsSettings
 from driftkings.settings.service import settings_service
-from driftkings.ui import g_events
+from driftkings.ui.common.events import g_events
 
 LOG = get_logger('driftkings.battle.minimap_enhancements')
-
 PERSONAL = weakref.WeakSet()
 VEHICLES = weakref.WeakSet()
 VIEWS = weakref.WeakSet()
@@ -90,20 +91,16 @@ class MinimapController(object):
         self.setAlternative(bool(settings[MINIMAP_ENHANCEMENTS.PRESENTATION]['alternativeEnabled'] and checkKeys(settings[MINIMAP_ENHANCEMENTS.BUTTON])))
 
 
-config = Settings()
-controller = MinimapController(config)
-
-
-from driftkings.flash.battle.minimap_enhancements import MinimapEnhancementsView
+minimap_settings = MinimapEnhancementsSettings()
+controller = MinimapController(minimap_settings)
 
 
 def getBattleViews():
-    return ((AS_BATTLE, MinimapEnhancementsView, config),)
+    return ((AS_BATTLE, MinimapEnhancementsView, minimap_settings),)
 
 
 def fini():
     controller.dispose()
 
-from driftkings.flash.battle.minimap_plugins import configure
 
-configure(config, controller, PERSONAL, VEHICLES, VIEWS)
+configure(minimap_settings, controller, PERSONAL, VEHICLES, VIEWS)

@@ -10,17 +10,17 @@ from driftkings.common.utils.wgutils import getPlayer, isReplay
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.game_constants import CTRL_MODE_NAME
-from driftkings.settings.definitions.battle.sniper_camera import SniperCameraSettings as Settings
+from driftkings.settings.definitions.battle.sniper_camera import SniperCameraSettings
 from driftkings.settings.service import settings_service
 
 MIN_ZOOM = 2.0
 SMALL_CALIBER_THRESHOLD = 60
-config = Settings()
+sniper_camera_settings = SniperCameraSettings()
 
 
 @override(SniperCamera, '_readConfigs')
 def new__readConfigs(func, self, data):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(sniper_camera_settings)
     for cfg in (self._baseCfg, self._userCfg, self._cfg):
         cfg.clear()
     func(self, data)
@@ -119,12 +119,12 @@ class ZoomController(TriggersManager.ITriggerListener):
         input_handler.onControlModeChanged(CTRL_MODE_NAME.ARCADE, prevModeName=input_handler.ctrlModeName, preferredPos=aiming_system.getDesiredShotPoint(), turretYaw=aiming_system.turretYaw, gunPitch=aiming_system.gunPitch, aimingMode=input_handler.ctrl._aimingMode, closesDist=False, curVehicleID=self.avatar.playerVehicleID)
 
 
-controller = ZoomController(config)
+controller = ZoomController(sniper_camera_settings)
 
 
 @override(SniperControlMode, '__setupBinoculars')
 def new__setupBinoculars(func, self, optDevices):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(sniper_camera_settings)
     result = func(self, optDevices)
     if settings[GLOBAL.ENABLED] and settings[SNIPER_CAMERA.NO_BINOCULARS]:
         self._binoculars.resetTextures()
@@ -133,7 +133,7 @@ def new__setupBinoculars(func, self, optDevices):
 
 @override(ModelBoundEffects, 'addNewToNode')
 def new__effectsListPlayer(func, *args, **kwargs):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(sniper_camera_settings)
     if settings[GLOBAL.ENABLED] and kwargs.get('isPlayerVehicle', False):
         if settings[SNIPER_CAMERA.NO_FLASH_BANG] and 'showFlashBang' in kwargs:
             kwargs['showFlashBang'] = False

@@ -13,14 +13,13 @@ from driftkings.core.hooks import override
 from driftkings.flash.battle.battle_statistics import _startFlash
 from driftkings.game_constants import SHELL_TYPES
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.battle_statistics import BattleStatisticsSettings as Settings
+from driftkings.settings.definitions.battle.battle_statistics import BattleStatisticsSettings
 from driftkings.settings.service import affects, settings_service
-from driftkings.ui import g_events
 
 LOG = get_logger('driftkings.battle.battle_statistics')
 
 g_flash = None
-config = Settings()
+battle_statistics_settings = BattleStatisticsSettings()
 
 
 class TanksStatistic:
@@ -234,7 +233,6 @@ class TanksStatistic:
         else:
             self.__allyChance = 0
             self.__enemyChance = 0
-        self._triggerEvents(reason, vehicleID)
 
     def _calculateForces(self):
         for value in self.base.values():
@@ -250,14 +248,6 @@ class TanksStatistic:
                 value['Th'] = 0
                 value['Te'] = 999999.9
                 value['force'] = 0
-
-    def _triggerEvents(self, reason, vehicleID):
-        g_events.onVehiclesChanged(self, reason, vehicleID)
-        if reason <= 1:
-            g_events.onCountChanged(self.__allyTanksCount, self.__enemyTanksCount)
-        g_events.onHealthChanged(self.__allyTeamHP, self.__enemyTeamHP)
-        g_events.onChanceChanged(self.__allyChance, self.__enemyChance, self.__allyTeamForces, self.__enemyTeamForces)
-
 
 g_tanksStatistic = TanksStatistic()
 
@@ -361,7 +351,7 @@ class BattleStatDisplay(CallbackDelayer):
         return '&#x007C;'
 
     def flash_text(self):
-        if not self.inBattle or not settings_service.getComponentDict(config).get(GLOBAL.ENABLED, False) or g_flash is None:
+        if not self.inBattle or not settings_service.getComponentDict(battle_statistics_settings).get(GLOBAL.ENABLED, False) or g_flash is None:
             return
         g_flash.setVisible(True)
         ally = g_tanksStatistic.allyChance
@@ -374,7 +364,7 @@ class BattleStatDisplay(CallbackDelayer):
         self.delayCallback(0.3, self.flash_text)
 
     def formatChanceText(self, value, comparison_value):
-        color = getComparisonColor(value, comparison_value, settings_service.getComponentDict(config).get(BATTLE_STATISTICS.COLOR_RATING, 0))
+        color = getComparisonColor(value, comparison_value, settings_service.getComponentDict(battle_statistics_settings).get(BATTLE_STATISTICS.COLOR_RATING, 0))
         return g_flash.getHtmlTextWithTags('%6.2f' % value, color=color)
 
     def updateMacros(self, data):
@@ -382,10 +372,10 @@ class BattleStatDisplay(CallbackDelayer):
             self.macro['{%s}' % key] = str(value)
 
     def formatText(self, ally_text, enemy_text, ally, enemy):
-        header = getattr(config, 'i18n', {}).get('UI_teamStrength', 'Team strength')
+        header = getattr(battle_statistics_settings, 'i18n', {}).get('UI_teamStrength', 'Team strength')
         data = {'header': header, 'allyChance': ally_text, 'enemyChance': enemy_text, 'compareSign': self.compare_sign(ally, enemy)}
         self.updateMacros(data)
-        return replaceMacros(settings_service.getComponentDict(config)[BATTLE_STATISTICS.FORMAT], self.macro)
+        return replaceMacros(settings_service.getComponentDict(battle_statistics_settings)[BATTLE_STATISTICS.FORMAT], self.macro)
 
 
 g_mod = BattleStatDisplay()

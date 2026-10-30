@@ -23,7 +23,7 @@ from driftkings.core.introspection import find_attr_name
 from driftkings.core.settings_controller import SettingsController
 from driftkings.gameface.lobby.hangar_preferences import install_header_options
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings as Settings
+from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings
 from driftkings.settings.service import affects, settings_service
 
 LOG = get_logger('driftkings.lobby.hangar_preferences')
@@ -37,15 +37,15 @@ class HangarOptionsController(SettingsController):
         if not affects(changes, GLOBAL.ENABLED, HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET):
             return
         from driftkings.gameface.lobby.native_preferences import refresh_battle_pass
-        refresh_battle_pass(settings_service.getComponentDict(config))
+        refresh_battle_pass(settings_service.getComponentDict(hangar_preferences_settings))
 
 
-config = Settings()
+hangar_preferences_settings = HangarPreferencesSettings()
 controller = HangarOptionsController()
 
 
 def _cfg(key, default=None):
-    return settings_service.getComponentDict(config).get(key, default)
+    return settings_service.getComponentDict(hangar_preferences_settings).get(key, default)
 
 
 def _isSpecialBattleVehicle(target):
@@ -145,7 +145,7 @@ def new_tankCarouselVehicleStates(base, cls, key0):
 # hide premium vehicle on the background in the hangar
 @override(HeroTank, 'recreateVehicle')
 def new__recreateVehicle(func, self, typeDescriptor=None, state=ModelStates.UNDAMAGED, _callback=None, outfit=None):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_PROMO_PREM_VEHICLE, True):
         return
     func(self, typeDescriptor, state, _callback, outfit)
@@ -154,7 +154,7 @@ def new__recreateVehicle(func, self, typeDescriptor=None, state=ModelStates.UNDA
 # hide display pop-up messages in the hangar
 @override(TeaserViewer, 'show')
 def new__show(func, self, teaserData, promoCount):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_POP_UP_MESSAGES, True):
         return
     func(self, teaserData, promoCount)
@@ -163,7 +163,7 @@ def new__show(func, self, teaserData, promoCount):
 # hide display unread notifications counter in the menu
 @override(PromoController, 'getPromoCount')
 def new__getPromoCount(func, self):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_UNREAD_COUNTER, True):
         return 0
     return func(self)
@@ -172,13 +172,13 @@ def new__getPromoCount(func, self):
 # disable field mail tips
 @override(PromoController, '__tryToShowTeaser')
 def new__tryToShowTeaser(func, *args):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     return None if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.FIELD_MAIL, True) else func(*args)
 
 
 @override(PromoController, '__needToGetTeasersInfo')
 def new__needToGetTeasersInfo(func, *args):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     return False if settings[GLOBAL.ENABLED] and not settings[HANGAR_PREFERENCES.FIELD_MAIL] else func(*args)
 
 
@@ -191,7 +191,7 @@ def new__needToGetTeasersInfo(func, *args):
 # hide display pop-up window when receiving progressive decals
 @override(ProgressiveItemsRewardHandler, '_showAward')
 def new__showAward(func, self, ctx):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_PROGRESSIVE_DECALS_WINDOW, True):
         return
     func(self, ctx)
@@ -200,7 +200,7 @@ def new__showAward(func, self, ctx):
 # hide counters in service channel
 @override(NotificationListView, '_NotificationListView__updateCounters')
 def new__updateCounters(func, self):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_BUTTON_COUNTERS, True):
         return
     return func(self)
@@ -209,7 +209,7 @@ def new__updateCounters(func, self):
 # hide achievement popups
 @override(EarningAnimationCommand, 'execute')
 def new__execute(base, self):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_ACHIEVEMENT_POPUPS, True):
         self.release()
         return
@@ -218,7 +218,7 @@ def new__execute(base, self):
 
 @override(RewardScreenCommand, 'execute')
 def new__rewardScreenExecute(base, self):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.SHOW_ACHIEVEMENT_REWARD_WINDOW, True):
         self.release()
         return
@@ -231,7 +231,7 @@ class AutoLoginHandler:
         self.firstTime = False
 
     def auto_login(self, login):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(hangar_preferences_settings)
         if not self.firstTime:
             self.firstTime = True
             if settings[GLOBAL.ENABLED] and settings[HANGAR_PREFERENCES.AUTO_LOGIN]:
@@ -252,7 +252,7 @@ def new__LoginViewPopulate(self):
 
 @override(_TechTreeDataProvider, 'getAllVehiclePossibleXP')
 def new__getAllVehiclePossibleXP(func, self, nodeCD, unlockStats):
-    settings = settings_service.getComponentDict(config)
+    settings = settings_service.getComponentDict(hangar_preferences_settings)
     try:
         if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_EXCHANGE_XPIN_TECH_TREE, True):
             return unlockStats.getVehTotalXP(nodeCD)
@@ -283,8 +283,8 @@ def fini():
 
 from driftkings.gameface.lobby.native_preferences import install as install_native_preferences
 
-install_native_preferences(config, _overrideIfAvailable)
+install_native_preferences(hangar_preferences_settings, _overrideIfAvailable)
 
 from driftkings.flash.lobby.native_preferences import install as install_flash_preferences
 
-install_flash_preferences(config, _overrideIfAvailable, LOG)
+install_flash_preferences(hangar_preferences_settings, _overrideIfAvailable, LOG)

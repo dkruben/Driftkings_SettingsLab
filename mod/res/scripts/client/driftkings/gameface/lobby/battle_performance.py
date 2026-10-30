@@ -65,7 +65,7 @@ def install_results_gameface():
                 return
             payload = {'enabled': False}
             try:
-                if settings_service.getComponentDict(_component().config)[GLOBAL.ENABLED] and settings_service.getComponentDict(_component().config)[BATTLE_PERFORMANCE.BATTLE_RESULTS_WINDOW]:
+                if settings_service.getComponentDict(_component().battle_performance_settings)[GLOBAL.ENABLED] and settings_service.getComponentDict(_component().battle_performance_settings)[BATTLE_PERFORMANCE.BATTLE_RESULTS_WINDOW]:
                     service = dependency.instance(IBattleResultsService)
                     controller = service.getStatsCtrl(arena_id)
                     battle_results = controller.getResults() if controller else None

@@ -18,7 +18,7 @@ from driftkings._constants import SOUND_BANK_LOADER
 from driftkings.common.utils import events
 from driftkings.common.utils.iter import remDups
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.components.sound_bank_loader import SoundBankLoaderSettings as Settings
+from driftkings.settings.definitions.components.sound_bank_loader import SoundBankLoaderSettings
 from driftkings.settings.service import settings_service
 
 LOG = get_logger('Driftkings.SoundBankLoader')
@@ -475,8 +475,8 @@ class BanksLoaderController(object):
             os.remove(backup)
 
 
-_config = Settings()
-controller = BanksLoaderController(_config)
+sound_bank_loader_settings = SoundBankLoaderSettings()
+controller = BanksLoaderController(sound_bank_loader_settings)
 
 
 def init():

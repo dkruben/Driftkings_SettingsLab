@@ -25,7 +25,7 @@ def _component():
 
 
 def serializeConfigParams():
-    settings = settings_service.getComponentDict(_component().config)
+    settings = settings_service.getComponentDict(_component().target_distance_settings)
     return {
         'decimalPrecision': settings[TARGET_DISTANCE.DECIMAL_PRECISION],
         'textSize': settings[TARGET_DISTANCE.TEXT_SIZE],
@@ -81,7 +81,7 @@ class DistanceMarkerController(object):
     onMouseEvent = Event(_eventManager)
 
     def __init__(self, vehicleMarkerClass):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().target_distance_settings)
         self._vehicleMarkerClass = vehicleMarkerClass
         self._currentHorizontalAnchorOffset = settings[TARGET_DISTANCE.ANCHOR_HORIZONTAL_OFFSET]
         self._currentVerticalAnchorOffset = -1 * settings[TARGET_DISTANCE.ANCHOR_VERTICAL_OFFSET]
@@ -114,8 +114,8 @@ class DistanceMarkerController(object):
             self._isMarkerDragging = False
         keyboard.unsubscribe(self._onKey)
         if self._wereOffsetsEdited:
-            settings_service.apply(_component().config, {TARGET_DISTANCE.ANCHOR_HORIZONTAL_OFFSET: self._currentHorizontalAnchorOffset}, persist=False)
-            settings_service.apply(_component().config, {TARGET_DISTANCE.ANCHOR_VERTICAL_OFFSET: -1 * self._currentVerticalAnchorOffset}, persist=False)
+            settings_service.apply(_component().target_distance_settings, {TARGET_DISTANCE.ANCHOR_HORIZONTAL_OFFSET: self._currentHorizontalAnchorOffset}, persist=False)
+            settings_service.apply(_component().target_distance_settings, {TARGET_DISTANCE.ANCHOR_VERTICAL_OFFSET: -1 * self._currentVerticalAnchorOffset}, persist=False)
 
     def as_isPointInMarker(self, mouseX, mouseY):
         if _view is not None:
@@ -129,14 +129,14 @@ class DistanceMarkerController(object):
             self._onKeyUp(event)
 
     def _onKeyUp(self, event):
-        if settings_service.getComponentDict(_component().config)[TARGET_DISTANCE.DISPLAY_MODE] == 1:
+        if settings_service.getComponentDict(_component().target_distance_settings)[TARGET_DISTANCE.DISPLAY_MODE] == 1:
             self._isDisplayingMarkers = event.isAltDown()
         if self._isMarkerDragging and self._isLeftMouseButton(event):
             self._isMarkerDragging = False
             self.onMouseEvent -= self._onMarkerDragging
 
     def _onKeyDown(self, event):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().target_distance_settings)
         if settings[TARGET_DISTANCE.DISPLAY_MODE] == 1:
             self._isDisplayingMarkers = event.isAltDown()
         cursor = GUI.mcursor()
@@ -208,7 +208,7 @@ class DistanceMarkerController(object):
             return False
         if not vehicle.isAlive():
             return False
-        if settings_service.getComponentDict(_component().config)[TARGET_DISTANCE.MARKER_TARGET] == 0:
+        if settings_service.getComponentDict(_component().target_distance_settings)[TARGET_DISTANCE.MARKER_TARGET] == 0:
             return True
         return BigWorld.player().team != vehicle.publicInfo['team']
 

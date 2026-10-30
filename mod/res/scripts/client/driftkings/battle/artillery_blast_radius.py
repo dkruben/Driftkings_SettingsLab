@@ -14,7 +14,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import on_event, override
 from driftkings.core.keyboard import keyboard
 from driftkings.flash.battle.messages import sendPanelMessage
-from driftkings.settings.definitions.battle.artillery_blast_radius import ArtilleryBlastRadiusSettings as Settings
+from driftkings.settings.definitions.battle.artillery_blast_radius import ArtilleryBlastRadiusSettings
 from driftkings.settings.service import settings_service
 from driftkings.ui.common.markers import StaticWorldObjectMarker3D
 
@@ -185,8 +185,8 @@ class ArtySplashController(object):
             self.setVisible()
 
 
-config = Settings()
-controller = ArtySplashController(config)
+artillery_blast_radius_settings = ArtilleryBlastRadiusSettings()
+controller = ArtySplashController(artillery_blast_radius_settings)
 
 
 @on_event(events.PlayerAvatar.startGUI.after)

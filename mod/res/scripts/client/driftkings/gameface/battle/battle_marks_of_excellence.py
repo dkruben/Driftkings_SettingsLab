@@ -26,7 +26,7 @@ class BattleMarksAdapter(BattleCardAdapter):
         if self.active:
             return
         import BattleReplay
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().battle_marks_of_excellence_settings)
         if not settings[GLOBAL.ENABLED] or (BattleReplay.isPlaying() and not settings[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_REPLAY]):
             return
         marks_state.clear('battle')
@@ -67,16 +67,16 @@ class BattleMarksAdapter(BattleCardAdapter):
         self.stopBattle()
 
     def savePosition(self, child, args):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().battle_marks_of_excellence_settings)
         if not self.active or settings.get(BATTLE_MARKS_OF_EXCELLENCE.GAMEFACE, {}).get('locked', True):
             return
         panel = moved_panel(settings[BATTLE_MARKS_OF_EXCELLENCE.PANEL], args)
         if panel is None:
             return
-        settings_service.apply(_component().config, {BATTLE_MARKS_OF_EXCELLENCE.PANEL: panel})
+        settings_service.apply(_component().battle_marks_of_excellence_settings, {BATTLE_MARKS_OF_EXCELLENCE.PANEL: panel})
 
     def refresh(self):
-        settings = settings_service.getComponentDict(_component().config)
+        settings = settings_service.getComponentDict(_component().battle_marks_of_excellence_settings)
         config = dict(settings.get(BATTLE_MARKS_OF_EXCELLENCE.GAMEFACE, {}))
         config.update(settings[BATTLE_MARKS_OF_EXCELLENCE.PANEL])
         config.update(scale=settings[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT] / 100.0,
@@ -86,7 +86,7 @@ class BattleMarksAdapter(BattleCardAdapter):
             config['backgroundOpacity'] = 0
         config['showTargetDamage'] = bool(config.get('showTargetDamage', True) and settings.get(BATTLE_MARKS_OF_EXCELLENCE.SHOW_TARGETS, True))
         config['showRequiredDamage'] = bool(config.get('showRequiredDamage', True) and settings.get(BATTLE_MARKS_OF_EXCELLENCE.SHOW_TARGETS, True))
-        config.update(number_locale(_component().config.lang))
+        config.update(number_locale(_component().battle_marks_of_excellence_settings.lang))
         enabled = bool(self.active and self.visible and self.hudVisible and settings[GLOBAL.ENABLED]
                        and config.get('enabled', True) and config.get('visible', True))
         payload = marks_state.snapshot('battle')
@@ -94,6 +94,6 @@ class BattleMarksAdapter(BattleCardAdapter):
             payload['trend'] = dict(payload['trend'])
             payload['trend']['text'] = payload['trend']['text'].replace('.', config['decimalSeparator'])
         payload.update(config=config,
-                       labels=dict((key[7:], value) for key, value in _component().config.i18n.items() if key.startswith('UI_mog_')))
-        payload['labels']['title'] = _component().config.i18n['UI_description']
+                       labels=dict((key[7:], value) for key, value in _component().battle_marks_of_excellence_settings.i18n.items() if key.startswith('UI_mog_')))
+        payload['labels']['title'] = _component().battle_marks_of_excellence_settings.i18n['UI_description']
         self.publish(payload, config, enabled)

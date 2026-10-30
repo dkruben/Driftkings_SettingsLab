@@ -22,10 +22,8 @@ class BattleStatisticsTests(RuntimeTest):
     def setUp(self):
         super(BattleStatisticsTests, self).setUp()
         self.data = {'enabled': True, 'format': '{allyChance}{compareSign}{enemyChance}', 'colorRating': 0}
-        self.events = []
         self.vehicles = {}
         self.player = module(team=1, arena=module(vehicles=self.vehicles))
-        record = lambda name: (lambda *args: self.events.append((name,) + args))
         self.api, self.hooks = game_source('battle/battle_statistics.py', {
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player, getEntity=lambda vehicleID: None),
@@ -33,8 +31,6 @@ class BattleStatisticsTests(RuntimeTest):
                                                                     HOLLOW_CHARGE=HEAT, HIGH_EXPLOSIVE=HE)),
             'items': module(vehicles=module(VEHICLE_CLASS_TAGS=CLASSES)),
             'driftkings.core.battle_policy': module(battle_policy=module(decision=lambda name: (True, ''))),
-            'driftkings.ui': module(g_events=module(onVehiclesChanged=record('vehicles'), onCountChanged=record('count'),
-                                                   onHealthChanged=record('health'), onChanceChanged=record('chance'))),
         }, real=('driftkings._constants', 'driftkings.common.utils.formatting', 'driftkings.common.utils.colorratting'))
         self.stats = self.api['g_tanksStatistic']
         self.display = self.api['g_mod']
@@ -78,7 +74,6 @@ class BattleStatisticsTests(RuntimeTest):
         self.assertEqual((self.stats.allyTeamHP, self.stats.enemyTeamHP), (1000, 1000))
         self.assertAlmostEqual(self.stats.allyChance, 50.0)
         self.assertAlmostEqual(self.stats.enemyChance, 50.0)
-        self.assertEqual(self.events[-1][0], 'chance')
 
     def test_battle_health_updates_move_the_chance(self):
         self.vehicles.update({1: tank(1), 2: tank(2), 3: tank(2, hp=500)})

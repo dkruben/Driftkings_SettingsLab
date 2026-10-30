@@ -226,7 +226,7 @@ def install():
 
     def populated(original, view):
         if isinstance(view, ProfileTechnique):
-            from driftkings.ui import CyclicTimerEvent
+            from driftkings.ui.utils.timers import CyclicTimerEvent
             view._dkVehiclePaintReported = False
             view._dkVehicleColors = {}
             view._dkVehicleOriginalColors = {}

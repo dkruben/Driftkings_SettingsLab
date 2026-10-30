@@ -7,10 +7,10 @@ from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.hooks import on_event
 from driftkings.gameface.battle.vehicle_health import OwnHealthAdapter
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.vehicle_health import VehicleHealthSettings as Settings
+from driftkings.settings.definitions.battle.vehicle_health import VehicleHealthSettings
 
 LOG = get_logger('Driftkings.OwnHealth')
-config = Settings()
+vehicle_health_settings = VehicleHealthSettings()
 g_gameface = None
 
 

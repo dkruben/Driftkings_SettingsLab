@@ -50,7 +50,8 @@ def start(data, config):
             _ratings = Ratings(LOG, stats, data, lambda: getattr(BigWorld.player(), 'arena', None),
                                BigWorld.callback, BigWorld.cancelCallback, manager_supported,
                                lambda: settings_service.getComponentDict(player_ratings.config)[TEAM_PANELS.PERFORMANCE]['minBattlesToShow'],
-                               lambda ident, vehicle, distance: context(BigWorld.player(), BigWorld.entity, ident, vehicle, distance))
+                               lambda ident, vehicle, distance: context(BigWorld.player(), BigWorld.entity, ident, vehicle, distance)
+            )
             _ratings.install(MarkersManager)
         LOG.info('Integrated markers ready')
     except Exception:

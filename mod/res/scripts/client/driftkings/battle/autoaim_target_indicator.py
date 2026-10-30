@@ -12,7 +12,7 @@ from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.flash.core import Align, ElementType, overlays
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.autoaim_target_indicator import AutoaimTargetIndicatorSettings as Settings
+from driftkings.settings.definitions.battle.autoaim_target_indicator import AutoaimTargetIndicatorSettings
 from driftkings.settings.service import settings_service
 
 LOG = get_logger('Driftkings.AutoAimOptimize')
@@ -189,8 +189,8 @@ class AutoAimController(object):
             overlays.update(self.config.NAME + '.' + name, props)
 
 
-_config = Settings()
-controller = AutoAimController(_config)
+autoaim_target_indicator_settings = AutoaimTargetIndicatorSettings()
+controller = AutoAimController(autoaim_target_indicator_settings)
 
 
 def init():

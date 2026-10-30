@@ -10,7 +10,7 @@
     K.node('div', 'dk-health__stripes', fill);
     K.node('div', 'dk-health__gloss', fill);
     var frame = K.node('img', 'dk-health__frame', content);
-    frame.src = 'coui://gui/gameface/mods/driftkings/vehicle_health/frame.png';
+    frame.src = 'coui://gui/gameface/mods/driftkings/vehicle_health/assets/frame.png';
     frame.alt = '';
     var label = K.node('div', 'dk-health__text', content);
 

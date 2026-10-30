@@ -41,7 +41,7 @@ def install_header_options():
 
         def _onLoading(self, *args, **kwargs):
             super(HeaderOptionsView, self)._onLoading(*args, **kwargs)
-            data = settings_service.getComponentDict(_component().config)
+            data = settings_service.getComponentDict(_component().hangar_preferences_settings)
             payload = dict((key, data.get(key, True)) for key in ('showBuyPremiumButton', 'showWotPlusButton'))
             payload['premiumTime'] = bool(data.get('premiumTime', False))
             payload['enabled'] = data[GLOBAL.ENABLED]
@@ -52,7 +52,7 @@ def install_header_options():
 
         def _onSettingsChanged(self, component, changes):
             if affects(changes, GLOBAL.ENABLED):
-                self._headerPayload['enabled'] = settings_service.getComponentDict(_component().config)[GLOBAL.ENABLED]
+                self._headerPayload['enabled'] = settings_service.getComponentDict(_component().hangar_preferences_settings)[GLOBAL.ENABLED]
                 self.getViewModel()._setString(0, json.dumps(self._headerPayload))
 
         def _finalize(self):

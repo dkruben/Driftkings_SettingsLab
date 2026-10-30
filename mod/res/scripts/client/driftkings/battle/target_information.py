@@ -15,7 +15,7 @@ from driftkings.core.gun_stats import damage_per_minute, reload_with_equipment
 from driftkings.core.vehicle_images import resolve_vehicle_images
 from driftkings.flash.battle.target_information import Flash
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.target_information import TargetInformationSettings as Settings
+from driftkings.settings.definitions.battle.target_information import TargetInformationSettings
 from driftkings.settings.service import affects, settings_service
 
 COMPARE_MACROS = ['compareDelim', 'compareColor']
@@ -51,7 +51,7 @@ PRESET_TEMPLATES = {
 }
 TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4: 'kmp', 5: 'ndo', 6: 'driftkings'}
 LOG = get_logger('Driftkings.TargetInformation')
-config = Settings()
+target_information_settings = TargetInformationSettings()
 g_flash = Flash()
 
 
@@ -131,8 +131,8 @@ class DataConstants(object):
     def i18n(text):
         if text is None:
             return None
-        if text in config.i18n:
-            text = config.i18n[text]
+        if text in target_information_settings.i18n:
+            text = target_information_settings.i18n[text]
             if text is None:
                 return None
         while True:
@@ -146,7 +146,7 @@ class DataConstants(object):
                 break
             macro = text[localizedMacroStart + 7:localizedMacroEnd]
             parts = macro.split(':')
-            macro = config.i18n.get(parts[0], parts[0])
+            macro = target_information_settings.i18n.get(parts[0], parts[0])
             parts = parts[1:]
             if parts:
                 try:
@@ -154,7 +154,7 @@ class DataConstants(object):
                 except StandardError:
                     LOG.exception('Could not format macro %r with params %r', macro, parts)
             text = text[:localizedMacroStart] + macro + text[localizedMacroEnd + 2:]
-        return config.i18n.get(text, text)
+        return target_information_settings.i18n.get(text, text)
 
     def _buildMacroHandlers(self):
         handlers = {
@@ -392,7 +392,7 @@ class CompareMacros(object):
         return self._getCompareAttribute('color')
 
     def _getCompareAttribute(self, attribute):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(target_information_settings)
         if self.value1 is None or self.value2 is None:
             raise ValueError('Values must be defined before comparison.')
         if self.value1 > self.value2:
@@ -407,7 +407,7 @@ class InfoPanel(DataConstants):
     def __init__(self):
         self._active = False
         self._inBattle = False
-        self.textFormats = self.getText() if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else None
+        self.textFormats = self.getText() if settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] else None
         self.hotKeyDown = False
         self.visible = False
         self.timer = None
@@ -417,7 +417,7 @@ class InfoPanel(DataConstants):
     def reset(self):
         self.cancelHide()
         DataConstants.reset(self)
-        self.textFormats = self.getText() if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else None
+        self.textFormats = self.getText() if settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] else None
         self.hotKeyDown = False
         self.visible = False
         self.timer = None
@@ -449,7 +449,7 @@ class InfoPanel(DataConstants):
         if not affects(changes, GLOBAL.ENABLED, TARGET_INFORMATION.TEMPLATE_PRESET,
                        TARGET_INFORMATION.FORMATS, TARGET_INFORMATION.COMPARE_VALUES):
             return
-        enabled = settings_service.getSetting(config, GLOBAL.ENABLED)
+        enabled = settings_service.getSetting(target_information_settings, GLOBAL.ENABLED)
         self.textFormats = self.getText() if enabled else None
         if not enabled:
             self.hide()
@@ -486,7 +486,7 @@ class InfoPanel(DataConstants):
             # A dead/removed/filtered target must still release an already shown panel.
             self.onUpdateBlur()
             return
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED]:
             return
         entity = getEntity(vehicleID)
         if entity is not None and self.isConditions(entity):
@@ -500,7 +500,7 @@ class InfoPanel(DataConstants):
 
     @staticmethod
     def getText():
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(target_information_settings)
         template_index = settings[TARGET_INFORMATION.TEMPLATE_PRESET]
         # The full preset is editable in JSON; retain the existing preset IDs.
         if template_index == 3 and settings.get(TARGET_INFORMATION.FORMATS):
@@ -510,7 +510,7 @@ class InfoPanel(DataConstants):
 
     @staticmethod
     def isConditions(entity):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(target_information_settings)
         player = getPlayer()
         if player is None or entity is None or not hasattr(entity, 'publicInfo'):
             return False
@@ -541,7 +541,7 @@ class InfoPanel(DataConstants):
         return ''
 
     def setTextsFormatted(self):
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED]:
             return ''
         textFormat = self.textFormats or self.getText()
         textFormat = self.replaceMacros(textFormat, self._macroHandlers.keys())
@@ -572,7 +572,7 @@ class InfoPanel(DataConstants):
         return re.sub(pattern, replace, textFormat)
 
     def keyPressed(self, event):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(target_information_settings)
         if not settings[GLOBAL.ENABLED]:
             return
         player = getPlayer()
@@ -607,7 +607,7 @@ class InfoPanel(DataConstants):
     def onUpdateBlur(self):
         if not self._inBattle or not self.visible or self.hotKeyDown or self.timer is not None:
             return
-        delay=max(0.0,float(settings_service.getComponentDict(config)[TARGET_INFORMATION.DELAY]))
+        delay=max(0.0,float(settings_service.getComponentDict(target_information_settings)[TARGET_INFORMATION.DELAY]))
         if delay == 0:
             self.hide()
         else:
@@ -615,7 +615,7 @@ class InfoPanel(DataConstants):
 
     def onUpdateVehicle(self, vehicle, ignoreHotKey=False):
         player = getPlayer()
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED] or not g_flash.active or not hasattr(player, 'getVehicleAttached'):
+        if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_flash.active or not hasattr(player, 'getVehicleAttached'):
             return
         if self.hotKeyDown and not ignoreHotKey:
             return

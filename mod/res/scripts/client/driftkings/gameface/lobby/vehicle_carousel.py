@@ -162,9 +162,9 @@ def install_gameface():
             try:
                 parent = self._hangarRef()
                 visible = bool(parent is not None and _component().g_controller.visible.get(parent, False)
-                               and settings_service.getComponentDict(_component().config)[GLOBAL.ENABLED])
+                               and settings_service.getComponentDict(_component().vehicle_carousel_settings)[GLOBAL.ENABLED])
                 payload = card_payload(self._lastPayload, kwargs.get('config_only', False), visible,
-                                       lambda: get_view_config(_component().config, _component().g_rowModels),
+                                       lambda: get_view_config(_component().vehicle_carousel_settings, _component().g_rowModels),
                                        lambda: _component().g_data.build_panel_model(self._vehicleIds))
                 publish_card(self, payload)
             except Exception:
@@ -178,7 +178,7 @@ def install_gameface():
 
 def install_carousel_layout():
     component = _component()
-    config = component.config
+    config = component.vehicle_carousel_settings
     LOG = component.LOG
     g_rowModels = component.g_rowModels
     g_filterPresenters = component.g_filterPresenters

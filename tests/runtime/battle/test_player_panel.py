@@ -324,6 +324,10 @@ class BattleFeedbackTests(RuntimeTest):
     def setUp(self):
         super(BattleFeedbackTests, self).setUp()
         self.hooks = []
+        self.ui_lifecycle = []
+        self.ui_events = module(onBattleLoaded=Hook(),
+                                start=lambda: self.ui_lifecycle.append('start'),
+                                stop=lambda: self.ui_lifecycle.append('stop'))
         self.feedback = module(onPlayerFeedbackReceived=Hook())
         self.field = module(onSpottedStatusChanged=Hook())
         self.session = module(onBattleSessionStart=Hook(), onBattleSessionStop=Hook(), shared=module(feedback=None),
@@ -333,7 +337,7 @@ class BattleFeedbackTests(RuntimeTest):
             'VehicleGunRotator': module(VehicleGunRotator=object),
             'driftkings.core.hooks': module(override=lambda cls, name, handler: self.hooks.append(name)),
             'driftkings.core.keyboard': module(keyboard=module(subscribe=lambda fn: None, unsubscribe=lambda fn: None)),
-            'driftkings.ui': module(g_events=module(onBattleLoaded=Hook())),
+            'driftkings.ui.common.events': module(g_events=self.ui_events),
             'helpers': module(dependency=module(instance=lambda iface: self.session)),
             'skeletons.gui.battle_session': module(IBattleSessionProvider=object),
             'BigWorld': module(player=lambda: 'avatar'),
@@ -354,6 +358,24 @@ class BattleFeedbackTests(RuntimeTest):
         self.assertEqual(self.feedback.onPlayerFeedbackReceived.handlers, [])
         self.events.release('owner')
         self.assertEqual(self.session.onBattleSessionStart.handlers, [])
+        self.assertEqual(self.ui_lifecycle, ['start', 'stop'])
+
+    def test_battle_loaded_binding_is_shared_until_the_last_owner_leaves(self):
+        loaded = []
+        self.events.loaded.connect(lambda: loaded.append(True))
+        self.events.acquire('first')
+        self.events.acquire('first')
+        self.events.acquire('second')
+        self.assertEqual(self.ui_lifecycle, ['start'])
+        self.assertEqual(len(self.ui_events.onBattleLoaded.handlers), 1)
+        self.ui_events.onBattleLoaded.fire()
+        self.assertEqual(loaded, [True])
+        self.events.release('first')
+        self.assertEqual(self.ui_lifecycle, ['start'])
+        self.events.release('second')
+        self.events.release('second')
+        self.assertEqual(self.ui_lifecycle, ['start', 'stop'])
+        self.assertEqual(self.ui_events.onBattleLoaded.handlers, [])
 
     def test_spotted_status_comes_from_the_battle_field_controller(self):
         seen = []
@@ -367,3 +389,13 @@ class BattleFeedbackTests(RuntimeTest):
         self.assertEqual(seen, [(5, True), (6, False)])
         self.events.release('owner')
         self.assertEqual(self.field.onSpottedStatusChanged.handlers, [])
+
+    def test_failed_session_binding_releases_the_battle_loaded_subscription(self):
+        def fail():
+            raise RuntimeError('session unavailable')
+        self.events.bindSession = fail
+        with self.assertRaises(RuntimeError):
+            self.events.acquire('owner')
+        self.assertEqual(self.events.owners, set())
+        self.assertEqual(self.ui_events.onBattleLoaded.handlers, [])
+        self.assertEqual(self.ui_lifecycle, ['start', 'stop'])

@@ -13,10 +13,10 @@ from driftkings.common.utils.game import checkKeys
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.keyboard import keyboard
-from driftkings.settings.definitions.battle.repair_controls import RepairControlsSettings as Settings
+from driftkings.settings.definitions.battle.repair_controls import RepairControlsSettings
 from driftkings.settings.service import settings_service
 
-config = Settings()
+repair_controls_settings = RepairControlsSettings()
 
 
 class Repair(object):
@@ -129,7 +129,7 @@ class Repair(object):
         if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
             self._activateEquipment(self.items[equipment_tag][0], item)
         else:
-            if settings_service.getComponentDict(config)[REPAIR_CONTROLS.USE_GOLD_KITS]:
+            if settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS]:
                 equipment = self.ctrl.equipments.getEquipment(self.items[equipment_tag][1]) if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][1]) else None
                 if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
                     self._activateEquipment(self.items[equipment_tag][1], item)
@@ -163,14 +163,14 @@ class Repair(object):
             equipment_tag = 'medkit'
             if self.items[equipment_tag][2]:
                 self.useItemManual(equipment_tag)
-            elif settings_service.getComponentDict(config)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
+            elif settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
                 self.useItemGold(equipment_tag)
 
     def repair(self, equipment_tag):
         if self.ctrl is None or self.player is None:
             return
         specific = self._getRepairPriority(equipment_tag)
-        if settings_service.getComponentDict(config)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
+        if settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
             equipment = self.items[equipment_tag][3]
             if equipment is not None:
                 result = self._damagedByPriority(equipment, specific)
@@ -195,7 +195,7 @@ class Repair(object):
         return result
 
     def repairAll(self):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(repair_controls_settings)
         if self.ctrl is None:
             return
         self_vehicle = self.player.getVehicleAttached()
@@ -235,7 +235,7 @@ class Repair(object):
                         return
 
     def onHotkeyPressed(self, event):
-        settings = settings_service.getComponentDict(config)
+        settings = settings_service.getComponentDict(repair_controls_settings)
         if ServicesLocator.appLoader.getDefBattleApp():
             if checkKeys(settings[REPAIR_CONTROLS.BUTTON_CHASSIS]) and event.isKeyDown():
                 self.repairChassis()
@@ -244,7 +244,7 @@ class Repair(object):
 
 
     def _canUseConsumable(self, requireControl=False):
-        if not settings_service.getComponentDict(config)[GLOBAL.ENABLED]:
+        if not settings_service.getComponentDict(repair_controls_settings)[GLOBAL.ENABLED]:
             return False
         replayCtrl = getattr(BattleReplay, 'g_replayCtrl', None)
         if replayCtrl is not None and replayCtrl.isPlaying:
@@ -283,7 +283,7 @@ class Repair(object):
 
     def _getRepairPriority(self, equipment_tag):
         vehicle_class = Vehicle.getVehicleClassTag(self.player.vehicleTypeDescriptor.type.tags)
-        priorities = settings_service.getComponentDict(config)[REPAIR_CONTROLS.REPAIR_PRIORITY]
+        priorities = settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.REPAIR_PRIORITY]
         class_priorities = priorities.get(vehicle_class, priorities['AllAvailableVariables'])
         return class_priorities[equipment_tag]
 

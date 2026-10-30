@@ -6,11 +6,11 @@ from driftkings.flash.battle.vehicle_markers.runtime import stop
 from driftkings.settings.definitions.battle.vehicle_markers import VehicleMarkersSettings
 from driftkings.settings.service import settings_service
 
-config = VehicleMarkersSettings()
+vehicle_markers_settings = VehicleMarkersSettings()
 
 
 def start():
-    start_presentation(prepare(settings_service.getComponentDict(config)), config)
+    start_presentation(prepare(settings_service.getComponentDict(vehicle_markers_settings)), vehicle_markers_settings)
 
 
 def changed(component, changes):
@@ -18,7 +18,7 @@ def changed(component, changes):
 
 
 def init():
-    settings_service.onModSettingsChanged.connect(changed, config)
+    settings_service.onModSettingsChanged.connect(changed, vehicle_markers_settings)
     start()
 
 

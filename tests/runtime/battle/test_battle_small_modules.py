@@ -99,7 +99,7 @@ class EntryPointTests(RuntimeTest):
             views = api['getBattleViews']()
             self.assertEqual(len(views), 1, name)
             alias, view_class, config = views[0]
-            self.assertIs(config, api['config'], name)
+            self.assertIs(config, api[name + '_settings'], name)
             self.assertTrue(alias, name)
 
 

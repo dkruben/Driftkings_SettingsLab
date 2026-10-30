@@ -17,7 +17,7 @@ from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
 from driftkings.game_constants import ARENA_PERIOD, CTRL_MODE_NAME, GUN_MARKER_TYPE
 from driftkings.logger import get_logger
-from driftkings.settings.definitions.battle.aiming_reticles import AimingReticlesSettings as Settings
+from driftkings.settings.definitions.battle.aiming_reticles import AimingReticlesSettings
 from driftkings.settings.service import affects, settings_service
 
 LOG = get_logger('driftkings.battle.aiming_reticles')
@@ -115,8 +115,8 @@ class ReticleState(object):
 
 from driftkings.flash.battle.aiming_reticles import CUSTOM_GUN_MARKER_LINKAGES, get_linkages, set_linkages, set_state
 
-config = Settings()
-reticle = ReticleState(config)
+aiming_reticles_settings = AimingReticlesSettings()
+reticle = ReticleState(aiming_reticles_settings)
 set_state(reticle)
 
 

@@ -4,6 +4,8 @@ from driftkings._constants import MARK_THRESHOLDS
 from driftkings.common.utils.numbers import finite_number as finite
 from driftkings.locale_support import language_code
 
+ANCHORS = {'alignX': ('left', 'center', 'right'), 'alignY': ('top', 'center', 'bottom')}
+
 
 def number_locale(language):
     """Number presentation for the same supported language as the panel labels."""
@@ -15,9 +17,6 @@ def number_locale(language):
     else:
         decimal, group = '.', ','
     return {'decimalSeparator': decimal, 'groupSeparator': group}
-
-
-ANCHORS = {'alignX': ('left', 'center', 'right'), 'alignY': ('top', 'center', 'bottom')}
 
 
 def moved_panel(panel, args):
@@ -33,7 +32,6 @@ def moved_panel(panel, args):
         if args.get(key) in choices:
             panel[key] = args[key]
     return panel
-
 
 
 def delta_model(value):
@@ -66,13 +64,15 @@ def compact_model(vehicle_id, current, estimated, damage, assists, targets, earn
     """All numeric values are supplied by the calculation engine, not JS."""
     current, estimated = finite(current), finite(estimated)
     valid = bool(valid and current is not None and estimated is not None)
-    result = {'state': 'data' if valid else 'unavailable', 'vehicleId': vehicle_id,
-              'currentMark': current, 'estimatedMark': estimated if valid else None,
-              'marksAchieved': max(0, min(3, int(finite(earned, 0)))),
-              'directDamage': finite(damage, 0), 'assistance': list(assists),
-              'combinedDamage': finite(damage, 0) + max(assists),
-              'trend': delta_model(estimated - current if valid else None),
-              'approximate': bool(approximate and valid)}
+    result = {
+        'state': 'data' if valid else 'unavailable', 'vehicleId': vehicle_id,
+        'currentMark': current, 'estimatedMark': estimated if valid else None,
+        'marksAchieved': max(0, min(3, int(finite(earned, 0)))),
+        'directDamage': finite(damage, 0), 'assistance': list(assists),
+        'combinedDamage': finite(damage, 0) + max(assists),
+        'trend': delta_model(estimated - current if valid else None),
+        'approximate': bool(approximate and valid)
+    }
     result.update(milestone_model(estimated if valid else None, earned))
     target = targets.get(result['nextMilestone']) if valid else None
     result['targetDamage'] = target
