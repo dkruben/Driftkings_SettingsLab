@@ -12,7 +12,7 @@ Atualizado em 2026-10-30. Os caminhos e comandos partem da raiz do repositório.
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão stable publicada: `0.1.4`. Versão em preparação na `develop`: beta `0.1.5-beta.1`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Versão stable publicada: `0.1.4` (latest). Beta publicada: `0.1.5-beta.1` (prerelease, tag no commit `3176085`). O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
@@ -55,6 +55,14 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Beta 0.1.5-beta.1 publicada — 2026-10-30
+
+A [release v0.1.5-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.1) está publicada como prerelease; a stable 0.1.4 continua marcada como latest. O tag aponta para `3176085e251a37835eff0369fedcff0b0de9ad1a`, cujo CI passou antes do upload.
+
+A build release foi feita a partir da árvore limpa nesse commit, com verificação do pacote em Python 2.7, instalador Inno Setup e os três testes opcionais sobre o WOTMOD. O manifesto foi assinado com a chave existente. Os 11 assets enviados coincidem em tamanho e SHA-256 com o inventário local; o manifesto e a assinatura descarregados da release pública passaram na verificação da chave de confiança. O anúncio automático no Discord correu sem erros. A publicação não instalou a beta nos clientes.
+
+O changelog assinala como incompatíveis com perfis personalizados a remoção dos aliases de fonte `xvm`/`XVMSymbol` e do macro `{{xvm-stat}}`; os perfis devem usar `dkm` e `{{stat-available}}`.
 
 ## Validação no jogo de 2026-10-30
 
