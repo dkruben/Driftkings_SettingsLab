@@ -184,14 +184,18 @@ class AnalyticsTests(RuntimeTest):
         service.changed({'analytics': True})
         self.assertTrue(os.path.exists(self.identity()))
         handlers = len(logging.getLogger('Driftkings').handlers)
+        sender = service.sender
         service.changed({'analytics': False})
         self.assertFalse(os.path.exists(self.identity()))
         self.assertIsNone(service.sender)
         self.assertEqual(self.callbacks.cancelled, [1])
         self.assertEqual(len(logging.getLogger('Driftkings').handlers), handlers - 1)
+        # stop() is nonblocking: an already-started in-memory request may finish.
+        # Drain that worker before checking that disabled tracking adds no events.
+        sender.thread.join(5.0)
+        self.assertFalse(sender.thread.is_alive())
         before = len(self.opener.events())
         service.track('mod_loaded')
-        time.sleep(0.05)
         self.assertEqual(len(self.opener.events()), before)
 
     def test_stop_keeps_the_identity_of_an_opted_in_player(self):

@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "version": "0.1.4-beta.2",
-  "channel": "beta",
+  "version": "0.1.4",
+  "channel": "stable",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
   "package_id": "driftkings.unified",
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "Reorganize tests by runtime, frontend, build and compiled artifacts; preserve the existing regressions and add account lifecycle, password reveal, statistics detection and embedded-font coverage. Update CI and automatic frontend discovery.",
+    "NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors; full visual acceptance in the Gameface client is pending.",
     "Centralize shared settings contracts and native WG enums without changing defaults or JSON formats. Reuse colour and numeric helpers, remove unused game utilities and redundant test imports, and refresh development documentation.",
     "BETA NOTICE: the settings panel is still under construction. Layouts and live previews may contain errors; full visual acceptance in the Gameface client is pending.",
     "Fix intermittent Account Manager clipping with a fullscreen modal viewport and CSS centering; focus the panel and capture Escape before internal controls. Show a mask for saved passwords, reveal them only on request, preserve unchanged passwords on save, and draw checkbox ticks in CSS independently of font glyphs. Build and Gameface regression checks pass; the user confirmed the fixes in the NA client.",

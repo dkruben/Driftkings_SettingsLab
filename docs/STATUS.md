@@ -12,8 +12,8 @@ Atualizado em 30 de outubro de 2026. Os caminhos e comandos partem da raiz do re
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão de desenvolvimento: `0.1.4-beta.2`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
-- Último commit funcional registado nesta revisão: `88930b6` (Account Manager), enviado para `develop`. O commit anterior `4d40588` removeu OpenWG Common.
+- Versão stable publicada: `0.1.4`; beta anterior `0.1.4-beta.2`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
 - O painel de configurações continua em construção. A ausência de erros num replay não valida todas as páginas, previews ou operações de gravação.
@@ -85,7 +85,7 @@ A revisão do runtime Python, ferramentas, frontend e Flash identificou contrato
 
 `game_constants.py` reexporta os objetos nativos partilhados `CTRL_MODE_NAME`, `GUN_MARKER_TYPE` e `ARENA_PERIOD`, sem copiar valores WG para `_constants.py`. As funções numéricas idênticas de WNX e rating dos marcadores reutilizam `common/utils/numbers.nonnegative_number`, preservando os nomes `number` e `numeric`. Booleanos, negativos e não finitos continuam indisponíveis; `finite_number` conserva o seu contrato anterior.
 
-Os testes completos, as 14 suites frontend, os defaults e o catálogo UI passaram. Repetições com significado diferente, algoritmos de paleta distintos, regras de segurança de caminhos, recursos gerados e espelhos Python/JS/AS3 dos contratos não foram unidos por semelhança textual. Os grupos WG usados por uma única implementação permanecem locais. A revisão não acrescenta dependências nem muda configurações instaladas; estas alterações ainda não foram compiladas/validadas no cliente.
+Os testes completos, as 14 suites frontend, os defaults e o catálogo UI passaram. Repetições com significado diferente, algoritmos de paleta distintos, regras de segurança de caminhos, recursos gerados e espelhos Python/JS/AS3 dos contratos não foram unidos por semelhança textual. Os grupos WG usados por uma única implementação permanecem locais. A revisão não acrescenta dependências nem muda configurações instaladas; estas alterações foram compiladas na stable 0.1.4; a validação funcional completa no cliente continua pendente.
 
 ## Build e instalação local
 
@@ -102,3 +102,11 @@ Os testes versionados continuam a visar módulos existentes e são usados pelo C
 ## Verificação histórica da preparação da beta 0.1.4-beta.2
 
 Registo da preparação de 28 de outubro; os números abaixo não representam uma nova execução sobre todos os commits posteriores. Metadados e changelog preparados em `build_data/release.json`, com `VERSION` e downloads alinhados. Antes da compilação passaram 449 testes Core e 27 testes do painel em Python 2.7 e Python 3, 36 testes do instalador em Python 3, suites JavaScript, ESLint, traduções, defaults, catálogo UI e contratos de build. Foram atualizadas apenas as dependências simuladas de três fixtures que ainda representavam os contratos anteriores do carrossel, eventos WG e constantes das secções. O aviso de painel em construção permanece.
+
+## Stable 0.1.4 publicada — 30 de outubro
+
+A [release v0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4) está pública e marcada como latest stable. Integra a `develop` em `main`, mantendo o aviso de painel em construção. O tag aponta para `0ee483d351cbc6fb6043224bfd974522f3ce9d53`; o [CI desse commit](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/40978795023) passou em todas as etapas.
+
+A build release compilou 314 módulos Python 2.7 e gerou os SWF e helpers nativos. O instalador foi compilado e o manifesto assinado com a chave existente. Foram publicados 11 assets; nomes, tamanhos e SHA-256 foram comparados com o inventário local. O manifesto e a assinatura descarregados da release passaram na verificação da chave pública de confiança. Os três testes opcionais sobre o WOTMOD compilado passaram. A publicação não instalou a stable nos clientes EU/NA.
+
+O CI anterior da `develop` expôs uma corrida no teste de encerramento de analytics. O teste passou a aguardar a thread de teste antes de contar novos envios após desativação; o código de analytics não foi alterado. A correção integra o commit da release. Commits posteriores de documentação não mudam o tag nem os assets publicados. Antes de outra publicação, atribuir uma nova versão e alinhar versão runtime, canal, changelog e links.
