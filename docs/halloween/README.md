@@ -2,7 +2,7 @@
 
 Moved from `docs/PLANO_HALLOWEEN.md`, translated and condensed on 2026-10-30; the full option analysis remains in the Git history.
 
-Integrated in `develop` and stable 0.1.4 (originally `feature/halloween-mode-adapters`). In-game acceptance of the TAB name colours is still pending; see [Pending in-game validation](#pending-in-game-validation).
+Integrated in `develop` and stable 0.1.4 (originally `feature/halloween-mode-adapters`). The TAB name colours were accepted in game on 2026-10-30 (NA `2.4.1.1 #987`); the remaining checks are listed under [Pending in-game validation](#pending-in-game-validation).
 
 ## Scope
 
@@ -54,11 +54,15 @@ Option A is only worth revisiting after inspecting the `TabScreen` structure and
 
 The NA log of 28 October 2026 showed `TypeError: style.getPropertyPriority is not a function`, which stopped the table from being created. The code now uses `style.color`, and the priority API is only queried when it exists. The JavaScript regression covers a style object without `getPropertyPriority`, `getPropertyValue`, `setProperty` or `removeProperty`.
 
+## In-game acceptance
+
+- 2026-10-30, NA `2.4.1.1 #987`: the maintainer confirmed that the native Halloween TAB names receive the configured rating colours. The same behaviour is reported for EU and ASIA clients of the same version, without a separately recorded test.
+
 ## Pending in-game validation
 
 - The native Halloween panel shows no mod text on top and no mode changes (`medium2`/`large`).
 - The log shows `Team panels: mode=halloween supported=tab`, `Gameface roster watching halloween.gui.impl.battle.full_stats.TabScreen` and, when the TAB opens, `Gameface roster attached: tab (halloween)`.
-- In the Halloween TAB only the native names receive the rating colour; no extra panel appears, names without statistics stay intact, event data (damage, kills, anomalies) is unchanged, and original colours return when the TAB closes or is disabled.
+- In the Halloween TAB no extra panel appears, names without statistics stay intact, event data (damage, kills, anomalies) is unchanged, and original colours return when the TAB closes or is disabled.
 - The Halloween loading screen matches the native one.
 - Random battles are unchanged (panel, loading and TAB).
 - Other modes (comp7, frontline, training, events) keep their native views without the mod roster.

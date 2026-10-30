@@ -56,6 +56,16 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
+## Validação no jogo de 2026-10-30
+
+O utilizador testou no cliente NA `2.4.1.1 #987` a build de desenvolvimento posterior à stable 0.1.4 (commits `682580f` a `91cf708`) e confirmou funcionamento em:
+
+- fontes `dkm` nos marcadores, painéis de equipa e carrossel, depois da remoção dos aliases antigos;
+- painéis de equipa e ecrã de carregamento com `{{stat-available}}`, nos perfis pessoais convertidos a partir do nome antigo (backup em `build/local-backups/`);
+- cores dos nomes nativos no TAB Halloween segundo o rating configurado.
+
+O utilizador indica comportamento igual nos clientes EU e ASIA da mesma versão; não foi registado um teste separado nesses clientes. A validação não abrange as restantes pendências abaixo.
+
 ## Alterações e validação de 29 de outubro
 
 - **Fontes:** OpenWG Common e o pacote Python `driftkings.fonts` foram retirados. As fontes são incorporadas/registadas nos dois SWF e carregadas por `@font-face` no Gameface; preservar `dkm`, `DriftkingsFont` e as fontes nativas; os aliases antigos foram retirados em 2026-10-30. OpenWG Gameface permanece como dependência separada, juntamente com ModsList.
@@ -67,7 +77,7 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 ### Pendências e limites atuais
 
 - O painel de configurações continua em construção; a validação do Account Manager não valida todas as páginas, previews, perfis e falhas de gravação.
-- A aceitação visual das cores dos nomes no TAB Halloween continua indicada como pendente no changelog. Não a considerar concluída com base nos testes portáveis.
+- A aceitação visual das cores dos nomes no TAB Halloween foi confirmada em 2026-10-30 (NA `2.4.1.1 #987`); os restantes pontos do [guia Halloween](halloween/README.md#pending-in-game-validation) continuam por confirmar.
 - Medições comparáveis de FPS/CPU/memória e a matriz completa de modos/replay/estados dos marcadores continuam por realizar; não atribuir ganhos quantitativos sem medição.
 - Os riscos históricos de aplicação/gravação parcial, normalização externa e invalidação de estatísticas permanecem na [auditoria final](AUDITORIA_FINAL_INTEGRACAO.md). Essa auditoria é datada: a frase final «sem commit nem push» descreve o momento da auditoria, anterior à integração `202f476`.
 
