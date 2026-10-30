@@ -3,7 +3,7 @@
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
 [![Beta 0.1.4-beta.2](https://img.shields.io/badge/Beta-0.1.4--beta.2-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)
-[![Stable 0.1.3](https://img.shields.io/badge/Stable-0.1.3-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3)
+[![Stable 0.1.4](https://img.shields.io/badge/Stable-0.1.4-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)
 
 # Driftkings Modpack
 
@@ -17,19 +17,20 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
-| **[Stable 0.1.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3/Driftkings-0.1.3-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.3/Driftkings-0.1.3-WoT-2.4.1.1.zip) |
+| **[Stable 0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1.zip) |
 | **[Beta 0.1.4-beta.2](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4-beta.2)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4-beta.2/Driftkings-0.1.4-beta.2-WoT-2.4.1.1.zip) |
 
-Stable **0.1.3** targets WoT **2.4.1.1**. Beta **0.1.4-beta.2** also targets WoT **2.4.1.1**, with further settings-panel fixes and two fictional carousel preview cards.
+Stable **0.1.4** targets WoT **2.4.1.1**. Beta **0.1.4-beta.2** also targets WoT **2.4.1.1**, with further settings-panel fixes and two fictional carousel preview cards.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
-### What's new in 0.1.3
+### What's new in 0.1.4
 
-- **Vehicle markers:** separate layouts for allies/enemies, alive/destroyed vehicles and normal/ALT views; configurable text, ratings, health bars, icons and floating damage.
-- **Live tank preview:** edit marker fields, shared templates and JSON, and check team colours, HP and visibility. The property column has its own scrollbar.
-- **Updated defaults:** the author's EU profile for the clock, panel positions, carousel and minimap; vehicle markers follow the reference layout. Settings-window scale starts at 140%, with 94% opacity.
-- **Font and editor fixes:** corrected native font handling, marker font aliases, colour inputs, slider limits and reference errors.
+- **Account Manager:** corrected intermittent clipping and Escape handling; saved passwords can be explicitly revealed, with a visible checkbox state.
+- **Self-contained fonts:** embedded Flash fonts and Gameface resources preserve `dkm` and existing aliases, without OpenWG Common or its additional native modules.
+- **Battle fixes:** corrected minimap sector direction, improved player-panel discovery and added native Halloween TAB colour integration. Full Halloween colour acceptance remains pending.
+- **Shared contracts:** consolidated constants and numeric/colour helpers while preserving personal settings, defaults and JSON formats.
+- **Regression coverage:** reorganised Python and frontend suites, added account lifecycle and compiled-font checks, and updated CI.
 
 ## Installation
 
@@ -140,7 +141,7 @@ The stable release has prior in-game validation. Beta 0.1.4-beta.2 passed packag
 
 The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
-Version `0.1.3` includes the redesigned settings panel with option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.3); the latest visual changes still need in-game acceptance.
+Version `0.1.3` includes the redesigned settings panel with option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4); the latest visual changes still need in-game acceptance.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 

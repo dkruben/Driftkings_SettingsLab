@@ -22,7 +22,7 @@ This guide explains how the code is organised and how to make a change safely. S
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
 - `main` is the stable release branch. Prepare stable releases there after integrating the validated changes from `develop`.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
-- Stable `0.1.3` targets WoT `2.4.1.1`. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
+- Stable `0.1.4` targets WoT `2.4.1.1`; `0.1.3` remains archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
 
 ## Repository layout
 
@@ -212,7 +212,7 @@ Use the actual artifact path for the version under review. This suite is deliber
 
 Put shared setup in `support`, not in another `test_*` module. Preserve isolation of mocked imports and cleanup of events/callbacks. For critical WG contracts, supply explicit test boundaries that reject unknown attributes; automatic stubs are only an isolation convenience, not API verification. Source-text assertions check structural contracts, not runtime behaviour. DOM doubles do not implement CSS layout or prove that a glyph is visible; record in-game acceptance separately.
 
-Stable `0.1.2` had earlier in-game validation. Stable `0.1.3` uses the tested development sources and package-validation workflow. Its latest marker/font/layout changes still need visual confirmation in game. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
+Stable `0.1.2` had earlier in-game validation. Stable `0.1.4` uses the validated development sources and package-validation workflow. The settings panel remains under construction; consult STATUS.md for the exact scope of in-game acceptance. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
 
 Current verification results are dated in [STATUS.md](docs/STATUS.md). Test counts are evidence of a particular run, not a coverage percentage or a fixed requirement for later changes.
 

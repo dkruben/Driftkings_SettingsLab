@@ -12,8 +12,8 @@ Atualizado em 30 de outubro de 2026. Os caminhos e comandos partem da raiz do re
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão de desenvolvimento: `0.1.4-beta.2`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
-- Último commit funcional registado nesta revisão: `88930b6` (Account Manager), enviado para `develop`. O commit anterior `4d40588` removeu OpenWG Common.
+- Versão stable preparada nesta revisão: `0.1.4`; beta anterior `0.1.4-beta.2`. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
 - O painel de configurações continua em construção. A ausência de erros num replay não valida todas as páginas, previews ou operações de gravação.
@@ -102,3 +102,7 @@ Os testes versionados continuam a visar módulos existentes e são usados pelo C
 ## Verificação histórica da preparação da beta 0.1.4-beta.2
 
 Registo da preparação de 28 de outubro; os números abaixo não representam uma nova execução sobre todos os commits posteriores. Metadados e changelog preparados em `build_data/release.json`, com `VERSION` e downloads alinhados. Antes da compilação passaram 449 testes Core e 27 testes do painel em Python 2.7 e Python 3, 36 testes do instalador em Python 3, suites JavaScript, ESLint, traduções, defaults, catálogo UI e contratos de build. Foram atualizadas apenas as dependências simuladas de três fixtures que ainda representavam os contratos anteriores do carrossel, eventos WG e constantes das secções. O aviso de painel em construção permanece.
+
+## Preparação da stable 0.1.4 — 30 de outubro
+
+A stable integra a `develop`, com aviso de painel em construção mantido. Os metadados, versão runtime e links de downloads estão alinhados em 0.1.4. A publicação exige build release a partir do commit limpo de `main`, instalador, assinatura do manifesto e CI aprovado. Confirmar o resultado e os assets na [release v0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4); a presença desta preparação na documentação não substitui essa verificação.
