@@ -47,7 +47,11 @@ def discover(root, overrides):
     result['playerglobal'] = choose('playerglobal', sorted(adobe.glob('Adobe Animate */Common/Configuration/ActionScript 3.0/FP32.0/playerglobal.swc'), reverse=True))
     java = Path(os.environ.get('ProgramFiles', 'C:/Program Files')) / 'Java'
     result['java'] = choose('java', sorted(java.glob('jre1.8*/bin/java.exe'), reverse=True) + [shutil.which('java')])
-    result['csc'] = choose('csc', [Path(os.environ.get('WINDIR', 'C:/windows')) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'])
+    # Prefer a Visual Studio Roslyn compiler, which supports deterministic output, over the .NET Framework 4 csc.
+    studios = [Path(os.environ.get(key, default)) / 'Microsoft Visual Studio'
+               for key, default in (('ProgramFiles(x86)', 'C:/Program Files (x86)'), ('ProgramFiles', 'C:/Program Files'))]
+    roslyn = sorted((path for studio in studios for path in studio.glob('*/*/MSBuild/Current/Bin/Roslyn/csc.exe')), reverse=True)
+    result['csc'] = choose('csc', roslyn + [Path(os.environ.get('WINDIR', 'C:/windows')) / 'Microsoft.NET/Framework/v4.0.30319/csc.exe'])
     result['rabcdasm_home'] = choose('rabcdasm_home', [], directory=True)
     result['game_root'] = choose('game_root', [], directory=True)
     result['reference_root'] = choose('reference_root', [], directory=True)

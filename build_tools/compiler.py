@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from build_tools.package_tools import metadata, sha, validate_swf, verify_package, write_json, zip_entries
+from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
 from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
 from build_tools.validate_build_data import apply_patch_set, build_plan, client_realm, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
@@ -123,8 +123,19 @@ def run_worker(tools, run, job, name):
     return read_json(result)
 
 
-def generate(root, config, plan, tools, run):
+def supports_deterministic_csharp(csc):
+    """Roslyn compilers omit timestamps and random module IDs on request; the .NET Framework 4 csc cannot."""
+    try:
+        result = subprocess.run([str(csc), '-help'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60,
+                                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return b'-deterministic' in result.stdout
+
+
+def generate(root, config, plan, tools, run, epoch):
     outputs = {}
+    deterministic_csharp = None
     needed = {a['generator'] for a in plan['assets'] if a['generator']}
     for name in sorted(needed):
         spec = config['generators'][name]
@@ -147,6 +158,7 @@ def generate(root, config, plan, tools, run):
                         '-default-size=%s,%s' % (spec['width'], spec['height']), '-default-frame-rate=' + str(spec['fps']),
                         '-output=' + str(destination), str(input_path(root, spec['entrypoint']))]
             run_tool(command, run / 'logs' / (name + '.log'))
+            destination.write_bytes(normalize_swf_compile_date(destination.read_bytes(), epoch))
             validate_swf(destination.read_bytes())
         elif spec['kind'] == 'vehicle_markers':
             from build_tools.vehicle_markers import build as build_vehicle_markers
@@ -162,8 +174,12 @@ def generate(root, config, plan, tools, run):
             patch = read_json(input_path(root, spec['patch_file']))
             destination.write_bytes(apply_patch_set(raw, patch))
         elif spec['kind'] == 'csharp':
+            if deterministic_csharp is None:
+                deterministic_csharp = supports_deterministic_csharp(tools['csc'])
             command = [tools['csc'], '/nologo', '/target:exe', '/platform:anycpu', '/optimize+', '/debug-',
                        '/out:' + str(destination)]
+            if deterministic_csharp:
+                command.append('/deterministic')
             command += ['/reference:' + reference for reference in spec['references']]
             command.append(str(input_path(root, spec['source'])))
             command += [str(input_path(root, source)) for source in spec.get('additional_sources', [])]
@@ -358,7 +374,7 @@ def build(args):
         print('Compiling Python 2.7: %d modules (%s, %s)' % (len(plan['python']), version, channel), flush=True)
         report['python'] = run_worker(tools, run, dict(action='compile', files=[dict(source=str(root / i['source']), target=i['target']) for i in plan['python']],
                                                     output=str(compiled), overrides=overrides, epoch=epoch), 'python')
-        generated = generate(root, config, plan, tools, run)
+        generated = generate(root, config, plan, tools, run, epoch)
         entries = package_entries(root, release, plan, compiled, generated, version)
         candidate = destination.parent / ('.' + version + '-' + stamp)
         candidate.mkdir(parents=True)

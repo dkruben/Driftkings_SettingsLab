@@ -48,6 +48,30 @@ def validate_swf(raw):
     require(struct.unpack('<I', raw[4:8])[0] == len(expanded), 'SWF length mismatch')
 
 
+def normalize_swf_compile_date(raw, epoch):
+    """Replace the ProductInfo compile date written by mxmlc with SOURCE_DATE_EPOCH (milliseconds)."""
+    validate_swf(raw)
+    expanded = bytearray(raw if raw[:3] == b'FWS' else raw[:8] + zlib.decompress(raw[8:]))
+    position = 8 + (5 + (expanded[8] >> 3) * 4 + 7) // 8 + 4
+    changed = False
+    while position < len(expanded):
+        header = struct.unpack('<H', bytes(expanded[position:position + 2]))[0]
+        code, length = header >> 6, header & 0x3f
+        position += 2
+        if length == 0x3f:
+            length = struct.unpack('<I', bytes(expanded[position:position + 4]))[0]
+            position += 4
+        if code == 41 and length == 26:
+            expanded[position + 18:position + 26] = struct.pack('<Q', epoch * 1000)
+            changed = True
+        position += length
+    if not changed:
+        return raw
+    if raw[:3] == b'FWS':
+        return bytes(expanded)
+    return bytes(expanded[:8]) + zlib.compress(bytes(expanded[8:]), 9)
+
+
 def verify_package(path, expected, version, package_id):
     require(Path(path).stat().st_size <= 64 * 1024 * 1024, 'Package exceeds updater size limit')
     with zipfile.ZipFile(path) as archive:
