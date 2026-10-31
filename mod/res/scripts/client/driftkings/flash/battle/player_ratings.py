@@ -438,6 +438,8 @@ class RatingViews(object):
                 continue
             row={'id':ident,'ally':bool(values['ally']),'name':values['name'],'nick':values['nick'],
                  'index':index,'fixedIndex':fixedIndex,'panels':{},'aliases':aliases}
+            if adapter is not None and adapter.mode=='frontline':
+                row['accountDBID']=vehicles[ident].get('accountDBID',0)
             # Each screen tracks the macro values actually read, including
             # conditions, nested names and fallbacks. Hidden screens stay lazy.
             rebuilt=False
@@ -504,7 +506,8 @@ class RatingViews(object):
                 if self.panelSnapshot is None:
                     self.panelSnapshot=deepcopy(data[TEAM_PANELS.PLAYERS_PANEL])
                 # Rows resolved only for a Gameface TAB are not sent to an undrawn Flash panel.
-                drawn=enabled and self.supports('panel')
+                frontline=self.tabKind()=='frontline'
+                drawn=enabled and (self.supports('panel') or frontline)
                 flashRows=rows if drawn else []
                 payload={'enabled':drawn,
                     'rows':flashRows,'panel':self.panelSnapshot, 'mode':self.model.mode,
@@ -514,6 +517,8 @@ class RatingViews(object):
                     'hoverMode':profile_for_mode(self.baseMode),'hovered':self.hovered,
                     'hoverAreaWidth':data[TEAM_PANELS.PROFILES][profile_for_mode(self.baseMode)].get('expandAreaWidth',230),
                     'time':{'H':time.strftime('%H'),'i':time.strftime('%M'),'s':time.strftime('%S')}}
+                if frontline:
+                    payload['tableMode']='frontline'
                 if payload!=self.lastPayload:
                     wire=dict(payload)
                     if self.lastPayload is not None:

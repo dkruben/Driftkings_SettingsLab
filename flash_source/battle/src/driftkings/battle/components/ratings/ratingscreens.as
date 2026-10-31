@@ -109,7 +109,7 @@ package driftkings.battle.components.ratings
             {
                 if (!viewbindings.showing(binding.owner as DisplayObject)) continue;
                 if (binding.screen=="panel") visiblePanel=true;
-                else if (binding.screen=="tab") visibleTab=true;
+                else if (binding.screen=="tab" || binding.screen=="frontlineTab") visibleTab=true;
                 else visibleLoading=true;
             }
             var screens:String=[visiblePanel,visibleLoading,visibleTab].join(",");
@@ -124,6 +124,13 @@ package driftkings.battle.components.ratings
             {
                 if (!viewbindings.showing(binding.owner as DisplayObject)) continue;
                 var checkpoint:int=getTimer();
+                if (binding.screen=="frontlineTab" || binding.screen=="frontlineLoading")
+                {
+                    if (payload.tableMode=="frontline") tables.drawFrontline(binding.owner,payload,binding.screen=="frontlineTab" ? "tab" : "loading");
+                    profiler.table+=getTimer()-checkpoint;
+                    continue;
+                }
+                if (payload.tableMode=="frontline") continue;
                 if (binding.screen=="panel")
                 { panels.draw(binding.owner,payload); profiler.panel+=getTimer()-checkpoint; }
                 else

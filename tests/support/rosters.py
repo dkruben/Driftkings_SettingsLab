@@ -70,16 +70,17 @@ class Harness(object):
         self.arena = module(vehicles=vehicles, statistics={}, guiType=1)
         self.player = module(arena=self.arena, playerVehicleID=own, team=vehicles[own]['team'])
         self.callbacks = []
+        self.cancelled = []
         self.sent = []
         self.gameface = []
-        capabilities = module(current_mode=lambda: self.mode, is_event_mode=lambda: self.mode != 'random')
+        capabilities = module(current_mode=lambda: self.mode, is_event_mode=lambda: self.mode not in ('random', 'frontline', 'stronghold'))
         events = module(**dict((name, module(connect=lambda *args: None, disconnect=lambda *args: None))
                                for name in ('started', 'loaded', 'ended', 'health', 'appeared', 'visibility',
                                             'killed', 'key')))
         events.acquire = events.release = lambda owner: None
         bigworld = module(player=lambda: self.player, time=lambda: 100.0, entity=lambda ident: None,
                           callback=lambda delay, fn: self.callbacks.append(fn) or len(self.callbacks),
-                          cancelCallback=lambda handle: None, isKeyDown=lambda code: False)
+                          cancelCallback=self.cancelled.append, isKeyDown=lambda code: False)
         self.api = source('flash/battle/player_ratings.py', {
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.data),
                                                   SettingsChanges=lambda data, paths: None,

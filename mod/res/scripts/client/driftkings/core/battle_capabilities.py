@@ -100,6 +100,15 @@ class BattleCapabilities(object):
         return self.is_in_battle() and (call(self._gui(), 'isEpicBattle') is True or
             self._match('ARENA_BONUS_TYPE', self._bonus(), ('EPIC_BATTLE', 'EPIC_BATTLE_TRAINING')))
 
+    def is_fort_rush(self):
+        # Black Signal injects its constants when the native extension loads.
+        return self.is_in_battle() and self._match('ARENA_BONUS_TYPE', self._bonus(), ('FORT_RUSH',))
+
+    def is_stronghold(self):
+        # Maneuvers uses the server-selected Stronghold battle mode; this is
+        # infrastructure support, not a claim that every Stronghold is the event.
+        return self.is_in_battle() and self._match('ARENA_BONUS_TYPE', self._bonus(), ('SORTIE_2', 'FORT_BATTLE_2'))
+
     def is_random(self):
         if not self.is_in_battle() or self.is_comp7() or self.is_event():
             return False
@@ -142,7 +151,7 @@ class BattleCapabilities(object):
         return alias in (config or ())
 
     def is_special(self):
-        return self.current_mode() in ('comp7', 'frontline', 'event', 'white_tiger', 'halloween', 'special')
+        return self.current_mode() in ('comp7', 'frontline', 'fort_rush', 'stronghold', 'event', 'white_tiger', 'halloween', 'special')
 
     def is_spg(self):
         if not self.is_in_battle():
@@ -166,6 +175,10 @@ class BattleCapabilities(object):
             mode = 'comp7'
         elif self.is_frontline():
             mode = 'frontline'
+        elif self.is_fort_rush():
+            mode = 'fort_rush'
+        elif self.is_stronghold():
+            mode = 'stronghold'
         elif self.is_event():
             mode = 'event'
         elif self.is_random():
@@ -217,6 +230,8 @@ is_statistics_battle = battle_capabilities.is_statistics_battle
 is_event_mode = battle_capabilities.is_event_mode
 is_comp7 = battle_capabilities.is_comp7
 is_frontline = battle_capabilities.is_frontline
+is_fort_rush = battle_capabilities.is_fort_rush
+is_stronghold = battle_capabilities.is_stronghold
 is_replay = battle_capabilities.is_replay
 is_event = battle_capabilities.is_event
 is_halloween = battle_capabilities.is_halloween

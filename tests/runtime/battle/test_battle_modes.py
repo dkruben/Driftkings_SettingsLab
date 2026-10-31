@@ -6,7 +6,8 @@ from support import RuntimeTest, module
 # EU 2.4.1.1 values; HALLOWEEN* are injected by the halloween extension.
 NAMES = {'UNKNOWN': 0, 'REGULAR': 1, 'TRAINING': 2, 'EVENT_BATTLES': 9, 'EPIC_BATTLE': 27, 'COMP7': 43,
          'WINBACK': 44, 'RANDOM_NP2': 46, 'HALLOWEEN': 101, 'HALLOWEEN_MEDIUM': 102, 'HALLOWEEN_HARD': 103,
-         'LAST_STAND': 107, 'BATTLE_ROYALE_SOLO': 29, 'EPIC_RANDOM': 24}
+         'LAST_STAND': 107, 'BATTLE_ROYALE_SOLO': 29, 'EPIC_RANDOM': 24,
+         'FORT_RUSH': 111, 'SORTIE_2': 20, 'FORT_BATTLE_2': 21}
 HALLOWEEN = ('HALLOWEEN', 'HALLOWEEN_MEDIUM', 'HALLOWEEN_HARD')
 
 
@@ -46,11 +47,28 @@ class BattleModeTests(RuntimeTest):
     def test_other_modes_keep_their_classification(self):
         expected = {'REGULAR': 'random', 'EPIC_RANDOM': 'random', 'RANDOM_NP2': 'random', 'WINBACK': 'random',
                     'COMP7': 'comp7', 'EPIC_BATTLE': 'frontline', 'EVENT_BATTLES': 'event', 'TRAINING': 'special',
-                    'LAST_STAND': 'special', 'BATTLE_ROYALE_SOLO': 'special', 'UNKNOWN': 'unknown'}
+                    'LAST_STAND': 'special', 'BATTLE_ROYALE_SOLO': 'special', 'UNKNOWN': 'unknown',
+                    'FORT_RUSH': 'fort_rush', 'SORTIE_2': 'stronghold', 'FORT_BATTLE_2': 'stronghold'}
         for name, mode in expected.items():
             self.assertEqual(self.mode(NAMES[name]), mode, name)
             self.assertFalse(self.context().is_halloween(), name)
         self.assertEqual(self.mode(250), 'unknown')
+
+    def test_seasonal_modes_do_not_enable_random_only_statistics_features(self):
+        policy = self.load('core.battle_policy').BattlePolicy(self.context())
+        for name in ('FORT_RUSH', 'SORTIE_2', 'FORT_BATTLE_2'):
+            self.bonus = NAMES[name]
+            self.assertTrue(self.context().is_special())
+            for feature in ('battle_marks_of_excellence', 'battle_statistics', 'high_caliber_progress'):
+                self.assertEqual(policy.decision(feature), (False, 'requires_statistics_battle'))
+
+    def test_missing_extension_does_not_guess_fort_rush_or_activate_it_outside_battle(self):
+        names = dict((key, value) for key, value in NAMES.items() if key != 'FORT_RUSH')
+        self.assertEqual(self.mode(111, names), 'unknown')
+        context = self.capabilities.BattleCapabilities(player=lambda: module(arena=None), session=lambda: None,
+            modules={'constants': module(ARENA_BONUS_TYPE=module(**NAMES))})
+        self.assertFalse(context.is_fort_rush())
+        self.assertFalse(context.is_stronghold())
 
     def test_outside_battle_is_never_halloween(self):
         context = self.capabilities.BattleCapabilities(player=lambda: module(arena=None), session=lambda: None,

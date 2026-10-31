@@ -10,7 +10,7 @@ from driftkings._constants import TEAM_PANELS
 
 # Native PLAYERS_PANEL_STATE profiles of the classic panel (settings_data.PROFILES).
 CLASSIC_PANEL_MODES = TEAM_PANELS.MODES
-# tab: which TAB view gets the roster ('classic' TabView, 'halloween' TabScreen) or None.
+# tab: the native TAB renderer (classic Gameface, flash, frontline or halloween) or None.
 # order: 'native' follows the statistics exchange (captureOrder); 'mod' sorts the
 # roster here, for modes whose exchange is incomplete.
 # event_numbers: show numeric statistics although the mode is an event mode.
@@ -18,6 +18,15 @@ ModeAdapter = namedtuple('ModeAdapter', ('mode', 'loading', 'panel', 'tab', 'ene
                                          'panel_modes', 'order', 'event_numbers'))
 
 ADAPTERS = {
+    # Native classic panels; Stronghold keeps its Flash FullStats TAB. Black
+    # Signal uses the classic TabScreen/TabView and historical account numbers.
+    'stronghold': ModeAdapter('stronghold', loading=True, panel=True, tab='flash', enemies=True, team_size=15,
+                             panel_modes=CLASSIC_PANEL_MODES, order='native', event_numbers=False),
+    'fort_rush': ModeAdapter('fort_rush', loading=True, panel=True, tab='classic', enemies=True, team_size=7,
+                            panel_modes=CLASSIC_PANEL_MODES, order='native', event_numbers=True),
+    # Frontline has native scrolling/filterable tables, not classic side-panel modes.
+    'frontline': ModeAdapter('frontline', loading=True, panel=False, tab='frontline', enemies=True, team_size=30,
+                            panel_modes=(), order='native', event_numbers=False),
     # RANDOM_RANGE includes EPIC_RANDOM (30 vs 30) besides the 15 vs 15 randoms.
     'random': ModeAdapter('random', loading=True, panel=True, tab='classic', enemies=True, team_size=30,
                           panel_modes=CLASSIC_PANEL_MODES, order='native', event_numbers=False),

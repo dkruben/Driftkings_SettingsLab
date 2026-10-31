@@ -11,6 +11,58 @@ package driftkings.battle.components.ratings
         public function tablerenderer(s:nativestate,e:extrafields) { state=s; extra=e; }
         private function at(owner:Object,key:String,index:int):Object
         { return key in owner && owner[key] && index>=0 && index<owner[key].length ? owner[key][index] : null; }
+        public function drawFrontline(owner:Object,payload:Object,screen:String):void
+        {
+            // Lists recycle renderers while scrolling and filtering by sector. Resolve
+            // their current DAAPI identity every draw, never their visible row index.
+            var ids:Object={}, accounts:Object={};
+            for each (var row:Object in payload.rows)
+            {
+                ids[row.id]=row;
+                if (row.accountDBID>0)
+                {
+                    var account:String=String(row.accountDBID);
+                    accounts[account]=accounts.hasOwnProperty(account) ? null : row;
+                }
+            }
+            frontlineList(owner.team1PlayerList as DisplayObjectContainer,ids,accounts,screen);
+            frontlineList(owner.team2PlayerList as DisplayObjectContainer,ids,accounts,screen);
+        }
+        private function frontlineList(list:DisplayObjectContainer,ids:Object,accounts:Object,screen:String):void
+        {
+            if (!list) return;
+            for (var i:int=0;i<list.numChildren;++i)
+            {
+                var child:DisplayObject=list.getChildAt(i), renderer:Object=child;
+                if (!child.visible) continue;
+                if ("getData" in renderer && renderer.getData is Function &&
+                    (screen=="tab" ? "playerName" in renderer && "vehicleName" in renderer : "textField" in renderer && "vehicleField" in renderer))
+                {
+                    var data:Object=renderer.getData();
+                    if (!data) continue;
+                    var row:Object=ids[data.vehicleID];
+                    if (!row && data.accountDBID>0) row=accounts[String(data.accountDBID)];
+                    if (!row || data.accountDBID>0 && row.accountDBID!=data.accountDBID) continue;
+                    var cfg:Object=row[screen];
+                    if (!cfg || !cfg.enabled) continue;
+                    var nick:TextField=(screen=="tab" ? renderer.playerName : renderer.textField) as TextField;
+                    var vehicle:TextField=(screen=="tab" ? renderer.vehicleName : renderer.vehicleField) as TextField;
+                    var side:String=row.ally ? "Left" : "Right";
+                    frontlineText(nick,cfg["format"+side+"Nick"],cfg.nameFieldShowBorder);
+                    frontlineText(vehicle,cfg["format"+side+"Vehicle"],cfg.vehicleFieldShowBorder);
+                    if (screen=="tab") frontlineText(renderer.frags as TextField,cfg["format"+side+"Frags"],cfg.fragsFieldShowBorder);
+                    ++matched;
+                }
+                else if (child is DisplayObjectContainer) frontlineList(child as DisplayObjectContainer,ids,accounts,screen);
+            }
+        }
+        private function frontlineText(field:TextField,text:*,border:*):void
+        {
+            if (!field || !state.base(field,"visible") || text===null || text===undefined) return;
+            // Native widths/positions leave room for ranks, lives and sector icons.
+            extra.drawText(field,String(text),field.x,field.width,nativestate.flag(border));
+            state.setValue(field,"visible",false);
+        }
         public function draw(owner:Object,payload:Object,screen:String,left:Boolean=true):void
         {
             var tab:Boolean=screen=="tab", suffix:String=left ? "Ally" : "Enemy";

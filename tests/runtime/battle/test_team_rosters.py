@@ -74,10 +74,13 @@ class RandomRosterTests(RuntimeTest):
         self.assertTrue(texts)
         self.assertFalse([text for text in texts if 'M18' in text])
 
-    def test_30_vs_30_frontline_stays_native(self):
+    def test_30_vs_30_frontline_resolves_tables_without_classic_side_panels(self):
         harness = Harness(self, battle(30, 30), 'frontline')
         payload = harness.tick()
-        self.assertEqual((payload['enabled'], payload['rows']), (False, []))
+        self.assertTrue(payload['enabled'])
+        self.assertEqual(payload['tableMode'], 'frontline')
+        self.assertEqual(len(payload['rows']), 60)
+        self.assertTrue(all(not row['panels'] for row in payload['rows']))
 
 
 class HalloweenRosterTests(RuntimeTest):
