@@ -58,6 +58,12 @@ class PlayerRatingsTests(RuntimeTest):
             result = self.api['format_rating']('{{wn8}} {{c:wn8}}', {'wn8': 2000}, {}, True, index)
             self.assertEqual(result, '2000 ' + colors.getStatisticColor('wn8', 2000, index))
 
+    def test_battles_below_a_thousand_are_shown_instead_of_0k(self):
+        template = '{{kb%2d~k|--k}}'
+        for battles, expected in ((99, '99'), (850, '850'), (999, '999'), (1000, ' 1k'), (23400, '23k')):
+            self.assertEqual(self.api['format_rating'](template, {'battles': battles}, {}, True), expected)
+        self.assertEqual(self.api['format_rating'](template, {}, {}, False), '--k')
+
     def test_names_are_escaped_and_macros_do_not_traverse_objects(self):
         result = self.api['format_rating']('{{name}} {{clan}}', {}, {'name': '<Admin>', 'clanAbbrev': 'A&B'}, True)
         self.assertEqual(result, '&lt;Admin&gt; [A&amp;B]')

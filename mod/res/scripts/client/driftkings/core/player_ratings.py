@@ -172,6 +172,9 @@ def format_rating(template, info, vehicle, available, scale=0):
                 value = MISSING
         if macro == 'kb' and available and values.get('battles', MISSING) != MISSING:
             value = values['battles'] / 1000.0
+            # Below a thousand battles the thousands read as 0k; show the battles themselves.
+            if isinstance(values['battles'], (int, float)) and 0 <= values['battles'] < 1000 and not spec.endswith('s'):
+                return escape(type(u'')(int(values['battles'])))
         if value is None or value == MISSING:
             return fallback
         try:
