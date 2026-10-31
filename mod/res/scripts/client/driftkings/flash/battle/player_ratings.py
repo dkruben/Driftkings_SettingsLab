@@ -449,7 +449,10 @@ class RatingViews(object):
                     rebuilt=rebuilt or changed
             for screen in ('loading','tab'):
                 if screen in active:
-                    result,changed=self.resolvedScreen(ident,screen,data[screen],values,data,side,hotkeys)
+                    # The native TAB lists the short vehicle name; its columns cannot fit the
+                    # full name beside the statistics, so {{vehicle}} follows it there.
+                    screenValues=dict(values,vehicle=values['vehicle-short']) if screen=='tab' else values
+                    result,changed=self.resolvedScreen(ident,screen,data[screen],screenValues,data,side,hotkeys)
                     row[screen]=result
                     rebuilt=rebuilt or changed
                 else: row[screen]={'enabled':False}

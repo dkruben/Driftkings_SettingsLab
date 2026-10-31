@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Team panels over fake rosters: 15 vs 15, 30 vs 30 and Halloween with bots (accountDBID 0)."""
 from support import RuntimeTest
-from support.rosters import Harness, battle, halloween
+from support.rosters import Harness, battle, halloween, vehicle_type
 
 
 def by_id(rows):
@@ -58,6 +58,17 @@ class RandomRosterTests(RuntimeTest):
     def test_30_vs_30_is_not_truncated(self):
         harness = self.check(30, 30)
         self.assertLessEqual(30, harness.views.adapter.team_size)
+
+    def test_tab_uses_the_short_vehicle_name_like_the_native_columns(self):
+        vehicles = battle(2, 2)
+        vehicles[1]['vehicleType'] = vehicle_type('M18 Hellcat', 'AT-SPG')
+        vehicles[1]['vehicleType'].type.shortUserString = 'Hellcat'
+        harness = Harness(self, vehicles, 'random')
+        row = by_id(harness.views.rows(None, ('panel', 'loading', 'tab')))[1]
+        # The TAB's narrow columns cannot fit the full name beside the statistics.
+        self.assertTrue(row['tab']['formatLeftVehicle'].startswith('Hellcat<'))
+        self.assertTrue(row['tab']['formatRightVehicle'].endswith('</font>Hellcat'))
+        self.assertTrue(row['loading']['formatLeftVehicle'].startswith('M18 Hellcat<'))
 
     def test_30_vs_30_frontline_stays_native(self):
         harness = Harness(self, battle(30, 30), 'frontline')
