@@ -18,7 +18,7 @@
         if (timing === 'restart' || timing === 'view') {
             h('span.dk-badge.dk-badge-' + timing, {text: t('timing.' + timing, timing), title: t('applyTiming.' + timing, '')}, null, title);
         }
-        if (def.description) { h('div.dk-row-desc', {text: firstLine(def.description)}, null, text); }
+        if (def.description && firstLine(def.description) !== def.label) { h('div.dk-row-desc', {text: firstLine(def.description)}, null, text); }
         var lock = h('div.dk-row-lock', null, null, text);
         var input = h('div.dk-row-input', null, null, node);
         var reset = null;
@@ -110,6 +110,8 @@
         var icon = images ? h('img.dk-select-image', null, null, box) : null;
         var label = h('span.dk-select-label', null, null, box);
         h('span.dk-select-arrow', null, null, box);
+        var preview = def.preview && (images || def.preview.kind === 'healthBar') ? h('div.dk-selected-preview', null, null, c.node) : null;
+        if (preview) { DK.toggle(c.node, 'dk-row-media', true); }
         function choose(value) { DK.layer.closeMenu(); if (value !== c.value) { ctx.commit(def.id, value); } }
         function open() {
             if (c.disabled) { return; }
@@ -143,6 +145,26 @@
         });
         c.render = function () {
             label.textContent = optionLabel(def, c.value);
+            if (preview) {
+                DK.clear(preview);
+                if (def.preview.kind === 'healthBar' && window.__dkHealthBar) {
+                    var skin = window.__dkHealthBar.preset(c.value), health = h('div.dk-health', null, null, preview);
+                    preview.style.height = (skin.height + 12) + 'rem';
+                    window.__dkHealthBar.create(health).render({style: c.value, percent: 0.75, color: '#80D639', text: '1238 / 1650'});
+                    var scale = Math.min(1, 400 / skin.width);
+                    health.style.transformOrigin = '0 0'; health.style.transform = 'scale(' + scale + ')';
+                    preview.style.height = (skin.height * scale + 12) + 'rem';
+                } else if (images) {
+                    var selected = def.options.map(function (option) { return option.value; }).indexOf(c.value), src = images[selected];
+                    if (src) {
+                        h('img', {src: src, alt: optionLabel(def, c.value)}, null, preview);
+                        if (/\/aimingangles\//.test(src)) {
+                            h('img', {src: src.replace(/left\.png$/, 'right.png').replace(/top\.png$/, 'bottom.png'), alt: ''}, null, preview);
+                        }
+                    }
+                }
+                DK.show(preview, preview.childNodes.length > 0);
+            }
             if (icon) {
                 var index = -1;
                 for (var i = 0; i < def.options.length; i++) { if (def.options[i].value === c.value) { index = i; } }
@@ -358,7 +380,8 @@
                 rich = h('div.dk-rich', null, null, c.node);
                 DK.toggle(c.node, 'dk-row-media', true);
             }
-            DK.richText.render(rich, source, {extra: ctx.sample ? ctx.sample() : null});
+            var example = ctx.sample ? ctx.sample(def) : null;
+            DK.richText.render(rich, source, {extra: example, color: example && example.color});
         }
         field.addEventListener('input', function () { preview(field.value); });
         c.render = function () {
@@ -393,10 +416,9 @@
         var wrap = h('div.dk-color', null, null, c.row.input);
         var swatch = h('button.dk-swatch', {title: t('color.open')}, [h('span.dk-swatch-fill')], wrap);
         var field = h('input.dk-field.dk-hex', {type: 'text', maxLength: 7}, null, wrap);
-        var pick = h('button.dk-palette', {title: t('color.open')}, null, wrap);
         function open() {
             if (c.disabled) { return; }
-            picker=DK.colorPicker.open({value: c.value, alpha: withAlpha ? alpha : null, presets: def.presets, title: def.label, origin: pick},
+            picker=DK.colorPicker.open({value: c.value, alpha: withAlpha ? alpha : null, presets: def.presets, title: def.label, origin: swatch},
                 function (value, nextAlpha) {
                     if (withAlpha) {
                         if (value !== c.value || nextAlpha !== alpha) { ctx.commit(def.id, value, DK.colorPicker.toScale(nextAlpha, meta.alphaScale)); }
@@ -404,7 +426,6 @@
                 });
         }
         swatch.addEventListener('click', function (event) { DK.stop(event); open(); });
-        pick.addEventListener('click', function (event) { DK.stop(event); open(); });
         commitOnEnter(field, function () {
             if (c.disabled) { return; }
             var value = DK.hex(field.value);
@@ -418,7 +439,7 @@
         };
         c.onDispose=function(){if(picker){picker.close('code');picker=null;}};
         c.onSync = function (info) {
-            field.disabled = swatch.disabled = pick.disabled = c.disabled;
+            field.disabled = swatch.disabled = c.disabled;
             if (withAlpha && info.values) { alpha = DK.colorPicker.fromScale(info.values[meta.alphaKey], meta.alphaScale); c.render(); }
         };
         return c;

@@ -75,11 +75,7 @@
         var head = h('div.dk-live-head', null, [h('span.dk-detail-kicker', {text: t('live.title')})], root);
         h('div.dk-spacer', null, null, head);
         var modes = h('div.dk-segments', null, null, head);
-        var normalButton = h('button.dk-segment.is-selected', {text: t('live.normal')}, null, modes);
-        var altButton = h('button.dk-segment', {text: t('live.alt')}, null, modes);
-        function setAlt(on) { alt = on; DK.toggle(normalButton, 'is-selected', !on); DK.toggle(altButton, 'is-selected', on); draw(); }
-        normalButton.addEventListener('click', function (event) { DK.stop(event); setAlt(false); });
-        altButton.addEventListener('click', function (event) { DK.stop(event); setAlt(true); });
+        h('span.dk-segment.is-selected', {text: t('live.normal')}, null, modes);
         var frame = h('div.dk-live-frame', null, null, root);
         var canvas = h('canvas.dk-live-canvas', null, null, frame);
         var note = h('div.dk-live-note', {text: t('live.note')}, null, root);
@@ -126,7 +122,7 @@
             paint.globalAlpha = mapAlpha;
             // The client's own top-down map (Prokhorovka, 1000 m); a drawn terrain while it loads or if it is missing.
             var map = load(DK.assets.mapTopDown);
-            if (map && map.complete && map.naturalWidth) {
+            if (map && map._dkLoaded) {
                 paint.drawImage(map, sx(0), sy(0), meters(MAP), meters(MAP));
             } else {
                 var gradient = paint.createLinearGradient(0, 0, size, size);
@@ -238,13 +234,14 @@
             paint.strokeStyle = 'rgba(0, 0, 0, 0.8)'; dash(1, 0, 0);
             paint.beginPath();
             if (v('showVehicleTypes', true) && !(vehicle.lost && !v('lostMarker.icon', true))) {
-                // Simple class shapes: light = diamond, medium = square, heavy = big square, TD = triangle, SPG = small square.
-                if (vehicle.type === 'LT') { paint.moveTo(x, y - r); paint.lineTo(x + r, y); paint.lineTo(x, y + r); paint.lineTo(x - r, y); }
-                else if (vehicle.type === 'TD') { paint.moveTo(x, y + r); paint.lineTo(x + r, y - r * 0.8); paint.lineTo(x - r, y - r * 0.8); }
-                else { var s = vehicle.type === 'HT' ? r * 1.1 : vehicle.type === 'SPG' ? r * 0.75 : r * 0.9; paint.rect(x - s, y - s, s * 2, s * 2); }
-                paint.closePath();
-            } else { paint.arc(x, y, r * 0.7, 0, Math.PI * 2); }
-            paint.fill(); paint.stroke();
+                var glyph = {LT: 'i', MT: 'h', HT: 'g', TD: 'j', SPG: 'k'}[vehicle.type];
+                paint.font = Math.round(r * 2.8) + 'px VehicleType';
+                paint.textAlign = 'center'; paint.textBaseline = 'middle';
+                paint.strokeText(glyph, x, y); paint.fillText(glyph, x, y);
+            } else {
+                paint.arc(x, y, r * 0.7, 0, Math.PI * 2);
+                paint.fill(); paint.stroke();
+            }
             if (vehicle.dead) { paint.strokeStyle = '#1A1A1A'; line(x - r, y - r, x + r, y + r); line(x - r, y + r, x + r, y - r); }
             paint.globalAlpha = 1;
             if (vehicle.lost && v('lostMarker.showSeconds', false)) { text('12s', x, y + r + 9, 8, '#DDDDDD', 1, 'center', true); }
@@ -307,7 +304,7 @@
             var options = def('artilleryAim.src'), src = options && options.preview && options.preview.images ? options.preview.images[v('artilleryAim.src', 0)] : null;
             paint.globalAlpha = alpha(v('artilleryAim.alpha', 100));
             var image = src ? load(src) : null;
-            if (image && image.complete && image.naturalWidth) { paint.drawImage(image, sx(aim.x) - sizePx / 2, sy(aim.y) - sizePx / 2, sizePx, sizePx); }
+            if (image && image._dkLoaded) { paint.drawImage(image, sx(aim.x) - sizePx / 2, sy(aim.y) - sizePx / 2, sizePx, sizePx); }
             else {
                 paint.strokeStyle = '#FFD24A'; dash(1.5, 0, 0);
                 paint.beginPath(); paint.arc(sx(aim.x), sy(aim.y), sizePx / 2, 0, Math.PI * 2); paint.stroke();
@@ -319,7 +316,7 @@
             var url = DK.asset(src);
             if (!images[url]) {
                 images[url] = document.createElement('img');
-                images[url].onload = function () { draw(); };
+                images[url].onload = function () { images[url]._dkLoaded = true; draw(); };
                 images[url].src = url;
             }
             return images[url];

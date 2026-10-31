@@ -169,8 +169,8 @@ def onReload(avatar):
             message = template
     if len(message) > 0:
         avatar.guiSessionProvider.shared.chatCommands.proto.arenaChat.broadcast(message, 0)
-    else:
-        avatar.guiSessionProvider.shared.chatCommands.handleChatCommand(BATTLE_CHAT_COMMAND_NAMES.RELOADINGGUN)
+    # Use the client's command for its native marker, sound and command cooldown.
+    avatar.guiSessionProvider.shared.chatCommands.handleChatCommand(BATTLE_CHAT_COMMAND_NAMES.RELOADINGGUN)
 
 
 @override(PlayerAvatar, 'handleKey')

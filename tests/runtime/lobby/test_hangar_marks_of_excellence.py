@@ -3,7 +3,7 @@
 from support import RuntimeTest, Settings, game_source, module
 
 REAL = ('driftkings._constants', 'driftkings.common.utils.numbers', 'driftkings.core.marks_calculator',
-        'driftkings.common.utils.colorratting')
+        'driftkings.common.utils.colorratting', 'driftkings.core.wnx')
 
 
 class Stats(object):
@@ -105,6 +105,38 @@ class HangarMarksTests(RuntimeTest):
         dossier = module(getTotalStats=lambda: module(getAchievement=lambda record: mastery))
         self.assertEqual(data._get_mastery_info(dossier), {'value': 4, 'icon': 'img://maps/ace.png'})
         self.assertEqual(data._get_mastery_info(None), {'value': 0, 'icon': ''})
+
+    def test_collect_keeps_marks_with_and_without_wnx_reference(self):
+        data = self.api['g_data']
+        vehicle = module(intCD=1, level=8, shortUserName='IS-3', nationName='ussr')
+        stats = Stats()
+        stats.getWinsCount = lambda: 52
+        stats.getBattlesCountVer2 = lambda: 100
+        stats.getDamageAssistedRadio = lambda: 20000
+        stats.getDamageAssistedTrack = lambda: 10000
+        stats.getDamageAssistedStun = lambda: 0
+        stats.getAvgDamageAssistedStun = lambda: 0
+        dossier = module(getRandomStats=lambda: stats,
+                         getTotalStats=lambda: module(getAchievement=lambda record: None),
+                         getRecordValue=lambda block, key: {'damageRating': 6500, 'movingAvgDamage': 1800,
+                                                            'marksOnGun': 1}[key])
+        self.api['g_currentVehicle'] = module(item=vehicle, getDossier=lambda: dossier)
+        data._color_by_winrate = lambda value: '#FFFFFF'
+        data._color_by_wn8 = lambda value: '#FFFFFF'
+        data._pick_color = lambda value, levels: '#FFFFFF'
+        reference = {'damage': 1500.0, 'frags': 0.9, 'spots': 1.2, 'assist': 300.0}
+        wnx = self.load('core.wnx')
+        wnx.set_reference({'data': {'1': reference}})
+        result = data.collect()
+        self.assertEqual(result['wnx'], int(wnx.calculate(1500, 0.9, 1.2, 300, reference) + .5))
+        self.assertEqual((result['damageRating'], result['earnedMarks'], result['hasMoE']), (65.0, 1, True))
+        wnx.set_reference({'data': {'2': reference}})
+        result = data.collect()
+        self.assertIsNone(result['wnx'])
+        self.assertEqual((result['damageRating'], result['earnedMarks']), (65.0, 1))
+        stats.getBattlesCountVer2 = lambda: 0
+        wnx.set_reference({'data': {'1': reference}})
+        self.assertIsNone(data.collect()['wnx'])
 
     def test_history_is_loaded_per_account_and_saved_on_change(self):
         self.saved['progress_77'] = {'vehicles': {'9': [{'battles': 1, 'percent': 40.0, 'average': 900}, 'broken']}}

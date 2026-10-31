@@ -46,6 +46,8 @@ def vehicle_marks(vehicle_id):
     """Only the account's own dossier; no network requests or other-player data."""
     dossier = ServicesLocator.itemsCache.items.getVehicleDossier(int(vehicle_id))
     vehicle = ServicesLocator.itemsCache.items.getItemByCD(int(vehicle_id))
+    if not vehicle.isInInventory or not dossier.getRandomStats().getBattlesCount():
+        return None
     tier = int(vehicle.level)
     raw = dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') if tier >= 5 else 0
     percent = max(0.0, min(100.0, float(raw or 0) / 100.0))
@@ -66,6 +68,8 @@ def make_payload(vehicle_ids, records=None):
             try:
                 if vehicle_id not in records:
                     records[vehicle_id] = vehicle_marks(vehicle_id)
+                if records[vehicle_id] is None:
+                    continue
                 values = dict(records[vehicle_id])
                 values['color'] = getStatisticColor('mog', values['percent'], data.get(TECH_TREE_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
                 vehicles[str(vehicle_id)] = values

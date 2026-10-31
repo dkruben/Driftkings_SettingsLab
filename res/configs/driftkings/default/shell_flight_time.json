@@ -4,7 +4,7 @@
   "alignY": "center",
   "enabled": false,
   "spgOnly": false,
-  "template": "<font color='#f5ff8f'>%(flightTime).1fs. - %(distance)dm.</font>",
+  "template": "<font color='#f5ff8f'>{flightTime:.1f}s. - {distance:d}m.</font>",
   "x": 100,
   "y": 100
 }

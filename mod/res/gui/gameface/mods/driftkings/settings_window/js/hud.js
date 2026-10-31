@@ -53,7 +53,7 @@
     // Sizes of the battle texts in shared/reticle_text.css.
     function aimTimer(stage, v) {
         if (!v('enabled', false)) { return null; }
-        return text(stage, v('template', ''), CX + v('x', 60), CY + v('y', 110), {size: 18, extra: {color: v('green', '#A6FFA6')}});
+        return text(stage, v('template', ''), CX + v('x', 60), CY + v('y', 110), {size: 18, extra: {color: v('blue', '#02C9B3')}});
     }
     function flightTimer(stage, v) {
         if (!v('enabled', false)) { return null; }
@@ -174,7 +174,7 @@
         if (current === 'legacy.OwnHealth') {
             var samples = h('div.dk-health-preview-controls', null, null, root);
             var healthValue = h('span.dk-health-preview-value', null, null, samples);
-            var healthRange = h('input', {type: 'range', min: 0, max: 100, step: 1, value: sampleHealth,
+            var healthRange = h('input.dk-field.dk-number', {type: 'text', maxLength: 3, value: sampleHealth,
                 'aria-label': t('hud.health')}, null, samples);
             function setHealth(value) {
                 sampleHealth = Math.max(0, Math.min(100, Number(value) || 0));
@@ -231,6 +231,7 @@
             var unit = parseFloat(document.documentElement.style.fontSize) || 1;
             var frameW = frame.clientWidth / unit, frameH = frame.clientHeight / unit;
             var scale = Math.min(frameW / W, frameH / H);
+            stage.style.left = '0'; stage.style.top = '0';
             stage.style.transform = 'scale(' + scale + ')';
             if (!zoomed || !node) { return; }
             var boxes = node.className.indexOf('dk-hud-group') >= 0 ? node.children : [node];
@@ -243,7 +244,10 @@
             if (!isFinite(left) || !isFinite(top)) { return; }
             scale = Math.min(0.8, frameW / Math.max(1, right - left + 24), frameH / Math.max(1, bottom - top + 24));
             var tx = frameW / 2 - (left + right) / 2 * scale, ty = frameH / 2 - (top + bottom) / 2 * scale;
-            stage.style.transform = 'translate(' + tx + 'rem, ' + ty + 'rem) scale(' + scale + ')';
+            // Gameface does not consistently compose rem translations with a scaled stage.
+            // Place the stage in its parent's coordinates and scale only its contents.
+            stage.style.left = tx + 'rem'; stage.style.top = ty + 'rem';
+            stage.style.transform = 'scale(' + scale + ')';
         }
         function findId(moduleKey) {
             var ids = Object.keys(all);

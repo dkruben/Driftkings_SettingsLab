@@ -80,12 +80,10 @@
                     badge.appendChild(percent);
                 }
                 var masteryLevel = [1,2,3,4].indexOf(stats.mastery) >= 0 ? stats.mastery : 0;
-                if (data.showMastery) {
-                    var mastery = document.createElement(masteryLevel ? 'img' : 'span');
+                if (data.showMastery && masteryLevel && (stats.tier >= 5 || masteryLevel === 4)) {
+                    var mastery = document.createElement('img');
                     mastery.className = 'dk-tech-marks__mastery';
-                    if (masteryLevel) {
-                        mastery.src = 'coui://gui/maps/icons/achievement/32x32/markOfMastery' + masteryLevel + '.png';
-                    } else { mastery.textContent = '--'; }
+                    mastery.src = 'coui://gui/maps/icons/achievement/32x32/markOfMastery' + masteryLevel + '.png';
                     mastery.alt = ['No mastery', 'Mastery III', 'Mastery II', 'Mastery I', 'Ace tanker'][masteryLevel];
                     badge.appendChild(mastery);
                 }

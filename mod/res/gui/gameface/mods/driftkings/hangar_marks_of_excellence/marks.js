@@ -39,7 +39,8 @@
     var chart = K.graph(history), historyInfo = K.node('div', 'dk-moe-detail__muted', history);
     var range = K.node('div', 'dk-moe-detail__muted', history);
     var footer = K.node('div', 'dk-moe-detail__footer', detail);
-    var averages = K.node('div', '', footer), achievements = K.node('div', '', footer);
+    var averages = K.node('div', 'dk-moe-detail__statistics dk-moe-detail__statistics--averages', footer);
+    var achievements = K.node('div', 'dk-moe-detail__statistics', footer);
 
     var open = false, valid = false, last = {}, timer = null;
 
@@ -88,6 +89,7 @@
         K.text(cards[1].label, K.label(data, 'expected', '') + ((data.target || {}).threshold && !milestone.completed ? ' (' + data.target.threshold + '%)' : ''));
         K.text(cards[2].label, K.label(data, 'emaGap', ''));
         K.text(cards[0].value, K.formatted(data.movingAverage));
+        K.style(cards[0].value, 'color', data.movingAverageColor || '#cfcfcf');
         K.text(cards[1].value, K.formatted(data.targetDamage)); K.text(cards[2].value, K.formatted(data.damageNeeded));
         K.style(cards[2].value, 'color', color);
         K.text(note, K.label(data, 'estimateNote', '')); K.show(note, cfg.showDamageStatistics !== false);
@@ -101,8 +103,23 @@
         // Warhelios has no arrow glyph; » is in the font.
         K.text(range, sufficient ? samples[0].battles + ' » ' + samples[samples.length - 1].battles + ' · ' + K.percent(samples[0].percent) + ' » ' + K.percent(samples[samples.length - 1].percent) : '');
         K.show(footer, cfg.showAdvancedStatistics !== false);
-        K.text(averages, K.label(data, 'direct', '') + ': ' + K.formatted(data.averageDirect) + ' · ' + K.label(data, 'assist', '') + ': ' + K.formatted(data.averageAssist));
-        K.text(achievements, 'WN8 ' + (data.wn8 || '—') + ' · ' + (data.winRate || '—') + ' · ' + (data.mastery || '—'));
+        K.text(averages, '');
+        K.node('span', '', averages, K.label(data, 'direct', '') + ': ');
+        var damage = K.node('span', '', averages, K.formatted(data.averageDirect));
+        K.style(damage, 'color', data.damageColor || '#cfcfcf');
+        K.node('span', '', averages, ' · ' + K.label(data, 'assist', '') + ': ' + K.formatted(data.averageAssist));
+        K.text(achievements, '');
+        [['WNX', data.wnx, data.wnxColor], ['WN8', data.wn8, data.wn8Color], ['WinRate', data.winRate, data.winRateColor]].forEach(function (metric, i) {
+            if (i) { K.node('span', 'dk-moe-detail__separator', achievements, '·'); }
+            K.node('span', '', achievements, metric[0] + ' ');
+            var value = K.node('span', '', achievements, metric[1] || '—');
+            K.style(value, 'color', metric[2] || '#cfcfcf');
+        });
+        if (data.masteryIcon && data.masteryRank >= 1 && data.masteryRank <= 4) {
+            K.node('span', '', achievements, ' · ');
+            var ace = K.node('img', 'dk-moe-detail__ace', achievements);
+            ace.src = data.masteryIcon; ace.alt = data.mastery; ace.title = data.mastery;
+        }
     }
     function unit() { return parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 1; }
     function shown(node) {

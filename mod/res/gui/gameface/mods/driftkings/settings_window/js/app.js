@@ -79,15 +79,12 @@
         ui.brand = h('div.dk-brand', null, null, top);
         ui.version = h('div.dk-version', null, null, top);
         h('div.dk-spacer', null, null, top);
-        ui.search = h('div.dk-search', null, null, top);
-        h('div.dk-search-icon', null, null, ui.search);
-        ui.searchInput = h('input.dk-search-input', {type: 'text', maxLength: 64}, null, ui.search);
-        ui.searchInput.addEventListener('input', function () { setQuery(ui.searchInput.value); });
-        ui.searchInput.addEventListener('focus', function () { DK.toggle(ui.search, 'is-focused', true); });
-        ui.searchInput.addEventListener('blur', function () { DK.toggle(ui.search, 'is-focused', false); });
-        ui.searchKey = h('div.dk-kbd', {text: 'Ctrl F'}, null, ui.search);
-        ui.searchClear = h('button.dk-search-clear', {text: '×', onclick: function (event) { DK.stop(event); ui.searchInput.value = ''; setQuery(''); DK.focus(ui.searchInput); }}, null, ui.search);
-        ui.installed = h('button.dk-top-link', {onclick: function (event) { DK.stop(event); openInstalled(); }}, null, top);
+        ['discord', 'facebook', 'youtube'].forEach(function (service) {
+            var social = h('button.dk-social', {title: {discord: 'Discord', facebook: 'Facebook', youtube: 'YouTube'}[service],
+                'aria-label': {discord: 'Discord', facebook: 'Facebook', youtube: 'YouTube'}[service]},
+                [h('img', {src: ICONS + 'social/' + service + '.svg', alt: ''})], top);
+            social.addEventListener('click', function (event) { DK.stop(event); send('open_' + service); });
+        });
         ui.close = h('button.dk-close', {text: '×', onclick: function (event) { DK.stop(event); send('close'); }}, null, top);
 
         ui.construction = h('div.dk-construction', {role: 'note'}, null, ui.window);
@@ -149,11 +146,7 @@
         mods = {}; order = []; index = {};
         var title = String(t('title', 'DRIFTKINGS · SETTINGS')), cut = title.indexOf(' · ');
         DK.clear(ui.brand);
-        h('span.dk-brand-mark', {text: cut > 0 ? title.slice(0, cut) : 'DK'}, null, ui.brand);
-        h('span.dk-brand-name', {text: cut > 0 ? title.slice(cut + 3) : title}, null, ui.brand);
-        ui.searchInput.placeholder = t('search', '');
-        ui.searchClear.title = t('search.clear');
-        ui.installed.textContent = t('installed', 'Installed');
+        h('span.dk-brand-name', {text: (cut > 0 ? title.slice(cut + 3) : title).replace(/^DK\s+/, '')}, null, ui.brand);
         ui.construction.textContent = t('constructionNotice');
         ui.close.title = t('close') + ' (Esc)';
         ui.themeReset.textContent = t('resetTheme');
@@ -169,7 +162,7 @@
             var category = mod.category || 'general';
             if (!groups[category]) { groups[category] = []; }
             if (!DK.contains(categories, category)) { categories.push(category); }
-            groups[category].push(mod);
+            if (String(mod.id).split(':')[0] !== 'legacy.AutoClaimClan') { groups[category].push(mod); }
             mods[mod.id] = mod;
             index[mod.id] = {};
             mod.controls.forEach(function (def) { index[mod.id][def.id] = def; });
@@ -179,7 +172,7 @@
         ui.navItems = {}; ui.navGroups = [];
         categories.forEach(function (category) {
             var items = groups[category];
-            if (!items) { return; }
+            if (!items || !items.length) { return; }
             var group = h('div.dk-nav-group', null, null, ui.nav);
             var head = h('button.dk-nav-head', null, [h('span.dk-nav-caret'), h('span.dk-nav-head-name', {text: categoryName(category)})], group);
             var count = h('span.dk-nav-head-count', {text: String(items.length)}, null, head);
@@ -221,9 +214,28 @@
             },
             capture: function (key) { send('capture', {mod: modId, key: key}); },
             // Example values for formatted text: the module's own middle colour stands in for %(color)s.
-            sample: function () {
+            sample: function (source) {
                 var colors = (mods[modId] ? mods[modId].controls : []).filter(function (def) { return def.type === 'color'; });
                 var values = (state && state.values[modId]) || {}, pick = colors[Math.floor(colors.length / 2)];
+                if (source && String(modId).split(':')[0] === 'legacy.SpottedExtendedLight') {
+                    var preceding = null;
+                    mods[modId].controls.some(function (def) {
+                        if (def.type === 'color') { preceding = def; }
+                        return def.id === source.id;
+                    });
+                    pick = preceding || pick;
+                    var images = ['ussr-R45_IS-7', 'ussr-R97_Object_140'].map(function (vehicle) {
+                        return "<img src='gui/maps/icons/vehicle/contour/" + vehicle + ".png' width='48' height='24'>";
+                    });
+                    return {color: pick ? values[pick.id] : null, icons: images.join(''), vehicles: '[IS-7][Obj. 140]',
+                        icons_vehicles: images[0] + '[IS-7]' + images[1] + '[Obj. 140]',
+                        icons_names: images[0] + '[Driftking]' + images[1] + '[AllyTanker]',
+                        names: '[Driftking][AllyTanker]', full: images[0] + '[Driftking, IS-7]', damage: '<b> +350</b>'};
+                }
+                if (String(modId).split(':')[0] === 'legacy.DispersionTimer') {
+                    return {color: values[DK.minimapPreview.fieldId('blue')] || '#02C9B3'};
+                }
+                if (String(modId).split(':')[0] === 'legacy.ArmorCalculator') { return {color: '#60CB00'}; }
                 return {color: pick ? values[pick.id] : null};
             },
             action: function (key) { send('button', {mod: modId, key: key}); },
@@ -239,6 +251,7 @@
         if (!page) { return; }
         if (page.liveTimer !== null && page.liveTimer !== undefined) { clearTimeout(page.liveTimer); }
         Object.keys(page.controls).forEach(function (id) { page.controls[id].dispose(); });
+        if (page.clan) { page.clan.control.dispose(); }
         if (page.markers) { page.markers.dispose(); }
         if (page.live) { page.live.dispose(); }
         page = null;
@@ -305,6 +318,18 @@
             }
         });
         ui.noResults = h('div.dk-empty.dk-no-results', {text: t('noResults')}, null, ui.list);
+        if (String(modId).split(':')[0] === 'legacy.main') {
+            Object.keys(mods).some(function (id) {
+                if (String(id).split(':')[0] !== 'legacy.AutoClaimClan') { return false; }
+                var clan = mods[id], key = enabledKey(clan), source = key && index[id][key];
+                if (!source) { return false; }
+                var def = DK.copy(source); def.label = clan.name;
+                var control = DK.controls.create(def, context(id));
+                ui.list.appendChild(control.node);
+                page.clan = {id: id, key: key, control: control};
+                return true;
+            });
+        }
         if (modId === CORE) { renderCoreExtras(); }
         DK.show(ui.tabs, page.tabs.length > 0);
         if (page.tabs.length) {
@@ -331,9 +356,7 @@
         u.later = button(actions, t('updates.later'), function () { send('defer_update'); }, 'is-small');
         u.cancelInstall = button(actions, t('updates.cancelInstall'), function () { send('cancel_update_install'); }, 'is-small');
         u.manual = button(actions, t('updates.manual'), function () { send('manual_update'); }, 'is-small');
-        var community = page.community = h('div.dk-community', null, null, ui.list);
-        h('div.dk-section', null, [h('span', {text: 'Discord'})], community);
-        button(community, 'DISCORD', function () { send('open_discord'); }, 'is-small');
+
     }
     function renderUpdates() {
         var u = page && page.updates, update = state.updater;
@@ -489,7 +512,7 @@
             var keys = h('div.dk-detail-keys', null, [h('div.dk-detail-kicker', {text: t('detail.keys')})], panel);
             // Warhelios has no arrow glyphs; the arrow keys are drawn with CSS.
             var arrows = ['Ctrl ', h('i.dk-tri.is-up'), ' ', h('i.dk-tri.is-down')];
-            [['Ctrl F', 'keys.search'], ['Ctrl S', 'keys.save'], ['Ctrl Z', 'keys.undo'], [arrows, 'keys.module'], ['Esc', 'keys.close']].forEach(function (item) {
+            [['Ctrl S', 'keys.save'], ['Ctrl Z', 'keys.undo'], [arrows, 'keys.module'], ['Esc', 'keys.close']].forEach(function (item) {
                 h('div.dk-detail-key', null, [h('span.dk-kbd', null, item[0]), h('span', {text: t(item[1])})], keys);
             });
             return;
@@ -525,7 +548,6 @@
     function modMatches(mod) { return matches([mod.name, mod.description, categoryName(mod.category)].join(' ')); }
     function setQuery(value) {
         query = String(value || '').toLowerCase().replace(/^\s+|\s+$/g, '');
-        DK.toggle(ui.search, 'has-query', !!query);
         filter();
     }
     function filter() {
@@ -562,7 +584,6 @@
         if (ui.noResults) { DK.show(ui.noResults, !!query && !any && !page.markers); }
         var updatesTitle = t('updates.title');
         if (page.updates) { DK.show(page.updates.root, !!state.updater && (!tab || tab === updatesTitle) && (whole || matches(updatesTitle))); }
-        if (page.community) { DK.show(page.community, !tab && !query); }
         ui.navScroll.update(); ui.listScroll.update();
     }
 
@@ -585,6 +606,12 @@
             if (Object.prototype.hasOwnProperty.call(values, key)) { control.set(values[key]); }
         });
         if (page.markers) { page.markers.update(values, {disabled: disabled, changed: changed}); }
+        if (page.clan) {
+            var clan = page.clan, clanValues = state.values[clan.id] || {};
+            clan.control.sync({disabled: DK.contains(state.disabled[clan.id] || [], clan.key),
+                changed: DK.contains(state.changed[clan.id] || [], clan.key), value: clanValues[clan.key], values: clanValues});
+            clan.control.set(clanValues[clan.key]);
+        }
         if (page.live) { page.live.update(values, state.values, state.carouselPreview); }
         renderNav();
         renderHead();
@@ -715,7 +742,7 @@
     }
     function goTo(id, key) {
         if (dialogs.review) { dialogs.review.modal.close('button'); }
-        ui.searchInput.value = ''; setQuery('');
+        setQuery('');
         pendingFocus = {mod: id, key: key};
         if (state.selected !== id) { select(id); } else { showPending(); }
     }
@@ -775,25 +802,7 @@
     }
 
     /* Installed components ------------------------------------------------------------------- */
-    function openInstalled() {
-        if (dialogs.installed) { return; }
-        var panel = dialog(t('installed'));
-        var host = h('div.dk-review-host', null, null, panel), list = h('div.dk-review', null, null, host), scroll = DK.layer.scroller(list, host);
-        order.forEach(function (id) {
-            var mod = mods[id], row = h('div.dk-installed', null, null, list), current = statusOf(id);
-            h('div.dk-installed-name', null, [h('img.dk-installed-icon', {src: iconFor(mod)}), h('span', {text: mod.name})], row);
-            h('div.dk-installed-meta', {text: [categoryName(mod.category), mod.version, mod.author].filter(Boolean).join('  ·  ')}, null, row);
-            h('div.dk-installed-state' + (current.enabled === false ? '.is-off' : '.is-on'), {text: statusText(id).join(' · ')}, null, row);
-        });
-        if (state.diagnostics) { h('textarea.dk-field.dk-profile-json', {value: JSON.stringify(state.diagnostics, null, 2), readOnly: true}, null, list); }
-        var actions = h('div.dk-dialog-actions', null, null, panel), entry = {};
-        button(actions, t('close'), function () { entry.modal.close('button'); });
-        entry.modal = DK.modal.open(panel, {className: 'dk-modal-wide', onClose: function () { scroll.dispose();dialogs.installed = null; }});
-        dialogs.installed = entry;
-        setTimeout(scroll.update, 0);
-    }
 
-    /* Toast ---------------------------------------------------------------------------------- */
     function toast(message) {
         if (!message || message.id === lastMessage) { return; }
         lastMessage = message.id;
@@ -878,14 +887,12 @@
         var code = event.keyCode;
         if (code === 27) {
             DK.stop(event);
-            if (typing() && document.activeElement === ui.searchInput && query) { ui.searchInput.value = ''; setQuery(''); return; }
             if (typing()) { document.activeElement.blur(); return; }
             send('close');
             return;
         }
         if (!event.ctrlKey || event.altKey || DK.modal.top()) { return; }
-        if (code === 70) { DK.stop(event); DK.focus(ui.searchInput); if (ui.searchInput.select) { ui.searchInput.select(); } }
-        else if (code === 83) { DK.stop(event); if (typing()) { document.activeElement.blur(); } send('save'); }
+        if (code === 83) { DK.stop(event); if (typing()) { document.activeElement.blur(); } send('save'); }
         else if (code === 90 && !typing()) { DK.stop(event); if (state.canUndo) { send('undo'); } }
         else if ((code === 38 || code === 40) && !typing()) { DK.stop(event); step(code === 38 ? -1 : 1); }
     }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.5-beta.1",
+  "version": "0.1.5-beta.2",
   "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
@@ -9,14 +9,12 @@
   "author": "driftkings",
   "changelog": [
     "BETA NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
-    "Battle HUD: vehicle health, aiming countdown, shell flight time, penetration, battle efficiency (WN8/EFF) and team strength texts now use Gameface and support Ctrl-drag positioning. They are unavailable on pages without the native Gameface HUD, including Halloween and Fort Rush.",
-    "Battle efficiency and team strength keep their saved position, format, font, colour, shadow and lock settings. Text lock now also appears in the battle statistics settings. The default team strength position moved below the native map label.",
-    "Vehicle health: added Bastion, Vanguard, Ion and Minimalist styles, colour controls and a shared in-game/settings preview with adjustable sample health. Classic remains the default.",
-    "Graphics: replaced simple icons and backgrounds with SVG, fixed carousel loading and missing UI symbols, and improved marks readability. Custom references to converted bundled PNGs must use SVG; personal PNG images remain supported.",
-    "BREAKING: the hangar marks panel is now a compact card under the mission column, with details available through Show more. Its former position, lock, compact mode, scale and colour settings were removed.",
-    "BREAKING: custom profiles must replace xvm/XVMSymbol font aliases with dkm or DriftkingsFont, and {{xvm-stat}} with {{stat-available}}. The statistics cache is now ratingScales.json and downloads automatically.",
-    "Battle TAB and side panels: {{vehicle}} now shows the short vehicle name, as the native ones do, so the statistics no longer overlap clan tags and player names or cut long names. The loading screen keeps the full name. {{kb}} shows the battle count itself below 1000 instead of 0k.",
-    "Halloween TAB: native player-name colours by rating are working and were validated in game on NA.",
-    "Compatibility: World of Tanks 2.4.1.1 on EU, NA and ASIA. Build and release tooling was simplified; release signatures remain required."
+    "Settings: simplified colour controls, added Discord/Facebook/YouTube shortcuts, moved clan reward collection to general settings and revised European Portuguese labels.",
+    "Live previews: corrected HUD zoom positioning, vehicle marker text offsets and font symbols, minimap images and vehicle classes, carousel samples and health bar previews. Scrolling updates after images load.",
+    "Hangar marks: restored the panel after a WNX import error; damage and rating colours follow the selected palette. WNX, WN8, win rate and the earned mastery icon appear horizontally with middle-dot separators.",
+    "Tech tree marks: removed the badge background and empty records; tiers I-IV show only an earned Ace Tanker, while higher tiers keep their available statistics.",
+    "Gun traverse limits: previews show the selected images; selecting no horizontal or vertical style disables the module.",
+    "Reload and shell flight time defaults support brace templates while retaining older formats. Reload notifications also send the native minimap/sound command; custom text may appear alongside the native message.",
+    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; some visual changes still need confirmation in game."
   ]
 }

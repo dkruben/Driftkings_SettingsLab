@@ -4,7 +4,18 @@
    %(nome)s / %(nome).1f (Python), {nome} e {c:nome}, {{nome}} e {{nome%.16s}}, e datas %H:%M. */
 (function () {
     'use strict';
-    var DK = window.DK, h = DK.h, decoder = document.createElement('textarea');
+    var DK = window.DK, h = DK.h;
+    function decode(text) {
+        var names = {amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0'};
+        return text.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, function (entity, value) {
+            if (value.charAt(0) !== '#') { return names[value.toLowerCase()]; }
+            var point = value.charAt(1).toLowerCase() === 'x' ? parseInt(value.slice(2), 16) : Number(value.slice(1));
+            if (point < 0 || point > 1114111 || (point >= 55296 && point <= 57343)) { return entity; }
+            if (point <= 65535) { return String.fromCharCode(point); }
+            point -= 65536;
+            return String.fromCharCode(55296 + (point >> 10), 56320 + (point & 1023));
+        });
+    }
     // Date codes as the hangar clock writes them (main/clock.js dateFormat): week from Monday, names from the
     // client's own calendar (schema.calendar, gameface/lobby/main.calendar_names) and English otherwise.
     var CALENDAR = {days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
@@ -26,7 +37,7 @@
         timer: 1.8, percent: 76, flightTime: 1.42, distance: 315, dist: 315, wn8: 2150, eff: 1650, wtr: 7400, xte: 82, winrate: 54.2, diff: '+120',
         battles: 12450, avgDamage: 2380, damage: 350, dmg: 350, icons: '••', vehicles: 'IS-7, Obj. 140', vehicle: 'T32', name: 'Driftking',
         nick: 'Driftking', clan: '[DK]', hp: 1304, 'hp-max': 1650, 'hp-ratio': 79, level: 'VIII', tier: 8, type: 'HT', vtype: 'HT',
-        pos: 'E5', cellsize: 100, frags: 2, kills: 2, assist: 820, blocked: 640, spotted: 3, marks: 2, mark: 87.4, mastery: 'M',
+        pos: 'E5', load: 12, cellsize: 100, frags: 2, kills: 2, assist: 820, blocked: 640, spotted: 3, marks: 2, mark: 87.4, mastery: 'M',
         'squad-num': '', place: 3, time: '04:32', countedArmor: 168, piercingPower: 225, piercingReserve: 57, caliber: 105,
         ricochet: '', noDamage: '', message: ''
     };
@@ -64,10 +75,13 @@
                 value = String(value);
                 return match && match[2] ? value.slice(0, Number(match[2])) : value;
             })
-            .replace(/\{(c:)?([a-zA-Z][\w-]*)\}/g, function (all, isColor, name) {
+            .replace(/\{(c:)?([a-zA-Z][\w-]*)(?::(\.\d+f|d))?\}/g, function (all, isColor, name, spec) {
                 if (isColor) { return colorMacro(name, extra); }
                 var value = sampleValue(name, extra);
-                return value === undefined ? unknown(name) : String(value);
+                if (value === undefined) { return unknown(name); }
+                if (spec === 'd') { return String(Math.floor(Number(value))); }
+                if (spec) { return Number(value).toFixed(Number(spec.slice(1, -1))); }
+                return String(value);
             });
     }
 
@@ -99,8 +113,7 @@
         }
         while ((match = pattern.exec(text)) !== null) {
             if (match[3] !== undefined) {
-                decoder.innerHTML = match[3];
-                current.appendChild(document.createTextNode(decoder.value));
+                current.appendChild(document.createTextNode(decode(match[3])));
                 continue;
             }
             var name = match[1].toLowerCase(), closing = match[0].charAt(1) === '/', attrs = match[2];

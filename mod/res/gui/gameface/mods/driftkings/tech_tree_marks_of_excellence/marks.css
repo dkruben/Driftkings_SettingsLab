@@ -1,8 +1,5 @@
 .dk-tech-marks {
-    border: 1rem solid rgba(255,255,255,.10);
-    border-radius: 3rem;
-    background: rgba(18,21,24,.75);
-    padding: 2rem 5rem;
+    padding: 2rem 0;
     letter-spacing: .2rem;
     position: absolute;
     left: 0;

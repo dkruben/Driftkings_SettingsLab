@@ -38,8 +38,16 @@ callbacks.schema(schema);callbacks.state(state);
 assert(app.querySelectorAll('.dk-row').length>=12);
 assert(themeStyle.textContent.includes('#D98219'));
 assert(app.querySelector('.dk-updates'));
-const discord=app.querySelector('.dk-community').querySelectorAll('button').find(n=>n.textContent==='DISCORD');
-assert(discord);discord.fire('click');assert.strictEqual(sent[sent.length-1][0],'open_discord');
+assert(!app.querySelector('.dk-community'));
+assert(!app.querySelector('.dk-search'));
+assert(!app.querySelector('.dk-top-link'));
+const socials=app.querySelectorAll('.dk-social');
+assert.strictEqual(socials.length,3);
+['discord','facebook','youtube'].forEach((service,i)=>{
+    assert(socials[i].querySelector('img').src.endsWith('/'+service+'.svg'));
+    socials[i].fire('click');assert.strictEqual(sent[sent.length-1][0],'open_'+service);
+});
+assert(!app.querySelector('.dk-palette'));
 assert.strictEqual(DK.hex('0xFF8800'),null);
 assert.strictEqual(DK.hex('FF8800'),null);
 assert.strictEqual(DK.hex('#ff8800'),'#FF8800');

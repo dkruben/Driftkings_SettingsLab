@@ -22,7 +22,10 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-top { display: flex; align-items: center; height: 60rem; padding: 0 12rem 0 24rem; border-bottom: 1rem solid #3a3731; flex-shrink: 0; background: rgba(0, 0, 0, 0.25); }
 .dk-brand { display: flex; align-items: baseline; white-space: nowrap; }
 .dk-brand-mark { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; }
-.dk-brand-name { margin-left: 10rem; font-size: 19rem; font-weight: 700; letter-spacing: 3rem; color: #f2ecd9; }
+.dk-brand-name { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; color: #f2ecd9; }
+.dk-social { width: 36rem; height: 36rem; margin-left: 8rem; padding: 6rem; background: transparent; border: 1rem solid #4a463e; border-radius: 5rem; }
+.dk-social:hover { background: #302e29; }
+.dk-social img { width: 24rem; height: 24rem; }
 .dk-version { margin-left: 14rem; font-size: 12rem; color: #7a7466; }
 .dk-search {
     position: relative; display: flex; align-items: center; width: 340rem; height: 34rem; padding: 0 6rem 0 10rem; margin-right: 14rem;
@@ -432,6 +435,8 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 /* Formatted text preview (js/richtext.js) ------------------------------------------------------------------ */
 .dk-rich { width: 100%; margin-top: 8rem; padding: 10rem 12rem; border-radius: 6rem; background: #0b0c0d; border: 1rem dashed #3a3731; color: #ffffff; font-size: 14rem; line-height: 1.25; overflow: hidden; }
 .dk-rich-line { white-space: pre-wrap; }
+.dk-selected-preview { width: 100%; margin-top: 10rem; padding: 6rem 12rem; background: #15171a; }
+.dk-selected-preview > img { display: inline-block; max-width: 180rem; max-height: 100rem; margin-right: 24rem; }
 .dk-rich-img { display: inline-block; vertical-align: middle; }
 .dk-rich-img img { display: block; max-width: 160rem; max-height: 60rem; }
 .dk-rich-img.is-missing { padding: 1rem 6rem; border: 1rem dashed #5b5649; border-radius: 4rem; color: #8c8677; font-size: 11rem; }
@@ -449,9 +454,10 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-hud-text.has-shadow, .dk-hud-panel, .dk-hud-box { text-shadow: 0 0 4rem #000000; }
 /* Health uses the same renderer, frames and slot geometry as the battle HUD. */
 .dk-hud-health { position: absolute; }
-.dk-health-preview-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8rem; padding: 10rem 0; }
-.dk-health-preview-controls input { min-width: 90rem; flex: 1; }
-.dk-health-preview-value { min-width: 95rem; color: #cfcfcf; font-size: 12rem; }
+.dk-health-preview-controls { display: flex; flex-wrap: wrap; align-items: center; padding: 10rem 0; }
+.dk-health-preview-controls input { width: 48rem; min-width: 48rem; flex: 0 0 48rem; margin-right: 8rem; }
+.dk-health-preview-controls .dk-segment { min-width: 36rem; padding: 0 4rem; flex: 0 0 auto; }
+.dk-health-preview-value { margin-right: 8rem; color: #cfcfcf; font-size: 12rem; }
 
 .dk-hud-health-track { overflow: hidden; background: #1a1c1e; }
 .dk-hud-health-fill { width: 79%; height: 100%; background: #80d639; }

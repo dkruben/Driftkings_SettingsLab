@@ -7,6 +7,27 @@ from support import RuntimeTest, game_source, module
 MODES = module(ARCADE='arcade', SNIPER='sniper', DUAL_GUN='dualGun', STRATEGIC='strategic', ARTY='arty', MAP_CASE='mapcase')
 
 
+class GunTraverseSettingsTests(RuntimeTest):
+    def setUp(self):
+        super(GunTraverseSettingsTests, self).setUp()
+        constants = self.load('_constants')
+        from support import source
+        api = source('settings/definitions/battle/gun_traverse_limits.py', {
+            'driftkings._constants': constants,
+            'driftkings.settings.controls_schema': self.load('settings.controls_schema'),
+            'driftkings.settings.definitions.base': module(SectionDefinition=object)})
+        self.settings = api['GunTraverseLimitsSettings']()
+
+    def test_no_markers_forces_module_off_but_keeps_manual_disable(self):
+        values = {'enabled': True, 'horizontal': 0, 'vertical': 0}
+        self.assertFalse(self.settings.normalize_loaded(values)['enabled'])
+        for horizontal, vertical in ((1, 0), (0, 6), (2, 3)):
+            values = {'enabled': False, 'horizontal': horizontal, 'vertical': vertical}
+            self.assertFalse(self.settings.normalize_changes(values, {'horizontal': horizontal})['enabled'])
+            values['enabled'] = True
+            self.assertTrue(self.settings.normalize_changes(values, {'enabled': True})['enabled'])
+
+
 class GunTraverseLimitsTests(RuntimeTest):
     def setUp(self):
         super(GunTraverseLimitsTests, self).setUp()

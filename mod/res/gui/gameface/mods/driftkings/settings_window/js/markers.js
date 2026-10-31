@@ -29,7 +29,12 @@
     // Client images for the sample vehicle (gui/maps/icons, as Vehicle.py and respawn_utils.py name them).
     var IMAGE_ELEMENTS = {vehicleIcon: 'typeIcon', levelIcon: 'levelIcon', contourIcon: 'contour'};
 
-    function label(preview, key) { return (preview.labels && preview.labels[key]) || key; }
+    function label(preview, key) {
+        var labels = preview.labels || {};
+        if (key === 'damageTextPlayer') { return labels.damageText + ' / ' + labels.player; }
+        if (key === 'damageTextSquadman') { return labels.damageText + ' / ' + labels.squad; }
+        return labels[key] || key;
+    }
     function getPath(object, path) { for (var i = 0; i < path.length; i++) { if (object === null || object === undefined) { return undefined; } object = object[path[i]]; } return object; }
     function setPath(object,path,value){
         var parent=object;
@@ -289,7 +294,7 @@
             var width = field.width === undefined ? 140 : field.width, height = field.height === undefined ? 100 : field.height;
             node.style.width = width + 'rem'; node.style.height = height + 'rem';
             node.style.marginLeft = (field.align === 'right' ? -width : field.align === 'left' ? 0 : -width / 2) + 'rem';
-            var top = field.y || 0;
+            var top = (field.y || 0) + Number((doc('markers') || {}).textFieldsOffsetY || 0);
             if (field.valign === 'bottom') { top -= height; } else if (field.valign === 'center') { top -= height / 2; }
             node.style.top = top + 'rem';
             var shadow = field.shadow || {};
@@ -460,7 +465,7 @@
             if (!sel.path) { sel.path = {path: [sel.team, elements()[0]]}; }
             var path = sel.path.file === 'markers' ? [] : sel.path.path;
             var object = path.length ? getPath(d, path) : d;
-            h('div.dk-mk-title', {text: sel.path.file === 'markers' ? t('markers.general') : path.join(' › ')}, null, editor);
+            h('div.dk-mk-title', {text: sel.path.file === 'markers' ? t('markers.general') : path.map(function (part) { return label(preview, part); }).join(' › ')}, null, editor);
             if (object === undefined) { return; }
             if (object !== null && typeof object === 'object' && !DK.isArray(object) && !refPath(object)) {
                 form(editor, d, object, path, key, readOnly, sel.path.file === 'markers' ? ['ally', 'enemy', 'debug', 'colorRating', 'ratingType'] : null);

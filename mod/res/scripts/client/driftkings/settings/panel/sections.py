@@ -140,6 +140,8 @@ class SectionPanelBinding(object):
                 if item.get('previewImage'):
                     from driftkings.settings.panel.media import resource_image
                     control.preview = {'kind': 'image', 'images': [resource_image(o.get('image', '')) for o in item['options']]}
+                if config.NAME == 'vehicle_health' and source == 'style':
+                    control.preview = {'kind': 'healthBar'}
             elif kind in ('slider', 'number'):
                 current = data['values'][source]
                 extent = max(100, abs(current) * 2, abs(control.default) * 2)

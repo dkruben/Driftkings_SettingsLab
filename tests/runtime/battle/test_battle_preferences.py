@@ -154,16 +154,22 @@ class BattlePreferencesTests(RuntimeTest):
     def test_reload_message_formats_position_and_rounded_seconds(self):
         avatar, sent = self.avatar()
         self.api['onReload'](avatar)
-        self.assertEqual(sent, ['Reloading at E5, for 4 seconds.'])
+        self.assertEqual(sent[0], 'Reloading at E5, for 4 seconds.')
+        self.assertEqual(len(sent), 2)
+        self.assertEqual(sent[1][0], 'command')
         self.data['loadTxt'] = '{pos}: {load}s'
         avatar, sent = self.avatar(time_left=None)
         self.api['onReload'](avatar)
-        self.assertEqual(sent, ['E5: 0s'])
+        self.assertEqual(sent[0], 'E5: 0s')
+        self.assertEqual(len(sent), 2)
+        self.assertEqual(sent[1][0], 'command')
         # A broken template is sent as written rather than raising in battle.
         self.data['loadTxt'] = 'Broken {missing'
         avatar, sent = self.avatar()
         self.api['onReload'](avatar)
-        self.assertEqual(sent, ['Broken {missing'])
+        self.assertEqual(sent[0], 'Broken {missing')
+        self.assertEqual(len(sent), 2)
+        self.assertEqual(sent[1][0], 'command')
         self.data['loadTxt'] = ''
         avatar, sent = self.avatar()
         self.api['onReload'](avatar)

@@ -15,7 +15,7 @@
         {name: 'T32', nation: 'usa', tank: 'a12_t32', tier: 8, flag: ['#2c4a6b', '#1a2c40'], level: 'VIII', type: 'heavyTank', short: 'HT', selected: true, premium: false, xp: 'x2',
          stats: {battles: 1245, winrate: 54.3, hitsRatio: 78.4, tdb: 2380, tfb: 1, wn8expd: 1950, wn8effd: 1.22, wn8: 2150, battletiermin: 8, battletiermax: 10,
                  marksOnGun: 2, damageRating: 87.4, mastery: 3}},
-        {name: 'Obj. 140', nation: 'ussr', tank: 'r97_object_140', tier: 10, flag: ['#6b2c2c', '#401a1a'], level: 'X', type: 'mediumTank', short: 'MT', selected: false, premium: false, info: true,
+        {name: 'Obj. 140', nation: 'ussr', tank: 'r97_object_140', tier: 10, flag: ['#6b2c2c', '#401a1a'], level: 'X', type: 'mediumTank', short: 'MT', selected: false, premium: false, info: false,
          stats: {battles: 312, winrate: 48.6, hitsRatio: 70.2, tdb: 3150, tfb: 1, wn8expd: 3400, wn8effd: 0.93, wn8: 1420, battletiermin: 10, battletiermax: 10,
                  marksOnGun: 0, damageRating: 41.2, mastery: 1}}
     ];
@@ -248,9 +248,6 @@
                 node.style.width = '22rem'; node.style.height = '27rem';
                 node.style.transform = 'translate(-100%,-100%) ' + node.style.transform;
 
-            } else if (key === 'flag') {
-                node.style.width = (profile === 'small' ? 120 : 128) + 'rem';
-                node.style.height = (profile === 'small' ? 90 : 96) + 'rem';
             }
             node.style.transformOrigin = '0 0';
         }
@@ -305,6 +302,7 @@
             strip.style.width = total.w + 'rem';
             strip.style.height = total.h + 'rem';
             strip.style.transform = 'scale(' + scale + ')';
+            strip.style.left = Math.max(0, (room - total.w * scale) / 2) + 'rem';
             frame.style.height = Math.ceil(total.h * scale) + 'rem';
             var index = 0;
             for (var c = 0; c < columns; c++) {

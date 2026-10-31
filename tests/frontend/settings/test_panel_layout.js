@@ -51,12 +51,17 @@ const stage = liveHost.querySelector('.dk-hud-stage');
 assert(!/NaN|Infinity/.test(stage.style.transform));
 const scale = Number(/scale\(([^)]+)\)/.exec(stage.style.transform)[1]);
 assert(scale > 0 && scale <= 344 / 2624, 'zoom fits oversized panels with a margin');
+assert(!stage.style.transform.includes('translate'), 'zoom translation uses parent coordinates, not a scaled transform');
+assert(Number.isFinite(parseFloat(stage.style.left)));
+assert(Number.isFinite(parseFloat(stage.style.top)));
 liveHost.querySelector('.dk-segment').fire('click');
 assert.strictEqual(stage.style.transform, 'scale(' + Math.min(344/1920,194/1080) + ')');
+assert.strictEqual(stage.style.left,'0');assert.strictEqual(stage.style.top,'0');
 preview.dispose();
 // The screenshot regressions must contain a foreground element, not only a scene image.
 for (const [moduleId,template,expected] of [
     ['legacy.FlightTimer','%(flightTime).1fs - %(distance)dm','1.4s - 315m'],
+    ['legacy.FlightTimer','{flightTime:.1f}s - {distance:d}m','1.4s - 315m'],
     ['legacy.DispersionTimer','%(timer).1fs - %(percent)d%%','1.8s - 76%']
 ]) {
     const timer = DK.hudPreview.create(liveHost, {id:moduleId});

@@ -12,12 +12,14 @@ from driftkings.common.config.json_reader import loadJson
 from driftkings.common.utils.achievement_dossiers import getAchievementDossier
 from driftkings.common.utils.colorratting import getMoeDamageColor, getStatisticColor
 from driftkings.common.utils.exceptions import log_exceptions
-from driftkings.common.utils.numbers import finite_number
+from driftkings.common.utils.numbers import finite_number, nonnegative_number, ratio
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.cache import cache_directory
 from driftkings.core.hooks import override
 from driftkings.core.marks_calculator import ceil_damage, combined_damage, hangar_goal, statistics
 from driftkings.core.marks_state import marks_state
+from driftkings.core.wnx import calculate as calculate_wnx
+from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import getVehicleInfoData
@@ -242,6 +244,15 @@ class MarksOnGunData(object):
         current_damage = int(combined_damage(avg_damage, track, radio, stun))
 
         wn8 = self._calculate_wn8(vehicle, random_stats, winrate)
+        assist_totals = [nonnegative_number(getattr(random_stats, method)()) for method in
+                         ('getDamageAssistedRadio', 'getDamageAssistedTrack', 'getDamageAssistedStun')]
+        assistance = ratio(sum(assist_totals), random_stats.getBattlesCountVer2()) if None not in assist_totals else None
+        wnx = calculate_wnx(avg_damage,
+                            nonnegative_number(ProfileUtils.getValueOrUnavailable(random_stats.getAvgFrags())),
+                            nonnegative_number(ProfileUtils.getValueOrUnavailable(random_stats.getAvgEnemiesSpotted())),
+                            assistance, get_wnx_expected(vehicle.intCD)) if battles else None
+        if wnx is not None:
+            wnx = int(math.floor(wnx + .5))
         mastery = self._get_mastery_info(dossier)
         damage_rating = self._safe(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') / 100.0, 0.0)
         moving_avg_damage = self._safe(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'movingAvgDamage'), 0.0)
@@ -261,6 +272,7 @@ class MarksOnGunData(object):
             'winRate': winrate,
             'winRateColor': self._color_by_winrate(winrate),
             'wn8': wn8,
+            'wnx': wnx,
             'wn8Color': self._color_by_wn8(wn8),
             'masteryValue': mastery['value'],
             'masteryIcon': mastery['icon'],
@@ -379,12 +391,20 @@ class MarksOnGunData(object):
             'estimate': '~' + self._format_int(target['estimate']) if target['estimate'] is not None else '--',
             'mastery': hangar_marks_of_excellence_settings.i18n['UI_panel_mastery%s' % mastery] if mastery else '--',
             'masteryIcon': 'coui://' + icon if icon else '',
+            'masteryRank': mastery,
             'wn8': self._format_int(data['wn8']) if data['wn8'] else '--',
             'wn8Color': data['wn8Color'], 'winRateColor': data['winRateColor'],
             'winRate': self._format_float(data['winRate']) + '%' if data['battles'] else '--',
             'battles': self._format_int(data['battles'])
         })
         result['markColor'] = getStatisticColor('mog', data['damageRating'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING])
+        palette = settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING]
+        result.update(wnx=self._format_int(data['wnx']) if data['wnx'] is not None else '--',
+                      wnxColor=getStatisticColor('wnx', data['wnx'], palette),
+                      wn8Color=getStatisticColor('wn8', data['wn8'], palette),
+                      winRateColor=getStatisticColor('winrate', data['winRate'], palette),
+                      damageColor=getStatisticColor('tdb', data['averageDirect'], palette),
+                      movingAverageColor=getStatisticColor('tdb', data['movingAvgDamage'], palette))
         result['markIcon'] = mark_icon(data['nation'], result['displayMarks'])
         result['milestone'] = milestone_model(data['damageRating'], data['earnedMarks'])
         if result['milestone']['completed']:

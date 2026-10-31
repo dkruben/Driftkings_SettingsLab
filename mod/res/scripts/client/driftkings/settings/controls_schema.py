@@ -84,6 +84,17 @@ def resolve(item, labels, values):
                 except (KeyError, TypeError, ValueError):
                     pass
             item[name] = text
+    # Resolve colour captions as well as explicitly declared colourLabelKey controls.
+    for name in ('text', 'tooltip'):
+        text = item.get(name, '')
+        if '%(' in text:
+            for key, value in values.items():
+                if isinstance(value, (str, type(u''))) and value.startswith('#'):
+                    text = text.replace('#%(' + key + ')s', '%(' + key + ')s')
+            try:
+                item[name] = text % values
+            except (KeyError, TypeError, ValueError):
+                pass
     return item
 
 

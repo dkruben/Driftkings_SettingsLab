@@ -100,16 +100,25 @@
     /* Scroll areas: fixed-step wheel and a thin draggable bar ------------- */
     // Gameface's native overflow scroll is slow; wheel steps are applied here.
     function scroller(viewport, host) {
-        var cancelDrag=null, disposed=false, refreshTimer=null;
+        var cancelDrag=null, disposed=false, refreshTimer=null, geometry=null;
         var track = h('div.dk-scroll', null, null, host), thumb = h('div.dk-scroll-thumb', null, null, track);
-        function update() {
+        function measure() {
             if(disposed){return;}
             var height = viewport.clientHeight, total = viewport.scrollHeight;
+            var nextGeometry = height + ':' + total + ':' + viewport.clientWidth, changed = nextGeometry !== geometry;
+            geometry = nextGeometry;
             DK.show(track, total > height + 1);
             var usable = track.clientHeight || height;
             var size = Math.min(usable, Math.max(28, usable * height / Math.max(1, total)));
             thumb.style.height = size + 'px';
             thumb.style.top = ((usable - size) * viewport.scrollTop / Math.max(1, total - height)) + 'px';
+            return changed;
+        }
+        function update() {
+            var changed = measure();
+            if (changed && !disposed && refreshTimer === null) {
+                refreshTimer = setTimeout(function () { refreshTimer = null; measure(); }, 0);
+            }
         }
         function wheel(event) {
             if (event.defaultPrevented) { return; }
@@ -122,6 +131,7 @@
         }
         viewport.addEventListener('wheel', wheel);
         viewport.addEventListener('scroll', update);
+        viewport.addEventListener('load', update, true);
         track.addEventListener('mousedown', function (event) {
             if (event.button !== 0 || disposed) { return; }
             if(cancelDrag){cancelDrag();}
@@ -139,8 +149,8 @@
             document.addEventListener('mouseup', end);
             if (event.target !== thumb) { move(event); }
         });
-        refreshTimer = setTimeout(function () { refreshTimer = null; update(); }, 0);
-        return {update:update,to:function(top){viewport.scrollTop=Math.max(0,top);update();},dispose:function(){disposed=true;if(refreshTimer!==null){clearTimeout(refreshTimer);}viewport.removeEventListener('wheel',wheel);viewport.removeEventListener('scroll',update);if(cancelDrag){cancelDrag();}DK.remove(track);}};
+        update();
+        return {update:update,to:function(top){viewport.scrollTop=Math.max(0,top);update();},dispose:function(){disposed=true;if(refreshTimer!==null){clearTimeout(refreshTimer);}viewport.removeEventListener('wheel',wheel);viewport.removeEventListener('scroll',update);viewport.removeEventListener('load',update,true);if(cancelDrag){cancelDrag();}DK.remove(track);}};
     }
 
     DK.layer = {

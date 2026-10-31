@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from driftkings.common.utils.numbers import finite_number as number
+from driftkings.common.utils.numbers import ratio
 
 """Configurable own-vehicle statistics on EU Gameface carousel cards."""
 import math
@@ -53,11 +54,6 @@ CLASS_COLORS = {
 
 def bounded(value, low, high, default):
     return max(low, min(high, number(value, default)))
-
-
-def ratio(numerator, denominator):
-    numerator, denominator = number(numerator), number(denominator)
-    return numerator / denominator if numerator is not None and denominator and denominator > 0 else None
 
 
 def ratings(values, expected, tier):
@@ -179,7 +175,7 @@ class CarouselData(object):
                        'avgFrags': 1.0, 'wn8expd': 1950, 'wn8effd': 1.22, 'wn8': 2150,
                        'battletiermin': 8, 'battletiermax': 10, 'marksOnGun': 2, 'marks': 87.4, 'mastery': 3}},
             {'name': 'Obj. 140', 'nation': 'ussr', 'tank': 'r97_object_140', 'tier': 10, 'level': 'X',
-             'type': 'mediumTank', 'premium': False, 'selected': False, 'info': True, 'xp': 'x2',
+             'type': 'mediumTank', 'premium': False, 'selected': False, 'info': False, 'xp': 'x2',
              'stats': {'battles': 312, 'winRate': 48.6, 'hitRate': 70.2, 'avgDamage': 3150,
                        'avgFrags': 1.0, 'wn8expd': 3400, 'wn8effd': 0.93, 'wn8': 1420,
                        'battletiermin': 10, 'battletiermax': 10, 'marksOnGun': 0, 'marks': 41.2, 'mastery': 1}}]

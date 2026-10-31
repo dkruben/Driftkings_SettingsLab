@@ -237,7 +237,13 @@ class FlightTimeAdapter(ReticleTextAdapter):
         if speed <= 0.0:
             return self.setText('')
         macro = defaultdict(lambda: 'Macros not found', flightTime=flight_time(distance, speed), distance=distance)
-        self.setText(settings[SHELL_FLIGHT_TIME.TEMPLATE] % macro)
+        template = settings[SHELL_FLIGHT_TIME.TEMPLATE]
+        if '%(' in template:
+            message = template % macro
+        else:
+            macro['distance'] = int(distance)
+            message = template.format(**macro)
+        self.setText(message)
 
 
 class PenetrationAdapter(ReticleTextAdapter):

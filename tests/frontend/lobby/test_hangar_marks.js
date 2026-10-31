@@ -13,6 +13,10 @@ function target() {
 function element(tag) {
     var node = target(), attributes = {};
     node.tagName = tag; node.style = {}; node.children = []; node.clientWidth = 400; node.clientHeight = 95;
+    var content = '';
+    Object.defineProperty(node, 'textContent', {get: function () { return node.children.length ? node.children.map(function (child) { return child.textContent || ''; }).join('') : content; }, set: function (value) {
+        content = value; node.children = [];
+    }});
     node.appendChild = function (child) { child.parentNode = node; node.children.push(child); };
     node.removeChild = function (child) { node.children.splice(node.children.indexOf(child), 1); child.parentNode = null; };
     node.getAttribute = function (name) { return name === 'src' ? node.src : attributes[name]; };
@@ -91,6 +95,20 @@ assert.strictEqual(root.className, 'dk-moe dk-moe--open');
 assert.strictEqual(find('dk-moe-detail__title').textContent, 'Marcas de excelência no hangar');
 assert.strictEqual(find('dk-moe-detail__vehicle').textContent, 'M6 · VI · E.U.A.');
 assert.strictEqual(find('dk-moe-detail__next').children[1].textContent, '4,37  ');
+// Every earned mastery class is shown; an absent mastery has no icon or trailing separator.
+[1, 2, 3, 4].forEach(function (rank) {
+    data.masteryRank = rank; data.masteryIcon = 'coui://gui/maps/icons/achievement/32x32/markOfMastery' + rank + '.png';
+    data.mastery = 'Mastery ' + rank; update();
+    assert.strictEqual(find('dk-moe-detail__ace').src, data.masteryIcon);
+    assert.strictEqual(find('dk-moe-detail__ace').title, data.mastery);
+});
+data.masteryRank = 0; update();
+assert.strictEqual(find('dk-moe-detail__ace'), null);
+var statistics = find('dk-moe-detail__footer').children[1];
+assert.strictEqual(statistics.children[2].textContent, '·');
+assert.strictEqual(statistics.children[5].textContent, '·');
+assert.strictEqual(statistics.children.length, 8);
+
 document.fire('keydown', {keyCode: 27, stopPropagation: function () {}});
 assert.strictEqual(detail.style.display, 'none');
 card.fire('click', click);

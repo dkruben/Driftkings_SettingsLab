@@ -208,7 +208,15 @@ class Presenter(object):
 
     def _on_open_discord(self, data, result):
         import BigWorld
-        BigWorld.wg_openWebBrowser('https://discord.gg/GJcy4x7SP')
+        BigWorld.wg_openWebBrowser('https://discord.gg/k2Stjv5fS5')
+
+    def _on_open_facebook(self, data, result):
+        import BigWorld
+        BigWorld.wg_openWebBrowser('https://www.facebook.com/profile.php?id=61559980283083')
+
+    def _on_open_youtube(self, data, result):
+        import BigWorld
+        BigWorld.wg_openWebBrowser('https://www.youtube.com/@DKRubenEU')
 
     def _on_cancel_update_download(self, data, result):
         updater = getattr(self.api, 'updater', None)

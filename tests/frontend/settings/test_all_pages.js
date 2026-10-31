@@ -14,6 +14,15 @@ for(const mod of data.schema.mods){
     count+=mod.controls.length;
 }
 assert(data.schema.mods.length>=35);assert(count>=1100);
+// Clan collection keeps its original owner/action contract but is shown under general settings.
+const main=data.schema.mods.find(m=>m.id==='legacy.main');
+const clan=data.schema.mods.find(m=>m.id==='legacy.AutoClaimClan');
+assert(main&&clan);
+callbacks.state(Object.assign({},data.state,{selected:main.id}));env.flush();
+assert(!app.querySelectorAll('.dk-nav-name').some(n=>n.textContent===clan.name));
+const clanRow=app.querySelectorAll('.dk-row').find(n=>n.querySelector('.dk-row-label')&&n.querySelector('.dk-row-label').textContent===clan.name);
+assert(clanRow);clanRow.querySelector('.dk-switch').fire('click');
+assert.strictEqual(env.sent[env.sent.length-1][1].mod,clan.id);
 // Full settings schema stays interactive through the core command routes.
 callbacks.state(Object.assign({},data.state,{selected:'dk.settings'}));
 const labels=data.schema.labels;

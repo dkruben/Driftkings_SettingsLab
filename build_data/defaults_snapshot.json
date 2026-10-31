@@ -35,7 +35,7 @@
     {
       "path": "default/battle_preferences.json",
       "source_sha256": "353c0981c97751352ac897a1b18599ae23fb8e54aada1a4b350fd678cf58bd01",
-      "sha256": "5bc41a2f1a9d236372f46b7c98b0e2269c71d5bc8c1f3eaf15ab389bfdc55acf"
+      "sha256": "7e45222d4f9804a3d964e03c4a9ccdb765e2ab50632ba41d94ecd3afbd964576"
     },
     {
       "path": "default/battle_statistics.json",
@@ -133,7 +133,7 @@
     {
       "path": "default/shell_flight_time.json",
       "source_sha256": "760f1a256c7a8bc8c2a076b9bd4f8e3d3e0b545cdea829200dc833254bed6db7",
-      "sha256": "368fa406826980fc322b80afb7a581dbd29262e10969ab7bd9ef17b2df789f89"
+      "sha256": "5dfd1fb55173162e25784d42dd524c0a69469af1375d5ff6e6d27942408ecc88"
     },
     {
       "path": "default/sixth_sense_alert.json",

@@ -18,3 +18,9 @@ def nonnegative_number(value):
         return None
     value = finite_number(value)
     return value if value is not None and value >= 0 else None
+
+
+def ratio(numerator, denominator):
+    """Statistical ratio, unavailable when the denominator is not positive."""
+    numerator, denominator = finite_number(numerator), finite_number(denominator)
+    return numerator / denominator if numerator is not None and denominator and denominator > 0 else None

@@ -48,3 +48,8 @@
 .dk-moe-detail .dk-mog__graph { border-color:rgba(255,255,255,.2); }
 .dk-moe-detail .dk-mog__axis, .dk-moe-detail .dk-mog__ref { font-size:13rem; }
 .dk-moe-detail__footer { display:flex; flex-direction:column; margin-top:10rem; padding-top:8rem; border-top:1rem solid rgba(255,255,255,.12); font-size:14rem; line-height:1.4; color:rgba(234,230,216,.7); }
+.dk-moe-detail__statistics { display:flex; flex-direction:row; align-items:center; }
+.dk-moe-detail__statistics--averages { flex-wrap:wrap; }
+.dk-moe-detail__statistics > span { display:block; flex-shrink:0; white-space:nowrap; margin-right:4rem; }
+.dk-moe-detail__separator { margin-left:4rem; }
+.dk-moe-detail__ace { width:24rem; height:24rem; flex-shrink:0; margin-left:4rem; }
