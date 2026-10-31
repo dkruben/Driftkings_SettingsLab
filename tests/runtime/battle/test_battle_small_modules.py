@@ -117,7 +117,7 @@ class BattlePerformanceWn8Tests(RuntimeTest):
         bonus = next(iter(api['SUPPORTED_BONUS_TYPES']))
         player.arena.bonusType = bonus
         displayed = []
-        api['g_flash'] = module(addText=displayed.append, setVisible=lambda value: None)
+        api['g_gameface'] = module(setText=displayed.append, show=lambda value: None)
         api['g_calculator'].registerVInfoData(1)
         battle = api['g_battleEfficiency']
         battle.stats.update(frags=1, spotted=1)
@@ -160,7 +160,7 @@ class BattlePerformanceWn8Tests(RuntimeTest):
         bonus = next(iter(api['SUPPORTED_BONUS_TYPES']))
         player.arena.bonusType = bonus
         displayed = []
-        api['g_flash'] = module(addText=displayed.append, setVisible=lambda visible: None)
+        api['g_gameface'] = module(setText=displayed.append, show=lambda visible: None)
         api['g_calculator'].registerVInfoData(1)
         battle = api['g_battleEfficiency']
         battle.stats['damage'] = 1500

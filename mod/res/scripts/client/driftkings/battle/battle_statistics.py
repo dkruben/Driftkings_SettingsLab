@@ -4,21 +4,23 @@ from items import vehicles
 from vehicle_systems.CompoundAppearance import CompoundAppearance
 
 from driftkings._constants import BATTLE_STATISTICS, GLOBAL
+from driftkings.common.utils import events
 from driftkings.common.utils.colorratting import getComparisonColor
 from driftkings.common.utils.formatting import replaceMacros
 from driftkings.common.utils.wgutils import getEntity, getPlayer
+from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
-from driftkings.core.hooks import override
-from driftkings.flash.battle.battle_statistics import _startFlash
+from driftkings.core.hooks import on_event, override
 from driftkings.game_constants import SHELL_TYPES
+from driftkings.gameface.battle.screen_texts import TeamStrengthAdapter
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.battle_statistics import BattleStatisticsSettings
 from driftkings.settings.service import affects, settings_service
 
 LOG = get_logger('driftkings.battle.battle_statistics')
 
-g_flash = None
+g_gameface = None
 battle_statistics_settings = BattleStatisticsSettings()
 
 
@@ -306,15 +308,15 @@ class BattleStatDisplay(CallbackDelayer):
         self.clearCallbacks()
         self.macro.clear()
         g_tanksStatistic.reset()
-        if g_flash is not None:
-            g_flash.setVisible(False)
+        if g_gameface is not None:
+            g_gameface.show(False)
 
     def refresh(self):
         self.clearCallbacks()
-        if g_flash is not None:
-            g_flash.setVisible(False)
+        if g_gameface is not None:
+            g_gameface.show(False)
         if g_tanksStatistic.base:
-            self.flash_text()
+            self.updateText()
 
     def onHealthChanged(self, vehicleID, health):
         if not self.inBattle:
@@ -350,22 +352,22 @@ class BattleStatDisplay(CallbackDelayer):
             return '&#x003E;'
         return '&#x007C;'
 
-    def flash_text(self):
-        if not self.inBattle or not settings_service.getComponentDict(battle_statistics_settings).get(GLOBAL.ENABLED, False) or g_flash is None:
+    def updateText(self):
+        if not self.inBattle or not settings_service.getComponentDict(battle_statistics_settings).get(GLOBAL.ENABLED, False) or g_gameface is None:
             return
-        g_flash.setVisible(True)
         ally = g_tanksStatistic.allyChance
         enemy = g_tanksStatistic.enemyChance
         ally_text = self.formatChanceText(ally, enemy)
         enemy_text = self.formatChanceText(enemy, ally)
-        text = self.formatText(ally_text, enemy_text, ally, enemy)
-        data = g_flash.getSimpleTextWithTags(text)
-        g_flash.HtmlText(data)
-        self.delayCallback(0.3, self.flash_text)
+        # The base font, size, colour, bold and italic (textFormat) are applied by the Gameface view.
+        g_gameface.setText(self.formatText(ally_text, enemy_text, ally, enemy))
+        g_gameface.show(True)
+        self.delayCallback(0.3, self.updateText)
 
     def formatChanceText(self, value, comparison_value):
         color = getComparisonColor(value, comparison_value, settings_service.getComponentDict(battle_statistics_settings).get(BATTLE_STATISTICS.COLOR_RATING, 0))
-        return g_flash.getHtmlTextWithTags('%6.2f' % value, color=color)
+        text = '%6.2f' % value
+        return "<font color='%s'>%s</font>" % (color, text) if color else text
 
     def updateMacros(self, data):
         for key, value in data.items():
@@ -398,14 +400,30 @@ def new__prerequisites(func, self, vehicleID, *args, **kwargs):
     return result
 
 
+@on_event(events.PlayerAvatar.startGUI.after)
+def new_startGUI(*args):
+    # Battle pages without the native Gameface HUD (Halloween, Fort Rush) show no text.
+    if g_gameface is not None and battle_capabilities.has_gameface_hud():
+        g_gameface.startBattle()
+
+
+@on_event(events.PlayerAvatar.destroyGUI.before)
+def new_destroyGUI(*args):
+    if g_gameface is not None:
+        g_gameface.stopBattle()
+
+
 def init():
-    _startFlash()
+    global g_gameface
+    if g_gameface is None:
+        g_gameface = TeamStrengthAdapter()
+        g_gameface.install()
     g_mod.start()
 
 
 def fini():
-    global g_flash
+    global g_gameface
     g_mod.stop()
-    if g_flash is not None:
-        g_flash.destroy()
-        g_flash = None
+    if g_gameface is not None:
+        g_gameface.dispose()
+        g_gameface = None

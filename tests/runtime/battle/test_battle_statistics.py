@@ -99,3 +99,16 @@ class BattleStatisticsTests(RuntimeTest):
         sign = self.display.compare_sign
         self.assertEqual((sign(1, 2), sign(2, 1), sign(1, 1)), ('&#x003C;', '&#x003E;', '&#x007C;'))
         self.assertEqual(self.display.formatText('A', 'B', 60, 40), 'A&#x003E;B')
+
+    def test_team_strength_text_reaches_the_gameface_view_with_coloured_chances(self):
+        texts, shown = [], []
+        self.api['g_gameface'] = module(setText=texts.append, show=shown.append)
+        self.display.delayCallback = lambda delay, callback: None
+        self.vehicles.update({1: tank(1), 2: tank(2)})
+        self.display.onBattleStarted()
+        colour = self.api['getComparisonColor'](50.0, 50.0, 0)
+        # The base font, size and colour come from textFormat in the view, not from wrapping tags.
+        self.assertEqual(texts[-1], "<font color='%s'> 50.00</font>&#x007C;<font color='%s'> 50.00</font>" % (colour, colour))
+        self.assertTrue(shown[-1])
+        self.display.onBattleEnded()
+        self.assertEqual(shown[-1], False)

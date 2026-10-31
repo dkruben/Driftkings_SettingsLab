@@ -60,7 +60,9 @@
         "mod/res/gui/gameface/mods/driftkings/battle_performance/model.html",
         "mod/res/gui/gameface/mods/driftkings/battle_performance/results.css",
         "mod/res/gui/gameface/mods/driftkings/battle_performance/results.js",
-        "mod/res/gui/gen_resources/driftkings.battle_performance.json"
+        "mod/res/gui/gen_resources/driftkings.battle_performance.json",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance_hud/**",
+        "mod/res/gui/gen_resources/driftkings.battle_performance_hud.json"
       ]
     },
     "battle_preferences": {
@@ -85,6 +87,10 @@
       "entrypoint": "battle.battle_statistics",
       "config_files": [
         "default/battle_statistics.json"
+      ],
+      "assets": [
+        "mod/res/gui/gameface/mods/driftkings/battle_statistics/**",
+        "mod/res/gui/gen_resources/driftkings.battle_statistics.json"
       ]
     },
     "clan_reward_collection": {
@@ -358,6 +364,9 @@
         "mod/res/gui/gameface/mods/driftkings/shared/flash_text.js",
         "mod/res/gui/gameface/mods/driftkings/shared/reticle_text.js",
         "mod/res/gui/gameface/mods/driftkings/shared/reticle_text.css",
+        "mod/res/gui/gameface/mods/driftkings/shared/flash_lines.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/screen_text.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/screen_text.css",
         "mod/res/gui/gameface/mods/driftkings/shared/assets/**",
         "mod/res/mods/driftkings/text/**",
         "mod/res/gui/fonts/driftkings/**",

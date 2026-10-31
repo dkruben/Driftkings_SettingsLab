@@ -54,7 +54,7 @@ var context = vm.createContext({window: window, document: document, engine: engi
 var base = path.join(__dirname, '../../../mod/res/gui/gameface/mods/driftkings');
 function load(relative) { vm.runInContext(fs.readFileSync(path.join(base, relative), 'utf8'), context); }
 function flush() { while (queue.length) { queue.shift()(); } }
-load('shared/marks_panel.js'); load('shared/reticle_text.js'); load('penetration_indicator/penetration_indicator.js'); flush();
+load('shared/marks_panel.js'); load('shared/flash_lines.js'); load('shared/reticle_text.js'); load('penetration_indicator/penetration_indicator.js'); flush();
 var root = document.body.firstChild, content = root.children[0];
 assert.strictEqual(root.className, 'dk-reticle-text dk-reticle-text--penetration');
 var data = {text: "RICOCHET<br><font color='#66FF33' size='22'>80 | <b>120</b></font>", anchorX: 0.5, anchorY: 0.5,

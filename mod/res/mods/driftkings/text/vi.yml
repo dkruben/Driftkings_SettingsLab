@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Bảng màu"
 battle_statistics.UI_setting_colorRating_tooltip: "Bảng màu dùng để so sánh hai đội."
 battle_statistics.UI_setting_format_text: "Định dạng văn bản"
 battle_statistics.UI_setting_format_tooltip: "Văn bản so sánh đội. Macro: {header}, {allyChance}, {compareSign}, {enemyChance}. Các phần trăm so sánh sức mạnh ước tính của đội; đây không phải xác suất thắng đã hiệu chỉnh."
+battle_statistics.UI_setting_textLock_text: "Khóa vị trí bảng"
+battle_statistics.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong trận bằng chuột. Khi mở khóa, hãy kéo bảng khi con trỏ đang hiện."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Nhận phần thưởng bang hội"

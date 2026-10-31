@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Farbtabelle"
 battle_statistics.UI_setting_colorRating_tooltip: "Farbtabelle für den Vergleich der beiden Teams."
 battle_statistics.UI_setting_format_text: "Textformat"
 battle_statistics.UI_setting_format_tooltip: "Text des Teamvergleichs. Makros: {header}, {allyChance}, {compareSign}, {enemyChance}. Die Prozentwerte vergleichen die geschätzte Teamstärke; sie sind keine kalibrierte Siegwahrscheinlichkeit."
+battle_statistics.UI_setting_textLock_text: "Panelposition sperren"
+battle_statistics.UI_setting_textLock_tooltip: "Verhindert das Verschieben des Gefechts-Panels mit der Maus. Wenn es entsperrt ist, ziehen Sie es bei sichtbarem Cursor."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Clanbelohnungen einsammeln"

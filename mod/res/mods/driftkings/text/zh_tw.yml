@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "顏色表"
 battle_statistics.UI_setting_colorRating_tooltip: "用於比較兩支隊伍的色彩表。"
 battle_statistics.UI_setting_format_text: "文字格式"
 battle_statistics.UI_setting_format_tooltip: "隊伍比較的文字。巨集：{header}、{allyChance}、{compareSign}、{enemyChance}。百分比比較的是估計的隊伍實力，並非經過校準的勝率。"
+battle_statistics.UI_setting_textLock_text: "鎖定面板位置"
+battle_statistics.UI_setting_textLock_tooltip: "防止用滑鼠移動戰鬥面板。解鎖後，在游標可見時拖曳它。"
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "領取公會獎勵"

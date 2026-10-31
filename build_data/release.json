@@ -9,7 +9,8 @@
   "author": "driftkings",
   "changelog": [
     "BETA NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
-    "Battle HUD: vehicle health, aiming countdown, shell flight time and penetration texts now use Gameface and support Ctrl-drag positioning. They are unavailable on pages without the native Gameface HUD, including Halloween and Fort Rush.",
+    "Battle HUD: vehicle health, aiming countdown, shell flight time, penetration, battle efficiency (WN8/EFF) and team strength texts now use Gameface and support Ctrl-drag positioning. They are unavailable on pages without the native Gameface HUD, including Halloween and Fort Rush.",
+    "Battle efficiency and team strength keep their saved position, format, font, colour, shadow and lock settings. Text lock now also appears in the battle statistics settings. The default team strength position moved below the native map label.",
     "Vehicle health: added Bastion, Vanguard, Ion and Minimalist styles, colour controls and a shared in-game/settings preview with adjustable sample health. Classic remains the default.",
     "Graphics: replaced simple icons and backgrounds with SVG, fixed carousel loading and missing UI symbols, and improved marks readability. Custom references to converted bundled PNGs must use SVG; personal PNG images remain supported.",
     "BREAKING: the hangar marks panel is now a compact card under the mission column, with details available through Show more. Its former position, lock, compact mode, scale and colour settings were removed.",

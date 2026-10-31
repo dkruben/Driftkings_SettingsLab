@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Таблица цветов"
 battle_statistics.UI_setting_colorRating_tooltip: "Таблица цветов для сравнения двух команд."
 battle_statistics.UI_setting_format_text: "Текстовый формат"
 battle_statistics.UI_setting_format_tooltip: "Текст сравнения команд. Макросы: {header}, {allyChance}, {compareSign}, {enemyChance}. Проценты сравнивают расчётную силу команд; это не откалиброванная вероятность победы."
+battle_statistics.UI_setting_textLock_text: "Закрепить положение панели"
+battle_statistics.UI_setting_textLock_tooltip: "Запрещает перемещать боевую панель мышью. Когда она разблокирована, перетащите её при видимом курсоре."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Получение клановых наград"

@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Barevná tabulka"
 battle_statistics.UI_setting_colorRating_tooltip: "Tabulka barev pro porovnání obou týmů."
 battle_statistics.UI_setting_format_text: "Textový formát"
 battle_statistics.UI_setting_format_tooltip: "Text porovnání týmů. Makra: {header}, {allyChance}, {compareSign}, {enemyChance}. Procenta porovnávají odhadovanou sílu týmů; nejde o kalibrovanou pravděpodobnost výhry."
+battle_statistics.UI_setting_textLock_text: "Zamknout pozici panelu"
+battle_statistics.UI_setting_textLock_tooltip: "Zabraňuje přesouvání bitevního panelu myší. Po odemčení jej přetáhněte při viditelném kurzoru."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Vyzvedávání klanových odměn"

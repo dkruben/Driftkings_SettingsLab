@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Renk tablosu"
 battle_statistics.UI_setting_colorRating_tooltip: "İki takımı karşılaştırmak için kullanılan renk tablosu."
 battle_statistics.UI_setting_format_text: "Metin Formatı"
 battle_statistics.UI_setting_format_tooltip: "Takım karşılaştırmasının metni. Makrolar: {header}, {allyChance}, {compareSign}, {enemyChance}. Yüzdeler tahmini takım gücünü karşılaştırır; ayarlanmış bir kazanma olasılığı değildir."
+battle_statistics.UI_setting_textLock_text: "Panel konumunu kilitle"
+battle_statistics.UI_setting_textLock_tooltip: "Savaş panelinin fareyle taşınmasını engeller. Kilit açıkken imleç görünürken sürükleyin."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Klan ödüllerini toplama"

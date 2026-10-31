@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Tabela kolorów"
 battle_statistics.UI_setting_colorRating_tooltip: "Tabela kolorów używana do porównania obu drużyn."
 battle_statistics.UI_setting_format_text: "Format tekstowy"
 battle_statistics.UI_setting_format_tooltip: "Tekst porównania drużyn. Makra: {header}, {allyChance}, {compareSign}, {enemyChance}. Procenty porównują szacowaną siłę drużyn; nie są skalibrowanym prawdopodobieństwem zwycięstwa."
+battle_statistics.UI_setting_textLock_text: "Zablokuj pozycję panelu"
+battle_statistics.UI_setting_textLock_tooltip: "Blokuje przesuwanie panelu bitewnego myszą. Po odblokowaniu przeciągnij go przy widocznym kursorze."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Odbieranie nagród klanowych"

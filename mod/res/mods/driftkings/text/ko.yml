@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "색상표"
 battle_statistics.UI_setting_colorRating_tooltip: "두 팀을 비교하는 데 사용하는 색상표입니다."
 battle_statistics.UI_setting_format_text: "텍스트 형식"
 battle_statistics.UI_setting_format_tooltip: "팀 비교 텍스트입니다. 매크로: {header}, {allyChance}, {compareSign}, {enemyChance}. 백분율은 추정 팀 전력을 비교한 값이며 보정된 승리 확률이 아닙니다."
+battle_statistics.UI_setting_textLock_text: "패널 위치 고정"
+battle_statistics.UI_setting_textLock_tooltip: "전투 패널을 마우스로 움직이지 못하게 합니다. 잠금을 해제하면 커서가 보이는 상태에서 끌어서 옮기세요."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "클랜 보상 수령"

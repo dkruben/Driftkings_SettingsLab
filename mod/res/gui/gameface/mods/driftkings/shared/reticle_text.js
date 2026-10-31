@@ -9,40 +9,6 @@
     function unit() { return parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 1; }
     // Point of the text box that sits on the offset: its left edge, centre or right edge.
     function anchorShift(align, width) { return align === 'center' ? width / 2 : align === 'right' ? width : 0; }
-    /* The Flash subset of the templates (font colour/size, b, i, u, br, p) as flat runs, one row per
-       line: Gameface lays every element out as a flex box, so nested inline markup would stack. */
-    function lines(html, target) {
-        var parsed = document.createElement('div'), line = K.node('div', 'dk-reticle-text__line', target);
-        parsed.innerHTML = html;
-        function walk(source, style) {
-            for (var i = 0; i < source.childNodes.length; i++) {
-                var child = source.childNodes[i];
-                if (child.nodeType === 3) {
-                    if (!child.nodeValue) { continue; }
-                    var run = K.node('span', '', line, child.nodeValue);
-                    run.style.whiteSpace = 'pre'; run.style.flexShrink = '0';
-                    for (var key in style) { if (style.hasOwnProperty(key)) { run.style[key] = style[key]; } }
-                    continue;
-                }
-                if (child.nodeType !== 1) { continue; }
-                var tag = child.tagName.toLowerCase();
-                if (tag === 'br') { line = K.node('div', 'dk-reticle-text__line', target); continue; }
-                if (/^(script|style|iframe|object|img)$/.test(tag)) { continue; }
-                var next = {};
-                for (var name in style) { if (style.hasOwnProperty(name)) { next[name] = style[name]; } }
-                if (tag === 'b') { next.fontWeight = 'bold'; }
-                if (tag === 'i') { next.fontStyle = 'italic'; }
-                if (tag === 'u') { next.textDecoration = 'underline'; }
-                if (tag === 'font') {
-                    var color = child.getAttribute('color'), size = Number(child.getAttribute('size'));
-                    if (/^#[0-9a-f]{6}$/i.test(color || '')) { next.color = color; }
-                    if (size >= 8 && size <= 40) { next.fontSize = size + 'rem'; }
-                }
-                walk(child, next);
-            }
-        }
-        walk(parsed, {});
-    }
 
     window.__dkReticleText = function (feature, owner, modifier) {
         var root = K.node('div', 'dk-reticle-text dk-reticle-text--' + modifier, document.body);
@@ -77,7 +43,7 @@
             if (html !== last) {
                 last = html;
                 while (content.firstChild) { content.removeChild(content.firstChild); }
-                lines(html, content);
+                window.__dkFlashLines.lines(html, content, 'dk-reticle-text__line');
             }
             root.__dk = {x: K.number(data.anchorX, .5), y: K.number(data.anchorY, .5)};
             root.__dkCfg = cfg;

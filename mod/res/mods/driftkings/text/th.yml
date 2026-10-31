@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "ตารางสี"
 battle_statistics.UI_setting_colorRating_tooltip: "ตารางสีที่ใช้เปรียบเทียบสองทีม"
 battle_statistics.UI_setting_format_text: "รูปแบบข้อความ"
 battle_statistics.UI_setting_format_tooltip: "ข้อความเปรียบเทียบทีม มาโคร: {header}, {allyChance}, {compareSign}, {enemyChance} เปอร์เซ็นต์เป็นการเปรียบเทียบกำลังทีมโดยประมาณ ไม่ใช่โอกาสชนะที่ผ่านการปรับเทียบ"
+battle_statistics.UI_setting_textLock_text: "ล็อกตำแหน่งแผง"
+battle_statistics.UI_setting_textLock_tooltip: "ป้องกันไม่ให้ย้ายแผงในการรบด้วยเมาส์ เมื่อปลดล็อก ให้ลากขณะที่เคอร์เซอร์แสดงอยู่"
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "รับรางวัลกองทัพ"

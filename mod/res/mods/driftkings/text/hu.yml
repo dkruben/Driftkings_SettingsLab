@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Színtáblázat"
 battle_statistics.UI_setting_colorRating_tooltip: "A két csapat összehasonlításához használt színtáblázat."
 battle_statistics.UI_setting_format_text: "Szövegformátum"
 battle_statistics.UI_setting_format_tooltip: "A csapatok összehasonlításának szövege. Makrók: {header}, {allyChance}, {compareSign}, {enemyChance}. A százalékok a csapatok becsült erejét vetik össze; nem kalibrált győzelmi esélyek."
+battle_statistics.UI_setting_textLock_text: "Panel helyzetének zárolása"
+battle_statistics.UI_setting_textLock_tooltip: "Megakadályozza a csatapanel egérrel történő mozgatását. Feloldva látható kurzorral húzd el."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Klánjutalmak begyűjtése"

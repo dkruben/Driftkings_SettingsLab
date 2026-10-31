@@ -11,6 +11,7 @@ class BattleStatisticsSettings(SectionDefinition):
     TRANSLATED_TITLE = True
     COLUMNS = (
         (
+            control(BATTLE_STATISTICS.TEXT_LOCK),
             options(BATTLE_STATISTICS.COLOR_RATING, [table['ScaleColor'] for table in color_tables]),
             control(BATTLE_STATISTICS.FORMAT, 'TextInput', width=300),
         ),

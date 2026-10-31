@@ -14,11 +14,12 @@ from driftkings.common.utils import events
 from driftkings.common.utils.colorratting import getRelativePerformanceColor, getStatisticColor
 from driftkings.common.utils.formatting import replaceMacros
 from driftkings.common.utils.wgutils import create_range, getPlayer
+from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event, override
 from driftkings.core.wnx import calculate as calculate_wnx
 from driftkings.core.wnx import get_expected as get_wnx_expected
-from driftkings.flash.battle.battle_performance import _startFlash
+from driftkings.gameface.battle.screen_texts import BattleEfficiencyAdapter
 from driftkings.gameface.lobby.battle_performance import install_results_gameface
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.components.battle_performance import BattlePerformanceSettings
@@ -32,7 +33,7 @@ _results_views = weakref.WeakKeyDictionary()
 SUPPORTED_BONUS_TYPES = set(create_range(ARENA_BONUS_TYPE, STATISTICS_BATTLES))
 
 
-g_flash = None
+g_gameface = None
 battle_performance_settings = BattlePerformanceSettings()
 
 
@@ -159,8 +160,8 @@ class BattleEfficiency(object):
 
     def stopBattle(self):
         self._resetStats()
-        if g_flash is not None:
-            g_flash.setVisible(False)
+        if g_gameface is not None:
+            g_gameface.show(False)
 
     @property
     def stats(self):
@@ -174,7 +175,7 @@ class BattleEfficiency(object):
         return getStatisticColor(rating_color, rating_value, palette)
 
     def startBattle(self):
-        if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED] or g_flash is None:
+        if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED] or g_gameface is None:
             return
         result = g_calculator.calc(self._stats['damage'], self._stats['spotted'], self._stats['frags'], self._stats['defence'], self._stats['capture'])
         self._stats.update(dict(zip(['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'dmg', 'diff'], result)))
@@ -190,8 +191,8 @@ class BattleEfficiency(object):
         player = getPlayer()
         arena = getattr(player, 'arena', None)
         if not settings[GLOBAL.ENABLED] or arena is None or arena.bonusType not in SUPPORTED_BONUS_TYPES:
-            if g_flash is not None:
-                g_flash.setVisible(False)
+            if g_gameface is not None:
+                g_gameface.show(False)
             return
         macro_data = {}
         expected_damage = g_calculator.expectedValues.get('wn8expDamage') if g_calculator.vInfoOK else None
@@ -207,9 +208,9 @@ class BattleEfficiency(object):
                 color_value = self.read_colors(color_key, value, self._stats['damage'], expected_damage)
                 macro_data['{c:%s}' % key] = str(color_value) if color_value is not None else ''
         format_text = replaceMacros(settings[BATTLE_PERFORMANCE.FORMAT], macro_data)
-        if g_flash:
-            g_flash.addText(format_text)
-            g_flash.setVisible(True)
+        if g_gameface is not None:
+            g_gameface.setText(format_text)
+            g_gameface.show(True)
 
 
 g_battleEfficiency = BattleEfficiency()
@@ -267,6 +268,9 @@ g_efficiencyListener = _EfficiencyListener()
 
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
+    # Battle pages without the native Gameface HUD (Halloween, Fort Rush) show no text.
+    if g_gameface is not None and battle_capabilities.has_gameface_hud():
+        g_gameface.startBattle()
     g_efficiencyListener.attach()
     g_battleEfficiency.startBattle()
 
@@ -295,6 +299,12 @@ def new_addRibbon(func, self, ribbonID, ribbonType='', leftFieldStr='', **kwargs
     elif ribbonType == BATTLE_EFFICIENCY_TYPES.CAPTURE:
         g_battleEfficiency.stats['capture'] = int(leftFieldStr)
     g_battleEfficiency.startBattle()
+
+
+@on_event(events.PlayerAvatar.destroyGUI.before)
+def new_beforeDestroyGUI(*args):
+    if g_gameface is not None:
+        g_gameface.stopBattle()
 
 
 @on_event(events.PlayerAvatar.destroyGUI.after)
@@ -348,7 +358,10 @@ def make_results_payload(battle_results):
 
 
 def init():
-    _startFlash()
+    global g_gameface
+    if g_gameface is None:
+        g_gameface = BattleEfficiencyAdapter()
+        g_gameface.install()
     g_battleEfficiency.start()
     try:
         install_results_gameface()
@@ -357,8 +370,8 @@ def init():
 
 
 def fini():
-    global g_flash
+    global g_gameface
     g_battleEfficiency.stop()
-    if g_flash is not None:
-        g_flash.destroy()
-        g_flash = None
+    if g_gameface is not None:
+        g_gameface.dispose()
+        g_gameface = None

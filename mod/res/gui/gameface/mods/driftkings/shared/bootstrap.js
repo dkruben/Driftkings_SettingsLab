@@ -13,11 +13,24 @@
             "owner": "__dkAimingCountdown",
             "scripts": [
                 "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
                 "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
                 "coui://gui/gameface/mods/driftkings/aiming_countdown/aiming_countdown.js"
             ],
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
+            ]
+        },
+        "DriftkingsBattleEfficiency": {
+            "owner": "__dkBattleEfficiencyHud",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
+                "coui://gui/gameface/mods/driftkings/shared/screen_text.js",
+                "coui://gui/gameface/mods/driftkings/battle_performance_hud/battle_performance_hud.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
             ]
         },
         "DriftkingsCarouselStats": {
@@ -51,6 +64,7 @@
             "owner": "__dkFlightTime",
             "scripts": [
                 "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
                 "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
                 "coui://gui/gameface/mods/driftkings/shell_flight_time/shell_flight_time.js"
             ],
@@ -132,6 +146,7 @@
             "owner": "__dkPenetration",
             "scripts": [
                 "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
                 "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
                 "coui://gui/gameface/mods/driftkings/penetration_indicator/penetration_indicator.js"
             ],
@@ -155,6 +170,18 @@
                 "coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js"
             ],
             "styles": []
+        },
+        "DriftkingsTeamStrength": {
+            "owner": "__dkTeamStrength",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
+                "coui://gui/gameface/mods/driftkings/shared/screen_text.js",
+                "coui://gui/gameface/mods/driftkings/battle_statistics/battle_statistics.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
+            ]
         },
         "driftkingsbattleEfficiency": {
             "owner": "__dkBattleEfficiency",

@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "カラーテーブル"
 battle_statistics.UI_setting_colorRating_tooltip: "2つのチームの比較に使う色の表。"
 battle_statistics.UI_setting_format_text: "テキスト形式"
 battle_statistics.UI_setting_format_tooltip: "チーム比較のテキスト。マクロ: {header}、{allyChance}、{compareSign}、{enemyChance}。割合は推定チーム戦力の比較であり、校正された勝率ではありません。"
+battle_statistics.UI_setting_textLock_text: "パネルの位置を固定"
+battle_statistics.UI_setting_textLock_tooltip: "戦闘パネルをマウスで動かせないようにします。ロック解除中はカーソルを表示した状態でドラッグします。"
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "クラン報酬の受け取り"

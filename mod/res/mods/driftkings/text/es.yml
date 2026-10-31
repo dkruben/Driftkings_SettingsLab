@@ -214,6 +214,8 @@ battle_statistics.UI_setting_colorRating_text: "Tabla de colores"
 battle_statistics.UI_setting_colorRating_tooltip: "Tabla de colores usada para comparar los dos equipos."
 battle_statistics.UI_setting_format_text: "Formato de texto"
 battle_statistics.UI_setting_format_tooltip: "Texto de la comparación de equipos. Macros: {header}, {allyChance}, {compareSign}, {enemyChance}. Los porcentajes comparan la fuerza estimada de los equipos; no son una probabilidad de victoria calibrada."
+battle_statistics.UI_setting_textLock_text: "Bloquear la posición del panel"
+battle_statistics.UI_setting_textLock_tooltip: "Impide mover el panel de batalla con el ratón. Si está desbloqueado, arrástralo con el cursor visible."
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Recogida de recompensas del clan"
