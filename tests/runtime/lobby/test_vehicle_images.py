@@ -23,6 +23,11 @@ class VehicleImageTests(RuntimeTest):
                               lambda name: '../maps/icons/vehicle/contour/unknown.png')
         self.assertEqual(result, text.replace('usa-A35_Pershing_HW_BOT', 'unknown'))
 
+    def test_native_backport_url_does_not_duplicate_the_scheme(self):
+        text = "<img src='img://gui/maps/icons/vehicle/france-F129_ARL_44_BPXIV.png' width='80'>"
+        native = 'img://gui/maps/icons/vehicle/france-F129_ARL_44_BPXIV.png'
+        self.assertEqual(self.resolve(text, lambda name: native, lambda name: ''), text)
+
     def test_missing_image_removes_only_image_tag(self):
         text = "Tank<img src='img://gui/maps/icons/vehicle/unknown-event.png'> HP 100"
         self.assertEqual(self.resolve(text, lambda name: '', lambda name: ''), 'Tank HP 100')

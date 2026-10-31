@@ -2,7 +2,7 @@
 const assert = require('assert');
 const path = require('path');
 const folder = path.resolve(__dirname, '../../../mod/res/gui/gameface/mods/driftkings/panel_gameface');
-const text = require(path.join(folder, 'rating_text.js'));
+const text = require(path.join(folder, '../shared/rating_text.js'));
 const rows = require(path.join(folder, 'rating_rows.js'));
 
 function element(tag, attributes, children) {

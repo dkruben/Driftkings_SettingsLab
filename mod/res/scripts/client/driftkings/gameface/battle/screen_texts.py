@@ -5,7 +5,7 @@ from the alignX/alignY edge, as in the retired Flash overlay), the base text sty
 text lock; an unlocked text can be dragged with Ctrl."""
 from importlib import import_module
 
-from driftkings._constants import BATTLE_PERFORMANCE, BATTLE_STATISTICS, GLOBAL
+from driftkings._constants import BATTLE_PERFORMANCE, BATTLE_STATISTICS, GLOBAL, TARGET_INFORMATION
 from driftkings.core.hud_visibility import hudVisibility
 from driftkings.gameface.battle.common import BattleCardAdapter
 from driftkings.logger import get_logger
@@ -117,3 +117,21 @@ class TeamStrengthAdapter(ScreenTextAdapter):
         style = settings[BATTLE_STATISTICS.TEXT_FORMAT]
         return {'font': style.get('font'), 'size': style.get('size'), 'color': style.get('color'),
                 'bold': bool(style.get('bold')), 'italic': bool(style.get('italic')), 'align': 'left'}
+
+
+class TargetInformationAdapter(ScreenTextAdapter):
+    QUIET_VISIBILITY = True
+    COMPONENT = 'driftkings.battle.target_information'
+    SETTINGS = 'target_information_settings'
+    POSITION = TARGET_INFORMATION.TEXT_POSITION
+
+    # Prepara o cartão do alvo no HUD nativo Gameface.
+    def __init__(self):
+        super(TargetInformationAdapter, self).__init__('DriftkingsTargetInformation', TARGET_INFORMATION, 'TargetInformation')
+
+    # Mantém o estilo e o fundo configurados, sem alterar os modelos de texto.
+    def style(self, settings):
+        style = dict(settings[TARGET_INFORMATION.TEXT_FORMAT])
+        style.update(rich=True, background=settings[TARGET_INFORMATION.BACKGROUND_ENABLED],
+                     backgroundAlpha=settings[TARGET_INFORMATION.BACKGROUND_ALPHA])
+        return style

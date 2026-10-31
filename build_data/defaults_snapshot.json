@@ -114,7 +114,7 @@
     {
       "path": "default/penetration_indicator.json",
       "source_sha256": "a1f41cac800ce75fe632ba2ed498606a666d7856f040ff64748f0b3ff4b7b870",
-      "sha256": "b5fa9262acac0807c5cc81e179c8f07f0531cf826a4e1952d6606c9498cd7b05"
+      "sha256": "a5eccd01eb00cf186341220ddeeaf4f8df4a291cfff714f269925eed2f1060f0"
     },
     {
       "path": "default/profile_ratings.json",
@@ -158,7 +158,7 @@
     {
       "path": "default/target_information.json",
       "source_sha256": "8500d6ab505834f30933ad88a6da9f6f5c019d22c1e2f564828375e25fe09799",
-      "sha256": "5d789f563e48b7e709c7dcccb48f9f9a3a1afb00b6c31166b119dd384678e676"
+      "sha256": "42a40dfb9fcaedbcad24bbb38e19b22435d1f274c48e747f560b9d291a88c71b"
     },
     {
       "path": "default/team_panels/battleloading.json",

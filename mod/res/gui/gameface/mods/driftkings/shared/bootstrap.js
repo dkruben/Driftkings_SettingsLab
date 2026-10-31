@@ -164,12 +164,25 @@
         "DriftkingsRatingPlayers": {
             "owner": "__dkPlayerRatings",
             "scripts": [
-                "coui://gui/gameface/mods/driftkings/panel_gameface/rating_text.js",
+                "coui://gui/gameface/mods/driftkings/shared/rating_text.js",
                 "coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js",
                 "coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js",
                 "coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js"
             ],
             "styles": []
+        },
+        "DriftkingsTargetInformation": {
+            "owner": "__dkTargetInformation",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/shared/rating_text.js",
+                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
+                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
+                "coui://gui/gameface/mods/driftkings/shared/screen_text.js",
+                "coui://gui/gameface/mods/driftkings/target_information/target_information.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
+            ]
         },
         "DriftkingsTeamStrength": {
             "owner": "__dkTeamStrength",

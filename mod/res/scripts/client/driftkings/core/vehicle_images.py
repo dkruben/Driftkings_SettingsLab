@@ -15,6 +15,8 @@ def resolve_vehicle_images(text, get_icon, get_contour):
         if not path:
             # A missing illustration must not submit a broken image to Scaleform.
             return ''
+        if path.startswith('img://'):
+            path = path[6:]
         if path.startswith('../'):
             path = 'gui/' + path[3:]
         tag = match.group(0)

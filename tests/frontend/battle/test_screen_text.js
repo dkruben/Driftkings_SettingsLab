@@ -17,16 +17,19 @@ function parse(node, html) {
         var top = stack[stack.length - 1];
         if (match[4]) { var text = element('#text'); text.nodeType = 3; text.nodeValue = match[4]; top.appendChild(text); continue; }
         if (match[1]) { stack.pop(); continue; }
-        var child = element(match[2]), attrs = /(\w+)='([^']*)'/g, attr;
+        var child = element(match[2]), attrs = /([\w-]+)='([^']*)'/g, attr;
         while ((attr = attrs.exec(match[3]))) { child.setAttribute(attr[1], attr[2]); }
         top.appendChild(child);
-        if (match[2].toLowerCase() !== 'br') { stack.push(child); }
+        if (!/^(br|img|tab)$/i.test(match[2])) { stack.push(child); }
     }
 }
 function element(tag) {
     var node = target(), attributes = {};
     node.tagName = tag; node.nodeType = 1; node.style = {}; node.children = []; node.childNodes = node.children;
-    node.appendChild = function (child) { child.parentNode = node; node.children.push(child); };
+    node.appendChild = function (child) {
+        if (child.parentNode) { child.parentNode.removeChild(child); }
+        child.parentNode = node; node.children.push(child);
+    };
     node.removeChild = function (child) { node.children.splice(node.children.indexOf(child), 1); child.parentNode = null; };
     node.getAttribute = function (name) { return attributes[name]; };
     node.setAttribute = function (name, value) { attributes[name] = value; };
@@ -102,5 +105,47 @@ assert.deepStrictEqual(JSON.parse(JSON.stringify(saved[0])), {x: 42, y: -28, ali
 // A locked text cannot be dragged even with the cursor.
 data.config.locked = true; update();
 assert.strictEqual(root.style.pointerEvents, 'none');
+// Target cards retain their multiline templates, spacing and local vehicle illustrations.
+load('shared/rating_text.js'); window.DKRatingText = context.DKRatingText;
+data.style = {rich: true, font: '$FieldFont', size: 14, leading: -12, background: true, backgroundAlpha: 0.6};
+data.text = "<textformat leading='6'><font size='18'>Target</font>\nHP 1500<img src='img://gui/maps/tank.png' width='80' height='40'><img src='https://example.com/a.png'></textformat>";
+update();
+assert.strictEqual(content.children.length, 2);
+assert.strictEqual(content.children[0].style.marginBottom, '6rem');
+assert.strictEqual(content.children[1].style.marginBottom, '6rem');
+assert.strictEqual(content.children[0].children[0].style.fontSize, '18rem');
+assert.strictEqual(content.children[1].children[0].textContent, 'HP 1500');
+assert.strictEqual(content.children[1].children.length, 2);
+assert.strictEqual(content.children[1].children[1].src, 'coui://gui/maps/tank.png');
+assert.strictEqual(content.children[1].children[1].style.width, '80rem');
+assert.strictEqual(content.style.backgroundColor, 'rgba(32,37,43,0.6)');
+assert.strictEqual(content.style.padding, '12rem');
+data.text = 'Target\nHP 1500'; update();
+assert.strictEqual(content.children[0].style.marginBottom, '0rem');
+data.style.leading = 4; data.style.background = false; update();
+assert.strictEqual(content.children[0].style.marginBottom, '4rem');
+assert.strictEqual(content.style.padding, '0');
+assert.strictEqual(content.style.backgroundColor, 'transparent');
+data.text = "<textformat tabstops='[65,105,145]'>Hull:<tab>100<tab>80<tab>60</textformat>"; update();
+assert.strictEqual(content.children.length, 1);
+var cells = content.children[0].children;
+assert.strictEqual(cells.length, 4);
+assert.strictEqual(cells[0].style.width, '65rem');
+assert.strictEqual(cells[1].style.width, '40rem');
+assert.strictEqual(cells[2].style.width, '40rem');
+assert.strictEqual(cells[3].children[0].textContent, '60');
+data.text = "<textformat tabstops='[95]'>Mass: 47 t<tab>View: 350 m</textformat><br>" +
+    "<textformat tabstops='[65,105,145]'>Turret:<tab/>110<tab>30<tab>30</textformat>";
+update();
+assert.strictEqual(content.children.length, 2);
+assert.strictEqual(content.children[0].children[0].style.width, '95rem');
+assert.strictEqual(content.children[1].children[0].style.width, '65rem');
+assert.strictEqual(content.children[1].children[3].children[0].textContent, '30');
+// The unclosed Flash <img> keeps its own line; the next tab row starts below it.
+data.text = "Tank<br/><img src='img://gui/maps/icons/vehicle/a.png'><br/><textformat tabstops='[95]'>Mass: 47 t<tab>View: 350 m</textformat>";
+update();
+assert.strictEqual(content.children.length, 3);
+assert.strictEqual(content.children[1].children[0].tagName, 'img');
+assert.strictEqual(content.children[2].children[0].children[0].textContent, 'Mass: 47 t');
 window.__dkBattleEfficiencyHud.dispose();
 console.log('Screen texts keep the Flash position, style and shadow and save dragged positions: passed');

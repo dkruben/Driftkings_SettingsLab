@@ -26,7 +26,7 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '7cc536ea1f3765c39c503df836c28
  'default/minimap_enhancements/minimap_circles.json': 'a07d8d3849efa5c22e9b2170f0d49325aaad00ba4e162d77c8cbb2d61e02d8b6',
  'default/minimap_enhancements/minimap_labels.json': '8493739fade648368a8b2f69cf1242ee2f26f4783b5f76af4fac2b00c3bf6574',
  'default/minimap_enhancements/minimap_lines.json': '85a854145ba5fbc34fdb76443713ea74f930759bf8a284edc4e66c0f031386da',
- 'default/penetration_indicator.json': 'edd7741e801a916fda36871c29d873dbdeb81189b53056c14a28b34b858ac21e',
+ 'default/penetration_indicator.json': '4ae4e2a996b92675276e0cd40f6766d10028076377c71450ec92771820a82e1b',
  'default/profile_ratings.json': '89149842a67255832eaadaf71ff386019d0f358cd935678539adb512ee69005d',
  'default/repair_controls.json': 'a245e8ee6949d24184d2bd1ea2998ed17f0764e34ab39d6d9ea362a0792d8dad',
  'default/server_turret_sync.json': '48fba06a7c1974dd4d866a0fd108dbcfda732c5286dcc6dfd480d371c15bd2fc',
@@ -35,7 +35,7 @@ SOURCE_HASHES = {'default/aiming_countdown.json': '7cc536ea1f3765c39c503df836c28
  'default/sniper_camera.json': 'a58138d775a49624b6595fbf83b60b244a1c335477d4d703c0eb73003e7cfadb',
  'default/sound_bank_loader.json': 'edcebe8fcb7cf84052c49d888c98ecdb6a86b6d29ab574f50caca75cf777411f',
  'default/target_distance.json': '67a8200f1bcf5c001bf012b78d39d819a4b14a1ec63311393537f2fb2d6aa966',
- 'default/target_information.json': '7df9b23a50e8fcf458c4c8ae0d498317e8d9f4250aab38e11e96678199d819a0',
+ 'default/target_information.json': '82ae9b4bae46018fa83eb0ea2bddff5e0021af78a14aaa2137b5468d7d7d1c49',
  'default/team_panels/battleloading.json': '77a3b02605c06d4a4f95ab7f6dbc2482fc389382a50e9077b7004835a630db0e',
  'default/team_panels/general.json': 'fb4c2bb30136024ec63a7ddc6717ab6131301b06a353932eac297be51adaba38',
  'default/team_panels/panellarge.json': '453db9ce3364084fe0fe4b29b3266ef9de43df73d8c14e980cb235978d7cd068',
@@ -476,7 +476,7 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                                'come.</font>',
                                         'yellow': "<font size='20' color='#FAF829'>Switch to Gold.</font>"},
                            'position': {'x': 0, 'y': 40},
-                           'template': "<p align='center'>%(ricochet)s%(noDamage)s<br><font "
+                           'template': "<p align='center'>%(noDamage)s<br><font "
                                        "color='%(color)s'>%(countedArmor)d | %(piercingPower)d</font></p>"},
  'profile_ratings': {'colorReceivedDamage': True,
                      'colorScale': 0,
@@ -614,11 +614,11 @@ DEFAULTS = {'aiming_countdown': {'align': 'left',
                                     "src='img://gui/maps/icons/vehicle/{{icon_system_name}}.png'><br/><textformat "
                                     "tabstops='[95]'>Massa: {{vehicle_weight}} t<tab>Vis\xe3o: "
                                     '{{vision_radius}} m</textformat><br/><textformat '
-                                    "tabstops='[65,105,145]'>Casco:<tab>{{armor_hull_front}}<tab>{{armor_hull_side}}<tab>{{armor_hull_back}}</textformat><br/><textformat "
-                                    "tabstops='[65,105,145]'>Torre:<tab>{{armor_turret_front}}<tab>{{armor_turret_side}}<tab>{{armor_turret_back}}</textformat><br/><textformat "
-                                    "tabstops='[65,105,145]'>Tipo:<tab>{{shell_type_1}}<tab>{{shell_type_2}}<tab>{{shell_type_3}}</textformat><br/><textformat "
-                                    "tabstops='[65,105,145]'>Penetra\xe7\xe3o:<tab>{{shell_power_1}}<tab>{{shell_power_2}}<tab>{{shell_power_3}}</textformat><br/><textformat "
-                                    "tabstops='[65,105,145]'>Dano:<tab>{{shell_damage_1}}<tab>{{shell_damage_2}}<tab>{{shell_damage_3}}</textformat>"],
+                                    "tabstops='[85,125,165]'>Casco:<tab>{{armor_hull_front}}<tab>{{armor_hull_side}}<tab>{{armor_hull_back}}</textformat><br/><textformat "
+                                    "tabstops='[85,125,165]'>Torre:<tab>{{armor_turret_front}}<tab>{{armor_turret_side}}<tab>{{armor_turret_back}}</textformat><br/><textformat "
+                                    "tabstops='[85,125,165]'>Tipo:<tab>{{shell_type_1}}<tab>{{shell_type_2}}<tab>{{shell_type_3}}</textformat><br/><textformat "
+                                    "tabstops='[85,125,165]'>Penetra\xe7\xe3o:<tab>{{shell_power_1}}<tab>{{shell_power_2}}<tab>{{shell_power_3}}</textformat><br/><textformat "
+                                    "tabstops='[85,125,165]'>Dano:<tab>{{shell_damage_1}}<tab>{{shell_damage_2}}<tab>{{shell_damage_3}}</textformat>"],
                         'panelSize': {'height': 70.0, 'width': 150.0},
                         'showFor': 2,
                         'templatePreset': 3,

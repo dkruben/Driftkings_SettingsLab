@@ -34,7 +34,7 @@
         var root = K.node('div', 'dk-screen-text dk-screen-text--' + modifier, document.body);
         // The first child is the drag handle for the shared battle kit: the whole text.
         var content = K.node('div', 'dk-screen-text__content', root);
-        var last = '';
+        var last = '', lastLayout = '';
 
         function render(data) {
             var cfg = data.config || {}, style = data.style || {}, html = String(data.text || '');
@@ -50,10 +50,19 @@
             K.style(root, 'opacity', String(bounded(cfg.alpha, 1, 0, 1)));
             K.style(root, 'textShadow', shadow(cfg.shadow));
             K.style(content, 'alignItems', style.align === 'center' ? 'center' : style.align === 'right' ? 'flex-end' : 'flex-start');
-            if (html !== last) {
+            var rich = style.rich === true, background = rich && style.background === true;
+            var alpha = bounded(style.backgroundAlpha, 0, 0, 1);
+            K.style(content, 'backgroundColor', background ? rgba('#20252B', alpha) : 'transparent');
+            K.style(content, 'border', background ? '1rem solid ' + rgba('#49535D', alpha) : 'none');
+            K.style(content, 'borderRadius', background ? '5rem' : '0');
+            K.style(content, 'padding', background ? '12rem' : '0');
+            var layout = rich + '|' + style.leading;
+            if (html !== last || layout !== lastLayout) {
                 last = html;
+                lastLayout = layout;
                 while (content.firstChild) { content.removeChild(content.firstChild); }
-                F.lines(html, content, 'dk-screen-text__line', {faces: true});
+                F.lines(html, content, 'dk-screen-text__line', {faces: true, rich: rich, leading: style.leading,
+                    images: rich && window.DKRatingText ? window.DKRatingText.localImage : null});
             }
         }
         function position(element, cfg) {

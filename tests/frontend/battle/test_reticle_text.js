@@ -17,7 +17,7 @@ function parse(node, html) {
         var top = stack[stack.length - 1];
         if (match[4]) { var text = element('#text'); text.nodeType = 3; text.nodeValue = match[4]; top.appendChild(text); continue; }
         if (match[1]) { stack.pop(); continue; }
-        var child = element(match[2]), attrs = /(\w+)='([^']*)'/g, attr;
+        var child = element(match[2]), attrs = /([\w-]+)='([^']*)'/g, attr;
         while ((attr = attrs.exec(match[3]))) { child.setAttribute(attr[1], attr[2]); }
         top.appendChild(child);
         if (match[2].toLowerCase() !== 'br') { stack.push(child); }

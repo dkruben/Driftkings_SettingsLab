@@ -116,6 +116,15 @@ GAMEFACE = {
         'scripts': ['coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/flash_lines.js', 'coui://gui/gameface/mods/driftkings/shared/screen_text.js', 'coui://gui/gameface/mods/driftkings/battle_statistics/battle_statistics.js'],
         'section': 'battle_statistics',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
+    'DriftkingsTargetInformation': {
+        'context': 'battle',
+        'layout': 'coui://gui/gameface/mods/driftkings/target_information/model.html',
+        'owner': '__dkTargetInformation',
+        'python': 'driftkings.gameface.battle.screen_texts',
+        'resource': 'mods/driftkings/target_information/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/shared/rating_text.js', 'coui://gui/gameface/mods/driftkings/shared/marks_panel.js', 'coui://gui/gameface/mods/driftkings/shared/flash_lines.js', 'coui://gui/gameface/mods/driftkings/shared/screen_text.js', 'coui://gui/gameface/mods/driftkings/target_information/target_information.js'],
+        'section': 'target_information',
+        'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsMainGun': {
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/high_caliber_gameface/model.html',
@@ -247,7 +256,7 @@ GAMEFACE = {
         'owner': '__dkPlayerRatings',
         'python': 'driftkings.gameface.battle.panel_gameface',
         'resource': 'mods/driftkings/panel_gameface/model',
-        'scripts': ['coui://gui/gameface/mods/driftkings/panel_gameface/rating_text.js', 'coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js', 'coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js', 'coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js'],
+        'scripts': ['coui://gui/gameface/mods/driftkings/shared/rating_text.js', 'coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js', 'coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js', 'coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js'],
         'section': 'team_panels',
         'styles': []
     }

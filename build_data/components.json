@@ -287,6 +287,10 @@
       "entrypoint": "battle.target_information",
       "config_files": [
         "default/target_information.json"
+      ],
+      "assets": [
+        "mod/res/gui/gameface/mods/driftkings/target_information/**",
+        "mod/res/gui/gen_resources/driftkings.target_information.json"
       ]
     },
     "team_panels": {
@@ -365,6 +369,7 @@
         "mod/res/gui/gameface/mods/driftkings/shared/reticle_text.js",
         "mod/res/gui/gameface/mods/driftkings/shared/reticle_text.css",
         "mod/res/gui/gameface/mods/driftkings/shared/flash_lines.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/rating_text.js",
         "mod/res/gui/gameface/mods/driftkings/shared/screen_text.js",
         "mod/res/gui/gameface/mods/driftkings/shared/screen_text.css",
         "mod/res/gui/gameface/mods/driftkings/shared/assets/**",

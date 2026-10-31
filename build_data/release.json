@@ -15,6 +15,8 @@
     "Tech tree marks: removed the badge background and empty records; tiers I-IV show only an earned Ace Tanker, while higher tiers keep their available statistics.",
     "Gun traverse limits: previews show the selected images; selecting no horizontal or vertical style disables the module.",
     "Reload: manual reload (C by default) now sends only the native F8 command, with game-translated messages and minimap effects. Removed the custom reload message setting. Shell flight time keeps brace templates and older formats.",
+    "Target information: the target card now uses Gameface in standard battles; events without the Gameface HUD keep the Flash card. The vehicle image sits on its own line and armour/shell columns stay aligned (wider default tab stops).",
+    "Penetration indicator: the message now appears above the armour/penetration value; the ricochet label was removed from the default template.",
     "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; some visual changes still need confirmation in game."
   ]
 }

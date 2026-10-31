@@ -17,24 +17,82 @@
        crosshair texts always used the view font. */
     function lines(html, target, lineClass, options) {
         options = options || {};
-        var parsed = document.createElement('div'), line = K.node('div', lineClass, target);
-        parsed.innerHTML = html;
+        var parsed = document.createElement('div'), line = K.node('div', lineClass, target), cell = null, column = 0;
+        // <br>, <tab> e <img> do Flash viram spans fechados: o parser do Gameface perde os atributos do <br>
+        // e alguns <br> (depois de uma imagem, dentro de <p>), também nos textos da mira.
+        html = html.replace(/<br\s*\/?>/gi, "<span data-dk-br='1'></span>");
+        parsed.innerHTML = options.rich ? html.replace(/<tab\s*\/?>/gi, "<span data-dk-tab='1'></span>")
+            .replace(/<img\b([^>]*?)\s*\/?>/gi, "<span data-dk-img='1'$1></span>") : html;
+        function newLine() { line = K.node('div', lineClass, target); cell = null; column = 0; }
+        function lineStyle(style) {
+            if (style.lineLeading !== undefined) { line.style.marginBottom = style.lineLeading; }
+            if (style.lineAlign) { line.style.justifyContent = style.lineAlign; }
+        }
         function walk(source, style) {
             for (var i = 0; i < source.childNodes.length; i++) {
                 var child = source.childNodes[i];
                 if (child.nodeType === 3) {
                     if (!child.nodeValue) { continue; }
-                    var run = K.node('span', '', line, child.nodeValue);
-                    run.style.whiteSpace = 'pre'; run.style.flexShrink = '0';
-                    for (var key in style) { if (style.hasOwnProperty(key)) { run.style[key] = style[key]; } }
+                    var parts = options.rich ? child.nodeValue.replace(/\r\n?/g, '\n').split('\n') : [child.nodeValue];
+                    for (var part = 0; part < parts.length; part++) {
+                        if (part) { newLine(); }
+                        lineStyle(style);
+                        var run = K.node('span', '', cell || line, parts[part]);
+                        run.style.whiteSpace = 'pre'; run.style.flexShrink = '0';
+                        for (var key in style) {
+                            if (style.hasOwnProperty(key) && key !== 'lineLeading' && key !== 'lineAlign' && key !== 'tabStops') { run.style[key] = style[key]; }
+                        }
+                    }
                     continue;
                 }
                 if (child.nodeType !== 1) { continue; }
                 var tag = child.tagName.toLowerCase();
-                if (tag === 'br') { line = K.node('div', lineClass, target); continue; }
+                if (tag === 'br' || (tag === 'span' && child.getAttribute('data-dk-br') === '1')) { newLine(); continue; }
+                if (tag === 'span' && child.getAttribute('data-dk-tab') === '1') {
+                    var stops = style.tabStops || [];
+                    if (stops.length > column) {
+                        if (!cell) {
+                            cell = K.node('div', '', null);
+                            while (line.firstChild) { cell.appendChild(line.firstChild); }
+                            line.appendChild(cell);
+                        }
+                        // Largura fixa como no Flash; flexDirection ou minWidth nas células empilham a linha no Gameface.
+                        cell.style.display = 'flex'; cell.style.alignItems = 'baseline'; cell.style.flexShrink = '0';
+                        cell.style.width = Math.max(0, stops[column] - (column ? stops[column - 1] : 0)) + 'rem';
+                        column++;
+                        cell = K.node('div', '', line); cell.style.display = 'flex'; cell.style.alignItems = 'baseline';
+                    } else { K.node('span', '', cell || line, '\t').style.whiteSpace = 'pre'; }
+                    continue;
+                }
+                if (tag === 'span' && child.getAttribute('data-dk-img') === '1') {
+                    if (!options.images) { continue; }
+                    var src = options.images(child.getAttribute('src'));
+                    if (src) {
+                        var image = K.node('img', '', cell || line);
+                        image.src = src; image.style.flexShrink = '0';
+                        ['width', 'height'].forEach(function (key) {
+                            var value = Number(child.getAttribute(key));
+                            if (value > 0 && value <= 2048) { image.style[key] = value + 'rem'; }
+                        });
+                    }
+                    continue;
+                }
                 if (/^(script|style|iframe|object|img)$/.test(tag)) { continue; }
                 var next = {};
                 for (var name in style) { if (style.hasOwnProperty(name)) { next[name] = style[name]; } }
+                if (options.rich && tag === 'textformat') {
+                    var leading = Number(child.getAttribute('leading'));
+                    if (child.getAttribute('leading') !== null && isFinite(leading)) { next.lineLeading = Math.max(0, leading) + 'rem'; }
+                    var tabs = child.getAttribute('tabstops');
+                    if (/^\[\s*\d+(\s*,\s*\d+)*\s*\]$/.test(tabs || '')) {
+                        next.tabStops = tabs.slice(1, -1).split(',').map(Number);
+                    }
+                }
+                if (options.rich && tag === 'p') {
+                    if (line.childNodes.length) { newLine(); }
+                    var align = child.getAttribute('align');
+                    next.lineAlign = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
+                }
                 if (tag === 'b') { next.fontWeight = 'bold'; }
                 if (tag === 'i') { next.fontStyle = 'italic'; }
                 if (tag === 'u') { next.textDecoration = 'underline'; }
@@ -49,9 +107,10 @@
                     }
                 }
                 walk(child, next);
+                if (options.rich && tag === 'p' && child.nextSibling) { newLine(); }
             }
         }
-        walk(parsed, {});
+        walk(parsed, options.rich ? {lineLeading: Math.max(0, Number(options.leading) || 0) + 'rem'} : {});
     }
 
     window.__dkFlashLines = {lines: lines, face: face};

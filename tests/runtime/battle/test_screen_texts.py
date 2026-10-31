@@ -14,6 +14,10 @@ DEFAULTS = {
                           'textFormat': {'bold': False, 'color': '#DBD7D2', 'font': '$FieldFont', 'italic': True, 'size': 16},
                           'textPosition': {'alignX': 'right', 'alignY': 'top', 'alpha': 1.0, 'border': False, 'drag': True,
                                            'visible': True, 'x': -58.0, 'y': 2.0}},
+    'target_information': {'enabled': True, 'textLock': False, 'textShadow': SHADOW,
+                           'textPosition': {'x': 0, 'y': 40, 'alignX': 'center', 'alignY': 'center'},
+                           'textFormat': {'font': '$FieldFont', 'size': 14, 'color': '#FCFCFC', 'align': 'left', 'leading': -12},
+                           'backgroundEnabled': True, 'backgroundAlpha': 0.6},
 }
 
 
@@ -23,7 +27,8 @@ class ScreenTextTests(RuntimeTest):
         self.data = copy.deepcopy(DEFAULTS)
         configs = dict((name, module(NAME=name)) for name in self.data)
         components = {'driftkings.components.battle_performance': module(battle_performance_settings=configs['battle_performance']),
-                      'driftkings.battle.battle_statistics': module(battle_statistics_settings=configs['battle_statistics'])}
+                      'driftkings.battle.battle_statistics': module(battle_statistics_settings=configs['battle_statistics']),
+                      'driftkings.battle.target_information': module(target_information_settings=configs['target_information'])}
         self.applied = []
 
         class Service(object):
@@ -65,6 +70,28 @@ class ScreenTextTests(RuntimeTest):
                                    'style': {'font': '$TitleFont', 'size': 16, 'color': '#FFFFFF', 'align': 'center'}})
         # A position without an anchor stays at the top-left offset, as in the Flash overlay.
         self.assertEqual(config, {'x': 125, 'y': 36, 'alpha': 1.0, 'shadow': SHADOW, 'locked': False})
+
+    def test_target_card_preserves_templates_background_and_position(self):
+        adapter = self.adapter('TargetInformationAdapter')
+        adapter.startBattle()
+        template = "<font color='#FF0000'>Target</font>\nHP 1500"
+        adapter.setText(template)
+        adapter.show(True)
+        payload, config, enabled = adapter.published[-1]
+        self.assertTrue(enabled)
+        self.assertEqual(payload['text'], template)
+        self.assertEqual(payload['style']['leading'], -12)
+        self.assertTrue(payload['style']['rich'])
+        self.assertTrue(payload['style']['background'])
+        self.assertEqual(payload['style']['backgroundAlpha'], 0.6)
+        self.assertNotIn('rich', self.data['target_information']['textFormat'])
+        self.assertEqual((config['alignX'], config['alignY'], config['y']), ('center', 'center', 40))
+        count = len(adapter.published)
+        adapter.setText(template)
+        adapter.show(True)
+        self.assertEqual(len(adapter.published), count)
+        adapter.stopBattle()
+        self.assertFalse(adapter.published[-1][2])
 
     def test_team_strength_keeps_its_anchor_opacity_and_text_format(self):
         adapter = self.adapter('TeamStrengthAdapter')

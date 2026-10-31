@@ -9,11 +9,12 @@ from nations import NAMES
 from driftkings._constants import GLOBAL, ROMAN_NUMERALS, TARGET_INFORMATION
 from driftkings.common.utils.game import checkKeys
 from driftkings.common.utils.wgutils import getEntity, getPlayer, getTarget
+from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.gun_stats import damage_per_minute, reload_with_equipment
 from driftkings.core.vehicle_images import resolve_vehicle_images
-from driftkings.flash.battle.target_information import Flash
+from driftkings.gameface.battle.screen_texts import TargetInformationAdapter
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.target_information import TargetInformationSettings
 from driftkings.settings.service import affects, settings_service
@@ -55,7 +56,8 @@ PRESET_TEMPLATES = {
 TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4: 'kmp', 5: 'ndo', 6: 'driftkings'}
 LOG = get_logger('Driftkings.TargetInformation')
 target_information_settings = TargetInformationSettings()
-g_flash = Flash()
+g_gameface = TargetInformationAdapter()
+g_panel = g_gameface
 
 
 class DataConstants(object):
@@ -497,18 +499,25 @@ class InfoPanel(DataConstants):
             self.hide()
             self.hotKeyDown = False
         elif self._inBattle and self.visible:
-            g_flash.addText(self.setTextsFormatted())
+            g_panel.setText(self.setTextsFormatted())
 
     # Subscreve os eventos de foco e entrada do alvo durante a batalha.
     def onBattleStarted(self):
+        global g_panel
         if self._inBattle:
             return
+        if battle_capabilities.has_gameface_hud():
+            g_panel = g_gameface
+        else:
+            # Os eventos sem HUD Gameface conservam a apresentação anterior.
+            from driftkings.flash.battle.target_information import Flash
+            g_panel = Flash()
         self._inBattle = True
         feedback = getPlayer().guiSessionProvider.shared.feedback
         if feedback is not None:
             feedback.onVehicleFeedbackReceived += self.onVehicleFeedback
             self._feedback = feedback
-        g_flash.startBattle()
+        g_panel.startBattle()
 
     # Remove os eventos da batalha e oculta o painel do alvo.
     def onBattleEnded(self):
@@ -519,7 +528,7 @@ class InfoPanel(DataConstants):
         try:
             self.reset()
         finally:
-            g_flash.stopBattle()
+            g_panel.stopBattle()
 
     # Atualiza o painel quando muda o veículo em foco.
     def onVehicleFeedback(self, eventID, vehicleID, value):
@@ -659,7 +668,7 @@ class InfoPanel(DataConstants):
     def hide(self):
         self.cancelHide()
         self.visible = False
-        g_flash.setVisible(False)
+        g_panel.show(False)
 
     # Agenda a ocultação quando o alvo deixa de estar em foco.
     def onUpdateBlur(self):
@@ -674,20 +683,20 @@ class InfoPanel(DataConstants):
     # Recolhe os dados do alvo atual e atualiza o painel.
     def onUpdateVehicle(self, vehicle, ignoreHotKey=False):
         player = getPlayer()
-        if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_flash.active or not hasattr(player, 'getVehicleAttached'):
+        if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_panel.active or not hasattr(player, 'getVehicleAttached'):
             return
         if self.hotKeyDown and not ignoreHotKey:
             return
         playerVehicle = player.getVehicleAttached()
-        if playerVehicle is not None and g_flash:
+        if playerVehicle is not None:
             self.cancelHide()
             self.visible = True
-            g_flash.setVisible(True)
+            g_panel.show(True)
             if hasattr(vehicle, 'typeDescriptor'):
                 self.init(vehicle, playerVehicle)
             elif hasattr(playerVehicle, 'typeDescriptor'):
                 self.init(None, playerVehicle)
-            g_flash.addText(self.setTextsFormatted())
+            g_panel.setText(self.setTextsFormatted())
 
 
 g_comparator = CompareMacros()
@@ -696,9 +705,13 @@ g_mod = InfoPanel()
 
 # Inicializa o módulo de informações do alvo.
 def init():
+    g_gameface.install()
     g_mod.start()
 
 
 # Liberta os recursos do módulo de informações do alvo.
 def fini():
-    g_mod.stop()
+    try:
+        g_mod.stop()
+    finally:
+        g_gameface.dispose()
