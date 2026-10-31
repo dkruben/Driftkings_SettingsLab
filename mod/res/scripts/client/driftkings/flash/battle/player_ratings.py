@@ -441,17 +441,18 @@ class RatingViews(object):
             # Each screen tracks the macro values actually read, including
             # conditions, nested names and fallbacks. Hidden screens stay lazy.
             rebuilt=False
+            # The side panels and the TAB list the short vehicle name, as the native ones do; their
+            # columns cannot fit the full name beside the statistics, so {{vehicle}} follows it there.
+            short=dict(values,vehicle=values['vehicle-short'])
             if 'panel' in active:
                 for name,profile in profiles.items():
                     key=('panel',name)
-                    result,changed=self.resolvedScreen(ident,key,profile,values,data,side,hotkeys)
+                    result,changed=self.resolvedScreen(ident,key,profile,short,data,side,hotkeys)
                     row['panels'][name]=result
                     rebuilt=rebuilt or changed
             for screen in ('loading','tab'):
                 if screen in active:
-                    # The native TAB lists the short vehicle name; its columns cannot fit the
-                    # full name beside the statistics, so {{vehicle}} follows it there.
-                    screenValues=dict(values,vehicle=values['vehicle-short']) if screen=='tab' else values
+                    screenValues=short if screen=='tab' else values
                     result,changed=self.resolvedScreen(ident,screen,data[screen],screenValues,data,side,hotkeys)
                     row[screen]=result
                     rebuilt=rebuilt or changed

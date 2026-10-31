@@ -15,7 +15,7 @@
     "Graphics: replaced simple icons and backgrounds with SVG, fixed carousel loading and missing UI symbols, and improved marks readability. Custom references to converted bundled PNGs must use SVG; personal PNG images remain supported.",
     "BREAKING: the hangar marks panel is now a compact card under the mission column, with details available through Show more. Its former position, lock, compact mode, scale and colour settings were removed.",
     "BREAKING: custom profiles must replace xvm/XVMSymbol font aliases with dkm or DriftkingsFont, and {{xvm-stat}} with {{stat-available}}. The statistics cache is now ratingScales.json and downloads automatically.",
-    "Battle TAB: {{vehicle}} now shows the short vehicle name, as the native TAB does, so the statistics no longer overlap clan tags and player names or cut long names.",
+    "Battle TAB and side panels: {{vehicle}} now shows the short vehicle name, as the native ones do, so the statistics no longer overlap clan tags and player names or cut long names. The loading screen keeps the full name.",
     "Halloween TAB: native player-name colours by rating are working and were validated in game on NA.",
     "Compatibility: World of Tanks 2.4.1.1 on EU, NA and ASIA. Build and release tooling was simplified; release signatures remain required."
   ]

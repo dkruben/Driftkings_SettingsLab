@@ -59,7 +59,7 @@ class RandomRosterTests(RuntimeTest):
         harness = self.check(30, 30)
         self.assertLessEqual(30, harness.views.adapter.team_size)
 
-    def test_tab_uses_the_short_vehicle_name_like_the_native_columns(self):
+    def test_tab_and_side_panels_use_the_short_vehicle_name_like_the_native_columns(self):
         vehicles = battle(2, 2)
         vehicles[1]['vehicleType'] = vehicle_type('M18 Hellcat', 'AT-SPG')
         vehicles[1]['vehicleType'].type.shortUserString = 'Hellcat'
@@ -69,6 +69,10 @@ class RandomRosterTests(RuntimeTest):
         self.assertTrue(row['tab']['formatLeftVehicle'].startswith('Hellcat<'))
         self.assertTrue(row['tab']['formatRightVehicle'].endswith('</font>Hellcat'))
         self.assertTrue(row['loading']['formatLeftVehicle'].startswith('M18 Hellcat<'))
+        panel = row['panels']['large']
+        texts = [str(value) for value in panel.values() if 'Hellcat' in str(value)]
+        self.assertTrue(texts)
+        self.assertFalse([text for text in texts if 'M18' in text])
 
     def test_30_vs_30_frontline_stays_native(self):
         harness = Harness(self, battle(30, 30), 'frontline')
