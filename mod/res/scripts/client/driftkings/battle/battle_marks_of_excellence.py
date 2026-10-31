@@ -33,22 +33,26 @@ from driftkings.views.marks_model import compact_model
 
 
 class MarksBattleCache(object):
+    # Prepara o ficheiro e os dados da cache de calibração das marcas.
     def __init__(self, component):
         from driftkings.settings.sections import previous_name
         self.component = previous_name(component)
         self.path = cache_directory('gun_marks_battle')
         self.values = {}
 
+    # Carrega a calibração guardada para as marcas de excelência.
     def load(self, quiet=True):
         self.values = loadJson(self.component, self.component + '_stats', self.values, self.path)
         self.save(quiet)
 
+    # Guarda a calibração das marcas no ficheiro de cache.
     def save(self, quiet=True):
         self.values = loadJson(self.component, self.component + '_stats', self.values, self.path, True, quiet=quiet)
 
 
 class Worker(object):
 
+    # Inicializa as referências da sessão e os contadores de dano das marcas.
     def __init__(self):
         # Kept across clearData(): arena, dossier and the per-session counters.
         self._arena = None
@@ -58,6 +62,7 @@ class Worker(object):
         self.health = {}
         self.clearData()
 
+    # Repõe os contadores e os dados calculados para a batalha.
     def clearData(self):
         today = datetime.datetime.toordinal(datetime.datetime.utcnow())
         self.movingAvgDamage = 0.0
@@ -82,6 +87,7 @@ class Worker(object):
         self.battleDamageRatingIndex = []
         self.dateTime = today
 
+    # Lê do dossiê os dados de marcas do veículo selecionado.
     def getCurrentHangarData(self):
         if g_currentVehicle.item:
             self.damageRating = g_currentVehicle.getDossier().getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') / 100.0
@@ -98,6 +104,7 @@ class Worker(object):
                 else:
                     self.requestNewData(self.damageRating, self.movingAvgDamage)
 
+    # Acumula os danos e a assistência relevantes para as marcas.
     def onBattleEvents(self, events):
         if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
@@ -122,6 +129,7 @@ class Worker(object):
                                 self.battleDamage += float(extra.getDamage())
             self.calc()
 
+    # Processa a perda de vida dos veículos para atualizar os danos observados.
     def shots(self, avatar, newHealth, attackerID):
         if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
@@ -140,11 +148,13 @@ class Worker(object):
                 self.calc()
         self.health[avatar.id] = max(0, avatar.health)
 
+    # Regista a vida inicial de um veículo que entra no mundo.
     def initVehicle(self, avatar):
         if not avatar.isStarted:
             return
         self.health[avatar.id] = max(0, avatar.health)
 
+    # Cria uma calibração inicial quando não existem dados válidos em cache.
     def requestNewData(self, damageRating, movingAvgDamage):
         p0 = 0
         d0 = 0
@@ -155,6 +165,7 @@ class Worker(object):
         marks_cache.values[self.check_player_thread()][self.name] = self.values
         self.initiated = False
 
+    # Recupera a calibração existente e atualiza os dados do veículo.
     def requestCurData(self, damageRating, movingAvgDamage):
         self.values = marks_cache.values[self.check_player_thread()][self.name]
         if len(self.values) == 4:
@@ -178,6 +189,7 @@ class Worker(object):
         nextMark = 100.0 if self.values[0] == self.values[2] == 100.0 else battle_estimate(EDn, self.movingAvgDamage, self.values)
         self.initiated = self.values[1] and not nextMark >= self.damageRating and not self.damageRating - nextMark > 3
 
+    # Calcula a curva de dano e os patamares percentuais das marcas.
     def calcBattlePercents(self):
         self.levels, self.damages, stats, current_damage, within_limit, unavailable = battle_curve(
             self.values, self.damageRating, self.movingAvgDamage,
@@ -187,6 +199,7 @@ class Worker(object):
             self.initiated = False
         self.battleDamageRatingIndex = [0, p20, p40, p55, p65, p85, p95, p100]
 
+    # Trata os atalhos configurados para o painel de marcas.
     def keyPressed(self, event):
         settings = settings_service.getComponentDict(battle_marks_of_excellence_settings)
         if not settings[GLOBAL.ENABLED] or not event.isKeyDown():
@@ -206,6 +219,7 @@ class Worker(object):
             settings_service.apply(battle_marks_of_excellence_settings, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
                 max(10, settings[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT] - 10)})
 
+    # Recalcula o progresso estimado das marcas com os dados da batalha.
     def calc(self):
         if not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
@@ -228,6 +242,7 @@ class Worker(object):
                                 self.approximate)
         g_panel.set_marks(payload)
 
+    # Verifica se o veículo observado é o veículo do jogador.
     @staticmethod
     def isAvailable():
         vehicle = getPlayer().getVehicleAttached()
@@ -236,11 +251,13 @@ class Worker(object):
         return vehicle.id == getPlayer().playerVehicleID
 
     # noinspection PyUnusedLocal
+    # Assinala a destruição do veículo do jogador e atualiza a estimativa.
     def onVehicleKilled(self, target_id, *args):
         if target_id == getPlayer().playerVehicleID:
             self.killed = True
             self.calc()
 
+    # Prepara o módulo de marcas de excelência em batalha para a batalha atual.
     def startBattle(self):
         settings = settings_service.getComponentDict(battle_marks_of_excellence_settings)
         if not settings[GLOBAL.ENABLED]:
@@ -256,6 +273,7 @@ class Worker(object):
         self.startCount = 0
         callback(1.0, self.treadStartBattle)
 
+    # Aguarda a disponibilidade do veículo antes de iniciar os cálculos.
     def treadStartBattle(self):
         vehicle = getPlayer().getVehicleAttached()
         if not vehicle:
@@ -310,6 +328,7 @@ class Worker(object):
         else:
             g_panel.unavailable(self.vehicleID)
 
+    # Limpa o estado de marcas de excelência em batalha no fim da batalha.
     def endBattle(self):
         keyboard.unsubscribe(self.keyPressed)
         if self._arena is not None:
@@ -318,6 +337,7 @@ class Worker(object):
         from driftkings.core.callbacks import callbacks
         callbacks.cancelOwner(__name__)
 
+    # Obtém o identificador da conta usado na cache das marcas.
     @staticmethod
     def check_player_thread():
         player = getPlayer()
@@ -325,11 +345,13 @@ class Worker(object):
             return '%s' % player.databaseID
         return '%s' % player.arena.vehicles[player.playerVehicleID]['accountDBID']
 
+    # Arredonda o dano para a apresentação dos patamares.
     @staticmethod
     def getNormalizeDigits(value):
         return ceil_damage(value)
 
 
+    # Calcula os valores de referência a partir da percentagem e do dano.
     def calcStatistics(self, p, d):
         return statistics(p, d)
 
@@ -341,29 +363,34 @@ marks_cache.load(quiet=False)
 worker = Worker()
 
 
+# Atualiza os dados de marcas após a atualização do veículo no hangar.
 @override(CrewPresenter, '_CrewPresenter__updateCrewModel')
 def new__updateCrewModel(func, *args):
     worker.getCurrentHangarData()
     return func(*args)
 
 
+# Encaminha os eventos de batalha quando o modo permite calcular marcas.
 @on_event(battleEvents.feedback)
 def new_onBattleEvents(*args):
     if battle_policy.decision('battle_marks_of_excellence')[0]:
         worker.onBattleEvents(args[1])
 
 
+# Encaminha as alterações de vida para o cálculo do dano observado.
 @on_event(battleEvents.healthBefore)
 def new_onHealthChanged(self, newHealth, oldHealth, attackerID, attackReasonID, *args, **kwargs):
     worker.shots(self, newHealth, attackerID)
 
 
+# Regista a vida do veículo após a criação da sua representação visual.
 @override(Vehicle, 'startVisual')
 def new_vehicleStartVisual(func, *args):
     func(*args)
     worker.initVehicle(args[0])
 
 
+# Inicia o módulo de marcas de excelência em batalha quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     if battle_policy.decision('battle_marks_of_excellence')[0]:
@@ -371,6 +398,7 @@ def new_startGUI(*args):
         worker.startBattle()
 
 
+# Encerra o módulo de marcas de excelência em batalha quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_destroyGUI(*args):
     try:
@@ -380,6 +408,7 @@ def new_destroyGUI(*args):
         worker.clearData()
 
 
+# Acrescenta as estatísticas das marcas à descrição da conquista.
 @override(MarkOnGunAchievement, 'getUserCondition')
 def new_getUserCondition(func, *args):
     if settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED] and settings_service.getComponentDict(battle_marks_of_excellence_settings)[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC]:
@@ -416,10 +445,12 @@ def new_getUserCondition(func, *args):
     return func(*args)
 
 
+# Inicializa o módulo de marcas de excelência em batalha.
 def init():
     g_panel.install()
 
 
+# Liberta os recursos do módulo de marcas de excelência em batalha.
 def fini():
     try:
         worker.endBattle()

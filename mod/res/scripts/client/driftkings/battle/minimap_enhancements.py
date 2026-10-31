@@ -24,28 +24,33 @@ AS_BATTLE = BATTLE_ALIASES.MINIMAP
 class MinimapController(object):
     sessionProvider = dependency.descriptor(IBattleSessionProvider)
 
+    # Prepara o estado e as referências de melhorias do minimapa.
     def __init__(self, config):
         self.config = config
         self._active = False
         self.minimapZoom = False
         settings_service.onModSettingsChanged.connect(self.onModSettingsChanged, MINIMAP_ENHANCEMENTS)
 
+    # Ativa os atalhos das melhorias do minimapa.
     def activate(self):
         if self._active:
             return
         self._active = True
         keyboard.subscribe(self.onHotkeyPressed)
 
+    # Desliga os atalhos e repõe o estado da apresentação alternativa.
     def deactivate(self):
         keyboard.unsubscribe(self.onHotkeyPressed)
         self._active = False
         # Flash disposal restores zoom; do not access an arena being destroyed.
         self.minimapZoom = False
 
+    # Liberta os atalhos e a subscrição das configurações do minimapa.
     def dispose(self):
         self.deactivate()
         settings_service.onModSettingsChanged.disconnect(self.onModSettingsChanged)
 
+    # Reaplica as opções de melhorias do minimapa após uma alteração de configurações.
     def onModSettingsChanged(self, component, settings):
         if not settings_service.getComponentDict(self.config)[GLOBAL.ENABLED] or not settings_service.getComponentDict(self.config)[MINIMAP_ENHANCEMENTS.PRESENTATION]['alternativeEnabled']:
             self.setAlternative(False)
@@ -72,6 +77,7 @@ class MinimapController(object):
             for view in list(VIEWS):
                 view.onAltKey(self.minimapZoom)
 
+    # Alterna a apresentação do minimapa e atualiza as etiquetas.
     def setAlternative(self, pressed):
         if self.minimapZoom == pressed:
             return
@@ -80,10 +86,12 @@ class MinimapController(object):
         for plugin in list(VEHICLES):
             plugin.refreshLabels()
 
+    # Verifica se o modo permite o zoom personalizado do minimapa.
     @property
     def notEpicBattle(self):
         return not self.sessionProvider.arenaVisitor.gui.isInEpicRange()
 
+    # Aplica o estado da tecla configurada à apresentação alternativa.
     def onHotkeyPressed(self, event):
         settings = settings_service.getComponentDict(self.config)
         if not settings[GLOBAL.ENABLED] or not self._active:
@@ -95,10 +103,12 @@ minimap_settings = MinimapEnhancementsSettings()
 controller = MinimapController(minimap_settings)
 
 
+# Declara os componentes visuais do módulo de melhorias do minimapa.
 def getBattleViews():
     return ((AS_BATTLE, MinimapEnhancementsView, minimap_settings),)
 
 
+# Liberta os recursos do módulo de melhorias do minimapa.
 def fini():
     controller.dispose()
 

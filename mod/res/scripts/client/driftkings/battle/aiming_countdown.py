@@ -12,18 +12,21 @@ aiming_countdown_settings = AimingCountdownSettings()
 g_gameface = None
 
 
+# Inicia o módulo de temporizador de pontaria quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     if g_gameface is not None and battle_capabilities.has_gameface_hud():
         g_gameface.startBattle()
 
 
+# Encerra o módulo de temporizador de pontaria quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_destroyGUI(*args):
     if g_gameface is not None:
         g_gameface.stopBattle()
 
 
+# Inicializa o módulo de temporizador de pontaria.
 def init():
     global g_gameface
     if g_gameface is None:
@@ -31,6 +34,7 @@ def init():
         g_gameface.install()
 
 
+# Liberta os recursos do módulo de temporizador de pontaria.
 def fini():
     global g_gameface
     if g_gameface is not None:

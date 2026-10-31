@@ -22,6 +22,7 @@ UPDATE_INTERVAL = 0.05
 
 
 class AutoAimController(object):
+    # Prepara o estado e as referências de indicador do alvo da mira automática.
     def __init__(self, config):
         self.config = config
         # Compatibility state is inert; input and targeting belong to WoT.
@@ -34,13 +35,16 @@ class AutoAimController(object):
         self.initialized = False
         self.errorReported = False
 
+    # Mantém a API antiga sem selecionar alvos automaticamente.
     def findTarget(self, player):
         """Legacy API retained without assisted acquisition."""
         return None
 
+    # Preserva o tratamento nativo das teclas da mira automática.
     def handleKey(self, original, mode, isDown, key, *args, **kwargs):
         return original(mode, isDown, key, *args, **kwargs)
 
+    # Calcula o ângulo entre a direção da câmara e a posição do alvo.
     @staticmethod
     def calc_radian(target_position, angle, cameraDir, cameraPos):
         # Retained pure compatibility helper; never used for acquisition.
@@ -56,6 +60,7 @@ class AutoAimController(object):
             return
         return radian
 
+    # Subscreve o início e o fim da batalha para acompanhar o alvo.
     def init(self):
         if self.initialized:
             return
@@ -65,6 +70,7 @@ class AutoAimController(object):
         battleEvents.ended.connect(self.endBattle)
         battleEvents.acquire(self)
 
+    # Interrompe o acompanhamento e remove as subscrições do controlador.
     def fini(self):
         self.endBattle()
         if self.initialized:
@@ -74,11 +80,13 @@ class AutoAimController(object):
             battleEvents.ended.disconnect(self.endBattle)
             battleEvents.release(self)
 
+    # Prepara o módulo de indicador do alvo da mira automática para a batalha atual.
     def startBattle(self, *args):
         if not self.running:
             self.running = True
             self.tick()
 
+    # Limpa o estado de indicador do alvo da mira automática no fim da batalha.
     def endBattle(self, *args):
         self.running = False
         if self.pending is not None:
@@ -87,6 +95,7 @@ class AutoAimController(object):
         self.hideBox()
         self.errorReported = False
 
+    # Atualiza periodicamente a caixa do alvo enquanto o controlador está ativo.
     def tick(self):
         self.pending = None
         if not self.running:
@@ -103,11 +112,13 @@ class AutoAimController(object):
             if self.running:
                 self.pending = callback(UPDATE_INTERVAL, self.tick)
 
+    # Remove a caixa visual do alvo da mira automática.
     def hideBox(self):
         if self.created or self.config.NAME in overlays.elements:
             overlays.remove(self.config.NAME)
             self.created = False
 
+    # Calcula os limites visuais do alvo quando as condições o permitem.
     def targetBounds(self, player):
         if not settings_service.getComponentDict(self.config)[GLOBAL.ENABLED]:
             return None
@@ -162,6 +173,7 @@ class AutoAimController(object):
             return None
         return ScreenBounds(left, top_y, right - left, bottom_y - top_y)
 
+    # Cria ou atualiza a caixa do alvo e oculta-a se deixar de ser válido.
     def updateBox(self):
         bounds = self.targetBounds(BigWorld.player())
         if bounds is None:
@@ -193,9 +205,11 @@ autoaim_target_indicator_settings = AutoaimTargetIndicatorSettings()
 controller = AutoAimController(autoaim_target_indicator_settings)
 
 
+# Inicializa o módulo de indicador do alvo da mira automática.
 def init():
     controller.init()
 
 
+# Liberta os recursos do módulo de indicador do alvo da mira automática.
 def fini():
     controller.fini()

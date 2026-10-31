@@ -39,17 +39,20 @@ battle_performance_settings = BattlePerformanceSettings()
 
 class EfficiencyCalculator(object):
 
+    # Prepara os valores esperados e os dados do veículo para os cálculos.
     def __init__(self):
         self.avgTier = 5
         self.expectedValues = {}
         self.vehCD = None
         self.vInfoOK = False
 
+    # Limpa os valores de referência do veículo da batalha anterior.
     def stopBattle(self):
         self.expectedValues = {}
         self.vehCD = None
         self.vInfoOK = False
 
+    # Carrega os valores esperados para o veículo da batalha.
     def registerVInfoData(self, veh_cd):
         if not veh_cd:
             return
@@ -60,6 +63,7 @@ class EfficiencyCalculator(object):
         self.expectedValues = {item: v_info_data.get(item, None) for item in expected_keys}
         self.vInfoOK = None not in self.expectedValues.values()
 
+    # Calcula as classificações de desempenho com os totais da batalha.
     def calc(self, damage, spotted, frags, defence, capture, isWin=False):
         if not self.vInfoOK:
             return 0, 0, 0, 0, 0, 0, 0
@@ -76,7 +80,9 @@ class EfficiencyCalculator(object):
         XTE = self.calculate_XTE(damage, frags)
         return WN8, XWN8, EFF, XEFF, XTE, DMG, DIFF
 
+    # Compara as estatísticas obtidas com os valores esperados do veículo.
     def calculate_ratios(self, damage, spotted, frags, defence, isWin):
+        # Divide a estatística pelo valor esperado quando este é positivo.
         def ratio(value, key):
             # Expected frags, spots and defence are often below 1: only guard against zero.
             expected = float(self.expectedValues[key])
@@ -88,6 +94,7 @@ class EfficiencyCalculator(object):
         rWIN = ratio(100.0 if isWin else 0, 'wn8expWinRate')
         return rDAMAGE, rSPOT, rFRAG, rDEF, rWIN
 
+    # Calcula a proporção entre o dano causado e o dano esperado de WN8.
     def damage_efficiency(self, damage):
         """Raw damage / WN8 expected damage; 1.0 means the expected damage was met."""
         if not self.vInfoOK:
@@ -103,6 +110,7 @@ class EfficiencyCalculator(object):
         except (KeyError, TypeError, ValueError, OverflowError):
             return None
 
+    # Calcula o WN8 e a escala correspondente a partir das proporções normalizadas.
     @staticmethod
     def calculate_wN8(rDAMAGE, rSPOT, rFRAG, rDEF, rWIN):
         rWINc = max(0.0, (rWIN - 0.71) / (1 - 0.71))
@@ -115,31 +123,37 @@ class EfficiencyCalculator(object):
         XWN8 = calculateRatingScale('xwn8', WN8)
         return WN8, XWN8
 
+    # Calcula EFF e a respetiva escala com as estatísticas da batalha.
     def calculate_efficiency(self, damage, frags, spotted, capture, defence):
         EFF = int(max(0, int(damage * (10.0 / (self.avgTier + 2)) * (0.23 + 2 * self.avgTier / 100.0) + frags * 250 + spotted * 150 + math.log(capture + 1, 1.732) * 150 + defence * 150)))
         XEFF = calculateRatingScale('xeff', EFF)
         return EFF, XEFF
 
+    # Calcula XTE com o dano, as destruições e o identificador do veículo.
     def calculate_XTE(self, damage, frags):
         return calculateXTE(self.vehCD, damage, frags) if self.vehCD is not None else 0
 
 
 class BattleEfficiency(object):
+    # Inicializa o estado de acompanhamento e os totais de desempenho.
     def __init__(self):
         self._active = False
         self._resetStats()
 
+    # Repõe os totais, as classificações e as cores da batalha.
     def _resetStats(self):
         self._stats = {'frags': 0, 'damage': 0, 'spotted': 0, 'defence': 0, 'capture': 0, 'wn8': 0, 'xwn8': 0, 'eff': 0, 'xeff': 0, 'xte': 0, 'diff': 0, 'dmg': 0, 'wn8effd': None}
         self._colors = {key: getStatisticColor(key, None) for key in ['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'diff', 'dmg', 'wn8effd']}
         self._stats.update(assist=0, stun=0, wnx=None)
         self._colors['wnx'] = None
 
+    # Ativa o acompanhamento de estatísticas de desempenho da batalha.
     def start(self):
         if not self._active:
             self._active = True
             settings_service.onModSettingsChanged.connect(self.onSettingsChanged, BATTLE_PERFORMANCE)
 
+    # Desativa o acompanhamento de estatísticas de desempenho da batalha e liberta as subscrições.
     def stop(self):
         if self._active:
             self._active = False
@@ -147,6 +161,7 @@ class BattleEfficiency(object):
             self.stopBattle()
             g_calculator.stopBattle()
 
+    # Atualiza estatísticas de desempenho da batalha quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         if affects(changes, GLOBAL.ENABLED, BATTLE_PERFORMANCE.FORMAT, BATTLE_PERFORMANCE.COLOR_RATTING):
             self.updateFormatString()
@@ -158,15 +173,18 @@ class BattleEfficiency(object):
                 except Exception:
                     LOG.exception('Could not refresh battle efficiency results')
 
+    # Encerra estatísticas de desempenho da batalha e cancela as atualizações da batalha.
     def stopBattle(self):
         self._resetStats()
         if g_gameface is not None:
             g_gameface.show(False)
 
+    # Disponibiliza os totais de desempenho atualmente registados.
     @property
     def stats(self):
         return self._stats
 
+    # Obtém a cor da classificação ou da comparação com o dano esperado.
     @staticmethod
     def read_colors(rating_color, rating_value, damage=None, expected_damage=None):
         palette = settings_service.getComponentDict(battle_performance_settings).get(BATTLE_PERFORMANCE.COLOR_RATTING, 0)
@@ -174,6 +192,7 @@ class BattleEfficiency(object):
             return getRelativePerformanceColor(damage, expected_damage, palette)
         return getStatisticColor(rating_color, rating_value, palette)
 
+    # Prepara o módulo de estatísticas de desempenho da batalha para a batalha atual.
     def startBattle(self):
         if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED] or g_gameface is None:
             return
@@ -186,6 +205,7 @@ class BattleEfficiency(object):
         self._colors['wnx'] = None
         self.updateFormatString()
 
+    # Formata e publica o texto de desempenho com as opções atuais.
     def updateFormatString(self):
         settings = settings_service.getComponentDict(battle_performance_settings)
         player = getPlayer()
@@ -217,6 +237,7 @@ g_battleEfficiency = BattleEfficiency()
 g_calculator = EfficiencyCalculator()
 
 
+# Regista os valores do veículo do jogador quando a sua representação fica pronta.
 @on_event(battleEvents.appearanceDetailed)
 def new_onAppearanceReady(self, vehicle):
     if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
@@ -229,9 +250,11 @@ def new_onAppearanceReady(self, vehicle):
 class _EfficiencyListener(object):
     """Subscribes to the native personal efficiency controller for one battle."""
 
+    # Prepara a referência ao controlador nativo de eficiência pessoal.
     def __init__(self):
         self.ctrl = None
 
+    # Subscreve as atualizações do controlador de eficiência da batalha atual.
     def attach(self):
         self.detach()
         player = getPlayer()
@@ -240,11 +263,13 @@ class _EfficiencyListener(object):
             ctrl.onTotalEfficiencyUpdated += self.onTotalEfficiencyUpdated
             self.ctrl = ctrl
 
+    # Remove a subscrição do controlador de eficiência da batalha anterior.
     def detach(self):
         if self.ctrl is not None:
             self.ctrl.onTotalEfficiencyUpdated -= self.onTotalEfficiencyUpdated
             self.ctrl = None
 
+    # Atualiza os totais a partir dos eventos nativos de eficiência pessoal.
     @staticmethod
     def onTotalEfficiencyUpdated(diff):
         if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
@@ -266,6 +291,7 @@ class _EfficiencyListener(object):
 g_efficiencyListener = _EfficiencyListener()
 
 
+# Inicia o módulo de estatísticas de desempenho da batalha quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     # Battle pages without the native Gameface HUD (Halloween, Fort Rush) show no text.
@@ -275,6 +301,7 @@ def new_startGUI(*args):
     g_battleEfficiency.startBattle()
 
 
+# Mantém o painel de fitas ativo quando é necessário acompanhar o desempenho.
 @override(RibbonsAggregator, 'suspend')
 def new_suspend(func, self):
     if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
@@ -283,6 +310,7 @@ def new_suspend(func, self):
     self.resume()
 
 
+# Atualiza os contadores de desempenho após as fitas de deteção e objetivos.
 @override(BattleRibbonsPanel, '_BattleRibbonsPanel__addRibbon')
 def new_addRibbon(func, self, ribbonID, ribbonType='', leftFieldStr='', **kwargs):
     func(self, ribbonID, ribbonType, leftFieldStr, **kwargs)
@@ -301,12 +329,14 @@ def new_addRibbon(func, self, ribbonID, ribbonType='', leftFieldStr='', **kwargs
     g_battleEfficiency.startBattle()
 
 
+# Encerra o painel Gameface antes de a interface de batalha ser destruída.
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_beforeDestroyGUI(*args):
     if g_gameface is not None:
         g_gameface.stopBattle()
 
 
+# Encerra o módulo de estatísticas de desempenho da batalha quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.after)
 def new_destroyGUI(*args):
     g_efficiencyListener.detach()
@@ -317,6 +347,7 @@ def new_destroyGUI(*args):
 RESULT_KEYS = ('wn8', 'xwn8', 'eff', 'xeff', 'xte', 'dmg', 'diff')
 
 
+# Recolhe os campos brutos dos resultados para o resumo de desempenho.
 def make_results_payload(battle_results):
     """Read named raw result fields, independent of translated UI table positions."""
     from gui.battle_results.pbs_helpers.common import getArenaNameStr
@@ -357,6 +388,7 @@ def make_results_payload(battle_results):
     return {'enabled': True, 'html': replaceMacros(template, macros)}
 
 
+# Inicializa o módulo de estatísticas de desempenho da batalha.
 def init():
     global g_gameface
     if g_gameface is None:
@@ -369,6 +401,7 @@ def init():
         LOG.exception('Gameface results integration unavailable; native results retained')
 
 
+# Liberta os recursos do módulo de estatísticas de desempenho da batalha.
 def fini():
     global g_gameface
     g_battleEfficiency.stop()

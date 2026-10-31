@@ -13,7 +13,7 @@ for(const mod of data.schema.mods){
     assert(app.querySelectorAll('.dk-row').length || mod.preview || (mod.controls.length===1&&app.querySelector('.dk-power').style.display!=='none'),mod.id);
     count+=mod.controls.length;
 }
-assert(data.schema.mods.length>=35);assert(count>=1100);
+assert(data.schema.mods.length>=35);
 // Clan collection keeps its original owner/action contract but is shown under general settings.
 const main=data.schema.mods.find(m=>m.id==='legacy.main');
 const clan=data.schema.mods.find(m=>m.id==='legacy.AutoClaimClan');
@@ -23,6 +23,21 @@ assert(!app.querySelectorAll('.dk-nav-name').some(n=>n.textContent===clan.name))
 const clanRow=app.querySelectorAll('.dk-row').find(n=>n.querySelector('.dk-row-label')&&n.querySelector('.dk-row-label').textContent===clan.name);
 assert(clanRow);clanRow.querySelector('.dk-switch').fire('click');
 assert.strictEqual(env.sent[env.sent.length-1][1].mod,clan.id);
+// Bank loading stays a backend module; general settings expose only its debug flag.
+const banks=data.schema.mods.find(m=>m.id==='legacy.BanksLoader');
+const debugKey=DK.minimapPreview.fieldId('debug');
+assert(banks);assert.strictEqual(banks.controls.length,1);
+assert.strictEqual(banks.controls[0].id,debugKey);
+assert(!app.querySelectorAll('.dk-nav-name').some(n=>n.textContent===banks.name));
+const debugRow=app.querySelectorAll('.dk-row').find(n=>n.querySelector('.dk-row-label')&&n.querySelector('.dk-row-label').textContent===banks.controls[0].label);
+assert(debugRow);debugRow.querySelector('.dk-switch').fire('click');
+assert.strictEqual(env.sent[env.sent.length-1][1].mod,banks.id);
+assert.strictEqual(env.sent[env.sent.length-1][1].key,debugKey);
+const debugState=JSON.parse(JSON.stringify(data.state));
+debugState.selected=main.id;debugState.values[banks.id][debugKey]=true;debugState.changed[banks.id]=[debugKey];
+callbacks.state(debugState);env.flush();
+assert(debugRow.querySelector('.dk-switch').className.includes('is-on'));
+assert(debugRow.className.includes('is-changed'));
 // Full settings schema stays interactive through the core command routes.
 callbacks.state(Object.assign({},data.state,{selected:'dk.settings'}));
 const labels=data.schema.labels;

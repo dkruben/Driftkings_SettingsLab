@@ -20,11 +20,13 @@ sixth_sense_alert_settings = SixthSenseAlertSettings()
 
 
 class MessagesSpotted(object):
+    # Prepara o estado e as referências de alerta de Sexto Sentido.
     def __init__(self):
         self.macro = defaultdict(lambda: 'macros not found')
         self.__time = 0.5
         self.last_position = None
 
+    # Envia a mensagem de deteção com a posição atual, sem repetir a mesma posição.
     def sendMessage(self):
         settings = settings_service.getComponentDict(sixth_sense_alert_settings)
         self.macro['pos'] = square_position.getSquarePosition()
@@ -34,7 +36,9 @@ class MessagesSpotted(object):
                 sendChatMessage(message, 1, settings[SIXTH_SENSE_ALERT.DELAY])
                 self.last_position = self.macro['pos']
 
+    # Agenda o pedido de ajuda nativo quando a opção está ativa.
     def helpMessage(self):
+        # Envia o comando nativo de pedido de ajuda à equipa.
         def message(avatar):
             avatar.guiSessionProvider.shared.chatCommands.handleChatCommand(BATTLE_CHAT_COMMAND_NAMES.SOS)
         if settings_service.getComponentDict(sixth_sense_alert_settings)[SIXTH_SENSE_ALERT.HELP_MESSAGE]:
@@ -45,6 +49,7 @@ g_messages = MessagesSpotted()
 g_view = None
 
 
+# Prepara o som personalizado quando é acionado o Sexto Sentido.
 @override(SoundGroups, 'prepareMP3')
 def prepare_sixth_sense_mp3(func, self, event):
     # The native indicator prepares its custom MP3 independently of our Wwise
@@ -57,6 +62,7 @@ def prepare_sixth_sense_mp3(func, self, event):
     return func(self, event)
 
 
+# Coordena o alerta nativo com o ícone e o som personalizados.
 @override(SixthSenseIndicator, '_sixthSenseToggle')
 def new__sixthSenseToggle(func, self, isVisible, force):
     settings = settings_service.getComponentDict(sixth_sense_alert_settings)
@@ -75,5 +81,6 @@ def new__sixthSenseToggle(func, self, isVisible, force):
                 g_messages.helpMessage()
 
 
+# Declara os componentes visuais do módulo de alerta de Sexto Sentido.
 def getBattleViews():
     return ((AS_BATTLE, SixthSense, sixth_sense_alert_settings),)

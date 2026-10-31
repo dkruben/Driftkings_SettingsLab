@@ -18,6 +18,7 @@ SMALL_CALIBER_THRESHOLD = 60
 sniper_camera_settings = SniperCameraSettings()
 
 
+# Aplica as opções configuradas aos parâmetros da câmara de precisão.
 @override(SniperCamera, '_readConfigs')
 def new__readConfigs(func, self, data):
     settings = settings_service.getComponentDict(sniper_camera_settings)
@@ -42,6 +43,7 @@ def new__readConfigs(func, self, data):
 
 class ZoomController(TriggersManager.ITriggerListener):
 
+    # Prepara o estado e as referências de câmara de precisão.
     def __init__(self, config):
         self.config = config
         self.latency = 0
@@ -54,9 +56,11 @@ class ZoomController(TriggersManager.ITriggerListener):
         self.updateSettings()
         settings_service.onModSettingsChanged.connect(self.onSettingsChanged, SNIPER_CAMERA)
 
+    # Atualiza câmara de precisão quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         self.updateSettings()
 
+    # Atualiza a saída automática da mira após o disparo e o respetivo atraso.
     def updateSettings(self):
         settings = settings_service.getComponentDict(self.config)
         enabled = settings[SNIPER_CAMERA.DISABLE_CAM_AFTER_SHOT] and settings[GLOBAL.ENABLED]
@@ -69,6 +73,7 @@ class ZoomController(TriggersManager.ITriggerListener):
         elif self.subscribed and not enabled:
             self.dispose()
 
+    # Associa os eventos de disparo ao avatar atual.
     def onStart(self):
         avatar = getPlayer()
         if not self.subscribed or avatar is None or self._listening and self.avatar is avatar:
@@ -78,6 +83,7 @@ class ZoomController(TriggersManager.ITriggerListener):
         TriggersManager.g_manager.addListener(self)
         self._listening = True
 
+    # Cancela as ações pendentes e liberta as referências ao avatar.
     def onFinish(self):
         self.avatar = None
         for token in self._pending:
@@ -87,6 +93,7 @@ class ZoomController(TriggersManager.ITriggerListener):
             TriggersManager.g_manager.delListener(self)
             self._listening = False
 
+    # Remove os eventos e liberta o controlador da câmara.
     def dispose(self):
         self.onFinish()
         if self.subscribed:
@@ -94,10 +101,12 @@ class ZoomController(TriggersManager.ITriggerListener):
             g_playerEvents.onAvatarBecomeNonPlayer -= self.onFinish
             self.subscribed = False
 
+    # Agenda a mudança de câmara após o disparo configurado.
     def onTriggerActivated(self, params):
         if self._listening and params.get('type') == self.__trigger_type:
             avatar = self.avatar
             token = [None]
+            # Executa a mudança de câmara agendada e retira o callback da lista de pendentes.
             def change():
                 self._pending.discard(token[0])
                 if self.avatar is avatar:
@@ -105,6 +114,7 @@ class ZoomController(TriggersManager.ITriggerListener):
             token[0] = callback(max(self.latency, 0), change)
             self._pending.add(token[0])
 
+    # Muda o modo de controlo da câmara do avatar atual.
     def changeControlMode(self):
         if self.avatar is None:
             return
@@ -122,6 +132,7 @@ class ZoomController(TriggersManager.ITriggerListener):
 controller = ZoomController(sniper_camera_settings)
 
 
+# Aplica a opção de ocultar o efeito visual dos binóculos.
 @override(SniperControlMode, '__setupBinoculars')
 def new__setupBinoculars(func, self, optDevices):
     settings = settings_service.getComponentDict(sniper_camera_settings)
@@ -131,6 +142,7 @@ def new__setupBinoculars(func, self, optDevices):
     return result
 
 
+# Aplica as opções de efeitos visuais ao veículo do jogador.
 @override(ModelBoundEffects, 'addNewToNode')
 def new__effectsListPlayer(func, *args, **kwargs):
     settings = settings_service.getComponentDict(sniper_camera_settings)
@@ -142,6 +154,7 @@ def new__effectsListPlayer(func, *args, **kwargs):
     return func(*args, **kwargs)
 
 
+# Liberta os recursos do módulo de câmara de precisão.
 def fini():
     settings_service.onModSettingsChanged.disconnect(controller.onSettingsChanged)
     controller.dispose()

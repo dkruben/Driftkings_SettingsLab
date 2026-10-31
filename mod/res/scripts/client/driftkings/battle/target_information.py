@@ -22,14 +22,17 @@ COMPARE_MACROS = ['compareDelim', 'compareColor']
 ROMAN_LEVELS = ROMAN_NUMERALS
 # Keep the seven preset IDs stable for existing user configurations.
 # Reload and DPM are descriptor/base values, not inferred enemy equipment.
+# Formata um par de legenda e valor para o cartão do alvo.
 def _field(label, value):
     return "<font color='#96A1AB'>%s</font>  <font color='#E6EBEF'>%s</font>" % (label, value)
 
 
+# Junta os campos de informação numa linha do cartão.
 def _row(*fields):
     return "  <font color='#4A535C'> / </font>  ".join(_field(*field) for field in fields)
 
 
+# Compõe o modelo do cartão com o cabeçalho e as linhas do alvo.
 def _card(rows, accent='#B9CAD6'):
     header = "<font face='$TitleFont' size='18' color='%s'><b>{{vehicle_name}}</b></font>  <font size='12' color='#96A1AB'>{{vehicle_type}} / {{rlevel}}</font>" % accent
     return "<font face='$FieldFont' size='13'><textformat leading='6'>" + header + '\n' + '\n'.join(rows) + '</textformat></font>'
@@ -58,6 +61,7 @@ g_flash = Flash()
 class DataConstants(object):
     __slots__ = ('_playerVehicle', '_vehicle', '_typeDescriptor', '_gunShots', '_macroHandlers', '_cachedResults',)
 
+    # Inicializa os descritores, a cache e os acessos às macros do alvo.
     def __init__(self):
         self._playerVehicle = None
         self._vehicle = None
@@ -66,6 +70,7 @@ class DataConstants(object):
         self._cachedResults = {}
         self._macroHandlers = self._buildMacroHandlers()
 
+    # Associa os veículos do jogador e do alvo aos descritores usados nas macros.
     def init(self, vehicle, playerVehicle=None):
         if not vehicle and not playerVehicle:
             return
@@ -75,6 +80,7 @@ class DataConstants(object):
         self._gunShots = self._typeDescriptor.gun.shots if self._typeDescriptor else None
         self._cachedResults = {}
 
+    # Limpa as referências e os valores calculados do alvo anterior.
     def reset(self):
         self._playerVehicle = None
         self._vehicle = None
@@ -82,14 +88,17 @@ class DataConstants(object):
         self._gunShots = None
         self._cachedResults = {}
 
+    # Obtém o dano nominal da munição a partir do seu descritor.
     @staticmethod
     def _get_shell_damage(shell):
         damage = shell.armorDamage if hasattr(shell, 'armorDamage') else shell.damage
         return damage[0]
 
+    # Obtém o descritor do veículo do jogador quando está disponível.
     def _getPlayerTypeDescriptor(self):
         return self._playerVehicle.typeDescriptor if self._playerVehicle is not None else None
 
+    # Calcula e guarda o dano por minuto da arma do descritor indicado.
     def _get_gun_dpm_for_descriptor(self, typeDescriptor, cache_key):
         if cache_key in self._cachedResults:
             return self._cachedResults[cache_key]
@@ -103,6 +112,7 @@ class DataConstants(object):
         self._cachedResults[cache_key] = result
         return result
 
+    # Calcula a recarga da arma com os modificadores de equipamento.
     def _get_gun_reload_equip_for_descriptor(self, typeDescriptor, cache_key, eq1=1, eq2=1, eq3=1, eq4=1):
         if cache_key in self._cachedResults:
             return self._cachedResults[cache_key]
@@ -113,6 +123,7 @@ class DataConstants(object):
         self._cachedResults[cache_key] = result
         return result
 
+    # Calcula o dano por minuto com os modificadores de equipamento.
     def _get_gun_dpm_equip_for_descriptor(self, typeDescriptor, cache_key, eq1=1, eq2=1, eq3=1, eq4=1):
         if cache_key in self._cachedResults:
             return self._cachedResults[cache_key]
@@ -127,6 +138,7 @@ class DataConstants(object):
         self._cachedResults[cache_key] = result
         return result
 
+    # Resolve a tradução de uma legenda do painel de informações.
     @staticmethod
     def i18n(text):
         if text is None:
@@ -156,6 +168,7 @@ class DataConstants(object):
             text = text[:localizedMacroStart] + macro + text[localizedMacroEnd + 2:]
         return target_information_settings.i18n.get(text, text)
 
+    # Associa as macros às funções que obtêm os dados do alvo.
     def _buildMacroHandlers(self):
         handlers = {
             'nick_name': lambda: self._vehicle.publicInfo.name if self._vehicle else None,
@@ -221,6 +234,7 @@ class DataConstants(object):
         handlers.update({'stun_radius': self._get_stun_radius, 'stun_duration_min': self._get_stun_duration_min, 'stun_duration_max': self._get_stun_duration_max, })
         return handlers
 
+    # Cria os acessos às propriedades dos tipos de munição da arma.
     def _generateShellHandlers(self):
         handlers = {}
         handlers.update({
@@ -245,6 +259,7 @@ class DataConstants(object):
         })
         return handlers
 
+    # Obtém a classe do veículo alvo e guarda o resultado em cache.
     def _get_vehicle_type(self):
         if 'vehicle_type' in self._cachedResults:
             return self._cachedResults['vehicle_type']
@@ -265,17 +280,21 @@ class DataConstants(object):
             return result
         return None
 
+    # Obtém o dano por minuto da arma do alvo.
     def _get_gun_dpm(self):
         return self._get_gun_dpm_for_descriptor(self._typeDescriptor, 'gun_dpm')
 
+    # Obtém a recarga do alvo para a combinação de equipamento indicada.
     def _get_gun_reload_equip(self, eq1=1, eq2=1, eq3=1, eq4=1):
         cache_key = 'gun_reload_equip_%s_%s_%s_%s' % (eq1, eq2, eq3, eq4)
         return self._get_gun_reload_equip_for_descriptor(self._typeDescriptor, cache_key, eq1, eq2, eq3, eq4)
 
+    # Obtém o dano por minuto do alvo para o equipamento indicado.
     def _get_gun_dpm_equip(self, eq1=1, eq2=1, eq3=1, eq4=1):
         cache_key = 'gun_dpm_equip_%s_%s_%s_%s' % (eq1, eq2, eq3, eq4)
         return self._get_gun_dpm_equip_for_descriptor(self._typeDescriptor, cache_key, eq1, eq2, eq3, eq4)
 
+    # Calcula a potência específica do motor do alvo.
     def _get_engine_power_density(self):
         if 'engine_power_density' in self._cachedResults:
             return self._cachedResults['engine_power_density']
@@ -289,6 +308,7 @@ class DataConstants(object):
         self._cachedResults['engine_power_density'] = result
         return result
 
+    # Converte o nível do veículo alvo em numeração romana.
     def _get_roman_level(self):
         if 'roman_level' in self._cachedResults:
             return self._cachedResults['roman_level']
@@ -301,6 +321,7 @@ class DataConstants(object):
             return result
         return None
 
+    # Obtém o raio de atordoamento da munição do alvo.
     def _get_stun_radius(self):
         if 'stun_radius' in self._cachedResults:
             return self._cachedResults['stun_radius']
@@ -310,6 +331,7 @@ class DataConstants(object):
             return result
         return None
 
+    # Obtém a duração mínima de atordoamento da munição do alvo.
     def _get_stun_duration_min(self):
         if 'stun_duration_min' in self._cachedResults:
             return self._cachedResults['stun_duration_min']
@@ -320,6 +342,7 @@ class DataConstants(object):
             return result
         return None
 
+    # Obtém a duração máxima de atordoamento da munição do alvo.
     def _get_stun_duration_max(self):
         if 'stun_duration_max' in self._cachedResults:
             return self._cachedResults['stun_duration_max']
@@ -329,39 +352,47 @@ class DataConstants(object):
             return result
         return None
 
+    # Obtém o peso do veículo do jogador para as comparações.
     def _get_pl_vehicle_weight(self):
         typeDescriptor = self._getPlayerTypeDescriptor()
         if not typeDescriptor:
             return None
         return '%.1f' % round(typeDescriptor.physics['weight'] / 1000, 1)
 
+    # Obtém o tempo de recarga da arma do jogador.
     def _get_pl_gun_reload(self):
         typeDescriptor = self._getPlayerTypeDescriptor()
         if not typeDescriptor:
             return None
         return '%.2f' % typeDescriptor.gun.reloadTime
 
+    # Obtém a recarga do jogador com os modificadores de equipamento.
     def _get_pl_gun_reload_equip(self):
         return self._get_gun_reload_equip_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_reload_equip')
 
+    # Obtém o dano por minuto da arma do jogador.
     def _get_pl_gun_dpm(self):
         return self._get_gun_dpm_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_dpm')
 
+    # Obtém o dano por minuto do jogador com os modificadores de equipamento.
     def _get_pl_gun_dpm_equip(self):
         return self._get_gun_dpm_equip_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_dpm_equip')
 
+    # Obtém o alcance de visão do veículo do jogador.
     def _get_pl_vision_radius(self):
         typeDescriptor = self._getPlayerTypeDescriptor()
         if not typeDescriptor:
             return None
         return '%d' % typeDescriptor.turret.circularVisionRadius
 
+    # Obtém o tempo de pontaria da arma do jogador.
     def _get_pl_gun_aiming_time(self):
         typeDescriptor = self._getPlayerTypeDescriptor()
         if not typeDescriptor:
             return None
         return '%.1f' % typeDescriptor.gun.aimingTime
 
+    # Resolve os acessos dinâmicos às propriedades usadas nas macros.
     def __getattr__(self, name):
         if name in self._macroHandlers:
             return self._macroHandlers[name]
@@ -371,26 +402,32 @@ class DataConstants(object):
 class CompareMacros(object):
     __slots__ = ('value1', 'value2')
 
+    # Prepara os dois valores usados nas macros de comparação.
     def __init__(self):
         self.value1 = None
         self.value2 = None
 
+    # Limpa os valores da comparação anterior.
     def reset(self):
         self.value1 = None
         self.value2 = None
 
+    # Converte e guarda os dois valores que serão comparados.
     def setData(self, value1, value2):
         self.value1 = float(value1)
         self.value2 = float(value2)
 
+    # Obtém o símbolo configurado para o resultado da comparação.
     @property
     def compareDelim(self):
         return self._getCompareAttribute('delim')
 
+    # Obtém a cor configurada para o resultado da comparação.
     @property
     def compareColor(self):
         return self._getCompareAttribute('color')
 
+    # Escolhe o atributo de apresentação conforme a comparação dos valores.
     def _getCompareAttribute(self, attribute):
         settings = settings_service.getComponentDict(target_information_settings)
         if self.value1 is None or self.value2 is None:
@@ -404,6 +441,7 @@ class CompareMacros(object):
 
 
 class InfoPanel(DataConstants):
+    # Prepara os modelos de texto e o estado de apresentação do painel do alvo.
     def __init__(self):
         self._active = False
         self._inBattle = False
@@ -414,6 +452,7 @@ class InfoPanel(DataConstants):
         self._feedback = None
         DataConstants.__init__(self)
 
+    # Cancela a ocultação pendente e repõe os dados e os modelos do painel.
     def reset(self):
         self.cancelHide()
         DataConstants.reset(self)
@@ -422,6 +461,7 @@ class InfoPanel(DataConstants):
         self.visible = False
         self.timer = None
 
+    # Ativa o acompanhamento de informações do alvo.
     def start(self):
         if self._active:
             return
@@ -432,6 +472,7 @@ class InfoPanel(DataConstants):
         battleEvents.key.connect(self.onBattleKey)
         battleEvents.acquire(self)
 
+    # Desativa o acompanhamento de informações do alvo e liberta as subscrições.
     def stop(self):
         if not self._active:
             return
@@ -445,6 +486,7 @@ class InfoPanel(DataConstants):
         finally:
             battleEvents.release(self)
 
+    # Atualiza informações do alvo quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         if not affects(changes, GLOBAL.ENABLED, TARGET_INFORMATION.TEMPLATE_PRESET,
                        TARGET_INFORMATION.FORMATS, TARGET_INFORMATION.COMPARE_VALUES):
@@ -457,6 +499,7 @@ class InfoPanel(DataConstants):
         elif self._inBattle and self.visible:
             g_flash.addText(self.setTextsFormatted())
 
+    # Subscreve os eventos de foco e entrada do alvo durante a batalha.
     def onBattleStarted(self):
         if self._inBattle:
             return
@@ -467,6 +510,7 @@ class InfoPanel(DataConstants):
             self._feedback = feedback
         g_flash.startBattle()
 
+    # Remove os eventos da batalha e oculta o painel do alvo.
     def onBattleEnded(self):
         self._inBattle = False
         if self._feedback is not None:
@@ -477,6 +521,7 @@ class InfoPanel(DataConstants):
         finally:
             g_flash.stopBattle()
 
+    # Atualiza o painel quando muda o veículo em foco.
     def onVehicleFeedback(self, eventID, vehicleID, value):
         # PlayerAvatar.targetFocus/targetBlur report the aimed entity as ENTITY_IN_FOCUS.
         from gui.battle_control.battle_constants import FEEDBACK_EVENT_ID
@@ -494,10 +539,12 @@ class InfoPanel(DataConstants):
         else:
             self.onUpdateBlur()
 
+    # Encaminha as teclas de batalha para os controlos do painel.
     def onBattleKey(self, event):
         if self._inBattle:
             self.keyPressed(event)
 
+    # Escolhe o modelo predefinido ou personalizado do cartão do alvo.
     @staticmethod
     def getText():
         settings = settings_service.getComponentDict(target_information_settings)
@@ -508,6 +555,7 @@ class InfoPanel(DataConstants):
         template_key = TEMPLATE_INDEX_TO_KEY.get(template_index, 'default')
         return PRESET_TEMPLATES.get(template_key, PRESET_TEMPLATES['default'])
 
+    # Verifica se o alvo e o estado do jogador permitem mostrar o cartão.
     @staticmethod
     def isConditions(entity):
         settings = settings_service.getComponentDict(target_information_settings)
@@ -528,6 +576,7 @@ class InfoPanel(DataConstants):
         isAlive = entity.isAlive() if settings[TARGET_INFORMATION.ALIVE_ONLY] else True
         return showFor and isAlive
 
+    # Obtém o valor produzido pela função associada a uma macro.
     def getFuncResponse(self, funcName):
         if not hasattr(self, funcName):
             return ''
@@ -540,6 +589,7 @@ class InfoPanel(DataConstants):
             return ''
         return ''
 
+    # Constrói o texto do painel a partir do alvo e do modelo selecionado.
     def setTextsFormatted(self):
         if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED]:
             return ''
@@ -548,6 +598,7 @@ class InfoPanel(DataConstants):
         textFormat = self.replaceCompareMacros(textFormat, COMPARE_MACROS)
         return resolve_vehicle_images(textFormat, getIconPath, getContourIconPath)
 
+    # Substitui as macros simples pelos valores disponíveis do alvo.
     def replaceMacros(self, textFormat, macros):
         for macro in macros:
             macroPattern = '{{' + macro + '}}'
@@ -557,8 +608,10 @@ class InfoPanel(DataConstants):
                 textFormat = textFormat.replace(macroPattern, funcResponse)
         return textFormat
 
+    # Substitui as macros que comparam propriedades do jogador e do alvo.
     @staticmethod
     def replaceCompareMacros(textFormat, compareMacros):
+        # Resolve os argumentos de uma macro individual de comparação.
         def replace(match):
             args = match.group(2).split(',')
             if len(args) != 2:
@@ -571,6 +624,7 @@ class InfoPanel(DataConstants):
         pattern = r'\{\{(' + '|'.join(re.escape(name) for name in compareMacros) + r')\(([^{}]*)\)\}\}'
         return re.sub(pattern, replace, textFormat)
 
+    # Trata as teclas configuradas para a apresentação do painel do alvo.
     def keyPressed(self, event):
         settings = settings_service.getComponentDict(target_information_settings)
         if not settings[GLOBAL.ENABLED]:
@@ -589,21 +643,25 @@ class InfoPanel(DataConstants):
             else:
                 self.hide()
 
+    # Cancela a ocultação agendada do painel.
     def cancelHide(self):
         if self.timer is not None:
             cancelCallback(self.timer)
             self.timer = None
 
+    # Oculta o painel quando termina o atraso configurado.
     def onHideTimeout(self):
         # This callback has already fired: do not cancel its consumed ID.
         self.timer = None
         self.hide()
 
+    # Oculta o painel do alvo e cancela a ocultação pendente.
     def hide(self):
         self.cancelHide()
         self.visible = False
         g_flash.setVisible(False)
 
+    # Agenda a ocultação quando o alvo deixa de estar em foco.
     def onUpdateBlur(self):
         if not self._inBattle or not self.visible or self.hotKeyDown or self.timer is not None:
             return
@@ -613,6 +671,7 @@ class InfoPanel(DataConstants):
         else:
             self.timer = callback(delay, self.onHideTimeout)
 
+    # Recolhe os dados do alvo atual e atualiza o painel.
     def onUpdateVehicle(self, vehicle, ignoreHotKey=False):
         player = getPlayer()
         if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_flash.active or not hasattr(player, 'getVehicleAttached'):
@@ -635,9 +694,11 @@ g_comparator = CompareMacros()
 g_mod = InfoPanel()
 
 
+# Inicializa o módulo de informações do alvo.
 def init():
     g_mod.start()
 
 
+# Liberta os recursos do módulo de informações do alvo.
 def fini():
     g_mod.stop()

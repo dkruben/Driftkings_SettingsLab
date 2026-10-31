@@ -106,7 +106,6 @@ class BATTLE_PREFERENCES(object):
     DISABLE_SOUND_COMMANDER = 'disableSoundCommander'
     FORMAT = 'format'
     IN_BATTLE = 'inBattle'
-    LOAD_TXT = 'loadTxt'
     MAX_CHAT_LINES = 'maxChatLines'
     MUTE_TEAM_BASE_SOUND = 'muteTeamBaseSound'
     POSTMORTEM_TIPS = 'postmortemTips'

@@ -162,7 +162,7 @@
             var category = mod.category || 'general';
             if (!groups[category]) { groups[category] = []; }
             if (!DK.contains(categories, category)) { categories.push(category); }
-            if (String(mod.id).split(':')[0] !== 'legacy.AutoClaimClan') { groups[category].push(mod); }
+            if (!DK.contains(['legacy.AutoClaimClan', 'legacy.BanksLoader'], String(mod.id).split(':')[0])) { groups[category].push(mod); }
             mods[mod.id] = mod;
             index[mod.id] = {};
             mod.controls.forEach(function (def) { index[mod.id][def.id] = def; });
@@ -251,7 +251,7 @@
         if (!page) { return; }
         if (page.liveTimer !== null && page.liveTimer !== undefined) { clearTimeout(page.liveTimer); }
         Object.keys(page.controls).forEach(function (id) { page.controls[id].dispose(); });
-        if (page.clan) { page.clan.control.dispose(); }
+        (page.embedded || []).forEach(function (item) { item.control.dispose(); });
         if (page.markers) { page.markers.dispose(); }
         if (page.live) { page.live.dispose(); }
         page = null;
@@ -319,15 +319,19 @@
         });
         ui.noResults = h('div.dk-empty.dk-no-results', {text: t('noResults')}, null, ui.list);
         if (String(modId).split(':')[0] === 'legacy.main') {
-            Object.keys(mods).some(function (id) {
-                if (String(id).split(':')[0] !== 'legacy.AutoClaimClan') { return false; }
-                var clan = mods[id], key = enabledKey(clan), source = key && index[id][key];
-                if (!source) { return false; }
-                var def = DK.copy(source); def.label = clan.name;
-                var control = DK.controls.create(def, context(id));
-                ui.list.appendChild(control.node);
-                page.clan = {id: id, key: key, control: control};
-                return true;
+            page.embedded = [];
+            [['legacy.AutoClaimClan', null], ['legacy.BanksLoader', DK.minimapPreview.fieldId('debug')]].forEach(function (entry) {
+                Object.keys(mods).some(function (id) {
+                    if (String(id).split(':')[0] !== entry[0]) { return false; }
+                    var owner = mods[id], key = entry[1] || enabledKey(owner), source = key && index[id][key];
+                    if (!source) { return false; }
+                    var def = DK.copy(source);
+                    if (!entry[1]) { def.label = owner.name; }
+                    var control = DK.controls.create(def, context(id));
+                    ui.list.appendChild(control.node);
+                    page.embedded.push({id: id, key: key, control: control});
+                    return true;
+                });
             });
         }
         if (modId === CORE) { renderCoreExtras(); }
@@ -606,12 +610,12 @@
             if (Object.prototype.hasOwnProperty.call(values, key)) { control.set(values[key]); }
         });
         if (page.markers) { page.markers.update(values, {disabled: disabled, changed: changed}); }
-        if (page.clan) {
-            var clan = page.clan, clanValues = state.values[clan.id] || {};
-            clan.control.sync({disabled: DK.contains(state.disabled[clan.id] || [], clan.key),
-                changed: DK.contains(state.changed[clan.id] || [], clan.key), value: clanValues[clan.key], values: clanValues});
-            clan.control.set(clanValues[clan.key]);
-        }
+        (page.embedded || []).forEach(function (item) {
+            var values = state.values[item.id] || {};
+            item.control.sync({disabled: DK.contains(state.disabled[item.id] || [], item.key),
+                changed: DK.contains(state.changed[item.id] || [], item.key), value: values[item.key], values: values});
+            item.control.set(values[item.key]);
+        });
         if (page.live) { page.live.update(values, state.values, state.carouselPreview); }
         renderNav();
         renderHead();

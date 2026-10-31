@@ -12,6 +12,7 @@ g_panels = RatingViews(team_panels_settings, g_stats)
 _started=False
 
 
+# Inicializa o módulo de painéis de jogadores.
 def init():
     global _started
     if _started: return
@@ -22,6 +23,7 @@ def init():
     g_panels.start()
 
 
+# Liberta os recursos do módulo de painéis de jogadores.
 def fini():
     global _started
     if not _started: return
@@ -31,5 +33,6 @@ def fini():
     g_panels.stop()
 
 
+# Declara os componentes visuais do módulo de painéis de jogadores.
 def getBattleViews():
     return g_panels.getBattleViews()

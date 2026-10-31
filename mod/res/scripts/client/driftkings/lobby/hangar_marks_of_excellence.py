@@ -20,6 +20,8 @@ from driftkings.core.marks_calculator import ceil_damage, combined_damage, hanga
 from driftkings.core.marks_state import marks_state
 from driftkings.core.wnx import calculate as calculate_wnx
 from driftkings.core.wnx import get_expected as get_wnx_expected
+from driftkings.gameface.lobby.hangar_marks_of_excellence import (get_view_config, install_gameface,
+                                                                  MarksOnGunHangarController)
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.stats.vehinfo import getVehicleInfoData
@@ -30,10 +32,12 @@ g_controller = None
 from driftkings._constants import MARK_THRESHOLDS as THRESHOLDS
 
 
+# Converte o valor numérico e usa a alternativa se não for finito.
 def finite(value, default=0.0):
     return finite_number(value, default)
 
 
+# Verifica se o nível do veículo permite apresentar marcas de excelência.
 def has_marks_tier(vehicle=None):
     """The hangar panel is shown only for a selected vehicle of tier 5 or above."""
     if vehicle is None:
@@ -41,6 +45,7 @@ def has_marks_tier(vehicle=None):
     return vehicle is not None and vehicle.level >= MARKS_MIN_TIER
 
 
+# Obtém o nome traduzido da nação ou mantém o identificador nativo.
 def nation_label(nation):
     """Localized nation name; the internal code is the fallback."""
     if not nation:
@@ -53,6 +58,7 @@ def nation_label(nation):
         return nation
 
 
+# Escolhe o ícone nativo das marcas, usando uma marca como referência mínima.
 def mark_icon(nation, marks):
     """Native gun-mark image for the card; with no mark yet the one-mark image is shown dimmed."""
     if not nation:
@@ -61,10 +67,12 @@ def mark_icon(nation, marks):
     return 'coui://gui/maps/icons/marksOnGun/67x71/%s_%d_%s.png' % (nation, count, 'mark' if count == 1 else 'marks')
 
 
+# Calcula o objetivo de marcas para a percentagem e o dano atuais.
 def goal(percent, moving_average, tier, selection=0, earned_marks=0):
     return hangar_goal(percent, moving_average, tier, selection, earned_marks)
 
 
+# Guarda uma amostra por contador de batalhas, sem duplicar atualizações visuais.
 def record_snapshot(history, vehicle_id, battles, percent, average):
     """Store one snapshot per observed battle counter, not per panel repaint."""
     vehicles = history.setdefault('vehicles', {})
@@ -86,6 +94,7 @@ def record_snapshot(history, vehicle_id, battles, percent, average):
     return True
 
 
+# Calcula a evolução das marcas no intervalo de batalhas selecionado.
 def trend(history, vehicle_id, last_battles=10):
     points = history.get('vehicles', {}).get(str(vehicle_id), [])
     if len(points) < 2:
@@ -104,6 +113,7 @@ def trend(history, vehicle_id, last_battles=10):
 from driftkings.settings.definitions.lobby.hangar_marks_of_excellence import HangarMarksOfExcellenceSettings
 
 
+# Obtém a cor da estatística segundo a paleta configurada.
 def read_colors(rating_color, rating_value):
     return getStatisticColor(rating_color, rating_value, settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
 
@@ -119,6 +129,7 @@ class MarksOnGunData(object):
         4: 'Ace Tanker'
     }
 
+    # Substitui os valores ausentes ou inválidos pela alternativa indicada.
     @staticmethod
     def _safe(value, default=0.0):
         try:
@@ -129,38 +140,45 @@ class MarksOnGunData(object):
                 return default
         return value
 
+    # Arredonda o dano para apresentar os valores de referência.
     @staticmethod
     def _normalizeDigits(value):
         return ceil_damage(value)
 
-
-
+    # Formata um número inteiro com o separador de milhares do idioma.
     @staticmethod
     def _format_int(value):
         return '{:,}'.format(int(value)).replace(',', number_locale(hangar_marks_of_excellence_settings.lang)['groupSeparator'])
 
+    # Formata um número decimal segundo o idioma e a precisão pedidos.
     @staticmethod
     def _format_float(value, digits=2):
         fmt = '%%.%sf' % digits
         return (fmt % float(value)).replace('.', number_locale(hangar_marks_of_excellence_settings.lang)['decimalSeparator'])
 
+    # Escapa os caracteres que poderiam ser interpretados como HTML.
     @staticmethod
     def _escape_html(value):
         text = unicode(value if value is not None else '')
         return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
+    # Obtém a designação da mestria conquistada ou o marcador de ausência.
     def _mastery_label(self, value):
         return self._MASTERY_LABELS.get(int(value or 0), '--')
 
+    # Escolhe a cor do dano conforme os patamares e a paleta selecionada.
     def _pick_color(self, value, levels):
         return getMoeDamageColor(value, levels, settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
 
+    # Obtém a cor correspondente ao WN8 do veículo.
     def _color_by_wn8(self, wn8):
         return read_colors('wn8', wn8)
 
+    # Obtém a cor correspondente à percentagem de vitórias.
     def _color_by_winrate(self, winrate):
         return read_colors('winrate', winrate)
 
+    # Calcula o WN8 do veículo com as estatísticas e os valores esperados.
     def _calculate_wn8(self, vehicle, random_stats, winrate):
         if not random_stats.getBattlesCount():
             return 0
@@ -194,6 +212,7 @@ class MarksOnGunData(object):
         r_defc = max(0.0, min(r_damagec + 0.1, max(0.0, (r_def - 0.10) / (1.0 - 0.10))))
         return int(980 * r_damagec + 210 * r_damagec * r_fragc + 155 * r_fragc * r_spotc + 75 * r_defc * r_fragc + 145 * min(1.8, r_winc))
 
+    # Recolhe o nível e o ícone da mestria registada no dossiê.
     def _get_mastery_info(self, dossier):
         mastery_value = 0
         mastery_icon = ''
@@ -213,6 +232,7 @@ class MarksOnGunData(object):
             'icon': mastery_icon
         }
 
+    # Calcula os patamares de dano para a percentagem atual das marcas.
     def calc_statistics(self, percent, damage):
         percent = self._safe(percent, 0.0)
         damage = self._safe(damage, 0.0)
@@ -220,6 +240,7 @@ class MarksOnGunData(object):
             damage = 1.0
         return statistics(percent, damage)
 
+    # Recolhe do dossiê as marcas, os danos, as classificações e a mestria.
     def collect(self, dossier=None):
         vehicle = g_currentVehicle.item
         if dossier is None:
@@ -244,8 +265,7 @@ class MarksOnGunData(object):
         current_damage = int(combined_damage(avg_damage, track, radio, stun))
 
         wn8 = self._calculate_wn8(vehicle, random_stats, winrate)
-        assist_totals = [nonnegative_number(getattr(random_stats, method)()) for method in
-                         ('getDamageAssistedRadio', 'getDamageAssistedTrack', 'getDamageAssistedStun')]
+        assist_totals = [nonnegative_number(getattr(random_stats, method)()) for method in ('getDamageAssistedRadio', 'getDamageAssistedTrack', 'getDamageAssistedStun')]
         assistance = ratio(sum(assist_totals), random_stats.getBattlesCountVer2()) if None not in assist_totals else None
         wnx = calculate_wnx(avg_damage,
                             nonnegative_number(ProfileUtils.getValueOrUnavailable(random_stats.getAvgFrags())),
@@ -289,25 +309,28 @@ class MarksOnGunData(object):
 
         next_percent, need_damage, p20, p40, p55, p65, p85, p95, p100 = self.calc_statistics(damage_rating, moving_avg_damage)
         levels = [p20, p40, p55, p65, p85, p95, p100]
-        result.update({
-            'damageRating': damage_rating,
-            'currentDamage': current_damage,
-            'movingAvgDamage': moving_avg_damage,
-            'nextPercent': int(next_percent),
-            'needDamage': int(need_damage),
-            'p20': self._normalizeDigits(p20),
-            'p40': self._normalizeDigits(p40),
-            'p55': self._normalizeDigits(p55),
-            'p65': self._normalizeDigits(p65),
-            'p85': self._normalizeDigits(p85),
-            'p95': self._normalizeDigits(p95),
-            'p100': self._normalizeDigits(p100),
-            'currentDamageColor': self._pick_color(current_damage, levels),
-            'movingAvgDamageColor': self._pick_color(moving_avg_damage, levels),
-            'needDamageColor': self._pick_color(int(need_damage), levels)
-        })
+        result.update(
+            {
+                'damageRating': damage_rating,
+                'currentDamage': current_damage,
+                'movingAvgDamage': moving_avg_damage,
+                'nextPercent': int(next_percent),
+                'needDamage': int(need_damage),
+                'p20': self._normalizeDigits(p20),
+                'p40': self._normalizeDigits(p40),
+                'p55': self._normalizeDigits(p55),
+                'p65': self._normalizeDigits(p65),
+                'p85': self._normalizeDigits(p85),
+                'p95': self._normalizeDigits(p95),
+                'p100': self._normalizeDigits(p100),
+                'currentDamageColor': self._pick_color(current_damage, levels),
+                'movingAvgDamageColor': self._pick_color(moving_avg_damage, levels),
+                'needDamageColor': self._pick_color(int(need_damage), levels)
+            }
+        )
         return result
 
+    # Constrói a descrição detalhada das marcas para a conquista.
     def build_tooltip(self, dossier):
         data = self.collect(dossier)
         if data is None or not data.get('hasMoE'):
@@ -345,6 +368,7 @@ class MarksOnGunData(object):
         template = hangar_marks_of_excellence_settings.i18n['UI_tooltipsFull'] if settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.SHOW_TOOLTIP_TARGETS] else hangar_marks_of_excellence_settings.i18n['UI_tooltips']
         return template.format(**ctx)
 
+    # Prepara os dados do cartão e do painel de marcas no hangar.
     def build_panel_model(self):
         result = {'config': get_view_config(hangar_marks_of_excellence_settings), 'state': 'empty',
                   'vehicle': hangar_marks_of_excellence_settings.i18n['UI_panel_chooseVehicle'], 'message': hangar_marks_of_excellence_settings.i18n['UI_panel_selectVehicle'],
@@ -362,8 +386,7 @@ class MarksOnGunData(object):
             result.update(vehicle=unicode(g_currentVehicle.item.shortUserName),
                           message=hangar_marks_of_excellence_settings.i18n['UI_panel_noDossier'])
             return result
-        target = goal(data['damageRating'], data['movingAvgDamage'], data['tier'],
-                      settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION], data['earnedMarks'])
+        target = goal(data['damageRating'], data['movingAvgDamage'], data['tier'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION], data['earnedMarks'])
         if not target['eligible']:
             result['message'] = hangar_marks_of_excellence_settings.i18n['UI_panel_tierLimit']
         recent = g_history.observe(data) if target['eligible'] else {'delta': None, 'battles': 0}
@@ -371,32 +394,34 @@ class MarksOnGunData(object):
         mastery = int(rank) if rank in (1, 2, 3, 4) else 0
         icon = ('gui/maps/icons/achievement/32x32/markOfMastery%s.png' % mastery
                 if mastery else '')
-        result.update({
-            'state': 'data', 'vehicle': unicode(data['vehicleName']), 'tier': data['tier'],
-            'vehicleId': data['vehicleID'], 'nation': nation_label(data['nation']),
-            'currentMark': data['damageRating'],
-            'averageDirect': data['averageDirect'] if data['battles'] else None,
-            'averageAssist': data['averageAssist'] if data['battles'] else None,
-            'averageCombined': data['averageCombined'] if data['battles'] else None,
-            'movingAverage': data['movingAvgDamage'] if data['hasMoE'] else None,
-            'targetDamage': target['estimate'],
-            'damageNeeded': max(0, target['estimate'] - data['movingAvgDamage']) if target['estimate'] is not None else None,
-            'target': target, 'recent': recent,
-            'delta': delta_model(recent.get('delta')),
-            'progress': target['percent'] / 100.0,
-            'displayMarks': max(max(0, min(3, int(finite(data['earnedMarks'])))), sum(data['damageRating'] >= limit for limit in THRESHOLDS)),
-            'thirdAchieved': bool(target['eligible'] and (data['damageRating'] >= 95 or data['earnedMarks'] >= 3)),
-            'earnedMarks': max(0, min(3, int(finite(data['earnedMarks'])))),
-            'average': self._format_int(data['movingAvgDamage']),
-            'estimate': '~' + self._format_int(target['estimate']) if target['estimate'] is not None else '--',
-            'mastery': hangar_marks_of_excellence_settings.i18n['UI_panel_mastery%s' % mastery] if mastery else '--',
-            'masteryIcon': 'coui://' + icon if icon else '',
-            'masteryRank': mastery,
-            'wn8': self._format_int(data['wn8']) if data['wn8'] else '--',
-            'wn8Color': data['wn8Color'], 'winRateColor': data['winRateColor'],
-            'winRate': self._format_float(data['winRate']) + '%' if data['battles'] else '--',
-            'battles': self._format_int(data['battles'])
-        })
+        result.update(
+            {
+                'state': 'data', 'vehicle': unicode(data['vehicleName']), 'tier': data['tier'],
+                'vehicleId': data['vehicleID'], 'nation': nation_label(data['nation']),
+                'currentMark': data['damageRating'],
+                'averageDirect': data['averageDirect'] if data['battles'] else None,
+                'averageAssist': data['averageAssist'] if data['battles'] else None,
+                'averageCombined': data['averageCombined'] if data['battles'] else None,
+                'movingAverage': data['movingAvgDamage'] if data['hasMoE'] else None,
+                'targetDamage': target['estimate'],
+                'damageNeeded': max(0, target['estimate'] - data['movingAvgDamage']) if target['estimate'] is not None else None,
+                'target': target, 'recent': recent,
+                'delta': delta_model(recent.get('delta')),
+                'progress': target['percent'] / 100.0,
+                'displayMarks': max(max(0, min(3, int(finite(data['earnedMarks'])))), sum(data['damageRating'] >= limit for limit in THRESHOLDS)),
+                'thirdAchieved': bool(target['eligible'] and (data['damageRating'] >= 95 or data['earnedMarks'] >= 3)),
+                'earnedMarks': max(0, min(3, int(finite(data['earnedMarks'])))),
+                'average': self._format_int(data['movingAvgDamage']),
+                'estimate': '~' + self._format_int(target['estimate']) if target['estimate'] is not None else '--',
+                'mastery': hangar_marks_of_excellence_settings.i18n['UI_panel_mastery%s' % mastery] if mastery else '--',
+                'masteryIcon': 'coui://' + icon if icon else '',
+                'masteryRank': mastery,
+                'wn8': self._format_int(data['wn8']) if data['wn8'] else '--',
+                'wn8Color': data['wn8Color'], 'winRateColor': data['winRateColor'],
+                'winRate': self._format_float(data['winRate']) + '%' if data['battles'] else '--',
+                'battles': self._format_int(data['battles'])
+            }
+        )
         result['markColor'] = getStatisticColor('mog', data['damageRating'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING])
         palette = settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING]
         result.update(wnx=self._format_int(data['wnx']) if data['wnx'] is not None else '--',
@@ -414,11 +439,13 @@ class MarksOnGunData(object):
 
 
 class ProgressHistory(object):
+    # Prepara a persistência do histórico de marcas por conta e veículo.
     def __init__(self):
         self.cachePath = cache_directory('gun_marks_hangar')
         self.account = None
         self.data = {'vehicles': {}}
 
+    # Regista a amostra atual e calcula a tendência por conta e veículo.
     def observe(self, data):
         account = getattr(getPlayer(), 'databaseID', None)
         if not account:
@@ -440,14 +467,10 @@ class ProgressHistory(object):
 
 
 g_history = ProgressHistory()
-
 g_data = MarksOnGunData()
 
 
-from driftkings.gameface.lobby.hangar_marks_of_excellence import (get_view_config, install_gameface,
-                                                                  MarksOnGunHangarController)
-
-
+# Substitui a descrição nativa da conquista quando há estatísticas de marcas.
 @override(MarkOnGunAchievement, 'getUserCondition')
 @log_exceptions
 def new__getUserCondition(func, *args):
@@ -461,6 +484,7 @@ def new__getUserCondition(func, *args):
 
 
 g_controller = MarksOnGunHangarController()
+# Inicializa o módulo de marcas de excelência no hangar.
 def init():
     try:
         install_gameface()
@@ -469,6 +493,7 @@ def init():
         LOG.exception('Gameface hangar integration unavailable')
 
 
+# Liberta os recursos do módulo de marcas de excelência no hangar.
 def fini():
     g_controller.stop()
     marks_state.clear('hangar')

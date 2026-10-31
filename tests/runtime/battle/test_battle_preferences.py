@@ -143,48 +143,52 @@ class BattlePreferencesTests(RuntimeTest):
         _, native = self.wrap('DamageLogPanel', '_addToTopLog', 'log', 10, 'a', 'b', 'T-34', 'AP', 'bg')
         self.assertEqual(native.calls[0][0][4], 'T-34 | Unknown')
 
-    def avatar(self, alive=True, time_left=3.2, ammo=True):
+    def avatar(self, alive=True, ammo=True):
         sent = []
-        state = module(getTimeLeft=lambda: time_left) if time_left is not None else None
-        shared = module(ammo=module(getGunReloadingState=lambda: state) if ammo else None,
+        shared = module(ammo=module() if ammo else None,
                         chatCommands=module(proto=module(arenaChat=module(broadcast=lambda text, flags: sent.append(text))),
                                             handleChatCommand=lambda name: sent.append(('command', name))))
-        return module(isVehicleAlive=alive, guiSessionProvider=module(shared=shared)), sent
+        avatar = module(isVehicleAlive=alive, guiSessionProvider=module(shared=shared))
+        self.player = avatar
+        return avatar, sent
 
-    def test_reload_message_formats_position_and_rounded_seconds(self):
-        avatar, sent = self.avatar()
-        self.api['onReload'](avatar)
-        self.assertEqual(sent[0], 'Reloading at E5, for 4 seconds.')
-        self.assertEqual(len(sent), 2)
-        self.assertEqual(sent[1][0], 'command')
-        self.data['loadTxt'] = '{pos}: {load}s'
-        avatar, sent = self.avatar(time_left=None)
-        self.api['onReload'](avatar)
-        self.assertEqual(sent[0], 'E5: 0s')
-        self.assertEqual(len(sent), 2)
-        self.assertEqual(sent[1][0], 'command')
-        # A broken template is sent as written rather than raising in battle.
-        self.data['loadTxt'] = 'Broken {missing'
-        avatar, sent = self.avatar()
-        self.api['onReload'](avatar)
-        self.assertEqual(sent[0], 'Broken {missing')
-        self.assertEqual(len(sent), 2)
-        self.assertEqual(sent[1][0], 'command')
-        self.data['loadTxt'] = ''
-        avatar, sent = self.avatar()
-        self.api['onReload'](avatar)
-        self.assertEqual(len(sent), 1)
-        self.assertEqual(sent[0][0], 'command')
-        for avatar, sent in (self.avatar(alive=False), self.avatar(ammo=False)):
+    def test_reload_uses_only_the_native_f8_command_even_with_old_custom_settings(self):
+        for template in (None, '', '{pos}: {load}s', 'Broken {missing', '%(pos)s %(load)s'):
+            if template is not None:
+                self.data['loadTxt'] = template  # Old profiles are harmless; never broadcast this text.
+            avatar, sent = self.avatar()
+            self.api['onReload'](avatar)
+            self.assertEqual(sent, [('command', self.api['BATTLE_CHAT_COMMAND_NAMES'].RELOADINGGUN)])
+        for options in ({'alive': False}, {'ammo': False}):
+            avatar, sent = self.avatar(**options)
             self.api['onReload'](avatar)
             self.assertEqual(sent, [])
+
+    def test_delayed_reload_does_not_send_after_disable_replay_or_avatar_change(self):
+        for key in ('enabled', 'clipLoad'):
+            avatar, sent = self.avatar()
+            self.data[key] = False
+            self.api['onReload'](avatar)
+            self.assertEqual(sent, [])
+            self.data[key] = True
+        avatar, sent = self.avatar()
+        self.player = module()  # A callback from the previous arena must not send to the new session.
+        self.api['onReload'](avatar)
+        self.assertEqual(sent, [])
+        self.player = avatar
+        self.api['isReplay'] = lambda: True
+        self.api['onReload'](avatar)
+        self.assertEqual(sent, [])
 
     def test_partial_clip_key_schedules_the_reload_message(self):
         mapping = self.api['CommandMapping']
         mapping.g_instance = module(isFired=lambda command, key: key == 30)
         native = Native()
-        self.hooks.get('PlayerAvatar', 'handleKey')(native, module(isVehicleAlive=True), True, 30, 0)
+        avatar, sent = self.avatar()
+        self.hooks.get('PlayerAvatar', 'handleKey')(native, avatar, True, 30, 0)
         self.assertEqual(len(self.scheduled), 1)
+        self.scheduled[0]()
+        self.assertEqual(sent, [('command', self.api['BATTLE_CHAT_COMMAND_NAMES'].RELOADINGGUN)])
         self.assertEqual(len(native.calls), 1)
         self.hooks.get('PlayerAvatar', 'handleKey')(native, module(isVehicleAlive=True), False, 30, 0)
         self.hooks.get('PlayerAvatar', 'handleKey')(native, module(isVehicleAlive=True), True, 31, 0)

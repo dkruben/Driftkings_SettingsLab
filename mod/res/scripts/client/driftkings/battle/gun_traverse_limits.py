@@ -35,6 +35,7 @@ COORDINATE_OFF_SCREEN = 20000
 
 
 class AimingAnglesController(AimingAnglesView):
+    # Prepara o estado e as referências de limites de rotação da arma.
     def __init__(self, config):
         super(AimingAnglesController, self).__init__(config)
         self.aimMode = ARCADE_MODE
@@ -82,10 +83,12 @@ class AimingAnglesController(AimingAnglesView):
         override(FovExtended, 'setFovByMultiplier', self.setFovByMultiplier)
 
 
+    # Atualiza os limites horizontais para o modo de pontaria atual.
     def ON_AIM_MODE(self):
         self.updateHor()
 
 
+    # Reposiciona os limites quando muda o modo de controlo da câmara.
     def AvatarInputHandler_onControlModeChanged(self, func, b_self, eMode, *a, **k):
         result = func(b_self, eMode, *a, **k)
         oldAimMMode = self.aimMode
@@ -112,6 +115,7 @@ class AimingAnglesController(AimingAnglesView):
             self.ON_AIM_MODE()
         return result
 
+    # Recalcula os limites após uma alteração da escala da interface.
     def InterfaceScaleSetting_setSystemValue(self, func, b_self, value, *args, **kwargs):
         try:
             self.y = - BigWorld.screenHeight() * SHIFT if self.aimMode == ARCADE_MODE else 0.0
@@ -120,6 +124,7 @@ class AimingAnglesController(AimingAnglesView):
             result = func(b_self, value, *args, **kwargs)
         return result
 
+    # Atualiza os limites quando o veículo entra no mundo.
     def Vehicle_onEnterWorld(self, func, b_self, prereqs, *args, **kwargs):
         result = func(b_self, prereqs, *args, **kwargs)
         if not b_self.isVehicleAlive:
@@ -130,23 +135,28 @@ class AimingAnglesController(AimingAnglesView):
         self.ON_AIM_MODE()
         return result
 
+    # Atualiza a apresentação dos limites após a configuração da mira.
     def plugins_makeSettingsVO(self, func, b_self, *args, **kwargs):
         data = func(b_self, *args, **kwargs)
         self.ON_AIM_MODE()
         return data
 
+    # Obtém a coordenada vertical ajustada ao modo de pontaria.
     def aim_y(self, shift=0.0):
         return int(self.y + shift)
 
+    # Coloca os indicadores de limite fora do ecrã.
     def hideCorners(self):
         self.dataHor = [-COORDINATE_OFF_SCREEN, COORDINATE_OFF_SCREEN]
         self.dataVert = [COORDINATE_OFF_SCREEN, -COORDINATE_OFF_SCREEN]
 
+    # Cancela a interpolação pendente dos indicadores de limite.
     def cancelSmoothing(self):
         if self.smoothingID is not None:
             cancelCallback(self.smoothingID)
             self.smoothingID = None
 
+    # Limpa o estado de limites de rotação da arma no fim da batalha.
     def endBattle(self):
         self.cancelSmoothing()
         self.isAlive = False
@@ -155,9 +165,11 @@ class AimingAnglesController(AimingAnglesView):
         self.hideCorners()
         self.ON_ANGLES_AIMING()
 
+    # Limpa o estado dos limites quando a interface é destruída.
     def onDestroyGUI(self, *args, **kwargs):
         self.endBattle()
 
+    # Suspende os limites durante a seleção de posições no mapa.
     def anglesAiming_activateMapCase(self, func, *args, **kwargs):
         result = func(*args, **kwargs)
         self.isMapCase = True
@@ -166,11 +178,13 @@ class AimingAnglesController(AimingAnglesView):
         self.ON_ANGLES_AIMING()
         return result
 
+    # Retoma o estado normal ao sair da seleção no mapa.
     def anglesAiming_turnOffMapCase(self, func, *args, **kwargs):
         result = func(*args, **kwargs)
         self.isMapCase = False
         return result
 
+    # Recalcula as posições dos indicadores dos limites da arma.
     def updateCoordinates(self):
         if self.isMapCase:
             return
@@ -184,6 +198,7 @@ class AimingAnglesController(AimingAnglesView):
         self.dataHor, self.dataVert = self.coordinate(self.yaw, self.pitch)
         self.updateLabels()
 
+    # Envia as coordenadas calculadas para os indicadores da interface.
     def updateLabels(self):
         halfScreenW = BigWorld.screenWidth() / 2
         halfScreenH = BigWorld.screenHeight() / 2
@@ -196,11 +211,13 @@ class AimingAnglesController(AimingAnglesView):
         if self.visible or old_visible:
             self.ON_ANGLES_AIMING()
 
+    # Atualiza as coordenadas quando a câmara fica ativa.
     def onCameraEnabled(self, func, *args, **kwargs):
         result = func(*args, **kwargs)
         self.updateCoordinates()
         return result
 
+    # Ajusta os limites ao movimento da câmara estratégica.
     def StrategicAimingSystem_cameraUpdate(self, func, b_self, *args, **kwargs):
         result = func(b_self, *args, **kwargs)
         vehicle = getPlayer().getVehicleAttached()
@@ -211,6 +228,7 @@ class AimingAnglesController(AimingAnglesView):
         self.updateCoordinates()
         return result
 
+    # Inicializa os limites quando o veículo do jogador fica pronto.
     def Vehicle__onAppearanceReady(self, func, b_self, *args, **kwargs):
         result = func(b_self, *args, **kwargs)
         if not b_self.isPlayerVehicle:
@@ -240,6 +258,7 @@ class AimingAnglesController(AimingAnglesView):
         self.updateCoordinates()
         return result
 
+    # Oculta os limites após a destruição do veículo do jogador.
     def Vehicle__onVehicleDeath(self, func, b_self, *args, **kwargs):
         result = func(b_self, *args, **kwargs)
         if not b_self.isPlayerVehicle:
@@ -251,6 +270,7 @@ class AimingAnglesController(AimingAnglesView):
         self.ON_ANGLES_AIMING()
         return result
 
+    # Atualiza os limites quando mudam os ângulos da arma do jogador.
     def set_gunAnglesPacked(self, func, b_self, *args, **kwargs):
         result = func(b_self, *args, **kwargs)
         if not b_self.isPlayerVehicle or b_self.gunAnglesPacked == self.old_gunAnglesPacked or not self.showCorners or self.isMapCase:
@@ -272,6 +292,7 @@ class AimingAnglesController(AimingAnglesView):
         self.old_pitch = self.pitch
         return result
 
+    # Interpola o movimento dos indicadores entre atualizações da arma.
     def smoothing(self, stepYaw, stepPitch, step):
         self.dataHor, self.dataVert = self.coordinate(stepYaw, stepPitch)
         if (step + STEP) < 1.001:
@@ -280,6 +301,7 @@ class AimingAnglesController(AimingAnglesView):
             self.smoothingID = None
         self.updateLabels()
 
+    # Recalcula a escala dos limites após uma alteração do campo de visão.
     def setFovByMultiplier(self, func, b_self, multiplier, *args, **kwargs):
         result = func(b_self, multiplier, *args, **kwargs)
         if self.old_multiplier == multiplier or not self.showCorners or self.isMapCase:
@@ -288,6 +310,7 @@ class AimingAnglesController(AimingAnglesView):
         self.updateCoordinates()
         return result
 
+    # Converte os ângulos da arma em coordenadas dos indicadores.
     def coordinate(self, _yaw, _pitch):
         if self.showHorCorners:
             dif_yaw = self.leftLimits - _yaw
@@ -308,15 +331,19 @@ class AimingAnglesController(AimingAnglesView):
             yHi = -COORDINATE_OFF_SCREEN
         return [xLeft, xRight], [yLo, yHi]
 
+    # Obtém a posição do limite esquerdo ou oculta-o se o veículo morreu.
     def anglesAiming_left(self, x=0):
         return (self.dataHor[0] + x) if self.isAlive else -COORDINATE_OFF_SCREEN
 
+    # Obtém a posição do limite direito ou oculta-o se o veículo morreu.
     def anglesAiming_right(self, x=0):
         return (self.dataHor[1] + x) if self.isAlive else COORDINATE_OFF_SCREEN
 
+    # Obtém a posição do limite inferior ou oculta-o se o veículo morreu.
     def anglesAiming_bottom(self, _y=0):
         return (self.dataVert[0] + _y) if self.isAlive else COORDINATE_OFF_SCREEN
 
+    # Obtém a posição do limite superior ou oculta-o se o veículo morreu.
     def anglesAiming_top(self, _y=0):
         return (self.dataVert[1] + _y) if self.isAlive else -COORDINATE_OFF_SCREEN
 
@@ -325,10 +352,12 @@ gun_traverse_limits_settings = GunTraverseLimitsSettings()
 controller = AimingAnglesController(gun_traverse_limits_settings)
 
 
+# Inicializa o módulo de limites de rotação da arma.
 def init():
     controller.createUI()
 
 
+# Liberta os recursos do módulo de limites de rotação da arma.
 def fini():
     controller.endBattle()
     controller.destroyUI()

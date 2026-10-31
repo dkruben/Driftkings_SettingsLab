@@ -16,14 +16,17 @@ LOG = get_logger('Driftkings.Camera')
 third_person_zoom_settings = ThirdPersonZoomSettings()
 
 
+# Obtém as opções normalizadas de zoom para o modo de câmara indicado.
 def _options(mode):
     return options(settings_service.getComponentDict(third_person_zoom_settings), mode)
 
 
+# Distingue a câmara exterior normal da câmara após a destruição.
 def _arcadeMode(camera):
     return 'postmortem' if getattr(camera, '_ArcadeCamera__postmortemMode', False) else 'arcade'
 
 
+# Aplica a distância inicial e os limites ao criar a câmara exterior.
 @override(ArcadeCamera, 'create')
 def new_create_arcade(original, self, onChangeControlMode=None, postmortemMode=False, smartPointCalculator=True):
     # Native create sets this flag after construction/config reading. Select the
@@ -41,6 +44,7 @@ def new_create_arcade(original, self, onChangeControlMode=None, postmortemMode=F
     return result
 
 
+# Aplica os limites de zoom à configuração base da câmara exterior.
 @override(ArcadeCamera, '_readBaseCfg')
 def new_read_arcade_base_cfg(original, self, *args, **kwargs):
     result = original(self, *args, **kwargs)
@@ -51,6 +55,7 @@ def new_read_arcade_base_cfg(original, self, *args, **kwargs):
     return result
 
 
+# Aplica os limites de zoom à configuração pessoal da câmara exterior.
 @override(ArcadeCamera, '_readUserCfg')
 def new_read_arcade_user_cfg(original, self, *args, **kwargs):
     result = original(self, *args, **kwargs)
@@ -60,6 +65,7 @@ def new_read_arcade_user_cfg(original, self, *args, **kwargs):
     return result
 
 
+# Mantém os limites configurados durante a atualização da câmara exterior.
 @override(ArcadeCamera, '_updateProperties')
 def new_update_arcade_properties(original, self, state=None):
     data = _options(_arcadeMode(self))
@@ -72,6 +78,7 @@ def new_update_arcade_properties(original, self, state=None):
     return original(self, state=state)
 
 
+# Aplica as opções de distância à configuração da câmara de artilharia.
 def _readArtillery(original, camera, mode, *args, **kwargs):
     result = original(camera, *args, **kwargs)
     data = _options(mode)
@@ -82,16 +89,19 @@ def _readArtillery(original, camera, mode, *args, **kwargs):
     return result
 
 
+# Aplica o zoom configurado à câmara estratégica.
 @override(StrategicCamera, '_readBaseCfg')
 def new_read_strategic_base_cfg(original, self, *args, **kwargs):
     return _readArtillery(original, self, 'strategic', *args, **kwargs)
 
 
+# Aplica o zoom configurado à câmara alternativa de artilharia.
 @override(ArtyCamera, '_readBaseCfg')
 def new_read_arty_base_cfg(original, self, *args, **kwargs):
     return _readArtillery(original, self, 'arty', *args, **kwargs)
 
 
+# Define a distância da câmara ao entrar no modo após a destruição.
 @override(PostMortemControlMode, 'enable')
 def new_enable_post_mortem(original, self, **kwargs):
     data = _options('postmortem')

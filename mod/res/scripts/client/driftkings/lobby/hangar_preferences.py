@@ -21,7 +21,9 @@ from driftkings.core.callbacks import callback
 from driftkings.core.hooks import on_event, override, overrideClassMethod, overrideMethod
 from driftkings.core.introspection import find_attr_name
 from driftkings.core.settings_controller import SettingsController
+from driftkings.flash.lobby.native_preferences import install as install_flash_preferences
 from driftkings.gameface.lobby.hangar_preferences import install_header_options
+from driftkings.gameface.lobby.native_preferences import install as install_native_preferences
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.lobby.hangar_preferences import HangarPreferencesSettings
 from driftkings.settings.service import affects, settings_service
@@ -32,7 +34,7 @@ LOG = get_logger('driftkings.lobby.hangar_preferences')
 class HangarOptionsController(SettingsController):
     SETTINGS_SECTION = HANGAR_PREFERENCES
 
-
+    # Atualiza opções do hangar quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         if not affects(changes, GLOBAL.ENABLED, HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET):
             return
@@ -44,10 +46,12 @@ hangar_preferences_settings = HangarPreferencesSettings()
 controller = HangarOptionsController()
 
 
+# Obtém o valor atual de uma opção do hangar com a alternativa indicada.
 def _cfg(key, default=None):
     return settings_service.getComponentDict(hangar_preferences_settings).get(key, default)
 
 
+# Identifica veículos exclusivos de eventos ou de Steel Hunter.
 def _isSpecialBattleVehicle(target):
     for attr_name in ('isOnlyForEventBattles', 'isOnlyForBattleRoyaleBattles'):
         attr = getattr(target, attr_name, None)
@@ -59,6 +63,7 @@ def _isSpecialBattleVehicle(target):
     return False
 
 
+# Instala a adaptação apenas quando o atributo nativo está disponível.
 def _overrideIfAvailable(target, prop):
     if target is None:
         return lambda handler: handler
@@ -69,6 +74,7 @@ def _overrideIfAvailable(target, prop):
 
 
 # low ammo => configurable ready threshold
+# Aplica a opção de entrar em batalha com munição incompleta.
 @overrideMethod(Vehicle, 'isAmmoFull')
 def new_isAmmoFull(base, self):
     original = base.fget if isinstance(base, property) else base
@@ -86,6 +92,7 @@ def new_isAmmoFull(base, self):
 
 
 # low ammo => vehicle not ready in prebattle
+# Adapta a validação pré-batalha sem interferir com veículos especiais.
 @override(Vehicle, 'isReadyToPrebattle')
 def new_isReadyToPrebattle(func, self, *args, **kwargs):
     result = func(self, *args, **kwargs)
@@ -100,6 +107,7 @@ def new_isReadyToPrebattle(func, self, *args, **kwargs):
 
 
 # low ammo => vehicle not ready for battle button/property
+# Aplica as opções de prontidão do veículo sem alterar os modos especiais.
 @overrideMethod(Vehicle, 'isReadyToFight')
 def new_isReadyToFight(base, self, *args, **kwargs):
     original = base.fget if isinstance(base, property) else base
@@ -115,6 +123,7 @@ def new_isReadyToFight(base, self, *args, **kwargs):
 
 
 # low ammo => disable battle button validator
+# Ajusta os avisos de validação do veículo selecionado.
 @override(CurrentVehicleActionsValidator, '_validate')
 def new_validateCurrentVehicle(func, self):
     res = func(self)
@@ -132,6 +141,7 @@ def new_validateCurrentVehicle(func, self):
 
 # low ammo => show the low ammo carousel text; only the state key lookup is wrapped,
 # not every client translation.
+# Adapta o aviso de munição incompleta apresentado no carrossel.
 @overrideClassMethod(MENU, 'tankcarousel_vehiclestates')
 def new_tankCarouselVehicleStates(base, cls, key0):
     if _cfg(GLOBAL.ENABLED, True) and key0 == Vehicle.VEHICLE_STATE.AMMO_NOT_FULL:
@@ -139,10 +149,8 @@ def new_tankCarouselVehicleStates(base, cls, key0):
     return base(key0)
 
 
-# hide shared chat button
-
-
 # hide premium vehicle on the background in the hangar
+# Respeita a opção de mostrar o veículo premium promocional no hangar.
 @override(HeroTank, 'recreateVehicle')
 def new__recreateVehicle(func, self, typeDescriptor=None, state=ModelStates.UNDAMAGED, _callback=None, outfit=None):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -152,6 +160,7 @@ def new__recreateVehicle(func, self, typeDescriptor=None, state=ModelStates.UNDA
 
 
 # hide display pop-up messages in the hangar
+# Suprime as mensagens emergentes do hangar quando configurado.
 @override(TeaserViewer, 'show')
 def new__show(func, self, teaserData, promoCount):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -161,6 +170,7 @@ def new__show(func, self, teaserData, promoCount):
 
 
 # hide display unread notifications counter in the menu
+# Oculta o contador de promoções não lidas quando configurado.
 @override(PromoController, 'getPromoCount')
 def new__getPromoCount(func, self):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -170,25 +180,22 @@ def new__getPromoCount(func, self):
 
 
 # disable field mail tips
+# Respeita a opção de mostrar as mensagens promocionais do correio de campo.
 @override(PromoController, '__tryToShowTeaser')
 def new__tryToShowTeaser(func, *args):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
     return None if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.FIELD_MAIL, True) else func(*args)
 
 
+# Evita procurar mensagens do correio de campo quando estão desativadas.
 @override(PromoController, '__needToGetTeasersInfo')
 def new__needToGetTeasersInfo(func, *args):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
     return False if settings[GLOBAL.ENABLED] and not settings[HANGAR_PREFERENCES.FIELD_MAIL] else func(*args)
 
 
-# hide ranked battle results window
-
-
-# hide display session statistics button
-
-
 # hide display pop-up window when receiving progressive decals
+# Respeita a opção de mostrar a janela de decalques progressivos.
 @override(ProgressiveItemsRewardHandler, '_showAward')
 def new__showAward(func, self, ctx):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -198,6 +205,7 @@ def new__showAward(func, self, ctx):
 
 
 # hide counters in service channel
+# Oculta os contadores dos botões do hangar quando configurado.
 @override(NotificationListView, '_NotificationListView__updateCounters')
 def new__updateCounters(func, self):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -207,6 +215,7 @@ def new__updateCounters(func, self):
 
 
 # hide achievement popups
+# Dispensa as notificações emergentes de conquistas quando configurado.
 @override(EarningAnimationCommand, 'execute')
 def new__execute(base, self):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -216,6 +225,7 @@ def new__execute(base, self):
     base(self)
 
 
+# Dispensa a janela de recompensas de conquistas quando configurado.
 @override(RewardScreenCommand, 'execute')
 def new__rewardScreenExecute(base, self):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -227,9 +237,11 @@ def new__rewardScreenExecute(base, self):
 
 # Auto-Login
 class AutoLoginHandler:
+    # Prepara o controlo da primeira tentativa de entrada automática.
     def __init__(self):
         self.firstTime = False
 
+    # Executa a entrada automática conforme as opções e o estado do ecrã.
     def auto_login(self, login):
         settings = settings_service.getComponentDict(hangar_preferences_settings)
         if not self.firstTime:
@@ -241,6 +253,7 @@ class AutoLoginHandler:
 autoLogin = AutoLoginHandler()
 
 
+# Tenta a entrada automática quando o ecrã de início de sessão fica pronto.
 @on_event(events.LoginView.populate.after)
 def new__LoginViewPopulate(self):
     if not isReplay() and not getattr(self.loginManager, 'wgcAvailable', False):
@@ -248,8 +261,7 @@ def new__LoginViewPopulate(self):
 
 
 # Show Xp To Unlock Veh.
-
-
+# Respeita a opção de permitir a troca de experiência na árvore tecnológica.
 @override(_TechTreeDataProvider, 'getAllVehiclePossibleXP')
 def new__getAllVehiclePossibleXP(func, self, nodeCD, unlockStats):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
@@ -261,12 +273,7 @@ def new__getAllVehiclePossibleXP(func, self, nodeCD, unlockStats):
     return func(self, nodeCD, unlockStats)
 
 
-# The current hangar renders Battle Pass through the user missions presenter.
-
-
-# Handlers
-
-
+# Inicializa o módulo de opções do hangar.
 def init():
     controller.start()
     try:
@@ -275,16 +282,11 @@ def init():
         LOG.error('Gameface header options unavailable; rebuild the Driftkings UI resources')
 
 
+# Liberta os recursos do módulo de opções do hangar.
 def fini():
     controller.stop()
 
 
 # Import registers the presentation hooks with the current component owner.
-
-from driftkings.gameface.lobby.native_preferences import install as install_native_preferences
-
 install_native_preferences(hangar_preferences_settings, _overrideIfAvailable)
-
-from driftkings.flash.lobby.native_preferences import install as install_flash_preferences
-
 install_flash_preferences(hangar_preferences_settings, _overrideIfAvailable, LOG)

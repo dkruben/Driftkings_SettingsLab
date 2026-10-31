@@ -23,10 +23,12 @@ class _ShotResult(_CrosshairShotResults):
     JET_FACTOR = 0.001
     PP_REDUCTION_FACTOR = 3.0
 
+    # Verifica se o componente atingido de uma entidade pode ser destruído.
     @classmethod
     def _isDestructibleComponent(cls, entity, componentID):
         return entity.isDestructibleComponent(componentID) if isinstance(entity, DestructibleEntity) else True
 
+    # Obtém o resultado previsto do disparo a partir da colisão da mira.
     @classmethod
     def _getShotResult(cls, gunMarker, multiplier, player):
         if player is None or gunMarker.collData is None:
@@ -36,6 +38,7 @@ class _ShotResult(_CrosshairShotResults):
             return None
         return cls._result(gunMarker, multiplier, player)
 
+    # Calcula a blindagem e o resultado previsto com os detalhes da colisão.
     @classmethod
     def _result(cls, gunMarker, multiplier, player):
         collision_details = cls._getAllCollisionDetails(gunMarker.position, gunMarker.direction, gunMarker.collData.entity)
@@ -52,10 +55,12 @@ class _ShotResult(_CrosshairShotResults):
         else:
             return cls._computeArmorDefault(collision_details, shell, piercing_power, gunMarker.collData.entity)
 
+    # Identifica munição explosiva com a mecânica moderna de penetração.
     @staticmethod
     def _isModernMechanics(shell):
         return shell.kind == SHELL_TYPES.HIGH_EXPLOSIVE and shell.type.mechanics == SHELL_MECHANICS_TYPE.MODERN
 
+    # Acumula a blindagem e a perda de penetração pela mecânica normal.
     @classmethod
     def _computeArmorDefault(cls, collision_details, shell, full_piercing_power, entity):
         armor = 0
@@ -93,6 +98,7 @@ class _ShotResult(_CrosshairShotResults):
                 ignored_materials.add((detail.compName, mat_info.kind))
         return int(armor), int(piercing_power), int(shell.caliber), ricochet, no_damage
 
+    # Calcula a blindagem atravessada pela munição explosiva moderna.
     @classmethod
     def _computeArmorModernHE(cls, collision_details, shell, piercing_power, entity):
         armor = 0
@@ -121,6 +127,7 @@ class _ShotResult(_CrosshairShotResults):
 
 class _ShotResultAll(_ShotResult):
 
+    # Calcula o resultado previsto apenas para entidades válidas e ainda vivas.
     @classmethod
     def _getShotResult(cls, gunMarker, multiplier, player):
         collision = gunMarker.collData
@@ -129,18 +136,21 @@ class _ShotResultAll(_ShotResult):
         return cls._result(gunMarker, multiplier, player)
 
 
+# Inicia o módulo de indicador de penetração quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     if g_gameface is not None and battle_capabilities.has_gameface_hud():
         g_gameface.startBattle()
 
 
+# Encerra o módulo de indicador de penetração quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_destroyGUI(*args):
     if g_gameface is not None:
         g_gameface.stopBattle()
 
 
+# Inicializa o módulo de indicador de penetração.
 def init():
     global g_gameface
     if g_gameface is None:
@@ -148,6 +158,7 @@ def init():
         g_gameface.install()
 
 
+# Liberta os recursos do módulo de indicador de penetração.
 def fini():
     global g_gameface
     if g_gameface is not None:

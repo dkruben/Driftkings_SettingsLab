@@ -10,6 +10,7 @@ from driftkings.settings.service import settings_service
 game_log_manager_settings = GameLogManagerSettings()
 
 
+# Obtém os filtros configurados para os tipos de evento do registo de batalha.
 def get_filters():
     settings = settings_service.getComponentDict(game_log_manager_settings)
     return {

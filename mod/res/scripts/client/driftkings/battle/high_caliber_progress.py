@@ -23,22 +23,26 @@ high_caliber_progress_settings = HighCaliberProgressSettings()
 
 
 class MainGun(object):
+    # Prepara os contadores de dano e os dados do painel de Alto Calibre.
     def __init__(self):
         self.players_damage = dict()
         self.totals = [0, 0, True, 0, 0]
         self.payload = {'visible': False}
         self.destroyed = False
 
+    # Verifica se o modo e as configurações permitem mostrar Alto Calibre.
     @property
     def showMainGun(self):
         return settings_service.getComponentDict(high_caliber_progress_settings)[HIGH_CALIBER_PROGRESS.HIGH_CALIBER_PROGRESS]['enabled'] and scl.guiType in RANDOM_GUI_TYPES
 
+    # Calcula o objetivo base de dano a partir da vida total adversária.
     def battleLoading(self):
         enemy_health = scl.health.get(scl.enemyTeam)
         if self.showMainGun and enemy_health and enemy_health[1]:
             self.totals[0] = max(1000, int(math.ceil(scl.health[scl.enemyTeam][1] * 0.2)))
         self.updateMainGun()
 
+    # Regista o dano causado pelos jogadores e atualiza o progresso.
     def playersDamage(self, attackerID, damage, targetTeam, attackerTeam):
         if attackerID is None or damage <= 0:
             self.updateMainGun()
@@ -55,6 +59,7 @@ class MainGun(object):
                 self.totals[3] = max(self.totals[3], p_damage[0])
         self.updateMainGun()
 
+    # Extrai os eventos de dano relevantes para Alto Calibre.
     def onPlayerFeedbackReceived(self, events):
         for event in events:
             eventType = event.getType()
@@ -64,6 +69,7 @@ class MainGun(object):
                 self.totals[4] += damage
                 self.updateMainGun()
 
+    # Recalcula o progresso e publica os dados do painel de Alto Calibre.
     def updateMainGun(self):
         settings = settings_service.getComponentDict(high_caliber_progress_settings)
         player = getPlayer()
@@ -89,6 +95,7 @@ class MainGun(object):
 
 
 class SysClass(object):
+    # Inicializa o acompanhamento dos veículos e da vida total das equipas.
     def __init__(self):
         self.active = False
         self.inBattle = False
@@ -97,6 +104,7 @@ class SysClass(object):
         self.feedback = None
         self.reset()
 
+    # Repõe os dados de veículos, equipas e vida da batalha.
     def reset(self):
         self.health = dict()
         self.vehicles = dict()
@@ -105,6 +113,7 @@ class SysClass(object):
         self.enemyTeam = None
         self._health = [0, 0, 0, 0]
 
+    # Ativa o acompanhamento de progresso de Alto Calibre.
     def start(self):
         if self.active:
             return
@@ -116,6 +125,7 @@ class SysClass(object):
         battleEvents.killed.connect(self._onVehicleKilled)
         battleEvents.acquire(self)
 
+    # Desativa o acompanhamento de progresso de Alto Calibre e liberta as subscrições.
     def stop(self):
         if not self.active:
             return
@@ -130,12 +140,15 @@ class SysClass(object):
         finally:
             battleEvents.release(self)
 
+    # Atualiza progresso de Alto Calibre quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         self.refresh()
 
+    # Atualiza o painel de Alto Calibre com o estado atual.
     def refresh(self):
         mainGuns.updateMainGun()
 
+    # Prepara os veículos e os eventos para acompanhar o dano da batalha.
     def battleLoading(self):
         self.destroyBattle()
         player = getPlayer()
@@ -161,16 +174,19 @@ class SysClass(object):
             self.feedback = feedback
         self.onRosterReady()
 
+    # Encaminha os eventos de dano enquanto a batalha está ativa.
     def _onPlayerFeedbackReceived(self, events):
         if self.inBattle:
             mainGuns.onPlayerFeedbackReceived(events)
 
+    # Reconstrói a lista de veículos quando os dados da arena ficam prontos.
     def onRosterReady(self, *args):
         if not self.inBattle:
             return
         self.tanklistsCreate()
         mainGuns.battleLoading()
 
+    # Remove as subscrições da batalha e limpa os dados de Alto Calibre.
     def destroyBattle(self):
         self.inBattle = False
         if self.player is not None:
@@ -187,6 +203,7 @@ class SysClass(object):
         mainGuns.__init__()
         mainGuns.updateMainGun()
 
+    # Constrói a lista de veículos e os totais de vida por equipa.
     def tanklistsCreate(self):
         arena_dp = self.player.guiSessionProvider.getArenaDP()
         if arena_dp is None:
@@ -218,6 +235,7 @@ class SysClass(object):
             hDic[0] += health
             hDic[1] += maxHealth
 
+    # Subtrai o dano observado ao total de vida da equipa.
     def updateHealthPoints(self, damage, team):
         if damage <= 0 or team not in self.health:
             return
@@ -229,6 +247,7 @@ class SysClass(object):
         if self._health[index] <= 0:
             self._health[index] = 0
 
+    # Atribui as alterações de vida ao dano causado pelos jogadores.
     def onHealthChanged(self, vehicle, newHealth, _, attackerID, __):
         if self.guiType in RANDOM_GUI_TYPES:
             target = self.vehicles.get(vehicle.id)
@@ -242,6 +261,7 @@ class SysClass(object):
                 self.updateHealthPoints(damage, target[2])
                 mainGuns.playersDamage(attackerID, damage, target[2], attacker[2] if attacker else None)
 
+    # Atualiza os dados quando um veículo é destruído.
     def _onVehicleKilled(self, targetID, *_, **__):
         if not self.inBattle:
             return
@@ -253,6 +273,7 @@ class SysClass(object):
             mainGuns.destroyed = True
         mainGuns.updateMainGun()
 
+    # Atualiza a informação de um veículo na lista da batalha.
     def _onVehicleUpdate(self, tid):
         if not self.inBattle:
             return
@@ -282,6 +303,7 @@ class SysClass(object):
         # once their maximum HP is known, without resetting accumulated damage.
         mainGuns.battleLoading()
 
+    # Sincroniza a vida dos veículos que entram no mundo.
     def _onEnterWorld(self, vehicle):
         target = self.vehicles.get(vehicle.id)
         newHealth = max(0, vehicle.health)
@@ -291,6 +313,7 @@ class SysClass(object):
             mainGuns.updateMainGun()
 
 
+# Encaminha a alteração nativa de vida para o acompanhamento de dano.
 @on_event(battleEvents.healthDetailed)
 def new__onHealthChanged(self, newHealth, oldHealth, attackerID, attackReasonID, *args, **kwargs):
     if scl.inBattle:
@@ -302,6 +325,7 @@ mainGuns = MainGun()
 scl = SysClass()
 
 
+# Inicializa o módulo de progresso de Alto Calibre.
 def init():
     global g_gameface
     if g_gameface is None:
@@ -310,6 +334,7 @@ def init():
     scl.start()
 
 
+# Liberta os recursos do módulo de progresso de Alto Calibre.
 def fini():
     global g_gameface
     scl.stop()

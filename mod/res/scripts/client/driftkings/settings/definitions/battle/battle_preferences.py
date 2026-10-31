@@ -31,7 +31,6 @@ class BattlePreferencesSettings(SectionDefinition):
                 control(BATTLE_PREFERENCES.DIRECTIVES_ONLY_FROM_STORAGE),
                 control(BATTLE_PREFERENCES.SHOW_FRIENDS),
                 control(BATTLE_PREFERENCES.CLIP_LOAD),
-                control(BATTLE_PREFERENCES.HIDE_HINT),
-                control(BATTLE_PREFERENCES.LOAD_TXT, 'TextInput', 300)
+                control(BATTLE_PREFERENCES.HIDE_HINT)
             ]
         )
