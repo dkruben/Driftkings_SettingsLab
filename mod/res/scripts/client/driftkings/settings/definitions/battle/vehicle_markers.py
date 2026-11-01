@@ -5,9 +5,12 @@ from driftkings.core.vehicle_markers.colors import normalize, palette
 from driftkings.core.vehicle_markers.config import prepare
 from driftkings.core.vehicle_markers.ratings import values as rating_values
 from driftkings.core.vehicle_markers.schema import FILES, STATE_KEYS
+from driftkings.logger import get_logger
 from driftkings.settings.controls_schema import field
 from driftkings.settings.definitions.base import SectionDefinition
 from driftkings.settings.vehicle_markers_store import VehicleMarkersStore
+
+LOG = get_logger('Driftkings.VehicleMarkers')
 
 # Sample vehicle for the marker preview. The client's vehicle cache supplies the live values; these come from
 # res/scripts/item_defs/vehicles/usa (list.xml: tier 8 heavyTank; A12_T32.xml: hull 1320 + top turret 330 HP).
@@ -26,7 +29,8 @@ def sample_vehicle():
                       vtype=vehicles.getVehicleClassFromVehicleType(vehicle_type) or result['vtype'],
                       maxHp=vehicle_type.hulls[0].maxHealth + max([turret.maxHealth for turret in turrets] or [0]))
     except Exception:
-        pass
+        # Outside the client (or with an unknown sample) the preview keeps the fixed values above.
+        LOG.debug('Vehicle cache unavailable for the marker preview sample', exc_info=True)
     nation, ident = result['name'].split(':')
     result.update(contour='gui/maps/icons/vehicle/contour/%s-%s.png' % (nation, ident),
                   typeIcon='gui/maps/icons/vehicleTypes/%s.png' % result['vtype'],

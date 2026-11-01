@@ -58,5 +58,10 @@ for (const face of ['dkm', 'DriftkingsFont', 'Fonte Ã¡', 'å­—ä½“']) {
 // A second load is safe when two injected features request the shared script.
 vm.runInContext(fs.readFileSync(path.join(root, 'mod/res/gui/gameface/mods/driftkings/shared/flash_text.js'), 'utf8'), context);
 assert.deepStrictEqual(output(rich, options).childNodes[1].style, ratings.childNodes[1].style);
+// Event attributes are disabled before parsing, also behind a quoted '>'; text that only looks like one is kept.
+const inert = context.window.DriftkingsFlashText.inert;
+assert.strictEqual(inert('<img src="x" onerror="bad()">'), '<img src="x" data-dk-off="bad()">');
+assert.strictEqual(inert('<img alt=">" ONLOAD=bad() src=x>'), '<img alt=">" data-dk-off=bad() src=x>');
+assert.strictEqual(inert('<font color="#FFFFFF">phone onion=1</font>'), '<font color="#FFFFFF">phone onion=1</font>');
 console.log('Shared Flash text: formatting, filtering, feature options and reload OK');
 module.exports = {element, rich, output, options, document};

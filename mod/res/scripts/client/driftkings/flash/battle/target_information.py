@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from driftkings._constants import TARGET_INFORMATION
-
 """Presentation adapter for InfoPanel; gameplay state stays in its component."""
 from importlib import import_module
 import re
@@ -11,6 +9,7 @@ from gui import g_guiResetters
 from helpers import dependency
 from skeletons.account_helpers.settings_core import ISettingsCore
 
+from driftkings._constants import TARGET_INFORMATION
 from driftkings.flash.core import Align, ElementType, overlays
 from driftkings.settings.service import affects, settings_service
 
@@ -35,7 +34,7 @@ class Flash(object):
         self.active = True
         self.data = self.setup()
         overlays.updated += self.__updatePosition
-        if overlays is not None and ElementType is not None:
+        if ElementType is not None:
             self.createObject(ElementType.LABEL, self.data[ElementType.LABEL])
             self.applyConfig()
         g_guiResetters.add(self.screenResize)
@@ -178,28 +177,22 @@ class Flash(object):
             return
         curScr = GUI.screenResolution()
         scale = max(0.1, float(self.settingsCore.interfaceScale.get()))
-        xMo, yMo = curScr[0] / scale, curScr[1] / scale
-        x = settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION].get('x', None)
-        if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.LEFT:
-            x = self.screenFix(xMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x'], 1)
-        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.RIGHT:
-            x = self.screenFix(xMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x'], -1)
-        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignX'] == Align.CENTER:
-            x = self.screenFix(xMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x'], 0)
-        if x is not None and x != settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['x']:
-            settings_service.apply(_component().target_information_settings, {TARGET_INFORMATION.TEXT_POSITION: {'x': x}}, persist=False)
-            self.data[ElementType.LABEL]['x'] = x
-        y = settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION].get('y', None)
-        if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.TOP:
-            y = self.screenFix(yMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y'], 1)
-        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.BOTTOM:
-            y = self.screenFix(yMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y'], -1)
-        elif settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['alignY'] == Align.CENTER:
-            y = self.screenFix(yMo, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y'], 0)
-        if y is not None and y != settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.TEXT_POSITION]['y']:
-            settings_service.apply(_component().target_information_settings, {TARGET_INFORMATION.TEXT_POSITION: {'y': y}}, persist=False)
-            self.data[ElementType.LABEL]['y'] = y
+        config = _component().target_information_settings
+        # Each apply replaces the position dict, so it is read again before the y axis.
+        x = self._fitAxis(config, 'x', 'alignX', curScr[0] / scale, (Align.LEFT, Align.RIGHT, Align.CENTER))
+        y = self._fitAxis(config, 'y', 'alignY', curScr[1] / scale, (Align.TOP, Align.BOTTOM, Align.CENTER))
         self.updateObject(ElementType.LABEL, {'x': x, 'y': y})
+
+    def _fitAxis(self, config, key, alignKey, screen, aligns):
+        position = settings_service.getComponentDict(config)[TARGET_INFORMATION.TEXT_POSITION]
+        value = position.get(key, None)
+        modes = dict(zip(aligns, (1, -1, 0)))
+        if position[alignKey] in modes:
+            value = self.screenFix(screen, position[key], modes[position[alignKey]])
+        if value is not None and value != position[key]:
+            settings_service.apply(config, {TARGET_INFORMATION.TEXT_POSITION: {key: value}}, persist=False)
+            self.data[ElementType.LABEL][key] = value
+        return value
 
     def getData(self):
         return self.data

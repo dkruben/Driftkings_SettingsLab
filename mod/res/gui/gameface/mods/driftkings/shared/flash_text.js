@@ -2,6 +2,13 @@
 (function () {
     'use strict';
 
+    // Detached markup still loads <img>, so event attributes are disabled before innerHTML parses it.
+    function inert(html) {
+        return String(html).replace(/<(?:[^>"']|"[^"]*"|'[^']*')*>/g, function (tag) {
+            return tag.replace(/(\s)on[a-z]+\s*=/gi, '$1data-dk-off=');
+        });
+    }
+
     function copy(source, target, options) {
         options = options || {};
         for (var i = 0; i < source.childNodes.length; i++) {
@@ -36,5 +43,5 @@
         }
     }
 
-    window.DriftkingsFlashText = {copy: copy};
+    window.DriftkingsFlashText = {copy: copy, inert: inert};
 }());

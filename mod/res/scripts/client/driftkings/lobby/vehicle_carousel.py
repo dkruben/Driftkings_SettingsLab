@@ -11,14 +11,13 @@ from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 from gui.shared.utils.requesters import REQ_CRITERIA
 
-from driftkings._constants import GLOBAL, MARKS_MIN_TIER, VEHICLE_CAROUSEL, WN8_EXPECTED_FIELDS
+from driftkings._constants import MARKS_MIN_TIER, VEHICLE_CAROUSEL, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core import carousel as layout
 from driftkings.core.carousel_assets import CarouselImages, normalize_icon_paths
 from driftkings.core.carousel_options import STAT_SORT_KEYS
 from driftkings.core.carousel_tiers import battle_tiers
-from driftkings.core.hooks import override
 from driftkings.core.wnx import calculate as calculate_wnx
 from driftkings.core.wnx import get_expected as get_wnx_expected
 from driftkings.gameface.lobby.vehicle_carousel import (CarouselController, get_view_config, install_carousel_layout,

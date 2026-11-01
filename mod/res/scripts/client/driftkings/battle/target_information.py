@@ -57,6 +57,7 @@ TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4
 LOG = get_logger('Driftkings.TargetInformation')
 target_information_settings = TargetInformationSettings()
 g_gameface = TargetInformationAdapter()
+g_flash = None
 g_panel = g_gameface
 
 
@@ -503,15 +504,17 @@ class InfoPanel(DataConstants):
 
     # Subscreve os eventos de foco e entrada do alvo durante a batalha.
     def onBattleStarted(self):
-        global g_panel
+        global g_flash, g_panel
         if self._inBattle:
             return
         if battle_capabilities.has_gameface_hud():
             g_panel = g_gameface
         else:
-            # Os eventos sem HUD Gameface conservam a apresentação anterior.
-            from driftkings.flash.battle.target_information import Flash
-            g_panel = Flash()
+            # Os eventos sem HUD Gameface conservam a apresentação anterior, com uma única instância.
+            if g_flash is None:
+                from driftkings.flash.battle.target_information import Flash
+                g_flash = Flash()
+            g_panel = g_flash
         self._inBattle = True
         feedback = getPlayer().guiSessionProvider.shared.feedback
         if feedback is not None:

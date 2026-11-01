@@ -43,6 +43,10 @@ assert.deepStrictEqual(target.childNodes[1].style, {flexShrink: '0', whiteSpace:
 assert.strictEqual(target.childNodes[2].style.flexBasis, '100%');
 assert.strictEqual(target.childNodes[3].src, 'coui://gui/maps/icons/b.png');
 assert.strictEqual(target.childNodes[3].style.width, '10rem');
+const huge = element('div');
+text.copyRuns(element('div', {}, [element('img', {src: 'img://gui/maps/icons/b.png', width: '99999', height: '-4'})]), huge, {});
+assert.strictEqual(huge.childNodes[0].style.width, '2048rem');
+assert.strictEqual(huge.childNodes[0].style.height, '0rem');
 const plain = element('div');
 text.writeRuns(plain, 'No markup');
 assert.strictEqual(plain.childNodes[0].textContent, 'No markup');

@@ -49,6 +49,14 @@ class LocaleResourceTests(RuntimeTest):
         self.assertEqual(resources.load('pt')['TEXT']['common']['label'], 'Text')
         self.assertEqual(reads, ['pt'])
 
+    def recordFailures(self):
+        # Expected failures are recorded instead of printing tracebacks into the test output.
+        failures = []
+        saved = self.resources.LOG
+        self.resources.LOG = module(exception=lambda message, *args: failures.append(message % args))
+        self.addCleanup(setattr, self.resources, 'LOG', saved)
+        return failures
+
     def test_missing_or_bad_optional_resource_falls_back_for_both_consumers(self):
         original = self.resources.resources.reader
         def reader(code):
@@ -58,10 +66,13 @@ class LocaleResourceTests(RuntimeTest):
                 return 'bad format'
             return original(code)
         self.resources.resources.reader = reader
+        failures = self.recordFailures()
         english = self.catalog.TranslationCatalog().bundled('en')
         for code in ('pt', 'fr'):
             self.assertEqual(self.catalog.TranslationCatalog().bundled(code), english)
             self.assertEqual(self.panel.load(code)[1], self.panel.load('en')[1])
+        self.assertIn('Could not load bundled locale: pt', failures)
+        self.assertIn('Could not load bundled locale: fr', failures)
         self.resources.resources.cache['de'] = self.parser('common.custom: "Deutsch"\npanel.title: "Deutsch"')
         merged = self.catalog.TranslationCatalog().bundled('de')
         self.assertEqual(merged['common']['custom'], 'Deutsch')
@@ -87,10 +98,12 @@ class LocaleResourceTests(RuntimeTest):
     def test_missing_english_resource_is_reported_instead_of_cached_as_empty(self):
         def reader(code):
             raise IOError('missing English')
+        failures = self.recordFailures()
         resources = self.resources.CatalogResources(reader)
         with self.assertRaises(IOError):
             resources.load('en')
         self.assertNotIn('en', resources.cache)
+        self.assertEqual(failures, ['Could not load bundled locale: en'])
 
     def test_old_component_overrides_are_ignored_and_left_untouched(self):
         root = tempfile.mkdtemp()

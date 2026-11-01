@@ -45,7 +45,7 @@
         if (node.parentNode !== host) { host.appendChild(node); }
         while (node.firstChild) { node.removeChild(node.firstChild); }
         var parsed = document.createElement('div');
-        parsed.innerHTML = data.html.replace(/<tab\s*\/?\s*>/gi, '\t');
+        parsed.innerHTML = window.DriftkingsFlashText.inert(data.html.replace(/<tab\s*\/?\s*>/gi, '\t'));
         window.DriftkingsFlashText.copy(parsed, node, {fontFamily: true, fontAlpha: true, sizeUnit: 'rem'});
         formatSeparators(node);
     }

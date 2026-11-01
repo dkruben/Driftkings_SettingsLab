@@ -13,6 +13,13 @@
         else if (LOADED.test(name || '')) { style.fontFamily = name; }
     }
 
+    // Detached markup still loads <img>, so event attributes are disabled before innerHTML parses it.
+    function inert(html) {
+        return String(html).replace(/<(?:[^>"']|"[^"]*"|'[^']*')*>/g, function (tag) {
+            return tag.replace(/(\s)on[a-z]+\s*=/gi, '$1data-dk-off=');
+        });
+    }
+
     /* options.faces also applies <font face> and <font alpha>, as the screen texts did in Flash; the
        crosshair texts always used the view font. */
     function lines(html, target, lineClass, options) {
@@ -20,7 +27,7 @@
         var parsed = document.createElement('div'), line = K.node('div', lineClass, target), cell = null, column = 0;
         // <br>, <tab> e <img> do Flash viram spans fechados: o parser do Gameface perde os atributos do <br>
         // e alguns <br> (depois de uma imagem, dentro de <p>), também nos textos da mira.
-        html = html.replace(/<br\s*\/?>/gi, "<span data-dk-br='1'></span>");
+        html = inert(html).replace(/<br\s*\/?>/gi, "<span data-dk-br='1'></span>");
         parsed.innerHTML = options.rich ? html.replace(/<tab\s*\/?>/gi, "<span data-dk-tab='1'></span>")
             .replace(/<img\b([^>]*?)\s*\/?>/gi, "<span data-dk-img='1'$1></span>") : html;
         function newLine() { line = K.node('div', lineClass, target); cell = null; column = 0; }

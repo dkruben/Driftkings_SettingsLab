@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import binascii
 import codecs
 from collections import OrderedDict
@@ -7,11 +8,14 @@ import os
 import re
 import zlib
 
+from driftkings.common.utils.compat import text_type
 from driftkings.common.utils.filesystem import atomicWrite, recoverFile
 from driftkings.logger import get_logger
 from driftkings.settings.config_utils import smart_update
 
 LOG = get_logger('Driftkings.Config')
+# The client keeps native str (bytes) values; Python 3 tools already read text as str.
+BYTE_STRINGS = text_type is not str
 
 
 class JSONObjectEncoder(json.JSONEncoder):
@@ -55,22 +59,22 @@ class JSONObjectDecoder(json.JSONDecoder):
 class JSONLoader(object):
     @classmethod
     def byte_ify(cls, inputs, ignore_dicts=False):
-        if isinstance(inputs, unicode):
+        if BYTE_STRINGS and isinstance(inputs, text_type):
             return inputs.encode('utf-8')
         elif isinstance(inputs, list):
             return [cls.byte_ify(element, ignore_dicts=True) for element in inputs]
         elif isinstance(inputs, tuple):
             return tuple(cls.byte_ify(element, ignore_dicts=True) for element in inputs)
         elif isinstance(inputs, OrderedDict):
-            return OrderedDict((cls.byte_ify(key), cls.byte_ify(value)) for key, value in inputs.iteritems())
+            return OrderedDict((cls.byte_ify(key), cls.byte_ify(value)) for key, value in inputs.items())
         elif isinstance(inputs, dict) and not ignore_dicts:
-            return {cls.byte_ify(key, ignore_dicts=True): cls.byte_ify(value, ignore_dicts=True) for key, value in inputs.iteritems()}
+            return {cls.byte_ify(key, ignore_dicts=True): cls.byte_ify(value, ignore_dicts=True) for key, value in inputs.items()}
         return inputs
 
     @classmethod
     def stringed_ints(cls, inputs):
         if inputs and isinstance(inputs, dict):
-            gen_expr = (((str(key) if isinstance(key, int) else key), cls.stringed_ints(value)) for key, value in inputs.iteritems())
+            gen_expr = (((str(key) if isinstance(key, int) else key), cls.stringed_ints(value)) for key, value in inputs.items())
             if isinstance(inputs, OrderedDict):
                 return OrderedDict(gen_expr)
             return dict(gen_expr)
@@ -88,19 +92,21 @@ class JSONLoader(object):
             split_at = match.end(1)
             lines[lineNum] = new_line = line[:split_at]
             excluded[lineNum] = (line[split_at:], not bool(new_line))
-        return '\n'.join([lines[i] for i in xrange(len(lines)) if i not in excluded or not excluded[i][1]]), excluded
+        return '\n'.join([lines[i] for i in range(len(lines)) if i not in excluded or not excluded[i][1]]), excluded
 
     @staticmethod
     def encrypt(line):
-        return line.encode('zlib').encode('base64')
+        if isinstance(line, text_type):
+            line = line.encode('utf-8')
+        return base64.encodestring(zlib.compress(line)) if hasattr(base64, 'encodestring') else base64.encodebytes(zlib.compress(line))
 
     @staticmethod
     def decrypt(line, encrypted):
         if not line:
             return line, encrypted
         try:
-            return line.decode('base64').decode('zlib'), True
-        except (UnicodeEncodeError, binascii.Error, zlib.error):
+            return zlib.decompress(base64.b64decode(line)), True
+        except (UnicodeEncodeError, TypeError, ValueError, binascii.Error, zlib.error):
             return line, False
 
     @classmethod
@@ -111,7 +117,7 @@ class JSONLoader(object):
 
     @staticmethod
     def json_dumps(conf, sort):
-        return json.dumps(conf, sort_keys=sort, indent=4, ensure_ascii=False, encoding='utf-8', separators=(',', ': '), cls=JSONObjectEncoder)
+        return json.dumps(conf, sort_keys=sort, indent=4, ensure_ascii=False, separators=(',', ': '), cls=JSONObjectEncoder)
 
     @classmethod
     def json_file_read(cls, new_path, encrypted):
@@ -138,7 +144,7 @@ class JSONLoader(object):
         if encrypted:
             payload = cls.encrypt(data)
         else:
-            text = data if isinstance(data, unicode) else data.decode('utf-8')
+            text = data if isinstance(data, text_type) else data.decode('utf-8')
             payload = codecs.BOM_UTF8 + text.encode('utf-8')
         atomicWrite(new_path, payload)
 
@@ -191,7 +197,7 @@ class JSONLoader(object):
         write_lines = cls.json_dumps(read_data, sort_keys).split('\n')
         if not quiet:
             LOG.info('%s updating config: %s', prefix, new_path)
-        for lineNum, (comment, insert) in sorted(read_excluded.iteritems(), key=lambda x: x[0]):
+        for lineNum, (comment, insert) in sorted(read_excluded.items(), key=lambda x: x[0]):
             if not insert:
                 if lineNum < len(write_lines):
                     write_lines[lineNum] += comment

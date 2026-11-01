@@ -21,8 +21,15 @@
             var run=document.createElement('span'); run.style.flexShrink='0'; run.style.whiteSpace='pre';
             run.textContent=html; target.appendChild(run); return;
         }
-        var parsed=document.createElement('div'); parsed.innerHTML=html; copyRuns(parsed,target,{});
+        var parsed=document.createElement('div'); parsed.innerHTML=inert(html); copyRuns(parsed,target,{});
     }
+    // Detached markup still loads <img>, so event attributes are disabled before innerHTML parses it.
+    function inert(html) {
+        return String(html).replace(/<(?:[^>"']|"[^"]*"|'[^']*')*>/g, function (tag) {
+            return tag.replace(/(\s)on[a-z]+\s*=/gi, '$1data-dk-off=');
+        });
+    }
+    function imageSize(value) { return Math.min(2048,Math.max(0,number(value,22)))+'rem'; }
     function copyRuns(source, target, inherited) {
         for (var i = 0; i < source.childNodes.length; i++) {
             var child = source.childNodes[i];
@@ -42,8 +49,8 @@
                 var src=localImage(child.getAttribute('src'));
                 if (src) {
                     var image=document.createElement('img'); image.src=src; image.style.flexShrink='0';
-                    image.style.width=Math.max(0,number(child.getAttribute('width'),22))+'rem';
-                    image.style.height=Math.max(0,number(child.getAttribute('height'),22))+'rem';
+                    image.style.width=imageSize(child.getAttribute('width'));
+                    image.style.height=imageSize(child.getAttribute('height'));
                     target.appendChild(image);
                 }
                 continue;

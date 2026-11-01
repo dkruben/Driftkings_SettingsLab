@@ -27,7 +27,7 @@ from driftkings.logger import get_logger, NAMESPACE
 
 LOG = get_logger('Driftkings.Analytics')
 
-# Fill in before a release. The API secret ships inside the mod, so it is public
+# GA4 property used by releases. The API secret ships inside the mod, so it is public
 # by nature: GA4 accepts writes only, but anyone could send fake events with it.
 MEASUREMENT_ID = 'G-B7Z425MJ3L'
 API_SECRET = 'SD2sbCSKQACB-ILu408-EA'
