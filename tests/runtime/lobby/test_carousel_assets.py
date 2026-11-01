@@ -25,8 +25,8 @@ class CarouselAssetCompatibilityTests(RuntimeTest):
         assets = self.load('core.carousel_assets')
         self.assertEqual(assets.normalize_icon_paths('img://gui/maps/Driftkings/Carroucel/BATTLES.SVG'),
                          assets.RESOURCE_ROOT + 'battles.svg')
-        self.assertEqual(assets.normalize_icon_paths('gui/maps/Driftkings/Carroucel/{{v.c_type}}.SVG'),
-                         assets.RESOURCE_ROOT + '{{v.c_type}}.svg')
+        self.assertEqual(assets.normalize_icon_paths('gui/maps/Driftkings/Carroucel/{{v.c:type}}.SVG'),
+                         assets.RESOURCE_ROOT + '{{v.c:type}}.svg')
 
     def test_old_and_current_template_paths_use_same_packaged_png(self):
         assets = self.load('core.carousel_assets')

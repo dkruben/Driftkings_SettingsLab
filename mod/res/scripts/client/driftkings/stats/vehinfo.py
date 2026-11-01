@@ -23,7 +23,8 @@ from items import vehicles
 import nations
 import ResMgr
 
-from driftkings.common.utils.filesystem import atomicWrite, recoverFile
+from driftkings.common.utils.compat import integer_types
+from driftkings.common.utils.filesystem import atomicWrite, recover_file
 from driftkings.core.cache import cache_directory
 from driftkings.core.callbacks import callback
 from driftkings.core.wnx import parse_reference_page
@@ -31,10 +32,6 @@ from driftkings.core.wnx import set_reference as set_wnx_reference
 from driftkings.core.wnx import valid_reference as valid_wnx
 
 LOG = get_logger('Driftkings.Stats')
-try:
-    integer_types = (int, long)
-except NameError:
-    integer_types = (int,)
 
 
 def finite_number(value):
@@ -239,7 +236,7 @@ class ScaleValues(object):
     def _readCache(self, filename):
         path = os.path.join(self.config_path, filename)
         try:
-            recoverFile(path)
+            recover_file(path)
             with open(path, 'rb') as stream:
                 data = json.loads(stream.read().decode('utf-8-sig'))
             if not isinstance(data, dict):

@@ -56,31 +56,6 @@ def isReplay():
     return isPlaying() or isLoading()
 
 
-def getPlayer():
-    """
-    Get the current player entity.
-    object: The player entity.
-    """
-    return BigWorld.player()
-
-
-def getTarget():
-    """
-    Get the current target entity.
-    object: The target entity or None if no target.
-    """
-    return BigWorld.target()
-
-
-def getEntity(entityID):
-    """
-    Get an entity by its ID.
-    entityID (int): The entity ID to look up.
-    object: The entity or None if not found.
-    """
-    return BigWorld.entity(entityID)
-
-
 class SquarePosition(object):
     """
     Class to determine the grid square position of the player on the map.
@@ -121,7 +96,7 @@ class SquarePosition(object):
         str: The grid square position
         """
         import Math
-        player = getPlayer()
+        player = BigWorld.player()
         boundingBox = player.arena.arenaType.boundingBox
         position = BigWorld.entities[player.playerVehicleID].position
         positionRect = Math.Vector2(position[0], position[2])

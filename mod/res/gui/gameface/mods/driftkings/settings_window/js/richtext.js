@@ -56,7 +56,7 @@
     function fill(text, extra) {
         var now = new Date();   // the clock shows the client's current time
         text = String(text || '');
-        // Carousel fields use rating macros ({{v.x?a|b}}, {{v.c_x}}, {{icon:x}}); they have their own evaluator.
+        // Carousel fields use rating macros ({{v.x?a|b}}, {{v.c:x}}, {{icon:x}}); they have their own evaluator.
         if (DK.carouselPreview && /\{\{(v\.|icon:)/.test(text)) { text = DK.carouselPreview.macros(text).replace(/dkicon:\w+/g, ''); }
         return text
             .replace(/%\((\w[\w-]*)\)(\.(\d+))?([sdif])/g, function (all, name, dot, digits, kind) {

@@ -86,10 +86,5 @@ _data = load_tables()
 color_tables = _data['color_tables']
 system_colors = _data['system_colors']
 _by_name = dict((table['ScaleColor'], table['colors']) for table in color_tables)
-noob_meter_colors = _by_name['NoobMeter']
-driftkings_colors = _by_name['Driftkings']
-wot_life_colors = _by_name['WoT-Life']
-vehicle_type_colors = noob_meter_colors['vtype']
-total_hp_colors = noob_meter_colors['totalHP']
-damage_colors = noob_meter_colors['damage']
+damage_colors = _by_name['NoobMeter']['damage']
 del _data, _by_name

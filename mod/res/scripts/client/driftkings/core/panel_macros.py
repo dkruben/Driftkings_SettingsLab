@@ -3,10 +3,7 @@ import math
 import re
 from xml.sax.saxutils import escape
 
-try:
-    text_type = unicode
-except NameError:
-    text_type = str
+from driftkings.common.utils.compat import text_type
 
 
 def uses_tdv(value):

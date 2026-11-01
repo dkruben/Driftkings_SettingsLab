@@ -13,9 +13,18 @@ class CarouselPreviewTests(RuntimeTest):
             calls.append((metric, value))
             return '#123456' if value == 2380 else '#654321'
         api['getStatisticColor'] = color
-        result = api['render_macro']('{{v.c_tdb}} / {{v.c_wn8expd}}', {'avgDamage': 2380, 'wn8expd': 1950})
+        result = api['render_macro']('{{v.c:tdb}} / {{v.c:wn8expd}}', {'avgDamage': 2380, 'wn8expd': 1950})
         self.assertEqual(result, '#123456 / #654321')
         self.assertEqual(calls, [('tdb', 2380), ('tdb', 1950)])
+
+    def test_legacy_underscore_colour_macro_is_not_a_colour(self):
+        api, _ = game_source('lobby/vehicle_carousel.py')
+        api['layout'] = self.load('core.carousel')
+        api['normalize_icon_paths'] = lambda value: value
+        api['settings_service'] = module(getComponentDict=lambda config: {})
+        api['getStatisticColor'] = lambda metric, value, palette: '#123456'
+        self.assertEqual(api['render_macro']('{{v.c_tdb}}', {'avgDamage': 2380}), '--')
+        self.assertEqual(api['render_macro']('{{v.c:tdb}}', {'avgDamage': 2380}), '#123456')
 
     def test_zero_marks_icon_does_not_replace_earned_marks(self):
         api, _ = game_source('lobby/vehicle_carousel.py')
@@ -46,7 +55,7 @@ class CarouselPreviewTests(RuntimeTest):
         api, _ = game_source('lobby/vehicle_carousel.py')
         calls = []
         api['collect'] = lambda vehicle: self.fail('Preview must not read a player dossier')
-        api['getPlayer'] = lambda: self.fail('Preview must not access the account')
+        api['BigWorld'] = module(player=lambda: self.fail('Preview must not access the account'))
         api['getStatisticColor'] = lambda metric, value, palette: calls.append((metric, value, palette)) or '#123456'
         data = api['CarouselData']()
         result = data.preview_cards(2)

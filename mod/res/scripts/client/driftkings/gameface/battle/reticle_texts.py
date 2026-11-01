@@ -4,6 +4,7 @@ Gameface children of the native battle HUD. Each module keeps its settings; x/y 
 the crosshair, in interface units, as in the retired Flash views, and can be dragged with Ctrl."""
 from collections import defaultdict
 from importlib import import_module
+import string
 
 from driftkings._constants import AIMING_COUNTDOWN, GLOBAL, PENETRATION_INDICATOR, SHELL_FLIGHT_TIME
 from driftkings.core.hud_visibility import hudVisibility
@@ -14,6 +15,25 @@ from driftkings.views.marks_model import finite
 
 # Range of the x/y sliders in the settings panel.
 POSITION_LIMIT = 2000
+
+
+class _TemplateFormatter(string.Formatter):
+    def format_field(self, value, spec):
+        # '%d' truncated floats; keep that for {name:d}.
+        if spec.endswith('d') and isinstance(value, float):
+            value = int(value)
+        return super(_TemplateFormatter, self).format_field(value, spec)
+
+
+_FORMATTER = _TemplateFormatter()
+
+
+def fill_template(template, macro):
+    """Fill {name} macros; %(name)s is the legacy form, still read in older profiles."""
+    if '%(' in template:
+        return template % macro
+    # vformat reads the mapping itself, so a defaultdict answers unknown names.
+    return _FORMATTER.vformat(template, (), macro)
 
 
 def _dead_camera(ctrlMode):
@@ -185,7 +205,7 @@ class AimingCountdownAdapter(ReticleTextAdapter):
         settings = self.settings()
         self.minAngle, percent, timer = dispersion_timing(self.minAngle, angle, descriptor.gun.aimingTime)
         macro = defaultdict(lambda: 'macros not found', timer=timer, percent=percent, color=self.color(settings, percent))
-        self.setText(settings[AIMING_COUNTDOWN.TEMPLATE] % macro)
+        self.setText(fill_template(settings[AIMING_COUNTDOWN.TEMPLATE], macro))
 
     @staticmethod
     def color(settings, percent):
@@ -216,15 +236,15 @@ class FlightTimeAdapter(ReticleTextAdapter):
             crosshair.onGunMarkerStateChanged -= self.onGunMarkerStateChanged
 
     def onGunMarkerStateChanged(self, _, position, *__, **___):
+        import BigWorld
         from math_utils import VectorConstant
 
-        from driftkings.common.utils.wgutils import getPlayer
         from driftkings.core.aiming_timing import flight_time
         from driftkings.core.battle_policy import battle_policy
         settings = self.settings()
         if not battle_policy.decision('shell_flight_time', settings[GLOBAL.ENABLED], settings[SHELL_FLIGHT_TIME.SPG_ONLY])[0]:
             return self.setText('')
-        player = getPlayer()
+        player = BigWorld.player()
         if player is None or player.gunRotator is None:
             return self.setText('')
         shotPos, shotVec = player.gunRotator.getCurShotPosition()
@@ -238,12 +258,9 @@ class FlightTimeAdapter(ReticleTextAdapter):
             return self.setText('')
         macro = defaultdict(lambda: 'Macros not found', flightTime=flight_time(distance, speed), distance=distance)
         template = settings[SHELL_FLIGHT_TIME.TEMPLATE]
-        if '%(' in template:
-            message = template % macro
-        else:
+        if '%(' not in template:
             macro['distance'] = int(distance)
-            message = template.format(**macro)
-        self.setText(message)
+        self.setText(fill_template(template, macro))
 
 
 class PenetrationAdapter(ReticleTextAdapter):
@@ -278,4 +295,4 @@ class PenetrationAdapter(ReticleTextAdapter):
         labels = self.config().i18n
         self.macro.update(ricochet=labels['UI_ricochet'] if ricochet else '', noDamage=labels['UI_noDamage'] if noDamage else '',
                           countedArmor=armor, piercingPower=piercingPower, piercingReserve=piercingPower - armor, caliber=caliber)
-        self.setText(self.settings()[PENETRATION_INDICATOR.TEMPLATE] % self.macro)
+        self.setText(fill_template(self.settings()[PENETRATION_INDICATOR.TEMPLATE], self.macro))

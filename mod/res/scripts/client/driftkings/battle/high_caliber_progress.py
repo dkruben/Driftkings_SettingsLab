@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import math
 
+import BigWorld
 from constants import ARENA_GUI_TYPE
 from gui.battle_control.arena_info import vos_collections
 from gui.battle_control.battle_constants import FEEDBACK_EVENT_ID
 
 from driftkings._constants import GLOBAL, HIGH_CALIBER_PROGRESS
-from driftkings.common.utils.wgutils import create_range, getPlayer
+from driftkings.common.utils.wgutils import create_range
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
 from driftkings.core.high_caliber import project
@@ -72,7 +73,7 @@ class MainGun(object):
     # Recalcula o progresso e publica os dados do painel de Alto Calibre.
     def updateMainGun(self):
         settings = settings_service.getComponentDict(high_caliber_progress_settings)
-        player = getPlayer()
+        player = BigWorld.player()
         visible = bool(scl.inBattle and settings[GLOBAL.ENABLED] and player and player.arena
                        and battle_policy.decision('high_caliber_progress')[0]
                        and self.showMainGun and self.totals[0])
@@ -151,7 +152,7 @@ class SysClass(object):
     # Prepara os veículos e os eventos para acompanhar o dano da batalha.
     def battleLoading(self):
         self.destroyBattle()
-        player = getPlayer()
+        player = BigWorld.player()
         # Match MarksOnGunBattle and BattleEfficiency: statistics-bearing
         # battles only (random, incl. RANDOM_NP2/WINBACK), before subscribing to damage/roster events.
         if not player or not player.arena or not battle_policy.decision('high_caliber_progress')[0]:
@@ -222,7 +223,7 @@ class SysClass(object):
                 continue
             health = maxHealth if vInfoVO.isAlive() else 0
             self.vehicles.setdefault(vInfoVO.vehicleID, [health, maxHealth, vInfoVO.team, vInfoVO.vehicleType.classTag])
-            if vInfoVO.team == getPlayer().team:
+            if vInfoVO.team == BigWorld.player().team:
                 self._health[1] += health
                 self._health[3] += health
             else:
@@ -242,7 +243,7 @@ class SysClass(object):
         self.health[team][0] -= damage
         if self.health[team][0] < 0:
             self.health[team][0] = 0
-        index = 1 if team == getPlayer().team else 0
+        index = 1 if team == BigWorld.player().team else 0
         self._health[index] -= damage
         if self._health[index] <= 0:
             self._health[index] = 0
@@ -290,7 +291,7 @@ class SysClass(object):
             return None
         health = maxHealth if vInfoVO.isAlive() else 0
         self.vehicles.setdefault(tid, [health, maxHealth, vInfoVO.team, vInfoVO.vehicleType.classTag])
-        if vInfoVO.team == getPlayer().team:
+        if vInfoVO.team == BigWorld.player().team:
             self._health[1] += health
         else:
             if self.enemyTeam is None:

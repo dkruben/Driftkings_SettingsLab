@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import BattleReplay
+import BigWorld
 from gui.battle_control.battle_constants import DEVICE_STATE_DESTROYED, DEVICE_STATE_NORMAL, VEHICLE_VIEW_STATE
 from gui.Scaleform.genConsts.BATTLE_VIEW_ALIASES import BATTLE_VIEW_ALIASES
 from gui.shared import EVENT_BUS_SCOPE, events, g_eventBus
@@ -10,7 +11,6 @@ import SoundGroups
 
 from driftkings._constants import GLOBAL, REPAIR_CONTROLS
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.keyboard import keyboard
 from driftkings.settings.definitions.battle.repair_controls import RepairControlsSettings
@@ -86,7 +86,7 @@ class Repair(object):
 
     # Prepara o módulo de controlos de reparação para a batalha atual.
     def startBattle(self):
-        self.player = getPlayer()
+        self.player = BigWorld.player()
         if self.player is None or not hasattr(self.player, 'guiSessionProvider'):
             return
         self.ctrl = self.player.guiSessionProvider.shared

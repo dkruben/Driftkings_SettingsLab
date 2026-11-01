@@ -3,11 +3,11 @@
 import json
 import weakref
 
-from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 
 from driftkings._constants import GLOBAL, TECH_TREE_MARKS_OF_EXCELLENCE
 from driftkings.common.utils.colorratting import getStatisticColor
+from driftkings.common.utils.dossiers import mastery_rank, total_record
 from driftkings.core.settings_controller import SettingsController
 from driftkings.gameface.lobby.tech_tree_marks_of_excellence import install
 from driftkings.logger import get_logger
@@ -51,12 +51,9 @@ def vehicle_marks(vehicle_id):
     if not vehicle.isInInventory or not dossier.getRandomStats().getBattlesCount():
         return None
     tier = int(vehicle.level)
-    raw = dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') if tier >= 5 else 0
+    raw = total_record(dossier, 'damageRating') if tier >= 5 else 0
     percent = max(0.0, min(100.0, float(raw or 0) / 100.0))
-    mastery = dossier.getTotalStats().getAchievement(MARK_OF_MASTERY_RECORD)
-    rank = mastery.getValue() if mastery is not None and mastery.isInDossier() else 0
-    mastery_value = int(rank) if rank in (1, 2, 3, 4) else 0
-    return {'percent': percent, 'tier': tier, 'mastery': mastery_value}
+    return {'percent': percent, 'tier': tier, 'mastery': mastery_rank(dossier)}
 
 
 # Constrói os dados dos indicadores de marcas da árvore tecnológica.

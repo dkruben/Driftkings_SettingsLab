@@ -48,11 +48,6 @@ def replace_file(source, target):
         os.remove(previous)
 
 
-def recoverFile(path):
-    """Compatibility name for restoring an interrupted publication."""
-    recover_file(path)
-
-
 def file_sha256(path):
     """Hash a file in bounded chunks; propagate read failures to its caller."""
     digest = hashlib.sha256()

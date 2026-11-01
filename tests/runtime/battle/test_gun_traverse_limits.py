@@ -35,11 +35,11 @@ class GunTraverseLimitsTests(RuntimeTest):
         self.player = module(isObserver=lambda: False)
         world = module(screenWidth=lambda: 1920, screenHeight=lambda: 1000, getAspectRatio=lambda: 2.0,
                        projection=lambda: module(fov=1.0),
-                       wg_calcGunPitchLimits=lambda yaw, lo, hi, turret, joint: (-0.3, 0.1))
+                       wg_calcGunPitchLimits=lambda yaw, lo, hi, turret, joint: (-0.3, 0.1),
+                       player=lambda: self.player)
         self.api, self.hooks = game_source('battle/gun_traverse_limits.py', {
             'BigWorld': world,
             'driftkings.game_constants': module(CTRL_MODE_NAME=MODES),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player),
             'driftkings.core.callbacks': module(callback=lambda delay, function: self.callbacks.append(function) or len(self.callbacks),
                                                 cancelCallback=lambda handle: None),
         })

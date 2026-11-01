@@ -44,7 +44,7 @@ class EnemySpottingStatusTests(RuntimeTest):
             'driftkings.game_constants': module(BATTLE_EVENT_TYPE=EVENTS,
                 ASSIST_EVENTS=(EVENTS.RADIO_ASSIST, EVENTS.TRACK_ASSIST, EVENTS.STUN_ASSIST)),
             'driftkings.settings.service': Settings(self.data).service(),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player),
+            'BigWorld': module(player=lambda: self.player),
             'driftkings.flash.battle.messages': module(sendPanelMessage=self.messages.append),
             'gui.shared.gui_items.Vehicle': module(
                 getIconPath=lambda name: 'gui/maps/icons/vehicle/' + name.replace(':', '-', 1) + '.png',

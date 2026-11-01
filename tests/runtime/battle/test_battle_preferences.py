@@ -35,7 +35,7 @@ class BattlePreferencesTests(RuntimeTest):
                               item=None, onChanged=Signal())
         self.cache = module(onSyncCompleted=Signal())
         self.player_events = module(onGuiCacheSyncCompleted=Signal())
-        wg = module(getPlayer=lambda: self.player, isReplay=lambda: False,
+        wg = module(isReplay=lambda: False,
                     square_position=module(getSquarePosition=lambda: self.square))
         deps = {
             'CurrentVehicle': module(g_currentVehicle=self.current),
@@ -43,6 +43,7 @@ class BattlePreferencesTests(RuntimeTest):
             'PlayerEvents': module(g_playerEvents=self.player_events),
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.utils.wgutils': wg,
+            'BigWorld': module(player=lambda: self.player),
             'driftkings.core.callbacks': module(callback=lambda delay, function: self.scheduled.append(function)),
         }
         self.api, self.hooks = game_source('battle/battle_preferences.py', deps,

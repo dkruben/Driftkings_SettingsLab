@@ -32,14 +32,13 @@ class ArtilleryBlastRadiusTests(RuntimeTest):
                               updateHeights=lambda: None, attached=True)
         self.api, _ = game_source('battle/artillery_blast_radius.py', {
             'driftkings.settings.service': Settings(self.data).service(),
-            'BigWorld': module(Model=module(), PyTerrainSelectedArea=area, player=lambda: None),
+            'BigWorld': module(Model=module(), PyTerrainSelectedArea=area, player=lambda: self.player()),
             'AvatarInputHandler.aih_global_binding': module(CTRL_MODE_NAME=MODES),
             'gui.shared.gui_items': module(Vehicle=module(getVehicleClassTag=lambda tags: self.tag)),
             'gui.shared.gui_items.Vehicle': module(VEHICLE_CLASS_NAME=module(SPG='SPG')),
             'driftkings.common.utils.exceptions': module(log_exceptions=lambda function: function),
             'driftkings.common.utils.game': module(checkKeys=lambda keys: str(keys) in self.keys),
             'driftkings.flash.battle.messages': module(sendPanelMessage=lambda text, color: self.messages.append(color)),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player()),
             'driftkings.ui.common.markers': module(StaticWorldObjectMarker3D=Marker),
             'driftkings.settings.definitions.battle.artillery_blast_radius': module(
                 ArtilleryBlastRadiusSettings=lambda: module(i18n={'UI_artySplash_messageSplashOn': 'on', 'UI_artySplash_messageSplashOff': 'off',

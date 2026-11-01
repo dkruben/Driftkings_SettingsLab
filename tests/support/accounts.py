@@ -23,6 +23,15 @@ def service(test, store=None):
                               lambda: [('auto', 'Automatic', 0, None)], 'NA')
 
 
+class Window(object):
+    """Gameface window stand-in: records that the controller loaded it."""
+    def __init__(self, controller, launcher=False):
+        self.controller, self.launcher, self.loaded = controller, launcher, False
+
+    def load(self):
+        self.loaded = True
+
+
 def component(test, directory, callbacks=None):
     callbacks = callbacks or module(callback=lambda delay, handler: 1, cancelCallback=lambda ident: None)
     log = module(error=lambda *args: None)
@@ -31,20 +40,19 @@ def component(test, directory, callbacks=None):
         'BigWorld': module(wg_getPreferencesFilePath=lambda: os.path.join(directory, 'preferences.xml'),
                            wg_cpdata=lambda value: value, wg_ucpdata=lambda value: value),
         'external_strings_utils': module(unicode_from_utf8=lambda value: (None, value)),
-        'helpers': module(getClientLanguage=lambda: 'en'),
         'predefined_hosts': module(g_preDefinedHosts=module(shortList=lambda: [('auto', 'Automatic', 0, None)])),
         'realm': module(CURRENT_REALM='NA'),
-        'skeletons.gui.app_loader': module(GuiGlobalSpaceID=module(LOGIN=1)),
+        'skeletons.gui.app_loader': module(GuiGlobalSpaceID=module(LOGIN=1, LOBBY=2)),
         'driftkings._constants': constants,
         'driftkings.common.utils': module(events=module(LoginView=module(populate=module(after=object())))),
         'driftkings.common.utils.filesystem': test.load('common.utils.filesystem'),
         'driftkings.core.accounts': test.load('core.accounts'),
         'driftkings.core.callbacks': callbacks,
         'driftkings.core.hooks': module(on_event=lambda *args: None),
-        'driftkings.i18n': module(catalog=module(section=lambda *args: {})),
         'driftkings.logger': module(get_logger=lambda name: log),
         'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: {'enabled': True})),
-        'driftkings.settings.settings_data': module(defaults=lambda name: {'accountManager': {'enabled': True}}),
+        'driftkings.settings.definitions.components.account_manager': module(AccountManagerSettings=lambda: module(i18n={})),
+        'driftkings.gameface.lobby.account_manager': module(AccountsWindow=Window),
         'driftkings.flash.lobby.login': module(fill_credentials=lambda *args: None, install_login_hooks=lambda owner: None,
                                                launcher_position=lambda login: (10, 20), prepare_login=lambda *args: None)})
 

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Aiming countdown, shell flight time and penetration texts beside the crosshair in Gameface."""
+from collections import defaultdict
+
 from support import RuntimeTest, Settings, game_source, module, source
 
 STRATEGIC = 3
@@ -26,10 +28,10 @@ class ReticleTextTests(RuntimeTest):
     def setUp(self):
         super(ReticleTextTests, self).setUp()
         self.data = {
-            'aiming_countdown': {'enabled': True, 'x': 60, 'y': 110, 'align': 'left', 'template': "<font color='%(color)s'>%(timer).1fs - %(percent)d%%</font>",
+            'aiming_countdown': {'enabled': True, 'x': 60, 'y': 110, 'align': 'left', 'template': "<font color='{color}'>{timer:.1f}s - {percent:d}%</font>",
                                  'red': '#FE0E00', 'orange': '#FE7903', 'yellow': '#F8F400', 'green': '#A6FFA6', 'blue': '#02C9B3', 'purple': '#D042F3'},
             'penetration_indicator': {'enabled': True, 'position': {'x': 0, 'y': 40}, 'messages': {'green': 'Go'},
-                                      'template': "%(ricochet)s<br><font color='%(color)s'>%(countedArmor)d | %(piercingPower)d</font>"},
+                                      'template': "{ricochet}<br><font color='{color}'>{countedArmor:d} | {piercingPower:d}</font>"},
         }
         configs = dict((name, module(NAME=name, i18n={'UI_colors': {'green': '#66FF33'}, 'UI_ricochet': 'RICOCHET', 'UI_noDamage': 'NO DAMAGE'}))
                        for name in self.data)
@@ -115,6 +117,13 @@ class ReticleTextTests(RuntimeTest):
         self.data['aiming_countdown']['enabled'] = False
         adapter.refresh()
         self.assertFalse(adapter.published[-1][2])
+
+    def test_templates_use_braces_and_still_read_the_legacy_form(self):
+        fill = self.api['fill_template']
+        macro = defaultdict(lambda: 'macros not found', timer=1.26, percent=76, countedArmor=80.7)
+        self.assertEqual(fill('{timer:.1f}s - {percent:d}% {countedArmor:d} {missing}', macro),
+                         '1.3s - 76% 80 macros not found')
+        self.assertEqual(fill('%(timer).1fs - %(percent)d%%', macro), '1.3s - 76%')
 
     def test_penetration_text_is_centred_on_its_position_offset(self):
         adapter = self.adapter('PenetrationAdapter')

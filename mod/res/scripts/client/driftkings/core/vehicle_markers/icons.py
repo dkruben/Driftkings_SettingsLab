@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Native marker class/level/contour icon presentation; no asset replacement."""
 import copy
-import re
 
+from driftkings.common.utils.formatting import is_hex_color
 from driftkings.core.vehicle_markers.fields import number, string_types
 
 INDICATORS = ('actionMarker', 'hoverMarker', 'vehicleStatusMarker', 'damageIndicator', 'damageIndicatorText', 'hitExplosion')
@@ -49,7 +49,7 @@ def normalize(options):
             if tint is None or set(tint) - set(EXTRA['vehicle']['tint']):
                 raise ValueError('Invalid contour tint')
             number(tint['amount'], 0, 100)
-            if not isinstance(tint['color'], string_types) or not ('{{' in tint['color'] or re.match(r'^#[0-9a-fA-F]{6}$', tint['color'])):
+            if not isinstance(tint['color'], string_types) or not ('{{' in tint['color'] or is_hex_color(tint['color'])):
                 raise ValueError('Invalid contour tint colour')
             style['tint'] = tint
         if 'glow' in style:

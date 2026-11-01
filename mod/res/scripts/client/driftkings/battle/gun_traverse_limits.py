@@ -15,7 +15,6 @@ from gui.Scaleform.daapi.view.battle.shared.crosshair import plugins
 from Vehicle import Vehicle
 
 from driftkings.common.utils import events
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event, override
 from driftkings.flash.battle.gun_traverse_limits import AimingAnglesView
@@ -220,7 +219,7 @@ class AimingAnglesController(AimingAnglesView):
     # Ajusta os limites ao movimento da câmara estratégica.
     def StrategicAimingSystem_cameraUpdate(self, func, b_self, *args, **kwargs):
         result = func(b_self, *args, **kwargs)
-        vehicle = getPlayer().getVehicleAttached()
+        vehicle = BigWorld.player().getVehicleAttached()
         diff = b_self.aimingSystem.planePosition - vehicle.position
         rotation = math.degrees(math.atan2(diff.x, diff.z))
         if rotation != self.rotation:
@@ -275,7 +274,7 @@ class AimingAnglesController(AimingAnglesView):
         result = func(b_self, *args, **kwargs)
         if not b_self.isPlayerVehicle or b_self.gunAnglesPacked == self.old_gunAnglesPacked or not self.showCorners or self.isMapCase:
             return result
-        if getPlayer() is None or getPlayer().isObserver():
+        if BigWorld.player() is None or BigWorld.player().isObserver():
             self.hideCorners()
             return result
         _pitch = b_self.gunAnglesPacked & 63

@@ -171,6 +171,12 @@ def game_source(relative, stubs=None, real=(), extra_builtins=None):
     return namespace, hooks
 
 
+def dossiers():
+    """The real dossier helpers, with their WG imports stubbed, for features run through game_source."""
+    namespace, _ = game_source('common/utils/dossiers.py', real=('driftkings.common.utils.numbers',))
+    return module(**dict((key, value) for key, value in namespace.items() if not key.startswith('__')))
+
+
 class Settings(object):
     """settings_service stand-in: one live dict per test, like getComponentDict."""
     def __init__(self, data):

@@ -24,14 +24,11 @@ class CommonUtilsTests(RuntimeTest):
 
     def test_wg_helpers_do_not_access_resources_during_import(self):
         api = source('common/utils/wgutils.py', {
-            'BigWorld': module(player=lambda: 'player', target=lambda: 'target', entity=lambda value: value),
+            'BigWorld': module(),
             'ResMgr': module(),
         })
         self.assertIsNone(api['_competing_markers_installed'])
         self.assertIsNone(api['_battle_types'])
-        self.assertEqual(api['getPlayer'](), 'player')
-        self.assertEqual(api['getTarget'](), 'target')
-        self.assertEqual(api['getEntity'](5), 5)
         checks = []
         def find():
             checks.append(True)

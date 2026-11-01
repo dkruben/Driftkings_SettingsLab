@@ -13,7 +13,6 @@ from skeletons.account_helpers.settings_core import ISettingsCache, ISettingsCor
 import VehicleGunRotator
 
 from driftkings._constants import AIMING_RETICLES, GLOBAL
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
 from driftkings.game_constants import ARENA_PERIOD, CTRL_MODE_NAME, GUN_MARKER_TYPE
 from driftkings.logger import get_logger
@@ -271,7 +270,7 @@ def new_VehicleGunRotator_setShotPosition(func, self, vehicleID, shotPos, shotVe
             dispersionAngles = self._VehicleGunRotator__dispersionAngles[:]
             dispersionAngles[0] = dispersionAngle
             if not self.clientMode and VehicleGunRotator.VehicleGunRotator.USE_LOCK_PREDICTION:
-                lockEnabled = getPlayer().inputHandler.getAimingMode(AIMING_MODE.TARGET_LOCK)
+                lockEnabled = BigWorld.player().inputHandler.getAimingMode(AIMING_MODE.TARGET_LOCK)
                 if lockEnabled:
                     predictedTargetPos = self.predictLockedTargetShotPoint()
                     if predictedTargetPos is None:

@@ -82,9 +82,12 @@ class MinimapPolicyTests(RuntimeTest):
 
     def test_palettes_share_the_tables_that_do_not_depend_on_the_rating(self):
         data = self.load('common.utils.color_rating_data')
-        for key, table in (('system', data.system_colors), ('vtype', data.vehicle_type_colors),
-                           ('totalHP', data.total_hp_colors), ('damage', data.damage_colors)):
-            self.assertTrue(data.noob_meter_colors[key] is data.driftkings_colors[key] is data.wot_life_colors[key] is table, key)
+        palettes = dict((table['ScaleColor'], table['colors']) for table in data.color_tables)
+        for key in ('system', 'vtype', 'totalHP', 'damage'):
+            table = palettes['NoobMeter'][key]
+            self.assertTrue(palettes['Driftkings'][key] is palettes['WoT-Life'][key] is table, key)
+        self.assertIs(data.system_colors, palettes['NoobMeter']['system'])
+        self.assertIs(data.damage_colors, palettes['NoobMeter']['damage'])
 
     def test_dead_and_lost_options_are_validated(self):
         for section, key, value in (('icons', 'deadAlpha', 150), ('lostMarker', 'desaturate', -1),

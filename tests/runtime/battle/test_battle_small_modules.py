@@ -104,7 +104,8 @@ class BattlePerformanceWn8Tests(RuntimeTest):
         api, _ = game_source('components/battle_performance.py', {
             'driftkings.common.utils.colorratting': colors,
             'driftkings.common.utils.formatting': self.load('common.utils.formatting'),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: player, create_range=create_range),
+            'driftkings.common.utils.wgutils': module(create_range=create_range),
+            'BigWorld': module(player=lambda: player),
             'driftkings.core.wnx': module(calculate=wnx.calculate, get_expected=lambda ident: targets[0]),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda ident: {
                 'level': 8, 'wn8expDamage': 1000, 'wn8expSpot': 1, 'wn8expFrag': 1,
@@ -150,7 +151,8 @@ class BattlePerformanceWn8Tests(RuntimeTest):
             'driftkings.common.utils.colorratting': colors,
             'driftkings.core.wnx': self.load('core.wnx'),
             'driftkings.common.utils.formatting': formatting,
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: player, create_range=create_range),
+            'driftkings.common.utils.wgutils': module(create_range=create_range),
+            'BigWorld': module(player=lambda: player),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected,
                 calculateRatingScale=lambda name, value: 0, calculateXTE=lambda cd, damage, frags: 0),
             'driftkings.settings.service': Settings(settings).service(),
@@ -184,7 +186,8 @@ class BattlePerformanceWn8Tests(RuntimeTest):
 
     def test_damage_efficiency_is_a_ratio_and_rejects_invalid_expected_damage(self):
         api, _ = game_source('components/battle_performance.py', {
-            'driftkings.common.utils.wgutils': module(create_range=create_range, getPlayer=lambda: None)}, real=('driftkings._constants',))
+            'driftkings.common.utils.wgutils': module(create_range=create_range),
+            'BigWorld': module(player=lambda: None)}, real=('driftkings._constants',))
         calculator = api['EfficiencyCalculator']()
         self.assertIsNone(calculator.damage_efficiency(1000))
         calculator.vInfoOK = True
@@ -200,7 +203,8 @@ class BattlePerformanceWn8Tests(RuntimeTest):
     def test_expected_values_below_one_are_not_rounded_up(self):
         expected = {'level': 8, 'wn8expDamage': 1500.0, 'wn8expSpot': 1.2, 'wn8expFrag': 0.9, 'wn8expDef': 0.6, 'wn8expWinRate': 52.0}
         api, _ = game_source('components/battle_performance.py', {
-            'driftkings.common.utils.wgutils': module(create_range=create_range, getPlayer=lambda: None),
+            'driftkings.common.utils.wgutils': module(create_range=create_range),
+            'BigWorld': module(player=lambda: None),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: expected, calculateRatingScale=lambda name, value: 0,
                                                calculateXTE=lambda cd, damage, frags: 0),
             'driftkings.settings.service': Settings({'enabled': True}).service(),

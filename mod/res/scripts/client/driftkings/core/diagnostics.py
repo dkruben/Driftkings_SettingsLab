@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Opt-in bounded aggregates. No payloads, timers, subscriptions or engine imports."""
-import math
 from timeit import default_timer
 
+from driftkings.common.utils.numbers import finite_number
 from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.Performance')
@@ -61,8 +61,7 @@ class Diagnostics(object):
 
     def _time(self):
         try:
-            value = float(self.clock())
-            return None if math.isnan(value) or math.isinf(value) else value
+            return finite_number(self.clock())
         except Exception:
             return None
 

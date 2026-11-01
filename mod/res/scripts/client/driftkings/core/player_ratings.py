@@ -11,6 +11,7 @@ import urllib
 import urllib2
 from xml.sax.saxutils import escape
 
+import BigWorld
 from gui.battle_control.arena_info.interfaces import IArenaVehiclesController
 from gui.battle_control.arena_info.settings import ARENA_LISTENER_SCOPE
 from gui.battle_control.battle_constants import BATTLE_CTRL_ID
@@ -22,7 +23,6 @@ from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import GLOBAL, TEAM_PANELS, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.panel_macros import uses_tdv
 from driftkings.logger import get_logger
@@ -89,9 +89,6 @@ def format_rating(template, info, vehicle, available, scale=0):
         else:
             values.setdefault(key, MISSING)
     colors = {}
-    for key, value in values.items():
-        if key.startswith('c_'):
-            colors[key[2:]] = str(value).lstrip('#')
     for metric in ('wn8', 'wnx', 'winrate', 'battles', 'eff', 'wgr', 'xwn8', 'xeff', 't_battles', 't_winrate', 'tdv'):
         source = {'t_battles': 'battles', 't_winrate': 'winrate'}.get(metric, metric)
         colors[metric] = _rating_color(source, values[metric], scale) if available and values[metric] != MISSING else 'AAAAAA'
@@ -438,7 +435,7 @@ class Statistics(object):
         # Called on the main thread after hangar synchronization. No server requests.
         if not self.enabled():
             return
-        player = getPlayer()
+        player = BigWorld.player()
         dbID = getattr(player, 'databaseID', None)
         cache = ServicesLocator.itemsCache
         if not dbID or getattr(player, 'arena', None) is not None or not cache.isSynced():
@@ -565,7 +562,7 @@ class Statistics(object):
                     self.cacheTimestamp[dbID] = currentTime
         hasStats = bool(dataInfo and dataTanks)
         pColorScheme = g_settings.getColorScheme('battle/player')
-        for vehicleID, value in getPlayer().arena.vehicles.items():
+        for vehicleID, value in BigWorld.player().arena.vehicles.items():
             dbID = str(value['accountDBID'])
             if dbID not in dataInfo and dbID in self.playersInfo:
                 continue
@@ -646,12 +643,6 @@ class Statistics(object):
                 playerInfo['eff'] = g_calRating.eff(avgDmg, avgDef, avgCap, avgSpot, playerInfo['level'], avgFrags)
                 playerInfo['xeff'] = g_calRating.xeff(playerInfo['eff'])
 
-        # Resolve colours once, after either the default or populated metrics are final.
-        playerInfo['c_wn8'] = self.getColor('wn8', playerInfo['wn8'])
-        playerInfo['c_battles'] = self.getColor('battles', playerInfo['battles'])
-        playerInfo['c_winrate'] = self.getColor('winrate', playerInfo['winrate'])
-        playerInfo['c_tBattles'] = self.getColor('t_battles', playerInfo['t_battles'])
-
     def getPlayersInfo(self, accountDBID):
         return self.playersInfo.get(str(accountDBID), None)
 
@@ -708,11 +699,11 @@ class Statistics(object):
                 self.applyPlayerStats(info, tanks)
             except Exception as error:
                 LOG.warning(('Could not apply player statistics: {}').format(error))
-        if self._workers and getattr(getPlayer(), 'arena', None) is not None:
+        if self._workers and getattr(BigWorld.player(), 'arena', None) is not None:
             self._poll = callback(0.2, self.pollStats)
 
     def loadStats(self):
-        player = getPlayer()
+        player = BigWorld.player()
         arena = getattr(player, 'arena', None)
         if arena is None or not self.enabled():
             return

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """Native BigWorld key codes, shared by configuration validators."""
-try:
-    integer_types = (int, long)
-except NameError:
-    integer_types = (int,)
+from driftkings.common.utils.compat import integer_types
 
 # Keys.py includes keyboard, mouse (256..263), joystick and LCD keys.
 MAX_KEY_CODE = 326

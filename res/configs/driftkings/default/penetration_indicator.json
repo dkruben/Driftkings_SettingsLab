@@ -13,5 +13,5 @@
     "x": 0,
     "y": 40
   },
-  "template": "<p align='center'>%(noDamage)s<br><font color='%(color)s'>%(countedArmor)d | %(piercingPower)d</font></p>"
+  "template": "<p align='center'>{noDamage}<br><font color='{color}'>{countedArmor:d} | {piercingPower:d}</font></p>"
 }

@@ -2,20 +2,16 @@
 import datetime
 
 import BattleReplay
+import BigWorld
 from CurrentVehicle import g_currentVehicle
-from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK
 from gui.impl.lobby.hangar.presenters.crew_presenter import CrewPresenter
-from gui.Scaleform.daapi.view.lobby.profile.ProfileUtils import ProfileUtils
-from gui.shared.gui_items.dossier.achievements.mark_on_gun import MarkOnGunAchievement
 from Vehicle import Vehicle
 
-from driftkings._constants import BATTLE_MARKS_OF_EXCELLENCE, GLOBAL, MARK_LEVELS, MARK_THRESHOLDS, MARKS_MIN_TIER
+from driftkings._constants import BATTLE_MARKS_OF_EXCELLENCE, GLOBAL, MARK_THRESHOLDS, MARKS_MIN_TIER
 from driftkings.common.config.json_reader import loadJson
 from driftkings.common.utils import events
-from driftkings.common.utils.achievement_dossiers import getAchievementDossier
-from driftkings.common.utils.colorratting import getMoeDamageColor, getStatisticColor
+from driftkings.common.utils.dossiers import damage_rating, total_record
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
 from driftkings.core.cache import cache_directory
@@ -90,9 +86,10 @@ class Worker(object):
     # Lê do dossiê os dados de marcas do veículo selecionado.
     def getCurrentHangarData(self):
         if g_currentVehicle.item:
-            self.damageRating = g_currentVehicle.getDossier().getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') / 100.0
-            self.movingAvgDamage = g_currentVehicle.getDossier().getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'movingAvgDamage')
-            self.battleCount = g_currentVehicle.getDossier().getRandomStats().getBattlesCountVer2()
+            dossier = g_currentVehicle.getDossier()
+            self.damageRating = damage_rating(dossier)
+            self.movingAvgDamage = total_record(dossier, 'movingAvgDamage')
+            self.battleCount = dossier.getRandomStats().getBattlesCountVer2()
             self.level = g_currentVehicle.item.level >= MARKS_MIN_TIER
             self.name = '%s' % g_currentVehicle.item.name
             if self.level and self.movingAvgDamage:
@@ -108,8 +105,8 @@ class Worker(object):
     def onBattleEvents(self, events):
         if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
             return
-        guiSessionProvider = getPlayer().guiSessionProvider
-        if guiSessionProvider.shared.vehicleState.getControllingVehicleID() == getPlayer().playerVehicleID:
+        guiSessionProvider = BigWorld.player().guiSessionProvider
+        if guiSessionProvider.shared.vehicleState.getControllingVehicleID() == BigWorld.player().playerVehicleID:
             for feedbackEvent in events:
                 eventType = feedbackEvent.getBattleEventType()
                 if eventType in DAMAGE_EVENTS:
@@ -137,7 +134,7 @@ class Worker(object):
             return
         if newHealth > 0 >= avatar.health:
             return
-        player = getPlayer()
+        player = BigWorld.player()
         if avatar.id not in self.health:
             self.health[avatar.id] = max(0, avatar.health)
         if not avatar.isPlayerVehicle and attackerID == player.playerVehicleID:
@@ -204,7 +201,7 @@ class Worker(object):
         settings = settings_service.getComponentDict(battle_marks_of_excellence_settings)
         if not settings[GLOBAL.ENABLED] or not event.isKeyDown():
             return
-        player = getPlayer()
+        player = BigWorld.player()
         if not player.arena or not battle_policy.decision('battle_marks_of_excellence')[0]:
             return
         if checkKeys(settings[BATTLE_MARKS_OF_EXCELLENCE.BUTTON_RESET]):
@@ -245,15 +242,15 @@ class Worker(object):
     # Verifica se o veículo observado é o veículo do jogador.
     @staticmethod
     def isAvailable():
-        vehicle = getPlayer().getVehicleAttached()
+        vehicle = BigWorld.player().getVehicleAttached()
         if vehicle is None:
             return
-        return vehicle.id == getPlayer().playerVehicleID
+        return vehicle.id == BigWorld.player().playerVehicleID
 
     # noinspection PyUnusedLocal
     # Assinala a destruição do veículo do jogador e atualiza a estimativa.
     def onVehicleKilled(self, target_id, *args):
-        if target_id == getPlayer().playerVehicleID:
+        if target_id == BigWorld.player().playerVehicleID:
             self.killed = True
             self.calc()
 
@@ -275,7 +272,7 @@ class Worker(object):
 
     # Aguarda a disponibilidade do veículo antes de iniciar os cálculos.
     def treadStartBattle(self):
-        vehicle = getPlayer().getVehicleAttached()
+        vehicle = BigWorld.player().getVehicleAttached()
         if not vehicle:
             self.startCount += 1
             if self.startCount < 10:
@@ -306,7 +303,7 @@ class Worker(object):
 
         if self.level and self.movingAvgDamage:
             keyboard.subscribe(self.keyPressed)
-            self._arena = getPlayer().arena
+            self._arena = BigWorld.player().arena
             self._arena.onVehicleKilled += self.onVehicleKilled
             if self.approximate:
                 # Borrowed or base data: never write it into the replay owner's cache.
@@ -340,7 +337,7 @@ class Worker(object):
     # Obtém o identificador da conta usado na cache das marcas.
     @staticmethod
     def check_player_thread():
-        player = getPlayer()
+        player = BigWorld.player()
         if hasattr(player, 'databaseID'):
             return '%s' % player.databaseID
         return '%s' % player.arena.vehicles[player.playerVehicleID]['accountDBID']
@@ -406,43 +403,6 @@ def new_destroyGUI(*args):
     finally:
         g_panel.stopBattle()
         worker.clearData()
-
-
-# Acrescenta as estatísticas das marcas à descrição da conquista.
-@override(MarkOnGunAchievement, 'getUserCondition')
-def new_getUserCondition(func, *args):
-    if settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED] and settings_service.getComponentDict(battle_marks_of_excellence_settings)[BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC]:
-        targetData = getAchievementDossier(args[0])
-        if targetData is not None:
-            damage = ProfileUtils.getValueOrUnavailable(ProfileUtils.getValueOrUnavailable(targetData.getRandomStats().getAvgDamage()))
-            track = ProfileUtils.getValueOrUnavailable(targetData.getRandomStats()._getAvgValue(targetData.getRandomStats().getBattlesCountVer2, targetData.getRandomStats().getDamageAssistedTrack))
-            radio = ProfileUtils.getValueOrUnavailable(targetData.getRandomStats()._getAvgValue(targetData.getRandomStats().getBattlesCountVer2, targetData.getRandomStats().getDamageAssistedRadio))
-            stun = ProfileUtils.getValueOrUnavailable(targetData.getRandomStats().getAvgDamageAssistedStun())
-            currentDamage = int(damage + max(track, radio, stun))
-            damageRating = targetData.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') / 100.0
-            movingAvgDamage = targetData.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'movingAvgDamage')
-            if damageRating:
-                pC, dC, p20, p40, p55, p65, p85, p95, p100 = worker.calcStatistics(damageRating, movingAvgDamage)
-                levels = [p20, p40, p55, p65, p85, p95, p100]
-                index = settings_service.getComponentDict(battle_marks_of_excellence_settings).get(BATTLE_MARKS_OF_EXCELLENCE.COLOR_RATING, 0)
-                data = {
-                    'nextPercent': '%.0f' % pC,
-                    'needDamage': '<font color="%s">%s</font>' % (getMoeDamageColor(int(dC), levels, index), int(dC)),
-                    'currentMovingAvgDamage': '<font color="%s">%s</font>' % (getMoeDamageColor(movingAvgDamage, levels, index), movingAvgDamage),
-                    'currentDamage': '<font color="%s">%s</font>' % (getMoeDamageColor(currentDamage, levels, index), currentDamage),
-                    '_20': worker.getNormalizeDigits(p20),
-                    '_40': worker.getNormalizeDigits(p40),
-                    '_55': worker.getNormalizeDigits(p55),
-                    '_65': worker.getNormalizeDigits(p65),
-                    '_85': worker.getNormalizeDigits(p85),
-                    '_95': worker.getNormalizeDigits(p95),
-                    '_100': worker.getNormalizeDigits(p100)
-                }
-                data.update(('c%s' % level, getStatisticColor('mog', level, index))
-                            for level in map(int, MARK_LEVELS[1:]))
-                temp = battle_marks_of_excellence_settings.i18n['UI_tooltips'].format(**data)
-                return temp
-    return func(*args)
 
 
 # Inicializa o módulo de marcas de excelência em batalha.

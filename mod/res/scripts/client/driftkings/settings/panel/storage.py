@@ -4,10 +4,9 @@ import json
 import os
 import re
 import shutil
-import tempfile
 
+from driftkings.common.utils.filesystem import atomicWrite
 from driftkings.settings.store import recover_file as _recover
-from driftkings.settings.store import replace_file as _replace
 
 FILE_PATTERN = re.compile(r'^[A-Za-z0-9_.-]{1,64}\Z')
 MAX_BACKUPS = 3
@@ -51,19 +50,7 @@ class ConfigStore(object):
                              separators=(',', ': '))
         if not isinstance(content, bytes):
             content = content.encode('utf-8')
-        directory = os.path.dirname(path)
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-        descriptor, temporary = tempfile.mkstemp(prefix='.dk-', suffix='.tmp', dir=directory)
-        try:
-            with os.fdopen(descriptor, 'wb') as stream:
-                stream.write(content)
-                stream.flush()
-                os.fsync(stream.fileno())
-            _replace(temporary, path)
-        finally:
-            if os.path.exists(temporary):
-                os.remove(temporary)
+        atomicWrite(path, content)
 
     def backup(self, name):
         """Rotate name.json.bak, .bak.1 ... keeping at most max_backups copies."""

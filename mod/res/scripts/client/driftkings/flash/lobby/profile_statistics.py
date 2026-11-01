@@ -109,8 +109,8 @@ def install():
                     value = vehicle_wn8(pure_random_stats(dossier, vehicle_id), vehicle_id, getVehicleInfoData)
                     if value is not None:
                         scale = settings_service.getComponentDict('profile_ratings').get('colorScale', 0)
-                        view._dkVehicleColors.setdefault(vehicle_id, {})['vehicleTF'] = int(
-                            getStatisticColor('wn8', value, scale).lstrip('#'), 16)
+                        view._dkVehicleColors.setdefault(vehicle_id, {})['vehicleTF'] = hexToDecimal(
+                            getStatisticColor('wn8', value, scale))
             return result
         finally:
             vehicle_context.pop()

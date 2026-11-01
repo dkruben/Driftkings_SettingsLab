@@ -62,7 +62,7 @@ preview.dispose();
 for (const [moduleId,template,expected] of [
     ['legacy.FlightTimer','%(flightTime).1fs - %(distance)dm','1.4s - 315m'],
     ['legacy.FlightTimer','{flightTime:.1f}s - {distance:d}m','1.4s - 315m'],
-    ['legacy.DispersionTimer','%(timer).1fs - %(percent)d%%','1.8s - 76%']
+    ['legacy.DispersionTimer','{timer:.1f}s - {percent:d}%','1.8s - 76%']
 ]) {
     const timer = DK.hudPreview.create(liveHost, {id:moduleId});
     timer.update({[id('enabled')]:true, [id('template')]:template});

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Hangar marks of excellence: progress history, trend, WN8 and the achievement tooltip."""
-from support import RuntimeTest, Settings, game_source, module
+from support import RuntimeTest, Settings, dossiers, game_source, module
 
 REAL = ('driftkings._constants', 'driftkings.common.utils.numbers', 'driftkings.core.marks_calculator',
         'driftkings.common.utils.colorratting', 'driftkings.core.wnx')
@@ -45,12 +45,13 @@ class HangarMarksTests(RuntimeTest):
         self.api, self.hooks = game_source('lobby/hangar_marks_of_excellence.py', {
             'driftkings.settings.service': Settings(self.data).service(),
             'driftkings.common.config.json_reader': module(loadJson=load_json),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: module(databaseID=self.account)),
+            'BigWorld': module(player=lambda: module(databaseID=self.account)),
             'driftkings.common.utils.exceptions': module(log_exceptions=lambda function: function),
             'driftkings.stats.vehinfo': module(getVehicleInfoData=lambda cd: self.expected if cd == 1 else None),
             'gui.Scaleform.daapi.view.lobby.profile.ProfileUtils': module(ProfileUtils=module(getValueOrUnavailable=lambda value: value)),
             'driftkings.interface_catalog': module(gameface_spec=lambda feature: {'resource': 'resource'}),
             'driftkings.core.cache': module(cache_directory=lambda name: 'cache'),
+            'driftkings.common.utils.dossiers': dossiers(),
         }, real=REAL)
 
     def test_one_snapshot_per_battle_counter(self):

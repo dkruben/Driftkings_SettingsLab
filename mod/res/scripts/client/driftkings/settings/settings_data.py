@@ -2,15 +2,15 @@
 """Settings metadata and access to JSON-generated component defaults."""
 import copy
 
-from driftkings._constants import (AIMING_COUNTDOWN, AIMING_RETICLES, ARTILLERY_BLAST_RADIUS, AUTOAIM_TARGET_INDICATOR,
-                                   BATTLE_MARKS_OF_EXCELLENCE, BATTLE_PERFORMANCE, BATTLE_PREFERENCES,
-                                   BATTLE_STATISTICS, CLAN_REWARD_COLLECTION, CREW_MANAGEMENT, ENEMY_SPOTTING_STATUS,
-                                   GAME_LOG_MANAGER, GLOBAL, GUN_TRAVERSE_LIMITS, HANGAR_MARKS_OF_EXCELLENCE,
-                                   HANGAR_PREFERENCES, HIGH_CALIBER_PROGRESS, MAIN, MINIMAP_ENHANCEMENTS,
-                                   PENETRATION_INDICATOR, REPAIR_CONTROLS, SERVER_TURRET_SYNC, SHELL_FLIGHT_TIME,
-                                   SIXTH_SENSE_ALERT, SNIPER_CAMERA, SOUND_BANK_LOADER, TARGET_DISTANCE,
-                                   TARGET_INFORMATION, TEAM_PANELS, TECH_TREE_MARKS_OF_EXCELLENCE, THIRD_PERSON_ZOOM,
-                                   VEHICLE_CAROUSEL, VEHICLE_HEALTH, VEHICLE_MARKERS)
+from driftkings._constants import (ACCOUNT_MANAGER, AIMING_COUNTDOWN, AIMING_RETICLES, ARTILLERY_BLAST_RADIUS,
+                                   AUTOAIM_TARGET_INDICATOR, BATTLE_MARKS_OF_EXCELLENCE, BATTLE_PERFORMANCE,
+                                   BATTLE_PREFERENCES, BATTLE_STATISTICS, CLAN_REWARD_COLLECTION, CREW_MANAGEMENT,
+                                   ENEMY_SPOTTING_STATUS, GAME_LOG_MANAGER, GLOBAL, GUN_TRAVERSE_LIMITS,
+                                   HANGAR_MARKS_OF_EXCELLENCE, HANGAR_PREFERENCES, HIGH_CALIBER_PROGRESS, MAIN,
+                                   MINIMAP_ENHANCEMENTS, PENETRATION_INDICATOR, REPAIR_CONTROLS, SERVER_TURRET_SYNC,
+                                   SHELL_FLIGHT_TIME, SIXTH_SENSE_ALERT, SNIPER_CAMERA, SOUND_BANK_LOADER,
+                                   TARGET_DISTANCE, TARGET_INFORMATION, TEAM_PANELS, TECH_TREE_MARKS_OF_EXCELLENCE,
+                                   THIRD_PERSON_ZOOM, VEHICLE_CAROUSEL, VEHICLE_HEALTH, VEHICLE_MARKERS)
 from driftkings.settings.default_values import DEFAULTS
 from driftkings.settings.sections import section_name
 
@@ -104,6 +104,7 @@ APPLY_TIMING = {
     GAME_LOG_MANAGER.NAME: {'*': LIVE},  # filters/routing read on each new log entry
     CREW_MANAGEMENT.NAME: {'*': NEXT_VIEW},  # vehicle selection/crew action
     CLAN_REWARD_COLLECTION.NAME: {'*': NEXT_VIEW},
+    ACCOUNT_MANAGER.NAME: {'*': LIVE},  # read when the login screen opens
     VEHICLE_CAROUSEL.NAME: {'*': LIVE},  # controller.onApplySettings
     HANGAR_MARKS_OF_EXCELLENCE.NAME: {'*': LIVE},
     TECH_TREE_MARKS_OF_EXCELLENCE.NAME: {'*': LIVE},

@@ -65,7 +65,7 @@ in-game by completing a battle and returning to the hangar.
 
 ## Current defaults and validation
 
-The 0.1.4 defaults follow the author's EU profile. Normal cards use separate icon and text fields, configurable font aliases and per-field opacity. `{{v.wnx}}` / `{{v.c_wnx}}` and sorting by `wnx` are supported; incomplete assistance or expected-value data displays `--`.
+The 0.1.4 defaults follow the author's EU profile. Normal cards use separate icon and text fields, configurable font aliases and per-field opacity. `{{v.wnx}}` / `{{v.c:wnx}}` and sorting by `wnx` are supported; incomplete assistance or expected-value data displays `--`.
 
 After editing the JSON, regenerate the fallback and snapshot with `python build_tools/generate_defaults.py --write --refresh-snapshot`. Run `npm --prefix build_tools/javascript test` for native-field restoration, fixed-width alignment and font-alias regression coverage. Complete a battle and return to the hangar to verify live dossier updates.
 

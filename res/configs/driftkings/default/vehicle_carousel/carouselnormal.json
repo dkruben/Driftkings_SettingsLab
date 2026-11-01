@@ -9,7 +9,7 @@
     },
     {
       "align": "right",
-      "format": "<font face='mono' size='16' color='{{v.c_battles}}'><b>{{v.battles}}</b></font>",
+      "format": "<font face='mono' size='16' color='{{v.c:battles}}'><b>{{v.battles}}</b></font>",
       "shadow": "$ref:textFieldShadow",
       "x": 198,
       "y": 26
@@ -23,7 +23,7 @@
     },
     {
       "align": "right",
-      "format": "<b><font face='PFDINMax' size='16' color='{{v.c_winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
+      "format": "<b><font face='PFDINMax' size='16' color='{{v.c:winrate|#CFCFCF}}'>{{v.winrate%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
       "x": 197,
       "y": 46
@@ -37,7 +37,7 @@
     },
     {
       "align": "left",
-      "format": "<b><font face='PFDINMax' size='16' color='{{v.c_hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
+      "format": "<b><font face='PFDINMax' size='16' color='{{v.c:hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
       "x": 30,
       "y": 90
@@ -50,7 +50,7 @@
       "alpha": "{{v.tfb?100|0}}"
     },
     {
-      "format": "<font face='PFDINMax' size='16' color='{{v.c_wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
+      "format": "<font face='PFDINMax' size='16' color='{{v.c:wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
       "shadow": "$ref:textFieldShadow",
       "x": 30,
       "y": 110,
@@ -78,7 +78,7 @@
       "format": "<img src='{{icon:marksOnGun}}' width='16' height='16'>"
     },
     {
-      "format": "<font face='PFDINMax' size='16' color='{{v.c_damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
+      "format": "<font face='PFDINMax' size='16' color='{{v.c:damageRating}}'><b>{{v.damageRating%4.01f~%}}</b></font>",
       "x": 68,
       "y": 65,
       "align": "right",
@@ -95,7 +95,7 @@
     {
       "alpha": "{{v.selected?100|0}}",
       "enabled": true,
-      "format": "<img src='gui/maps/driftkings/carroucel/{{v.c_type}}.svg' width='208' height='140'>",
+      "format": "<img src='gui/maps/driftkings/carroucel/{{v.c:type}}.svg' width='208' height='140'>",
       "height": 100,
       "layer": "substrate",
       "width": 160,

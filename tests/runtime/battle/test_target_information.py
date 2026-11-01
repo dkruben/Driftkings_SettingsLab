@@ -38,8 +38,8 @@ class TargetInformationTests(RuntimeTest):
             'xml.sax.saxutils': module(escape=lambda value: value),
             'driftkings.settings.service': Settings({'enabled': False}).service(),
             'driftkings.core.battle_capabilities': module(battle_capabilities=module(has_gameface_hud=lambda: self.native)),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: module(guiSessionProvider=module(
-                shared=module(feedback=module(onVehicleFeedbackReceived=self.feedback)))), getEntity=None, getTarget=None),
+            'BigWorld': module(player=lambda: module(guiSessionProvider=module(
+                shared=module(feedback=module(onVehicleFeedbackReceived=self.feedback))))),
             'driftkings.gameface.battle.screen_texts': module(TargetInformationAdapter=Presenter),
             'driftkings.flash.battle.target_information': module(Flash=fallback),
         }, real=('driftkings._constants',))

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """JSON colour scale validation for the Flash marker fields."""
 import copy
-import re
 
-from driftkings.core.vehicle_markers.fields import number, string_types
+from driftkings.common.utils.formatting import is_hex_color
+from driftkings.core.vehicle_markers.fields import number
 
 DEFAULTS = {'colorBlind': {'enabled': True, 'team': {'enemy': '#C48CFF', 'teamKiller': '#66CCFF'}},
             'team': {'allyDead': '#B8FFC1', 'enemyDead': '#E29188', 'squadDead': '#CA7000', 'teamKillerDead': '#097783', 'ally': '#99CC66', 'enemy': '#FF7777', 'squad': '#FFCC66',
@@ -13,7 +13,7 @@ DEFAULTS = {'colorBlind': {'enabled': True, 'team': {'enemy': '#C48CFF', 'teamKi
 
 
 def color(value):
-    if not isinstance(value, string_types) or not re.match(r'^#[0-9A-Fa-f]{6}\Z', value):
+    if not is_hex_color(value):
         raise ValueError('Marker colours must use #RRGGBB')
 
 

@@ -52,7 +52,7 @@ def default_services():
     return (
         ServiceSpec('common', CommonRuntime),
         ServiceSpec('settings', runtime_service('driftkings.settings.runtime:SettingsRuntime'), ('common',)),
-        ServiceSpec('dossiers', runtime_service('driftkings.common.utils.achievement_dossiers:DossierService'), ('common',)),
+        ServiceSpec('dossiers', runtime_service('driftkings.common.utils.dossiers:DossierService'), ('common',)),
         ServiceSpec('lifecycle', runtime_service('driftkings.core.lifecycle:lifecycle', False), ('common',)),
         ServiceSpec('keyboard', runtime_service('driftkings.core.keyboard:keyboard', False), ('lifecycle',)),
         ServiceSpec('battle_events', runtime_service('driftkings.core.battle_events:battleEvents', False), ('keyboard', 'lifecycle')),
@@ -140,7 +140,7 @@ class Core(object):
         required = set(getattr(module, 'REQUIRES_SERVICES', ()))
         if self.runtime:
             required.update(('common', 'settings', 'lifecycle', 'keyboard', 'callbacks', 'battle_events'))
-            if name in ('battle.battle_marks_of_excellence', 'lobby.hangar_marks_of_excellence'):
+            if name == 'lobby.hangar_marks_of_excellence':
                 required.add('dossiers')
             if module is not None:
                 if getattr(module, 'getBattleViews', None):

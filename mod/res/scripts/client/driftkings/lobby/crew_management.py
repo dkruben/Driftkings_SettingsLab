@@ -17,7 +17,7 @@ from skeletons.gui.shared import IItemsCache
 
 from driftkings._constants import CREW_MANAGEMENT, GLOBAL
 from driftkings.common.utils.exceptions import log_exceptions
-from driftkings.common.utils.filesystem import atomicWrite, recoverFile
+from driftkings.common.utils.filesystem import atomicWrite, recover_file
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.gameface.lobby import crew_progression as progression_view
@@ -49,7 +49,7 @@ def encodeData(data):
 
 # Recupera e lê o ficheiro JSON local, ou devolve um registo vazio.
 def openJsonFile(path):
-    recoverFile(path)
+    recover_file(path)
     if not os.path.exists(path):
         return {}
     with open(path, 'r', encoding='utf-8') as dataFile:

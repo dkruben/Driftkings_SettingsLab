@@ -31,7 +31,7 @@
     },
     {
       "enabled": true,
-      "format": "<b><font face='$FieldFont' size='12' color='{{v.c_winrate|#C8C8B5}}'>{{v.winrate%2d~%}}</font></b>",
+      "format": "<b><font face='$FieldFont' size='12' color='{{v.c:winrate|#C8C8B5}}'>{{v.winrate%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
       "x": 24,
       "y": 16

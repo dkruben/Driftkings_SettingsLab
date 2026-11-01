@@ -2,7 +2,7 @@ import json
 import math
 import os
 
-from support import RuntimeTest, Settings, game_source, module
+from support import RuntimeTest, Settings, dossiers, game_source, module
 
 
 class WnxTests(RuntimeTest):
@@ -88,6 +88,7 @@ class WnxTests(RuntimeTest):
             'gui.shared.personality': module(ServicesLocator=module(itemsCache=module(
                 items=module(getVehicleDossier=lambda ident: dossier)))),
             'driftkings.settings.service': Settings({'colorRating': 3}).service(),
+            'driftkings.common.utils.dossiers': dossiers(),
         }, real=('driftkings._constants', 'driftkings.common.utils.numbers',
                  'driftkings.common.utils.colorratting', 'driftkings.core.carousel'))
         vehicle = module(intCD=1, level=8, type='heavyTank', name='tank', shortUserName='Tank',

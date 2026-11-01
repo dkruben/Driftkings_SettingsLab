@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 """Gameface carousel configuration and field rendering, independent of the client."""
-import math
 import re
 
 from driftkings.common.utils.compat import string_types, text_type
+from driftkings.common.utils.numbers import finite_number
 from driftkings.settings.settings_data import defaults as component_defaults
 
 FIELD_NAMES = ('flag', 'tankIcon', 'tankType', 'level', 'xp', 'tankName', 'info', 'favorite', 'progressionPoints', 'infoImg', 'rentInfo', 'crystalsIcon', 'coreBorder')
 ALIASES = {'tdb': 'avgDamage', 'winrate': 'winRate', 't_battles': 'battles', 'damageRating': 'marks', 'name': 'vehicle', 'tier': 'level', 'tfb': 'avgFrags', 'hitsRatio': 'hitRate', 'markOfMastery': 'mastery'}
 MACRO = re.compile(r'\{\{([^{}]+)\}\}')
-EXPR = re.compile(r'^(?P<key>(?:v\.)?(?:c:|c_|icon:)?[A-Za-z][\w-]*)(?P<fmt>%[-0-9.]*[dfs]|:\.[0-3]f|:d)?(?:~(?P<suffix>[^|]*))?(?:\|(?P<fallback>.*))?$')
+EXPR = re.compile(r'^(?P<key>(?:v\.)?(?:c:|icon:)?[A-Za-z][\w-]*)(?P<fmt>%[-0-9.]*[dfs]|:\.[0-3]f|:d)?(?:~(?P<suffix>[^|]*))?(?:\|(?P<fallback>.*))?$')
 
 
 def bounded(value, low, high, default):
-    try:
-        value = float(value)
-        return max(low, min(high, value)) if not (math.isnan(value) or math.isinf(value)) else default
-    except (ValueError, TypeError, OverflowError):
-        return default
+    value = finite_number(value)
+    return default if value is None else max(low, min(high, value))
 
 
 def defaults():
@@ -60,9 +57,9 @@ def render(template, values, color, icon):
             return '--'
         key, fmt, suffix, fallback = [expression.group(x) for x in ('key','fmt','suffix','fallback')]
         if key.startswith('v.'): key = key[2:]
-        if key in ('c_type', 'c:type'):
+        if key == 'c:type':
             return values.get('classColor', fallback or '#FFFFFF')
-        if key.startswith(('c:', 'c_')):
+        if key.startswith('c:'):
             key = ALIASES.get(key[2:], key[2:])
             return text_type(color(key, values.get(key))) if values.get(key) is not None else (fallback or '#FFFFFF')
         if key.startswith('icon:'): return text_type(icon(key[5:]))

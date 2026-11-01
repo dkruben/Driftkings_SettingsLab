@@ -50,9 +50,9 @@ class FilesystemTests(RuntimeTest):
         with open(target + '.previous', 'wb') as stream:
             stream.write(b'{"enabled": false}')
         store = source('settings/store.py', {'driftkings.common.utils.filesystem': self.api})
-        self.assertIs(store['replace_file'], self.api.replace_file)
+        self.assertIs(store['atomicWrite'], self.api.atomicWrite)
         self.assertIs(store['recover_file'], self.api.recover_file)
-        self.api.recoverFile(target)
+        self.api.recover_file(target)
         with open(target, 'rb') as stream:
             self.assertEqual(stream.read(), b'{"enabled": false}')
         self.assertFalse(os.path.exists(target + '.previous'))

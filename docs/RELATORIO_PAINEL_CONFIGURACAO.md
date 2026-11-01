@@ -182,7 +182,7 @@ Uma configuração gravada para a próxima batalha não altera retroativamente a
 
 ## 10. Áreas de configuração dos componentes
 
-Existem **34 ficheiros de definição**: quatro gerais, 23 de batalha e sete de lobby. Acrescem a página do framework e o seletor de perfil do loader. Um componente pode originar vários blocos/separadores; esta contagem não é uma promessa de 36 páginas sempre visíveis. Componentes desativados pelo loader, ausentes numa instalação ou omitidos no contexto atual podem não aparecer.
+Existem **35 ficheiros de definição**: cinco gerais, 23 de batalha e sete de lobby. Acrescem a página do framework e o seletor de perfil do loader. Um componente pode originar vários blocos/separadores; esta contagem não é uma promessa de 36 páginas sempre visíveis. Componentes desativados pelo loader, ausentes numa instalação ou omitidos no contexto atual podem não aparecer.
 
 As tabelas seguintes descrevem o âmbito das definições; ativar uma função na configuração não garante suporte de todos os modos de jogo.
 
@@ -190,6 +190,7 @@ As tabelas seguintes descrevem o âmbito das definições; ativar uma função n
 
 | Definição | Nome apresentado em português | Âmbito |
 | --- | --- | --- |
+| [`account_manager`](../mod/res/scripts/client/driftkings/settings/definitions/components/account_manager.py) | Gestor de contas | Ativação do botão do gestor no ecrã de login e botão "Gerir contas", que abre a janela do gestor no hangar para adicionar, editar ou apagar contas. Entrar numa conta continua a ser feito no ecrã de login. |
 | [`battle_performance`](../mod/res/scripts/client/driftkings/settings/definitions/components/battle_performance.py) | Desempenho em batalha | Formatos, cores e apresentação da eficiência em batalha e nos resultados. |
 | [`game_log_manager`](../mod/res/scripts/client/driftkings/settings/definitions/components/game_log_manager.py) | Registo de danos em batalha | Troca dos logs superior/inferior e filtros de críticos, bloqueio e assistência. |
 | [`main`](../mod/res/scripts/client/driftkings/settings/definitions/components/main.py) | Definições gerais | Relógio do lobby e lista de campos posicionados, respetivo texto, sombra e imagem de fundo. |

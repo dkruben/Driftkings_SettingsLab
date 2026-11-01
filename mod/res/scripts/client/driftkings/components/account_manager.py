@@ -8,45 +8,25 @@ import zlib
 
 import BigWorld
 from external_strings_utils import unicode_from_utf8
-from helpers import getClientLanguage
 from predefined_hosts import g_preDefinedHosts
 from realm import CURRENT_REALM
 from skeletons.gui.app_loader import GuiGlobalSpaceID
 
-from driftkings._constants import GLOBAL, HANGAR_PREFERENCES
+from driftkings._constants import GLOBAL
 from driftkings.common.utils import events
-from driftkings.common.utils.filesystem import atomicWrite, recoverFile
+from driftkings.common.utils.filesystem import atomicWrite, recover_file
 from driftkings.core.accounts import AccountError, AccountService
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event
 from driftkings.flash.lobby.login import fill_credentials, install_login_hooks, launcher_position, prepare_login
-from driftkings.i18n import catalog
 from driftkings.logger import get_logger
+from driftkings.settings.definitions.components.account_manager import AccountManagerSettings
 from driftkings.settings.service import settings_service
-from driftkings.settings.settings_data import defaults
 
 LOG = get_logger('Driftkings.AccountManager')
 
 
-class AccountsConfiguration(object):
-    """Use hangar-owned settings without registering a separate settings page."""
-    # Obtém as opções do hangar usadas pelo gestor de contas.
-    @property
-    def data(self):
-        try:
-            settings = settings_service.getComponentDict(HANGAR_PREFERENCES)
-        except KeyError:
-            # Login can initialize before the hangar settings component.
-            settings = defaults(HANGAR_PREFERENCES.NAME)
-        return settings['accountManager']
-
-    # Obtém as traduções do gestor de contas para o idioma do cliente.
-    @property
-    def i18n(self):
-        return catalog.section('account_manager', str(getClientLanguage()).lower())
-
-
-config = AccountsConfiguration()
+config = AccountManagerSettings()
 
 
 # Obtém a pasta das preferências locais do cliente.
@@ -67,7 +47,7 @@ class UserAccounts(object):
     # Recupera e lê a lista de contas protegida no ficheiro local.
     def renew_accounts(self):
         try:
-            recoverFile(self.path)
+            recover_file(self.path)
             with open(self.path, 'rb') as stream:
                 raw = stream.read()
             if not raw:
@@ -158,6 +138,13 @@ class AccountsManagerController(object):
     # Abre a janela do gestor apenas no ecrã de início de sessão.
     def open(self):
         if self.window is None and self.active and self.canLogin() and settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True):
+            from driftkings.gameface.lobby.account_manager import AccountsWindow
+            self.window = AccountsWindow(self)
+            self.window.load()
+
+    # Abre a janela do gestor no hangar, a partir do painel, para editar as contas guardadas.
+    def openManager(self):
+        if self.window is None and self.active and self.space == GuiGlobalSpaceID.LOBBY:
             from driftkings.gameface.lobby.account_manager import AccountsWindow
             self.window = AccountsWindow(self)
             self.window.load()

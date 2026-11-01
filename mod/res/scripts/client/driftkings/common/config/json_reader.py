@@ -9,7 +9,7 @@ import re
 import zlib
 
 from driftkings.common.utils.compat import text_type
-from driftkings.common.utils.filesystem import atomicWrite, recoverFile
+from driftkings.common.utils.filesystem import atomicWrite, recover_file
 from driftkings.logger import get_logger
 from driftkings.settings.config_utils import smart_update
 
@@ -158,7 +158,7 @@ class JSONLoader(object):
         if not path.endswith('/'):
             path += '/'
         new_path = '%s%s.json' % (path, name)
-        recoverFile(new_path)
+        recover_file(new_path)
         if not os.path.isfile(new_path):
             if not save:
                 LOG.error('%s Config not found, creating default: %s', prefix, new_path)

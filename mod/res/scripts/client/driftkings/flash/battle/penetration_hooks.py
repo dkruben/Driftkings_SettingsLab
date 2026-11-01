@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+import BigWorld
 from gui.Scaleform.daapi.view.battle.shared.crosshair import plugins
 from gui.Scaleform.genConsts.CROSSHAIR_VIEW_ID import CROSSHAIR_VIEW_ID
 
 from driftkings._constants import GLOBAL, PENETRATION_INDICATOR
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import override
 from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
@@ -20,7 +20,7 @@ class ShotResultIndicatorPlugin(plugins.ShotResultIndicatorPlugin):
 
     def __init__(self, parentObj):
         super(ShotResultIndicatorPlugin, self).__init__(parentObj)
-        self.__player = getPlayer()
+        self.__player = BigWorld.player()
         self.__data = None
         self.__resolver = _ShotResultAll if settings_service.getComponentDict(config)[PENETRATION_INDICATOR.DISPLAY_ON_ALLIES] else _ShotResult
 
@@ -49,7 +49,7 @@ class ShotResultIndicatorPlugin(plugins.ShotResultIndicatorPlugin):
 
     def start(self):
         super(ShotResultIndicatorPlugin, self).start()
-        self.__player = getPlayer()
+        self.__player = BigWorld.player()
 
 
 @override(plugins, 'createPlugins')

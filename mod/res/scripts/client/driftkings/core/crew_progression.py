@@ -2,15 +2,7 @@
 """Crew progression arithmetic, independent of game imports and presentation."""
 import math
 
-
-def nonnegative(value):
-    if isinstance(value, bool):
-        return None
-    try:
-        value = float(value)
-    except (TypeError, ValueError, OverflowError):
-        return None
-    return value if not math.isnan(value) and not math.isinf(value) and value >= 0 else None
+from driftkings.common.utils.numbers import nonnegative_number as nonnegative
 
 
 def progression(remaining_xp, average_xp, completed=False):

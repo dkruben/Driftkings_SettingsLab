@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import BigWorld
 from gui.battle_control.controllers.personal_efficiency_ctrl import (_AGGREGATED_DAMAGE_EFFICIENCY_TYPES,
                                                                      _createEfficiencyInfoFromFeedbackEvent)
 from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
 
 from driftkings._constants import ENEMY_SPOTTING_STATUS, GLOBAL
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event
 from driftkings.core.vehicle_images import resolve_vehicle_images
@@ -59,7 +59,7 @@ class SpottedLightController(object):
     # Reproduz o som configurado para o tipo de assistência.
     def sound(self, assist_type):
         soundID = settings_service.getComponentDict(self.config)[SOUND_LIST[assist_type]]
-        getPlayer().soundNotifications.play(soundID)
+        BigWorld.player().soundNotifications.play(soundID)
 
     # Formata a mensagem e aplica a cor do evento.
     def textGenerator(self, event):
@@ -75,7 +75,7 @@ class SpottedLightController(object):
         settings = settings_service.getComponentDict(self.config)
         if not settings[GLOBAL.ENABLED]:
             return
-        player = getPlayer()
+        player = BigWorld.player()
         guiSessionProvider = player.guiSessionProvider
         if guiSessionProvider.shared.vehicleState.getControllingVehicleID() != player.playerVehicleID:
             return

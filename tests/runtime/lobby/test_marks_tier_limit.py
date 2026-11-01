@@ -26,7 +26,7 @@ class BattleMarksTierTests(RuntimeTest):
             'driftkings.gameface.battle.battle_marks_of_excellence': module(BattleMarksAdapter=lambda: self.panel),
             'driftkings.settings.definitions.battle.battle_marks_of_excellence': module(
                 BattleMarksOfExcellenceSettings=lambda: module(NAME='battle_marks_of_excellence')),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player()),
+            'BigWorld': module(player=lambda: self.player()),
         }, real=('driftkings._constants', 'driftkings.common.utils.numbers', 'driftkings.core.marks_calculator',
                  'driftkings.common.utils.colorratting'))
         self.worker = self.api['worker']

@@ -2,7 +2,7 @@
    Desenha cartões de exemplo com o perfil normal ou compacto: tamanho e espaçamento do cartão,
    campos nativos (enabled, alpha, dx, dy, scale) e campos extra (formato, ícone, posição,
    tamanho, alinhamento, camada, cor de fundo), com as macros de estatísticas avaliadas sobre estatísticas
-   de exemplo: {{v.x}}, {{v.c_x}}, {{v.x%2d~%}}, {{v.x?sim|não}}, {{v.x|omissão}} e macros aninhadas.
+   de exemplo: {{v.x}}, {{v.c:x}}, {{v.x%2d~%}}, {{v.x?sim|não}}, {{v.x|omissão}} e macros aninhadas.
    Dois veículos usam estatísticas fictícias identificadas como exemplo; parte das posições nativas continua aproximada; os campos extra usam as posições reais. */
 (function () {
     'use strict';
@@ -19,7 +19,7 @@
          stats: {battles: 312, winrate: 48.6, hitsRatio: 70.2, tdb: 3150, tfb: 1, wn8expd: 3400, wn8effd: 0.93, wn8: 1420, battletiermin: 10, battletiermax: 10,
                  marksOnGun: 0, damageRating: 41.2, mastery: 1}}
     ];
-    // Class colours from lobby/vehicle_carousel.py (CLASS_COLORS); {{v.c_type}} names the card background image.
+    // Class colours from lobby/vehicle_carousel.py (CLASS_COLORS); {{v.c:type}} names the card background image.
     var CLASS_COLORS = {lightTank: '#53b329', mediumTank: '#1ea2d2', heavyTank: '#957d5b', 'AT-SPG': '#f13439', SPG: '#b87ab2'};
     // Approximate places of the client's own card elements, as fractions of the card.
     var NATIVE = {
@@ -40,7 +40,7 @@
     function lookup(name, vehicle) {
         name = name.replace(/^v\./, '');
         var aliases = {tdb:'avgDamage',winrate:'winRate',hitsRatio:'hitRate',damageRating:'marks',tfb:'avgFrags',t_battles:'battles',markOfMastery:'mastery'};
-        if (name.indexOf('c_') === 0) {
+        if (name.indexOf('c:') === 0) {
             var key = name.slice(2);
             if (key === 'type') { return CLASS_COLORS[vehicle.type] || '#957d5b'; }
             if (vehicle.colors) { return vehicle.colors[aliases[key] || key] || null; }

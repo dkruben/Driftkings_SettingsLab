@@ -21,9 +21,14 @@ def percentToRgb(percent, saturation=0.5, brightness=1.0, **__):
     return '#{:02X}{:02X}{:02X}'.format(r, g, b)
 
 
+def is_hex_color(value):
+    """True for a #RRGGBB colour string, the only colour form accepted in settings."""
+    return isinstance(value, string_types) and re.match(r'^#[0-9A-Fa-f]{6}\Z', value) is not None
+
+
 def hexToDecimal(value):
     """Convert a #RRGGBB setting to the numeric colour required by native APIs."""
-    if not isinstance(value, string_types) or not re.match(r'^#[0-9A-Fa-f]{6}\Z', value):
+    if not is_hex_color(value):
         raise ValueError('Expected #RRGGBB')
     return int(value[1:], 16)
 

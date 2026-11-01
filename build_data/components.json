@@ -3,6 +3,9 @@
   "components": {
     "account_manager": {
       "entrypoint": "components.account_manager",
+      "config_files": [
+        "default/account_manager.json"
+      ],
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/account_manager/**",
         "mod/res/gui/gen_resources/driftkings.account_manager.json"

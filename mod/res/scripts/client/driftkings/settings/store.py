@@ -3,9 +3,8 @@
 import copy
 import json
 import os
-import tempfile
 
-from driftkings.common.utils.filesystem import recover_file, replace_file
+from driftkings.common.utils.filesystem import atomicWrite, recover_file
 
 
 def merge(base, values):
@@ -89,20 +88,7 @@ class SettingsStore(object):
         self.path = os.path.abspath(path)
 
     def write(self, document):
-        content = json.dumps(document, ensure_ascii=False, indent=4, sort_keys=True).encode('utf-8')
-        directory = os.path.dirname(self.path)
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-        descriptor, temporary = tempfile.mkstemp(prefix='Driftkings-', suffix='.tmp', dir=directory)
-        try:
-            with os.fdopen(descriptor, 'wb') as stream:
-                stream.write(content)
-                stream.flush()
-                os.fsync(stream.fileno())
-            replace_file(temporary, self.path)
-        finally:
-            if os.path.exists(temporary):
-                os.remove(temporary)
+        atomicWrite(self.path, json.dumps(document, ensure_ascii=False, indent=4, sort_keys=True).encode('utf-8'))
 
 
 def load_config(config, loader=None, defaults=None):

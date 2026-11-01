@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import math
 
+import BigWorld
 from CurrentVehicle import g_currentVehicle
-from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.Scaleform.daapi.view.lobby.profile.ProfileUtils import ProfileUtils
 from gui.shared.gui_items.dossier.achievements.mark_on_gun import MarkOnGunAchievement
 from gui.shared.personality import ServicesLocator
 
 from driftkings._constants import GLOBAL, HANGAR_MARKS_OF_EXCELLENCE, MARKS_MIN_TIER
 from driftkings.common.config.json_reader import loadJson
-from driftkings.common.utils.achievement_dossiers import getAchievementDossier
 from driftkings.common.utils.colorratting import getMoeDamageColor, getStatisticColor
+from driftkings.common.utils.dossiers import (average_assists, damage_rating, getAchievementDossier,
+                                              mastery_achievement, mastery_rank, total_record, wnx_assistance)
 from driftkings.common.utils.exceptions import log_exceptions
-from driftkings.common.utils.numbers import finite_number, nonnegative_number, ratio
-from driftkings.common.utils.wgutils import getPlayer
+from driftkings.common.utils.numbers import finite_number, nonnegative_number
 from driftkings.core.cache import cache_directory
 from driftkings.core.hooks import override
 from driftkings.core.marks_calculator import ceil_damage, combined_damage, hangar_goal, statistics
@@ -217,11 +217,9 @@ class MarksOnGunData(object):
         mastery_value = 0
         mastery_icon = ''
         try:
-            mastery = dossier.getTotalStats().getAchievement(MARK_OF_MASTERY_RECORD)
-            if mastery is not None and mastery.isInDossier():
-                rank = mastery.getValue()
-                mastery_value = int(rank) if rank in (1, 2, 3, 4) else 0
-                mastery_icon = mastery.getSmallIcon().replace('../', '') if mastery_value > 0 else ''
+            mastery_value = mastery_rank(dossier)
+            if mastery_value:
+                mastery_icon = mastery_achievement(dossier).getSmallIcon().replace('../', '')
                 if mastery_icon and not mastery_icon.startswith('img://'):
                     mastery_icon = 'img://%s' % mastery_icon
         except Exception:
@@ -259,14 +257,11 @@ class MarksOnGunData(object):
         winrate = 100.0 * wins / battles if battles else 0.0
 
         avg_damage = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgDamage()))
-        track = self._safe(ProfileUtils.getValueOrUnavailable(random_stats._getAvgValue(random_stats.getBattlesCountVer2, random_stats.getDamageAssistedTrack)))
-        radio = self._safe(ProfileUtils.getValueOrUnavailable(random_stats._getAvgValue(random_stats.getBattlesCountVer2, random_stats.getDamageAssistedRadio)))
-        stun = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgDamageAssistedStun()))
+        track, radio, stun = [self._safe(ProfileUtils.getValueOrUnavailable(value)) for value in average_assists(random_stats)]
         current_damage = int(combined_damage(avg_damage, track, radio, stun))
 
         wn8 = self._calculate_wn8(vehicle, random_stats, winrate)
-        assist_totals = [nonnegative_number(getattr(random_stats, method)()) for method in ('getDamageAssistedRadio', 'getDamageAssistedTrack', 'getDamageAssistedStun')]
-        assistance = ratio(sum(assist_totals), random_stats.getBattlesCountVer2()) if None not in assist_totals else None
+        assistance = wnx_assistance(random_stats)
         wnx = calculate_wnx(avg_damage,
                             nonnegative_number(ProfileUtils.getValueOrUnavailable(random_stats.getAvgFrags())),
                             nonnegative_number(ProfileUtils.getValueOrUnavailable(random_stats.getAvgEnemiesSpotted())),
@@ -274,8 +269,8 @@ class MarksOnGunData(object):
         if wnx is not None:
             wnx = int(math.floor(wnx + .5))
         mastery = self._get_mastery_info(dossier)
-        damage_rating = self._safe(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') / 100.0, 0.0)
-        moving_avg_damage = self._safe(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'movingAvgDamage'), 0.0)
+        rating = self._safe(damage_rating(dossier), 0.0)
+        moving_avg_damage = self._safe(total_record(dossier, 'movingAvgDamage'), 0.0)
 
         result = {
             'vehicleName': vehicle.shortUserName,
@@ -285,7 +280,7 @@ class MarksOnGunData(object):
             'averageDirect': avg_damage,
             'averageAssist': max(track, radio, stun),
             'averageCombined': current_damage,
-            'earnedMarks': dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'marksOnGun'),
+            'earnedMarks': total_record(dossier, 'marksOnGun'),
             'randomBattles': battles,
             'battles': battles,
             'wins': wins,
@@ -296,10 +291,10 @@ class MarksOnGunData(object):
             'wn8Color': self._color_by_wn8(wn8),
             'masteryValue': mastery['value'],
             'masteryIcon': mastery['icon'],
-            'hasMoE': has_marks_tier(vehicle) and damage_rating > 0.0
+            'hasMoE': has_marks_tier(vehicle) and rating > 0.0
         }
 
-        if damage_rating <= 0.0:
+        if rating <= 0.0:
             result.update({
                 'damageRating': 0.0,
                 'currentDamage': current_damage,
@@ -307,11 +302,11 @@ class MarksOnGunData(object):
             })
             return result
 
-        next_percent, need_damage, p20, p40, p55, p65, p85, p95, p100 = self.calc_statistics(damage_rating, moving_avg_damage)
+        next_percent, need_damage, p20, p40, p55, p65, p85, p95, p100 = self.calc_statistics(rating, moving_avg_damage)
         levels = [p20, p40, p55, p65, p85, p95, p100]
         result.update(
             {
-                'damageRating': damage_rating,
+                'damageRating': rating,
                 'currentDamage': current_damage,
                 'movingAvgDamage': moving_avg_damage,
                 'nextPercent': int(next_percent),
@@ -447,7 +442,7 @@ class ProgressHistory(object):
 
     # Regista a amostra atual e calcula a tendência por conta e veículo.
     def observe(self, data):
-        account = getattr(getPlayer(), 'databaseID', None)
+        account = getattr(BigWorld.player(), 'databaseID', None)
         if not account:
             return {'delta': None, 'battles': 0}
         name = 'progress_%s' % int(account)

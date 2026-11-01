@@ -18,7 +18,9 @@ class RetiredDefaultsTests(RuntimeTest):
         hangar = self.defaults('hangar_preferences')
         self.assertFalse(set(hangar).intersection(('clockStyle', 'clockSeconds', 'clock24Hour', 'customClockFormat')))
         clock = ('clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText')
-        self.assertIn('accountManager', hangar)
+        # The account manager has its own page and file.
+        self.assertNotIn('accountManager', hangar)
+        self.assertEqual(self.defaults('account_manager'), {'enabled': True})
         self.assertFalse(set(hangar).intersection(clock))
         main = self.defaults('main')
         self.assertFalse(set(main).intersection(clock[1:]))

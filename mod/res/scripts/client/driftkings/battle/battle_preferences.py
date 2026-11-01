@@ -3,6 +3,7 @@ from functools import partial
 
 from adisp import adisp_process
 from Avatar import PlayerAvatar
+import BigWorld
 from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
 import CommandMapping
 from comp7_core.gui.battle_control.controllers.sound_ctrls.comp7_battle_sounds import _EquipmentZoneSoundPlayer
@@ -23,7 +24,7 @@ from PlayerEvents import g_playerEvents
 
 from driftkings._constants import BATTLE_ALIASES, BATTLE_PREFERENCES, GLOBAL
 from driftkings.common.utils.formatting import hexToDecimal
-from driftkings.common.utils.wgutils import getPlayer, isReplay
+from driftkings.common.utils.wgutils import isReplay
 from driftkings.core.callbacks import callback
 from driftkings.core.fog_package import FogPackageController
 from driftkings.core.hooks import override
@@ -141,7 +142,7 @@ def new_VehicleTypeInfoVO_update(func, self, *args, **kwargs):
 def onReload(avatar):
     settings = settings_service.getComponentDict(battle_preferences_settings)
     if (not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.CLIP_LOAD]
-            or getPlayer() is not avatar or isReplay() or not avatar.isVehicleAlive):
+            or BigWorld.player() is not avatar or isReplay() or not avatar.isVehicleAlive):
         return
     shared = avatar.guiSessionProvider.shared
     if shared.ammo is None or shared.chatCommands is None:
@@ -175,7 +176,7 @@ def _iterVehicleNames(vehicleType):
 
 # Procura o nome do atacante a partir do nome do veículo.
 def _getAttackerName(vehicleName):
-    player = getPlayer()
+    player = BigWorld.player()
     arena = getattr(player, 'arena', None)
     if arena is None:
         return 'Unknown'

@@ -89,6 +89,7 @@ Não foram encontrados nomes indefinidos pelos verificadores utilizados. Estes r
 - **Correção aplicada:** restauradas as quatro chamadas públicas, mantendo a resolução das cores depois de as métricas atingirem os valores finais. Removida a variável local de escala que deixou de ser utilizada.
 - **Contratos:** sem alterações de assinaturas, fórmulas, campos ou formatos.
 - **Validação no cliente:** confirmar cores e interceção por outros mods que utilizem esse método.
+- **Nota de 2026-11-01:** nenhum renderizador lia as cores guardadas por estas chamadas (os painéis, marcadores e carrossel usam `getStatisticColor`), por isso foram retiradas; `Statistics.getColor()` continua disponível, mas um override não altera as cores apresentadas. Ver [STATUS](STATUS.md).
 
 Com a implementação padrão e estatísticas válidas:
 
@@ -158,7 +159,7 @@ Os cenários abaixo **não foram executados**. Esta checklist é apenas um guia 
 - [ ] Encerramento rápido e reabertura do painel.
 - [ ] Falhas parciais de inicialização, gravação e criação de views.
 - [ ] Ocultação de valores secretos nos payloads da interface.
-- [ ] Compatibilidade com outros mods, incluindo ordem dos hooks e overrides de `Statistics.getColor()`.
+- [ ] Compatibilidade com outros mods, incluindo a ordem dos hooks.
 
 ## H. Conclusão
 

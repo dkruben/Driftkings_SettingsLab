@@ -26,7 +26,7 @@ class BattleStatisticsTests(RuntimeTest):
         self.player = module(team=1, arena=module(vehicles=self.vehicles))
         self.api, self.hooks = game_source('battle/battle_statistics.py', {
             'driftkings.settings.service': Settings(self.data).service(),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player, getEntity=lambda vehicleID: None),
+            'BigWorld': module(player=lambda: self.player, entity=lambda vehicleID: None),
             'driftkings.game_constants': module(SHELL_TYPES=module(ARMOR_PIERCING=AP, ARMOR_PIERCING_CR=APCR,
                                                                     HOLLOW_CHARGE=HEAT, HIGH_EXPLOSIVE=HE)),
             'items': module(vehicles=module(VEHICLE_CLASS_TAGS=CLASSES)),

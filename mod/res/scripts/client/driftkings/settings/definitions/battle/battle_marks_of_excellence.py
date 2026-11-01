@@ -26,7 +26,6 @@ class BattleMarksOfExcellenceSettings(SectionDefinition):
                 field([BATTLE_MARKS_OF_EXCELLENCE.GAMEFACE, 'miniMode'], self.i18n['UI_mog_miniMode']),
                 control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_MARKS), control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_DELTA), control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_DAMAGE),
                 control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_PROGRESS), control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_TARGETS),
-                control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC),
                 control(BATTLE_MARKS_OF_EXCELLENCE.SHOW_IN_REPLAY),
                 field([BATTLE_MARKS_OF_EXCELLENCE.REPLAY_BASE_PERCENT], self.i18n['UI_mog_replayBasePercent'], 'Slider', 0.0, 100.0, step=0.5),
                 field([BATTLE_MARKS_OF_EXCELLENCE.REPLAY_BASE_DAMAGE], self.i18n['UI_mog_replayBaseDamage'], 'Slider', 100, 15000, step=50),

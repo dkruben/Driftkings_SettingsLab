@@ -32,6 +32,7 @@ Atualizado em 2026-10-30. Os caminhos e comandos partem da raiz do repositório.
 | Preferências do lobby | [Guia](hangar_preferences/README.md) |
 | Fontes e caracteres | [Fonts and characters](fonts/README.md) |
 | Traduções | [Guia i18n](i18n/README.md) |
+| Macros de todos os módulos | [Macro reference](macros/README.md) |
 | Áudio e Sexto Sentido | [Bancos](audioww/README.md) e [ícones](sixthsense_icons/README.md) |
 | Referências locais de desenvolvimento | [Development References](DEVELOPMENT_REFERENCE.md) |
 | Otimização e pendências | [Auditoria final](AUDITORIA_FINAL_INTEGRACAO.md) |
@@ -55,6 +56,30 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Gestor de contas com página própria no painel — 2026-11-01
+
+O Account Manager deixou de ler a opção `accountManager.enabled` das Opções do hangar e passou a ter a sua secção `account_manager` (`settings/definitions/components/account_manager.py`, categoria Geral) e o ficheiro `default/account_manager.json`. O interruptor do cabeçalho liga ou desliga o botão do gestor no ecrã de login (momento de aplicação imediato). A página tem um botão "Gerir contas" que abre a janela atual do gestor no hangar (`AccountsManagerController.openManager`), onde se adicionam, editam e apagam contas; "Entrar" fica desativado fora do ecrã de login. Título e textos novos nas 18 línguas. Os perfis antigos mantêm `accountManager` em `hangar_preferences.json` sem efeito; quem o tinha desativado à mão volta a ter o gestor ativo. Ainda não foi validado no cliente: confirmar que a janela abre por cima do painel e que fecha ao sair do hangar.
+
+## Revisão de `common/utils` — 2026-11-01
+
+Reutilização onde o comportamento é idêntico: `SettingsStore.write` e o armazenamento do painel usam `atomicWrite`; `core/crew_progression` usa `nonnegative_number`; `core/diagnostics` e `core/carousel.bounded` usam `finite_number`; `core/keycodes`, `core/panel_macros`, `core/minimap` e `stats/vehinfo` usam `compat` em vez de definirem `text_type`/`integer_types`. Retirados por não terem uso: o alias `recoverFile` (os quatro chamadores usam `recover_file`) e as tabelas `noob_meter_colors`, `driftkings_colors`, `wot_life_colors`, `vehicle_type_colors` e `total_hp_colors` de `color_rating_data` (o teste de tabelas partilhadas passou a ler `color_tables`). `getPlayer()`, `getTarget()` e `getEntity()` de `wgutils`, que só devolviam `BigWorld.player()`, `BigWorld.target()` e `BigWorld.entity()`, também saíram: os módulos que os usavam chamam o `BigWorld` diretamente e os testes fazem stub do `BigWorld`.
+
+Ficaram de fora de propósito: `core/updater/*` e `core/locale_catalog.py`, que as ferramentas de build carregam isoladamente e não podem importar `driftkings.common`; e as verificações `isnan`/`isinf` que validam e rejeitam valores, que não equivalem a `finite_number`.
+
+## Leituras de dossiers centralizadas — 2026-11-01
+
+`common/utils/achievement_dossiers.py` passou a `common/utils/dossiers.py` e reúne as leituras repetidas dos dossiers dos veículos: `total_record` (bloco TOTAL: `marksOnGun`, `movingAvgDamage`…), `damage_rating` (percentagem de marca), `mastery_achievement`/`mastery_rank` (mestria 0–4, sem confundir `NO_LVL` com Ás), `average_assists` (rastos, rádio e atordoamento por batalha) e `wnx_assistance`. As marcas no hangar, em batalha e na árvore tecnológica e o carrossel usam estas funções; os valores calculados não mudam. Os testes de módulos executados com `game_source` recebem os helpers reais através de `support.dossiers()`.
+
+A tooltip das marcas no registo de serviço (`MarkOnGunAchievement.getUserCondition`) era substituída pelos dois módulos de marcas, e o que ganhava dependia da ordem de arranque. Ficou só a do hangar (mais completa: mestria, WN8, vitórias e alvos opcionais). Saíram das marcas em batalha o override, a opção `showInStatistic`, o seu controlo e as traduções `UI_setting_showInStatistic_*` e `UI_tooltips`; a opção do hangar controla a tooltip. Perfis antigos mantêm a chave sem efeito. Ainda não foi validado no cliente.
+
+## Textos da mira com macros `{nome}` — 2026-11-01
+
+A contagem de pontaria, o tempo de voo e o indicador de penetração usam agora campos de formatação Python: `{timer:.1f}`, `{percent:d}`, `{color}`, `{countedArmor:d}`, etc. (`fill_template` em `gameface/battle/reticle_texts.py`). `:d` trunca decimais como o antigo `%d`; um nome desconhecido mostra `macros not found`. Os templates antigos com `%(nome)s` continuam a ser lidos quando contêm `%(`. Defaults, dicas das 18 línguas, testes e o [guia das macros](macros/README.md) usam a forma nova. Os perfis instalados no EU e no NA foram convertidos, com backup em `build/local-backups/reticle-braces-*`; a build instalada nesses clientes ainda só lê `%(nome)s` na contagem de pontaria e na penetração, por isso esses dois textos só ficam corretos depois de instalar uma build nova. Ainda não foi validado no cliente.
+
+## Macro de cor `{{v.c_…}}` retirada do carrossel — 2026-11-01
+
+O carrossel deixou de aceitar a forma antiga `{{v.c_métrica}}` (e `{{v.c_type}}`); a única sintaxe de cor é `{{c:métrica}}`/`{{v.c:métrica}}`, que devolve `#RRGGBB`. Uma macro antiga passa a ser lida como campo desconhecido e mostra `--`. Os defaults, a pré-visualização, os testes e os guias usam `{{v.c:…}}`. Foram também retirados de `Statistics.applyPlayer()` os campos `c_wn8`, `c_battles`, `c_winrate` e `c_tBattles`, que nenhum renderizador lia; `Statistics.getColor()` mantém-se como API pública, mas não controla as cores apresentadas (os painéis e marcadores usam `getStatisticColor`). Alteração incompatível com perfis personalizados: tem de constar do changelog da próxima versão. Os perfis instalados nos clientes EU e NA (`default/vehicle_carousel/carouselnormal.json` e `carouselsmall.json`) ainda usam a forma antiga. Ainda não foi validado no cliente.
 
 ## Eficiência e força das equipas migradas para Gameface — 2026-10-31
 
@@ -150,7 +175,7 @@ Os testes completos, as 14 suites frontend, os defaults e o catálogo UI passara
 
 ## Build e instalação local
 
-Os comandos e requisitos estão em [CONTRIBUTING — Local build and client installation](../CONTRIBUTING.md#local-build-and-client-installation). O cliente local é `D:/Games/World_of_Tanks_NA`, definido em `build_data/toolchain.local.json` (`game_root`, fora do Git). A build aceita clientes EU, NA ou ASIA da versão do contrato; confirmar `version.xml` antes de instalar. O log é `<game-root>/game.log`.
+Os comandos e requisitos estão em [CONTRIBUTING — Local build and client installation](../CONTRIBUTING.md#local-build-and-client-installation). Os testes decorrem nos clientes EU (`D:/Games/World_of_Tanks_EU`) e NA (`D:/Games/World_of_Tanks_NA`); o cliente de destino da instalação é o `game_root` de `build_data/toolchain.local.json` (fora do Git), atualmente o EU. A build aceita clientes EU, NA ou ASIA da versão do contrato; confirmar `version.xml` antes de instalar. O log é `<game-root>/game.log`.
 
 As instalações recentes guardaram backups em `build/local-backups/`, fora dos pacotes e do Git. Os ficheiros gerados pelo Common foram movidos para backup, não apagados definitivamente. Preservar as configurações pessoais em `<game-root>/mods/configs/driftkings` e não divulgar contas, palavras-passe, tokens ou logs completos sem ocultar os dados pessoais.
 

@@ -3,11 +3,8 @@
 import re
 
 from driftkings._constants import MINIMAP_ENHANCEMENTS
-
-try:
-    text_type = unicode
-except NameError:
-    text_type = str
+from driftkings.common.utils.compat import text_type
+from driftkings.common.utils.formatting import is_hex_color
 
 CIRCLES = ('draw', 'maxView', 'proximity', 'view')
 # Distance that marks an enemy as nearby: own view range, shell range or a fixed value.
@@ -121,7 +118,7 @@ def health_values(current, maximum):
 
 
 def color(value):
-    if not re.match(r'^#[a-fA-F0-9]{6}\Z', str(value)):
+    if not is_hex_color(value):
         raise ValueError('Invalid minimap color')
 
 
@@ -169,7 +166,7 @@ def validate(data):
         raise ValueError('Invalid minimap switch: lines.hull')
     numeric(data['lines'].get('marks'), 0, 500)
     for key in ('directionColor', 'sectorColor', 'hullColor'):
-        if not re.match(r'^#[a-fA-F0-9]{6}$', str(data['lines'].get(key, ''))):
+        if not is_hex_color(data['lines'].get(key)):
             raise ValueError('Invalid minimap line color')
     for key in MINIMAP_ENHANCEMENTS.LABEL_STATES:
         value = data['labels'].get(key)

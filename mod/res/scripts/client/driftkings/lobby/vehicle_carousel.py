@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import BigWorld
+
 from driftkings.common.utils.numbers import finite_number as number
 from driftkings.common.utils.numbers import ratio
 
@@ -7,13 +9,12 @@ import math
 import weakref
 
 from CurrentVehicle import g_currentVehicle
-from dossiers2.ui.achievements import ACHIEVEMENT_BLOCK, MARK_OF_MASTERY_RECORD
 from gui.shared.personality import ServicesLocator
 from gui.shared.utils.requesters import REQ_CRITERIA
 
 from driftkings._constants import MARKS_MIN_TIER, VEHICLE_CAROUSEL, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
-from driftkings.common.utils.wgutils import getPlayer
+from driftkings.common.utils.dossiers import mastery_rank, total_record, wnx_assistance
 from driftkings.core import carousel as layout
 from driftkings.core.carousel_assets import CarouselImages, normalize_icon_paths
 from driftkings.core.carousel_options import STAT_SORT_KEYS
@@ -114,20 +115,14 @@ def collect(vehicle):
     values['avgDefence'] = ratio(stats.getDroppedCapturePoints(), battles)
     values['damageRatio'] = ratio(values['avgDamage'], values['avgReceived'])
     values['damageHP'] = ratio(values['avgDamage'], vehicle.descriptor.maxHealth)
-    values['marks'] = (number(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating'), 0) / 100
+    values['marks'] = (number(total_record(dossier, 'damageRating'), 0) / 100
                        if vehicle.level >= MARKS_MIN_TIER and battles else None)
-    values['marksOnGun'] = number(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'marksOnGun'), 0)
-    mastery = dossier.getTotalStats().getAchievement(MARK_OF_MASTERY_RECORD)
-    # ClassProgressAchievement.NO_LVL is 5; clamping would turn it into Ace (4).
-    rank = mastery.getValue() if mastery is not None and mastery.isInDossier() else 0
-    values['mastery'] = int(rank) if rank in (1, 2, 3, 4) else 0
+    values['marksOnGun'] = number(total_record(dossier, 'marksOnGun'), 0)
+    values['mastery'] = mastery_rank(dossier)
     values['wn8effd'] = ratio(values['avgDamage'], values['wn8expd'])
     values.update(ratings(values, expected, vehicle.level))
-    assist_values = [number(getattr(stats, method)()) for method in
-                     ('getDamageAssistedRadio', 'getDamageAssistedTrack', 'getDamageAssistedStun')]
-    assistance = ratio(sum(assist_values), stats.getBattlesCountVer2()) if None not in assist_values else None
     values['wnx'] = calculate_wnx(values['avgDamage'], values['avgFrags'], values['avgSpotted'],
-                                  assistance, get_wnx_expected(vehicle.intCD)) if battles else None
+                                  wnx_assistance(stats), get_wnx_expected(vehicle.intCD)) if battles else None
     if values['wnx'] is not None:
         values['wnx'] = int(math.floor(values['wnx'] + .5))
     return values
@@ -169,7 +164,7 @@ class CarouselData(object):
 
     # Limpa os dados em cache quando muda a conta do jogador.
     def _sync_account(self):
-        account = getattr(getPlayer(), 'databaseID', None)
+        account = getattr(BigWorld.player(), 'databaseID', None)
         if account != self.account:
             self.account = account
             self.invalidate()

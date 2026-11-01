@@ -1,7 +1,4 @@
 {
-  "accountManager": {
-    "enabled": true
-  },
   "allowChannelButtonBlinking": true,
   "allowExchangeXPInTechTree": true,
   "autoLogin": true,

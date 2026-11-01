@@ -14,8 +14,8 @@ assert.strictEqual(host.querySelector('.dk-car-tank-img').src,'coui://gui/maps/i
 assert.strictEqual(host.querySelector('.dk-car-favorite-img').style.left,'100%');
 assert.strictEqual(host.querySelector('.dk-car-tank-img').style.left,'50%');
 assert.strictEqual(host.querySelector('.dk-live-note').textContent,DK.t('car.note'));
-assert.strictEqual(DK.carouselPreview.macros('{{v.winrate%.1f}} {{v.c_winrate}}',vehicle),'55.5 #123456');
-assert.strictEqual(DK.carouselPreview.macros('{{v.c_tdb}} / {{v.c_wn8expd}}',
+assert.strictEqual(DK.carouselPreview.macros('{{v.winrate%.1f}} {{v.c:winrate}}',vehicle),'55.5 #123456');
+assert.strictEqual(DK.carouselPreview.macros('{{v.c:tdb}} / {{v.c:wn8expd}}',
     Object.assign({},vehicle,{colors:{avgDamage:'#123456',wn8expd:'#654321'}})),'#123456 / #654321');
 assert.strictEqual(DK.carouselPreview.macros('{{v.tfb?yes|no}}',vehicle),'no','zero frags is false like the live Python renderer');
 assert.strictEqual(DK.carouselPreview.macros('{{icon:marksOnGun}}',vehicle),'gui/maps/icons/marksOnGun/95x85/usa_2_marks.png');

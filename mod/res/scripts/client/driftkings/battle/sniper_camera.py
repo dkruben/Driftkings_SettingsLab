@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from AvatarInputHandler.control_modes import SniperControlMode
 from AvatarInputHandler.DynamicCameras.SniperCamera import SniperCamera
+import BigWorld
 from helpers.bound_effects import ModelBoundEffects
 from PlayerEvents import g_playerEvents
 import TriggersManager
 
 from driftkings._constants import GLOBAL, SNIPER_CAMERA
-from driftkings.common.utils.wgutils import getPlayer, isReplay
+from driftkings.common.utils.wgutils import isReplay
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.game_constants import CTRL_MODE_NAME
@@ -75,7 +76,7 @@ class ZoomController(TriggersManager.ITriggerListener):
 
     # Associa os eventos de disparo ao avatar atual.
     def onStart(self):
-        avatar = getPlayer()
+        avatar = BigWorld.player()
         if not self.subscribed or avatar is None or self._listening and self.avatar is avatar:
             return
         self.onFinish()

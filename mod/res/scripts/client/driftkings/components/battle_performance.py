@@ -3,6 +3,7 @@ import math
 import re
 import weakref
 
+import BigWorld
 from constants import ARENA_BONUS_TYPE
 from gui.battle_control.battle_constants import PERSONAL_EFFICIENCY_TYPE
 from gui.Scaleform.daapi.view.battle.shared.ribbons_aggregator import RibbonsAggregator
@@ -13,7 +14,7 @@ from driftkings._constants import BATTLE_PERFORMANCE, GLOBAL, STATISTICS_BATTLES
 from driftkings.common.utils import events
 from driftkings.common.utils.colorratting import getRelativePerformanceColor, getStatisticColor
 from driftkings.common.utils.formatting import replaceMacros
-from driftkings.common.utils.wgutils import create_range, getPlayer
+from driftkings.common.utils.wgutils import create_range
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.hooks import on_event, override
@@ -208,7 +209,7 @@ class BattleEfficiency(object):
     # Formata e publica o texto de desempenho com as opções atuais.
     def updateFormatString(self):
         settings = settings_service.getComponentDict(battle_performance_settings)
-        player = getPlayer()
+        player = BigWorld.player()
         arena = getattr(player, 'arena', None)
         if not settings[GLOBAL.ENABLED] or arena is None or arena.bonusType not in SUPPORTED_BONUS_TYPES:
             if g_gameface is not None:
@@ -257,7 +258,7 @@ class _EfficiencyListener(object):
     # Subscreve as atualizações do controlador de eficiência da batalha atual.
     def attach(self):
         self.detach()
-        player = getPlayer()
+        player = BigWorld.player()
         ctrl = getattr(getattr(getattr(player, 'guiSessionProvider', None), 'shared', None), 'personalEfficiencyCtrl', None)
         if ctrl is not None:
             ctrl.onTotalEfficiencyUpdated += self.onTotalEfficiencyUpdated

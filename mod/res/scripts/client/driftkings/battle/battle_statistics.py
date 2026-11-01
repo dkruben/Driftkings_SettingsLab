@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import BigWorld
 from helpers.CallbackDelayer import CallbackDelayer
 from items import vehicles
 from vehicle_systems.CompoundAppearance import CompoundAppearance
@@ -7,7 +8,6 @@ from driftkings._constants import BATTLE_STATISTICS, GLOBAL
 from driftkings.common.utils import events
 from driftkings.common.utils.colorratting import getComparisonColor
 from driftkings.common.utils.formatting import replaceMacros
-from driftkings.common.utils.wgutils import getEntity, getPlayer
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.battle_policy import battle_policy
@@ -168,7 +168,7 @@ class TanksStatistic:
 
     # Recolhe os dados do veículo necessários aos cálculos de força.
     def addVehicleInfo(self, vehicle_id, vehicle_info):
-        player = getPlayer()
+        player = BigWorld.player()
         if not vehicle_info or vehicle_info.get('vehicleType') is None or player is None:
             return False
         if vehicle_id not in self.base:
@@ -336,7 +336,7 @@ class BattleStatDisplay(CallbackDelayer):
     # Inicializa os dados das equipas nas batalhas permitidas.
     def onBattleStarted(self):
         self.onBattleEnded()
-        arena = getPlayer().arena
+        arena = BigWorld.player().arena
         if not battle_policy.decision('battle_statistics')[0]:
             return
         self.inBattle = True
@@ -366,7 +366,7 @@ class BattleStatDisplay(CallbackDelayer):
         if not self.inBattle:
             return
         if vehicleID not in g_tanksStatistic.base:
-            player = getPlayer()
+            player = BigWorld.player()
             arena = getattr(player, 'arena', None)
             info = arena.vehicles.get(vehicleID) if arena is not None else None
             if g_tanksStatistic.addVehicleInfo(vehicleID, info):
@@ -382,7 +382,7 @@ class BattleStatDisplay(CallbackDelayer):
     # Recolhe a vida atual de um veículo que fica disponível.
     def onAppeared(self, vehicleID):
         if self.inBattle:
-            entity = getEntity(vehicleID)
+            entity = BigWorld.entity(vehicleID)
             if entity is not None:
                 self.onHealthChanged(vehicleID, entity.health)
 
@@ -442,7 +442,7 @@ def new__prerequisites(func, self, vehicleID, *args, **kwargs):
     result = func(self, vehicleID, *args, **kwargs)
     if g_mod.inBattle:
         try:
-            player = getPlayer()
+            player = BigWorld.player()
             arena = getattr(player, 'arena', None)
             info = arena.vehicles.get(vehicleID) if arena is not None else None
             if g_tanksStatistic.addVehicleInfo(vehicleID, info):

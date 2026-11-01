@@ -2,13 +2,14 @@
 from collections import defaultdict
 from functools import partial
 
+import BigWorld
 from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
 from gui.Scaleform.daapi.view.battle.shared.indicators import SixthSenseIndicator
 from SoundGroups import SoundGroups
 
 from driftkings._constants import BATTLE_ALIASES, GLOBAL, SIXTH_SENSE_ALERT
 from driftkings.common.utils.chat import sendChatMessage
-from driftkings.common.utils.wgutils import getPlayer, square_position
+from driftkings.common.utils.wgutils import square_position
 from driftkings.core.callbacks import callback
 from driftkings.core.hooks import override
 from driftkings.flash.battle.sixth_sense_alert import set_native_visible, SixthSense
@@ -42,7 +43,7 @@ class MessagesSpotted(object):
         def message(avatar):
             avatar.guiSessionProvider.shared.chatCommands.handleChatCommand(BATTLE_CHAT_COMMAND_NAMES.SOS)
         if settings_service.getComponentDict(sixth_sense_alert_settings)[SIXTH_SENSE_ALERT.HELP_MESSAGE]:
-            callback(self.__time, partial(message, getPlayer()))
+            callback(self.__time, partial(message, BigWorld.player()))
 
 
 g_messages = MessagesSpotted()
@@ -72,7 +73,7 @@ def new__sixthSenseToggle(func, self, isVisible, force):
     set_native_visible(self, not replacement)
     if not isVisible:
         return
-    player = getPlayer()
+    player = BigWorld.player()
     if player and player.isVehicleAlive:
         if settings[GLOBAL.ENABLED]:
             if settings[SIXTH_SENSE_ALERT.SPOTTED_MESSAGE]:

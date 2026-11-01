@@ -3,12 +3,12 @@ from math import degrees
 import re
 from xml.sax.saxutils import escape
 
+import BigWorld
 from gui.shared.gui_items.Vehicle import getContourIconPath, getIconPath
 from nations import NAMES
 
 from driftkings._constants import GLOBAL, ROMAN_NUMERALS, TARGET_INFORMATION
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import getEntity, getPlayer, getTarget
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.battle_events import battleEvents
 from driftkings.core.callbacks import callback, cancelCallback
@@ -516,7 +516,7 @@ class InfoPanel(DataConstants):
                 g_flash = Flash()
             g_panel = g_flash
         self._inBattle = True
-        feedback = getPlayer().guiSessionProvider.shared.feedback
+        feedback = BigWorld.player().guiSessionProvider.shared.feedback
         if feedback is not None:
             feedback.onVehicleFeedbackReceived += self.onVehicleFeedback
             self._feedback = feedback
@@ -545,7 +545,7 @@ class InfoPanel(DataConstants):
             return
         if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED]:
             return
-        entity = getEntity(vehicleID)
+        entity = BigWorld.entity(vehicleID)
         if entity is not None and self.isConditions(entity):
             self.onUpdateVehicle(entity)
         else:
@@ -571,7 +571,7 @@ class InfoPanel(DataConstants):
     @staticmethod
     def isConditions(entity):
         settings = settings_service.getComponentDict(target_information_settings)
-        player = getPlayer()
+        player = BigWorld.player()
         if player is None or entity is None or not hasattr(entity, 'publicInfo'):
             return False
         playerTeam = player.team
@@ -641,7 +641,7 @@ class InfoPanel(DataConstants):
         settings = settings_service.getComponentDict(target_information_settings)
         if not settings[GLOBAL.ENABLED]:
             return
-        player = getPlayer()
+        player = BigWorld.player()
         if not hasattr(player, 'getVehicleAttached'):
             return
         if checkKeys(settings[TARGET_INFORMATION.ALT_KEY]) and event.isKeyDown():
@@ -649,7 +649,7 @@ class InfoPanel(DataConstants):
             self.onUpdateVehicle(player.getVehicleAttached(), ignoreHotKey=True)
         elif self.hotKeyDown and event.isKeyUp() and not checkKeys(settings[TARGET_INFORMATION.ALT_KEY]):
             self.hotKeyDown = False
-            target = getTarget()
+            target = BigWorld.target()
             if self.isConditions(target):
                 self.onUpdateVehicle(target)
             else:
@@ -685,7 +685,7 @@ class InfoPanel(DataConstants):
 
     # Recolhe os dados do alvo atual e atualiza o painel.
     def onUpdateVehicle(self, vehicle, ignoreHotKey=False):
-        player = getPlayer()
+        player = BigWorld.player()
         if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_panel.active or not hasattr(player, 'getVehicleAttached'):
             return
         if self.hotKeyDown and not ignoreHotKey:

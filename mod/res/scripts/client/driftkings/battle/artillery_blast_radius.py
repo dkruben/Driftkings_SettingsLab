@@ -10,7 +10,6 @@ from driftkings._constants import ARTILLERY_BLAST_RADIUS, GLOBAL
 from driftkings.common.utils import events
 from driftkings.common.utils.exceptions import log_exceptions
 from driftkings.common.utils.game import checkKeys
-from driftkings.common.utils.wgutils import getPlayer
 from driftkings.core.hooks import on_event, override
 from driftkings.core.keyboard import keyboard
 from driftkings.flash.battle.messages import sendPanelMessage
@@ -61,7 +60,7 @@ class ArtySplashController(object):
         self._started = True
         if settings[GLOBAL.ENABLED]:
             keyboard.subscribe(self.injectButton)
-            self.player = getPlayer()
+            self.player = BigWorld.player()
             self.modelSplashVisible = settings[ARTILLERY_BLAST_RADIUS.SHOW_SPLASH_ON_DEFAULT]
             self.modelDotVisible = settings[ARTILLERY_BLAST_RADIUS.SHOW_DOT_ON_DEFAULT]
             self.scaleSplash = None
@@ -74,9 +73,9 @@ class ArtySplashController(object):
             self.modelSplash.model.visible = False
             self.modelDot.model.visible = False
             self.modelSplashCircle = BigWorld.PyTerrainSelectedArea()
-            player = getPlayer()
+            player = BigWorld.player()
             if player is not None:
-                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model', Math.Vector2(2.0, 2.0), 0.5, int("#FFFFFFFF"[1:], 16), player.spaceID)
+                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model', Math.Vector2(2.0, 2.0), 0.5, 0xFFFFFFFF, player.spaceID)
             self.modelSplash.model.root.attach(self.modelSplashCircle)
             self.modelSplashCircle.enableAccurateCollision(False)
 

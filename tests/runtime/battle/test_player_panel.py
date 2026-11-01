@@ -53,7 +53,7 @@ class StatisticsRequestTests(RuntimeTest):
             'messenger': module(g_settings=object()),
             'skeletons.gui.battle_session': module(IBattleSessionProvider=object),
             'driftkings._constants': self.load('_constants'),
-            'driftkings.common.utils.wgutils': module(getPlayer=lambda: self.player),
+            'BigWorld': module(player=lambda: self.player),
             'driftkings.common.utils.colorratting': module(getStatisticColor=colors.getStatisticColor),
             'driftkings.core.callbacks': module(callback=lambda delay, fn: self.scheduled.append(fn) or len(self.scheduled),
                                                 cancelCallback=lambda handle: None),

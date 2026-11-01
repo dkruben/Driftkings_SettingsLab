@@ -6,7 +6,7 @@ import os
 import shutil
 import tempfile
 
-from support import RuntimeTest, module
+from support import RuntimeTest, module, source
 from support.accounts import Store, component, presentation, service
 
 
@@ -148,8 +148,39 @@ class AccountControllerTests(RuntimeTest):
         self.assertIsNone(self.controller.window)
         self.assertIsNone(self.controller.launcher)
 
+    def test_settings_panel_opens_the_manager_only_in_the_hangar(self):
+        self.controller.openManager()
+        self.assertIsNone(self.controller.window)
+        self.controller.space = 2
+        self.controller.openManager()
+        window = self.controller.window
+        self.assertTrue(window.loaded)
+        self.assertFalse(window.launcher)
+        # A second press keeps the open window.
+        self.controller.openManager()
+        self.assertIs(self.controller.window, window)
+
     def test_disposal_of_an_old_login_does_not_close_the_current_login(self):
         result = self.controller.loginDisposed(lambda view: 'native', object())
         self.assertEqual(result, 'native')
         self.assertTrue(self.controller.canLogin())
         self.assertEqual(self.cancelled, [])
+
+
+class AccountSettingsPageTests(RuntimeTest):
+    def test_page_offers_a_button_that_opens_the_manager(self):
+        opened = []
+        api = source('settings/definitions/components/account_manager.py', {
+            'driftkings._constants': self.load('_constants'),
+            'driftkings.settings.controls_schema': self.load('settings.controls_schema'),
+            'driftkings.settings.definitions.base': module(SectionDefinition=object),
+            'driftkings.components.account_manager': module(controller=module(openManager=lambda: opened.append(True))),
+        })
+        page = api['AccountManagerSettings']()
+        page.i18n = {'UI_setting_openManager': 'Manage accounts', 'UI_setting_openManagerInfo': 'Add, edit or delete saved accounts.'}
+        self.assertEqual(page.NAME, 'account_manager')
+        left, right = page.getControlColumns()
+        self.assertEqual(left, [{'type': 'Label', 'text': 'Add, edit or delete saved accounts.', 'button': 'Manage accounts'}])
+        self.assertEqual(right, [])
+        page.onButtonPress(None, None)
+        self.assertEqual(opened, [True])
