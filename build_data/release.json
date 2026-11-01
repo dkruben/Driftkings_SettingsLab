@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.5-beta.2",
+  "version": "0.1.5-beta.3",
   "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
@@ -9,14 +9,14 @@
   "author": "driftkings",
   "changelog": [
     "BETA NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
-    "Settings: simplified colour controls, added Discord/Facebook/YouTube shortcuts, moved clan reward collection to general settings and revised European Portuguese labels. Sound bank diagnostics moved to general settings; technical loader options are hidden.",
-    "Live previews: corrected HUD zoom positioning, vehicle marker text offsets and font symbols, minimap images and vehicle classes, carousel samples and health bar previews. Scrolling updates after images load.",
-    "Hangar marks: restored the panel after a WNX import error; damage and rating colours follow the selected palette. WNX, WN8, win rate and the earned mastery icon appear horizontally with middle-dot separators.",
-    "Tech tree marks: removed the badge background and empty records; tiers I-IV show only an earned Ace Tanker, while higher tiers keep their available statistics.",
-    "Gun traverse limits: previews show the selected images; selecting no horizontal or vertical style disables the module.",
-    "Reload: manual reload (C by default) now sends only the native F8 command, with game-translated messages and minimap effects. Removed the custom reload message setting. Shell flight time keeps brace templates and older formats.",
-    "Target information: the target card now uses Gameface in standard battles; events without the Gameface HUD keep the Flash card. The vehicle image sits on its own line and armour/shell columns stay aligned (wider default tab stops).",
-    "Penetration indicator: the message now appears above the armour/penetration value; the ricochet label was removed from the default template.",
-    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; some visual changes still need confirmation in game."
+    "INCOMPATIBLE with custom carousel profiles: the old {{v.c_...}} colour macro was removed. Use {{v.c:...}} (for example {{v.c:winrate}}); the default settings already do.",
+    "Account manager: new page in General settings. Its switch turns the login-screen button on or off, and Manage accounts opens the manager in the hangar to add, edit or delete accounts. Signing in is still done on the login screen.",
+    "Aiming texts: the aiming countdown, shell flight time and penetration templates use {name} fields such as {timer:.1f}, {percent:d} and {countedArmor:d}. Older %(name)s templates keep working.",
+    "Target information: the target card uses Gameface in standard battles; events without the Gameface HUD keep the Flash card. The vehicle image sits on its own line and armour/shell columns stay aligned. The penetration message appears above its value.",
+    "Team panels: native team panels are supported in Frontline, Black Signal and Stronghold battles.",
+    "Reload: manual reload (C by default) sends only the native F8 command, with game-translated messages and minimap effects. The custom reload message setting was removed.",
+    "Marks of excellence: the service-record achievement tooltip now comes only from Hangar marks (its Statistic option controls it). The Statistic option of the battle marks was removed.",
+    "Settings: sound bank diagnostics moved to general settings; technical loader options are hidden. Shared dossier and colour helpers were consolidated without changing the displayed values.",
+    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; tested on the EU client."
   ]
 }

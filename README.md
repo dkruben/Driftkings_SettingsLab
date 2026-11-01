@@ -2,7 +2,7 @@
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
-[![Beta 0.1.5-beta.1](https://img.shields.io/badge/Beta-0.1.5--beta.1-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.1)
+[![Beta 0.1.5-beta.3](https://img.shields.io/badge/Beta-0.1.5--beta.3-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.3)
 [![Stable 0.1.4](https://img.shields.io/badge/Stable-0.1.4-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)
 
 # Driftkings Modpack
@@ -18,13 +18,23 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
 | **[Stable 0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1.zip) |
-| **[Beta 0.1.5-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.1)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.1/Driftkings-0.1.5-beta.1-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.1/Driftkings-0.1.5-beta.1-WoT-2.4.1.1.zip) |
+| **[Beta 0.1.5-beta.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.3)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.3/Driftkings-0.1.5-beta.3-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.3/Driftkings-0.1.5-beta.3-WoT-2.4.1.1.zip) |
 
-Stable **0.1.4** and beta **0.1.5-beta.1** both target WoT **2.4.1.1**. The beta retires legacy font and macro names; check custom profiles before installing it.
+Stable **0.1.4** and beta **0.1.5-beta.3** both target WoT **2.4.1.1**. The beta retires legacy font and macro names, including the `{{v.c_...}}` carousel colour macro; check custom profiles before installing it.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
-### What's new in 0.1.5-beta.1
+### What's new in 0.1.5-beta.3
+
+- **Carousel colour macro:** `{{v.c_...}}` no longer works. Use `{{v.c:...}}`, for example `{{v.c:winrate}}`; the default settings already do.
+- **Account manager page:** a General settings page turns the login-screen button on or off, and **Manage accounts** opens the manager in the hangar to add, edit or delete accounts.
+- **Aiming texts:** the aiming countdown, shell flight time and penetration templates use `{name}` fields such as `{timer:.1f}`; older `%(name)s` templates keep working.
+- **Battle:** the target card uses Gameface, native team panels work in Frontline, Black Signal and Stronghold, and manual reload uses the native command.
+- **Marks of excellence:** a single achievement tooltip in the service record, controlled by Hangar marks.
+
+See [the macro reference](docs/macros/README.md) for every template macro.
+
+### Earlier in 0.1.5-beta.1
 
 - **Legacy names removed:** the `xvm` and `XVMSymbol` font aliases and the `{{xvm-stat}}` macro no longer work. Use `dkm` and `{{stat-available}}` in custom profiles; the default settings already do.
 - **Validated in game:** `dkm` fonts in markers, team panels and the carousel, and rating colours on Halloween TAB player names (NA 2.4.1.1).
@@ -142,7 +152,7 @@ Anonymous usage statistics are **off by default**. You can enable them in settin
 
 Supports Wargaming **EU, NA and ASIA** clients for **WoT 2.4.1.1**. Mir Tankov/RU is outside the project's scope.
 
-The stable release has prior in-game validation. Beta 0.1.4-beta.2 passed package verification and GitHub Actions, including Python 2/3 and Gameface tests. Its latest marker, font and layout changes still need visual confirmation in game.
+The stable release has prior in-game validation. Beta 0.1.5-beta.3 passed package verification and GitHub Actions, including Python 2/3 and Gameface tests, and was tested on the EU client.
 
 ## Development
 
