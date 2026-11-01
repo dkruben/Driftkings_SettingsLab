@@ -64,10 +64,10 @@
                             line.appendChild(cell);
                         }
                         // Largura fixa como no Flash; flexDirection ou minWidth nas células empilham a linha no Gameface.
-                        cell.style.display = 'flex'; cell.style.alignItems = 'baseline'; cell.style.flexShrink = '0';
+                        cell.style.display = 'flex'; cell.style.alignItems = 'flex-end'; cell.style.flexShrink = '0';
                         cell.style.width = Math.max(0, stops[column] - (column ? stops[column - 1] : 0)) + 'rem';
                         column++;
-                        cell = K.node('div', '', line); cell.style.display = 'flex'; cell.style.alignItems = 'baseline';
+                        cell = K.node('div', '', line); cell.style.display = 'flex'; cell.style.alignItems = 'flex-end';
                     } else { K.node('span', '', cell || line, '\t').style.whiteSpace = 'pre'; }
                     continue;
                 }

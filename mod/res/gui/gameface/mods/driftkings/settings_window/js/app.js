@@ -380,6 +380,7 @@
             h('div.dk-kv', null, [h('div.dk-kv-key', {text: line[0]}), h('div.dk-kv-value', {text: line[1]})], u.lines);
         });
         u.changelog.textContent = (update.changelog || []).join('\n');
+        DK.show(u.changelog, !!u.changelog.textContent);
         var busy = DK.contains(['CHECKING', 'DOWNLOADING', 'VERIFYING', 'INSTALLING', 'RESTART_REQUIRED'], update.status);
         var prepared = update.status === 'RESTART_REQUIRED' && update.installScheduled === true && !update.cancellingInstall;
         var note = update.installBlocked ? t('updates.block.' + update.installBlocked, t('updates.installBlocked')) : '';
@@ -387,6 +388,7 @@
         var outcome = update.lastInstallResult;
         if (outcome) { note += (note ? '\n' : '') + String(t('updates.result.' + outcome.status, t('updates.result.failed'))).replace('{version}', outcome.version || ''); }
         u.note.textContent = note;
+        DK.show(u.note, !!note);
         enable(u.check, !busy && update.status !== 'READY' && !update.cancellingInstall);
         var downloadable = update.canDownload && update.compatible === true && DK.contains(['AVAILABLE', 'ERROR'], update.status);
         DK.show(u.download, downloadable); enable(u.download, downloadable);
@@ -659,7 +661,7 @@
     /* Dialogs ------------------------------------------------------------------------- */
     function dialog(title, text) {
         var panel = h('div.dk-dialog');
-        h('div.dk-dialog-title', {text: title}, null, panel);
+        if (title) { h('div.dk-dialog-title', {text: title}, null, panel); }
         if (text) { h('div.dk-dialog-text', {text: text}, null, panel); }
         return panel;
     }

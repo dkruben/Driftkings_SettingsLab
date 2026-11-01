@@ -13,4 +13,4 @@
     pointer-events: none;
 }
 .dk-screen-text__content { display: flex; flex-direction: column; }
-.dk-screen-text__line { display: flex; flex-direction: row; align-items: baseline; min-height: 1.2em; }
+.dk-screen-text__line { display: flex; flex-direction: row; align-items: flex-end; min-height: 1.2em; }

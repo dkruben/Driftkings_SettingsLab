@@ -13,7 +13,7 @@
 #dk-battle-efficiency span { font-size: inherit !important; }
 #dk-battle-efficiency p { margin: 0; }
 #dk-battle-efficiency .dk-results-separator {
-    display: inline-block; width: 1rem; height: 1em; margin: 0 12rem;
+    display: flex; width: 1rem; height: 1em; margin: 0 12rem;
     vertical-align: middle; background-color: var(--color-general-primary); opacity: .25;
 }
-#dk-battle-efficiency .dk-results-tab { display: inline-block; width: 24rem; }
+#dk-battle-efficiency .dk-results-tab { display: flex; width: 24rem; }

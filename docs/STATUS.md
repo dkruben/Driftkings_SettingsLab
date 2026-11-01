@@ -57,6 +57,10 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
+## CSS Gameface sem declarações rejeitadas — 2026-11-01
+
+O `game.log` do EU mostrava 256 avisos `alignItems ... baseline` de `shared/flash_lines.js` (células com `<tab>` da Informação do alvo) e avisos de CSS ao abrir hangar, painel, árvore e batalha. O Gameface ignora `align-items: baseline`, `display: inline-block`/`inline-flex`, bordas `dashed` e os seletores `:empty`/`:disabled`. Passaram a `flex-end`, `flex` e `solid`; os elementos vazios do painel (dependência da opção, changelog e nota das atualizações, título de diálogo) escondem-se via `DK.show` e os botões +/− desativados usam a classe `is-disabled`. Validado no cliente EU com a build debug: hangar, painel de configurações, árvore tecnológica e replay sem avisos de CSS do mod. Os restantes avisos (`hangar_camera_manager` ao sair do hangar de Halloween, `NaN%` na barra da árvore) são do jogo.
+
 ## Beta 0.1.5-beta.3 publicada — 2026-11-01
 
 O utilizador testou a build debug no cliente EU `2.4.1.1 #989` e aprovou-a. A [release v0.1.5-beta.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.3) está publicada como prerelease; a stable 0.1.4 continua marcada como latest. `develop` e `main` avançaram em fast-forward para `d1dbfe3`, onde está o tag; o CI desse commit passou antes do upload.

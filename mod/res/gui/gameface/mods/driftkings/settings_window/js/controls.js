@@ -20,6 +20,7 @@
         }
         if (def.description && firstLine(def.description) !== def.label) { h('div.dk-row-desc', {text: firstLine(def.description)}, null, text); }
         var lock = h('div.dk-row-lock', null, null, text);
+        DK.show(lock, false);
         var input = h('div.dk-row-input', null, null, node);
         var reset = null;
         if ('default' in def && def.type !== 'password') {
@@ -39,6 +40,7 @@
             DK.toggle(r.node, 'is-changed', !!info.changed);
             DK.toggle(r.node, 'is-default', 'default' in def && DK.same(info.value, def['default']));
             r.lock.textContent = control.disabled && info.lockedBy ? t('detail.depends') + ': ' + info.lockedBy : '';
+            DK.show(r.lock, !!r.lock.textContent);
             if (control.onSync) { control.onSync(info); }
         };
         control.set = function (value) { control.value = value; if (control.render) { control.render(); } };
@@ -287,7 +289,7 @@
         c.render = function () { if (!dragging) { draw(c.value); } };
         c.onSync = function () {
             field.disabled = c.disabled; track.tabIndex = c.disabled ? -1 : 0;
-            if (minus) { minus.disabled = plus.disabled = c.disabled; }
+            if (minus) { minus.disabled = plus.disabled = c.disabled; DK.toggle(minus, 'is-disabled', c.disabled); DK.toggle(plus, 'is-disabled', c.disabled); }
         };
         c.onDispose = function () { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
         return c;
@@ -348,7 +350,10 @@
             else if(!c.disabled&&(event.keyCode===36||event.keyCode===35)){DK.stop(event);commit(event.keyCode===36?def.min:def.max);}
         });
         c.render = function () { if (document.activeElement !== field) { field.value = String(c.value); } };
-        c.onSync = function () { field.disabled = minus.disabled = plus.disabled = c.disabled; };
+        c.onSync = function () {
+            field.disabled = minus.disabled = plus.disabled = c.disabled;
+            DK.toggle(minus, 'is-disabled', c.disabled); DK.toggle(plus, 'is-disabled', c.disabled);
+        };
         return c;
     }
 

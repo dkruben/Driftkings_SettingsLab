@@ -20,7 +20,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-window-line { position: absolute; left: 0; top: 0; right: 0; height: 2rem; opacity: 0.9; }
 
 .dk-top { display: flex; align-items: center; height: 60rem; padding: 0 12rem 0 24rem; border-bottom: 1rem solid #3a3731; flex-shrink: 0; background: rgba(0, 0, 0, 0.25); }
-.dk-brand { display: flex; align-items: baseline; white-space: nowrap; }
+.dk-brand { display: flex; align-items: flex-end; white-space: nowrap; }
 .dk-brand-mark { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; }
 .dk-brand-name { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; color: #f2ecd9; }
 .dk-social { width: 36rem; height: 36rem; margin-left: 8rem; padding: 6rem; background: transparent; border: 1rem solid #4a463e; border-radius: 5rem; }
@@ -88,7 +88,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-pill.is-ok { color: #8fd77f; border-color: rgba(103, 195, 90, 0.45); }
 .dk-pill.is-warning { color: #f2c14e; border-color: rgba(242, 193, 78, 0.5); }
 .dk-pill.is-error { color: #ff9b85; border-color: rgba(231, 98, 75, 0.55); }
-.dk-alert { display: inline-block; width: 14rem; height: 14rem; margin-right: 6rem; flex-shrink: 0; background: url('../assets/icon_alert.svg') center / contain no-repeat; }
+.dk-alert { display: flex; width: 14rem; height: 14rem; margin-right: 6rem; flex-shrink: 0; background: url('../assets/icon_alert.svg') center / contain no-repeat; }
 .dk-notices { font-size: 12.5rem; color: #d9bd83; }
 .dk-notice { display: flex; align-items: center; margin-top: 4rem; }
 .dk-notice.is-error { padding: 8rem 12rem; border-left: 3rem solid #d9412b; background: rgba(217, 65, 43, 0.12); color: #ffc2b5; }
@@ -113,7 +113,6 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-row-title { display: flex; flex-wrap: wrap; align-items: center; }
 .dk-row-desc { margin-top: 3rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12.5rem; opacity: 0.75; }
 .dk-row-lock { font-size: 11.5rem; color: #8c8677; }
-.dk-row-lock:empty { display: none; }
 .dk-badge { margin-left: 10rem; padding: 1rem 6rem; border: 1rem solid #4a463e; font-size: 10.5rem; color: #8c8677; white-space: nowrap; }
 .dk-badge-restart { color: #f2c14e; border-color: rgba(242, 193, 78, 0.45); }
 .dk-row-input { display: flex; align-items: center; justify-content: flex-end; flex: 0 1 380rem; min-width: 200rem; }
@@ -174,7 +173,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-step:before { width: 10rem; height: 2rem; margin: -1rem 0 0 -5rem; }
 .dk-step.is-plus:after { width: 2rem; height: 10rem; margin: -5rem 0 0 -1rem; }
 .dk-step:hover:before, .dk-step:hover:after { background: #ffffff; }
-.dk-step:disabled:before, .dk-step:disabled:after { opacity: 0.4; }
+.dk-step.is-disabled:before, .dk-step.is-disabled:after { opacity: 0.4; }
 .dk-field { width: 100%; height: 32rem; padding: 0 10rem; border: 1rem solid #3a3731; background: rgba(0, 0, 0, 0.5); font-size: 13.5rem; }
 .dk-field:hover, .dk-number:hover { border-color: #5b5649; }
 .dk-field.is-invalid, .dk-number.is-invalid { border-color: #d9412b; }
@@ -269,7 +268,6 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-dialog { display: flex; flex-direction: column; width: 560rem; max-width: 100%; min-height: 0; padding: 24rem 26rem; }
 .dk-modal-wide .dk-dialog { width: 800rem; }
 .dk-dialog-title { font-size: 19rem; color: #f6f0dc; }
-.dk-dialog-title:empty { display: none; }
 .dk-dialog-text { margin-top: 10rem; font-size: 13.5rem; line-height: 20rem; white-space: pre-wrap; }
 .dk-dialog-actions { display: flex; align-items: center; justify-content: flex-end; margin-top: 20rem; flex-shrink: 0; }
 .dk-dialog-actions .dk-button { margin-left: 8rem; }
@@ -286,7 +284,6 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-update-lines .dk-kv { font-size: 13rem; }
 .dk-update-lines .dk-kv-key { width: 200rem; }
 .dk-update-changelog { margin-top: 10rem; font-size: 13rem; line-height: 19rem; color: #b3ae9f; white-space: pre-wrap; }
-.dk-update-changelog:empty, .dk-update-note:empty { display: none; }
 .dk-update-note { margin-top: 8rem; font-size: 12.5rem; color: #f2c14e; white-space: pre-wrap; }
 .dk-update-actions { display: flex; flex-wrap: wrap; margin-top: 10rem; }
 .dk-update-actions .dk-button { margin: 0 8rem 8rem 0; }
@@ -352,7 +349,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-mk-text.is-center { text-align: center; }
 .dk-mk-text.is-left { margin-left: 0; text-align: left; }
 .dk-mk-text.is-right { margin-left: -240rem; text-align: right; }
-.dk-mk-bar.is-selected, .dk-mk-icon.is-selected, .dk-mk-image.is-selected, .dk-mk-text.is-selected { outline: 1rem dashed #d98219; outline-offset: 2rem; }
+.dk-mk-bar.is-selected, .dk-mk-icon.is-selected, .dk-mk-image.is-selected, .dk-mk-text.is-selected { outline: 1rem solid #d98219; outline-offset: 2rem; }
 .dk-markers-side { position: relative; display: flex; flex: 1 1 auto; min-width: 0; margin-left: 16rem; }
 .dk-markers-list { display: flex; flex-direction: column; width: 160rem; flex-shrink: 0; margin-right: 12rem; overflow: auto; }
 .dk-mk-item { flex-shrink: 0; min-height: 30rem; padding: 4rem 10rem; margin-bottom: 3rem; border: 1rem solid #3a3731; background: rgba(0, 0, 0, 0.3); color: #b3ae9f; text-align: left; font-size: 12.5rem; }
@@ -433,13 +430,13 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-installed-meta, .dk-installed-state { margin-left: 28rem; }
 
 /* Formatted text preview (js/richtext.js) ------------------------------------------------------------------ */
-.dk-rich { width: 100%; margin-top: 8rem; padding: 10rem 12rem; border-radius: 6rem; background: #0b0c0d; border: 1rem dashed #3a3731; color: #ffffff; font-size: 14rem; line-height: 1.25; overflow: hidden; }
+.dk-rich { width: 100%; margin-top: 8rem; padding: 10rem 12rem; border-radius: 6rem; background: #0b0c0d; border: 1rem solid #3a3731; color: #ffffff; font-size: 14rem; line-height: 1.25; overflow: hidden; }
 .dk-rich-line { white-space: pre-wrap; }
 .dk-selected-preview { width: 100%; margin-top: 10rem; padding: 6rem 12rem; background: #15171a; }
-.dk-selected-preview > img { display: inline-block; max-width: 180rem; max-height: 100rem; margin-right: 24rem; }
-.dk-rich-img { display: inline-block; vertical-align: middle; }
+.dk-selected-preview > img { display: flex; max-width: 180rem; max-height: 100rem; margin-right: 24rem; }
+.dk-rich-img { display: flex; vertical-align: middle; }
 .dk-rich-img img { display: block; max-width: 160rem; max-height: 60rem; }
-.dk-rich-img.is-missing { padding: 1rem 6rem; border: 1rem dashed #5b5649; border-radius: 4rem; color: #8c8677; font-size: 11rem; }
+.dk-rich-img.is-missing { padding: 1rem 6rem; border: 1rem solid #5b5649; border-radius: 4rem; color: #8c8677; font-size: 11rem; }
 
 /* Position on screen (js/hud.js): a 1920x1080 stage scaled into the column ------------------------------------ */
 .dk-hud-frame { position: relative; width: 344rem; height: 194rem; overflow: hidden; border: 1rem solid #4a463e; border-radius: 6rem; background: #0a0b0c; }
@@ -479,7 +476,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-hud-group { position: absolute; left: 0; top: 0; width: 1920rem; height: 1080rem; }
 .dk-hud-box { position: absolute; display: flex; flex-direction: column; white-space: nowrap; }
 .dk-hud-off { position: absolute; left: 0; right: 0; top: 500rem; text-align: center; font-size: 60rem; color: #ffffff; text-shadow: 0 0 8rem #000000; }
-.dk-hud-frame .is-current { z-index: 3; outline: 6rem dashed #d98219; outline-offset: 8rem; }
+.dk-hud-frame .is-current { z-index: 3; outline: 6rem solid #d98219; outline-offset: 8rem; }
 .dk-hud-frame .is-other { z-index: 2; opacity: 0.35; }
 
 /* Carousel preview (js/carousel.js) -------------------------------------------------------------------------- */
@@ -503,7 +500,7 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-car-info { font-size: 13rem; color: #ffd24a; text-shadow: 0 0 3rem #000000; white-space: nowrap; }
 .dk-car-field { position: absolute; display: flex; align-items: center; white-space: nowrap; line-height: 1.1; }
 .dk-car-img { display: block; }
-.dk-car-badge { display: inline-flex; align-items: center; justify-content: center; width: 16rem; height: 16rem; border-radius: 3rem; background: #6a5a2c; color: #f2e3b5; font-size: 10rem; font-weight: 700; }
+.dk-car-badge { display: flex; align-items: center; justify-content: center; width: 16rem; height: 16rem; border-radius: 3rem; background: #6a5a2c; color: #f2e3b5; font-size: 10rem; font-weight: 700; }
 .dk-car-border { position: absolute; left: 0; top: 0; right: 0; bottom: 0; border: 2rem solid #f2c14e; z-index: 20; }
 .dk-car-off { position: relative; top: 0; padding: 30rem 0; font-size: 18rem; }
 .dk-car-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
@@ -550,11 +547,11 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-mk-row.is-reference .dk-button { display: block; width: 100%; margin: 6rem 0 0; white-space: normal; }
 .dk-mk-group { min-width: 0; }
 /* Warhelios has no arrow, star or shape glyphs: these stand in for them. */
-.dk-tri { display: inline-block; width: 0; height: 0; border-style: solid; border-color: transparent; vertical-align: middle; }
+.dk-tri { display: flex; width: 0; height: 0; border-style: solid; border-color: transparent; vertical-align: middle; }
 .dk-tri.is-up { border-width: 0 4rem 6rem 4rem; border-bottom-color: #b3ae9f; }
 .dk-tri.is-down { border-width: 6rem 4rem 0 4rem; border-top-color: #b3ae9f; }
 .dk-tri.is-right { border-width: 5rem 0 5rem 7rem; border-left-color: #7a7466; }
-.dk-star { display: inline-block; width: 14rem; height: 14rem; margin-right: 2rem; vertical-align: middle; background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.svg'); background-size: 100% 100%; background-repeat: no-repeat; }
+.dk-star { display: flex; width: 14rem; height: 14rem; margin-right: 2rem; vertical-align: middle; background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.svg'); background-size: 100% 100%; background-repeat: no-repeat; }
 .dk-star.is-earned { background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg'); }
 .dk-car-badge.is-star { background: url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg') center / 100% 100% no-repeat; }
 .dk-mk-icon.is-hoverMarker:before { content: ""; position: absolute; left: 4rem; top: 6rem; width: 0; height: 0; border-style: solid; border-color: transparent; border-width: 12rem 7rem 0 7rem; border-top-color: #ffffff; }
