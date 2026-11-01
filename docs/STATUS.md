@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-10-30. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-01. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -12,7 +12,7 @@ Atualizado em 2026-10-30. Os caminhos e comandos partem da raiz do repositório.
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão stable publicada: `0.1.4` (latest). Beta publicada: `0.1.5-beta.1` (prerelease, tag no commit `3176085`). O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Versão stable publicada: `0.1.4` (latest). Beta publicada: `0.1.5-beta.3` (prerelease, tag no commit `d1dbfe3`, também em `main`). O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
@@ -56,6 +56,12 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Beta 0.1.5-beta.3 publicada — 2026-11-01
+
+O utilizador testou a build debug no cliente EU `2.4.1.1 #989` e aprovou-a. A [release v0.1.5-beta.3](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.3) está publicada como prerelease; a stable 0.1.4 continua marcada como latest. `develop` e `main` avançaram em fast-forward para `d1dbfe3`, onde está o tag; o CI desse commit passou antes do upload.
+
+A build release foi feita a partir da árvore limpa (304 módulos Python 2.7, SWF e helpers), com instalador Inno Setup e os três testes opcionais sobre o WOTMOD. O manifesto foi assinado com a chave existente. Os 11 assets publicados coincidem em nome, tamanho e SHA-256 com a build local; o manifesto e a assinatura descarregados da release pública passaram na verificação da chave de confiança. O anúncio automático no Discord correu sem erros. O changelog assinala como incompatível com perfis personalizados a remoção de `{{v.c_…}}` no carrossel.
 
 ## Gestor de contas com página própria no painel — 2026-11-01
 
