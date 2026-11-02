@@ -55,6 +55,27 @@ class AccountRegionTests(RuntimeTest):
         self.assertEqual(account['password'], 'secret')
         self.assertEqual(na.credentials(account_id)[2], NA[1][0])
 
+    def test_failed_save_logs_only_the_error_type(self):
+        records = self.capture_log('Driftkings.AccountManager')
+
+        class FailingStore(Store):
+            def write_accounts(self):
+                raise IOError('cannot write na@example.com hunter2')
+        store = FailingStore()
+        accounts, na = self.service(store, NA, 'NA')
+        with self.assertRaises(accounts.AccountError) as raised:
+            na.save('', 'Main NA', 'na@example.com', 'hunter2', 1)
+        self.assertEqual(raised.exception.key, 'errorSave')
+        self.assertEqual(store.accounts, [])
+        self.assertEqual(len(records), 1)
+        record = records[0]
+        self.assertEqual(record.levelname, 'WARNING')
+        self.assertIsNone(record.exc_info)
+        self.assertEqual(record.args, (type(IOError()).__name__,))
+        message = record.getMessage()
+        for secret in ('na@example.com', 'hunter2', 'Main NA', 'cannot write'):
+            self.assertNotIn(secret, message)
+
     def test_older_records_infer_region_or_require_confirmation(self):
         store = Store([
             {'id': 'eu', 'title': 'EU', 'email': 'e', 'password': 'p', 'cluster': 1, 'server': EU[1][0]},

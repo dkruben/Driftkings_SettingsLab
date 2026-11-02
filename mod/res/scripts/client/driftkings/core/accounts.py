@@ -3,6 +3,10 @@
 import copy
 import uuid
 
+from driftkings.logger import get_logger
+
+LOG = get_logger('Driftkings.AccountManager')
+
 # Records written before regions were stored only have a login URL. The automatic
 # server URL is identical in every region, so it cannot identify one.
 REALM_DOMAINS = (('worldoftanks.eu', 'EU'), ('worldoftanks.com', 'NA'), ('worldoftanks.asia', 'ASIA'))
@@ -95,7 +99,9 @@ class AccountService(object):
         self.store.accounts = accounts
         try:
             saved = self.store.write_accounts()
-        except Exception:
+        except Exception as error:
+            # Type name only: the message or traceback could carry e-mail addresses or passwords.
+            LOG.warning('Could not save accounts (%s); credentials are not logged', type(error).__name__)
             saved = False
         if not saved:
             self.store.accounts = previous
