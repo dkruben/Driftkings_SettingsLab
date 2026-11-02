@@ -20,6 +20,8 @@ try:
 except NameError:
     TEXT = str
 
+from driftkings.core.updater.shared import LOG
+
 HELPER_RESOURCE = 'gui/driftkings/windows-files/Driftkings.WindowsFiles.exe'
 INFO_RESOURCE = 'gui/driftkings/windows-files/helper.json'
 _client = None
@@ -79,7 +81,9 @@ class WindowsPathValidator(object):
                     line = self.process.stdout.readline(32770)
                     self.responses.put(line)
                     if not line: break
-            except Exception: self.responses.put(b'')
+            except Exception:
+                LOG.debug('Windows helper pipe read failed; ending the session', exc_info=True)
+                self.responses.put(b'')
         thread = threading.Thread(target=reading, name='Driftkings.WindowsFiles.pipe')
         thread.daemon = True
         thread.start()

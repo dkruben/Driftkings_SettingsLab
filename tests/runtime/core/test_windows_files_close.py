@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+import hashlib
+import logging
+import os
+import shutil
+import tempfile
 import threading
 import time
 
-from support import RuntimeTest
+from support import RuntimeTest, module
 
 
 class Stream(object):
@@ -26,6 +31,34 @@ class FakeProcess(object):
 
     def wait(self):
         return self.poll()
+
+
+class PipeReadTests(RuntimeTest):
+    def test_failed_pipe_read_logs_and_ends_the_session(self):
+        folder = tempfile.mkdtemp(prefix='dk-windows-files-test-')
+        self.addCleanup(shutil.rmtree, folder)
+        binary = os.path.join(folder, 'helper.exe')
+        with open(binary, 'wb') as stream:
+            stream.write(b'helper')
+
+        class BrokenOutput(Stream):
+            def readline(self, limit):
+                raise IOError('pipe closed')
+
+        process = FakeProcess()
+        process.stdout = BrokenOutput()
+        api = self.load('core.updater.windows_files')
+        api.subprocess = module(STARTUPINFO=lambda: module(dwFlags=0, wShowWindow=1), STARTF_USESHOWWINDOW=1,
+                                PIPE=-1, Popen=lambda *args, **kwargs: process)
+        records = self.capture_log('Driftkings.Updater', level=logging.DEBUG)
+        client = api.WindowsPathValidator(binary, folder, hashlib.sha256(b'helper').hexdigest())
+        with self.assertRaises(OSError):
+            client.start()
+        self.assertTrue(client.failed)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].levelname, 'DEBUG')
+        self.assertIn('pipe read failed', records[0].getMessage())
+        self.assertIs(records[0].exc_info[0], IOError)
 
 
 class CloseTests(RuntimeTest):
