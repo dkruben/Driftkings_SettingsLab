@@ -15,6 +15,8 @@ function parse(node, html) {
     var stack = [node], re = /<(\/?)(\w+)([^>]*)>|([^<]+)/g, match;
     while ((match = re.exec(html))) {
         var top = stack[stack.length - 1];
+        // Like Gameface, whitespace-only text between tags is not kept.
+        if (match[4] && !match[4].trim()) { continue; }
         if (match[4]) { var text = element('#text'); text.nodeType = 3; text.nodeValue = match[4]; top.appendChild(text); continue; }
         if (match[1]) { stack.pop(); continue; }
         var child = element(match[2]), attrs = /([\w-]+)='([^']*)'/g, attr;
@@ -120,6 +122,9 @@ assert.strictEqual(content.children[1].children[1].src, 'coui://gui/maps/tank.pn
 assert.strictEqual(content.children[1].children[1].style.width, '80rem');
 assert.strictEqual(content.style.backgroundColor, 'rgba(32,37,43,0.6)');
 assert.strictEqual(content.style.padding, '12rem');
+data.text = "<font size='18'>Tank</font>\n<font>Reload</font>  <font> / </font>  <font>DPM</font>\n<font>View</font>"; update();
+assert.strictEqual(content.children.length, 3);
+assert.strictEqual(content.children[1].children.length, 3);
 data.text = 'Target\nHP 1500'; update();
 assert.strictEqual(content.children[0].style.marginBottom, '0rem');
 data.style.leading = 4; data.style.background = false; update();

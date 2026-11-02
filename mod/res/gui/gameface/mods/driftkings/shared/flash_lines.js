@@ -26,6 +26,9 @@
         options = options || {};
         var parsed = document.createElement('div'), line = K.node('div', lineClass, target), cell = null, column = 0;
         html = inert(html).replace(/<br\s*\/?>/gi, "<span data-dk-br='1'></span>");
+        // Gameface drops whitespace-only text between tags, so a template's newline between two
+        // <font> runs would vanish and join the card rows; it becomes a closed break span first.
+        if (options.rich) { html = html.replace(/\r\n?|\n/g, "<span data-dk-br='1'></span>"); }
         parsed.innerHTML = options.rich ? html.replace(/<tab\s*\/?>/gi, "<span data-dk-tab='1'></span>")
             .replace(/<img\b([^>]*?)\s*\/?>/gi, "<span data-dk-img='1'$1></span>") : html;
         function newLine() { line = K.node('div', lineClass, target); cell = null; column = 0; }
