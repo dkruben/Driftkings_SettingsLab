@@ -19,7 +19,7 @@ body:
     attributes:
       label: Game version
       description: The client version and build, from game.log or the login screen.
-      placeholder: 2.4.1.1 #989
+      placeholder: "2.4.1.1 #989"
     validations:
       required: true
   - type: dropdown
