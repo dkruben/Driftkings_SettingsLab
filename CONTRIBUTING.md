@@ -212,7 +212,7 @@ Use the actual artifact path for the version under review. This suite is deliber
 
 Put shared setup in `support`, not in another `test_*` module. Preserve isolation of mocked imports and cleanup of events/callbacks. For critical WG contracts, supply explicit test boundaries that reject unknown attributes; automatic stubs are only an isolation convenience, not API verification. Source-text assertions check structural contracts, not runtime behaviour. DOM doubles do not implement CSS layout or prove that a glyph is visible; record in-game acceptance separately.
 
-Stable `0.1.2` had earlier in-game validation. Stable `0.1.4` uses the validated development sources and package-validation workflow. The settings panel remains under construction; consult STATUS.md for the exact scope of in-game acceptance. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
+Stable `0.1.2` had earlier in-game validation. Stable `0.1.4` uses the validated development sources and package-validation workflow. The settings panel still carries its under-construction notice; consult STATUS.md for the exact scope of in-game acceptance. For each new change, verify the affected behaviour in the target client and state the client version, realm and mode in the pull request. Portable tests complement that verification.
 
 Current verification results are dated in [STATUS.md](docs/STATUS.md). Test counts are evidence of a particular run, not a coverage percentage or a fixed requirement for later changes.
 

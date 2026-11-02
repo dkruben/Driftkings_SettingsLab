@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-01. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -16,7 +16,7 @@ Atualizado em 2026-11-01. Os caminhos e comandos partem da raiz do repositório.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
-- O painel de configurações continua em construção. A ausência de erros num replay não valida todas as páginas, previews ou operações de gravação.
+- O painel de configurações continua em construção (o aviso mantém-se no painel e no changelog), mas o utilizador confirmou a aceitação visual no cliente EU em 2026-11-02.
 - As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS.
 
 ## Guias mantidos
@@ -57,6 +57,15 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
+## Cartão do alvo, cabeçalho do painel e validações — 2026-11-02
+
+- **Cartão do alvo:** o Gameface descarta texto só com espaços entre etiquetas, por isso a quebra de linha entre as linhas do cartão perdia-se e o cartão aparecia numa só linha. `shared/flash_lines.js` converte as quebras em `<span data-dk-br>` antes de analisar o HTML nos textos ricos; o teste dos textos de ecrã passou a descartar esse texto como o Gameface.
+- **Siglas das munições:** as 18 línguas tinham traduções automáticas das siglas como palavras comuns (HE como o pronome «ele», APCR como «TAEG», HEAT como «calor»). Todas usam agora AP, APCR, HE, HEAT e HESH.
+- **Modelo Clássico:** o cartão antigo (imagem do veículo, recarga com equipamento e tabelas alinhadas de blindagem e munições) voltou como modelo 7, `classic`, agora o padrão, com legendas traduzidas (`card_type` e `card_damage` novos nas 18 línguas). Cópias guardadas do cartão português retirado passam para o Clássico; os IDs dos modelos existentes não mudam. A configuração do EU foi mudada para o modelo 7, com cópia de segurança. O utilizador validou o cartão Clássico no cliente EU.
+- **Painel:** cabeçalho de 80rem com a imagem `header_tank.jpeg` (2800×160), ícones sociais brancos e botão GitHub que abre o repositório (`REPOSITORY` do updater).
+- **Validações confirmadas pelo utilizador:** Halloween, gestor de contas, cartão das marcas no hangar, tooltip das marcas, macro do carrossel `{{v.c:…}}`, textos da mira em Gameface e macros `{nome}`, aceitação visual do painel e os helpers `UpdateInstaller.exe`/`WindowsFiles.exe`.
+- **Verificações:** 608 testes Python, 18 suites frontend e validação dos contratos de build sem falhas. Commits `20af06d`, `6192862` e `b25b9e0` enviados para `develop`; não há nova release.
+
 ## CSS Gameface sem declarações rejeitadas — 2026-11-01
 
 O `game.log` do EU mostrava 256 avisos `alignItems ... baseline` de `shared/flash_lines.js` (células com `<tab>` da Informação do alvo) e avisos de CSS ao abrir hangar, painel, árvore e batalha. O Gameface ignora `align-items: baseline`, `display: inline-block`/`inline-flex`, bordas `dashed` e os seletores `:empty`/`:disabled`. Passaram a `flex-end`, `flex` e `solid`; os elementos vazios do painel (dependência da opção, changelog e nota das atualizações, título de diálogo) escondem-se via `DK.show` e os botões +/− desativados usam a classe `is-disabled`. Validado no cliente EU com a build debug: hangar, painel de configurações, árvore tecnológica e replay sem avisos de CSS do mod. Os restantes avisos (`hangar_camera_manager` ao sair do hangar de Halloween, `NaN%` na barra da árvore) são do jogo.
@@ -69,7 +78,7 @@ A build release foi feita a partir da árvore limpa (304 módulos Python 2.7, SW
 
 ## Gestor de contas com página própria no painel — 2026-11-01
 
-O Account Manager deixou de ler a opção `accountManager.enabled` das Opções do hangar e passou a ter a sua secção `account_manager` (`settings/definitions/components/account_manager.py`, categoria Geral) e o ficheiro `default/account_manager.json`. O interruptor do cabeçalho liga ou desliga o botão do gestor no ecrã de login (momento de aplicação imediato). A página tem um botão "Gerir contas" que abre a janela atual do gestor no hangar (`AccountsManagerController.openManager`), onde se adicionam, editam e apagam contas; "Entrar" fica desativado fora do ecrã de login. Título e textos novos nas 18 línguas. Os perfis antigos mantêm `accountManager` em `hangar_preferences.json` sem efeito; quem o tinha desativado à mão volta a ter o gestor ativo. Ainda não foi validado no cliente: confirmar que a janela abre por cima do painel e que fecha ao sair do hangar.
+O Account Manager deixou de ler a opção `accountManager.enabled` das Opções do hangar e passou a ter a sua secção `account_manager` (`settings/definitions/components/account_manager.py`, categoria Geral) e o ficheiro `default/account_manager.json`. O interruptor do cabeçalho liga ou desliga o botão do gestor no ecrã de login (momento de aplicação imediato). A página tem um botão "Gerir contas" que abre a janela atual do gestor no hangar (`AccountsManagerController.openManager`), onde se adicionam, editam e apagam contas; "Entrar" fica desativado fora do ecrã de login. Título e textos novos nas 18 línguas. Os perfis antigos mantêm `accountManager` em `hangar_preferences.json` sem efeito; quem o tinha desativado à mão volta a ter o gestor ativo. Validado pelo utilizador no cliente EU (confirmado em 2026-11-02).
 
 ## Revisão de `common/utils` — 2026-11-01
 
@@ -81,15 +90,15 @@ Ficaram de fora de propósito: `core/updater/*` e `core/locale_catalog.py`, que 
 
 `common/utils/achievement_dossiers.py` passou a `common/utils/dossiers.py` e reúne as leituras repetidas dos dossiers dos veículos: `total_record` (bloco TOTAL: `marksOnGun`, `movingAvgDamage`…), `damage_rating` (percentagem de marca), `mastery_achievement`/`mastery_rank` (mestria 0–4, sem confundir `NO_LVL` com Ás), `average_assists` (rastos, rádio e atordoamento por batalha) e `wnx_assistance`. As marcas no hangar, em batalha e na árvore tecnológica e o carrossel usam estas funções; os valores calculados não mudam. Os testes de módulos executados com `game_source` recebem os helpers reais através de `support.dossiers()`.
 
-A tooltip das marcas no registo de serviço (`MarkOnGunAchievement.getUserCondition`) era substituída pelos dois módulos de marcas, e o que ganhava dependia da ordem de arranque. Ficou só a do hangar (mais completa: mestria, WN8, vitórias e alvos opcionais). Saíram das marcas em batalha o override, a opção `showInStatistic`, o seu controlo e as traduções `UI_setting_showInStatistic_*` e `UI_tooltips`; a opção do hangar controla a tooltip. Perfis antigos mantêm a chave sem efeito. Ainda não foi validado no cliente.
+A tooltip das marcas no registo de serviço (`MarkOnGunAchievement.getUserCondition`) era substituída pelos dois módulos de marcas, e o que ganhava dependia da ordem de arranque. Ficou só a do hangar (mais completa: mestria, WN8, vitórias e alvos opcionais). Saíram das marcas em batalha o override, a opção `showInStatistic`, o seu controlo e as traduções `UI_setting_showInStatistic_*` e `UI_tooltips`; a opção do hangar controla a tooltip. Perfis antigos mantêm a chave sem efeito. Validado pelo utilizador no cliente EU (confirmado em 2026-11-02).
 
 ## Textos da mira com macros `{nome}` — 2026-11-01
 
-A contagem de pontaria, o tempo de voo e o indicador de penetração usam agora campos de formatação Python: `{timer:.1f}`, `{percent:d}`, `{color}`, `{countedArmor:d}`, etc. (`fill_template` em `gameface/battle/reticle_texts.py`). `:d` trunca decimais como o antigo `%d`; um nome desconhecido mostra `macros not found`. Os templates antigos com `%(nome)s` continuam a ser lidos quando contêm `%(`. Defaults, dicas das 18 línguas, testes e o [guia das macros](macros/README.md) usam a forma nova. Os perfis instalados no EU e no NA foram convertidos, com backup em `build/local-backups/reticle-braces-*`; a build instalada nesses clientes ainda só lê `%(nome)s` na contagem de pontaria e na penetração, por isso esses dois textos só ficam corretos depois de instalar uma build nova. Ainda não foi validado no cliente.
+A contagem de pontaria, o tempo de voo e o indicador de penetração usam agora campos de formatação Python: `{timer:.1f}`, `{percent:d}`, `{color}`, `{countedArmor:d}`, etc. (`fill_template` em `gameface/battle/reticle_texts.py`). `:d` trunca decimais como o antigo `%d`; um nome desconhecido mostra `macros not found`. Os templates antigos com `%(nome)s` continuam a ser lidos quando contêm `%(`. Defaults, dicas das 18 línguas, testes e o [guia das macros](macros/README.md) usam a forma nova. Os perfis instalados no EU e no NA foram convertidos, com backup em `build/local-backups/reticle-braces-*`. Validado pelo utilizador no cliente EU com a build da beta.3 (confirmado em 2026-11-02).
 
 ## Macro de cor `{{v.c_…}}` retirada do carrossel — 2026-11-01
 
-O carrossel deixou de aceitar a forma antiga `{{v.c_métrica}}` (e `{{v.c_type}}`); a única sintaxe de cor é `{{c:métrica}}`/`{{v.c:métrica}}`, que devolve `#RRGGBB`. Uma macro antiga passa a ser lida como campo desconhecido e mostra `--`. Os defaults, a pré-visualização, os testes e os guias usam `{{v.c:…}}`. Foram também retirados de `Statistics.applyPlayer()` os campos `c_wn8`, `c_battles`, `c_winrate` e `c_tBattles`, que nenhum renderizador lia; `Statistics.getColor()` mantém-se como API pública, mas não controla as cores apresentadas (os painéis e marcadores usam `getStatisticColor`). Alteração incompatível com perfis personalizados: tem de constar do changelog da próxima versão. Os perfis instalados nos clientes EU e NA (`default/vehicle_carousel/carouselnormal.json` e `carouselsmall.json`) ainda usam a forma antiga. Ainda não foi validado no cliente.
+O carrossel deixou de aceitar a forma antiga `{{v.c_métrica}}` (e `{{v.c_type}}`); a única sintaxe de cor é `{{c:métrica}}`/`{{v.c:métrica}}`, que devolve `#RRGGBB`. Uma macro antiga passa a ser lida como campo desconhecido e mostra `--`. Os defaults, a pré-visualização, os testes e os guias usam `{{v.c:…}}`. Foram também retirados de `Statistics.applyPlayer()` os campos `c_wn8`, `c_battles`, `c_winrate` e `c_tBattles`, que nenhum renderizador lia; `Statistics.getColor()` mantém-se como API pública, mas não controla as cores apresentadas (os painéis e marcadores usam `getStatisticColor`). Alteração incompatível com perfis personalizados, assinalada no changelog da beta.3. Os perfis instalados nos clientes EU e NA (`default/vehicle_carousel/`) já usam `{{v.c:…}}`. Validado pelo utilizador no cliente EU (confirmado em 2026-11-02).
 
 ## Eficiência e força das equipas migradas para Gameface — 2026-10-31
 
@@ -101,13 +110,13 @@ As definições mantêm-se: a posição (`position` e `textPosition`) tem a mesm
 
 A contagem de pontaria, o tempo de voo do projétil e o indicador de penetração passaram de Flash (`dispersiontimerui.as`, `flighttimerui.as`, `armorcalculatorui.as` e a base `crosshairdisplayable.as`) para três vistas Gameface filhas da HUD nativa (`RandomHUDView`), com um renderizador partilhado (`shared/reticle_text.js` e `.css`) e os adaptadores em `gameface/battle/reticle_texts.py`. Como no Flash, cada texto fica na posição da mira mais o desvio `x`/`y` do módulo (`position.x`/`position.y` na penetração), em unidades da interface; na vista estratégica a âncora é o centro do ecrã. Os templates Flash (cor, tamanho, `b`/`i`/`u`, `br`) são convertidos em linhas de texto.
 
-Em batalha, com Ctrl, cada texto pode ser arrastado e o novo desvio é gravado nas definições do próprio módulo. As vistas DAAPI, os metas, o `CrosshairMeta` e os aliases Flash foram retirados; o registo Flash passa a ter seis contratos. As páginas sem HUD Gameface (Halloween e Fort Rush) deixam de mostrar estes textos. Ainda não foi validado no cliente.
+Em batalha, com Ctrl, cada texto pode ser arrastado e o novo desvio é gravado nas definições do próprio módulo. As vistas DAAPI, os metas, o `CrosshairMeta` e os aliases Flash foram retirados; o registo Flash passa a ter seis contratos. As páginas sem HUD Gameface (Halloween e Fort Rush) deixam de mostrar estes textos. Validado pelo utilizador no cliente EU (confirmado em 2026-11-02).
 
 ## Marcas do hangar junto à coluna de missões — 2026-10-30
 
 O painel livre e arrastável das marcas no hangar foi substituído por um cartão compacto colocado por baixo da coluna nativa de missões (`HangarScreen_userMissions_*`, o widget `HangarWidget` de `mono/hangar/main`), com a mesma largura e o estilo das linhas de missão. O cartão mostra o ícone de marca da nação, a marca consolidada com a cor do colorrating escolhido e as estrelas. "Ver mais" abre à esquerda um painel lateral com o resto (veículo, barra com 65/85/95%, EMA, objetivo, histórico e estatísticas); fecha com o ×, Esc ou um clique fora.
 
-O cartão não entra na árvore React do jogo: a coluna é posicionada pelas suas próprias animações, por isso o cartão mede-a e é recolocado enquanto está visível. Sem a coluna fica junto à margem direita. Saíram as definições `panel`, `card`, `compactMode`, `textLock` e `gameface.scale`, e os textos correspondentes; os perfis antigos mantêm essas chaves sem efeito. Ainda não foi validado no cliente.
+O cartão não entra na árvore React do jogo: a coluna é posicionada pelas suas próprias animações, por isso o cartão mede-a e é recolocado enquanto está visível. Sem a coluna fica junto à margem direita. Saíram as definições `panel`, `card`, `compactMode`, `textLock` e `gameface.scale`, e os textos correspondentes; os perfis antigos mantêm essas chaves sem efeito. Validado pelo utilizador no cliente EU (confirmado em 2026-11-02).
 
 As fontes Warhelios do cliente não têm estrelas, setas, triângulos nem ✓; esses símbolos passaram a imagens (`shared/assets/star*.png`) ou formas CSS nos painéis de marcas, na janela de definições e no gestor de contas.
 
@@ -141,7 +150,7 @@ A build debug `0.1.5-beta.1` de `a7eda3a` (imports ordenados, builds reproduzív
 
 - **Nevoeiro:** o helper compilado com Roslyn desligou e voltou a ligar o nevoeiro com reinício coordenado (`2.4.1.1:ok:off` e `2.4.1.1:ok:on`).
 - **Halloween:** batalha completa com `mode=halloween`, TAB anexado e regresso ao hangar; o utilizador confirmou todas as verificações do [guia Halloween](halloween/README.md#in-game-acceptance).
-- **Por confirmar:** o `UpdateInstaller.exe` (só corre quando houver uma versão mais recente para instalar) e o `WindowsFiles.exe` (não usado nesta sessão).
+- **Helpers:** o `UpdateInstaller.exe` e o `WindowsFiles.exe` não foram exercitados nesta sessão; o utilizador confirmou-os depois no jogo (2026-11-02).
 
 ## Alterações e validação de 29 de outubro
 
@@ -153,9 +162,9 @@ A build debug `0.1.5-beta.1` de `a7eda3a` (imports ordenados, builds reproduzív
 
 ### Pendências e limites atuais
 
-- O painel de configurações continua em construção; a validação do Account Manager não valida todas as páginas, previews, perfis e falhas de gravação.
+- O painel de configurações continua em construção; a aceitação visual no EU (2026-11-02) não cobre todas as falhas de gravação nem perfis externos.
 - O modo Halloween foi aceite no jogo em 2026-10-30 (NA `2.4.1.1 #987`): TAB, painel, carregamento, log e restantes modos; ver o [guia Halloween](halloween/README.md#in-game-acceptance).
-- Os helpers `UpdateInstaller.exe` e `WindowsFiles.exe`, agora compilados com Roslyn, ainda não foram exercitados no jogo.
+- Os helpers `UpdateInstaller.exe` e `WindowsFiles.exe`, compilados com Roslyn, foram confirmados no jogo pelo utilizador (2026-11-02).
 - Medições comparáveis de FPS/CPU/memória e a matriz completa de modos/replay/estados dos marcadores continuam por realizar; não atribuir ganhos quantitativos sem medição.
 - Os riscos históricos de aplicação/gravação parcial, normalização externa e invalidação de estatísticas permanecem na [auditoria final](AUDITORIA_FINAL_INTEGRACAO.md). Essa auditoria é datada: a frase final «sem commit nem push» descreve o momento da auditoria, anterior à integração `202f476`.
 

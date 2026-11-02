@@ -1,7 +1,7 @@
 [![WoT Version](https://img.shields.io/badge/WoT-2.4.1.1-red.svg)](https://worldoftanks.eu/)
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
-[![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/GJcy4x7SP)
+[![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/k2Stjv5fS5)
 [![Beta 0.1.5-beta.3](https://img.shields.io/badge/Beta-0.1.5--beta.3-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.3)
 [![Stable 0.1.4](https://img.shields.io/badge/Stable-0.1.4-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)
 
@@ -11,7 +11,7 @@ A configurable modpack for **Wargaming World of Tanks**, with battle statistics,
 
 Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
-> **Settings panel under construction:** layouts and live previews may still contain errors. The panel has not completed visual acceptance in the game client.
+> **Settings panel under construction:** the panel passed visual acceptance in the EU game client, but layouts and live previews may still change between versions.
 
 ## Downloads
 
@@ -44,7 +44,7 @@ See [the macro reference](docs/macros/README.md) for every template macro.
 
 - **Account Manager:** corrected intermittent clipping and Escape handling; saved passwords can be explicitly revealed, with a visible checkbox state.
 - **Self-contained fonts:** embedded Flash fonts and Gameface resources preserve `dkm` and existing aliases, without OpenWG Common or its additional native modules.
-- **Battle fixes:** corrected minimap sector direction, improved player-panel discovery and added native Halloween TAB colour integration. Full Halloween colour acceptance remains pending.
+- **Battle fixes:** corrected minimap sector direction, improved player-panel discovery and added native Halloween TAB colour integration, later accepted in game (NA 2.4.1.1, 2026-10-30).
 - **Shared contracts:** consolidated constants and numeric/colour helpers while preserving personal settings, defaults and JSON formats.
 - **Regression coverage:** reorganised Python and frontend suites, added account lifecycle and compiled-font checks, and updated CI.
 
@@ -116,7 +116,7 @@ Components can be enabled and configured individually. Availability depends on t
 | Service record ratings | Player/vehicle WN8 and configurable rating colours in native service-record screens. |
 | Hangar preferences | Header buttons, widgets, notifications and garage options. |
 | General settings and clock | Editable hangar clock fields with time/date text, background images, positioning and shadows. |
-| AccountManager | Account-management interface, controlled through Hangar preferences. |
+| Account manager | Account-management interface with its own General settings page: a switch for the login-screen button and **Manage accounts** in the hangar. |
 | Clan reward collection | Automatic collection of eligible clan rewards when enabled. |
 | Sound bank loader | Loads the mod's packaged sound banks. |
 
@@ -158,13 +158,13 @@ The stable release has prior in-game validation. Beta 0.1.5-beta.3 passed packag
 
 The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
-Version `0.1.3` includes the redesigned settings panel with option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4); the latest visual changes still need in-game acceptance.
+The redesigned settings panel (since `0.1.3`) includes option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases); in-game acceptance is recorded in [docs/STATUS.md](docs/STATUS.md).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 
 ## Support and credits
 
-[Join Discord](https://discord.gg/GJcy4x7SP) · [Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) · [Browse releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
+[Join Discord](https://discord.gg/k2Stjv5fS5) · [Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) · [Browse releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
 
 When reporting a problem, include the mod version, game version, region, reproduction steps and relevant `game.log` excerpts. Remove personal information before sharing logs.
 
