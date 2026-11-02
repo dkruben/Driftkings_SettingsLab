@@ -16,7 +16,8 @@ MACROS = set(('vehicle', 'name', 'hp', 'maxHp', 'hpPercent', 'level', 'c:team', 
 MACROS.update(('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb',
                'stat-available', 'a:r', 'nick', 'clan', 'hp-max', 'hp-ratio', 'c:system'))
 MACROS.update('c:' + key for key in ('r', 'xr', 'wn8', 'wnx', 'eff', 'xwn8', 'xeff', 'wgr', 'winrate', 'battles', 'kb'))
-MACROS.update(('turret', 'stock-turret', 'turret-vulnerability', 'distance', 'dist', 'alive', 'dead', 'ally', 'enemy', 'player', 'squad', 'anonym', 'vtype'))
+MACROS.update(('turret', 'stock-turret', 'turret-vulnerability', 'distance', 'dist', 'alive', 'dead', 'ally', 'enemy',
+               'player', 'squad', 'anonym', 'vtype'))
 # Marker battle macros: {{battletype}} is empty in random battles, {{position}} is the team list order.
 MACROS.update(('battletype', 'position'))
 
@@ -28,7 +29,8 @@ def template(value, extra_macros=()):
 
 
 def number(value, low, high):
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or math.isnan(value) or math.isinf(value) or not low <= value <= high:
+    if (isinstance(value, bool) or not isinstance(value, (int, float)) or math.isnan(value) or math.isinf(value)
+        or not low <= value <= high):
         raise ValueError('Field numeric value outside range')
 
 

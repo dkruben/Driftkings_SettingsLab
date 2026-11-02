@@ -52,7 +52,8 @@ class ReticleTextAdapter(BattleCardAdapter):
     ALIGN = 'left'
 
     def __init__(self, feature, namespace, title):
-        super(ReticleTextAdapter, self).__init__(feature, namespace, get_logger('Driftkings.' + title), title, active=False)
+        super(ReticleTextAdapter, self).__init__(feature, namespace, get_logger('Driftkings.' + title), title,
+                                                 active=False)
         self.text = ''
         self.anchor = (.5, .5)
         self._crosshair = None
@@ -204,7 +205,8 @@ class AimingCountdownAdapter(ReticleTextAdapter):
             return self.setText('')
         settings = self.settings()
         self.minAngle, percent, timer = dispersion_timing(self.minAngle, angle, descriptor.gun.aimingTime)
-        macro = defaultdict(lambda: 'macros not found', timer=timer, percent=percent, color=self.color(settings, percent))
+        macro = defaultdict(lambda: 'macros not found', timer=timer, percent=percent,
+                            color=self.color(settings, percent))
         self.setText(fill_template(settings[AIMING_COUNTDOWN.TEMPLATE], macro))
 
     @staticmethod
@@ -242,7 +244,8 @@ class FlightTimeAdapter(ReticleTextAdapter):
         from driftkings.core.aiming_timing import flight_time
         from driftkings.core.battle_policy import battle_policy
         settings = self.settings()
-        if not battle_policy.decision('shell_flight_time', settings[GLOBAL.ENABLED], settings[SHELL_FLIGHT_TIME.SPG_ONLY])[0]:
+        if not battle_policy.decision('shell_flight_time', settings[GLOBAL.ENABLED],
+                                      settings[SHELL_FLIGHT_TIME.SPG_ONLY])[0]:
             return self.setText('')
         player = BigWorld.player()
         if player is None or player.gunRotator is None:
@@ -293,6 +296,8 @@ class PenetrationAdapter(ReticleTextAdapter):
             return self.setText('')
         armor, piercingPower, caliber, ricochet, noDamage = data
         labels = self.config().i18n
-        self.macro.update(ricochet=labels['UI_ricochet'] if ricochet else '', noDamage=labels['UI_noDamage'] if noDamage else '',
-                          countedArmor=armor, piercingPower=piercingPower, piercingReserve=piercingPower - armor, caliber=caliber)
+        self.macro.update(ricochet=labels['UI_ricochet'] if ricochet else '',
+                          noDamage=labels['UI_noDamage'] if noDamage else '',
+                          countedArmor=armor, piercingPower=piercingPower, piercingReserve=piercingPower - armor,
+                          caliber=caliber)
         self.setText(fill_template(self.settings()[PENETRATION_INDICATOR.TEMPLATE], self.macro))

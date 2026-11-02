@@ -23,7 +23,8 @@ _installed = False
 
 def build_model(visible):
     settings = settings_service.getComponentDict(_config)
-    enabled = bool(visible and settings[GLOBAL.ENABLED] and settings.get('showCrewProgression', True) and settings.get('showCrewTooltips', True))
+    enabled = bool(visible and settings[GLOBAL.ENABLED] and settings.get('showCrewProgression', True)
+                   and settings.get('showCrewTooltips', True))
     result = {'config': {'visible': enabled}, 'rows': []}
     if not enabled or not g_currentVehicle.isPresent():
         return result

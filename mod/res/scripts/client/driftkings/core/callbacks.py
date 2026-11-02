@@ -40,7 +40,8 @@ class CallbackService(object):
                 return
             self.pending.pop(token[0], None)
             if diagnostics.enabled:
-                return diagnostics.call('callback.' + owner + '.' + getattr(function, '__name__', 'handler'), method, *args, **kwargs)
+                return diagnostics.call('callback.' + owner + '.' + getattr(function, '__name__', 'handler'), method,
+                                        *args, **kwargs)
             return method(*args, **kwargs)
         token[0] = self.backend.callback(delay, run)
         self.pending[token[0]] = owner

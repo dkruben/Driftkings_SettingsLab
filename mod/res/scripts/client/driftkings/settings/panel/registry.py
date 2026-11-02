@@ -82,8 +82,10 @@ class ModHandle(object):
         return self._add('slider', id, label, min_value if default is None else default, options,
                          minimum=min_value, maximum=max_value, step=step, unit=unit)
 
-    def add_number(self, id, label=None, min_value=-1000000, max_value=1000000, default=0, step=1, unit=None, **options):
-        return self._add('number', id, label, default, options, minimum=min_value, maximum=max_value, step=step, unit=unit)
+    def add_number(self, id, label=None, min_value=-1000000, max_value=1000000, default=0, step=1, unit=None,
+                   **options):
+        return self._add('number', id, label, default, options, minimum=min_value, maximum=max_value, step=step,
+                         unit=unit)
 
     def add_text(self, id, label=None, default=u'', max_length=256, placeholder=None, **options):
         return self._add('text', id, label, default, options, max_length=max_length,
@@ -121,8 +123,10 @@ class ModHandle(object):
     def add_sound_preview(self, id, label=None, event=None, **options):
         from driftkings.i18n.panel import translations
         from driftkings.settings.panel.sound import sound_manager
-        self.add_button(id, label or translations('sound.play'), callback=lambda handle: sound_manager.play(event, self.id), **options)
-        return self.add_button(id + '_stop', translations('sound.stop'), callback=lambda handle: sound_manager.stop(event), **options)
+        self.add_button(id, label or translations('sound.play'),
+                        callback=lambda handle: sound_manager.play(event, self.id), **options)
+        return self.add_button(id + '_stop', translations('sound.stop'),
+                               callback=lambda handle: sound_manager.stop(event), **options)
 
     # Layout and actions ---------------------------------------------------
     def add_section(self, label, id=None, **options):
@@ -221,7 +225,9 @@ class ModRegistry(object):
         for field, value in (('version', version), ('author', author)):
             if not is_text(value):
                 raise DefinitionError('%s must be text' % field)
-        definition = ModDefinition(mod_id, check_text(name if name is not None else mod_id, 'name'), version, author, check_text(description, 'description'), icon or DEFAULT_ICON, order if is_number(order) else 1000, file_name)
+        definition = ModDefinition(mod_id, check_text(name if name is not None else mod_id, 'name'), version, author,
+                                   check_text(description, 'description'), icon or DEFAULT_ICON,
+                                   order if is_number(order) else 1000, file_name)
         self._load(definition)
         self.mods[mod_id] = definition
         logger.info('Registered mod: %s', mod_id)

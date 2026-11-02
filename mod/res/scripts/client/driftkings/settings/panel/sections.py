@@ -31,7 +31,8 @@ def section_category(config):
     module = type(config).__module__.split('.')
     if 'definitions' in module:
         scope = module[module.index('definitions') + 1:]
-        return {'battle': 'battle', 'lobby': 'hangar', 'components': 'general'}.get(scope[0] if scope else '', 'general')
+        return {'battle': 'battle', 'lobby': 'hangar',
+                'components': 'general'}.get(scope[0] if scope else '', 'general')
     return 'system' if type(config).__module__ == 'driftkings.settings.profiles' else 'general'
 
 
@@ -107,10 +108,13 @@ class SectionPanelBinding(object):
             if kind is None:
                 raise ValueError('Unsupported section control: ' + item['type'])
             source = item.get('varName')
-            control_id = 'field_' + hashlib.sha1(plain(source).encode('utf-8')).hexdigest()[:16] if source is not None else 'layout_' + str(index)
+            control_id = ('field_' + hashlib.sha1(plain(source).encode('utf-8')).hexdigest()[:16] if source is not None
+                          else 'layout_' + str(index))
             if source is not None and source in names:
                 continue
-            control = Control(kind, control_id, plain(item.get('text', source)), description=plain(item.get('tooltip')), column=item.get('column', -1), tab=plain(item.get('tab')) or None,
+            control = Control(kind, control_id, plain(item.get('text', source)),
+                              description=plain(item.get('tooltip')), column=item.get('column', -1),
+                              tab=plain(item.get('tab')) or None,
                               metadata={'sourceType': item['type']})
             if kind == 'hotkey':
                 control.metadata['allowModifierOnly'] = True
@@ -139,13 +143,15 @@ class SectionPanelBinding(object):
                 control.options = [(i, plain(o.get('label', i))) for i, o in enumerate(item['options'])]
                 if item.get('previewImage'):
                     from driftkings.settings.panel.media import resource_image
-                    control.preview = {'kind': 'image', 'images': [resource_image(o.get('image', '')) for o in item['options']]}
+                    control.preview = {'kind': 'image',
+                                       'images': [resource_image(o.get('image', '')) for o in item['options']]}
                 if config.NAME == 'vehicle_health' and source == 'style':
                     control.preview = {'kind': 'healthBar'}
             elif kind in ('slider', 'number'):
                 current = data['values'][source]
                 extent = max(100, abs(current) * 2, abs(control.default) * 2)
-                control.minimum = min(item.get('minimum', -extent if current < 0 or control.default < 0 else 0), current, control.default)
+                control.minimum = min(item.get('minimum', -extent if current < 0 or control.default < 0 else 0),
+                                      current, control.default)
                 control.maximum = max(item.get('maximum', extent), current, control.default)
                 if control.minimum == control.maximum:
                     control.maximum += 1
@@ -158,7 +164,9 @@ class SectionPanelBinding(object):
                 control.presets = DEFAULT_COLOR_PRESETS
             elif kind == 'text' and source is not None:
                 value = data['values'][source]
-                if item.get('previewImage') or (isinstance(value, (str, text_type)) and value.lower().endswith(('.png', '.jpg', '.jpeg')) and '{{' not in value):
+                if item.get('previewImage') or (isinstance(value, (str, text_type))
+                                                and value.lower().endswith(('.png', '.jpg', '.jpeg'))
+                                                and '{{' not in value):
                     control.preview = {'kind': 'image'}
             if item.get('maxLength') is not None:
                 control.max_length = item['maxLength']

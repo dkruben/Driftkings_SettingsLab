@@ -128,7 +128,8 @@ def health_bar(options, dead):
     enabled = get(options, 'enabled', True)
     return {'enabled': enabled, 'showOnDead': bool(dead and enabled),
             'x': get(options, 'x', -36), 'y': get(options, 'y', -33),
-            'width': get(options, 'width', 70), 'height': get(options, 'height', 12), 'alpha': get(options, 'alpha', 100),
+            'width': get(options, 'width', 70), 'height': get(options, 'height', 12),
+            'alpha': get(options, 'alpha', 100),
             'color': get(options, 'color', '{{c:team}}'),
             'fill': {'alpha': get(part(options, 'fill'), 'alpha', 100)},
             'gradient': {'enabled': lcolor is not None, 'color': get(options, 'lcolor', '{{c:hp}}'), 'angle': 0},
@@ -166,16 +167,21 @@ def icons(options):
                       'containerX': get(vehicle, 'x', 0) + get(vehicle, 'offsetX', 0),
                       'containerY': get(vehicle, 'y', -16) + get(vehicle, 'offsetY', 0),
                       'showSpeaker': bool(vehicle.get('showSpeaker', False))},
-            'level': position(part(options, 'levelIcon') if options.get('levelIcon') is not None else {'enabled': False}),
+            'level': position(part(options, 'levelIcon') if options.get('levelIcon') is not None
+                              else {'enabled': False}),
             'vehicle': position(contour, {'enabled': get(contour, 'enabled', False),
                                           'tint': {'color': contour.get('color') or '{{c:system}}',
                                                    'amount': get(contour, 'amount', 0)}}),
             'actionMarker': position(part(options, 'actionMarker')),
-            'hoverMarker': position(hover, {'glow': copy.deepcopy(hover['glow'] if isinstance(hover.get('glow'), dict) else {'enabled': True})}),
+            'hoverMarker': position(hover,
+                                    {'glow': copy.deepcopy(hover['glow'] if isinstance(hover.get('glow'), dict)
+                                                           else {'enabled': True})}),
             'vehicleStatusMarker': position(part(options, 'vehicleStatusMarker')),
             'damageIndicator': position(indicator),
             'hitExplosion': position(indicator),
-            'damageIndicatorText': position(indicator, {'enabled': bool(get(indicator, 'enabled', True) and get(indicator, 'showText', True)),
+            'damageIndicatorText': position(indicator,
+                                            {'enabled': bool(get(indicator, 'enabled', True)
+                                                             and get(indicator, 'showText', True)),
                                                         'x': x + 14, 'y': y - 14})}
 
 
@@ -230,7 +236,8 @@ def legacy_general(documents):
             markers[key] = general[key]
     turret = general.get('turretMarkers')
     if isinstance(turret, dict):
-        markers['turretMarkers'] = dict((key, turret[key]) for key in ('highVulnerability', 'lowVulnerability') if key in turret)
+        markers['turretMarkers'] = dict((key, turret[key]) for key in ('highVulnerability', 'lowVulnerability')
+                                        if key in turret)
     colors = documents.get('colors.json', {}).get('colors')
     if isinstance(colors, dict):
         markers['colors'] = colors

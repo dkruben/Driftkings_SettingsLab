@@ -96,7 +96,8 @@ class Worker(object):
                     self.requestNewData(self.damageRating, self.movingAvgDamage)
 
     def onBattleEvents(self, events):
-        if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
+        if (not g_panel.active
+            or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]):
             return
         guiSessionProvider = BigWorld.player().guiSessionProvider
         if guiSessionProvider.shared.vehicleState.getControllingVehicleID() == BigWorld.player().playerVehicleID:
@@ -120,7 +121,8 @@ class Worker(object):
             self.calc()
 
     def shots(self, avatar, newHealth, attackerID):
-        if not g_panel.active or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]:
+        if (not g_panel.active
+            or not settings_service.getComponentDict(battle_marks_of_excellence_settings)[GLOBAL.ENABLED]):
             return
         if not avatar.isStarted:
             return
@@ -158,7 +160,8 @@ class Worker(object):
             tm = datetime.datetime.toordinal(datetime.datetime.utcnow()) - 1
             self.values.extend([tm, tm])
             marks_cache.values[self.check_player_thread()][self.name] = self.values
-        if movingAvgDamage not in self.values or datetime.datetime.toordinal(datetime.datetime.utcnow()) >= self.values[5] + 1:
+        if (movingAvgDamage not in self.values
+            or datetime.datetime.toordinal(datetime.datetime.utcnow()) >= self.values[5] + 1):
             p0 = self.values[2]
             d0 = self.values[3]
             t0 = self.values[5]
@@ -172,7 +175,8 @@ class Worker(object):
             self.values[5] = datetime.datetime.toordinal(datetime.datetime.utcnow())
             marks_cache.values[self.check_player_thread()][self.name] = self.values
         EDn = combined_damage(self.battleDamage, self.RADIO_ASSIST, self.TRACK_ASSIST, self.STUN_ASSIST)
-        nextMark = 100.0 if self.values[0] == self.values[2] == 100.0 else battle_estimate(EDn, self.movingAvgDamage, self.values)
+        nextMark = (100.0 if self.values[0] == self.values[2] == 100.0
+                    else battle_estimate(EDn, self.movingAvgDamage, self.values))
         self.initiated = self.values[1] and not nextMark >= self.damageRating and not self.damageRating - nextMark > 3
 
     def calcBattlePercents(self):
@@ -197,10 +201,12 @@ class Worker(object):
                 BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT: defaults[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT],
                 BATTLE_MARKS_OF_EXCELLENCE.PANEL: defaults[BATTLE_MARKS_OF_EXCELLENCE.PANEL]})
         elif checkKeys(settings[BATTLE_MARKS_OF_EXCELLENCE.BUTTON_SIZE_UP]):
-            settings_service.apply(battle_marks_of_excellence_settings, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
+            settings_service.apply(battle_marks_of_excellence_settings,
+                                   {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
                 min(1000, settings[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT] + 10)})
         elif checkKeys(settings[BATTLE_MARKS_OF_EXCELLENCE.BUTTON_SIZE_DOWN]):
-            settings_service.apply(battle_marks_of_excellence_settings, {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
+            settings_service.apply(battle_marks_of_excellence_settings,
+                                   {BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT:
                 max(10, settings[BATTLE_MARKS_OF_EXCELLENCE.BATTLE_MESSAGE_SIZE_IN_PERCENT] - 10)})
 
     def calc(self):

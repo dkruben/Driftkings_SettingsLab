@@ -369,7 +369,8 @@ class SettingsController(object):
         if not event.isKeyDown():
             return
         shortcut = self.api.get(CORE_ID, 'openKey', [])
-        if shortcut and event.key in shortcut[-1] and all(any(code == event.key or BigWorld.isKeyDown(code) for code in group) for group in shortcut):
+        if shortcut and event.key in shortcut[-1] and all(any(code == event.key or BigWorld.isKeyDown(code)
+                                                              for code in group) for group in shortcut):
             if presenter is None:
                 self.open()
             else:

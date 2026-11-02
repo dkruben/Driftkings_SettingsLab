@@ -19,7 +19,8 @@ class Ratings(object):
         self.active = False
         self.failed = False
         self.context = context or (lambda *args: {})
-        self.distance = bool(re.search(r'\{\{[^{}]*\b(?:distance|dist)\b', json.dumps(settings.get('customFields', {}))))
+        self.distance = bool(re.search(r'\{\{[^{}]*\b(?:distance|dist)\b',
+                                       json.dumps(settings.get('customFields', {}))))
         self.ticks = 0
 
     def install(self, manager):

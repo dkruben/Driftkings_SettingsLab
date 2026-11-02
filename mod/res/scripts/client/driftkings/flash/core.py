@@ -49,7 +49,8 @@ class OverlayScene(object):
     def attach(self, view):
         self.view = view
         view.reset([dict(alias=alias, kind=kind, props=deepcopy(props))
-                    for alias, (kind, props) in sorted(self.elements.items(), key=lambda item: (item[0].count('.'), item[0]))])
+                    for alias,
+                    (kind, props) in sorted(self.elements.items(), key=lambda item: (item[0].count('.'), item[0]))])
 
     def detach(self, view):
         if self.view is view:

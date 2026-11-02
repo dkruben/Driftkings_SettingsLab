@@ -115,7 +115,8 @@ def apply_patch_set(raw, patch):
     return result
 
 
-def build_plan(root=ROOT, check_generated=False, check_game=False, check_component_list=True, game_root=None, check_defaults=True):
+def build_plan(root=ROOT, check_generated=False, check_game=False, check_component_list=True, game_root=None,
+               check_defaults=True):
     root = Path(root).resolve()
     config = read_json(root / 'build_data/build_config.json')
     require(config['schema_version'] == 1, 'Unsupported build schema')
@@ -187,7 +188,8 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                 if generator is not None:
                     require(generator in config['generators'], 'Unknown generator: %s' % generator)
                     spec = config['generators'][generator]
-                    require(item['source'] in (spec['output'], spec.get('metadata')), 'Generator output mismatch: %s' % generator)
+                    require(item['source'] in (spec['output'], spec.get('metadata')),
+                            'Generator output mismatch: %s' % generator)
                     input_path(root, spec['output'])
                     if check_generated:
                         require((root / item['source']).is_file(), 'Missing generated asset: %s' % item['source'])
@@ -205,7 +207,8 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                    and any(isinstance(t, ast.Name) and t.id == 'COMPONENTS' for t in n.targets))
     require(len(set(active_entrypoints)) == len(active_entrypoints), 'Duplicate component entrypoint')
     if check_component_list:
-        require(tuple(sorted(active_entrypoints)) == tuple(current), 'component_list.py does not match enabled manifests')
+        require(tuple(sorted(active_entrypoints)) == tuple(current),
+                'component_list.py does not match enabled manifests')
 
     selected_defaults = set()
     for pattern in config['defaults']['include']:
@@ -226,13 +229,15 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
         require('/' not in name and name.endswith('.wotmod') and name not in names, 'Invalid dependency name')
         path = input_path(dependency_root, name)
         require(path.is_file(), 'Missing UI dependency: %s' % name)
-        require(hashlib.sha256(path.read_bytes()).hexdigest() == dependency['sha256'], 'UI dependency hash mismatch: %s' % name)
+        require(hashlib.sha256(path.read_bytes()).hexdigest() == dependency['sha256'],
+                'UI dependency hash mismatch: %s' % name)
         names.add(name)
         plan['dependencies'].append(path.relative_to(root).as_posix())
     require({p.name for p in dependency_root.glob('*.wotmod')} == names, 'Unexpected UI dependencies')
 
     locales = read_json(root / 'build_data/locales.json')
-    require(locales['schema_version'] == 1 and locales['game_version'] == config['game']['version'], 'Locale target mismatch')
+    require(locales['schema_version'] == 1 and locales['game_version'] == config['game']['version'],
+            'Locale target mismatch')
     require(len(set(locales['locales'])) == len(locales['locales']), 'Duplicate locales')
     locale_source = ast.parse((python_root / 'driftkings/locale_support.py').read_text(encoding='utf-8'))
     languages = next(ast.literal_eval(node.value) for node in locale_source.body
@@ -252,7 +257,8 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
     if check_defaults:
         check_default_values(root)
     snapshot = read_json(root / 'build_data/defaults_snapshot.json')
-    require({item['path'] for item in snapshot['files']} == {p.relative_to(defaults_root).as_posix() for p in selected_defaults},
+    require({item['path'] for item in snapshot['files']} == {p.relative_to(defaults_root).as_posix()
+                                                             for p in selected_defaults},
             'Defaults snapshot inventory mismatch')
     for item in snapshot['files']:
         path = input_path(defaults_root, item['path'])
@@ -285,7 +291,8 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
             for operation in patch['operations']:
                 require(set(operation) == {'find', 'replace', 'count'} and isinstance(operation['find'], str)
                         and operation['find'] and isinstance(operation['replace'], str)
-                        and type(operation['count']) is int and operation['count'] > 0, 'Invalid carousel patch operation')
+                        and type(operation['count']) is int and operation['count'] > 0,
+                        'Invalid carousel patch operation')
             if check_game:
                 require(game_root, 'A game installation is required to check game resources')
                 raw = None
@@ -314,8 +321,10 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check-generated', action='store_true', help='Require generated outputs to exist')
-    parser.add_argument('--check-game', action='store_true', help='Verify carousel patches against read-only game packages')
-    parser.add_argument('--game-root', help='Read-only game installation; defaults to the local toolchain configuration')
+    parser.add_argument('--check-game', action='store_true',
+                        help='Verify carousel patches against read-only game packages')
+    parser.add_argument('--game-root',
+                        help='Read-only game installation; defaults to the local toolchain configuration')
     parser.add_argument('--write-plan', type=Path, help='Write a resolved JSON plan for compiler development')
     args = parser.parse_args()
     try:

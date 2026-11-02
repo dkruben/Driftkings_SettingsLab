@@ -37,7 +37,8 @@ def validate_package(path, version):
     with zipfile.ZipFile(path) as archive:
         entries = archive.infolist()
         names = [entry.filename for entry in entries]
-        if len(entries) > 5000 or len(names) != len(set(name.lower() for name in names)) or sum(entry.file_size for entry in entries) > 128 * 1024 * 1024:
+        if (len(entries) > 5000 or len(names) != len(set(name.lower() for name in names))
+            or sum(entry.file_size for entry in entries) > 128 * 1024 * 1024):
             raise TransferError('invalidPackage')
         for entry in entries:
             name = entry.filename
@@ -170,7 +171,8 @@ class Downloader(object):
             self.handle = None
             callback(path, error)
         try:
-            handle = self.transport.stream(manifest.download, self.sink, completed, self.timeout, manifest.payload_size, progress)
+            handle = self.transport.stream(manifest.download, self.sink, completed, self.timeout,
+                                           manifest.payload_size, progress)
             if self.busy:
                 self.handle = handle
         except Exception:

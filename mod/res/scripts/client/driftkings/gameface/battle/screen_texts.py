@@ -25,7 +25,8 @@ class ScreenTextAdapter(BattleCardAdapter):
     POSITION = None
 
     def __init__(self, feature, namespace, title):
-        super(ScreenTextAdapter, self).__init__(feature, namespace, get_logger('Driftkings.' + title), title, active=False)
+        super(ScreenTextAdapter, self).__init__(feature, namespace, get_logger('Driftkings.' + title), title,
+                                                active=False)
         self.text = ''
         self.shown = False
 
@@ -71,7 +72,8 @@ class ScreenTextAdapter(BattleCardAdapter):
         # Dragged with the battle cursor (Ctrl); the position lands in the module's own position object,
         # with the anchor of the nearest screen edge.
         settings = self.settings()
-        if not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible or settings.get(TEXT_LOCK):
+        if (not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible
+            or settings.get(TEXT_LOCK)):
             return
         current = settings[self.POSITION]
         panel = moved_panel(dict((key, current[key]) for key in POSITION_KEYS if key in current), args)
@@ -85,8 +87,10 @@ class ScreenTextAdapter(BattleCardAdapter):
         settings = self.settings()
         position = settings[self.POSITION]
         config = dict((key, position[key]) for key in POSITION_KEYS if key in position)
-        config.update(alpha=position.get('alpha', 1.0), shadow=settings.get(TEXT_SHADOW), locked=bool(settings.get(TEXT_LOCK)))
-        enabled = bool(self.active and self.visible and self.hudVisible and settings[GLOBAL.ENABLED] and self.shown and self.text)
+        config.update(alpha=position.get('alpha', 1.0), shadow=settings.get(TEXT_SHADOW),
+                      locked=bool(settings.get(TEXT_LOCK)))
+        enabled = bool(self.active and self.visible and self.hudVisible and settings[GLOBAL.ENABLED] and self.shown
+                       and self.text)
         self.publish({'text': self.text, 'style': self.style(settings)}, config, enabled)
 
 
@@ -96,12 +100,14 @@ class BattleEfficiencyAdapter(ScreenTextAdapter):
     POSITION = BATTLE_PERFORMANCE.POSITION
 
     def __init__(self):
-        super(BattleEfficiencyAdapter, self).__init__('DriftkingsBattleEfficiency', BATTLE_PERFORMANCE, 'BattleEfficiencyHud')
+        super(BattleEfficiencyAdapter, self).__init__('DriftkingsBattleEfficiency', BATTLE_PERFORMANCE,
+                                                      'BattleEfficiencyHud')
 
     def style(self, settings):
         # The Flash view wrapped the template in <font size face color><p align>.
         style = settings[BATTLE_PERFORMANCE.TEXT_STYLE]
-        return {'font': style.get('font'), 'size': style.get('size'), 'color': style.get('color'), 'align': style.get('align')}
+        return {'font': style.get('font'), 'size': style.get('size'), 'color': style.get('color'),
+                'align': style.get('align')}
 
 
 class TeamStrengthAdapter(ScreenTextAdapter):
@@ -126,7 +132,8 @@ class TargetInformationAdapter(ScreenTextAdapter):
     POSITION = TARGET_INFORMATION.TEXT_POSITION
 
     def __init__(self):
-        super(TargetInformationAdapter, self).__init__('DriftkingsTargetInformation', TARGET_INFORMATION, 'TargetInformation')
+        super(TargetInformationAdapter, self).__init__('DriftkingsTargetInformation', TARGET_INFORMATION,
+                                                       'TargetInformation')
 
     def style(self, settings):
         style = dict(settings[TARGET_INFORMATION.TEXT_FORMAT])

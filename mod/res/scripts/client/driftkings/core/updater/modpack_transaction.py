@@ -78,7 +78,8 @@ def prepare(root, manifest, installed, installed_size, installed_sha256):
 
 
 def validate_ticket(ticket, manifest):
-    require(isinstance(ticket, dict) and set(ticket) == FIELDS and type(ticket['schema']) is int and ticket['schema'] == 2,
+    require(isinstance(ticket, dict) and set(ticket) == FIELDS and type(ticket['schema']) is int
+            and ticket['schema'] == 2,
             'Invalid modpack ticket fields')
     require(manifest.inventory is not None and ticket['inventory'] == manifest.inventory.document() and
             ticket['gameVersion'] == manifest.game_version and ticket['version'] == manifest.version.text and
@@ -94,7 +95,8 @@ def validate_ticket(ticket, manifest):
     operations, next_owned = planned(manifest.inventory, observed, previous, owned)
     require(ticket['operations'] == operations and ticket['owned'] == next_owned, 'Modpack plan changed')
     code = next(item for item in operations if item['path'].endswith('/driftkings.wotmod'))
-    require(code['before'] == dict(size=ticket['installedSize'], sha256=ticket['installedSha256']), 'Installed package observation mismatch')
+    require(code['before'] == dict(size=ticket['installedSize'], sha256=ticket['installedSha256']),
+            'Installed package observation mismatch')
     return ticket
 
 
@@ -114,14 +116,17 @@ def verify_result(root, ticket, loaded_version, old=False):
             require(os.path.isfile(target) and file_signature(target) == expected, 'Installed modpack file differs')
         if item['path'].endswith('/driftkings.wotmod'):
             validate_package(target, version)
-    receipt = safe_path(os.path.join(root, 'mods', 'configs', 'driftkings', 'cache', 'update', RECEIPT % ticket['gameVersion']))
+    receipt = safe_path(os.path.join(root, 'mods', 'configs', 'driftkings', 'cache', 'update',
+                                     RECEIPT % ticket['gameVersion']))
     if old:
         if ticket['previousReceipt'] is None:
             require(not os.path.lexists(receipt), 'Unexpected ownership receipt after rollback')
         else:
             with open(receipt, 'rb') as stream:
-                require(stream.read(MAX_MANIFEST + 1).decode('utf-8') == ticket['previousReceipt'], 'Old ownership receipt changed')
+                require(stream.read(MAX_MANIFEST + 1).decode('utf-8') == ticket['previousReceipt'],
+                        'Old ownership receipt changed')
     else:
         with open(receipt, 'rb') as stream:
             value = bounded_json(stream.read(MAX_MANIFEST + 1))
-        require(value == dict(schema=1, inventory=ticket['inventory'], owned=ticket['owned']), 'Installed ownership receipt differs')
+        require(value == dict(schema=1, inventory=ticket['inventory'], owned=ticket['owned']),
+                'Installed ownership receipt differs')

@@ -15,7 +15,8 @@ from driftkings.core.updater.transport import UnavailableTransport
 
 
 class UpdaterService(LifecycleMixin, CheckMixin, StagingMixin, InstallMixin, ReceiptMixin):
-    def __init__(self, api=None, transport=None, clock=None, safe_spaces=None, timeout=15.0, staging_root=None, installer=None, callbacks=None, context_policy=None, results=None, notifier=None, file_work=None):
+    def __init__(self, api=None, transport=None, clock=None, safe_spaces=None, timeout=15.0, staging_root=None,
+                 installer=None, callbacks=None, context_policy=None, results=None, notifier=None, file_work=None):
         self.api = api
         self.clock = clock or time.time
         self.safe_spaces = safe_spaces

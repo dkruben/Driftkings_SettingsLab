@@ -85,7 +85,8 @@ class AccountService(object):
         account = self.find(account_id)
         hosts = self.hosts()
         index = -1 if self.foreign(account, hosts) else self._index(account, hosts)
-        return {'id': str(account['id']), 'title': account['title'], 'email': self.unprotect(account['email']), 'cluster': index}
+        return {'id': str(account['id']), 'title': account['title'], 'email': self.unprotect(account['email']),
+                'cluster': index}
 
     def _commit(self, accounts):
         if getattr(self.store, 'read_error', False):

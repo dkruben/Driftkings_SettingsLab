@@ -41,17 +41,33 @@ def _card(rows, accent='#B9CAD6'):
 
 
 _FIREPOWER = _row((_label('reload'), '{{gun_reload}} s'), (_label('dpm'), '{{gun_dpm}}'))
-_MOBILITY = _row((_label('view'), '{{vision_radius}} m'), (_label('speed'), '{{speed_forward}} km/h'), (_label('hp'), '{{vehicle_max_health}}'))
-_ARMOR = _row((_label('hull'), '{{armor_hull_front}} / {{armor_hull_side}} / {{armor_hull_back}}'), (_label('turret'), '{{armor_turret_front}} / {{armor_turret_side}} / {{armor_turret_back}}'))
-_GUN = _row((_label('aim'), '{{gun_aiming_time}} s'), (_label('dispersion'), '{{gun_accuracy}}'), (_label('clip'), '{{gun_clip}}'))
+_MOBILITY = _row((_label('view'), '{{vision_radius}} m'), (_label('speed'), '{{speed_forward}} km/h'),
+                 (_label('hp'), '{{vehicle_max_health}}'))
+_ARMOR = _row((_label('hull'), '{{armor_hull_front}} / {{armor_hull_side}} / {{armor_hull_back}}'),
+              (_label('turret'), '{{armor_turret_front}} / {{armor_turret_side}} / {{armor_turret_back}}'))
+_GUN = _row((_label('aim'), '{{gun_aiming_time}} s'), (_label('dispersion'), '{{gun_accuracy}}'),
+            (_label('clip'), '{{gun_clip}}'))
 _SHELL = _row(('{{shell_type_1}}', '{{shell_damage_1}} HP'), (_label('penetration'), '{{shell_power_1}} mm'))
 PRESET_TEMPLATES = {
     'default': _card([_FIREPOWER, _MOBILITY, _SHELL]),
-    'minimal': _card([_FIREPOWER, _row((_label('hp'), '{{vehicle_max_health}}'), (_label('view'), '{{vision_radius}} m'))]),
+    'minimal': _card([_FIREPOWER,
+                      _row((_label('hp'), '{{vehicle_max_health}}'), (_label('view'), '{{vision_radius}} m'))]),
     'detailed': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _SHELL]),
-    'full': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _row((_label('power'), '{{engine_power_density}} hp/t'), (_label('weight'), '{{vehicle_weight}} t')), _SHELL, _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), (_label('penetration'), '{{shell_power_2}} mm')), _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'), (_label('penetration'), '{{shell_power_3}} mm'))]),
-    'kmp': _card([_FIREPOWER, _SHELL, _row((_label('view'), '{{vision_radius}} m'), (_label('weight'), "<font color='{{compareColor({{vehicle_weight}}, {{pl_vehicle_weight}})}}'>{{vehicle_weight}} t {{compareDelim({{vehicle_weight}}, {{pl_vehicle_weight}})}} {{pl_vehicle_weight}} t</font>"))]),
-    'ndo': _card([_FIREPOWER, _ARMOR, _SHELL, _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), (_label('penetration'), '{{shell_power_2}} mm')), _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'), (_label('penetration'), '{{shell_power_3}} mm'))]),
+    'full': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR,
+                   _row((_label('power'), '{{engine_power_density}} hp/t'),
+                        (_label('weight'), '{{vehicle_weight}} t')), _SHELL,
+                   _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'),
+                        (_label('penetration'), '{{shell_power_2}} mm')),
+                   _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'),
+                        (_label('penetration'), '{{shell_power_3}} mm'))]),
+    'kmp': _card([_FIREPOWER, _SHELL,
+                  _row((_label('view'), '{{vision_radius}} m'),
+                       (_label('weight'),
+                        "<font color='{{compareColor({{vehicle_weight}}, {{pl_vehicle_weight}})}}'>{{vehicle_weight}} t {{compareDelim({{vehicle_weight}}, {{pl_vehicle_weight}})}} {{pl_vehicle_weight}} t</font>"))]),
+    'ndo': _card([_FIREPOWER, _ARMOR, _SHELL,
+                  _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), (_label('penetration'), '{{shell_power_2}} mm')),
+                  _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'),
+                       (_label('penetration'), '{{shell_power_3}} mm'))]),
     'driftkings': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _SHELL], '#D6BE91')
 }
 TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4: 'kmp', 5: 'ndo', 6: 'driftkings'}
@@ -151,7 +167,8 @@ class DataConstants(object):
         position = 0
         while True:
             # {{i18n:KEY}}; legacy {{l10n:KEY}} is read the same way.
-            starts = [start for start in (text.find('{{i18n:', position), text.find('{{l10n:', position)) if start != -1]
+            starts = [start for start in (text.find('{{i18n:', position), text.find('{{l10n:', position))
+                      if start != -1]
             localizedMacroStart = min(starts) if starts else -1
             if localizedMacroStart == -1:
                 break
@@ -190,39 +207,71 @@ class DataConstants(object):
             'gun_clip': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.gun.clip[0],
             'gun_clip_reload': lambda: None if not self._typeDescriptor else '%.1f' % self._typeDescriptor.gun.clip[1],
             'gun_burst': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.gun.burst[0],
-            'gun_burst_reload': lambda: None if not self._typeDescriptor else '%.1f' % self._typeDescriptor.gun.burst[1],
-            'gun_aiming_time': lambda: None if not self._typeDescriptor else '%.1f' % self._typeDescriptor.gun.aimingTime,
-            'gun_accuracy': lambda: None if not self._typeDescriptor else '%.2f' % round(self._typeDescriptor.gun.shotDispersionAngle * 100, 2),
-            'angle_pitch_up': lambda: None if not self._typeDescriptor else '%d' % degrees(-self._typeDescriptor.gun.pitchLimits['absolute'][0]),
-            'angle_pitch_down': lambda: None if not self._typeDescriptor else '%d' % degrees(-self._typeDescriptor.gun.pitchLimits['absolute'][1]),
-            'angle_pitch_left': lambda: None if not self._typeDescriptor or not self._typeDescriptor.gun.turretYawLimits else '%d' % degrees(-self._typeDescriptor.gun.turretYawLimits[0]),
-            'angle_pitch_right': lambda: None if not self._typeDescriptor or not self._typeDescriptor.gun.turretYawLimits else '%d' % degrees(self._typeDescriptor.gun.turretYawLimits[1]),
+            'gun_burst_reload': lambda: None if not self._typeDescriptor
+                else '%.1f' % self._typeDescriptor.gun.burst[1],
+            'gun_aiming_time': lambda: None if not self._typeDescriptor
+                else '%.1f' % self._typeDescriptor.gun.aimingTime,
+            'gun_accuracy': lambda: None if not self._typeDescriptor
+                else '%.2f' % round(self._typeDescriptor.gun.shotDispersionAngle * 100, 2),
+            'angle_pitch_up': lambda: None if not self._typeDescriptor
+                else '%d' % degrees(-self._typeDescriptor.gun.pitchLimits['absolute'][0]),
+            'angle_pitch_down': lambda: None if not self._typeDescriptor
+                else '%d' % degrees(-self._typeDescriptor.gun.pitchLimits['absolute'][1]),
+            'angle_pitch_left': lambda: None if not self._typeDescriptor
+                or not self._typeDescriptor.gun.turretYawLimits
+                else '%d' % degrees(-self._typeDescriptor.gun.turretYawLimits[0]),
+            'angle_pitch_right': lambda: None if not self._typeDescriptor
+                or not self._typeDescriptor.gun.turretYawLimits
+                else '%d' % degrees(self._typeDescriptor.gun.turretYawLimits[1]),
             'vehicle_max_health': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.maxHealth,
-            'armor_hull_front': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.hull.primaryArmor[0],
-            'armor_hull_side': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.hull.primaryArmor[1],
-            'armor_hull_back': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.hull.primaryArmor[2],
-            'turret_name': lambda: None if not self._typeDescriptor else '%s' % self._typeDescriptor.turret.shortUserString,
-            'armor_turret_front': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.primaryArmor[0],
-            'armor_turret_side': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.primaryArmor[1],
-            'armor_turret_back': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.primaryArmor[2],
-            'vehicle_weight': lambda: '%.1f' % round(self._typeDescriptor.physics['weight'] / 1000.0, 1) if self._typeDescriptor else None,
-            'chassis_max_weight': lambda: None if not self._typeDescriptor else '%.1f' % round(self._typeDescriptor.chassis.maxLoad / 1000.0, 1),
-            'engine_name': lambda: None if not self._typeDescriptor else '%s' % self._typeDescriptor.engine.shortUserString,
-            'engine_power': lambda: None if not self._typeDescriptor else '%d' % round(self._typeDescriptor.engine.power / 735.49875, 0),
+            'armor_hull_front': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.hull.primaryArmor[0],
+            'armor_hull_side': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.hull.primaryArmor[1],
+            'armor_hull_back': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.hull.primaryArmor[2],
+            'turret_name': lambda: None if not self._typeDescriptor
+                else '%s' % self._typeDescriptor.turret.shortUserString,
+            'armor_turret_front': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.turret.primaryArmor[0],
+            'armor_turret_side': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.turret.primaryArmor[1],
+            'armor_turret_back': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.turret.primaryArmor[2],
+            'vehicle_weight': lambda: '%.1f' % round(self._typeDescriptor.physics['weight'] / 1000.0, 1)
+                if self._typeDescriptor else None,
+            'chassis_max_weight': lambda: None if not self._typeDescriptor
+                else '%.1f' % round(self._typeDescriptor.chassis.maxLoad / 1000.0, 1),
+            'engine_name': lambda: None if not self._typeDescriptor
+                else '%s' % self._typeDescriptor.engine.shortUserString,
+            'engine_power': lambda: None if not self._typeDescriptor
+                else '%d' % round(self._typeDescriptor.engine.power / 735.49875, 0),
             'engine_power_density': self._get_engine_power_density,
-            'speed_forward': lambda: None if not self._typeDescriptor else '%d' % (self._typeDescriptor.physics['speedLimits'][0] * 3.6),
-            'speed_backward': lambda: None if not self._typeDescriptor else '%d' % (self._typeDescriptor.physics['speedLimits'][1] * 3.6),
-            'hull_speed_turn': lambda: None if not self._typeDescriptor else '%.2f' % degrees(self._typeDescriptor.chassis.rotationSpeed),
-            'turret_speed_turn': lambda: None if not self._typeDescriptor else '%.2f' % degrees(self._typeDescriptor.turret.rotationSpeed),
-            'chassis_rotation_speed': lambda: None if not self._typeDescriptor else '%d' % degrees(self._typeDescriptor.chassis.rotationSpeed),
-            'invis_stand': lambda: None if not self._typeDescriptor else '%.1f' % (self._typeDescriptor.type.invisibility[1] * 57),
-            'invis_stand_shot': lambda: None if not self._typeDescriptor else '%.2f' % (self._typeDescriptor.type.invisibility[1] * self._typeDescriptor.gun.invisibilityFactorAtShot * 57),
-            'invis_move': lambda: None if not self._typeDescriptor else '%.1f' % (self._typeDescriptor.type.invisibility[0] * 57),
-            'invis_move_shot': lambda: None if not self._typeDescriptor else '%.2f' % (self._typeDescriptor.type.invisibility[0] * self._typeDescriptor.gun.invisibilityFactorAtShot * 57),
-            'vision_radius': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.circularVisionRadius,
-            'radio_name': lambda: None if not self._typeDescriptor else '%s' % self._typeDescriptor.radio.shortUserString,
+            'speed_forward': lambda: None if not self._typeDescriptor
+                else '%d' % (self._typeDescriptor.physics['speedLimits'][0] * 3.6),
+            'speed_backward': lambda: None if not self._typeDescriptor
+                else '%d' % (self._typeDescriptor.physics['speedLimits'][1] * 3.6),
+            'hull_speed_turn': lambda: None if not self._typeDescriptor
+                else '%.2f' % degrees(self._typeDescriptor.chassis.rotationSpeed),
+            'turret_speed_turn': lambda: None if not self._typeDescriptor
+                else '%.2f' % degrees(self._typeDescriptor.turret.rotationSpeed),
+            'chassis_rotation_speed': lambda: None if not self._typeDescriptor
+                else '%d' % degrees(self._typeDescriptor.chassis.rotationSpeed),
+            'invis_stand': lambda: None if not self._typeDescriptor
+                else '%.1f' % (self._typeDescriptor.type.invisibility[1] * 57),
+            'invis_stand_shot': lambda: None if not self._typeDescriptor
+                else '%.2f' % (self._typeDescriptor.type.invisibility[1] * self._typeDescriptor.gun.invisibilityFactorAtShot * 57),
+            'invis_move': lambda: None if not self._typeDescriptor
+                else '%.1f' % (self._typeDescriptor.type.invisibility[0] * 57),
+            'invis_move_shot': lambda: None if not self._typeDescriptor
+                else '%.2f' % (self._typeDescriptor.type.invisibility[0] * self._typeDescriptor.gun.invisibilityFactorAtShot * 57),
+            'vision_radius': lambda: None if not self._typeDescriptor
+                else '%d' % self._typeDescriptor.turret.circularVisionRadius,
+            'radio_name': lambda: None if not self._typeDescriptor
+                else '%s' % self._typeDescriptor.radio.shortUserString,
             'radio_radius': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.radio.distance,
-            'nation': lambda: None if not self._typeDescriptor else NAMES[self._typeDescriptor.type.customizationNationID],
+            'nation': lambda: None if not self._typeDescriptor
+                else NAMES[self._typeDescriptor.type.customizationNationID],
             'level': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.type.level,
             'rlevel': self._get_roman_level,
             'pl_vehicle_weight': self._get_pl_vehicle_weight,
@@ -234,30 +283,49 @@ class DataConstants(object):
             'pl_gun_aiming_time': self._get_pl_gun_aiming_time,
         }
         handlers.update(self._generateShellHandlers())
-        handlers.update({'stun_radius': self._get_stun_radius, 'stun_duration_min': self._get_stun_duration_min, 'stun_duration_max': self._get_stun_duration_max, })
+        handlers.update({'stun_radius': self._get_stun_radius, 'stun_duration_min': self._get_stun_duration_min,
+                         'stun_duration_max': self._get_stun_duration_max, })
         return handlers
 
     def _generateShellHandlers(self):
         handlers = {}
         handlers.update({
-            'shell_name_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%s" % self._gunShots[0].shell.userString,
-            'shell_name_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%s" % self._gunShots[1].shell.userString,
-            'shell_name_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%s" % self._gunShots[2].shell.userString,
-            'shell_damage_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%d" % self._get_shell_damage(self._gunShots[0].shell),
-            'shell_damage_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%d" % self._get_shell_damage(self._gunShots[1].shell),
-            'shell_damage_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%d" % self._get_shell_damage(self._gunShots[2].shell),
-            'shell_power_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%d" % (self._gunShots[0].piercingPower[0]),
-            'shell_power_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%d" % (self._gunShots[1].piercingPower[0]),
-            'shell_power_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%d" % (self._gunShots[2].piercingPower[0]),
-            'shell_type_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else self.i18n(self._gunShots[0].shell.kind.lower()),
-            'shell_type_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else self.i18n(self._gunShots[1].shell.kind.lower()),
-            'shell_type_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else self.i18n(self._gunShots[2].shell.kind.lower()),
-            'shell_speed_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%d" % round(self._gunShots[0].speed * 1.25),
-            'shell_speed_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%d" % round(self._gunShots[1].speed * 1.25),
-            'shell_speed_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%d" % round(self._gunShots[2].speed * 1.25),
-            'shell_distance_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1) else "%d" % self._gunShots[0].maxDistance,
-            'shell_distance_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2) else "%d" % self._gunShots[1].maxDistance,
-            'shell_distance_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3) else "%d" % self._gunShots[2].maxDistance
+            'shell_name_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
+                else "%s" % self._gunShots[0].shell.userString,
+            'shell_name_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
+                else "%s" % self._gunShots[1].shell.userString,
+            'shell_name_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
+                else "%s" % self._gunShots[2].shell.userString,
+            'shell_damage_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
+                else "%d" % self._get_shell_damage(self._gunShots[0].shell),
+            'shell_damage_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
+                else "%d" % self._get_shell_damage(self._gunShots[1].shell),
+            'shell_damage_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
+                else "%d" % self._get_shell_damage(self._gunShots[2].shell),
+            'shell_power_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
+                else "%d" % (self._gunShots[0].piercingPower[0]),
+            'shell_power_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
+                else "%d" % (self._gunShots[1].piercingPower[0]),
+            'shell_power_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
+                else "%d" % (self._gunShots[2].piercingPower[0]),
+            'shell_type_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
+                else self.i18n(self._gunShots[0].shell.kind.lower()),
+            'shell_type_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
+                else self.i18n(self._gunShots[1].shell.kind.lower()),
+            'shell_type_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
+                else self.i18n(self._gunShots[2].shell.kind.lower()),
+            'shell_speed_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
+                else "%d" % round(self._gunShots[0].speed * 1.25),
+            'shell_speed_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
+                else "%d" % round(self._gunShots[1].speed * 1.25),
+            'shell_speed_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
+                else "%d" % round(self._gunShots[2].speed * 1.25),
+            'shell_distance_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
+                else "%d" % self._gunShots[0].maxDistance,
+            'shell_distance_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
+                else "%d" % self._gunShots[1].maxDistance,
+            'shell_distance_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
+                else "%d" % self._gunShots[2].maxDistance
         })
         return handlers
 
@@ -320,7 +388,8 @@ class DataConstants(object):
     def _get_stun_radius(self):
         if 'stun_radius' in self._cachedResults:
             return self._cachedResults['stun_radius']
-        if self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun') and self._gunShots[0].shell.stun is not None:
+        if (self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun')
+            and self._gunShots[0].shell.stun is not None):
             result = '%d' % self._gunShots[0].shell.stun.stunRadius
             self._cachedResults['stun_radius'] = result
             return result
@@ -329,7 +398,8 @@ class DataConstants(object):
     def _get_stun_duration_min(self):
         if 'stun_duration_min' in self._cachedResults:
             return self._cachedResults['stun_duration_min']
-        if self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun') and self._gunShots[0].shell.stun is not None:
+        if (self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun')
+            and self._gunShots[0].shell.stun is not None):
             time = round(self._gunShots[0].shell.stun.stunDuration * self._gunShots[0].shell.stun.guaranteedStunDuration, 1)
             result = '%.1f' % time
             self._cachedResults['stun_duration_min'] = result
@@ -339,7 +409,8 @@ class DataConstants(object):
     def _get_stun_duration_max(self):
         if 'stun_duration_max' in self._cachedResults:
             return self._cachedResults['stun_duration_max']
-        if self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun') and self._gunShots[0].shell.stun is not None:
+        if (self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun')
+            and self._gunShots[0].shell.stun is not None):
             result = '%d' % self._gunShots[0].shell.stun.stunDuration
             self._cachedResults['stun_duration_max'] = result
             return result
@@ -423,7 +494,8 @@ class InfoPanel(DataConstants):
     def __init__(self):
         self._active = False
         self._inBattle = False
-        self.textFormats = self.getText() if settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] else None
+        self.textFormats = (self.getText()
+                            if settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] else None)
         self.hotKeyDown = False
         self.visible = False
         self.timer = None
@@ -433,7 +505,8 @@ class InfoPanel(DataConstants):
     def reset(self):
         self.cancelHide()
         DataConstants.reset(self)
-        self.textFormats = self.getText() if settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] else None
+        self.textFormats = (self.getText()
+                            if settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] else None)
         self.hotKeyDown = False
         self.visible = False
         self.timer = None
@@ -528,7 +601,8 @@ class InfoPanel(DataConstants):
         template_index = settings[TARGET_INFORMATION.TEMPLATE_PRESET]
         # The full preset is editable in JSON; retain the existing preset IDs.
         if template_index == 3 and settings.get(TARGET_INFORMATION.FORMATS):
-            return u'\n'.join(value if isinstance(value,type(u'')) else value.decode('utf-8') for value in settings[TARGET_INFORMATION.FORMATS])
+            return u'\n'.join(value if isinstance(value,type(u'')) else value.decode('utf-8')
+                              for value in settings[TARGET_INFORMATION.FORMATS])
         template_key = TEMPLATE_INDEX_TO_KEY.get(template_index, 'default')
         return PRESET_TEMPLATES.get(template_key, PRESET_TEMPLATES['default'])
 
@@ -559,7 +633,8 @@ class InfoPanel(DataConstants):
         if callable(func):
             result = func()
             if result is not None:
-                value = result if isinstance(result,type(u'')) else result.decode('utf-8', 'replace') if isinstance(result,str) else type(u'')(result)
+                value = (result if isinstance(result,type(u'')) else result.decode('utf-8', 'replace')
+                         if isinstance(result,str) else type(u'')(result))
                 return escape(value, {chr(34): '&quot;', chr(39): '&apos;'})
             return ''
         return ''
@@ -639,7 +714,8 @@ class InfoPanel(DataConstants):
 
     def onUpdateVehicle(self, vehicle, ignoreHotKey=False):
         player = BigWorld.player()
-        if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_panel.active or not hasattr(player, 'getVehicleAttached'):
+        if (not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED] or not g_panel.active
+            or not hasattr(player, 'getVehicleAttached')):
             return
         if self.hotKeyDown and not ignoreHotKey:
             return

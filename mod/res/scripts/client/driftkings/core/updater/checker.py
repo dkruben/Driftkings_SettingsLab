@@ -60,7 +60,8 @@ class Checker(object):
                         return
                     delivered[0] = True
                     if error:
-                        finish(error=error if error in ('timeout', 'networkError', 'transportUnavailable') else 'networkError')
+                        finish(error=error if error in ('timeout', 'networkError', 'transportUnavailable')
+                               else 'networkError')
                         return
                     try:
                         if response is None or response.status != 200:
@@ -99,7 +100,8 @@ class Checker(object):
             def parsed(raw):
                 try:
                     manifest = Manifest(bounded_json(raw))
-                    if manifest.version.text != version.text or bool(manifest.version.prerelease) != release['prerelease']:
+                    if (manifest.version.text != version.text
+                        or bool(manifest.version.prerelease) != release['prerelease']):
                         raise ValueError('Release metadata disagrees with manifest')
                     if manifest.version.allowed(channel):
                         candidates.append(manifest)
@@ -129,7 +131,8 @@ class Checker(object):
             queue = []
             for release in releases:
                 try:
-                    if not isinstance(release, dict) or type(release.get('draft')) is not bool or type(release.get('prerelease')) is not bool:
+                    if (not isinstance(release, dict) or type(release.get('draft')) is not bool
+                        or type(release.get('prerelease')) is not bool):
                         raise ValueError('Invalid release record')
                     if release['draft']:
                         continue
@@ -148,7 +151,8 @@ class Checker(object):
                     url = endpoints.manifest_asset_url(matches[0].get('browser_download_url'))
                     sig_url = None
                     if signature.enforced():
-                        signed = [item for item in assets if isinstance(item, dict) and item.get('name') == signature.SIGNATURE_ASSET]
+                        signed = [item for item in assets if isinstance(item, dict)
+                                  and item.get('name') == signature.SIGNATURE_ASSET]
                         if len(signed) != 1:
                             raise ValueError('Missing or ambiguous manifest signature')
                         sig_url = endpoints.signature_asset_url(signed[0].get('browser_download_url'))

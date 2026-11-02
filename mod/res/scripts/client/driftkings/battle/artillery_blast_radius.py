@@ -60,18 +60,22 @@ class ArtySplashController(object):
             self.modelSplashVisible = settings[ARTILLERY_BLAST_RADIUS.SHOW_SPLASH_ON_DEFAULT]
             self.modelDotVisible = settings[ARTILLERY_BLAST_RADIUS.SHOW_DOT_ON_DEFAULT]
             self.scaleSplash = None
-            self.modelSplash = StaticWorldObjectMarker3D({'path': settings[ARTILLERY_BLAST_RADIUS.MODEL_PATH_SPLASH]}, (0, 0, 0))
-            self.modelDot = StaticWorldObjectMarker3D({'path': settings[ARTILLERY_BLAST_RADIUS.MODEL_PATH_DOT]}, (0, 0, 0))
+            self.modelSplash = StaticWorldObjectMarker3D({'path': settings[ARTILLERY_BLAST_RADIUS.MODEL_PATH_SPLASH]},
+                                                         (0, 0, 0))
+            self.modelDot = StaticWorldObjectMarker3D({'path': settings[ARTILLERY_BLAST_RADIUS.MODEL_PATH_DOT]},
+                                                      (0, 0, 0))
             self.modelDot.model.scale = (0.1, 0.1, 0.1)
             vehicleTypeDescriptor = getattr(self.player, 'vehicleTypeDescriptor', None)
-            if vehicleTypeDescriptor is not None and Vehicle.getVehicleClassTag(vehicleTypeDescriptor.type.tags) == VEHICLE_CLASS_NAME.SPG:
+            if (vehicleTypeDescriptor is not None
+                and Vehicle.getVehicleClassTag(vehicleTypeDescriptor.type.tags) == VEHICLE_CLASS_NAME.SPG):
                 self.modelDot.model.scale = (0.5, 0.5, 0.5)
             self.modelSplash.model.visible = False
             self.modelDot.model.visible = False
             self.modelSplashCircle = BigWorld.PyTerrainSelectedArea()
             player = BigWorld.player()
             if player is not None:
-                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model', Math.Vector2(2.0, 2.0), 0.5, 0xFFFFFFFF, player.spaceID)
+                self.modelSplashCircle.setup('content/Interface/CheckPoint/CheckPoint_yellow_black.model',
+                                             Math.Vector2(2.0, 2.0), 0.5, 0xFFFFFFFF, player.spaceID)
             self.modelSplash.model.root.attach(self.modelSplashCircle)
             self.modelSplashCircle.enableAccurateCollision(False)
 
@@ -175,12 +179,16 @@ class ArtySplashController(object):
         if checkKeys(settings[ARTILLERY_BLAST_RADIUS.BUTTON_SHOW_SPLASH]) and event.isKeyDown():
             self.modelSplashKeyPressed = True
             self.modelSplashVisible = not self.modelSplashVisible
-            sendPanelMessage(self.config.i18n['UI_artySplash_messageSplashOn'] if self.modelSplashVisible else self.config.i18n['UI_artySplash_messageSplashOff'], 'Green' if self.modelSplashVisible else 'Red')
+            sendPanelMessage(self.config.i18n['UI_artySplash_messageSplashOn'] if self.modelSplashVisible
+                             else self.config.i18n['UI_artySplash_messageSplashOff'],
+                             'Green' if self.modelSplashVisible else 'Red')
             self.setVisible()
         if checkKeys(settings[ARTILLERY_BLAST_RADIUS.BUTTON_SHOW_DOT]) and event.isKeyDown():
             self.modelDotKeyPressed = True
             self.modelDotVisible = not self.modelDotVisible
-            sendPanelMessage(self.config.i18n['UI_artySplash_messageDotOn'] if self.modelDotVisible else self.config.i18n['UI_artySplash_messageDotOff'], 'Green' if self.modelDotVisible else 'Red')
+            sendPanelMessage(self.config.i18n['UI_artySplash_messageDotOn'] if self.modelDotVisible
+                             else self.config.i18n['UI_artySplash_messageDotOff'],
+                             'Green' if self.modelDotVisible else 'Red')
             self.setVisible()
 
 

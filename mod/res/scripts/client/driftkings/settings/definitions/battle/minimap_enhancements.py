@@ -59,7 +59,8 @@ class MinimapEnhancementsSettings(SectionDefinition):
         for key in MINIMAP_ENHANCEMENTS.PRESENTATION_SWITCHES:
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.PRESENTATION, key))
         columns[0].append(slider(MINIMAP_ENHANCEMENTS.ZOOM_FACTOR, 1.0, 3.0, 0.1, '{{value}}'))
-        for key, low, high in (('sizeIndex', 0, 5), ('normalAlpha', 10, 100), ('alternativeAlpha', 10, 100), ('backgroundAlpha', 0, 100)):
+        for key, low, high in (('sizeIndex', 0, 5), ('normalAlpha', 10, 100), ('alternativeAlpha', 10, 100),
+                               ('backgroundAlpha', 0, 100)):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.PRESENTATION, key, 'Slider', low, high))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, GLOBAL.ENABLED))
         for key in MINIMAP_ENHANCEMENTS.LABEL_STATES:
@@ -67,7 +68,8 @@ class MinimapEnhancementsSettings(SectionDefinition):
         for key, low, high in (('fontSize', 8, 24), (GLOBAL.ALPHA, 0, 100)):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.LABELS, key, 'Slider', low, high))
         for key in ('direction', 'sector'):
-            columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, key, 'Dropdown', choices=list(MINIMAP_ENHANCEMENTS.LINE_MODES)))
+            columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, key, 'Dropdown',
+                                     choices=list(MINIMAP_ENHANCEMENTS.LINE_MODES)))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, 'customStyle'))
         for key in ('directionColor', 'sectorColor'):
             columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, key, 'ColorChoice'))
@@ -123,14 +125,18 @@ class MinimapEnhancementsSettings(SectionDefinition):
         for key in (GLOBAL.ALPHA, 'deadAlpha', 'selfAlpha'):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.ICONS, key, 'Slider', 0, 100))
         columns[0].append(nested(MINIMAP_ENHANCEMENTS.ICONS, 'selfColor', 'ColorChoice'))
-        columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'visibility', 'Dropdown', choices=['never', 'key', 'always']))
-        columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'mode', 'Dropdown', choices=list(MINIMAP_ENHANCEMENTS.HEALTH_MODES)))
-        for key, low, high in (('x', -100, 100), ('y', -100, 100), ('width', 10, 100), ('height', 1, 10), ('fontSize', 8, 24)):
+        columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'visibility', 'Dropdown',
+                                 choices=['never', 'key', 'always']))
+        columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, 'mode', 'Dropdown',
+                                 choices=list(MINIMAP_ENHANCEMENTS.HEALTH_MODES)))
+        for key, low, high in (('x', -100, 100), ('y', -100, 100), ('width', 10, 100), ('height', 1, 10),
+                               ('fontSize', 8, 24)):
             columns[0].append(nested(MINIMAP_ENHANCEMENTS.HEALTH, key, 'Slider', low, high))
         for key in ('icon', 'showSeconds', 'fade'):
             columns[1].append(nested(MINIMAP_ENHANCEMENTS.LOST_MARKER, key))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.LOST_MARKER, 'minimumAlpha', 'Slider', 0, 100))
-        columns[1].append(nested(MINIMAP_ENHANCEMENTS.LOST_MARKER, 'style', 'Dropdown', choices=list(policy.LOST_STYLES)))
+        columns[1].append(nested(MINIMAP_ENHANCEMENTS.LOST_MARKER, 'style', 'Dropdown',
+                                 choices=list(policy.LOST_STYLES)))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.LOST_MARKER, 'desaturate', 'Slider', 0, 100))
         for key in ('enemyColor', 'allyColor', 'squadColor'):
             columns[1].append(nested(MINIMAP_ENHANCEMENTS.LOST_MARKER, key, 'ColorChoice'))
@@ -140,7 +146,8 @@ class MinimapEnhancementsSettings(SectionDefinition):
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.NEARBY, 'color', 'ColorChoice'))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.NEARBY, GLOBAL.ALPHA, 'Slider', 0, 100))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, GLOBAL.ENABLED))
-        for key, low, high in (('offsetX', -300, 300), ('offsetY', -300, 300), ('alpha', 0, 100), ('width', 1, 1000), ('height', 1, 1000)):
+        for key, low, high in (('offsetX', -300, 300), ('offsetY', -300, 300), ('alpha', 0, 100), ('width', 1, 1000),
+                               ('height', 1, 1000)):
             columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, key, 'Slider', low, high))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.MAP_SIZE, 'format', 'TextInput'))
         columns[1].append(nested(MINIMAP_ENHANCEMENTS.LINES, 'geometry'))

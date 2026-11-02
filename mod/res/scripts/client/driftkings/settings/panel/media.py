@@ -14,7 +14,8 @@ def resource_image(path):
     for prefix in ('img://', 'coui://'):
         if path.startswith(prefix):
             path = path[len(prefix):]
-    if not path.lower().endswith(('.png', '.jpg', '.jpeg', '.svg')) or any(part in ('', '..', '.') for part in path.split('/')):
+    if not path.lower().endswith(('.png', '.jpg', '.jpeg', '.svg')) or any(part in ('', '..', '.')
+                                                                           for part in path.split('/')):
         return ''
     if path.startswith('gui/') and ':' not in path:
         return 'coui://' + path
@@ -47,7 +48,8 @@ class ImagePreviews(object):
             if key not in self.cache:
                 with open(absolute, 'rb') as stream:
                     data = stream.read(2 * 1024 * 1024 + 1)
-                mime = 'image/png' if data.startswith(b'\x89PNG\r\n\x1a\n') else 'image/jpeg' if data.startswith(b'\xff\xd8\xff') else None
+                mime = ('image/png' if data.startswith(b'\x89PNG\r\n\x1a\n') else 'image/jpeg'
+                        if data.startswith(b'\xff\xd8\xff') else None)
                 if mime is None or len(data) > 2 * 1024 * 1024:
                     return ''
                 if len(self.cache) >= 8:

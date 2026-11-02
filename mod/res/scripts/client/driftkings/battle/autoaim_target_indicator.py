@@ -153,7 +153,8 @@ class AutoAimController(object):
                     if clip.w <= 0:
                         return None
                     sx, sy = clip.x / clip.w, clip.y / clip.w
-                    if (math.isnan(sx) or math.isinf(sx) or math.isnan(sy) or math.isinf(sy) or not -1 <= sx <= 1 or not -1 <= sy <= 1):
+                    if (math.isnan(sx) or math.isinf(sx) or math.isnan(sy) or math.isinf(sy) or not -1 <= sx <= 1
+                        or not -1 <= sy <= 1):
                         return None
                     points.append(((sx + 1) * BigWorld.screenWidth() * 0.5, (1 - sy) * BigWorld.screenHeight() * 0.5))
         left, right = min(p[0] for p in points), max(p[0] for p in points)
@@ -181,10 +182,16 @@ class AutoAimController(object):
             self.created = True
         overlays.update(self.config.NAME, {GLOBAL.X: x, 'y': y})
         for name, props in (
-                (GLOBAL.TOP, {GLOBAL.X: GLOBAL.ZERO, GLOBAL.Y: GLOBAL.ZERO, GLOBAL.WIDTH: width, GLOBAL.HEIGHT: BOX_THICKNESS}),
-                (GLOBAL.BOTTOM, {GLOBAL.X: GLOBAL.ZERO, GLOBAL.Y: height - BOX_THICKNESS, GLOBAL.WIDTH: width, GLOBAL.HEIGHT: BOX_THICKNESS}),
-                (GLOBAL.LEFT, {GLOBAL.X: GLOBAL.ZERO, GLOBAL.Y: GLOBAL.ZERO, GLOBAL.WIDTH: BOX_THICKNESS, GLOBAL.HEIGHT: height}),
-                (GLOBAL.RIGHT, {GLOBAL.X: width - BOX_THICKNESS, GLOBAL.Y: GLOBAL.ZERO, GLOBAL.WIDTH: BOX_THICKNESS, GLOBAL.HEIGHT: height})):
+                (GLOBAL.TOP,
+                 {GLOBAL.X: GLOBAL.ZERO, GLOBAL.Y: GLOBAL.ZERO, GLOBAL.WIDTH: width, GLOBAL.HEIGHT: BOX_THICKNESS}),
+                (GLOBAL.BOTTOM,
+                 {GLOBAL.X: GLOBAL.ZERO, GLOBAL.Y: height - BOX_THICKNESS, GLOBAL.WIDTH: width,
+                  GLOBAL.HEIGHT: BOX_THICKNESS}),
+                (GLOBAL.LEFT,
+                 {GLOBAL.X: GLOBAL.ZERO, GLOBAL.Y: GLOBAL.ZERO, GLOBAL.WIDTH: BOX_THICKNESS, GLOBAL.HEIGHT: height}),
+                (GLOBAL.RIGHT,
+                 {GLOBAL.X: width - BOX_THICKNESS, GLOBAL.Y: GLOBAL.ZERO, GLOBAL.WIDTH: BOX_THICKNESS,
+                  GLOBAL.HEIGHT: height})):
             props['customBackground'] = {'fill': True, GLOBAL.COLOR: color, GLOBAL.ALPHA: GLOBAL.ONE}
             overlays.update(self.config.NAME + '.' + name, props)
 

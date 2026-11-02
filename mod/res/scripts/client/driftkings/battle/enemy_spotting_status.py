@@ -15,10 +15,14 @@ from driftkings.settings.service import settings_service
 
 SOUND_LIST = (ENEMY_SPOTTING_STATUS.SOUND_SPOTTED, ENEMY_SPOTTING_STATUS.SOUND_ASSIST)
 GENERATOR = {
-    BATTLE_EVENT_TYPE.SPOTTED: ['UI_setting_Spotted_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_SPOTTED, ENEMY_SPOTTING_STATUS.SPOTTED],
-    BATTLE_EVENT_TYPE.RADIO_ASSIST: ['UI_setting_AssistRadio_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_RADIO, ENEMY_SPOTTING_STATUS.ASSIST_RADIO],
-    BATTLE_EVENT_TYPE.TRACK_ASSIST: ['UI_setting_AssistTrack_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_TRACK, ENEMY_SPOTTING_STATUS.ASSIST_TRACK],
-    BATTLE_EVENT_TYPE.STUN_ASSIST: ['UI_setting_AssistStun_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_STUN, ENEMY_SPOTTING_STATUS.ASSIST_STUN]
+    BATTLE_EVENT_TYPE.SPOTTED: ['UI_setting_Spotted_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_SPOTTED,
+                                ENEMY_SPOTTING_STATUS.SPOTTED],
+    BATTLE_EVENT_TYPE.RADIO_ASSIST: ['UI_setting_AssistRadio_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_RADIO,
+                                     ENEMY_SPOTTING_STATUS.ASSIST_RADIO],
+    BATTLE_EVENT_TYPE.TRACK_ASSIST: ['UI_setting_AssistTrack_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_TRACK,
+                                     ENEMY_SPOTTING_STATUS.ASSIST_TRACK],
+    BATTLE_EVENT_TYPE.STUN_ASSIST: ['UI_setting_AssistStun_text', ENEMY_SPOTTING_STATUS.MESSAGE_COLOR_ASSIST_STUN,
+                                    ENEMY_SPOTTING_STATUS.ASSIST_STUN]
 }
 SUPPORTED_EVENTS = (BATTLE_EVENT_TYPE.SPOTTED,) + ASSIST_EVENTS
 
@@ -31,7 +35,9 @@ class SpottedLightController(object):
 
     # Verifica se os modelos de mensagem usam o marcador indicado.
     def check_macros(self, macros):
-        return any(macros in settings_service.getComponentDict(self.config)[text_type] for text_type in [ENEMY_SPOTTING_STATUS.SPOTTED, ENEMY_SPOTTING_STATUS.ASSIST_RADIO, ENEMY_SPOTTING_STATUS.ASSIST_TRACK, ENEMY_SPOTTING_STATUS.ASSIST_STUN])
+        return any(macros in settings_service.getComponentDict(self.config)[text_type]
+                   for text_type in [ENEMY_SPOTTING_STATUS.SPOTTED, ENEMY_SPOTTING_STATUS.ASSIST_RADIO,
+                                     ENEMY_SPOTTING_STATUS.ASSIST_TRACK, ENEMY_SPOTTING_STATUS.ASSIST_STUN])
 
     def format_recreate(self):
         self.format_str = {
@@ -93,11 +99,14 @@ class SpottedLightController(object):
             if self.check_macros('{names}'):
                 self.format_str['names'] += '[<b>%s</b>]' % targetInfo.playerName if targetInfo.playerName else icon
             if self.check_macros('{vehicles}'):
-                self.format_str['vehicles'] += '[<b>%s</b>]' % targetInfo.vehicleName if targetInfo.vehicleName else icon
+                self.format_str['vehicles'] += ('[<b>%s</b>]' % targetInfo.vehicleName if targetInfo.vehicleName
+                                                else icon)
             if self.check_macros('{icons_names}'):
-                self.format_str['icons_names'] += '%s[<b>%s</b>]' % (icon, targetInfo.playerName) if targetInfo.playerName else icon
+                self.format_str['icons_names'] += ('%s[<b>%s</b>]' % (icon, targetInfo.playerName)
+                                                   if targetInfo.playerName else icon)
             if self.check_macros('{icons_vehicles}'):
-                self.format_str['icons_vehicles'] += '%s[<b>%s</b>]' % (icon, targetInfo.vehicleName) if targetInfo.vehicleName else icon
+                self.format_str['icons_vehicles'] += ('%s[<b>%s</b>]' % (icon, targetInfo.vehicleName)
+                                                      if targetInfo.vehicleName else icon)
             if self.check_macros('{full}'):
                 fullLabel = self._getFullTargetLabel(targetInfo)
                 self.format_str['full'] += '%s[<b>%s</b>]' % (icon, fullLabel) if fullLabel else icon

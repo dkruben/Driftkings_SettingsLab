@@ -6,8 +6,10 @@ from driftkings.common.utils.compat import string_types, text_type
 from driftkings.common.utils.numbers import finite_number
 from driftkings.settings.settings_data import defaults as component_defaults
 
-FIELD_NAMES = ('flag', 'tankIcon', 'tankType', 'level', 'xp', 'tankName', 'info', 'favorite', 'progressionPoints', 'infoImg', 'rentInfo', 'crystalsIcon', 'coreBorder')
-ALIASES = {'tdb': 'avgDamage', 'winrate': 'winRate', 't_battles': 'battles', 'damageRating': 'marks', 'name': 'vehicle', 'tier': 'level', 'tfb': 'avgFrags', 'hitsRatio': 'hitRate', 'markOfMastery': 'mastery'}
+FIELD_NAMES = ('flag', 'tankIcon', 'tankType', 'level', 'xp', 'tankName', 'info', 'favorite', 'progressionPoints',
+               'infoImg', 'rentInfo', 'crystalsIcon', 'coreBorder')
+ALIASES = {'tdb': 'avgDamage', 'winrate': 'winRate', 't_battles': 'battles', 'damageRating': 'marks',
+           'name': 'vehicle', 'tier': 'level', 'tfb': 'avgFrags', 'hitsRatio': 'hitRate', 'markOfMastery': 'mastery'}
 MACRO = re.compile(r'\{\{([^{}]+)\}\}')
 EXPR = re.compile(r'^(?P<key>(?:v\.)?(?:c:|icon:)?[A-Za-z][\w-]*)(?P<fmt>%[-0-9.]*[dfs]|:\.[0-3]f|:d)?(?:~(?P<suffix>[^|]*))?(?:\|(?P<fallback>.*))?$')
 
@@ -118,15 +120,18 @@ def build_profile(profile, renderer, show_icons):
             field[key] = renderer(item.get(key, ''))
         if not show_icons: field['src'] = ''
         field['showIcons'] = bool(show_icons)
-        for key,low,high,default in (('x',-600,600,0),('y',-400,400,0),('width',0,600,0),('height',0,400,0),('alpha',0,100,100),('fontSize',8,40,12),('iconSize',8,80,14)):
+        for key,low,high,default in (('x',-600,600,0),('y',-400,400,0),('width',0,600,0),('height',0,400,0),
+                                     ('alpha',0,100,100),('fontSize',8,40,12),('iconSize',8,80,14)):
             value=item.get(key,default)
             if isinstance(value,string_types): value=renderer(value)
             field[key]=bounded(value,low,high,default)
         field['align']=item.get('align') if item.get('align') in ('left','center','right') else 'left'
         field['layer']='substrate' if item.get('layer') == 'substrate' else 'top'
         shadow=profile_shadow(profile, item.get('shadow',{}))
-        shadow = dict((key, renderer(value) if isinstance(value, string_types) else value) for key, value in shadow.items())
-        field['shadow']={'enabled': shadow.get('enabled',True) is not False, 'color':renderer(shadow.get('color','#000000')),
+        shadow = dict((key, renderer(value) if isinstance(value, string_types) else value) for key,
+                      value in shadow.items())
+        field['shadow']={'enabled': shadow.get('enabled',True) is not False,
+                         'color':renderer(shadow.get('color','#000000')),
                          'alpha':bounded(shadow.get('alpha'),0,100,80),'blur':bounded(shadow.get('blur'),0,20,2),
                          'distance':bounded(shadow.get('distance'),0,20,1),
                          'angle':bounded(shadow.get('angle'),-360,360,45),

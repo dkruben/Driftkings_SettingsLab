@@ -32,7 +32,7 @@
     var saved = {};           // last saved value per module/option (see trackSaved)
     var query = '', tab = '', focusId = null, pendingFocus = null, collapsed = {};
     var dialogs = {confirm: null, review: null, profiles: null, installed: null};
-    var lastMessage = 0, toastTimer = null, layoutTimer=null, lastLayout = '', lastTheme = '', disposed = false;
+    var lastMessage = 0, toastTimer = null, layoutTimer = null, lastLayout = '', lastTheme = '', disposed = false;
 
     /* Helpers --------------------------------------------------------------- */
     function categoryName(category) {
@@ -139,7 +139,7 @@
 
     /* Schema: sidebar ------------------------------------------------------- */
     function onSchema(next) {
-        disposePage();DK.modal.closeAll();DK.layer.closeMenu(true);
+        disposePage(); DK.modal.closeAll(); DK.layer.closeMenu(true);
         schema = next;
         DK.setCatalog(schema.labels, schema.language);
         DK.calendar = schema.calendar || {};
@@ -718,7 +718,7 @@
         entry.cancel = button(actions, t('cancel'), function () { send('cancel'); });
         entry.apply = button(actions, t('apply'), function () { send('apply'); });
         button(actions, t('saveApply'), function () { entry.modal.close('button'); send('save'); }, 'is-primary');
-        entry.modal = DK.modal.open(panel, {className: 'dk-modal-wide', onClose: function () { scroll.dispose();dialogs.review = null; }});
+        entry.modal = DK.modal.open(panel, {className: 'dk-modal-wide', onClose: function () { scroll.dispose(); dialogs.review = null; }});
         dialogs.review = entry;
         renderReview();
     }
@@ -872,9 +872,9 @@
         DK.toggle(ui.window, 'is-compact', client.width < 1200);
         ui.window.style.width = Math.round(Math.min(client.width - 16, Math.max(860, Math.min(1480, client.width - 110)))) + 'rem';
         ui.window.style.height = Math.round(Math.min(client.height - 16, Math.max(540, Math.min(900, client.height - 110)))) + 'rem';
-        if(layoutTimer!==null){clearTimeout(layoutTimer);}
-        layoutTimer=setTimeout(function () {
-            layoutTimer=null;
+        if (layoutTimer !== null) { clearTimeout(layoutTimer); }
+        layoutTimer = setTimeout(function () {
+            layoutTimer = null;
             if (disposed) { return; }
             ui.navScroll.update(); ui.listScroll.update();
             if (page && page.live) { page.live.redraw(); }
@@ -915,10 +915,10 @@
         if (toastTimer !== null) { clearTimeout(toastTimer); }
         document.removeEventListener('keydown', onKey, true);
         window.removeEventListener('resize', layout);
-        window.removeEventListener('unload',dispose);
-        if(layoutTimer!==null){clearTimeout(layoutTimer);layoutTimer=null;}
-        DK.layer.closeMenu(true);DK.layer.hideTip();
-        ui.navScroll.dispose();ui.listScroll.dispose();
+        window.removeEventListener('unload', dispose);
+        if (layoutTimer !== null) { clearTimeout(layoutTimer); layoutTimer = null; }
+        DK.layer.closeMenu(true); DK.layer.hideTip();
+        ui.navScroll.dispose(); ui.listScroll.dispose();
         DK.modal.closeAll();
         disposePage();
         DK.bridge.dispose();

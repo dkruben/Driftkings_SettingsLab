@@ -65,7 +65,8 @@ class CustomCrosshairContainer(CrosshairPanelContainer):
             LOG.warning('Set of gun markers is already created.')
             return
         else:
-            self._CrosshairPanelContainer__setGunMarkers(self.createMarkers(markersInfo, vehicleInfo, self.enableSpgStrategicReticle))
+            self._CrosshairPanelContainer__setGunMarkers(self.createMarkers(markersInfo, vehicleInfo,
+                                                                            self.enableSpgStrategicReticle))
             return
 
     def invalidateGunMarkers(self, markersInfo, vehicleInfo):
@@ -73,7 +74,8 @@ class CustomCrosshairContainer(CrosshairPanelContainer):
             LOG.warning('Set of gun markers is not created')
             return
         else:
-            newSet = self.overrideMarkers(self._CrosshairPanelContainer__gunMarkers, markersInfo, vehicleInfo, self.enableSpgStrategicReticle)
+            newSet = self.overrideMarkers(self._CrosshairPanelContainer__gunMarkers, markersInfo, vehicleInfo,
+                                          self.enableSpgStrategicReticle)
             self._CrosshairPanelContainer__clearGunMarkers()
             self._CrosshairPanelContainer__setGunMarkers(newSet)
             return
@@ -142,21 +144,25 @@ class _CustomServerControlMarkersFactory(_GunMarkersFactory):
 
     def _createSPGMarkers(self, enableSpgStrategicReticle):
         if enableSpgStrategicReticle:
-            return (self._createArcadeMarker(CUSTOM_ARCADE_GUN_MARKER_NAME), self._createSPGMarker(CUSTOM_SPG_MARKER_NAME))
+            return (self._createArcadeMarker(CUSTOM_ARCADE_GUN_MARKER_NAME),
+                    self._createSPGMarker(CUSTOM_SPG_MARKER_NAME))
         else:
             return (self._createArcadeMarker(CUSTOM_ARCADE_GUN_MARKER_NAME),)
 
     def _createArcadeMarker(self, name):
         dataProvider = self._getMarkerDataProvider(GUN_MARKER_TYPE.SERVER)
-        return self._createMarker(DefaultGunMarkerComponent, CROSSHAIR_VIEW_ID.ARCADE, GUN_MARKER_TYPE.SERVER, dataProvider, name)
+        return self._createMarker(DefaultGunMarkerComponent, CROSSHAIR_VIEW_ID.ARCADE, GUN_MARKER_TYPE.SERVER,
+                                  dataProvider, name)
 
     def _createSniperMarker(self, name):
         dataProvider = self._getMarkerDataProvider(GUN_MARKER_TYPE.SERVER)
-        return self._createMarker(DefaultGunMarkerComponent, CROSSHAIR_VIEW_ID.SNIPER, GUN_MARKER_TYPE.SERVER, dataProvider, name)
+        return self._createMarker(DefaultGunMarkerComponent, CROSSHAIR_VIEW_ID.SNIPER, GUN_MARKER_TYPE.SERVER,
+                                  dataProvider, name)
 
     def _createSPGMarker(self, name):
         dataProvider = self._getSPGDataProvider(GUN_MARKER_TYPE.SERVER)
-        return self._createMarker(SPGGunMarkerComponent, CROSSHAIR_VIEW_ID.STRATEGIC, GUN_MARKER_TYPE.SERVER, dataProvider, name)
+        return self._createMarker(SPGGunMarkerComponent, CROSSHAIR_VIEW_ID.STRATEGIC, GUN_MARKER_TYPE.SERVER,
+                                  dataProvider, name)
 
 
 def _createComponents(markersInfo, vehiclesInfo, enableSpgStrategicReticle):
@@ -176,6 +182,7 @@ def new_SharedPage_init(func, self, components=None, external=None):
     func(self, components, external)
     if reticle.showClientAndServerReticle is True:
         reticle.ensureServerAiming()
-        self._external.append(GetCustomServerCrosshair(reticle.customServerReticleSettings, reticle.enableSpgStrategicReticle))
+        self._external.append(GetCustomServerCrosshair(reticle.customServerReticleSettings,
+                                                       reticle.enableSpgStrategicReticle))
 
 

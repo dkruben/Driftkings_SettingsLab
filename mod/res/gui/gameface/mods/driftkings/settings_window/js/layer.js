@@ -62,7 +62,7 @@
         options = options || {};
         closeMenu(true); hideTip();
         var overlay = h('div.dk-modal-backdrop', null, null, options.host || modalHost);
-        var panel = h('div.dk-modal' + (options.className ? '.' + options.className : ''), {role: 'dialog', 'aria-modal':'true'}, content, overlay);
+        var panel = h('div.dk-modal' + (options.className ? '.' + options.className : ''), {role: 'dialog', 'aria-modal': 'true'}, content, overlay);
         var entry = {overlay: overlay, panel: panel, origin: options.origin || document.activeElement, onClose: options.onClose};
         overlay.addEventListener('mousedown', function (event) { if (event.target === overlay && options.dismissable !== false) { closeModal(entry, 'outside'); } });
         stack.push(entry);
@@ -100,10 +100,10 @@
     /* Scroll areas: fixed-step wheel and a thin draggable bar ------------- */
     // Gameface's native overflow scroll is slow; wheel steps are applied here.
     function scroller(viewport, host) {
-        var cancelDrag=null, disposed=false, refreshTimer=null, geometry=null;
+        var cancelDrag = null, disposed = false, refreshTimer = null, geometry = null;
         var track = h('div.dk-scroll', null, null, host), thumb = h('div.dk-scroll-thumb', null, null, track);
         function measure() {
-            if(disposed){return;}
+            if (disposed) { return; }
             var height = viewport.clientHeight, total = viewport.scrollHeight;
             var nextGeometry = height + ':' + total + ':' + viewport.clientWidth, changed = nextGeometry !== geometry;
             geometry = nextGeometry;
@@ -134,7 +134,7 @@
         viewport.addEventListener('load', update, true);
         track.addEventListener('mousedown', function (event) {
             if (event.button !== 0 || disposed) { return; }
-            if(cancelDrag){cancelDrag();}
+            if (cancelDrag) { cancelDrag(); }
             DK.stop(event);
             var rect = track.getBoundingClientRect(), thumbRect = thumb.getBoundingClientRect();
             var grip = event.target === thumb ? event.clientY - thumbRect.top : thumbRect.height / 2;
@@ -143,14 +143,14 @@
                 viewport.scrollTop = DK.clamp((e.clientY - rect.top - grip) / span, 0, 1) * Math.max(0, viewport.scrollHeight - viewport.clientHeight);
                 update();
             }
-            function end() { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end);cancelDrag=null; }
-            cancelDrag=end;
+            function end() { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end); cancelDrag = null; }
+            cancelDrag = end;
             document.addEventListener('mousemove', move);
             document.addEventListener('mouseup', end);
             if (event.target !== thumb) { move(event); }
         });
         update();
-        return {update:update,to:function(top){viewport.scrollTop=Math.max(0,top);update();},dispose:function(){disposed=true;if(refreshTimer!==null){clearTimeout(refreshTimer);}viewport.removeEventListener('wheel',wheel);viewport.removeEventListener('scroll',update);viewport.removeEventListener('load',update,true);if(cancelDrag){cancelDrag();}DK.remove(track);}};
+        return {update: update, to: function (top) { viewport.scrollTop = Math.max(0, top); update(); }, dispose: function () { disposed = true; if (refreshTimer !== null) { clearTimeout(refreshTimer); }viewport.removeEventListener('wheel', wheel); viewport.removeEventListener('scroll', update); viewport.removeEventListener('load', update, true); if (cancelDrag) { cancelDrag(); }DK.remove(track); }};
     }
 
     DK.layer = {

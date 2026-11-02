@@ -60,7 +60,9 @@ def ratings(values, expected, tier):
     result = {'eff': None, 'wn8': None, 'xeff': None, 'xwn8': None}
     if not values.get('battles'):
         return result
-    damage, frags, spots, defence, capture = [values.get(k) for k in ('avgDamage', 'avgFrags', 'avgSpotted', 'avgDefence', 'avgCapture')]
+    damage, frags, spots, defence, capture = [values.get(k)
+                                              for k in ('avgDamage', 'avgFrags', 'avgSpotted', 'avgDefence',
+                                                        'avgCapture')]
     if all(v is not None for v in (damage, frags, spots, defence, capture)) and tier > 0:
         # Classic Efficiency Rating, using this vehicle's tier and random-battle averages.
         result['eff'] = (damage * 10.0 / (tier + 2) * (0.23 + 0.02 * tier)
@@ -127,13 +129,15 @@ def collect(vehicle):
 
 def render_macro(template, values):
     def color(key, value):
-        return getStatisticColor(COLOR_KEYS.get(key, key), value, settings_service.getComponentDict(vehicle_carousel_settings).get(VEHICLE_CAROUSEL.COLOR_RATING, 1))
+        return getStatisticColor(COLOR_KEYS.get(key, key), value,
+                                 settings_service.getComponentDict(vehicle_carousel_settings).get(VEHICLE_CAROUSEL.COLOR_RATING, 1))
     def icon(key):
         if key == 'marksOnGun':
             rank = int(bounded(values.get('marksOnGun'), 0, 3, 0))
             nation = values.get('nation', 'ussr')
             suffix = 'mark' if rank == 1 else 'marks'
-            return 'coui://gui/maps/icons/marksOnGun/95x85/%s_%d_%s.png' % (nation, rank, suffix) if rank else 'coui://gui/maps/driftkings/carroucel/mark_0.png'
+            return ('coui://gui/maps/icons/marksOnGun/95x85/%s_%d_%s.png' % (nation, rank, suffix) if rank
+                    else 'coui://gui/maps/driftkings/carroucel/mark_0.png')
         if key == 'mastery':
             rank = values.get('mastery')
             rank = int(rank) if rank in (1, 2, 3, 4) else 0
@@ -191,7 +195,10 @@ class CarouselData(object):
                     if cd not in self.cache:
                         self.cache[cd] = collect(vehicle)
                     values = self.cache[cd]
-                    result['sortValues'][str(cd)] = dict((key, values.get({'markOfMastery': 'mastery', 'damageRating': 'marks'}.get(key, key))) for key in criteria.intersection(STAT_SORT_KEYS))
+                    result['sortValues'][str(cd)] = dict((key,
+                                                          values.get({'markOfMastery': 'mastery',
+                                                                      'damageRating': 'marks'}.get(key, key)))
+                                                         for key in criteria.intersection(STAT_SORT_KEYS))
                 except Exception:
                     LOG.debug('Sorting dossier unavailable for %s', cd, exc_info=True)
         if 'battlePassPoints' in criteria:
@@ -207,9 +214,12 @@ class CarouselData(object):
             try:
                 if cd not in self.cache:
                     self.cache[cd] = collect(vehicle)
-                values = dict(self.cache[cd], selected=bool(g_currentVehicle.isPresent() and g_currentVehicle.intCD == cd))
-                result['vehicles'][str(cd)] = dict((mode, layout.build_profile(settings[VEHICLE_CAROUSEL.CAROUSEL][mode],
-                    lambda template: render_macro(template, values), settings[VEHICLE_CAROUSEL.SHOW_ICONS])) for mode in ('normal','small'))
+                values = dict(self.cache[cd],
+                              selected=bool(g_currentVehicle.isPresent() and g_currentVehicle.intCD == cd))
+                result['vehicles'][str(cd)] = dict((mode,
+                                                    layout.build_profile(settings[VEHICLE_CAROUSEL.CAROUSEL][mode],
+                    lambda template: render_macro(template, values), settings[VEHICLE_CAROUSEL.SHOW_ICONS]))
+                        for mode in ('normal','small'))
             except Exception:
                 LOG.debug('Dossier unavailable for %s',cd,exc_info=True)
         result['images'] = self.images.collect(result['vehicles'])

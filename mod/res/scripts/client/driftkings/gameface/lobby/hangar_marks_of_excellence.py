@@ -117,7 +117,8 @@ def install_gameface():
                                and settings_service.getComponentDict(_component().hangar_marks_of_excellence_settings)[GLOBAL.ENABLED] and settings_service.getComponentDict(_component().hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR]
                                and _component().has_marks_tier())
                 payload = card_payload(self._lastPayload, kwargs.get('config_only', False), visible,
-                                       lambda: get_view_config(_component().hangar_marks_of_excellence_settings), _component().g_data.build_panel_model)
+                                       lambda: get_view_config(_component().hangar_marks_of_excellence_settings),
+                                       _component().g_data.build_panel_model)
                 publish_card(self, payload)
             except Exception:
                 from driftkings.core.marks_state import marks_state

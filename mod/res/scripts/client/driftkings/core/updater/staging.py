@@ -33,7 +33,9 @@ class StagingMixin(object):
             if error:
                 if error != 'cancelled':
                     LOG.error('Update download failed: %s', error)
-                self.state.update(status=AVAILABLE if error == 'cancelled' else ERROR, error=None if error == 'cancelled' else error, canDownload=True, canCancel=False, downloadPercent=None)
+                self.state.update(status=AVAILABLE if error == 'cancelled' else ERROR,
+                                  error=None if error == 'cancelled' else error, canDownload=True, canCancel=False,
+                                  downloadPercent=None)
             else:
                 self._ready_path = path
                 LOG.info('Hash verified; update staged')
@@ -59,12 +61,16 @@ class StagingMixin(object):
         if self.file_work is not None:
             return self._recover_staging_async()
         try:
-            path = self.installer.recover_ready(getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
+            path = self.installer.recover_ready(getattr(self.api, 'client_version', None),
+                                                self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
             if path:
-                manifest = self.installer.validate_stage(path, getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
+                manifest = self.installer.validate_stage(path, getattr(self.api, 'client_version', None),
+                                                         self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
                 self._ready_path = path
                 self.checker.selected_manifest = manifest
-                self.state.update(status=READY, latestVersion=manifest.version.text, changelog=list(manifest.changelog), compatible=True, error=None, canDownload=False, canCancel=False, downloadPercent=100)
+                self.state.update(status=READY, latestVersion=manifest.version.text,
+                                  changelog=list(manifest.changelog), compatible=True, error=None, canDownload=False,
+                                  canCancel=False, downloadPercent=100)
                 LOG.info('Recovered verified update staging')
             self._refresh_install_context()
         except Exception:
@@ -93,7 +99,9 @@ class StagingMixin(object):
                 path, manifest = value
                 self._ready_path = path
                 self.checker.selected_manifest = manifest
-                self.state.update(status=READY, latestVersion=manifest.version.text, changelog=list(manifest.changelog), compatible=True, error=None, canDownload=False, canCancel=False, downloadPercent=100)
+                self.state.update(status=READY, latestVersion=manifest.version.text,
+                                  changelog=list(manifest.changelog), compatible=True, error=None, canDownload=False,
+                                  canCancel=False, downloadPercent=100)
                 LOG.info('Recovered verified update staging')
             self._refresh_install_context()
             if self.context in self.safe_spaces:

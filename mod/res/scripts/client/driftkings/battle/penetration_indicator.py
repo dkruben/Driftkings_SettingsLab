@@ -38,7 +38,8 @@ class _ShotResult(_CrosshairShotResults):
 
     @classmethod
     def _result(cls, gunMarker, multiplier, player):
-        collision_details = cls._getAllCollisionDetails(gunMarker.position, gunMarker.direction, gunMarker.collData.entity)
+        collision_details = cls._getAllCollisionDetails(gunMarker.position, gunMarker.direction,
+                                                        gunMarker.collData.entity)
         if collision_details is None:
             return None
         vDesc = player.getVehicleDescriptor()
@@ -62,7 +63,8 @@ class _ShotResult(_CrosshairShotResults):
         piercing_power = full_piercing_power
         ignored_materials = set()
         isJet = False
-        jet_loss = shell.type.piercingPowerLossFactorByDistance if cls._SHELL_EXTRA_DATA[shell.kind].hasPenetrationLoss else 0.0
+        jet_loss = (shell.type.piercingPowerLossFactorByDistance
+                    if cls._SHELL_EXTRA_DATA[shell.kind].hasPenetrationLoss else 0.0)
         jet_start_dist = 0.0
         no_damage = True
         ricochet = False
@@ -124,7 +126,8 @@ class _ShotResultAll(_ShotResult):
     @classmethod
     def _getShotResult(cls, gunMarker, multiplier, player):
         collision = gunMarker.collData
-        if player is None or collision is None or not isinstance(collision.entity, cls.ENTITY_TYPES) or not collision.entity.isAlive():
+        if (player is None or collision is None or not isinstance(collision.entity, cls.ENTITY_TYPES)
+            or not collision.entity.isAlive()):
             return None
         return cls._result(gunMarker, multiplier, player)
 

@@ -63,22 +63,27 @@ class Repair(object):
             'wheel6': 'wheel',
             'wheel7': 'wheel'
         }
-        self.chassis = ['chassis', 'leftTrack', 'rightTrack', 'leftTrack0', 'rightTrack0', 'leftTrack1', 'rightTrack1', 'wheel', 'wheel0', 'wheel1', 'wheel2', 'wheel3', 'wheel4', 'wheel5', 'wheel6', 'wheel7']
+        self.chassis = ['chassis', 'leftTrack', 'rightTrack', 'leftTrack0', 'rightTrack0', 'leftTrack1', 'rightTrack1',
+                        'wheel', 'wheel0', 'wheel1', 'wheel2', 'wheel3', 'wheel4', 'wheel5', 'wheel6', 'wheel7']
         self._active = False
 
     def start(self):
         if self._active:
             return
         self._active = True
-        g_eventBus.addListener(events.ComponentEvent.COMPONENT_REGISTERED, self.__onComponentRegistered, EVENT_BUS_SCOPE.GLOBAL)
-        g_eventBus.addListener(events.ComponentEvent.COMPONENT_UNREGISTERED, self.__onComponentUnregistered, EVENT_BUS_SCOPE.GLOBAL)
+        g_eventBus.addListener(events.ComponentEvent.COMPONENT_REGISTERED, self.__onComponentRegistered,
+                               EVENT_BUS_SCOPE.GLOBAL)
+        g_eventBus.addListener(events.ComponentEvent.COMPONENT_UNREGISTERED, self.__onComponentUnregistered,
+                               EVENT_BUS_SCOPE.GLOBAL)
 
     def stop(self):
         if not self._active:
             return
         self._active = False
-        g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED, self.__onComponentRegistered, EVENT_BUS_SCOPE.GLOBAL)
-        g_eventBus.removeListener(events.ComponentEvent.COMPONENT_UNREGISTERED, self.__onComponentUnregistered, EVENT_BUS_SCOPE.GLOBAL)
+        g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED, self.__onComponentRegistered,
+                                  EVENT_BUS_SCOPE.GLOBAL)
+        g_eventBus.removeListener(events.ComponentEvent.COMPONENT_UNREGISTERED, self.__onComponentUnregistered,
+                                  EVENT_BUS_SCOPE.GLOBAL)
         self.stopBattle()
 
     def startBattle(self):
@@ -125,26 +130,30 @@ class Repair(object):
     def useItem(self, equipment_tag, item=None):
         if not self._canUseConsumable():
             return
-        equipment = self.ctrl.equipments.getEquipment(self.items[equipment_tag][0]) if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][0]) else None
+        equipment = (self.ctrl.equipments.getEquipment(self.items[equipment_tag][0])
+                     if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][0]) else None)
         if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
             self._activateEquipment(self.items[equipment_tag][0], item)
         else:
             if settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS]:
-                equipment = self.ctrl.equipments.getEquipment(self.items[equipment_tag][1]) if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][1]) else None
+                equipment = (self.ctrl.equipments.getEquipment(self.items[equipment_tag][1])
+                             if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][1]) else None)
                 if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
                     self._activateEquipment(self.items[equipment_tag][1], item)
 
     def useItemManual(self, equipment_tag, item=None):
         if not self._canUseConsumable(requireControl=True):
             return
-        equipment = self.ctrl.equipments.getEquipment(self.items[equipment_tag][0]) if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][0]) else None
+        equipment = (self.ctrl.equipments.getEquipment(self.items[equipment_tag][0])
+                     if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][0]) else None)
         if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
             self._activateEquipment(self.items[equipment_tag][0], item)
 
     def useItemGold(self, equipment_tag, item=None):
         if not self._canUseConsumable(requireControl=True):
             return
-        equipment = self.ctrl.equipments.getEquipment(self.items[equipment_tag][1]) if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][1]) else None
+        equipment = (self.ctrl.equipments.getEquipment(self.items[equipment_tag][1])
+                     if self.ctrl.equipments.hasEquipment(self.items[equipment_tag][1]) else None)
         if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
             self._activateEquipment(self.items[equipment_tag][1], item)
 
@@ -164,14 +173,16 @@ class Repair(object):
             equipment_tag = 'medkit'
             if self.items[equipment_tag][2]:
                 self.useItemManual(equipment_tag)
-            elif settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
+            elif (settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS]
+                  and self.items[equipment_tag][3]):
                 self.useItemGold(equipment_tag)
 
     def repair(self, equipment_tag):
         if self.ctrl is None or self.player is None:
             return
         specific = self._getRepairPriority(equipment_tag)
-        if settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
+        if (settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS]
+            and self.items[equipment_tag][3]):
             equipment = self.items[equipment_tag][3]
             if equipment is not None:
                 result = self._damagedByPriority(equipment, specific)
@@ -229,7 +240,8 @@ class Repair(object):
         equipment_tag = 'repairkit'
         for intCD, equipment in self.ctrl.equipments.iterEquipmentsByTag(equipment_tag):
             if equipment.isReady and equipment.isAvailableToUse:
-                devices = [name for name, state in equipment.getEntitiesIterator() if state and state == DEVICE_STATE_DESTROYED]
+                devices = [name for name,
+                           state in equipment.getEntitiesIterator() if state and state == DEVICE_STATE_DESTROYED]
                 for name in devices:
                     if name in self.chassis:
                         self.useItem(equipment_tag, name)
@@ -255,7 +267,8 @@ class Repair(object):
         self_vehicle = self.player.getVehicleAttached()
         if self_vehicle is None:
             return False
-        if requireControl and (self.ctrl.vehicleState is None or self.ctrl.vehicleState.getControllingVehicleID() != self_vehicle.id):
+        if requireControl and (self.ctrl.vehicleState is None
+                               or self.ctrl.vehicleState.getControllingVehicleID() != self_vehicle.id):
             return False
         return True
 

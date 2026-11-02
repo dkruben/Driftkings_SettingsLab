@@ -8,7 +8,8 @@ from driftkings.core.updater.state import AVAILABLE, CHECKING, ERROR, IDLE, INST
 
 class CheckMixin(object):
     def check(self, manual=False):
-        if (not self.active or self._recovery_busy or self.downloader.busy or getattr(self.checker.transport, 'busy', False) or
+        if (not self.active or self._recovery_busy or self.downloader.busy
+            or getattr(self.checker.transport, 'busy', False) or
                 self._install_pending or self._install_armed or
                 self.state.snapshot()['status'] in (CHECKING, READY, INSTALLING, RESTART_REQUIRED)):
             return False

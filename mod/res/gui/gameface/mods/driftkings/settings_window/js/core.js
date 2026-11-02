@@ -101,10 +101,10 @@
     /* Text ---------------------------------------------------------------- */
     // Strings the game catalog does not define yet; a catalog key with the same name wins.
     var catalog = {};
-    function setCatalog(labels) { catalog=labels||{}; }
-    function t(key,fallback) {
-        var value=catalog[key];
-        return value===undefined||value===null?(fallback===undefined?key:fallback):value;
+    function setCatalog(labels) { catalog = labels || {}; }
+    function t(key, fallback) {
+        var value = catalog[key];
+        return value === undefined || value === null ? (fallback === undefined ? key : fallback) : value;
     }
     function tf(key, values) {
         return String(t(key)).replace(/\{(\w+)\}/g, function (all, name) { return values[name] === undefined ? all : values[name]; });

@@ -68,7 +68,8 @@ def make_payload(vehicle_ids, records=None):
                 if records[vehicle_id] is None:
                     continue
                 values = dict(records[vehicle_id])
-                values['color'] = getStatisticColor('mog', values['percent'], data.get(TECH_TREE_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
+                values['color'] = getStatisticColor('mog', values['percent'],
+                                                    data.get(TECH_TREE_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
                 vehicles[str(vehicle_id)] = values
             except Exception:
                 # One unavailable dossier must not prevent the tree from opening.

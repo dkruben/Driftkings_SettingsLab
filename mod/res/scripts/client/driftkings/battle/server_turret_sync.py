@@ -17,7 +17,8 @@ server_turret_sync_settings = ServerTurretSyncSettings()
 
 
 @override(VehicleGunRotator.VehicleGunRotator, 'setShotPosition')
-def new__vehicleGunRotatorSetShotPosition(func, self, vehicleID, shotPos, shotVec, dispersionAngle, forceValueRefresh=False):
+def new__vehicleGunRotatorSetShotPosition(func, self, vehicleID, shotPos, shotVec, dispersionAngle,
+                                          forceValueRefresh=False):
     settings = settings_service.getComponentDict(server_turret_sync_settings)
     if settings[GLOBAL.ENABLED]:
         if self._avatar.vehicle and settings[SERVER_TURRET_SYNC.SERVER_TURRET]:

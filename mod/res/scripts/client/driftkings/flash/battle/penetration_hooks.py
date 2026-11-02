@@ -22,7 +22,9 @@ class ShotResultIndicatorPlugin(plugins.ShotResultIndicatorPlugin):
         super(ShotResultIndicatorPlugin, self).__init__(parentObj)
         self.__player = BigWorld.player()
         self.__data = None
-        self.__resolver = _ShotResultAll if settings_service.getComponentDict(config)[PENETRATION_INDICATOR.DISPLAY_ON_ALLIES] else _ShotResult
+        self.__resolver = (_ShotResultAll
+                           if settings_service.getComponentDict(config)[PENETRATION_INDICATOR.DISPLAY_ON_ALLIES]
+                           else _ShotResult)
 
     def _getShotResolverResult(self, gunMarker):
         # The client's own resolver decides the colour; allies are included when the option asks for it.

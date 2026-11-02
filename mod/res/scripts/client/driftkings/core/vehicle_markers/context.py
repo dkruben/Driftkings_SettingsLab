@@ -13,7 +13,8 @@ def team_order(arena, team):
         from helpers import dependency
         from skeletons.gui.battle_session import IBattleSessionProvider
         provider = dependency.instance(IBattleSessionProvider).getArenaDP()
-        collection = vos_collections.AllyItemsCollection() if provider.isAllyTeam(team) else vos_collections.EnemyItemsCollection()
+        collection = (vos_collections.AllyItemsCollection() if provider.isAllyTeam(team)
+                      else vos_collections.EnemyItemsCollection())
         return list(collection.ids(provider))
     except Exception:
         return sorted(ident for ident, vehicle in arena.vehicles.items() if vehicle.get('team') == team)
@@ -56,12 +57,14 @@ def context(player, entity, vehicle_id, vehicle, include_distance=False):
               'enemy': vehicle.get('team') != team,
               'squad': bool(vehicle.get('team') == team and platoon and platoon == own.get('prebattleID')),
               'anonym': bool(vehicle.get('isAnonymized')), 'distance': None, 'dist': None,
-              'battletype': battle_type(arena), 'position': position(arena, vehicle_id, vehicle) if arena is not None else None}
+              'battletype': battle_type(arena),
+              'position': position(arena, vehicle_id, vehicle) if arena is not None else None}
     target = entity(vehicle_id)
     result.update(classify(getattr(target, 'typeDescriptor', None), gun_price))
     if include_distance:
         attached = player.getVehicleAttached()
-        origin = player.getOwnVehiclePosition() if attached is not None and attached.isAlive() else getattr(player, 'position', None)
+        origin = (player.getOwnVehiclePosition() if attached is not None and attached.isAlive()
+                  else getattr(player, 'position', None))
         target_position = getattr(target, 'position', None)
         if target_position is not None and origin is not None:
             distance = (target_position - origin).length

@@ -68,12 +68,14 @@ class ReticleState(object):
         enabled = data[GLOBAL.ENABLED]
         full = changes is None or affects(changes, GLOBAL.ENABLED)
         if full or affects(changes, AIMING_RETICLES.GUN_MARKER_MINIMUM_SIZE):
-            aih_constants.GUN_MARKER_MIN_SIZE = data[AIMING_RETICLES.GUN_MARKER_MINIMUM_SIZE] if enabled else self._originalMinSize
+            aih_constants.GUN_MARKER_MIN_SIZE = (data[AIMING_RETICLES.GUN_MARKER_MINIMUM_SIZE] if enabled
+                                                 else self._originalMinSize)
         if full or affects(changes, AIMING_RETICLES.PERCENT_CORRECTION):
             correction = data[AIMING_RETICLES.PERCENT_CORRECTION] / 100.0 if enabled else 0
             self.reticleScaleFactor = 1.71 * correction + (1 - correction)
         if full or affects(changes, AIMING_RETICLES.SHOW_CLIENT_AND_SERVER_RETICLE_BETA):
-            self.showClientAndServerReticle = bool(enabled and data[AIMING_RETICLES.SHOW_CLIENT_AND_SERVER_RETICLE_BETA])
+            self.showClientAndServerReticle = bool(enabled
+                                                   and data[AIMING_RETICLES.SHOW_CLIENT_AND_SERVER_RETICLE_BETA])
             set_linkages(self._customLinkages if self.showClientAndServerReticle else self._originalLinkages)
             if not self.showClientAndServerReticle:
                 self.cancelServerAiming()
@@ -154,21 +156,24 @@ def new_SPGGunMarkerController_updateDispersionData(original, self):
 
 @override(AvatarInputHandler.AvatarInputHandler, 'updateClientGunMarker')
 def new_AvatarInputHandler_updateClientGunMarker(func, self, gunMarkerInfo, supportMarkersInfo, relaxTime):
-    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
+    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY,
+                             CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     return func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
 
 
 @override(AvatarInputHandler.AvatarInputHandler, 'updateServerGunMarker')
 def new_AvatarInputHandler_updateServerGunMarker(func, self, gunMarkerInfo, supportMarkersInfo, relaxTime):
-    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
+    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY,
+                             CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     return func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
 
 
 @override(AvatarInputHandler.AvatarInputHandler, 'updateDualAccGunMarker')
 def new_AvatarInputHandler_updateDualAccGunMarker(func, self, gunMarkerInfo, supportMarkersInfo, relaxTime):
-    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY, CTRL_MODE_NAME.SNIPER):
+    if self.ctrlModeName in (CTRL_MODE_NAME.ARCADE, CTRL_MODE_NAME.STRATEGIC, CTRL_MODE_NAME.ARTY,
+                             CTRL_MODE_NAME.SNIPER):
         gunMarkerInfo = _scaleGunMarkerInfo(gunMarkerInfo)
     func(self, gunMarkerInfo, supportMarkersInfo, relaxTime)
 
@@ -241,7 +246,8 @@ override(VehicleGunRotator.VehicleGunRotator, 'clientMode', setter=new_VehicleGu
 
 
 @override(VehicleGunRotator.VehicleGunRotator, 'setShotPosition')
-def new_VehicleGunRotator_setShotPosition(func, self, vehicleID, shotPos, shotVec, dispersionAngle, forceValueRefresh=False):
+def new_VehicleGunRotator_setShotPosition(func, self, vehicleID, shotPos, shotVec, dispersionAngle,
+                                          forceValueRefresh=False):
     if reticle.showClientAndServerReticle is True:
         if self.clientMode and not self.showServerMarker and not forceValueRefresh:
             return

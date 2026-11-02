@@ -53,7 +53,8 @@ class MinimapController(object):
         if changed.intersection((GLOBAL.ENABLED, MINIMAP_ENHANCEMENTS.YAW, MINIMAP_ENHANCEMENTS.LINES,
                                  MINIMAP_ENHANCEMENTS.CIRCLES, MINIMAP_ENHANCEMENTS.VIEW_RADIUS,
                                  MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES, MINIMAP_ENHANCEMENTS.COLOR_DRAW_CIRCLE,
-                                 MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE, MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE,
+                                 MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE,
+                                 MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE,
                                  MINIMAP_ENHANCEMENTS.COLOR_VIEW_CIRCLE)):
             for plugin in list(PERSONAL):
                 plugin.refreshPresentation()
@@ -64,9 +65,12 @@ class MinimapController(object):
             for plugin in list(VEHICLES):
                 plugin.refreshLabels()
         if changed.intersection((GLOBAL.ENABLED, MINIMAP_ENHANCEMENTS.PRESENTATION, MINIMAP_ENHANCEMENTS.ZOOM_FACTOR,
-                                 MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX, MINIMAP_ENHANCEMENTS.ICONS, MINIMAP_ENHANCEMENTS.HEALTH,
-                                 MINIMAP_ENHANCEMENTS.LOST_MARKER, MINIMAP_ENHANCEMENTS.MAP_SIZE, MINIMAP_ENHANCEMENTS.CIRCLES,
-                                 MINIMAP_ENHANCEMENTS.EXTRA_CIRCLES, MINIMAP_ENHANCEMENTS.LABELS, MINIMAP_ENHANCEMENTS.LINES,
+                                 MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX, MINIMAP_ENHANCEMENTS.ICONS,
+                                 MINIMAP_ENHANCEMENTS.HEALTH,
+                                 MINIMAP_ENHANCEMENTS.LOST_MARKER, MINIMAP_ENHANCEMENTS.MAP_SIZE,
+                                 MINIMAP_ENHANCEMENTS.CIRCLES,
+                                 MINIMAP_ENHANCEMENTS.EXTRA_CIRCLES, MINIMAP_ENHANCEMENTS.LABELS,
+                                 MINIMAP_ENHANCEMENTS.LINES,
                                  MINIMAP_ENHANCEMENTS.ARTILLERY_AIM, MINIMAP_ENHANCEMENTS.SHOW_VEHICLE_TYPES,
                                  MINIMAP_ENHANCEMENTS.NEARBY)):
             for view in list(VIEWS):
@@ -89,7 +93,8 @@ class MinimapController(object):
         settings = settings_service.getComponentDict(self.config)
         if not settings[GLOBAL.ENABLED] or not self._active:
             return
-        self.setAlternative(bool(settings[MINIMAP_ENHANCEMENTS.PRESENTATION]['alternativeEnabled'] and checkKeys(settings[MINIMAP_ENHANCEMENTS.BUTTON])))
+        self.setAlternative(bool(settings[MINIMAP_ENHANCEMENTS.PRESENTATION]['alternativeEnabled']
+                                 and checkKeys(settings[MINIMAP_ENHANCEMENTS.BUTTON])))
 
 
 minimap_settings = MinimapEnhancementsSettings()

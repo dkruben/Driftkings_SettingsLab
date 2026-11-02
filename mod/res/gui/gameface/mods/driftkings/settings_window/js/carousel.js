@@ -39,7 +39,7 @@
     }
     function lookup(name, vehicle) {
         name = name.replace(/^v\./, '');
-        var aliases = {tdb:'avgDamage',winrate:'winRate',hitsRatio:'hitRate',damageRating:'marks',tfb:'avgFrags',t_battles:'battles',markOfMastery:'mastery'};
+        var aliases = {tdb: 'avgDamage', winrate: 'winRate', hitsRatio: 'hitRate', damageRating: 'marks', tfb: 'avgFrags', t_battles: 'battles', markOfMastery: 'mastery'};
         if (name.indexOf('c:') === 0) {
             var key = name.slice(2);
             if (key === 'type') { return CLASS_COLORS[vehicle.type] || '#957d5b'; }
@@ -72,7 +72,7 @@
             }
             if (vehicle.colors) {
                 if (kind === 'mastery') { return '--'; }
-                var icons = {damage:'efficiency/48x48/damage.png',assist:'efficiency/48x48/help.png',blocked:'efficiency/48x48/armor.png',wins:'dossier/wins40x32.png',battles:'dossier/battles40x32.png'};
+                var icons = {damage: 'efficiency/48x48/damage.png', assist: 'efficiency/48x48/help.png', blocked: 'efficiency/48x48/armor.png', wins: 'dossier/wins40x32.png', battles: 'dossier/battles40x32.png'};
                 return icons[kind] ? 'gui/maps/icons/library/' + icons[kind] : '';
             }
             return 'dkicon:' + kind;
@@ -127,7 +127,7 @@
                 var color = /color\s*=\s*['"]([^'"]*)['"]/i.exec(attrs), size = /size\s*=\s*['"](\d+)['"]/i.exec(attrs), face = /face\s*=\s*['"]([^'"]*)['"]/i.exec(attrs);
                 if (color && DK.hex(color[1])) { node.style.color = DK.hex(color[1]); }
                 if (size) { node.style.fontSize = DK.clamp(Number(size[1]), 8, 40) + 'rem'; }
-                if (face) { node.style.fontFamily=face[1]==='$FieldFont'||face[1]==='$TitleFont'?'Warhelios':face[1]; }
+                if (face) { node.style.fontFamily = face[1] === '$FieldFont' || face[1] === '$TitleFont' ? 'Warhelios' : face[1]; }
                 current.appendChild(node); stack.push(node); current = node;
                 return;
             }
@@ -197,7 +197,7 @@
             node.style.top = v(p + 'y', 0) + 'rem';
             node.style.opacity = DK.clamp(alpha, 0, 100) / 100;
             node.style.textAlign = align;
-            node.style.justifyContent = {left:'flex-start',center:'center',right:'flex-end'}[align];
+            node.style.justifyContent = {left: 'flex-start', center: 'center', right: 'flex-end'}[align];
             if (align === 'right') { node.style.transform = 'translateX(-100%)'; }
             else if (align === 'center') { node.style.transform = 'translateX(-50%)'; }
             var width = v(p + 'width', 0), height = v(p + 'height', 0);
@@ -260,7 +260,7 @@
             // The client's own images: nation flag (160x100), vehicle (420x307), class and tier icons.
             native(node, profile, 'flag', vehicle, function () {
                 var flag = h('div.dk-car-flag');
-                flag.style.backgroundImage = 'url(' + DK.asset(DK.assets.flag(vehicle.nation)) + '), linear-gradient(to right, ' + (vehicle.flag || ['#1a2c40','#101820'])[0] + ', ' + (vehicle.flag || ['#1a2c40','#101820'])[1] + ')';
+                flag.style.backgroundImage = 'url(' + DK.asset(DK.assets.flag(vehicle.nation)) + '), linear-gradient(to right, ' + (vehicle.flag || ['#1a2c40', '#101820'])[0] + ', ' + (vehicle.flag || ['#1a2c40', '#101820'])[1] + ')';
                 return flag;
             });
             native(node, profile, 'tankIcon', vehicle, function () { return withFallback(h('img.dk-car-tank-img', {src: DK.asset(vehicle.image || DK.assets.tank(vehicle.tank))})); });

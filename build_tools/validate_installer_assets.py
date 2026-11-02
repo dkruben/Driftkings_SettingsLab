@@ -92,7 +92,8 @@ def validate(root=ROOT, assets=()):
     root = Path(root)
     maximum = inventory_limit(root)
     sources = {item['source'] for item in assets}
-    require(not any(name.startswith('res/sound_bank_wwise/') for name in sources), 'Wwise source project must not be packaged')
+    require(not any(name.startswith('res/sound_bank_wwise/') for name in sources),
+            'Wwise source project must not be packaged')
     audio = root / 'mod/res/audioww'
     banks = sorted(audio.glob('*.bnk'))
     for bank in banks:
@@ -117,5 +118,7 @@ def validate(root=ROOT, assets=()):
         validate_png(path, maximum)
     branding = root / 'installer/setup/assets/branding'
     missing = [name for name in ('setup-icon.ico', 'wizard-large.bmp', 'wizard-small.bmp')
-               if not (branding / name).is_file() and not (name.endswith('.bmp') and (branding / name.replace('.bmp', '.png')).is_file())]
-    return dict(banks=len(banks), icons=len(icons), warnings=['Optional installer branding missing: ' + name for name in missing])
+               if not (branding / name).is_file()
+                   and not (name.endswith('.bmp') and (branding / name.replace('.bmp', '.png')).is_file())]
+    return dict(banks=len(banks), icons=len(icons),
+                warnings=['Optional installer branding missing: ' + name for name in missing])

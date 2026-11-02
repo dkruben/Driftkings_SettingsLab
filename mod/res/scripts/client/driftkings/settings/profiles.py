@@ -18,7 +18,8 @@ class ProfileSettings(object):
     def getControlColumns(self):
         return (
             [
-                {'type': 'Dropdown', 'varName': 'profile', 'text': self.i18n['UI_profile_select'], 'options': [{'label': name} for name in self.names], 'optionValues': self.names},
+                {'type': 'Dropdown', 'varName': 'profile', 'text': self.i18n['UI_profile_select'],
+                 'options': [{'label': name} for name in self.names], 'optionValues': self.names},
                 {'type': 'TextInput', 'varName': 'newProfile', 'text': self.i18n['UI_profile_copy']}
             ],
             [

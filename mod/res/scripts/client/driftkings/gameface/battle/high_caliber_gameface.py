@@ -37,7 +37,8 @@ class MainGunAdapter(BattleCardAdapter):
         panel = moved_panel(settings[HIGH_CALIBER_PROGRESS.TEXT_POSITION], args)
         if panel is None:
             return
-        settings_service.apply(_component().high_caliber_progress_settings, {HIGH_CALIBER_PROGRESS.TEXT_POSITION: panel})
+        settings_service.apply(_component().high_caliber_progress_settings,
+                               {HIGH_CALIBER_PROGRESS.TEXT_POSITION: panel})
 
     def refresh(self):
         settings = settings_service.getComponentDict(_component().high_caliber_progress_settings)

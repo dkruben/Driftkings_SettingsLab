@@ -117,7 +117,8 @@ class EfficiencyCalculator(object):
         return WN8, XWN8
 
     def calculate_efficiency(self, damage, frags, spotted, capture, defence):
-        EFF = int(max(0, int(damage * (10.0 / (self.avgTier + 2)) * (0.23 + 2 * self.avgTier / 100.0) + frags * 250 + spotted * 150 + math.log(capture + 1, 1.732) * 150 + defence * 150)))
+        EFF = int(max(0,
+                      int(damage * (10.0 / (self.avgTier + 2)) * (0.23 + 2 * self.avgTier / 100.0) + frags * 250 + spotted * 150 + math.log(capture + 1, 1.732) * 150 + defence * 150)))
         XEFF = calculateRatingScale('xeff', EFF)
         return EFF, XEFF
 
@@ -132,8 +133,10 @@ class BattleEfficiency(object):
         self._resetStats()
 
     def _resetStats(self):
-        self._stats = {'frags': 0, 'damage': 0, 'spotted': 0, 'defence': 0, 'capture': 0, 'wn8': 0, 'xwn8': 0, 'eff': 0, 'xeff': 0, 'xte': 0, 'diff': 0, 'dmg': 0, 'wn8effd': None}
-        self._colors = {key: getStatisticColor(key, None) for key in ['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'diff', 'dmg', 'wn8effd']}
+        self._stats = {'frags': 0, 'damage': 0, 'spotted': 0, 'defence': 0, 'capture': 0, 'wn8': 0, 'xwn8': 0,
+                       'eff': 0, 'xeff': 0, 'xte': 0, 'diff': 0, 'dmg': 0, 'wn8effd': None}
+        self._colors = {key: getStatisticColor(key, None)
+                        for key in ['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'diff', 'dmg', 'wn8effd']}
         self._stats.update(assist=0, stun=0, wnx=None)
         self._colors['wnx'] = None
 
@@ -180,7 +183,8 @@ class BattleEfficiency(object):
     def startBattle(self):
         if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED] or g_gameface is None:
             return
-        result = g_calculator.calc(self._stats['damage'], self._stats['spotted'], self._stats['frags'], self._stats['defence'], self._stats['capture'])
+        result = g_calculator.calc(self._stats['damage'], self._stats['spotted'], self._stats['frags'],
+                                   self._stats['defence'], self._stats['capture'])
         self._stats.update(dict(zip(['wn8', 'xwn8', 'eff', 'xeff', 'xte', 'dmg', 'diff'], result)))
         self._stats['wn8effd'] = g_calculator.damage_efficiency(self._stats['damage'])
         self._stats['wnx'] = calculate_wnx(self._stats['damage'], self._stats['frags'],
@@ -238,7 +242,8 @@ class _EfficiencyListener(object):
     def attach(self):
         self.detach()
         player = BigWorld.player()
-        ctrl = getattr(getattr(getattr(player, 'guiSessionProvider', None), 'shared', None), 'personalEfficiencyCtrl', None)
+        ctrl = getattr(getattr(getattr(player, 'guiSessionProvider', None), 'shared', None), 'personalEfficiencyCtrl',
+                       None)
         if ctrl is not None:
             ctrl.onTotalEfficiencyUpdated += self.onTotalEfficiencyUpdated
             self.ctrl = ctrl
@@ -291,7 +296,8 @@ def new_addRibbon(func, self, ribbonID, ribbonType='', leftFieldStr='', **kwargs
     func(self, ribbonID, ribbonType, leftFieldStr, **kwargs)
     if not settings_service.getComponentDict(battle_performance_settings)[GLOBAL.ENABLED]:
         return
-    if ribbonType not in (BATTLE_EFFICIENCY_TYPES.DETECTION, BATTLE_EFFICIENCY_TYPES.DESTRUCTION, BATTLE_EFFICIENCY_TYPES.DEFENCE, BATTLE_EFFICIENCY_TYPES.CAPTURE):
+    if ribbonType not in (BATTLE_EFFICIENCY_TYPES.DETECTION, BATTLE_EFFICIENCY_TYPES.DESTRUCTION,
+                          BATTLE_EFFICIENCY_TYPES.DEFENCE, BATTLE_EFFICIENCY_TYPES.CAPTURE):
         return
     if ribbonType == BATTLE_EFFICIENCY_TYPES.DETECTION:
         g_battleEfficiency.stats['spotted'] += 1 if (len(leftFieldStr.strip()) == 0) else int(leftFieldStr[1:])
@@ -332,7 +338,8 @@ def make_results_payload(battle_results):
         return {'enabled': False}
     calculator = EfficiencyCalculator()
     calculator.registerVInfoData(summary.vehicle.intCD)
-    values = calculator.calc(summary.damageDealt, summary.spotted, summary.kills, summary.droppedCapturePoints, summary.capturePoints, reusable.getPersonalTeamResult() == PLAYER_TEAM_RESULT.WIN)
+    values = calculator.calc(summary.damageDealt, summary.spotted, summary.kills, summary.droppedCapturePoints,
+                             summary.capturePoints, reusable.getPersonalTeamResult() == PLAYER_TEAM_RESULT.WIN)
     # Expected data can be unavailable for new vehicles: do not present fake zero ratings.
     if not calculator.vInfoOK:
         values = (None, None, None, None, None, summary.damageDealt, None)

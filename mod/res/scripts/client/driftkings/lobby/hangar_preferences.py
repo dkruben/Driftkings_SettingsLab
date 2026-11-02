@@ -93,7 +93,8 @@ def new_isReadyToPrebattle(func, self, *args, **kwargs):
     if _isSpecialBattleVehicle(self):
         return result
     try:
-        if _cfg(GLOBAL.ENABLED, True) and _cfg(HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO, False) and not self.hasLockMode() and not self.isAmmoFull:
+        if _cfg(GLOBAL.ENABLED, True) and _cfg(HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO,
+                                               False) and not self.hasLockMode() and not self.isAmmoFull:
             return False
     except Exception:
         LOG.exception('Vehicle.isReadyToPrebattle failed')
@@ -108,7 +109,8 @@ def new_isReadyToFight(base, self, *args, **kwargs):
     if _isSpecialBattleVehicle(self):
         return result
     try:
-        if _cfg(GLOBAL.ENABLED, True) and _cfg(HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO, False) and not self.hasLockMode() and not self.isAmmoFull:
+        if _cfg(GLOBAL.ENABLED, True) and _cfg(HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO,
+                                               False) and not self.hasLockMode() and not self.isAmmoFull:
             return False
     except Exception:
         LOG.exception('Vehicle.isReadyToFight failed')
@@ -124,7 +126,8 @@ def new_validateCurrentVehicle(func, self):
     if not res or res[0] is True:
         try:
             item = getattr(g_currentVehicle, 'item', None)
-            if _cfg(GLOBAL.ENABLED, True) and _cfg(HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO, False) and item and not item.isAmmoFull and not g_currentVehicle.isReadyToFight():
+            if (_cfg(GLOBAL.ENABLED, True) and _cfg(HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO, False) and item
+                and not item.isAmmoFull and not g_currentVehicle.isReadyToFight()):
                 return ValidationResult(False, PREBATTLE_RESTRICTION.VEHICLE_NOT_READY)
         except Exception:
             LOG.exception('CurrentVehicleActionsValidator._validate failed')
@@ -172,7 +175,8 @@ def new__getPromoCount(func, self):
 @override(PromoController, '__tryToShowTeaser')
 def new__tryToShowTeaser(func, *args):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
-    return None if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.FIELD_MAIL, True) else func(*args)
+    return (None if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.FIELD_MAIL, True)
+            else func(*args))
 
 
 @override(PromoController, '__needToGetTeasersInfo')
@@ -246,7 +250,8 @@ def new__LoginViewPopulate(self):
 def new__getAllVehiclePossibleXP(func, self, nodeCD, unlockStats):
     settings = settings_service.getComponentDict(hangar_preferences_settings)
     try:
-        if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_EXCHANGE_XPIN_TECH_TREE, True):
+        if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_EXCHANGE_XPIN_TECH_TREE,
+                                                                   True):
             return unlockStats.getVehTotalXP(nodeCD)
     except Exception:
         LOG.exception('_TechTreeDataProvider.getAllVehiclePossibleXP failed')

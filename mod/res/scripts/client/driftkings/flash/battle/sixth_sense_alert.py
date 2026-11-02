@@ -91,7 +91,8 @@ class SixthSense(SixthSenseMeta):
         super(SixthSense, self)._dispose()
 
     def onDevicesChanged(self, devices):
-        self.radio_installed = 'improvedRadioCommunication' in (device.groupName for device in devices if device is not None)
+        self.radio_installed = 'improvedRadioCommunication' in (device.groupName for device in devices
+                                                                if device is not None)
 
     def getNewRandomMessage(self):
         return choice([message for message in _MESSAGES if message != self.__message])

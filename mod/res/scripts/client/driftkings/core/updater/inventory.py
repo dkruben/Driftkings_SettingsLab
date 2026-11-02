@@ -59,9 +59,12 @@ def file_signature(path):
 
 class Inventory(object):
     def __init__(self, document, version, channel, game_version):
-        require(isinstance(document, dict) and set(document) == set(('schema', 'packageId', 'version', 'channel', 'gameVersion', 'distribution', 'files', 'defaults')),
+        require(isinstance(document, dict)
+                and set(document) == set(('schema', 'packageId', 'version', 'channel', 'gameVersion', 'distribution',
+                                          'files', 'defaults')),
                 'Invalid modpack fields')
-        require(type(document['schema']) in INTEGER and document['schema'] == 1 and document['packageId'] == 'driftkings.modpack',
+        require(type(document['schema']) in INTEGER and document['schema'] == 1
+                and document['packageId'] == 'driftkings.modpack',
                 'Invalid modpack identity')
         require(document['version'] == version and document['channel'] == channel and channel in ('beta', 'stable') and
                 document['gameVersion'] == game_version and isinstance(game_version, TEXT) and GAME.match(game_version),
@@ -72,7 +75,8 @@ class Inventory(object):
         require(isinstance(document['distribution'], dict), 'Invalid distribution metadata')
         self.distribution = dict(document['distribution'])
         require(set(self.distribution) == set(('file', 'size', 'sha256')), 'Invalid distribution fields')
-        require(self.distribution['file'] == 'Driftkings-%s-WoT-%s.zip' % (version, game_version), 'Unexpected distribution filename')
+        require(self.distribution['file'] == 'Driftkings-%s-WoT-%s.zip' % (version, game_version),
+                'Unexpected distribution filename')
         safe_relative(self.distribution['file'])
         signature(self.distribution)
         self.files = self._entries(document['files'], False)
@@ -90,7 +94,8 @@ class Inventory(object):
         require(isinstance(entries, list) and 0 < len(entries) <= MAX_FILES, 'Invalid inventory entries')
         result, names = [], set()
         for entry in entries:
-            require(isinstance(entry, dict) and set(entry) == set(('path', 'kind', 'size', 'sha256')), 'Invalid inventory entry')
+            require(isinstance(entry, dict) and set(entry) == set(('path', 'kind', 'size', 'sha256')),
+                    'Invalid inventory entry')
             path = safe_relative(entry['path'])
             require(path.lower() not in names, 'Duplicate inventory path')
             names.add(path.lower())
@@ -106,7 +111,8 @@ class Inventory(object):
             else:
                 require(kind in ('code', 'dependency'), 'Unknown member kind')
                 prefix = 'mods/' + self.game_version + '/'
-                require(path.startswith(prefix) and '/' not in path[len(prefix):] and path.endswith('.wotmod'), 'Invalid code destination')
+                require(path.startswith(prefix) and '/' not in path[len(prefix):] and path.endswith('.wotmod'),
+                        'Invalid code destination')
                 require((kind == 'code') == (path == prefix + 'driftkings.wotmod'), 'Invalid unified package identity')
             result.append(dict(entry))
         return tuple(result)
@@ -133,7 +139,8 @@ class Inventory(object):
             seen.add(name.lower())
             entry = expected[name]
             require(not member.flag_bits & 1 and not stat.S_ISLNK(member.external_attr >> 16) and
-                    member.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED) and member.file_size == entry['size'],
+                    member.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
+                        and member.file_size == entry['size'],
                     'Invalid archive member metadata')
             digest = hashlib.sha256()
             with archive.open(member) as stream:
@@ -150,12 +157,15 @@ class Inventory(object):
         """
         require(previous is None or isinstance(previous, Inventory) and previous.game_version == self.game_version,
                 'Previous inventory targets another game')
-        old = dict((item['path'], item) for item in previous.files if item['kind'] in ('code', 'dependency')) if previous else {}
-        require(isinstance(owned, (list, tuple, set, frozenset)) and set(owned).issubset(old), 'Invalid ownership receipt')
+        old = dict((item['path'], item) for item in previous.files
+                   if item['kind'] in ('code', 'dependency')) if previous else {}
+        require(isinstance(owned, (list, tuple, set, frozenset)) and set(owned).issubset(old),
+                'Invalid ownership receipt')
         old = dict((path, entry) for path, entry in old.items() if path in owned)
         current = dict((item['path'], item) for item in self.files if item['kind'] in ('code', 'dependency'))
         candidates = set(old) | set(current)
-        require(len(set(path.lower() for path in candidates)) == len(candidates), 'Case collision between old and new inventory')
+        require(len(set(path.lower() for path in candidates)) == len(candidates),
+                'Case collision between old and new inventory')
         actions = []
         for path in sorted(candidates):
             require(path in observed, 'Missing disk observation: ' + path)

@@ -55,7 +55,8 @@ class VehicleMarkersSettings(SectionDefinition):
     def getControlColumns(self):
         items = [field(['markers', 'debug'], self.i18n['UI_debug'], tooltip=self.i18n['UI_debug_tip'])]
         items.append(field(['markers', 'colorRating'], self.i18n['UI_setting_colorRating_text'], 'Dropdown',
-                           choices=range(len(color_tables)), choice_labels=[table['ScaleColor'] for table in color_tables],
+                           choices=range(len(color_tables)),
+                           choice_labels=[table['ScaleColor'] for table in color_tables],
                            tooltip=self.i18n['UI_setting_colorRating_tooltip']))
         items.append(field(['markers', 'ratingType'], self.i18n['UI_preview_ratingType'], 'Dropdown',
                            choices=VEHICLE_MARKERS.RATINGS, choice_labels=('WN8', 'WNX', 'EFF'),

@@ -140,8 +140,8 @@
             if (name === 'font') {
                 var color = DK.hex(attribute(attrs, 'color')), size = attribute(attrs, 'size'), alpha = attribute(attrs, 'alpha');
                 if (color) { node.style.color = color; }
-                var face=attribute(attrs,'face');
-                if(face){node.style.fontFamily=face==='$FieldFont'||face==='$TitleFont'?'Warhelios':face;}
+                var face = attribute(attrs, 'face');
+                if (face) { node.style.fontFamily = face === '$FieldFont' || face === '$TitleFont' ? 'Warhelios' : face; }
 
                 if (size && isFinite(Number(size))) { node.style.fontSize = Number(size) + 'rem'; }
                 if (alpha && /^#[0-9a-fA-F]{2}$/.test(alpha)) { node.style.opacity = parseInt(alpha.slice(1), 16) / 255; }

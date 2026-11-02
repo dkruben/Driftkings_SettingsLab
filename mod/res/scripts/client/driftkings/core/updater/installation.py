@@ -21,7 +21,8 @@ class InstallMixin(object):
         self._restart_requested = False
         self._receipt_error_since = None
         self._receipt_proof = None
-        self.state.update(status=INSTALLING, error=None, canInstall=False, installBlocked=None, cancellingInstall=False, restartDeferred=False)
+        self.state.update(status=INSTALLING, error=None, canInstall=False, installBlocked=None,
+                          cancellingInstall=False, restartDeferred=False)
         LOG.info('Install preparation requested')
         if not self.active or not self._safe_install_context():
             self._install_pending = False
@@ -33,9 +34,11 @@ class InstallMixin(object):
             return self._prepare_install_async()
         try:
             ticket = os.path.join(os.path.dirname(self._ready_path), 'install.json')
-            self._previous_result_stamp = self.results.result_stamp(self._ready_path) if self.results is not None else None
+            self._previous_result_stamp = (self.results.result_stamp(self._ready_path) if self.results is not None
+                                           else None)
             action = self.installer.resume if os.path.lexists(ticket) else self.installer.schedule
-            started = action(self._ready_path, getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'), self._safe_install_context)
+            started = action(self._ready_path, getattr(self.api, 'client_version', None),
+                             self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'), self._safe_install_context)
             if not started:
                 self._install_pending = False
                 self.state.update(status=READY)
@@ -68,7 +71,8 @@ class InstallMixin(object):
         self._cancel_requested = False
         LOG.error('Update installation failed: %s', error)
         if self.active:
-            self.state.update(status=ERROR, error=error, installScheduled=False, canInstall=False, cancellingInstall=False)
+            self.state.update(status=ERROR, error=error, installScheduled=False, canInstall=False,
+                              cancellingInstall=False)
             self._refresh_install_context()
 
     def _schedule_install_poll(self, delay):
@@ -114,7 +118,8 @@ class InstallMixin(object):
                     self._install_generation += 1
                     changes = dict(status=READY, cancellingInstall=False, installScheduled=False)
                     if cancelled:
-                        changes['lastInstallResult'] = dict(status='cancelled', version=self.state.snapshot()['latestVersion'], error=None)
+                        changes['lastInstallResult'] = dict(status='cancelled',
+                                                            version=self.state.snapshot()['latestVersion'], error=None)
                     self.state.update(**changes)
                     self._refresh_install_context()
                     LOG.info('Preparation discarded before any native helper launch')

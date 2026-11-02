@@ -40,13 +40,16 @@ class SettingsRegistry(object):
         if getattr(config, 'AUTOMATIC_CONTROLS', False):
             for key in sorted(values):
                 value = values[key]
-                kind = 'CheckBox' if type(value) is bool else 'Slider' if type(value) in (int, float) else 'TextInput' if isinstance(value, string_types) else None
+                kind = ('CheckBox' if type(value) is bool else 'Slider' if type(value) in (int, float) else 'TextInput'
+                        if isinstance(value, string_types) else None)
                 if kind:
-                    controls.append({'type': kind, 'varName': key, 'text': config.i18n.get('UI_setting_' + key + '_text', key),
+                    controls.append({'type': kind, 'varName': key,
+                                     'text': config.i18n.get('UI_setting_' + key + '_text', key),
                                      'tooltip': config.i18n.get('UI_setting_' + key + '_tooltip', '')})
         else:
             if 'enabled' in values:
-                controls.append({'type': 'CheckBox', 'varName': 'enabled', 'text': config.i18n.get('UI_native_enabled', 'Enable mod'),
+                controls.append({'type': 'CheckBox', 'varName': 'enabled',
+                                 'text': config.i18n.get('UI_native_enabled', 'Enable mod'),
                                  'tooltip': config.i18n.get('UI_native_enabled_tooltip', '')})
             columns = config.getControlColumns()
             if len(columns) != 2:
@@ -56,7 +59,8 @@ class SettingsRegistry(object):
                     control = resolve(item, config.i18n, values)
                     control['column'] = column
                     controls.append(control)
-        title = config.i18n['UI_description'] if getattr(config, 'TRANSLATED_TITLE', True) and not getattr(config, 'AUTOMATIC_CONTROLS', False) else config.NAME
+        title = (config.i18n['UI_description'] if getattr(config, 'TRANSLATED_TITLE', True)
+                 and not getattr(config, 'AUTOMATIC_CONTROLS', False) else config.NAME)
         controls = copy.deepcopy(controls)
         active, defaultValues = {}, {}
         for control in controls:
@@ -92,7 +96,8 @@ class SettingsRegistry(object):
             if control['type'] == 'HotKey':
                 key = control['varName']
                 for source in (active, defaultValues):
-                    source[key] = [list(group) if isinstance(group, (list, tuple)) else [group] for group in source[key]]
+                    source[key] = [list(group) if isinstance(group, (list, tuple)) else [group]
+                                   for group in source[key]]
         result = {'id': modID, 'title': title, 'controls': controls,
                   'values': active, 'defaults': defaultValues, 'labels': dict(config.i18n)}
         if hasattr(config, 'getPanelPreview'):

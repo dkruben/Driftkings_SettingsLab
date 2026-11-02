@@ -18,7 +18,8 @@ class SixthSenseAlertSettings(SectionDefinition):
         sounds = list(SIXTH_SENSE_EVENTS)
         if self.data[SIXTH_SENSE_ALERT.SIXTH_SENSE_SOUND] not in sounds:
             sounds.append(self.data[SIXTH_SENSE_ALERT.SIXTH_SENSE_SOUND])
-        sound = options(SIXTH_SENSE_ALERT.SIXTH_SENSE_SOUND, [self.i18n.get('UI_sound_' + event, event) for event in sounds])
+        sound = options(SIXTH_SENSE_ALERT.SIXTH_SENSE_SOUND,
+                        [self.i18n.get('UI_sound_' + event, event) for event in sounds])
         sound = metadata(sound, optionValues=sounds)
         icons = self.sixthSenseIconsNamesList()
         icon = images(SIXTH_SENSE_ALERT.DEFAULT_ICON_NAME, icons)

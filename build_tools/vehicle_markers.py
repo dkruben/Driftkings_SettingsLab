@@ -41,7 +41,8 @@ def build(root, destination, spec, tools, game_root):
         run([binary / 'rabcdasm.exe', work / 'markers-0.abc'])
         disassembly = work / 'markers-0'
         base = disassembly / 'net/wg/gui/battle/views/vehicleMarkers'
-        for filename, patch in (('VehicleMarker.class.asasm', patch_marker), ('VehicleMarkersManager.class.asasm', patch_manager)):
+        for filename, patch in (('VehicleMarker.class.asasm', patch_marker),
+                                ('VehicleMarkersManager.class.asasm', patch_manager)):
             path = base / filename
             path.write_text(patch(path.read_text()), encoding='utf-8')
         run([binary / 'rabcasm.exe', disassembly / 'markers-0.main.asasm'])

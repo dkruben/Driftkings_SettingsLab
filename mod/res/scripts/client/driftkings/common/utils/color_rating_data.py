@@ -70,7 +70,8 @@ def load_tables(reader=read_resource):
         name, filename = entry.get('name'), entry.get('file')
         if not isinstance(name, string_types) or not name or name in names:
             raise ValueError('Invalid or duplicate rating palette name')
-        if not isinstance(filename, string_types) or not _FILENAME.match(filename) or filename in files or filename == 'shared.json':
+        if (not isinstance(filename, string_types) or not _FILENAME.match(filename) or filename in files
+            or filename == 'shared.json'):
             raise ValueError('Invalid or duplicate rating palette file')
         names.add(name)
         files.add(filename)

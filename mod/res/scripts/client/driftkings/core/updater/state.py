@@ -14,13 +14,18 @@ READY = 'READY'
 INSTALLING = 'INSTALLING'
 RESTART_REQUIRED = 'RESTART_REQUIRED'
 ERROR = 'ERROR'
-ACTIVE_STATES = frozenset((IDLE, CHECKING, AVAILABLE, DOWNLOADING, VERIFYING, READY, INSTALLING, RESTART_REQUIRED, ERROR))
+ACTIVE_STATES = frozenset((IDLE, CHECKING, AVAILABLE, DOWNLOADING, VERIFYING, READY, INSTALLING, RESTART_REQUIRED,
+                           ERROR))
 LOG = get_logger('Driftkings.Updater')
 
 
 class State(object):
     def __init__(self, installed=VERSION):
-        self._data = dict(installedVersion=installed, latestVersion=None, channel='stable', status=IDLE, lastCheck=None, changelog=[], compatible=None, error=None, downloadPercent=None, canDownload=False, canCancel=False, canInstall=False, installBlocked=None, installScheduled=False, cancellingInstall=False, restartDeferred=False, lastInstallResult=None, canRestart=False)
+        self._data = dict(installedVersion=installed, latestVersion=None, channel='stable', status=IDLE,
+                          lastCheck=None, changelog=[], compatible=None, error=None, downloadPercent=None,
+                          canDownload=False, canCancel=False, canInstall=False, installBlocked=None,
+                          installScheduled=False, cancellingInstall=False, restartDeferred=False,
+                          lastInstallResult=None, canRestart=False)
         self._listeners = []
 
     def snapshot(self):

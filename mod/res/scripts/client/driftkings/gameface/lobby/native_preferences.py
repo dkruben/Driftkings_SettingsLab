@@ -77,7 +77,8 @@ def install(config, _overrideIfAvailable):
     @override(UserMissionsPresenter, '_onGroupVisibilityChanged')
     def new__missionGroupVisibility(func, self, groupName, isVisible):
         settings = settings_service.getComponentDict(config)
-        if groupName == BattlePassPresenter.GROUP and settings[GLOBAL.ENABLED] and not settings[HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET]:
+        if (groupName == BattlePassPresenter.GROUP and settings[GLOBAL.ENABLED]
+            and not settings[HANGAR_PREFERENCES.SHOW_BATTLE_PASS_WIDGET]):
             isVisible = False
         return func(self, groupName, isVisible)
 

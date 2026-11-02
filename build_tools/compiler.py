@@ -97,7 +97,8 @@ def run_tool(command, log, env=None, timeout=240, cwd=None):
             startup = subprocess.STARTUPINFO()
             startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startup.wShowWindow = 0
-        result = subprocess.run([str(s) for s in command], cwd=cwd or ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT,
+        result = subprocess.run([str(s) for s in command], cwd=cwd or ROOT, env=env, stdout=stream,
+                                stderr=subprocess.STDOUT,
                                 timeout=timeout, startupinfo=startup,
                                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
     if result.returncode:
@@ -155,7 +156,8 @@ def generate(root, config, plan, tools, run, epoch):
                         '-compiler.source-path=' + ','.join(str(input_path(root, p)) for p in spec['source_paths']),
                         '-target-player=' + spec['target_player'], '-swf-version=' + str(spec['swf_version']),
                         '-debug=false', '-compiler.strict=true', '-compiler.optimize=true',
-                        '-default-size=%s,%s' % (spec['width'], spec['height']), '-default-frame-rate=' + str(spec['fps']),
+                        '-default-size=%s,%s' % (spec['width'], spec['height']),
+                        '-default-frame-rate=' + str(spec['fps']),
                         '-output=' + str(destination), str(input_path(root, spec['entrypoint']))]
             run_tool(command, run / 'logs' / (name + '.log'))
             destination.write_bytes(normalize_swf_compile_date(destination.read_bytes(), epoch))
@@ -210,7 +212,8 @@ def source_inventory(root, plan):
     paths = {item['source'] for key in ('python', 'defaults') for item in plan[key]}
     paths.update(item['source'] for item in plan['assets'] if not item['generator'])
     paths.update(plan['dependencies'])
-    for folder, suffix in (('build_data', '.json'), ('build_tools', '.py'), ('installer/source', '.cs'), ('flash_source', '.as'), ('flash_source/shared/swc', '.swc')):
+    for folder, suffix in (('build_data', '.json'), ('build_tools', '.py'), ('installer/source', '.cs'),
+                           ('flash_source', '.as'), ('flash_source/shared/swc', '.swc')):
         paths.update(p.relative_to(root).as_posix() for p in (root / folder).rglob('*' + suffix)
                      if p.name != 'toolchain.local.json')
     return {name: sha(input_path(root, name)) for name in sorted(paths)}
@@ -275,7 +278,8 @@ def check_client(root, config, tools):
     require(version_contract(root).normalize_game_version(version_xml.findtext('version')) == config['game']['version'], 'Installed game version differs from build target')
     realm = client_realm(version_xml.findtext('meta/realm'), config)
     reference = Path(tools['reference_root']) / '.version_name'
-    require(reference.read_text(encoding='utf-8-sig').strip() == config['reference']['version'], 'Reference source version mismatch')
+    require(reference.read_text(encoding='utf-8-sig').strip() == config['reference']['version'],
+            'Reference source version mismatch')
     return realm
 
 
@@ -285,7 +289,8 @@ def python_overrides(root, config, release, version, components):
     runtime_relative = Path(release['version_source']).relative_to(python_spec['source_root']).as_posix()
     runtime_target = python_spec['archive_root'] + '/' + str(Path(runtime_relative).with_suffix('.pyc')).replace('\\', '/')
     component_target = python_spec['archive_root'] + '/' + str(Path(python_spec['component_list']).with_suffix('.pyc')).replace('\\', '/')
-    overrides = {runtime_target: override_version((root / release['version_source']).read_text(encoding='utf-8'), version),
+    overrides = {runtime_target: override_version((root / release['version_source']).read_text(encoding='utf-8'),
+                                                  version),
                  component_target: '# Generated from enabled build manifests.\nCOMPONENTS = %r\n' % (tuple(components),)}
     defaults_relative = Path(DEFAULT_VALUES).relative_to(python_spec['source_root']).with_suffix('.pyc').as_posix()
     overrides[python_spec['archive_root'] + '/' + defaults_relative] = render_defaults(root)
@@ -296,7 +301,8 @@ def package_entries(root, release, plan, compiled, generated, version):
     entries = {item['target']: (compiled / item['target']).read_bytes() for item in plan['python']}
     for item in plan['assets']:
         require(item['target'] not in entries, 'Duplicate archive target')
-        entries[item['target']] = (generated[item['source']] if item['generator'] else root / item['source']).read_bytes()
+        entries[item['target']] = (generated[item['source']] if item['generator']
+                                   else root / item['source']).read_bytes()
     require('meta.xml' not in entries, 'Manifest overrides package metadata')
     entries['meta.xml'] = metadata(release, version)
     return entries
@@ -306,7 +312,8 @@ def read_changelog(release, path):
     changelog = release['changelog']
     if path:
         changelog = [line.strip() for line in Path(path).read_text(encoding='utf-8-sig').splitlines() if line.strip()]
-    require(isinstance(changelog, list) and len(changelog) <= 50 and all(isinstance(s, str) and len(s) <= 500 for s in changelog), 'Invalid changelog')
+    require(isinstance(changelog, list) and len(changelog) <= 50
+            and all(isinstance(s, str) and len(s) <= 500 for s in changelog), 'Invalid changelog')
     return changelog
 
 
@@ -345,11 +352,14 @@ def build(args):
     version, channel, source_version = select_version(root, release, args.version, args.channel)
     tools = discover(root, vars(args))
     plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
-    destination = output_path(root, config['package']['release_root' if args.mode == 'release' else 'debug_root'] + '/' + channel + '/' + version)
+    destination = output_path(root,
+                              config['package']['release_root' if args.mode == 'release'
+                                                else 'debug_root'] + '/' + channel + '/' + version)
     if args.plan:
         print(json.dumps(dict(version=version, source_version=source_version, channel=channel, mode=args.mode,
                               output=str(destination), tools=tools,
-                              python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults'])), indent=2))
+                              python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults'])),
+                              indent=2))
         return destination
     require_tools(tools)
     realm = check_client(root, config, tools)
@@ -372,7 +382,10 @@ def build(args):
         require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
         compiled = run / 'compiled'
         print('Compiling Python 2.7: %d modules (%s, %s)' % (len(plan['python']), version, channel), flush=True)
-        report['python'] = run_worker(tools, run, dict(action='compile', files=[dict(source=str(root / i['source']), target=i['target']) for i in plan['python']],
+        report['python'] = run_worker(tools, run,
+                                      dict(action='compile',
+                                           files=[dict(source=str(root / i['source']), target=i['target'])
+                                                  for i in plan['python']],
                                                     output=str(compiled), overrides=overrides, epoch=epoch), 'python')
         generated = generate(root, config, plan, tools, run, epoch)
         entries = package_entries(root, release, plan, compiled, generated, version)
@@ -391,18 +404,26 @@ def build(args):
         release_manifest.update(schema=2, modpack=modpack)
         write_json(candidate / 'release.json', release_manifest)
         expected_defaults, selector, _ = assemble_defaults(root)
-        report['verification'] = run_worker(tools, run, dict(action='verify', package=str(package), manifest=str(candidate / 'release.json'),
+        report['verification'] = run_worker(tools, run,
+                                            dict(action='verify', package=str(package),
+                                                 manifest=str(candidate / 'release.json'),
                                                            modpack=str(candidate / 'modpack.json'),
-                                                           version=version, channel=channel, game_version=config['game']['version'], components=components,
+                                                           version=version, channel=channel,
+                                                           game_version=config['game']['version'],
+                                                           components=components,
                                                            defaults=expected_defaults, selector=selector), 'verify')
-        require(source_inventory(root, plan) == inventory, 'Build inputs changed during compilation; previous output preserved')
+        require(source_inventory(root, plan) == inventory,
+                'Build inputs changed during compilation; previous output preserved')
         report.update(status='success', publishable=bool(args.mode == 'release'),
-                      counts=dict(components=len(components), python=len(plan['python']), assets=len(plan['assets']), entries=len(entries), defaults=len(defaults)),
-                      generated={name: sha(path) for name, path in generated.items()}, seconds=round(time.monotonic() - started, 3))
+                      counts=dict(components=len(components), python=len(plan['python']), assets=len(plan['assets']),
+                                  entries=len(entries), defaults=len(defaults)),
+                      generated={name: sha(path) for name, path in generated.items()},
+                      seconds=round(time.monotonic() - started, 3))
         report['artifacts'] = {p.relative_to(candidate).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
                                for p in artifact_files(candidate)}
         write_json(candidate / 'build-report.json', report)
-        sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix()) for p in artifact_files(candidate)) + '\n'
+        sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix())
+                         for p in artifact_files(candidate)) + '\n'
         (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
         publish_local(root, candidate, destination, config, generated, compiled, plan)
         write_json(run / 'build-report.json', report)
@@ -423,14 +444,16 @@ def main():
     parser.add_argument('--channel', choices=('auto', 'stable', 'beta'), default='auto')
     parser.add_argument('--game-root', help='Read-only game installation override')
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
-    parser.add_argument('--plan', action='store_true', help='Display version, outputs and tool discovery without building')
+    parser.add_argument('--plan', action='store_true',
+                        help='Display version, outputs and tool discovery without building')
     for key in TOOL_KEYS:
         if key != 'game_root':
             parser.add_argument('--' + key.replace('_', '-'), dest=key)
     args = parser.parse_args()
     try:
         build(args)
-    except (ValueError, OSError, KeyError, TypeError, StopIteration, subprocess.SubprocessError, zipfile.BadZipFile) as error:
+    except (ValueError, OSError, KeyError, TypeError, StopIteration, subprocess.SubprocessError,
+            zipfile.BadZipFile) as error:
         parser.exit(1, 'Build failed: %s\n' % error)
 
 

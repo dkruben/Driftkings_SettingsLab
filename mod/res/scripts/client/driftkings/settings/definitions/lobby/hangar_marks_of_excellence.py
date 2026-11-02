@@ -20,8 +20,10 @@ class HangarMarksOfExcellenceSettings(SectionDefinition):
                 control(HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_HANGAR),
                 control(HANGAR_MARKS_OF_EXCELLENCE.SHOW_IN_STATISTIC),
                 control(HANGAR_MARKS_OF_EXCELLENCE.SHOW_TOOLTIP_TARGETS),
-                options(HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION, [self.i18n['UI_panel_' + key] for key in ('automatic', 'goal1', 'goal2', 'goal3')]),
-                options(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, [self.i18n.get(x_color_key + x, x) for x in x_color_list]),
+                options(HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION,
+                        [self.i18n['UI_panel_' + key] for key in ('automatic', 'goal1', 'goal2', 'goal3')]),
+                options(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING,
+                        [self.i18n.get(x_color_key + x, x) for x in x_color_list]),
                 slider(HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES, 1, 20, 1)
             ],
             [

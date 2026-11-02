@@ -37,7 +37,8 @@ class JSONObjectEncoder(json.JSONEncoder):
                 keys = o.keys()
                 if self.sort_keys:
                     keys = sorted(keys)
-                return '{\n%s\n%s}' % (item_sep.join('%s%s%s%s' % (indent, json.dumps(k), self.key_separator, self.encode(o[k], i)) for k in keys), dedent)
+                return '{\n%s\n%s}' % (item_sep.join('%s%s%s%s' % (indent, json.dumps(k), self.key_separator,
+                                                                   self.encode(o[k], i)) for k in keys), dedent)
             else:
                 return super(JSONObjectEncoder, self).encode(o)
         except Exception:
@@ -68,13 +69,15 @@ class JSONLoader(object):
         elif isinstance(inputs, OrderedDict):
             return OrderedDict((cls.byte_ify(key), cls.byte_ify(value)) for key, value in inputs.items())
         elif isinstance(inputs, dict) and not ignore_dicts:
-            return {cls.byte_ify(key, ignore_dicts=True): cls.byte_ify(value, ignore_dicts=True) for key, value in inputs.items()}
+            return {cls.byte_ify(key, ignore_dicts=True): cls.byte_ify(value, ignore_dicts=True) for key,
+                    value in inputs.items()}
         return inputs
 
     @classmethod
     def stringed_ints(cls, inputs):
         if inputs and isinstance(inputs, dict):
-            gen_expr = (((str(key) if isinstance(key, int) else key), cls.stringed_ints(value)) for key, value in inputs.items())
+            gen_expr = (((str(key) if isinstance(key, int) else key), cls.stringed_ints(value)) for key,
+                        value in inputs.items())
             if isinstance(inputs, OrderedDict):
                 return OrderedDict(gen_expr)
             return dict(gen_expr)
@@ -98,7 +101,8 @@ class JSONLoader(object):
     def encrypt(line):
         if isinstance(line, text_type):
             line = line.encode('utf-8')
-        return base64.encodestring(zlib.compress(line)) if hasattr(base64, 'encodestring') else base64.encodebytes(zlib.compress(line))
+        return (base64.encodestring(zlib.compress(line)) if hasattr(base64, 'encodestring')
+                else base64.encodebytes(zlib.compress(line)))
 
     @staticmethod
     def decrypt(line, encrypted):
@@ -117,7 +121,8 @@ class JSONLoader(object):
 
     @staticmethod
     def json_dumps(conf, sort):
-        return json.dumps(conf, sort_keys=sort, indent=4, ensure_ascii=False, separators=(',', ': '), cls=JSONObjectEncoder)
+        return json.dumps(conf, sort_keys=sort, indent=4, ensure_ascii=False, separators=(',', ': '),
+                          cls=JSONObjectEncoder)
 
     @classmethod
     def json_file_read(cls, new_path, encrypted):
@@ -149,7 +154,8 @@ class JSONLoader(object):
         atomicWrite(new_path, payload)
 
     @classmethod
-    def loadJson(cls, ID, name, oldConfig, path, save=False, rewrite=True, quiet=False, encrypted=False, sort_keys=True):
+    def loadJson(cls, ID, name, oldConfig, path, save=False, rewrite=True, quiet=False, encrypted=False,
+                 sort_keys=True):
         prefix = ID + ':'
         config_new = oldConfig
         oldConfig = cls.stringed_ints(oldConfig)
@@ -202,7 +208,8 @@ class JSONLoader(object):
                 if lineNum < len(write_lines):
                     write_lines[lineNum] += comment
                     continue
-                LOG.warning('%s config %s update warning: comment on line %s went beyond updated file', prefix, new_path, lineNum)
+                LOG.warning('%s config %s update warning: comment on line %s went beyond updated file', prefix,
+                            new_path, lineNum)
             write_lines.insert(lineNum, comment)
         cls.json_file_write(new_path, '\n'.join(write_lines), encrypted)
         return config_new

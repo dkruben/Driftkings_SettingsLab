@@ -56,7 +56,8 @@ def installer_catalog(root=ROOT, languages=('en', 'pt')):
             label = text.get('UI_description')
             require(isinstance(label, str) and label.strip(), 'Missing installer label: ' + lang + '/' + path.stem)
             group_label = document['PANEL'].get('category.' + group)
-            require(isinstance(group_label, str) and group_label.strip(), 'Missing installer group: ' + lang + '/' + group)
+            require(isinstance(group_label, str) and group_label.strip(),
+                    'Missing installer group: ' + lang + '/' + group)
             labels[lang] = label
             descriptions[lang] = text.get('UI_tooltip') or label
             groups[lang] = group_label
@@ -68,7 +69,8 @@ def installer_catalog(root=ROOT, languages=('en', 'pt')):
 def asset_target(url):
     require(isinstance(url, str) and url.startswith(PREFIX), 'UI asset must belong to Driftkings: %r' % url)
     relative = url[len('coui://'):]
-    require('\\' not in relative and ':' not in relative and all(part not in ('', '.', '..') for part in relative.split('/')),
+    require('\\' not in relative and ':' not in relative
+            and all(part not in ('', '.', '..') for part in relative.split('/')),
             'Unsafe UI asset URL: ' + url)
     return 'res/' + relative
 
@@ -120,7 +122,8 @@ def validate(root=ROOT, plan=None):
     declared = {ast.literal_eval(node.value) for node in aliases.body if isinstance(node, ast.Assign)}
     require(set(flash) == declared, 'Flash catalog and BATTLE_ALIASES differ')
     defaults = ast.parse((root / 'mod/res/scripts/client/driftkings/settings/default_values.py').read_text(encoding='utf-8'))
-    sections = set(next(ast.literal_eval(node.value) for node in defaults.body if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'DEFAULTS' for t in node.targets))) | {'driftkings'}
+    sections = set(next(ast.literal_eval(node.value) for node in defaults.body if isinstance(node, ast.Assign)
+                        and any(isinstance(t, ast.Name) and t.id == 'DEFAULTS' for t in node.targets))) | {'driftkings'}
     for alias, spec in flash.items():
         require(re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*', alias) is not None, 'Invalid Flash alias: ' + alias)
         require(set(spec['surfaces']) <= {'battle', 'ratings'} and spec['surfaces'], 'Invalid Flash surface: ' + alias)
@@ -131,12 +134,14 @@ def validate(root=ROOT, plan=None):
         path = root / ('mod/res/scripts/client/' + module.replace('.', '/') + '.py')
         require(path.is_file(), 'Missing Python UI module: ' + str(path))
         tree = ast.parse(path.read_text(encoding='utf-8'))
-        require(any(isinstance(node, ast.ClassDef) and node.name == name for node in tree.body), 'Missing Python view/controller: ' + spec['python'])
+        require(any(isinstance(node, ast.ClassDef) and node.name == name for node in tree.body),
+                'Missing Python view/controller: ' + spec['python'])
     meta_classes = set()
     for path in (root / 'mod/res/scripts/client/driftkings/flash/battle/meta').glob('*.py'):
         tree = ast.parse(path.read_text(encoding='utf-8'))
         for node in ast.walk(tree):
-            if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'FLASH_CLASS' for t in node.targets):
+            if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'FLASH_CLASS'
+                                                    for t in node.targets):
                 meta_classes.add(ast.literal_eval(node.value))
     require(meta_classes == {spec['as3'] for spec in flash.values()}, 'DAAPI meta and Flash catalog differ')
     resources, resource_sources = {}, {}
@@ -144,7 +149,8 @@ def validate(root=ROOT, plan=None):
         for entry in json.loads(path.read_text(encoding='utf-8')):
             key = entry['id'].removeprefix('R.').replace('.', '/')
             require(key not in resources, 'Duplicate R resource: ' + key)
-            require(entry['type'] == 'Layout' and entry['parameters'] == {'entrance': 'main', 'impl': 'gameface'}, 'Invalid UI resource: ' + key)
+            require(entry['type'] == 'Layout' and entry['parameters'] == {'entrance': 'main', 'impl': 'gameface'},
+                    'Invalid UI resource: ' + key)
             resources[key] = entry['path']
             resource_sources[key] = path.relative_to(root / 'mod').as_posix()
     require(set(resources) == {spec['resource'] for spec in face.values()}, 'R resources and Gameface catalog differ')
@@ -153,14 +159,17 @@ def validate(root=ROOT, plan=None):
     owners = set()
     for name, spec in face.items():
         require(spec['section'] in sections, 'Unknown Gameface section: ' + name)
-        require((root / ('mod/res/scripts/client/' + spec['python'].replace('.', '/') + '.py')).is_file(), 'Missing Gameface Python module: ' + name)
+        require((root / ('mod/res/scripts/client/' + spec['python'].replace('.', '/') + '.py')).is_file(),
+                'Missing Gameface Python module: ' + name)
         if targets is not None:
             require(resource_sources[spec['resource']] in targets, 'R declaration is not packaged: ' + spec['resource'])
         require(resources[spec['resource']] == spec['layout'], 'Wrong layout for ' + name)
         require(len(spec['resource'].split('/')) == 4, 'Invalid R path: ' + name)
-        require(len(set(spec['styles'] + spec['scripts'])) == len(spec['styles'] + spec['scripts']), 'Duplicate assets: ' + name)
+        require(len(set(spec['styles'] + spec['scripts'])) == len(spec['styles'] + spec['scripts']),
+                'Duplicate assets: ' + name)
         if spec['owner'] is not None:
-            require(spec['owner'].startswith('__dk') and spec['owner'] not in owners, 'Invalid/duplicate JS owner: ' + name)
+            require(spec['owner'].startswith('__dk') and spec['owner'] not in owners,
+                    'Invalid/duplicate JS owner: ' + name)
             owners.add(spec['owner'])
             require(spec['scripts'], 'Injected feature has no scripts: ' + name)
         for url in [spec['layout']] + spec['styles'] + spec['scripts']:

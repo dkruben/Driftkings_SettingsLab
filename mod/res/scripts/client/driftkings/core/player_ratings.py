@@ -91,7 +91,8 @@ def format_rating(template, info, vehicle, available, scale=0):
     colors = {}
     for metric in ('wn8', 'wnx', 'winrate', 'battles', 'eff', 'wgr', 'xwn8', 'xeff', 't_battles', 't_winrate', 'tdv'):
         source = {'t_battles': 'battles', 't_winrate': 'winrate'}.get(metric, metric)
-        colors[metric] = _rating_color(source, values[metric], scale) if available and values[metric] != MISSING else 'AAAAAA'
+        colors[metric] = (_rating_color(source, values[metric], scale) if available and values[metric] != MISSING
+                          else 'AAAAAA')
     colors['tBattles'] = colors['t_battles']
     colors['kb'] = colors['battles']
     rating = (info or {}).get('_rating', 'wn8')
@@ -260,13 +261,15 @@ class Events(object):
         api = 'api.worldoftanks.%s' % region
         url = 'https://%s/%s/?%s' % (api, request, urllib.urlencode(kwargs))
         try:
-            response = json.loads(Events.read_response(url, settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE]['requestTimeout']).decode('utf-8-sig'))
+            response = json.loads(Events.read_response(url,
+                                                       settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE]['requestTimeout']).decode('utf-8-sig'))
             if response.get('status') == 'error':
                 error = response.get('error') or {}
                 signature = (region, request, error.get('code'), error.get('message'))
                 if signature not in Events._apiErrors:
                     Events._apiErrors.add(signature)
-                    LOG.warning(('Stats API rejected {}/{}: {} ({})').format(region, request, error.get('message'), error.get('code')))
+                    LOG.warning(('Stats API rejected {}/{}: {} ({})').format(region, request, error.get('message'),
+                                                                             error.get('code')))
                 return None
             return response.get('data')
         except Exception as error:
@@ -530,14 +533,17 @@ class Statistics(object):
             regions.setdefault(g_event.userRegion(int(databaseID)), []).append(databaseID)
         dataInfo, dataTanks = {}, {}
         for region in regions:
-            accountFields = ['client_language', 'global_rating', 'statistics.random.battles', 'statistics.random.wins', 'statistics.random.damage_dealt', 'statistics.random.frags', 'statistics.random.spotted', 'statistics.random.capture_points', 'statistics.random.dropped_capture_points']
+            accountFields = ['client_language', 'global_rating', 'statistics.random.battles', 'statistics.random.wins',
+                             'statistics.random.damage_dealt', 'statistics.random.frags', 'statistics.random.spotted',
+                             'statistics.random.capture_points', 'statistics.random.dropped_capture_points']
             tankFields = ['random.battles', 'mark_of_mastery', 'random.wins', 'random.damage_dealt', 'tank_id']
             tankFields += ['random.' + key for key in ('frags', 'spotted', 'radio_assisted_damage',
                                                       'track_assisted_damage', 'stun_assisted_damage')]
             accountFields = ','.join(accountFields)
             tankFields = ','.join(tankFields)
             regionAccounts = ','.join(regions[region])
-            infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts, extra='statistics.random', fields=accountFields)
+            infoResponse = g_event.request(region, 'wot/account/info', account_id=regionAccounts,
+                                           extra='statistics.random', fields=accountFields)
             if infoResponse:
                 dataInfo.update(infoResponse)
             # tanks/stats accepts one account per request. Keep its random
@@ -581,8 +587,10 @@ class Statistics(object):
         playerInfo['isAlive'] = value['isAlive']
         playerInfo['level'] = value['vehicleType'].level if hasattr(value['vehicleType'], 'level') else 0
         playerInfo['tank_id'] = value['vehicleType'].type.compactDescr if hasattr(value['vehicleType'], 'type') else 0
-        playerInfo['type'] = getVehicleClassTag(value['vehicleType'].type.tags) if hasattr(value['vehicleType'], 'type') else ''
-        playerInfo['vehicle'] = value['vehicleType'].type.shortUserString if hasattr(value['vehicleType'], 'type') else ''
+        playerInfo['type'] = (getVehicleClassTag(value['vehicleType'].type.tags)
+                              if hasattr(value['vehicleType'], 'type') else '')
+        playerInfo['vehicle'] = (value['vehicleType'].type.shortUserString if hasattr(value['vehicleType'], 'type')
+                                 else '')
         playerInfo['clan'] = '[%s]' % value['clanAbbrev'] if value['clanAbbrev'] else ''
         playerInfo['deadPlayerName'] = ''
         playerInfo['deadPlayerVehicle'] = ''
@@ -611,7 +619,8 @@ class Statistics(object):
                 dataInfo[dbID] = cachedData['info']
                 if dbID not in dataTanks and cachedData['tanks'] is not None:
                     dataTanks[dbID] = cachedData['tanks']
-        if hasStats and dbID in dataInfo and dbID in dataTanks and dataInfo[dbID] is not None and dataTanks[dbID] is not None:
+        if (hasStats and dbID in dataInfo and dbID in dataTanks and dataInfo[dbID] is not None
+            and dataTanks[dbID] is not None):
             battles = dataInfo[dbID]['statistics']['random']['battles']
             if battles > 0 and battles >= settings[TEAM_PANELS.PERFORMANCE]['minBattlesToShow']:
                 wins = dataInfo[dbID]['statistics']['random']['wins']
@@ -731,7 +740,8 @@ class Statistics(object):
                 if self._appliedCache.get(dbID) != stamp:
                     cachedInfo[dbID], cachedTanks[dbID] = cached['info'], cached['tanks']
                     self._appliedCache[dbID] = stamp
-                if not local and dbID in currentTanks and (dbID, currentTanks[dbID]) not in self._detailRequested and dbID not in self._pending:
+                if (not local and dbID in currentTanks and (dbID, currentTanks[dbID]) not in self._detailRequested
+                    and dbID not in self._pending):
                     missing.append(dbID)
             elif (dbID not in self._pending and dbID not in self._received
                   and time.time() - self._attempts.get(dbID, 0) >= RETRY_SECONDS):

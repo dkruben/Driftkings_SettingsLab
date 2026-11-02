@@ -30,7 +30,8 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
     def _rangeState(self):
         if not hasattr(self, '_ranges'):
             # Width 0 until as_initArenaSize: Flash then uses the arena bounding box instead.
-            self._ranges = {'width': 0, 'height': 0, 'circles': {}, 'vehicleClass': getattr(self, '_vehicleClass', None)}
+            self._ranges = {'width': 0, 'height': 0, 'circles': {},
+                            'vehicleClass': getattr(self, '_vehicleClass', None)}
         return self._ranges
 
     def _publishRanges(self):
@@ -58,8 +59,10 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
         result = super(PersonalEntriesPlugin, self)._invoke(entryID, method, *args)
         if method.startswith('as_'):
             ranges = self._rangeState()
-            add = {'as_addDrawRange': 'draw', 'as_addDynamicViewRange': 'view', 'as_addMaxViewRage': 'maxView', 'as_addMinSpottingRange': 'proximity'}
-            remove = {'as_delDrawRange': 'draw', 'as_delDynRange': 'view', 'as_delMaxViewRage': 'maxView', 'as_delMinSpottingRange': 'proximity'}
+            add = {'as_addDrawRange': 'draw', 'as_addDynamicViewRange': 'view', 'as_addMaxViewRage': 'maxView',
+                   'as_addMinSpottingRange': 'proximity'}
+            remove = {'as_delDrawRange': 'draw', 'as_delDynRange': 'view', 'as_delMaxViewRage': 'maxView',
+                      'as_delMinSpottingRange': 'proximity'}
             if method == 'as_initArenaSize':
                 ranges.update(width=args[0], height=args[1])
             elif method in add:
@@ -89,7 +92,8 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
 
     def _refreshYawLimits(self):
         info = self._arenaDP.getVehicleInfo()
-        names = policy.vehicle_names(getattr(info.vehicleType, 'iconName', ''), getattr(info.vehicleType, 'shortName', ''))
+        names = policy.vehicle_names(getattr(info.vehicleType, 'iconName', ''),
+                                     getattr(info.vehicleType, 'shortName', ''))
         ranges = self._rangeState()
         if getattr(self, '_vehicleClass', None) != info.vehicleType.classTag or ranges.get('vehicleNames') != names:
             self._vehicleClass = info.vehicleType.classTag
@@ -98,7 +102,8 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
         limits = info.vehicleType.turretYawLimits
         settings = settings_service.getComponentDict(config)
         extended = settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.YAW]
-        updated = (degrees(limits[0]), degrees(limits[1])) if limits is not None and (extended or info.isSPG()) else None
+        updated = ((degrees(limits[0]), degrees(limits[1])) if limits is not None and (extended or info.isSPG())
+                   else None)
         if updated != self.__yawLimits:
             self.__clearYawLimit()
             self.__yawLimits = updated
@@ -150,7 +155,8 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
 
     def _circleVisible(self, key, native):
         settings = settings_service.getComponentDict(config)
-        return policy.visible(settings[MINIMAP_ENHANCEMENTS.CIRCLES][key]['mode'], native) if settings[GLOBAL.ENABLED] else native
+        return policy.visible(settings[MINIMAP_ENHANCEMENTS.CIRCLES][key]['mode'],
+                              native) if settings[GLOBAL.ENABLED] else native
 
     def _canShowDrawRangeCircle(self):
         return self._circleVisible('draw', super(PersonalEntriesPlugin, self)._canShowDrawRangeCircle())
@@ -182,7 +188,11 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
             if self.__circlesVisibilityState & CIRCLE_TYPE.DRAW_RANGE:
                 return
             self.__circlesVisibilityState |= CIRCLE_TYPE.DRAW_RANGE
-            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_MAX_DRAW_CIRCLE,(hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_DRAW_CIRCLE]) if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES] else CIRCLE_STYLE.COLOR.DRAW_RANGE), settings[MINIMAP_ENHANCEMENTS.CIRCLES]['draw']['alpha'], self._arenaVisitor.getVehicleCircularAoiRadius())
+            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_MAX_DRAW_CIRCLE,
+                         (hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_DRAW_CIRCLE])
+                          if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES] else CIRCLE_STYLE.COLOR.DRAW_RANGE),
+                         settings[MINIMAP_ENHANCEMENTS.CIRCLES]['draw']['alpha'],
+                         self._arenaVisitor.getVehicleCircularAoiRadius())
         else:
             return super(PersonalEntriesPlugin, self).__addDrawRangeCircle()
 
@@ -192,7 +202,12 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
             if self.__circlesVisibilityState & CIRCLE_TYPE.MAX_VIEW_RANGE:
                 return
             self.__circlesVisibilityState |= CIRCLE_TYPE.MAX_VIEW_RANGE
-            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_MAX_VIEW_CIRCLE,(hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE]) if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES] else CIRCLE_STYLE.COLOR.MAX_VIEW_RANGE), settings[MINIMAP_ENHANCEMENTS.CIRCLES]['maxView']['alpha'], self._arenaVisitor.getVisibilityMaxRadius())
+            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_MAX_VIEW_CIRCLE,
+                         (hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE])
+                          if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES]
+                          else CIRCLE_STYLE.COLOR.MAX_VIEW_RANGE),
+                         settings[MINIMAP_ENHANCEMENTS.CIRCLES]['maxView']['alpha'],
+                         self._arenaVisitor.getVisibilityMaxRadius())
         else:
             return super(PersonalEntriesPlugin, self).__addMaxViewRangeCircle()
 
@@ -202,7 +217,12 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
             if self.__circlesVisibilityState & CIRCLE_TYPE.MIN_SPOTTING_RANGE:
                 return
             self.__circlesVisibilityState |= CIRCLE_TYPE.MIN_SPOTTING_RANGE
-            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_MIN_SPOTTING_CIRCLE,(hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE]) if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES] else CIRCLE_STYLE.COLOR.MIN_SPOTTING_RANGE), settings[MINIMAP_ENHANCEMENTS.CIRCLES]['proximity']['alpha'], self._arenaVisitor.getVisibilityMinRadius())
+            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_MIN_SPOTTING_CIRCLE,
+                         (hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE])
+                          if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES]
+                          else CIRCLE_STYLE.COLOR.MIN_SPOTTING_RANGE),
+                         settings[MINIMAP_ENHANCEMENTS.CIRCLES]['proximity']['alpha'],
+                         self._arenaVisitor.getVisibilityMinRadius())
         else:
             return super(PersonalEntriesPlugin, self).__addMinSpottingRangeCircle()
 
@@ -212,7 +232,10 @@ class PersonalEntriesPlugin(plugins.PersonalEntriesPlugin):
             if self.__circlesVisibilityState & CIRCLE_TYPE.VIEW_RANGE:
                 return
             self.__circlesVisibilityState |= CIRCLE_TYPE.VIEW_RANGE
-            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_DYN_CIRCLE,(hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_VIEW_CIRCLE]) if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES] else CIRCLE_STYLE.COLOR.VIEW_RANGE), settings[MINIMAP_ENHANCEMENTS.CIRCLES]['view']['alpha'], self._getViewRangeRadius())
+            self._invoke(self.__circlesID, VIEW_RANGE_CIRCLES_AS3_DESCR.AS_ADD_DYN_CIRCLE,
+                         (hexToDecimal(settings[MINIMAP_ENHANCEMENTS.COLOR_VIEW_CIRCLE])
+                          if settings[MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES] else CIRCLE_STYLE.COLOR.VIEW_RANGE),
+                         settings[MINIMAP_ENHANCEMENTS.CIRCLES]['view']['alpha'], self._getViewRangeRadius())
         else:
             return super(PersonalEntriesPlugin, self).__addViewRangeCircle()
 
@@ -295,7 +318,8 @@ class ArenaVehiclesPlugin(plugins.ArenaVehiclesPlugin):
         settings = settings_service.getComponentDict(config)
         self._expiredPositions.discard(entry.getID())
         result = super(ArenaVehiclesPlugin, self)._hideVehicle(entry)
-        if settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS] and entry.isAlive() and entry.isEnemy() and entry.getMatrix() is not None:
+        if (settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS] and entry.isAlive()
+            and entry.isEnemy() and entry.getMatrix() is not None):
             # The base plugin freezes the matrix at the last observed position.
             # Use its existing Flash entry, rather than a nonexistent setLastPosition API.
             wasActive = entry.isActive()
@@ -318,14 +342,16 @@ class ArenaVehiclesPlugin(plugins.ArenaVehiclesPlugin):
         settings = settings_service.getComponentDict(config)
         self._lastPositions.pop(entry.getID(), None)
         self._expiredPositions.discard(entry.getID())
-        if settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.PERMANENT_MINIMAP_DEATH] and self.__isDestroyImmediately:
+        if (settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.PERMANENT_MINIMAP_DEATH]
+            and self.__isDestroyImmediately):
             self._setInAoI(entry, True)
         super(ArenaVehiclesPlugin, self).__setDestroyed(vehicleID, entry)
         self.refreshLabel(vehicleID, entry)
 
     def __setActive(self, entry, active):
         settings = settings_service.getComponentDict(config)
-        if settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS] and entry.getID() in self._expiredPositions and not entry.isInAoI():
+        if (settings[GLOBAL.ENABLED] and settings[MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS]
+            and entry.getID() in self._expiredPositions and not entry.isInAoI()):
             active = False
         return super(ArenaVehiclesPlugin, self).__setActive(entry, active)
 
@@ -451,7 +477,9 @@ class ArenaVehiclesPlugin(plugins.ArenaVehiclesPlugin):
                 if entry.setActive(active):
                     self._setActive(entryID, active)
                 self._lastPositions.pop(entryID, None)
-            elif updateLabels and (settings[MINIMAP_ENHANCEMENTS.LOST_MARKER]['showSeconds'] or settings[MINIMAP_ENHANCEMENTS.LOST_MARKER]['fade'] or '{{lostSeconds' in settings[MINIMAP_ENHANCEMENTS.LABELS]['lost']):
+            elif updateLabels and (settings[MINIMAP_ENHANCEMENTS.LOST_MARKER]['showSeconds']
+                                   or settings[MINIMAP_ENHANCEMENTS.LOST_MARKER]['fade']
+                                   or '{{lostSeconds' in settings[MINIMAP_ENHANCEMENTS.LABELS]['lost']):
                 for vehicleID, model in self._entries.items():
                     if model is entry:
                         self._publishVehicle(vehicleID, entry)

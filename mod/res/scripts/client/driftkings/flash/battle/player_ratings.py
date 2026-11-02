@@ -73,7 +73,8 @@ class RatingViews(object):
             def reportWidths(self,left,right):
                 owner.model.widths=(left,right)
             def reportScreens(self,panel,loading,tab):
-                owner.visibleScreens=set(name for name,visible in (('panel',panel),('loading',loading),('tab',tab)) if visible)
+                owner.visibleScreens=set(name for name,
+                                         visible in (('panel',panel),('loading',loading),('tab',tab)) if visible)
                 owner.refresh()
             def reportPerformance(self,message):
                 if settings_service.getComponentDict(owner.config)[TEAM_PANELS.PERFORMANCE].get('diagnostics',False): LOG.info('Performance Flash: %s',message)
@@ -113,7 +114,8 @@ class RatingViews(object):
         settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)
         for signal,callback in self.subscriptions: signal.disconnect(callback)
         battleEvents.release(self)
-        g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,scope=EVENT_BUS_SCOPE.GLOBAL)
+        g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,
+                                  scope=EVENT_BUS_SCOPE.GLOBAL)
         self.end()
         if hasattr(self, 'gameface'):
             self.gameface.dispose()
@@ -393,13 +395,17 @@ class RatingViews(object):
         ownID=getattr(player,'playerVehicleID',0)
         self.resolvedRows=0
         colorblind=bool(getattr(self.view,'isColorBlind',lambda: False)())
-        shared=(colorblind,ownID,getattr(player,'team',0),self.model.mode,self.model.widths,getattr(arena,'guiType',None),CURRENT_REALM,self.model.restricted,
+        shared=(colorblind,ownID,getattr(player,'team',0),self.model.mode,self.model.widths,
+                getattr(arena,'guiType',None),CURRENT_REALM,self.model.restricted,
                 any(m.get('hasSelectedBadge') for m in self.model.metadata.values()))
         for ident,vehicle in vehicles.items():
             # Mode entities (accountDBID 0) resolve as players without statistics.
             stats=self.stats.getPlayersInfo(vehicle.get('accountDBID',0))
             vtype=vehicle.get('vehicleType'); descriptor=getattr(vtype,'type',None)
-            typeStamp=tuple(getattr(vtype,key,None) for key in ('level','maxHealth'))+tuple(getattr(descriptor,key,None) for key in ('compactDescr','userString','shortUserString','name'))
+            typeStamp=tuple(getattr(vtype,key,None)
+                            for key in ('level','maxHealth'))+tuple(getattr(descriptor,key,None)
+                                                                    for key in ('compactDescr','userString',
+                                                                                'shortUserString','name'))
             stamp=(shared,vehicle,stats,self.model.health.get(ident),self.model.spotted.get(ident),
                    self.model.metadata.get(ident),getattr(arena,'statistics',{}).get(ident,{}).get('frags',0),typeStamp)
             cached=self.contextCache.get(ident)
@@ -409,12 +415,14 @@ class RatingViews(object):
                 values['frags']=stamp[6]; values['region']=CURRENT_REALM; values['battletype-key']=getattr(arena,'guiType',None)
                 # Vehicle descriptors are engine objects; snapshot the mutable
                 # dictionaries, but keep the immutable descriptor by reference.
-                snapshot=(shared,dict(vehicle),deepcopy(stats),deepcopy(stamp[3]),stamp[4],deepcopy(stamp[5]),stamp[6],typeStamp)
+                snapshot=(shared,dict(vehicle),deepcopy(stats),deepcopy(stamp[3]),stamp[4],deepcopy(stamp[5]),stamp[6],
+                          typeStamp)
                 self.contextCache[ident]=(snapshot,values)
             contexts[ident]=dict(self.contextCache[ident][1])
         own=dict(('my-'+key,value) for key,value in contexts.get(ownID,{}).items())
         rows=[]
-        hotkeys=tuple(frozenset(keys if self.trackedKeys is None else keys.intersection(self.trackedKeys)) for keys in (self.model.keys,self.model.toggled))
+        hotkeys=tuple(frozenset(keys if self.trackedKeys is None else keys.intersection(self.trackedKeys))
+                      for keys in (self.model.keys,self.model.toggled))
         profiles=data[TEAM_PANELS.PROFILES] if mode is None else {mode:data[TEAM_PANELS.PROFILES][mode]}
         # The classic short/medium/large profiles do not apply to panels without those modes.
         if adapter is not None and not adapter.panel_modes: profiles={}
@@ -538,9 +546,12 @@ class RatingViews(object):
             metrics['ticks']+=1; metrics['ms']+=elapsed; metrics['max']=max(metrics['max'],elapsed)
             metrics['resolved']+=self.resolvedRows
             if started-metrics['since']>=5:
-                causes=u','.join(u'%s:%d'%item for item in sorted(self.invalidationCauses.items(),key=lambda item:(-item[1],item[0]))[:8]) or '-'
+                causes=u','.join(u'%s:%d'%item
+                                 for item in sorted(self.invalidationCauses.items(),
+                                                    key=lambda item:(-item[1],item[0]))[:8]) or '-'
                 LOG.info('Performance Python: ticks=%d avg=%.2fms max=%.2fms resolved=%d sent=%d invalidations=%s',
-                         metrics['ticks'],metrics['ms']/metrics['ticks'],metrics['max'],metrics['resolved'],metrics['sent'],causes)
+                         metrics['ticks'],metrics['ms']/metrics['ticks'],metrics['max'],metrics['resolved'],
+                         metrics['sent'],causes)
                 self.invalidationCauses.clear()
                 self.metrics={'ticks':0,'ms':0.0,'max':0.0,'resolved':0,'sent':0,'since':started}
         # refresh() can run synchronously during stats/native updates. Preserve

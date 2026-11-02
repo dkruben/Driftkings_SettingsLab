@@ -68,7 +68,8 @@ def main():
                 remote['isPrerelease'] == (channel == 'beta'), 'Release identity/channel mismatch')
         tagged = tag_commit(subprocess.check_output(
             ['git', 'ls-remote', 'origin', 'refs/tags/' + tag, 'refs/tags/%s^{}' % tag], cwd=ROOT).decode('utf-8'), tag)
-        require_tagged_revision(tagged, subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip(), tag)
+        require_tagged_revision(tagged,
+                                subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip(), tag)
         lines = changelog_lines(remote['body'])
         require(args.key.is_file(), 'Local release signing key is missing')
         with tempfile.TemporaryDirectory(prefix='dk-release-notes-') as temporary:

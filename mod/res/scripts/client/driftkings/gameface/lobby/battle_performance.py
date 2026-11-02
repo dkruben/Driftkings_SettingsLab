@@ -80,7 +80,8 @@ def install_results_gameface():
             with self.getViewModel().transaction() as model:
                 model._setString(0, json.dumps(payload))
             if self._lastPayload is None:
-                _component().LOG.info('Gameface results ready: battle=%s enabled=%s', arena_id, payload.get('enabled', False))
+                _component().LOG.info('Gameface results ready: battle=%s enabled=%s', arena_id,
+                                      payload.get('enabled', False))
             self._lastPayload = payload
 
     @override(RandomBattleResultsView, '_getChildComponents')

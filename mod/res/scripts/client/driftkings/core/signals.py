@@ -25,7 +25,8 @@ class Signal(object):
                 continue
             try:
                 if diagnostics.enabled:
-                    label = 'event.' + getattr(callback, '__module__', type(callback).__module__) + '.' + getattr(callback, '__name__', type(callback).__name__)
+                    label = 'event.' + getattr(callback, '__module__',
+                                               type(callback).__module__) + '.' + getattr(callback, '__name__', type(callback).__name__)
                     diagnostics.call(label, callback, *args, **kwargs)
                 else:
                     callback(*args, **kwargs)

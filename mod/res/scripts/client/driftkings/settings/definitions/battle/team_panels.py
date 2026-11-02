@@ -56,20 +56,25 @@ def player_panel_columns(config):
         elif isinstance(value,bool): item['type']='CheckBox'
         elif isinstance(value,(int,float)):
             item.update(type='Slider',minimum=0 if 'Width' in key or 'Alpha' in key else -2000,
-                        maximum=100 if 'Alpha' in key else 4000,snapInterval=.01 if isinstance(value,float) else 1,canManualInput=True)
+                        maximum=100 if 'Alpha' in key else 4000,snapInterval=.01 if isinstance(value,float) else 1,
+                        canManualInput=True)
         elif isinstance(value,(list,dict)) or value is None and key not in ('startMode','altMode'):
             item.update(type='TextInput',value=json.dumps(value,ensure_ascii=False),jsonValue=True)
         elif key in ('startMode','altMode'):
             choices=[None]+list(PROFILES)
-            item.update(type='Dropdown',options=[{'label':name or labels['UI_panel_clientDefault']} for name in choices],optionValues=choices)
+            item.update(type='Dropdown',
+                        options=[{'label':name or labels['UI_panel_clientDefault']} for name in choices],
+                        optionValues=choices)
         elif is_hex_color(value):
             item['type']='ColorChoice'
         else: item['type']='TextInput'
         columns[column].append(item)
     general=labels['UI_panel_generalTab']
-    for key in (TEAM_PANELS.STATS_ENABLED,TEAM_PANELS.HP_VISIBILITY,TEAM_PANELS.HP_KEY,TEAM_PANELS.SPOTTED_ENABLED,TEAM_PANELS.RATING,TEAM_PANELS.COLOR_SCALE):
+    for key in (TEAM_PANELS.STATS_ENABLED,TEAM_PANELS.HP_VISIBILITY,TEAM_PANELS.HP_KEY,TEAM_PANELS.SPOTTED_ENABLED,
+                TEAM_PANELS.RATING,TEAM_PANELS.COLOR_SCALE):
         add([key],settings_service.getComponentDict(config)[key],general)
-    add([TEAM_PANELS.PERFORMANCE,'diagnostics'],settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE].get('diagnostics',False),general)
+    add([TEAM_PANELS.PERFORMANCE,'diagnostics'],
+        settings_service.getComponentDict(config)[TEAM_PANELS.PERFORMANCE].get('diagnostics',False),general)
     from driftkings.common.utils.colorratting import color_tables
     for item in columns[0]:
         if item['varName']==TEAM_PANELS.COLOR_SCALE:

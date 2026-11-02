@@ -130,7 +130,8 @@ def install_clock_gameface():
                 payload['config']['locale'] = getClientLanguage().replace('_', '-')
                 payload['config']['calendar'] = calendar_names()
                 hangar = settings_service.getComponentDict(_hangar().hangar_preferences_settings)
-                payload['config']['hidePrestige'] = bool(hangar[GLOBAL.ENABLED] and not hangar[HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET])
+                payload['config']['hidePrestige'] = bool(hangar[GLOBAL.ENABLED]
+                                                         and not hangar[HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET])
                 publish_card(self, payload)
             except Exception:
                 LOG.exception('Could not update Gameface clock')

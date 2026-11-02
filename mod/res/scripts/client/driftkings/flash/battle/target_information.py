@@ -58,7 +58,8 @@ class Flash(object):
         if not self.active:
             return
         if affects(changes, TARGET_INFORMATION.TEXT_LOCK, TARGET_INFORMATION.TEXT_POSITION,
-                   TARGET_INFORMATION.TEXT_SHADOW, TARGET_INFORMATION.BACKGROUND_ENABLED, TARGET_INFORMATION.BACKGROUND_ALPHA):
+                   TARGET_INFORMATION.TEXT_SHADOW, TARGET_INFORMATION.BACKGROUND_ENABLED,
+                   TARGET_INFORMATION.BACKGROUND_ALPHA):
             self.applyConfig()
         if affects(changes, TARGET_INFORMATION.TEXT_FORMAT):
             self.addText(self._text)
@@ -84,7 +85,8 @@ class Flash(object):
                 position[key] = value
                 changed = True
         if changed:
-            settings_service.apply(_component().target_information_settings, {TARGET_INFORMATION.TEXT_POSITION: position})
+            settings_service.apply(_component().target_information_settings,
+                                   {TARGET_INFORMATION.TEXT_POSITION: position})
 
     def setup(self):
         settings = settings_service.getComponentDict(_component().target_information_settings)
@@ -131,7 +133,9 @@ class Flash(object):
                 'color': '#20252B', 'borderColor': '#49535D',
                 'border': True, 'fill': True, 'thickness': 1,
                 'margin': 12, 'ellipseWidth': 10,
-                'alpha': max(0.0, min(1.0, settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.BACKGROUND_ALPHA])) if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.BACKGROUND_ENABLED] else 0.0
+                'alpha': max(0.0,
+                             min(1.0,
+                                 settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.BACKGROUND_ALPHA])) if settings_service.getComponentDict(_component().target_information_settings)[TARGET_INFORMATION.BACKGROUND_ENABLED] else 0.0
             },
             'shadow': shadow
         })

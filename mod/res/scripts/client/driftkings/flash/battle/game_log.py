@@ -13,7 +13,8 @@ class WGLogs(object):
         self.config, self.filters = config, filters
         override(_LogViewComponent, 'addToLog', self.new__addToLog)
         # Route the final Flash calls, preserving BattleOptions and other log hooks.
-        for top, bottom in (('as_addDetailMessageTopS', 'as_addDetailMessageBottomS'), ('as_detailStatsTopS', 'as_detailStatsBottomS')):
+        for top, bottom in (('as_addDetailMessageTopS', 'as_addDetailMessageBottomS'),
+                            ('as_detailStatsTopS', 'as_detailStatsBottomS')):
             originalTop = getattr(DamageLogPanel, top)
             originalBottom = getattr(DamageLogPanel, bottom)
             override(DamageLogPanel, top, partial(self.routeLog, originalBottom))

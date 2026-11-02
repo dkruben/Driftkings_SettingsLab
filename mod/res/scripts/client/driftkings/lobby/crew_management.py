@@ -28,7 +28,8 @@ _lobbyActive = False
 
 
 def getCachePath():
-    path = os.path.join(os.path.normpath(os.path.dirname(unicode_from_utf8(BigWorld.wg_getPreferencesFilePath())[1])), 'driftkings')
+    path = os.path.join(os.path.normpath(os.path.dirname(unicode_from_utf8(BigWorld.wg_getPreferencesFilePath())[1])),
+                        'driftkings')
     if not os.path.exists(path):
         os.makedirs(path)
     return path
@@ -119,7 +120,8 @@ class Crew(object):
         if not g_currentVehicle.isPresent():
             return
         result = yield TankmanReturn(g_currentVehicle.item).request()
-        if result and result.userMsg and print_message and settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
+        if (result and result.userMsg and print_message
+            and settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]):
             SystemMessages.pushI18nMessage(result.userMsg, type=result.sysMsgType)
 
     @decorators.adisp_process('crewReturning')
@@ -132,7 +134,8 @@ class Crew(object):
         if not g_currentVehicle.isPresent():
             return
         result = yield TankmanUnload(g_currentVehicle.item.invID).request()
-        if result and result.userMsg and settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
+        if (result and result.userMsg
+            and settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]):
             SystemMessages.pushI18nMessage(result.userMsg, type=result.sysMsgType)
 
     def handleVehicleChange(self):
@@ -193,13 +196,15 @@ class Crew(object):
         self.__callbackID = None
         if not g_currentVehicle.isPresent():
             return
-        if not g_currentVehicle.isInHangar() or g_currentVehicle.isInBattle() or g_currentVehicle.isLocked() or g_currentVehicle.isCrewFull():
+        if (not g_currentVehicle.isInHangar() or g_currentVehicle.isInBattle() or g_currentVehicle.isLocked()
+            or g_currentVehicle.isCrewFull()):
             return
         if str(g_currentVehicle.item.invID) in ignored_vehicles:
             return
         if not self.isLastCrewAvailable():
             if settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
-                SystemMessages.pushMessage(crew_management_settings.i18n['UI_message_crewNotAvailable'], type=SystemMessages.SM_TYPE.Warning)
+                SystemMessages.pushMessage(crew_management_settings.i18n['UI_message_crewNotAvailable'],
+                                           type=SystemMessages.SM_TYPE.Warning)
             return
         self.processReturnCrew()
 
@@ -211,12 +216,14 @@ class Crew(object):
         if vehicle_id in ignored_vehicles:
             removeIgnoredVehicle(vehicle_id)
             if settings[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
-                SystemMessages.pushMessage('Auto-return enabled for this vehicle', type=SystemMessages.SM_TYPE.Information)
+                SystemMessages.pushMessage('Auto-return enabled for this vehicle',
+                                           type=SystemMessages.SM_TYPE.Information)
             return True
         else:
             updateIgnoredVehicles(vehicle_id)
             if settings[CREW_MANAGEMENT.SHOW_NOTIFICATIONS]:
-                SystemMessages.pushMessage("Auto-return disabled for this vehicle", type=SystemMessages.SM_TYPE.Information)
+                SystemMessages.pushMessage("Auto-return disabled for this vehicle",
+                                           type=SystemMessages.SM_TYPE.Information)
             return False
 
     def getCrewInfo(self):
@@ -226,7 +233,9 @@ class Crew(object):
         crew_info = {'vehicle_name': vehicle.userName, 'crew_complete': vehicle.isCrewFull, 'crew_members': []}
         for slotIdx, tankman in vehicle.crew:
             if tankman is not None:
-                crew_info['crew_members'].append({'name': tankman.fullUserName, 'role': tankman.roleUserName, 'level': tankman.level, 'skills': [skill.userName for skill in tankman.skills]})
+                crew_info['crew_members'].append({'name': tankman.fullUserName, 'role': tankman.roleUserName,
+                                                  'level': tankman.level,
+                                                  'skills': [skill.userName for skill in tankman.skills]})
             else:
                 crew_info['crew_members'].append(None)
         return crew_info
@@ -236,7 +245,8 @@ class Crew(object):
         for vehicle in vehicles.values():
             if str(vehicle.invID) in ignored_vehicles:
                 continue
-            if settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES] and vehicle.isPremium:
+            if (settings_service.getComponentDict(crew_management_settings)[CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES]
+                and vehicle.isPremium):
                 continue
             if not (vehicle.isCrewFull or vehicle.isInBattle or vehicle.isLocked):
                 self.processReturnCrewForVehicleSelectorPopup(vehicle)

@@ -191,7 +191,8 @@ class BattleCardAdapter(object):
                 publish_card(child, outgoing)
                 visible = outgoing['config']['visible']
                 if visible != child._lastVisible:
-                    report = self.log.debug if self.QUIET_VISIBILITY and child._lastVisible is not None else self.log.info
+                    report = (self.log.debug if self.QUIET_VISIBILITY and child._lastVisible is not None
+                              else self.log.info)
                     report('Gameface battle panel visible=%s state=%s', visible, outgoing.get('state'))
                     child._lastVisible = visible
             except Exception:

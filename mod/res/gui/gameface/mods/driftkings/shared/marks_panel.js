@@ -281,7 +281,7 @@
     function theme(root, cfg, compact, baseWidth) {
         var accent = color(cfg.accentColor, '#E8C55A'), bg = color(cfg.backgroundColor, '#0b141b');
         style(root, 'borderColor', '#518896'); style(root, 'color', color(cfg.titleColor, '#E8E4DA'));
-        style(root, 'backgroundColor', 'rgba(' + parseInt(bg.slice(1,3),16) + ',' + parseInt(bg.slice(3,5),16) + ',' + parseInt(bg.slice(5,7),16) + ',' + number(cfg.backgroundOpacity, number(cfg.backgroundAlpha, .82)) + ')');
+        style(root, 'backgroundColor', 'rgba(' + parseInt(bg.slice(1, 3), 16) + ',' + parseInt(bg.slice(3, 5), 16) + ',' + parseInt(bg.slice(5, 7), 16) + ',' + number(cfg.backgroundOpacity, number(cfg.backgroundAlpha, .82)) + ')');
         var scale = Math.max(.1, Math.min(10, number(cfg.scale, 1)));
         var base = number(baseWidth, compact ? 650 : cfg.compactMode ? 640 : 760);
         scale = Math.min(scale, window.innerWidth / (base * unit()) * .96);
@@ -289,7 +289,7 @@
         style(root, 'opacity', String(number(cfg.alpha, 1)));
         return accent;
     }
-    window.__dkMarksKit = {node:node, text:text, style:style, show:show, number:number,
-        setLocale:setLocale, formatted:formatted, percent:percent, roman:roman, label:label, stars:stars, updateStars:updateStars,
-        graph:graph, scale:scale, connect:connect, position:position, savedPosition:savedPosition, theme:theme};
+    window.__dkMarksKit = {node: node, text: text, style: style, show: show, number: number,
+        setLocale: setLocale, formatted: formatted, percent: percent, roman: roman, label: label, stars: stars, updateStars: updateStars,
+        graph: graph, scale: scale, connect: connect, position: position, savedPosition: savedPosition, theme: theme};
 }());

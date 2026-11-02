@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
     if (window.__dkHangarClock) window.__dkHangarClock.dispose();
     var disposed = false,
@@ -45,7 +45,7 @@
                 b: shortMonths[month],
                 p: h < 12 ? 'AM' : 'PM'
             };
-        return String(pattern).replace(/%([aAbB][ul]|[HIMSdmYyaAbBp%])/g, function(all, key) {
+        return String(pattern).replace(/%([aAbB][ul]|[HIMSdmYyaAbBp%])/g, function (all, key) {
             if (key === '%') return '%';
             var value = values[key.charAt(0)];
             return key.length === 1 ? value : key.charAt(1) === 'u' ? value.toUpperCase() : value.toLowerCase();
@@ -116,7 +116,7 @@
             current.node.appendChild(node);
         }
 
-        html.split(/(<[^>]*>)/g).forEach(function(part) {
+        html.split(/(<[^>]*>)/g).forEach(function (part) {
             if (!part) return;
             if (/^<\/(font|textformat|b|i)>$/i.test(part)) {
                 if (stack.length > 1) stack.pop();
@@ -139,7 +139,7 @@
                     var image = document.createElement('img');
                     image.src = src;
                     image.alt = '';
-                    ['width', 'height'].forEach(function(k) {
+                    ['width', 'height'].forEach(function (k) {
                         if (attrs[k]) image.style[k] = bounded(attrs[k], 0, 0, 4096) + 'px';
                     });
                     append(image, attrs.height ? bounded(attrs.height, 0, 0, 4096) / 1.15 : style.size);
@@ -205,7 +205,7 @@
         custom = document.createElement('div');
         custom.className = 'dk-clock-custom';
         document.body.appendChild(custom);
-        formats.forEach(function(def) {
+        formats.forEach(function (def) {
             if (!def || typeof def.format !== 'string') return;
             var field = document.createElement('div');
             field.className = 'dk-clock-custom__field';
@@ -237,7 +237,7 @@
 
     function tickCustom(now) {
         if (!custom) return false;
-        customFields.forEach(function(entry) {
+        customFields.forEach(function (entry) {
             var def = entry.def,
                 field = entry.node,
                 html = dateFormat(def.format, now);
@@ -340,7 +340,7 @@
     window.__dkHangarClock = {
         dispose: dispose
     };
-    engine.whenReady.then(function() {
+    engine.whenReady.then(function () {
         if (disposed) return;
         engine.on('viewEnv.onDataChanged', changed);
         engine.on('subViews.onAdded', refresh);

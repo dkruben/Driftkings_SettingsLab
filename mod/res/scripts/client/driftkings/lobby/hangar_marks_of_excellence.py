@@ -107,7 +107,8 @@ from driftkings.settings.definitions.lobby.hangar_marks_of_excellence import Han
 
 
 def read_colors(rating_color, rating_value):
-    return getStatisticColor(rating_color, rating_value, settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
+    return getStatisticColor(rating_color, rating_value,
+                             settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
 
 
 hangar_marks_of_excellence_settings = HangarMarksOfExcellenceSettings()
@@ -137,12 +138,14 @@ class MarksOnGunData(object):
 
     @staticmethod
     def _format_int(value):
-        return '{:,}'.format(int(value)).replace(',', number_locale(hangar_marks_of_excellence_settings.lang)['groupSeparator'])
+        return '{:,}'.format(int(value)).replace(',',
+                                                 number_locale(hangar_marks_of_excellence_settings.lang)['groupSeparator'])
 
     @staticmethod
     def _format_float(value, digits=2):
         fmt = '%%.%sf' % digits
-        return (fmt % float(value)).replace('.', number_locale(hangar_marks_of_excellence_settings.lang)['decimalSeparator'])
+        return (fmt % float(value)).replace('.',
+                                            number_locale(hangar_marks_of_excellence_settings.lang)['decimalSeparator'])
 
     # Escapa os caracteres que poderiam ser interpretados como HTML.
     @staticmethod
@@ -155,7 +158,8 @@ class MarksOnGunData(object):
 
     # Escolhe a cor do dano conforme os patamares e a paleta selecionada.
     def _pick_color(self, value, levels):
-        return getMoeDamageColor(value, levels, settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
+        return getMoeDamageColor(value, levels,
+                                 settings_service.getComponentDict(hangar_marks_of_excellence_settings).get(HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING, 0))
 
     def _color_by_wn8(self, wn8):
         return read_colors('wn8', wn8)
@@ -180,7 +184,8 @@ class MarksOnGunData(object):
         damage = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgDamage()))
         spot = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgEnemiesSpotted()))
         frags = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgFrags()))
-        defence = self._safe(ProfileUtils.getValueOrUnavailable(random_stats._getAvgValue(random_stats.getBattlesCount, random_stats.getDroppedCapturePoints)))
+        defence = self._safe(ProfileUtils.getValueOrUnavailable(random_stats._getAvgValue(random_stats.getBattlesCount,
+                                                                                          random_stats.getDroppedCapturePoints)))
 
         # Expected values are non-zero (checked above); frags, spots and defence are often below 1.
         r_damage = float(damage) / expected['wn8expDamage']
@@ -238,7 +243,8 @@ class MarksOnGunData(object):
         winrate = 100.0 * wins / battles if battles else 0.0
 
         avg_damage = self._safe(ProfileUtils.getValueOrUnavailable(random_stats.getAvgDamage()))
-        track, radio, stun = [self._safe(ProfileUtils.getValueOrUnavailable(value)) for value in average_assists(random_stats)]
+        track, radio, stun = [self._safe(ProfileUtils.getValueOrUnavailable(value))
+                              for value in average_assists(random_stats)]
         current_damage = int(combined_damage(avg_damage, track, radio, stun))
 
         wn8 = self._calculate_wn8(vehicle, random_stats, winrate)
@@ -319,9 +325,12 @@ class MarksOnGunData(object):
         c100 = read_colors('mog', 100.0)
         ctx = {
             'nextPercent': data['nextPercent'],
-            'needDamage': '<font color="%s">%s</font>' % (data['needDamageColor'], self._format_int(data['needDamage'])),
-            'currentMovingAvgDamage': '<font color="%s">%s</font>' % (data['movingAvgDamageColor'], self._format_int(data['movingAvgDamage'])),
-            'currentDamage': '<font color="%s">%s</font>' % (data['currentDamageColor'], self._format_int(data['currentDamage'])),
+            'needDamage': '<font color="%s">%s</font>' % (data['needDamageColor'],
+                                                          self._format_int(data['needDamage'])),
+            'currentMovingAvgDamage': '<font color="%s">%s</font>' % (data['movingAvgDamageColor'],
+                                                                      self._format_int(data['movingAvgDamage'])),
+            'currentDamage': '<font color="%s">%s</font>' % (data['currentDamageColor'],
+                                                             self._format_int(data['currentDamage'])),
             'mastery': self._mastery_label(data['masteryValue']),
             'wn8': data['wn8'] if data['wn8'] else '--',
             'winRate': '%s%%' % self._format_float(data['winRate']) if data['battles'] else '--',
@@ -345,9 +354,12 @@ class MarksOnGunData(object):
 
     def build_panel_model(self):
         result = {'config': get_view_config(hangar_marks_of_excellence_settings), 'state': 'empty',
-                  'vehicle': hangar_marks_of_excellence_settings.i18n['UI_panel_chooseVehicle'], 'message': hangar_marks_of_excellence_settings.i18n['UI_panel_selectVehicle'],
-                  'labels': {key[9:]: value for key, value in hangar_marks_of_excellence_settings.i18n.items() if key.startswith('UI_panel_')}}
-        result['labels'].update((key[7:], value) for key, value in hangar_marks_of_excellence_settings.i18n.items() if key.startswith('UI_mog_'))
+                  'vehicle': hangar_marks_of_excellence_settings.i18n['UI_panel_chooseVehicle'],
+                  'message': hangar_marks_of_excellence_settings.i18n['UI_panel_selectVehicle'],
+                  'labels': {key[9:]: value for key,
+                             value in hangar_marks_of_excellence_settings.i18n.items() if key.startswith('UI_panel_')}}
+        result['labels'].update((key[7:], value) for key,
+                                value in hangar_marks_of_excellence_settings.i18n.items() if key.startswith('UI_mog_'))
         result['labels']['title'] = hangar_marks_of_excellence_settings.i18n['UI_description']
         if not g_currentVehicle.isPresent():
             marks_state.clear('hangar')
@@ -360,7 +372,8 @@ class MarksOnGunData(object):
             result.update(vehicle=unicode(g_currentVehicle.item.shortUserName),
                           message=hangar_marks_of_excellence_settings.i18n['UI_panel_noDossier'])
             return result
-        target = goal(data['damageRating'], data['movingAvgDamage'], data['tier'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION], data['earnedMarks'])
+        target = goal(data['damageRating'], data['movingAvgDamage'], data['tier'],
+                      settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.GOAL_SELECTION], data['earnedMarks'])
         if not target['eligible']:
             result['message'] = hangar_marks_of_excellence_settings.i18n['UI_panel_tierLimit']
         recent = g_history.observe(data) if target['eligible'] else {'delta': None, 'battles': 0}
@@ -378,16 +391,19 @@ class MarksOnGunData(object):
                 'averageCombined': data['averageCombined'] if data['battles'] else None,
                 'movingAverage': data['movingAvgDamage'] if data['hasMoE'] else None,
                 'targetDamage': target['estimate'],
-                'damageNeeded': max(0, target['estimate'] - data['movingAvgDamage']) if target['estimate'] is not None else None,
+                'damageNeeded': max(0, target['estimate'] - data['movingAvgDamage']) if target['estimate'] is not None
+                    else None,
                 'target': target, 'recent': recent,
                 'delta': delta_model(recent.get('delta')),
                 'progress': target['percent'] / 100.0,
-                'displayMarks': max(max(0, min(3, int(finite(data['earnedMarks'])))), sum(data['damageRating'] >= limit for limit in THRESHOLDS)),
+                'displayMarks': max(max(0, min(3, int(finite(data['earnedMarks'])))),
+                                    sum(data['damageRating'] >= limit for limit in THRESHOLDS)),
                 'thirdAchieved': bool(target['eligible'] and (data['damageRating'] >= 95 or data['earnedMarks'] >= 3)),
                 'earnedMarks': max(0, min(3, int(finite(data['earnedMarks'])))),
                 'average': self._format_int(data['movingAvgDamage']),
                 'estimate': '~' + self._format_int(target['estimate']) if target['estimate'] is not None else '--',
-                'mastery': hangar_marks_of_excellence_settings.i18n['UI_panel_mastery%s' % mastery] if mastery else '--',
+                'mastery': hangar_marks_of_excellence_settings.i18n['UI_panel_mastery%s' % mastery] if mastery
+                    else '--',
                 'masteryIcon': 'coui://' + icon if icon else '',
                 'masteryRank': mastery,
                 'wn8': self._format_int(data['wn8']) if data['wn8'] else '--',
@@ -396,7 +412,8 @@ class MarksOnGunData(object):
                 'battles': self._format_int(data['battles'])
             }
         )
-        result['markColor'] = getStatisticColor('mog', data['damageRating'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING])
+        result['markColor'] = getStatisticColor('mog', data['damageRating'],
+                                                settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING])
         palette = settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.COLOR_RATING]
         result.update(wnx=self._format_int(data['wnx']) if data['wnx'] is not None else '--',
                       wnxColor=getStatisticColor('wnx', data['wnx'], palette),
@@ -432,10 +449,13 @@ class ProgressHistory(object):
                     if isinstance(points, list):
                         for point in points[-21:]:
                             if isinstance(point, dict) and all(k in point for k in ('battles', 'percent', 'average')):
-                                record_snapshot(self.data, vehicle, point['battles'], point['percent'], point['average'])
-        if record_snapshot(self.data, data['vehicleID'], data['randomBattles'], data['damageRating'], data['movingAvgDamage']):
+                                record_snapshot(self.data, vehicle, point['battles'], point['percent'],
+                                                point['average'])
+        if record_snapshot(self.data, data['vehicleID'], data['randomBattles'], data['damageRating'],
+                           data['movingAvgDamage']):
             loadJson(hangar_marks_of_excellence_settings.NAME, name, self.data, self.cachePath, True, quiet=True)
-        return trend(self.data, data['vehicleID'], settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES])
+        return trend(self.data, data['vehicleID'],
+                     settings_service.getComponentDict(hangar_marks_of_excellence_settings)[HANGAR_MARKS_OF_EXCELLENCE.HISTORY_BATTLES])
 
 
 g_history = ProgressHistory()

@@ -55,14 +55,21 @@ def default_services():
         ServiceSpec('dossiers', runtime_service('driftkings.common.utils.dossiers:DossierService'), ('common',)),
         ServiceSpec('lifecycle', runtime_service('driftkings.core.lifecycle:lifecycle', False), ('common',)),
         ServiceSpec('keyboard', runtime_service('driftkings.core.keyboard:keyboard', False), ('lifecycle',)),
-        ServiceSpec('battle_events', runtime_service('driftkings.core.battle_events:battleEvents', False), ('keyboard', 'lifecycle')),
+        ServiceSpec('battle_events', runtime_service('driftkings.core.battle_events:battleEvents', False),
+                    ('keyboard', 'lifecycle')),
         ServiceSpec('callbacks', runtime_service('driftkings.core.callbacks:callbacks', False), ('battle_events',)),
-        ServiceSpec('notifications', runtime_service('driftkings.core.notifications:NotificationsService'), ('callbacks',)),
-        ServiceSpec('window_views', runtime_service('driftkings.gameface.registry:WindowViews'), ('settings', 'callbacks'), 'interface'),
-        ServiceSpec('battle_views', runtime_service('driftkings.flash.battle.registry:BattleViews'), ('settings', 'battle_events', 'callbacks'), 'interface'),
-        ServiceSpec('settings_panel', runtime_service('driftkings.settings:SettingsService'), ('settings', 'keyboard', 'window_views'), 'interface'),
-        ServiceSpec('updater', runtime_service('driftkings.core.updater:UpdaterService'), ('settings_panel', 'callbacks'), 'interface'),
-        ServiceSpec('analytics', runtime_service('driftkings.core.analytics:AnalyticsService'), ('settings_panel', 'callbacks'), 'interface'),
+        ServiceSpec('notifications', runtime_service('driftkings.core.notifications:NotificationsService'),
+                    ('callbacks',)),
+        ServiceSpec('window_views', runtime_service('driftkings.gameface.registry:WindowViews'),
+                    ('settings', 'callbacks'), 'interface'),
+        ServiceSpec('battle_views', runtime_service('driftkings.flash.battle.registry:BattleViews'),
+                    ('settings', 'battle_events', 'callbacks'), 'interface'),
+        ServiceSpec('settings_panel', runtime_service('driftkings.settings:SettingsService'),
+                    ('settings', 'keyboard', 'window_views'), 'interface'),
+        ServiceSpec('updater', runtime_service('driftkings.core.updater:UpdaterService'),
+                    ('settings_panel', 'callbacks'), 'interface'),
+        ServiceSpec('analytics', runtime_service('driftkings.core.analytics:AnalyticsService'),
+                    ('settings_panel', 'callbacks'), 'interface'),
     )
 
 
@@ -73,7 +80,8 @@ class Core(object):
         self.importer = importer or importlib.import_module
         self.runtime = services is None
         self.specs = default_services() if self.runtime else tuple(
-            service if isinstance(service, ServiceSpec) else ServiceSpec(service.__class__.__name__, lambda value=service: value, phase='interface')
+            service if isinstance(service, ServiceSpec)
+                else ServiceSpec(service.__class__.__name__, lambda value=service: value, phase='interface')
             for service in services)
         self.hooks = hook_manager
         self.context_factory = context_factory
@@ -247,7 +255,8 @@ class Core(object):
             except Exception:
                 LOG.warning('Client startup metadata unavailable', exc_info=True)
         message = 'Startup complete: metadata=%s replay=%s components=%s services=%s failures=%s disabled=%s' % (
-            metadata, self.replay, [name for name, module in self.initialized], self.service_state, self.failures, self.disabled)
+            metadata, self.replay, [name for name, module in self.initialized], self.service_state, self.failures,
+            self.disabled)
         if self.runtime:
             try:
                 import BigWorld

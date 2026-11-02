@@ -16,11 +16,17 @@ class AimingAnglesView(object):
     def createUI(self):
         if self._uiCreated:
             return
-        overlays.create(self.config.NAME, ElementType.PANEL, {'x': 0, 'y': 0, 'alignX': Align.CENTER, 'alignY': Align.CENTER, 'width': 0, 'height': 0, 'limit': False})
-        overlays.create(self.config.NAME + '.L', ElementType.IMAGE, {'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
-        overlays.create(self.config.NAME + '.R', ElementType.IMAGE, {'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
-        overlays.create(self.config.NAME + '.lo', ElementType.IMAGE, {'x': 0, 'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
-        overlays.create(self.config.NAME + '.hi', ElementType.IMAGE, {'x': 0, 'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
+        overlays.create(self.config.NAME, ElementType.PANEL,
+                        {'x': 0, 'y': 0, 'alignX': Align.CENTER, 'alignY': Align.CENTER, 'width': 0, 'height': 0,
+                         'limit': False})
+        overlays.create(self.config.NAME + '.L', ElementType.IMAGE,
+                        {'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
+        overlays.create(self.config.NAME + '.R', ElementType.IMAGE,
+                        {'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
+        overlays.create(self.config.NAME + '.lo', ElementType.IMAGE,
+                        {'x': 0, 'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
+        overlays.create(self.config.NAME + '.hi', ElementType.IMAGE,
+                        {'x': 0, 'alignX': Align.CENTER, 'alignY': Align.CENTER, 'limit': False})
         self._uiCreated = True
 
     def updateHor(self):
@@ -40,8 +46,14 @@ class AimingAnglesView(object):
         y = self.aim_y()
         L = self.anglesAiming_left()
         R = self.anglesAiming_right()
-        overlays.update(self.config.NAME + '.L', {'x': L, 'y': y, 'image': '../aimingangles/%s/left%s.png' % (marker, ('_limit' if L > -5 else ''))}, {'duration': 0.05})
-        overlays.update(self.config.NAME + '.R', {'x': R, 'y': y, 'image': '../aimingangles/%s/right%s.png' % (marker, ('_limit' if R < 5 else ''))}, {'duration': 0.05})
+        overlays.update(self.config.NAME + '.L',
+                        {'x': L, 'y': y,
+                         'image': '../aimingangles/%s/left%s.png' % (marker, ('_limit' if L > -5 else ''))},
+                        {'duration': 0.05})
+        overlays.update(self.config.NAME + '.R',
+                        {'x': R, 'y': y,
+                         'image': '../aimingangles/%s/right%s.png' % (marker, ('_limit' if R < 5 else ''))},
+                        {'duration': 0.05})
 
     def ON_ANGLES_AIMING(self):
         if not self._uiCreated:

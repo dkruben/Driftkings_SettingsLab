@@ -58,7 +58,8 @@ class UserAccounts(object):
             except Exception:
                 accounts = json.loads(raw.decode('utf-8-sig'))
             if not isinstance(accounts, list) or any(not isinstance(item, dict) or
-                    not all(key in item for key in ('id', 'title', 'email', 'password', 'cluster')) for item in accounts):
+                    not all(key in item for key in ('id', 'title', 'email', 'password', 'cluster'))
+                        for item in accounts):
                 raise ValueError('Invalid account records')
             self.accounts = accounts
             self.read_error = False
@@ -127,7 +128,8 @@ class AccountsManagerController(object):
             self.launcher.content.refresh()
 
     def open(self):
-        if self.window is None and self.active and self.canLogin() and settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True):
+        if (self.window is None and self.active and self.canLogin()
+            and settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True)):
             from driftkings.gameface.lobby.account_manager import AccountsWindow
             self.window = AccountsWindow(self)
             self.window.load()
@@ -177,7 +179,8 @@ service = None
 def init():
     global service
     BigWorld.wh_data = UserAccounts()
-    service = AccountService(BigWorld.wh_data, BigWorld.wg_cpdata, BigWorld.wg_ucpdata, g_preDefinedHosts.shortList, CURRENT_REALM)
+    service = AccountService(BigWorld.wh_data, BigWorld.wg_cpdata, BigWorld.wg_ucpdata, g_preDefinedHosts.shortList,
+                             CURRENT_REALM)
     controller.active = True
 
 

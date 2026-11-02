@@ -34,7 +34,8 @@ def process(job_path):
                 stream.write(MAGIC + struct.pack('<I', job['epoch']) + marshal.dumps(code))
         result = dict(python=sys.version, compiled=len(job['files']))
     elif job['action'] == 'common-probe':
-        probe = imp.load_source('_dk_common_startup_probe', os.path.join(os.path.dirname(__file__), 'common_startup_probe_py27.py'))
+        probe = imp.load_source('_dk_common_startup_probe',
+                                os.path.join(os.path.dirname(__file__), 'common_startup_probe_py27.py'))
         result = probe.verify(job['origin'])
     elif job['action'] == 'verify':
         with zipfile.ZipFile(job['package']) as archive:

@@ -25,12 +25,14 @@ def colored(text, metric, value, surface='statistics'):
         if not settings.get('colorSurvival' if survival else 'colorReceivedDamage', True):
             return text
         key = 'survivalThresholds' if survival else 'receivedDamageThresholds'
-        limits = parse_thresholds(settings.get(key, '20,30,40,50,60' if survival else '25,50,75,100,125'), 100 if survival else 500)
+        limits = parse_thresholds(settings.get(key, '20,30,40,50,60' if survival else '25,50,75,100,125'),
+                                  100 if survival else 500)
         if not survival:
             limits = [limit / 100.0 for limit in limits]
         palette = getRatingColors(scale)['colorRating']
         names = ('very_bad', 'bad', 'normal', 'good', 'very_good', 'unique')
-        bands = [{'value': limit, 'color': palette[name]} for limit, name in zip(limits + [1e30], names if survival else reversed(names))]
+        bands = [{'value': limit, 'color': palette[name]} for limit,
+                 name in zip(limits + [1e30], names if survival else reversed(names))]
         color = getColor({metric: bands}, metric, value)
     else:
         color = getStatisticColor(metric, value, scale)
@@ -173,7 +175,9 @@ def install():
         result = [dict(item) for item in original(vo, data)]
         stats, dossier = data[0], data[1]
         for index, metric, value in ((0, 'battles', stats.getBattlesCount()),
-                                      (1, 'winrate', stats.getWinsEfficiency() * 100 if stats.getWinsEfficiency() is not None else None),
+                                      (1, 'winrate',
+                                       stats.getWinsEfficiency() * 100 if stats.getWinsEfficiency() is not None
+                                       else None),
                                       (2, 'avgDamage', stats.getAvgDamage())):
             result[index]['text'] = colored(result[index]['text'], metric, value)
         settings = settings_service.getComponentDict('profile_ratings')

@@ -96,7 +96,8 @@ class Presenter(object):
             warnings = compatibility.warnings_for(component)
             for warning in warnings:
                 key = 'compatibility.confirmed' if warning['status'] == CONFIRMED_CONFLICT else 'compatibility.possible'
-                warning['text'] = self.api.strings.get(key, warning['text']).format(integration=warning['integration'], component=component)
+                warning['text'] = self.api.strings.get(key, warning['text']).format(integration=warning['integration'],
+                                                                                    component=component)
             compatibility_warnings[mod_id] = warnings
             current = self.session.values(mod_id)
             for control in mod.value_controls():
@@ -108,7 +109,8 @@ class Presenter(object):
             values[mod_id] = current
             changed[mod_id] = self.session.changed_keys(mod_id)
             disabled[mod_id] = self.session.disabled(mod_id)
-            status[mod_id] = {'status': mod.status, 'enabled': bool(current.get(getattr(mod, 'enabled_key', 'enabled'), True)),
+            status[mod_id] = {'status': mod.status,
+                              'enabled': bool(current.get(getattr(mod, 'enabled_key', 'enabled'), True)),
                               'restartRequired': mod.restart_key in self.api.restart_required}
         previews = {}
         if self.selected in mods:
@@ -117,12 +119,14 @@ class Presenter(object):
                     continue
                 value = values[self.selected][control.id]
                 images = control.preview.get('images')
-                path = images[value] if images is not None and isinstance(value, int) and 0 <= value < len(images) else '' if images is not None else value
+                path = (images[value] if images is not None and isinstance(value, int) and 0 <= value < len(images)
+                        else '' if images is not None else value)
                 previews[control.id] = self.image_previews.resolve(path)
         updater = getattr(self.api, 'updater', None)
         return {'carouselPreview': None if self.api.in_battle else carousel_preview(self.selected, values),
                 'updater': updater.state.snapshot() if updater is not None else None,
-                'selected': self.selected, 'compatibilityWarnings': compatibility_warnings, 'previews': previews, 'values': values, 'secrets': secrets, 'changed': changed,
+                'selected': self.selected, 'compatibilityWarnings': compatibility_warnings, 'previews': previews,
+                'values': values, 'secrets': secrets, 'changed': changed,
                 'disabled': disabled, 'status': status, 'pending': self.session.pending_apply(),
                 'unsaved': self.session.unsaved(), 'confirm': self.confirming, 'message': self.message,
                 'restartPrompt': self.restart_prompt, 'restartReason': self.restart_reason,
@@ -309,7 +313,8 @@ class Presenter(object):
         self.session.history.append(copy.deepcopy(self.session.drafts))
         self.session.history = self.session.history[-50:]
         mod = self.registry.mods[CORE_ID]
-        for key in ('theme', 'accent', 'background', 'textColor', 'secondary', 'border', 'hover', 'opacity', 'sidebarOpacity', 'uiScale', 'fontSize', 'sectionFontSize'):
+        for key in ('theme', 'accent', 'background', 'textColor', 'secondary', 'border', 'hover', 'opacity',
+                    'sidebarOpacity', 'uiScale', 'fontSize', 'sectionFontSize'):
             self.session.drafts.setdefault(CORE_ID, {})[key] = copy.deepcopy(mod.index[key].default)
 
     def _on_reset(self, data, result):

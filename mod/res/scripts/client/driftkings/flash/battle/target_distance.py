@@ -102,7 +102,8 @@ class DistanceMarkerController(object):
         screenResolution = GUI.screenResolution()
         self._currentScreenWidth = screenResolution[0]
         self._currentScreenHeight = screenResolution[1]
-        self._currentFrameData = {'screenWidth': self._currentScreenWidth, 'screenHeight': self._currentScreenHeight, 'observedVehicles': self._emptyList}
+        self._currentFrameData = {'screenWidth': self._currentScreenWidth, 'screenHeight': self._currentScreenHeight,
+                                  'observedVehicles': self._emptyList}
         keyboard.subscribe(self._onKey)
         serializedConfig = serializeConfigParams()
         if _view is not None:
@@ -114,8 +115,12 @@ class DistanceMarkerController(object):
             self._isMarkerDragging = False
         keyboard.unsubscribe(self._onKey)
         if self._wereOffsetsEdited:
-            settings_service.apply(_component().target_distance_settings, {TARGET_DISTANCE.ANCHOR_HORIZONTAL_OFFSET: self._currentHorizontalAnchorOffset}, persist=False)
-            settings_service.apply(_component().target_distance_settings, {TARGET_DISTANCE.ANCHOR_VERTICAL_OFFSET: -1 * self._currentVerticalAnchorOffset}, persist=False)
+            settings_service.apply(_component().target_distance_settings,
+                                   {TARGET_DISTANCE.ANCHOR_HORIZONTAL_OFFSET: self._currentHorizontalAnchorOffset},
+                                   persist=False)
+            settings_service.apply(_component().target_distance_settings,
+                                   {TARGET_DISTANCE.ANCHOR_VERTICAL_OFFSET: -1 * self._currentVerticalAnchorOffset},
+                                   persist=False)
 
     def as_isPointInMarker(self, mouseX, mouseY):
         if _view is not None:

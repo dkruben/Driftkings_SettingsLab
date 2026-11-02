@@ -17,7 +17,8 @@ LOG = get_logger('Driftkings.Updater')
 FINAL_STATUSES = frozenset(('installed', 'rolledBack', 'rolled_back', 'cancelled', 'error', 'failed'))
 # Interrupted downloads are kept this long in case the same session is still writing them.
 ABANDONED_SECONDS = 24 * 60 * 60
-TICKET_KEYS = frozenset(('schema', 'gameVersion', 'version', 'size', 'sha256', 'installedVersion', 'installedSize', 'installedSha256'))
+TICKET_KEYS = frozenset(('schema', 'gameVersion', 'version', 'size', 'sha256', 'installedVersion', 'installedSize',
+                         'installedSha256'))
 
 
 def fingerprint(document):
@@ -71,7 +72,8 @@ class Results(object):
                 not os.path.basename(folder).startswith('download-')):
             raise ValueError('Unknown operation path')
         return file_signature([ready] + [os.path.join(folder, name) for name in
-                              ('result.json', 'install.json', 'release.json', 'Driftkings.UpdateInstaller.exe', 'restart.install')])
+                              ('result.json', 'install.json', 'release.json', 'Driftkings.UpdateInstaller.exe',
+                               'restart.install')])
 
     def _folder(self, ready):
         ready = os.path.abspath(ready)
@@ -131,7 +133,8 @@ class Results(object):
         backup = path + '.old'
         if os.path.lexists(backup):
             safe_path(backup)
-            if not os.path.isfile(backup) or os.path.getsize(backup) != ticket['installedSize'] or digest(backup) != ticket['installedSha256']:
+            if (not os.path.isfile(backup) or os.path.getsize(backup) != ticket['installedSize']
+                or digest(backup) != ticket['installedSha256']):
                 raise ValueError('Ambiguous backup')
         if os.path.lexists(path + '.new'):
             raise ValueError('Unresolved temporary package')
@@ -185,7 +188,8 @@ class Results(object):
                 if (not isinstance(result, dict) or set(result) != set(('schema', 'status', 'error', 'helperPid')) or
                         type(result['schema']) not in integer_types or result['schema'] != 1 or
                         type(result['helperPid']) not in integer_types or result['helperPid'] <= 0 or
-                        result['error'] is not None and (not isinstance(result['error'], string_types) or len(result['error']) > 256)):
+                        result['error'] is not None
+                            and (not isinstance(result['error'], string_types) or len(result['error']) > 256)):
                     raise ValueError('Invalid result schema')
                 status = {'installed': 'installed', 'rolledBack': 'rolled_back', 'rolled_back': 'rolled_back',
                           'cancelled': 'cancelled', 'error': 'failed', 'failed': 'failed'}.get(result['status'])
@@ -206,7 +210,8 @@ class Results(object):
                     continue
             except Exception:
                 LOG.warning('Previous notification receipt invalid')
-            reports.append(dict(status=status, version=ticket['version'], error=error, ready=ready, fingerprint=identity))
+            reports.append(dict(status=status, version=ticket['version'], error=error, ready=ready,
+                                fingerprint=identity))
         return reports
 
     def _stage_version(self, folder):
@@ -228,7 +233,8 @@ class Results(object):
 
     def _abandoned(self, folder, now):
         """A folder without ticket or release: a reported outcome or an old interrupted download."""
-        if os.path.lexists(os.path.join(folder, 'install.json')) or os.path.lexists(os.path.join(folder, 'release.json')):
+        if (os.path.lexists(os.path.join(folder, 'install.json'))
+            or os.path.lexists(os.path.join(folder, 'release.json'))):
             return False
         result_path = os.path.join(folder, 'result.json')
         if os.path.isfile(result_path):

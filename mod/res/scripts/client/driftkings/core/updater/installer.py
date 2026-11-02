@@ -36,7 +36,8 @@ def file_signature(paths):
     for path in sorted(names):
         try:
             info = os.lstat(path)
-            value = (info.st_dev, info.st_ino, info.st_size, info.st_mtime, info.st_ctime, getattr(info, 'st_file_attributes', None))
+            value = (info.st_dev, info.st_ino, info.st_size, info.st_mtime, info.st_ctime,
+                     getattr(info, 'st_file_attributes', None))
         except OSError:
             if os.path.lexists(path):
                 raise
@@ -145,8 +146,11 @@ class Installer(object):
             if ticket['schema'] == 2:
                 from driftkings.core.updater.modpack_transaction import RECEIPT
                 paths += tuple(os.path.join(self.root, *item['path'].split('/')) for item in ticket['operations'])
-                paths += (os.path.join(self.cache, RECEIPT % ticket['gameVersion']), os.path.join(folder, 'journal.json'))
-            return dict(args=captured[0][0], options=captured[0][1], created=[] if resume else [ticket_path, helper], paths=paths, signature=file_signature(paths), ticket=read_json(ticket_path), helperInfo=bounded_json(resources[INFO_RESOURCE]))
+                paths += (os.path.join(self.cache, RECEIPT % ticket['gameVersion']),
+                          os.path.join(folder, 'journal.json'))
+            return dict(args=captured[0][0], options=captured[0][1], created=[] if resume else [ticket_path, helper],
+                        paths=paths, signature=file_signature(paths), ticket=read_json(ticket_path),
+                        helperInfo=bounded_json(resources[INFO_RESOURCE]))
         except Exception:
             if not resume:
                 for path in (ticket_path, helper):
@@ -227,10 +231,14 @@ class Installer(object):
             raise ValueError('Existing installation ticket requires recovery')
         binary = self.resource_reader(HELPER_RESOURCE)
         info = bounded_json(self.resource_reader(INFO_RESOURCE))
-        if (not isinstance(info, dict) or set(info) != set(('schema', 'size', 'sha256')) or info['schema'] != 1 or len(binary) > 4 * 1024 * 1024 or len(binary) != info['size'] or hashlib.sha256(binary).hexdigest() != info['sha256'] or binary[:2] != b'MZ'):
+        if (not isinstance(info, dict) or set(info) != set(('schema', 'size', 'sha256')) or info['schema'] != 1
+            or len(binary) > 4 * 1024 * 1024 or len(binary) != info['size']
+            or hashlib.sha256(binary).hexdigest() != info['sha256'] or binary[:2] != b'MZ'):
             raise ValueError('Local installer resource mismatch')
         helper = os.path.join(folder, 'Driftkings.UpdateInstaller.exe')
-        ticket = dict(schema=1, gameVersion=game_version, version=manifest.version.text, size=manifest.size, sha256=manifest.sha256, installedVersion=installed, installedSize=os.path.getsize(target), installedSha256=digest(target))
+        ticket = dict(schema=1, gameVersion=game_version, version=manifest.version.text, size=manifest.size,
+                      sha256=manifest.sha256, installedVersion=installed, installedSize=os.path.getsize(target),
+                      installedSha256=digest(target))
         if manifest.inventory is not None:
             from driftkings.core.updater.modpack_transaction import prepare
             ticket = prepare(self.root, manifest, installed, ticket['installedSize'], ticket['installedSha256'])
@@ -258,7 +266,8 @@ class Installer(object):
             self._clear_restart(folder)
             write_new(ticket_path, ticket)
             ticket_created = True
-            self.process = self.launcher([helper, folder, str(os.getpid())], shell=False, creationflags=0x08000000, close_fds=False)
+            self.process = self.launcher([helper, folder, str(os.getpid())], shell=False, creationflags=0x08000000,
+                                         close_fds=False)
         except Exception:
             if ticket_created:
                 os.remove(ticket_path)
@@ -287,8 +296,10 @@ class Installer(object):
                 raise ValueError('Recovery belongs to another loaded version')
             # Legacy field checks below use the original installed identity.
             installed = ticket['installedVersion']
-        keys = ('schema', 'gameVersion', 'version', 'size', 'sha256', 'installedVersion', 'installedSize', 'installedSha256')
-        if manifest.inventory is None and (not isinstance(ticket, dict) or set(ticket) != set(keys) or type(ticket['schema']) is not int or ticket['schema'] != 1 or
+        keys = ('schema', 'gameVersion', 'version', 'size', 'sha256', 'installedVersion', 'installedSize',
+                'installedSha256')
+        if manifest.inventory is None and (not isinstance(ticket, dict) or set(ticket) != set(keys)
+                                           or type(ticket['schema']) is not int or ticket['schema'] != 1 or
                 ticket['gameVersion'] != normalize_game_version(client_version) or
                 ticket['version'] != manifest.version.text or ticket['size'] != manifest.size or
                 ticket['sha256'] != manifest.sha256 or ticket['installedVersion'] != installed or
@@ -309,7 +320,8 @@ class Installer(object):
         if os.path.lexists(marker):
             os.remove(safe_file(marker))
         self._clear_restart(folder)
-        self.process = self.launcher([helper, folder, str(os.getpid())], shell=False, creationflags=0x08000000, close_fds=False)
+        self.process = self.launcher([helper, folder, str(os.getpid())], shell=False, creationflags=0x08000000,
+                                     close_fds=False)
         return True
 
     @staticmethod

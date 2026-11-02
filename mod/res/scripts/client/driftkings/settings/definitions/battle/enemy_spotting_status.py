@@ -17,8 +17,10 @@ class EnemySpottingStatusSettings(SectionDefinition):
         return (
             [
                 control(ENEMY_SPOTTING_STATUS.SOUND),
-                slider(ENEMY_SPOTTING_STATUS.ICON_SIZE_X, 5.0, 150.0, 1.0, '{{value}}%s' % self.i18n['UI_setting_iconSizeX_value']),
-                slider(ENEMY_SPOTTING_STATUS.ICON_SIZE_Y, 5.0, 150.0, 1.0, '{{value}}%s' % self.i18n['UI_setting_iconSizeY_value'])
+                slider(ENEMY_SPOTTING_STATUS.ICON_SIZE_X, 5.0, 150.0, 1.0,
+                       '{{value}}%s' % self.i18n['UI_setting_iconSizeX_value']),
+                slider(ENEMY_SPOTTING_STATUS.ICON_SIZE_Y, 5.0, 150.0, 1.0,
+                       '{{value}}%s' % self.i18n['UI_setting_iconSizeY_value'])
             ],
             [
                 xColorSpotted,

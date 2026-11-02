@@ -21,7 +21,8 @@ class Profiles(object):
     def name(self, value):
         if not isinstance(value, type(u'')) and not isinstance(value, str):
             raise ValueError('Invalid profile name')
-        if not re.match(r'^[A-Za-z0-9_-]{1,64}\Z', value) or value.upper() in ('CON', 'PRN', 'AUX', 'NUL') or re.match(r'^(COM|LPT)[0-9]\Z', value.upper()):
+        if (not re.match(r'^[A-Za-z0-9_-]{1,64}\Z', value) or value.upper() in ('CON', 'PRN', 'AUX', 'NUL')
+            or re.match(r'^(COM|LPT)[0-9]\Z', value.upper())):
             raise ValueError('Invalid profile name')
         return value
 
@@ -31,7 +32,8 @@ class Profiles(object):
             for mod in self.api.registry.ordered()}}
 
     def stage(self, session, document):
-        if not isinstance(document, dict) or document.get('format') != 'dk.settings.profile' or document.get('version') != 1:
+        if (not isinstance(document, dict) or document.get('format') != 'dk.settings.profile'
+            or document.get('version') != 1):
             raise ValueError('Invalid profile format')
         mods = document.get('mods')
         if not isinstance(mods, dict):

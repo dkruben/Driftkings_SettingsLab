@@ -12,7 +12,8 @@ COLOR_PATTERN = re.compile(r'^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\Z')
 TEXT_LIMIT = 4096
 
 # Controls that hold a persisted value.
-VALUE_TYPES = ('switch', 'checkbox', 'dropdown', 'slider', 'number', 'text', 'password', 'color', 'hotkey', 'multiselect', 'textarea', 'file', 'directory')
+VALUE_TYPES = ('switch', 'checkbox', 'dropdown', 'slider', 'number', 'text', 'password', 'color', 'hotkey',
+               'multiselect', 'textarea', 'file', 'directory')
 # Layout and action controls; they are never persisted.
 STATIC_TYPES = ('section', 'label', 'separator', 'button')
 SECRET_TYPES = ('password',)
@@ -225,13 +226,15 @@ class Control(object):
     def describe(self, language):
         """JSON-safe description for the Gameface view; callbacks stay in Python."""
         data = {'id': self.id, 'type': self.type, 'label': resolve_text(self.label, language)}
-        data.update(column=self.column, tab=resolve_text(self.tab, language) if self.tab else None, keywords=self.keywords)
+        data.update(column=self.column, tab=resolve_text(self.tab, language) if self.tab else None,
+                    keywords=self.keywords)
         if self.description is not None:
             data['description'] = resolve_text(self.description, language)
         if self.has_value and not self.secret:
             data['default'] = self.default
         if self.type in ('dropdown', 'multiselect'):
-            data['options'] = [{'value': value, 'label': resolve_text(label, language)} for value, label in self.options]
+            data['options'] = [{'value': value, 'label': resolve_text(label, language)} for value,
+                               label in self.options]
         if self.type in ('slider', 'number'):
             data.update({'min': self.minimum, 'max': self.maximum, 'step': self.step})
             if self.unit:
@@ -243,7 +246,8 @@ class Control(object):
         if self.type == 'button':
             data['text'] = resolve_text(self.text, language) if self.text is not None else data['label']
         if self.type == 'color' and self.presets:
-            data['presets'] = [{'value': value, 'label': resolve_text(label, language)} for value, label in self.presets]
+            data['presets'] = [{'value': value, 'label': resolve_text(label, language)} for value,
+                               label in self.presets]
         if self.depends_on:
             data['dependsOn'] = self.depends_on
         if self.preview:

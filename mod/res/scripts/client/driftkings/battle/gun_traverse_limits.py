@@ -252,7 +252,8 @@ class AimingAnglesController(AimingAnglesView):
 
     def set_gunAnglesPacked(self, func, b_self, *args, **kwargs):
         result = func(b_self, *args, **kwargs)
-        if not b_self.isPlayerVehicle or b_self.gunAnglesPacked == self.old_gunAnglesPacked or not self.showCorners or self.isMapCase:
+        if (not b_self.isPlayerVehicle or b_self.gunAnglesPacked == self.old_gunAnglesPacked or not self.showCorners
+            or self.isMapCase):
             return result
         if BigWorld.player() is None or BigWorld.player().isObserver():
             self.hideCorners()
@@ -274,7 +275,9 @@ class AimingAnglesController(AimingAnglesView):
     def smoothing(self, stepYaw, stepPitch, step):
         self.dataHor, self.dataVert = self.coordinate(stepYaw, stepPitch)
         if (step + STEP) < 1.001:
-            self.smoothingID = callback(TIME_STEP, partial(self.smoothing, stepYaw + self.currentStepYaw, stepPitch + self.currentStepPitch, step + STEP))
+            self.smoothingID = callback(TIME_STEP,
+                                        partial(self.smoothing, stepYaw + self.currentStepYaw,
+                                                stepPitch + self.currentStepPitch, step + STEP))
         else:
             self.smoothingID = None
         self.updateLabels()
@@ -297,7 +300,8 @@ class AimingAnglesController(AimingAnglesView):
             xLeft = - COORDINATE_OFF_SCREEN
             xRight = COORDINATE_OFF_SCREEN
         if self.showVerCorners:
-            pHi, pLo = BigWorld.wg_calcGunPitchLimits(_yaw, self.minPitch, self.maxPitch, self.turretPitch, self.gunJointPitch)
+            pHi, pLo = BigWorld.wg_calcGunPitchLimits(_yaw, self.minPitch, self.maxPitch, self.turretPitch,
+                                                      self.gunJointPitch)
             dif_pitch = pLo - _pitch
             yLo = int((self.scaleVert * dif_pitch + self.yVert) if dif_pitch > self.pitchStep else self.yVert)
             dif_pitch = pHi - _pitch

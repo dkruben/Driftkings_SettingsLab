@@ -87,7 +87,8 @@ def assemble(root=ROOT):
             general = get(prefix + 'carousel.json')
             data = {key: general[key] for key in ('enabled', 'showIcons', 'colorRating')}
             data['carousel'] = {key: value for key, value in general.items() if key not in data}
-            data['carousel'].update(normal=get(prefix + 'carouselnormal.json'), small=get(prefix + 'carouselsmall.json'))
+            data['carousel'].update(normal=get(prefix + 'carouselnormal.json'),
+                                    small=get(prefix + 'carouselsmall.json'))
         elif identifier == 'vehicle_markers':
             # Marker layout: markers.json (its enabled is the section switch) and four state files.
             markers = dict(get('default/vehicle_markers/markers.json')['markers'])
@@ -115,10 +116,12 @@ def assemble(root=ROOT):
 
 def render(root=ROOT):
     defaults, selector, documents = assemble(root)
-    hashes = {name: hashlib.sha256(json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+    hashes = {name: hashlib.sha256(json.dumps(value, ensure_ascii=True, sort_keys=True,
+                                              separators=(',', ':')).encode()).hexdigest()
               for name, value in sorted(documents.items())}
     # ASCII literals plus unicode_literals work identically on Python 2.7 and 3.
-    literal = lambda value: pprint.pformat(json.loads(json.dumps(value)), width=110, sort_dicts=True).encode('ascii', 'backslashreplace').decode('ascii')
+    literal = lambda value: pprint.pformat(json.loads(json.dumps(value)), width=110,
+                                           sort_dicts=True).encode('ascii', 'backslashreplace').decode('ascii')
     return ('# -*- coding: utf-8 -*-\n'
             '"""Generated from res/configs/Driftkings. Edit the JSON, never this file.\n\n'
             'Regenerate: python build_tools/generate_defaults.py --write\n'
@@ -152,7 +155,8 @@ def refresh_snapshot(root=ROOT):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument('--check', action='store_true', help='Check that the Python fallback matches the canonical JSON without writing')
+    mode.add_argument('--check', action='store_true',
+                      help='Check that the Python fallback matches the canonical JSON without writing')
     mode.add_argument('--write', action='store_true', help='Regenerate the checked-in Python fallback')
     parser.add_argument('--refresh-snapshot', action='store_true', help='Record intentional edits to the JSON defaults')
     args = parser.parse_args()

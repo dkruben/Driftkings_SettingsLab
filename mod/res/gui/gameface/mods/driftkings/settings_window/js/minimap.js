@@ -329,9 +329,9 @@
                  colorMatch ? colorMatch[1] : '#FFCC66', alpha(v('mapSize.alpha', 80)), 'left', true);
         }
 
-        var disposed=false;
+        var disposed = false;
         function draw() {
-            if (disposed||!paint) { return; }
+            if (disposed || !paint) { return; }
             // Fixed drawing resolution; the CSS gives the canvas a square size in UI units.
             size = RESOLUTION;
             if (canvas.width !== size) { canvas.width = size; canvas.height = size; }
@@ -370,7 +370,7 @@
             preview: function (key, value) { overrides[key] = value; draw(); },
             redraw: draw,
             node: root,
-            dispose: function () { disposed=true;Object.keys(images).forEach(function(key){images[key].onload=null;images[key].onerror=null;});DK.remove(root); }
+            dispose: function () { disposed = true; Object.keys(images).forEach(function (key) { images[key].onload = null; images[key].onerror = null; }); DK.remove(root); }
         };
     }
 

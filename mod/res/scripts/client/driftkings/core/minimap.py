@@ -196,7 +196,8 @@ def validate(data):
     numeric(aim.get('scale'), 10, 200)
     numeric(aim.get('alpha'), 0, 100)
     path = aim.get('src')
-    if not isinstance(path, (str, text_type)) or not path.strip() or len(path) > 512 or '\n' in path or '\r' in path or not path.lower().endswith('.png'):
+    if (not isinstance(path, (str, text_type)) or not path.strip() or len(path) > 512 or '\n' in path or '\r' in path
+        or not path.lower().endswith('.png')):
         raise ValueError('Invalid artillery aim PNG path')
     for section in ('icons', 'health', 'lostMarker', 'mapSize'):
         if not isinstance(data.get(section), dict):
@@ -223,7 +224,8 @@ def validate(data):
     for key in ('triangleAlpha', 'directionAlpha'):
         numeric(data['lines'].get(key), 0, 100)
     nearby = data.get('nearby')
-    if not isinstance(nearby, dict) or type(nearby.get('enabled')) is not bool or nearby.get('range') not in NEARBY_RANGES:
+    if (not isinstance(nearby, dict) or type(nearby.get('enabled')) is not bool
+        or nearby.get('range') not in NEARBY_RANGES):
         raise ValueError('Invalid minimap section: nearby')
     numeric(nearby.get('distance'), 50, 1500)
     numeric(nearby.get('alpha'), 0, 100)
@@ -246,7 +248,8 @@ def validate(data):
         numeric(data['icons'].get(key), 0, 100)
     numeric(data['lostMarker'].get('minimumAlpha'), 0, 100)
     hp = data['health']
-    if hp.get('visibility') not in ('always', 'key', 'never') or hp.get('mode') not in MINIMAP_ENHANCEMENTS.HEALTH_MODES:
+    if (hp.get('visibility') not in ('always', 'key', 'never')
+        or hp.get('mode') not in MINIMAP_ENHANCEMENTS.HEALTH_MODES):
         raise ValueError('Invalid minimap health mode')
     numeric(hp.get('width'), 10, 100)
     numeric(hp.get('height'), 1, 10)

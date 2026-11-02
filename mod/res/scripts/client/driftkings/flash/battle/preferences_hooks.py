@@ -76,11 +76,13 @@ def install(config, _getAttackerName):
 
 
     def _withEnemyName(method):
-        def hook(func, self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg=None):
+        def hook(func, self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG,
+                 shellModeImg=None):
             settings = settings_service.getComponentDict(config)
             if settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.ADD_ENEMY_NAME]:
                 vehicleName = vehicleName + ' | ' + _getAttackerName(vehicleName)
-            return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG, shellModeImg)
+            return func(self, value, actionTypeImg, vehicleTypeImg, vehicleName, shellTypeStr, shellTypeBG,
+                        shellModeImg)
         # The explicit method identifies each hook, including its diagnostics key.
         return override(DamageLogPanel, method)(hook)
 

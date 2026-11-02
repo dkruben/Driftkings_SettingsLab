@@ -164,7 +164,8 @@ def install_gameface():
                 visible = bool(parent is not None and _component().g_controller.visible.get(parent, False)
                                and settings_service.getComponentDict(_component().vehicle_carousel_settings)[GLOBAL.ENABLED])
                 payload = card_payload(self._lastPayload, kwargs.get('config_only', False), visible,
-                                       lambda: get_view_config(_component().vehicle_carousel_settings, _component().g_rowModels),
+                                       lambda: get_view_config(_component().vehicle_carousel_settings,
+                                                               _component().g_rowModels),
                                        lambda: _component().g_data.build_panel_model(self._vehicleIds))
                 publish_card(self, payload)
             except Exception:
@@ -190,7 +191,8 @@ def install_carousel_layout():
             g_rowModels[model] = value
         except TypeError:
             LOG.debug('Carousel model is not weak-referenceable; row count not tracked')
-        rows = layout.row_count(settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL], value) if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else value
+        rows = layout.row_count(settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL],
+                                value) if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else value
         # The client model/toggle remains single or double; our Gameface bridge
         # expands effectiveRows to three/four without saving invalid client prefs.
         result = original(model, min(2, rows))
@@ -204,12 +206,14 @@ def install_carousel_layout():
     def update_filters(original, presenter):
         result = original(presenter)
         g_filterPresenters.add(presenter)
-        order = settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['nations_order'] if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else []
+        order = (settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['nations_order']
+                 if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else [])
         if order:
             with presenter.viewModel.transaction() as model:
                 target = model.getNationsOrder()
                 existing = list(target)
-                ordered = [value for value in order if value in existing] + [value for value in existing if value not in order]
+                ordered = [value for value in order if value in existing] + [value for value in existing
+                                                                             if value not in order]
                 target.clear()
                 for value in ordered:
                     target.addString(value)
@@ -224,7 +228,9 @@ def install_carousel_layout():
     from gui.impl.lobby.hangar.presenters.vehicle_inventory_presenter import VehicleInventoryPresenter
     @override(VehicleInventoryPresenter, 'createToolTipContent')
     def tooltip(original, presenter, event, contentID):
-        if settings_service.getComponentDict(config)[GLOBAL.ENABLED] and settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['suppressCarouselTooltips'] and contentID == R.views.mono.hangar.vehicle_tooltip():
+        if (settings_service.getComponentDict(config)[GLOBAL.ENABLED]
+            and settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['suppressCarouselTooltips']
+            and contentID == R.views.mono.hangar.vehicle_tooltip()):
             return None
         return original(presenter, event, contentID)
 

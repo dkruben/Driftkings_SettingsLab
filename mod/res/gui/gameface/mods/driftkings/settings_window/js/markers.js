@@ -4,7 +4,7 @@
    um formulário por elemento e o JSON em bruto, e grava pelo mesmo ctx.commit dos outros controlos. */
 (function () {
     'use strict';
-    var DK = window.DK, h = DK.h, t = DK.t, M=DK.vehicleMarkerModel;
+    var DK = window.DK, h = DK.h, t = DK.t, M = DK.vehicleMarkerModel;
     var FILES = {alive: {normal: 'markersAliveNormal', extended: 'markersAliveExtended'}, dead: {normal: 'markersDeadNormal', extended: 'markersDeadExtended'}};
     var TEAM = {ally: '#60D35A', enemy: '#F0413B'};
     // Marker numbers with a known range: [min, max, unit, step]. Positions, sizes and times stay inside the limits
@@ -36,13 +36,13 @@
         return labels[key] || key;
     }
     function getPath(object, path) { for (var i = 0; i < path.length; i++) { if (object === null || object === undefined) { return undefined; } object = object[path[i]]; } return object; }
-    function setPath(object,path,value){
-        var parent=object;
-        for(var i=0;i<path.length-1;i++){
-            if(!parent[path[i]]||typeof parent[path[i]]!=='object'){parent[path[i]]={};}
-            parent=parent[path[i]];
+    function setPath(object, path, value) {
+        var parent = object;
+        for (var i = 0; i < path.length - 1; i++) {
+            if (!parent[path[i]] || typeof parent[path[i]] !== 'object') { parent[path[i]] = {}; }
+            parent = parent[path[i]];
         }
-        parent[path[path.length-1]]=value;
+        parent[path[path.length - 1]] = value;
     }
     function refPath(value) {
         if (value && typeof value === 'object' && value.$ref && value.$ref.path) { return value.$ref.path.split('.'); }
@@ -52,21 +52,21 @@
     function create(host, mod, ctx) {
         var preview = mod.preview, bindings = preview.bindings || {}, values = {}, disabled = [], changed = [];
         var sel = {team: 'ally', state: 'alive', mode: 'normal', element: null, path: null, json: false};
-        var docs = {}, texts = {}, sliders = [], current=null, awaiting=false;
+        var docs = {}, texts = {}, sliders = [], current = null, awaiting = false;
         var vehicle = preview.vehicle || {};
-        function sample(){return {group:sel.team,state:sel.state,alt:sel.mode==='extended',blind:false,hp:sel.state==='dead'?0:hp.value,distance:350,name:'Driftkings',vehicle:vehicle};}
-        function resolved(){
+        function sample() { return {group: sel.team, state: sel.state, alt: sel.mode === 'extended', blind: false, hp: sel.state === 'dead' ? 0 : hp.value, distance: 350, name: 'Driftkings', vehicle: vehicle}; }
+        function resolved() {
             // The markers field holds the content of markers.json's "markers" object (ally/enemy wiring, colours...).
-            var general=doc('markers'),raw=general&&typeof general==='object'?DK.copy(general):{};
+            var general = doc('markers'), raw = general && typeof general === 'object' ? DK.copy(general) : {};
             // The rating switches above the preview are their own fields; follow them before markers.json catches up.
-            var rating=values[bindings['markers.colorRating']],metric=values[bindings['markers.ratingType']];
-            if(typeof rating==='number'){raw.colorRating=rating;}
-            if(typeof metric==='string'){raw.ratingType=metric;}
-            raw={enabled:values[bindings.enabled]!==false,markers:raw};
-            M.STATE_KEYS.forEach(function(key){raw[key]=doc(key);});
-            return M.state(raw,sample(),preview.palettes);
+            var rating = values[bindings['markers.colorRating']], metric = values[bindings['markers.ratingType']];
+            if (typeof rating === 'number') { raw.colorRating = rating; }
+            if (typeof metric === 'string') { raw.ratingType = metric; }
+            raw = {enabled: values[bindings.enabled] !== false, markers: raw};
+            M.STATE_KEYS.forEach(function (key) { raw[key] = doc(key); });
+            return M.state(raw, sample(), preview.palettes);
         }
-        function color(value,fallback){return DK.hex(value)||((current&&value)?DK.hex(M.text(value,current.config,sample())):null)||fallback;}
+        function color(value, fallback) { return DK.hex(value) || ((current && value) ? DK.hex(M.text(value, current.config, sample())) : null) || fallback; }
         var root = h('div.dk-markers', null, null, host);
 
         /* Top bar: general switches rendered as ordinary controls */
@@ -228,7 +228,7 @@
         function locked(key) { return DK.contains(disabled, fieldId(key)); }
         function commit(key, document) {
             var raw = texts[key] || '', ascii = !/[^\x00-\x7f]/.test(raw);
-            awaiting=true;ctx.commit(fieldId(key), DK.pyJson(document, ascii));
+            awaiting = true; ctx.commit(fieldId(key), DK.pyJson(document, ascii));
         }
 
         /* Preview drawing */
@@ -238,9 +238,9 @@
             try { d = d && M.resolve(d); } catch (error) { d = null; }
             var team = d && d[sel.team];
             if (!team) { return; }
-            try{current=resolved();}catch(error){current=null;return;}
+            try { current = resolved(); } catch (error) { current = null; return; }
             if (!current.shown) { return; }
-            var base=M.teamColor(current.config,sample());
+            var base = M.teamColor(current.config, sample());
             Object.keys(team).forEach(function (key) {
                 var item = team[key];
                 if (key === 'textFields' && DK.isArray(item)) {
@@ -256,7 +256,7 @@
                     node.style.borderWidth = (border.size === undefined ? 1 : border.size) + 'rem';
                     node.style.borderColor = DK.rgba(color(border.color, '#000000'), (border.alpha === undefined ? 100 : border.alpha) / 100);
                     var fill = h('div.dk-mk-fill', null, null, node);
-                    fill.style.width = (sel.state==='dead'?0:hp.value) + '%';
+                    fill.style.width = (sel.state === 'dead' ? 0 : hp.value) + '%';
                     var fillAlpha = ((item.fill && item.fill.alpha) === undefined ? 100 : item.fill.alpha) / 100;
                     fill.style.backgroundColor = DK.rgba(color(item.color, base), fillAlpha);
                     if (item.lcolor) { fill.style.backgroundImage = 'linear-gradient(to right, ' + DK.rgba(color(item.color, base), fillAlpha) + ', ' + DK.rgba(color(item.lcolor, base), fillAlpha) + ')'; }
@@ -284,12 +284,12 @@
             if (!field || typeof field !== 'object' || field.enabled === false) { return; }
             var format = field.textFormat || {};
             var node = h('div.dk-mk-text', null, null, anchor);
-            DK.richText.render(node,M.text(field.format || field.name || '',current.config,sample()),{size:format.size||13});
-            node.style.fontFamily=format.font&&format.font!=='$FieldFont'&&format.font!=='$TitleFont'?format.font:'Warhelios';
-            node.style.fontStyle=format.italic?'italic':'normal';
+            DK.richText.render(node, M.text(field.format || field.name || '', current.config, sample()), {size: format.size || 13});
+            node.style.fontFamily = format.font && format.font !== '$FieldFont' && format.font !== '$TitleFont' ? format.font : 'Warhelios';
+            node.style.fontStyle = format.italic ? 'italic' : 'normal';
             node.style.fontWeight = format.bold ? '700' : '400';
             node.style.color = color(format.color, base);
-            node.style.opacity = Number(M.text(String(field.alpha === undefined ? 100 : field.alpha),current.config,sample())) / 100;
+            node.style.opacity = Number(M.text(String(field.alpha === undefined ? 100 : field.alpha), current.config, sample())) / 100;
             node.style.left = (field.x || 0) + 'rem';
             var width = field.width === undefined ? 140 : field.width, height = field.height === undefined ? 100 : field.height;
             node.style.width = width + 'rem'; node.style.height = height + 'rem';
@@ -345,9 +345,9 @@
         }
 
         /* Generic form ------------------------------------------------------ */
-        function isColorKey(key, value) { return (typeof value==='string'||value===null)&&/color$/i.test(key); }
+        function isColorKey(key, value) { return (typeof value === 'string' || value === null) && /color$/i.test(key); }
         function field(container, document, key, path, value, fileKeyName, readOnly) {
-            function save(next) { if(readOnly){return;} var draft=DK.copy(document);setPath(draft,path,next);commit(fileKeyName,draft); }
+            function save(next) { if (readOnly) { return; } var draft = DK.copy(document); setPath(draft, path, next); commit(fileKeyName, draft); }
             var range = rangeFor(key, path);
             if (range && fits(value, range)) {
                 // Known bounded numbers get a slider; a value outside the range keeps the free number field.
@@ -355,13 +355,13 @@
                                                  {commit: function (id, next) { if (!readOnly) { save(next); } }});
                 control.sync({disabled: readOnly, changed: false, value: value});
                 control.set(value);
-                control.node.setAttribute('data-property',fileKeyName+'.'+path.join('.'));
+                control.node.setAttribute('data-property', fileKeyName + '.' + path.join('.'));
                 DK.toggle(control.node, 'dk-mk-slider', true);
                 container.appendChild(control.node);
                 sliders.push(control);
                 return;
             }
-            var row = h('div.dk-mk-row', {'data-property':fileKeyName+'.'+path.join('.')}, [h('div.dk-mk-label', {text: label(preview, key)})], container);
+            var row = h('div.dk-mk-row', {'data-property': fileKeyName + '.' + path.join('.')}, [h('div.dk-mk-label', {text: label(preview, key)})], container);
             var input = h('div.dk-mk-input', null, null, row);
             if (typeof value === 'boolean') {
                 var sw = h('div.dk-switch' + (value ? '.is-on' : ''), {tabIndex: 0}, [h('div.dk-switch-knob')], input);
@@ -382,10 +382,10 @@
             } else if (isColorKey(key, value)) {
                 var swatch = h('button.dk-swatch', null, [h('span.dk-swatch-fill')], input);
                 swatch.firstChild.style.backgroundColor = color(value, 'transparent');
-                var colorField=h('input.dk-field',{type:'text',value:value||'',placeholder:label(preview,'team'),readOnly:readOnly},null,input);
-                function readColor(){var next=colorField.value||null;if(next!==value){save(next);}}
-                colorField.addEventListener('blur',readColor);
-                colorField.addEventListener('keydown',function(event){if(event.keyCode===13){DK.stop(event);readColor();}});
+                var colorField = h('input.dk-field', {type: 'text', value: value || '', placeholder: label(preview, 'team'), readOnly: readOnly}, null, input);
+                function readColor() { var next = colorField.value || null; if (next !== value) { save(next); } }
+                colorField.addEventListener('blur', readColor);
+                colorField.addEventListener('keydown', function (event) { if (event.keyCode === 13) { DK.stop(event); readColor(); } });
                 swatch.addEventListener('click', function (event) {
                     DK.stop(event);
                     if (readOnly) { return; }
@@ -416,13 +416,13 @@
                 value.forEach(function (item, index) {
                     var head = h('div.dk-mk-group-head', null, [h('span', {text: DK.tf('markers.item', {n: index + 1})})], listBox);
                     h('button.dk-button.is-small', {text: t('markers.remove'), onclick: function (event) {
-                        DK.stop(event); if (!readOnly) { var next=DK.copy(value);next.splice(index,1);save(next); }
+                        DK.stop(event); if (!readOnly) { var next = DK.copy(value); next.splice(index, 1); save(next); }
                     }}, null, head);
                     if (item !== null && typeof item === 'object') { form(listBox, document, item, path.concat([index]), fileKeyName, readOnly); }
                     else { field(listBox, document, '#' + (index + 1), path.concat([index]), item, fileKeyName, readOnly); }
                 });
                 h('button.dk-button.is-small', {text: t('markers.add'), onclick: function (event) {
-                    DK.stop(event); if (!readOnly) { var next=DK.copy(value);next.push(path[path.length-1]==='textFields'?DK.copy(M.field):value.length?DK.copy(value[value.length-1]):{});save(next); }
+                    DK.stop(event); if (!readOnly) { var next = DK.copy(value); next.push(path[path.length - 1] === 'textFields' ? DK.copy(M.field) : value.length ? DK.copy(value[value.length - 1]) : {}); save(next); }
                 }}, null, listBox);
             } else if (value && typeof value === 'object') {
                 DK.toggle(row, 'is-group', true);
@@ -436,7 +436,7 @@
             }
         }
         function form(container, document, object, path, fileKeyName, readOnly, skip) {
-            if(fileKeyName==='markers'&&path.join('.')==='colors'&&current){object=M.merge(current.config.colors,object);}
+            if (fileKeyName === 'markers' && path.join('.') === 'colors' && current) { object = M.merge(current.config.colors, object); }
             Object.keys(object || {}).forEach(function (key) {
                 if (skip && DK.contains(skip, key)) { return; }
                 field(container, document, key, path.concat([key]), object[key], fileKeyName, readOnly);
@@ -456,7 +456,7 @@
                 h('button.dk-button.is-primary.is-small', {text: t('markers.apply'), onclick: function (event) {
                     DK.stop(event);
                     try { JSON.parse(area.value); } catch (error) { status.textContent = t('markers.invalid'); return; }
-                    if (!readOnly) { awaiting=true;ctx.commit(fieldId(key), area.value); }
+                    if (!readOnly) { awaiting = true; ctx.commit(fieldId(key), area.value); }
                 }}, null, editor);
                 editorScroll.update();
                 return;
@@ -496,9 +496,9 @@
                     control.set(values[id]);
                 });
                 var after = JSON.stringify([fieldId(FILES[sel.state][sel.mode]), bindings.markers, bindings.enabled, bindings['markers.colorRating'], bindings['markers.ratingType']].map(function (id) { return values[id]; }));
-                if (before !== after || awaiting || !list.firstChild) { awaiting=false;render(); }
+                if (before !== after || awaiting || !list.firstChild) { awaiting = false; render(); }
             },
-            dispose: function () { clearEffects();editorScroll.dispose();sliders.forEach(function(control){control.dispose();}); generalControls.forEach(function (control) { control.dispose(); }); DK.remove(root); }
+            dispose: function () { clearEffects(); editorScroll.dispose(); sliders.forEach(function (control) { control.dispose(); }); generalControls.forEach(function (control) { control.dispose(); }); DK.remove(root); }
         };
     }
 

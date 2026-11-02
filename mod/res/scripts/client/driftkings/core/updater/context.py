@@ -12,7 +12,8 @@ class InstallContext(object):
     def subscribe(self, callback):
         if self._subscriptions:
             return
-        for name in ('onSpaceCreating', 'onSpaceCreate', 'onSpaceDestroy', 'onVehicleChangeStarted', 'onVehicleChanged', 'onSpaceRefreshCompleted'):
+        for name in ('onSpaceCreating', 'onSpaceCreate', 'onSpaceDestroy', 'onVehicleChangeStarted',
+                     'onVehicleChanged', 'onSpaceRefreshCompleted'):
             event = getattr(self.hangar, name, None)
             if event is not None:
                 event += callback
@@ -52,4 +53,5 @@ def runtime_context():
     from helpers import dependency
     from skeletons.gui.app_loader import GuiGlobalSpaceID
     from skeletons.gui.shared.utils import IHangarSpace
-    return InstallContext(GuiGlobalSpaceID.LOBBY, ServicesLocator.appLoader, dependency.instance(IHangarSpace), BattleReplay)
+    return InstallContext(GuiGlobalSpaceID.LOBBY, ServicesLocator.appLoader, dependency.instance(IHangarSpace),
+                          BattleReplay)

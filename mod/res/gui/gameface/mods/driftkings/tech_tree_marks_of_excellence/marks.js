@@ -71,15 +71,15 @@
                 badge.style.fontSize = size + 'rem';
                 if (data.showPercent && stats.tier >= 5) {
                     var percent = document.createElement('span');
-                    percent.className='dk-tech-marks__percent';
+                    percent.className = 'dk-tech-marks__percent';
                     // Warhelios has no star glyph; the mark is an image sized to the text.
-                    var mark=document.createElement('span');mark.className='dk-tech-marks__symbol';
-                    mark.style.width = mark.style.height = size + 'rem';badge.appendChild(mark);
+                    var mark = document.createElement('span'); mark.className = 'dk-tech-marks__symbol';
+                    mark.style.width = mark.style.height = size + 'rem'; badge.appendChild(mark);
                     percent.textContent = number(stats.percent, 0, 0, 100).toFixed(2) + '%';
                     percent.style.color = color(stats);
                     badge.appendChild(percent);
                 }
-                var masteryLevel = [1,2,3,4].indexOf(stats.mastery) >= 0 ? stats.mastery : 0;
+                var masteryLevel = [1, 2, 3, 4].indexOf(stats.mastery) >= 0 ? stats.mastery : 0;
                 if (data.showMastery && masteryLevel && (stats.tier >= 5 || masteryLevel === 4)) {
                     var mastery = document.createElement('img');
                     mastery.className = 'dk-tech-marks__mastery';

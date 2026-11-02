@@ -49,7 +49,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('folder', nargs='?', type=Path, help='Version directory containing release.json')
     parser.add_argument('--key', type=Path, help='File with the private seed (64 hex characters)')
-    parser.add_argument('--generate', type=Path, metavar='KEYFILE', help='Create a new private key file and print the public key')
+    parser.add_argument('--generate', type=Path, metavar='KEYFILE',
+                        help='Create a new private key file and print the public key')
     args = parser.parse_args()
     module = load_signature()
     if args.generate:

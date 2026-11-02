@@ -51,7 +51,8 @@ class GamefaceLoading(object):
                         resource=resource_id(gameface_spec('DriftkingsRatingPlayers')['resource'])
                         child=RatingView(ViewSettings(resource,model=RatingModel()))
                         view.setChildView(resource,child)
-                        bridge.children[view]={'child':child,'resource':resource,'screen':screen,'kind':kind,'data':None,
+                        bridge.children[view]={'child':child,'resource':resource,'screen':screen,'kind':kind,
+                                               'data':None,
                             'visible':view.showingStatus in (ShowingStatus.SHOWING,ShowingStatus.SHOWN)}
                         bridge.owner.refresh()
                         get_logger('Driftkings.PlayerPanelPro').info('Gameface roster attached: %s (%s)',screen,kind)
@@ -146,7 +147,8 @@ class GamefaceLoading(object):
             else:
                 # Resolved rows are immutable snapshots, shared by active child views.
                 if result is None:
-                    result=[{'id':row['id'],'ally':row['ally'],'aliases':row['aliases'],'cfg':row['tab']} for row in rows]
+                    result=[{'id':row['id'],'ally':row['ally'],'aliases':row['aliases'],'cfg':row['tab']}
+                            for row in rows]
                 players=view.viewModel.playerList
                 order={'left':[p.getVehicleId() for p in players.getAllies()],
                        'right':[p.getVehicleId() for p in players.getEnemies()]}

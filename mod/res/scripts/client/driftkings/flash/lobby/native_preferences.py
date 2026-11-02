@@ -61,7 +61,8 @@ def install(config, _overrideIfAvailable, LOG):
                     icon = '<img src=\'{}\' vspace=\'{}\'>'.format(
                         RES_ICONS.MAPS_ICONS_LIBRARY_XPCOSTICON_1.replace('..', 'img://gui'), -3)
                     template = '<font face=\'$TitleFont\' size=\'14\'><font color=\'#ff2717\'>{}</font> {}</font> {}'
-                    if isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict) and 'data' in result[0] and isinstance(result[0]['data'], dict):
+                    if (isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict)
+                        and 'data' in result[0] and isinstance(result[0]['data'], dict)):
                         result[0]['data']['text'] = template.format(i18n.makeString(STORAGE.BLUEPRINTS_CARD_CONVERTREQUIRED), need, icon)
         return result
 
@@ -69,7 +70,8 @@ def install(config, _overrideIfAvailable, LOG):
     @override(ChannelsCarouselHandler, 'addChannel')
     def new__addChannel(func, self, channel, lazy=False, isNotified=False):
         settings = settings_service.getComponentDict(config)
-        if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_CHANNEL_BUTTON_BLINKING, True):
+        if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_CHANNEL_BUTTON_BLINKING,
+                                                                   True):
             isNotified = False
         return func(self, channel, lazy, isNotified)
 
@@ -77,7 +79,8 @@ def install(config, _overrideIfAvailable, LOG):
     @override(ChannelsCarouselHandler, '_ChannelsCarouselHandler__setItemField')
     def new__setItemField(func, self, clientID, key, value):
         settings = settings_service.getComponentDict(config)
-        if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_CHANNEL_BUTTON_BLINKING, True) and key == 'isNotified':
+        if settings.get(GLOBAL.ENABLED, True) and not settings.get(HANGAR_PREFERENCES.ALLOW_CHANNEL_BUTTON_BLINKING,
+                                                                   True) and key == 'isNotified':
             value = False
         return func(self, clientID, key, value)
 

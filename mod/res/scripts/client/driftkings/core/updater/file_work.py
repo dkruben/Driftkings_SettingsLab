@@ -16,7 +16,8 @@ class FileWork(object):
     def submit(self, task, completed, cleanup=None):
         if self.closed or len(self.jobs) >= 4:
             raise RuntimeError('Updater file work unavailable')
-        job = dict(done=threading.Event(), cancelled=threading.Event(), lock=threading.Lock(), value=None, error=None, cleaned=False, token=None)
+        job = dict(done=threading.Event(), cancelled=threading.Event(), lock=threading.Lock(), value=None, error=None,
+                   cleaned=False, token=None)
         self.jobs.append(job)
         def discard():
             with job['lock']:

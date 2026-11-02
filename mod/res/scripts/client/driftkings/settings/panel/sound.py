@@ -15,7 +15,8 @@ class SoundManager(object):
         self.playing = {}
 
     def register(self, mod_id, bank, events, loaded=None, volume=None):
-        if not bank.lower().endswith('.bnk') or not events or not all(isinstance(e, (str, type(u''))) and e for e in events):
+        if not bank.lower().endswith('.bnk') or not events or not all(isinstance(e, (str, type(u''))) and e
+                                                                      for e in events):
             raise ValueError('Register a bank and named Wwise events')
         self.banks[mod_id] = {'bank': bank, 'events': tuple(events), 'loaded': loaded, 'volume': volume}
 

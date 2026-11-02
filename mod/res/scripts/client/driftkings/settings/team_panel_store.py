@@ -13,8 +13,10 @@ from driftkings.settings.settings_data import PROFILES
 from driftkings.settings.store import JsonDocuments, merge
 from driftkings.settings.store import read_object as read_json
 
-FILES = ('general.json', 'playerspanel.json', 'battleloading.json', 'statisticform.json') + tuple('panel%s.json' % name.lower() for name in PROFILES)
-GENERAL = ('schemaVersion', 'enabled', 'statsEnabled', 'colorScale', 'rating', 'performance', 'hpEnabled', 'hpVisibility', 'hpKey', 'spottedEnabled')
+FILES = ('general.json', 'playerspanel.json', 'battleloading.json',
+         'statisticform.json') + tuple('panel%s.json' % name.lower() for name in PROFILES)
+GENERAL = ('schemaVersion', 'enabled', 'statsEnabled', 'colorScale', 'rating', 'performance', 'hpEnabled',
+           'hpVisibility', 'hpKey', 'spottedEnabled')
 def defaults():
     return component_defaults('team_panels')
 
@@ -23,7 +25,8 @@ def loading_settings(settings):
 
 def split(data):
     return [dict((key, data[key]) for key in GENERAL),
-            dict(playersPanel=data['playersPanel'], templates=data['templates']), loading_settings(data['loading']), data['tab']] + [data['profiles'][name] for name in PROFILES]
+            dict(playersPanel=data['playersPanel'], templates=data['templates']), loading_settings(data['loading']),
+            data['tab']] + [data['profiles'][name] for name in PROFILES]
 
 def join(parts):
     data = dict(parts[0], **parts[1])
@@ -92,9 +95,12 @@ def validate(data):
             raise ValueError('Invalid panel profile')
         if name != 'none':
             fields=profile.get('standardFields')
-            if not isinstance(fields,list) or any(k not in ('frags','badge','nick','vehicle','prestige') for k in fields) or len(set(fields)) != len(fields):
+            if not isinstance(fields,list) or any(k not in ('frags','badge','nick','vehicle','prestige')
+                                                  for k in fields) or len(set(fields)) != len(fields):
                 raise ValueError('Invalid standardFields')
-            if not isinstance(profile.get('nickMinWidth'),string_types) and not isinstance(profile.get('nickMaxWidth'),string_types) and profile['nickMinWidth'] > profile['nickMaxWidth']:
+            if (not isinstance(profile.get('nickMinWidth'),string_types)
+                and not isinstance(profile.get('nickMaxWidth'),string_types)
+                and profile['nickMinWidth'] > profile['nickMaxWidth']):
                 raise ValueError('nickMinWidth exceeds nickMaxWidth')
         elif profile.get('layout') not in ('vertical','horizontal'):
             raise ValueError('Invalid hidden panel layout')
@@ -119,7 +125,10 @@ def validate(data):
             if isinstance(value,string_types) and '{{' not in value:
                 try: numeric=float(value)
                 except ValueError: raise ValueError(path+': Invalid field geometry')
-            if not isinstance(numeric,string_types) and (type(numeric) not in (int,float) or not (0 if ('Width' in key and 'WidthDelta' not in key) or key in ('width','height') else -2000) <= numeric <= 4000):
+            if not isinstance(numeric,string_types) and (type(numeric) not in (int,float)
+                                                         or not (0 if ('Width' in key and 'WidthDelta' not in key)
+                                                                 or key in ('width','height')
+                                                                 else -2000) <= numeric <= 4000):
                 raise ValueError(path+': Invalid field geometry')
         if isinstance(value,string_types) and ('{{' in value or '}}' in value):
             warnings.extend(path+': '+issue for issue in macro_issues(value,data))
@@ -147,7 +156,8 @@ class PlayerPanelStore(JsonDocuments):
             parts.append(merge(default,saved))
         data=join(parts)
         for message in validate(data): get_logger('Driftkings.PlayerPanelPro').warning('Configuration: %s',message)
-        missing=[(os.path.join(self.directory,name),value) for name,value in zip(FILES,split(data)) if not os.path.isfile(os.path.join(self.directory,name))]
+        missing=[(os.path.join(self.directory,name),value) for name,
+                 value in zip(FILES,split(data)) if not os.path.isfile(os.path.join(self.directory,name))]
         self.publish(missing)
         return data
 

@@ -68,11 +68,11 @@
                 if (!match || !rect.width || !rect.height || rect.right < 0 || rect.left > window.innerWidth || rect.bottom < 0 || rect.top > window.innerHeight) { continue; }
                 var id = match[1];
                 if (!seen[id] && ids.length < 120) { ids.push(id); seen[id] = true; }
-                visible.push({card:card, id:id, width:card.clientWidth, height:card.clientHeight});
+                visible.push({card: card, id: id, width: card.clientWidth, height: card.clientHeight});
             }
-            var request = ids.sort(function (a,b) { return Number(a)-Number(b); }).join(',');
+            var request = ids.sort(function (a, b) { return Number(a) - Number(b); }).join(',');
             if (request !== lastRequest && typeof model.onRequestVehicles === 'function') {
-                lastRequest = request; model.onRequestVehicles({ids:request});
+                lastRequest = request; model.onRequestVehicles({ids: request});
             }
             visible.forEach(function (entry) {
                 var profiles = (data.vehicles || {})[entry.id];
@@ -88,12 +88,12 @@
                 if (previous && (previous.signature !== signature || previous.images !== imageSignature || previous.dirty || !entry.card.querySelector('.dk-carousel-stats'))) {
                     previous.cleanup(); previous = null;
                 }
-                retained.push(previous || {card:entry.card, signature:signature, images:imageSignature, dirty:false,
-                    cleanup:window.DKCarouselLayout.mount(entry.card,profiles[name],document,data.images)});
+                retained.push(previous || {card: entry.card, signature: signature, images: imageSignature, dirty: false,
+                    cleanup: window.DKCarouselLayout.mount(entry.card, profiles[name], document, data.images)});
             });
         } else { lastRequest = null; }
         clear(); mounted = retained;
-        if (observer) { observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-test-id','class','style']}); }
+        if (observer) { observer.observe(document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ['data-test-id', 'class', 'style']}); }
     }
     function onMutations(records) {
         var changed = false;
@@ -116,23 +116,23 @@
         if (changed) schedule();
     }
     function onDataChanged() { if (!model || model.payload !== lastPayload) schedule(); }
-    function schedule() { if (!disposed && pending === null) { pending = setTimeout(render,40); } }
+    function schedule() { if (!disposed && pending === null) { pending = setTimeout(render, 40); } }
     function dispose() {
         if (disposed) { return; } disposed = true;
         if (pending !== null) { clearTimeout(pending); }
         if (observer) { observer.disconnect(); }
         if (fallback !== null) { clearInterval(fallback); }
-        engine.off('viewEnv.onDataChanged',onDataChanged);engine.off('subViews.onAdded',schedule);engine.off('subViews.onRemoved',schedule);
-        window.removeEventListener('resize',schedule);window.removeEventListener('unload',dispose);
-        document.removeEventListener('scroll',schedule,true);clear();release();
+        engine.off('viewEnv.onDataChanged', onDataChanged); engine.off('subViews.onAdded', schedule); engine.off('subViews.onRemoved', schedule);
+        window.removeEventListener('resize', schedule); window.removeEventListener('unload', dispose);
+        document.removeEventListener('scroll', schedule, true); clear(); release();
         if (window.DKCarouselNative) window.DKCarouselNative.dispose();
     }
-    window.__dkCarouselStats = {dispose:dispose};
+    window.__dkCarouselStats = {dispose: dispose};
     engine.whenReady.then(function () {
         if (disposed) { return; }
-        engine.on('viewEnv.onDataChanged',onDataChanged);engine.on('subViews.onAdded',schedule);engine.on('subViews.onRemoved',schedule);
-        if (window.MutationObserver) { observer = new MutationObserver(onMutations); } else { fallback = setInterval(schedule,500); }
-        window.addEventListener('resize',schedule);window.addEventListener('unload',dispose);document.addEventListener('scroll',schedule,true);
+        engine.on('viewEnv.onDataChanged', onDataChanged); engine.on('subViews.onAdded', schedule); engine.on('subViews.onRemoved', schedule);
+        if (window.MutationObserver) { observer = new MutationObserver(onMutations); } else { fallback = setInterval(schedule, 500); }
+        window.addEventListener('resize', schedule); window.addEventListener('unload', dispose); document.addEventListener('scroll', schedule, true);
         schedule();
     });
 }());

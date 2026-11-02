@@ -14,7 +14,8 @@ from driftkings.core.vehicle_markers.presentation import validate
 from driftkings.core.vehicle_markers.references import resolve
 from driftkings.core.vehicle_markers.schema import adapt, STATE_KEYS
 
-DEFAULTS = {'enabled': False, 'debug': False, 'colorRating': 0, 'markers': {'enabled': False}, 'targetGameVersion': '2.4.1'}
+DEFAULTS = {'enabled': False, 'debug': False, 'colorRating': 0, 'markers': {'enabled': False},
+            'targetGameVersion': '2.4.1'}
 
 
 def prepare(data):
@@ -25,7 +26,9 @@ def prepare(data):
     if not isinstance(result.get('def', {}), dict):
         raise ValueError('Marker templates must be an object')
     result.setdefault('turretMarkers', {'highVulnerability': '*', 'lowVulnerability': "'", 'unknown': '?'})
-    if not isinstance(result['turretMarkers'], dict) or set(result['turretMarkers']) - set(('highVulnerability', 'lowVulnerability', 'unknown')):
+    if not isinstance(result['turretMarkers'], dict) or set(result['turretMarkers']) - set(('highVulnerability',
+                                                                                            'lowVulnerability',
+                                                                                            'unknown')):
         raise ValueError('Invalid turret marker strings')
     defaults = {'highVulnerability': '*', 'lowVulnerability': "'", 'unknown': '?'}
     defaults.update(result['turretMarkers'])
@@ -46,7 +49,8 @@ def prepare(data):
     markers = result['markers']
     fields = result['customFields']
     for block in (markers, fields):
-        if not isinstance(block, dict) or set(block) - set(('enabled',) + TEAMS) or type(block.get('enabled', False)) is not bool:
+        if (not isinstance(block, dict) or set(block) - set(('enabled',) + TEAMS)
+            or type(block.get('enabled', False)) is not bool):
             raise ValueError('Invalid scoped marker layout')
         for team in TEAMS:
             validate_tree(block.get(team, {}))
@@ -85,7 +89,9 @@ def prepare(data):
                            'healthBar': bar_scopes[team][state][mode], 'icons': icon_scopes[team][state][mode]}
                 profiles[team][state][mode] = profile
                 active_damage = any(style['enabled'] for style in profile['damageText']['sources'].values())
-                if (profile['enabled'] or active_damage or any(profile[name]['enabled'] for name in ('healthBar', 'damageText', 'icons'))) and not markers['enabled']:
+                if (profile['enabled'] or active_damage
+                    or any(profile[name]['enabled']
+                           for name in ('healthBar', 'damageText', 'icons'))) and not markers['enabled']:
                     raise ValueError('Custom styles require markers.enabled=true')
     result['customFields']['turretMarkers'] = result['turretMarkers']
     result['customFields']['profiles'] = profiles

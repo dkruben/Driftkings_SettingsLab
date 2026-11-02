@@ -78,12 +78,16 @@ class ReceiptMixin(object):
             process = self.installer.process
             result = probe['result'] if probe is not None else self.installer.result(self._ready_path)
             # A previous helper's result is never acknowledgement for this PID.
-            matching = (isinstance(result, dict) and set(result) == set(('schema', 'status', 'error', 'helperPid')) and type(result.get('schema')) is int and result['schema'] == 1 and type(result.get('helperPid')) is int and result['helperPid'] == process.pid)
-            ticket = probe['ticket'] if probe is not None else (self.results.ticket(self._ready_path) if self.results is not None else None)
+            matching = (isinstance(result, dict) and set(result) == set(('schema', 'status', 'error', 'helperPid'))
+                        and type(result.get('schema')) is int and result['schema'] == 1
+                        and type(result.get('helperPid')) is int and result['helperPid'] == process.pid)
+            ticket = probe['ticket'] if probe is not None else (self.results.ticket(self._ready_path)
+                                                                if self.results is not None else None)
             if self.results is not None and ticket != self._install_ticket:
                 self._install_failed('installTicketChanged')
                 return
-            stamp = probe['stamp'] if probe is not None else (self.results.result_stamp(self._ready_path) if self.results is not None else None)
+            stamp = probe['stamp'] if probe is not None else (self.results.result_stamp(self._ready_path)
+                                                              if self.results is not None else None)
             if self.results is not None and stamp == self._previous_result_stamp:
                 matching = False
             if probe is not None:
@@ -100,17 +104,24 @@ class ReceiptMixin(object):
                         if probe is not None:
                             valid = probe['stageValid']
                         else:
-                            self.installer.validate_stage(self._ready_path, getattr(self.api, 'client_version', None), self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
+                            self.installer.validate_stage(self._ready_path, getattr(self.api, 'client_version', None),
+                                                          self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable'))
                     except Exception:
                         valid = False
                         LOG.warning('Cancelled update staging is not eligible for reuse', exc_info=True)
                     self._install_generation += 1
                     self._install_pending = self._install_armed = self._cancel_requested = False
                     manifest = self.checker.selected_manifest
-                    can_download = bool(not valid and manifest is not None and manifest.compatible(getattr(self.api, 'client_version', None)) and manifest.version.allowed(self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')))
+                    can_download = bool(not valid and manifest is not None
+                                        and manifest.compatible(getattr(self.api, 'client_version', None))
+                                        and manifest.version.allowed(self.api.get(SETTINGS_MOD_ID, 'updateChannel', 'stable')))
                     if not valid:
                         self._ready_path = None
-                    self.state.update(status=READY if valid else AVAILABLE, canDownload=can_download, installScheduled=False, cancellingInstall=False, error=None, lastInstallResult=dict(status='cancelled', version=self.state.snapshot()['latestVersion'], error=None))
+                    self.state.update(status=READY if valid else AVAILABLE, canDownload=can_download,
+                                      installScheduled=False, cancellingInstall=False, error=None,
+                                      lastInstallResult=dict(status='cancelled',
+                                                             version=self.state.snapshot()['latestVersion'],
+                                                             error=None))
                     LOG.info('Install cancelled')
                     self._refresh_install_context()
                     return

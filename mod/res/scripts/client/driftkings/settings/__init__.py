@@ -33,7 +33,9 @@ class SettingsService(object):
                 def __getattr__(self, name):
                     return lambda *args, **kwargs: None
             g_modsListApi = MissingModsList()
-        g_modsListApi.addModification(id='driftkings', name=u'driftkings', description=settings.strings['title'], icon='gui/maps/icons/driftkings/small.png', enabled=True, login=True, lobby=True, callback=controller.open)
+        g_modsListApi.addModification(id='driftkings', name=u'driftkings', description=settings.strings['title'],
+                                      icon='gui/maps/icons/driftkings/small.png', enabled=True, login=True, lobby=True,
+                                      callback=controller.open)
         self.active = True
 
     def onContextEntered(self, space):

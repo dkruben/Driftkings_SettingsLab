@@ -101,7 +101,9 @@ class SettingsLoader(object):
                 entries = os.listdir(folder)
                 # Python 2 list comprehensions leak their variables; keep the folder name intact.
                 known = [section + '.json' for section in self.settings.configs]
-                if any(key in entries for key in known) or any(section in entries for section in ('team_panels', 'vehicle_carousel', 'minimap_enhancements')):
+                if any(key in entries for key in known) or any(section in entries
+                                                               for section in ('team_panels', 'vehicle_carousel',
+                                                                               'minimap_enhancements')):
                     names.add(name)
         return sorted(names)
 
@@ -115,7 +117,8 @@ class SettingsLoader(object):
         staging = tempfile.mkdtemp(prefix='.profile-', dir=self.root)
         try:
             for directory, dirs, files in os.walk(source):
-                dirs[:] = [item for item in dirs if not item.startswith('.') and not os.path.islink(os.path.join(directory, item))]
+                dirs[:] = [item for item in dirs if not item.startswith('.')
+                           and not os.path.islink(os.path.join(directory, item))]
                 for filename in files:
                     if filename.startswith('.') or not filename.endswith('.json'):
                         continue

@@ -77,7 +77,8 @@ def pure_random_stats(dossier, vehicle_id=None, vehicle_dossier=None):
 
 def parse_thresholds(text, maximum):
     values = [float(item.strip()) for item in text.split(',')]
-    if (len(values) != 5 or any(math.isnan(value) or math.isinf(value) or value <= 0 or value > maximum for value in values)
+    if (len(values) != 5
+        or any(math.isnan(value) or math.isinf(value) or value <= 0 or value > maximum for value in values)
             or any(a >= b for a, b in zip(values, values[1:]))):
         raise ValueError('Use five increasing comma-separated limits between 0 and %s.' % maximum)
     return values

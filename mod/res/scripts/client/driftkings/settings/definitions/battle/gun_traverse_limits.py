@@ -20,10 +20,12 @@ class GunTraverseLimitsSettings(SectionDefinition):
     def getControlColumns(self):
         columns = (
             [
-                options(GUN_TRAVERSE_LIMITS.HORIZONTAL, [self.i18n['UI_setting_horizontal_%s' % i] for i in xrange(7)], 'RadioButtonGroup')
+                options(GUN_TRAVERSE_LIMITS.HORIZONTAL, [self.i18n['UI_setting_horizontal_%s' % i] for i in xrange(7)],
+                        'RadioButtonGroup')
             ],
             [
-                options(GUN_TRAVERSE_LIMITS.VERTICAL, [self.i18n['UI_setting_vertical_%s' % i] for i in xrange(7)], 'RadioButtonGroup')
+                options(GUN_TRAVERSE_LIMITS.VERTICAL, [self.i18n['UI_setting_vertical_%s' % i] for i in xrange(7)],
+                        'RadioButtonGroup')
             ]
         )
         for column, direction in zip(columns, ('left', 'top')):

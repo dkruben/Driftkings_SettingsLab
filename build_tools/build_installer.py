@@ -95,7 +95,8 @@ def definitions(root=ROOT):
         require(isinstance(preset['enabled'], list) and len(set(preset['enabled'])) == len(preset['enabled']) and
                 set(preset['enabled']).issubset(by_name) and not set(preset['enabled']) & set(preset['disabled']),
                 'Unknown, duplicate or conflicting enabled preset component')
-        require({'en', 'pt'} <= set(preset['labels']) <= set(languages), 'Preset requires en and pt labels in installer languages')
+        require({'en', 'pt'} <= set(preset['labels']) <= set(languages),
+                'Preset requires en and pt labels in installer languages')
         for value in preset['labels'].values():
             text(value)
     return components, extras, presets['presets']
@@ -145,7 +146,8 @@ def generate_components(root=ROOT, output=None):
                                    for code, path in wizard['languages'].items()]
     overrides = ['[Messages]'] + [lang + '.' + key + '=' + text(value)
                                   for key, values in wizard['messages'].items() for lang, value in values.items()]
-    (output / 'languages.generated.iss').write_text('\n'.join(languages + [''] + overrides) + '\n', encoding='utf-8-sig')
+    (output / 'languages.generated.iss').write_text('\n'.join(languages + [''] + overrides) + '\n',
+                                                    encoding='utf-8-sig')
     types = ['[Types]', 'Name: "recommended"; Description: "{cm:Recommended}"',
              'Name: "custom"; Description: "{cm:Customized}"; Flags: iscustom']
     for preset in presets:
@@ -162,7 +164,8 @@ def generate_components(root=ROOT, output=None):
         for entry in members:
             name = group + '\\' + entry['key']
             if entry['default']:
-                included = ['recommended'] + [preset['key'] for preset in presets if entry['key'] not in preset['disabled']]
+                included = ['recommended'] + [preset['key'] for preset in presets
+                                              if entry['key'] not in preset['disabled']]
             else:
                 included = [preset['key'] for preset in presets if entry['key'] in preset['enabled']]
             row = 'Name: ' + quoted(name) + '; Description: ' + quoted(message('component_' + entry['key'], entry['labels']))
@@ -183,7 +186,8 @@ def generate_components(root=ROOT, output=None):
         tasks.append(row)
         choices.append(dict(name=name, file=entry['file'], key=entry['key'], default=entry['default'], task=True))
     code = ['[Code]', f'const ChoiceCount = {len(choices)};', f'const PreviewCount = {len(preview_keys)};']
-    for name, field, kind in [('ChoiceName', 'name', 'String'), ('ChoiceFile', 'file', 'String'), ('ChoiceKey', 'key', 'String'),
+    for name, field, kind in [('ChoiceName', 'name', 'String'), ('ChoiceFile', 'file', 'String'),
+                              ('ChoiceKey', 'key', 'String'),
                                ('ChoiceDefault', 'default', 'Boolean'), ('ChoiceIsTask', 'task', 'Boolean')]:
         values = [entry[field].replace('/', '\\') if field == 'file' else entry[field] for entry in choices]
         code.append(case_function(name, values, kind))
@@ -203,12 +207,14 @@ begin
   else Result := WizardIsComponentSelected(ChoiceName(Index));
 end;
 ''')
-    sections = ['; Generated; edit JSON/defaults/i18n, never this file.', '\n'.join(types), '[Components]\n' + '\n'.join(rows),
+    sections = ['; Generated; edit JSON/defaults/i18n, never this file.', '\n'.join(types),
+                '[Components]\n' + '\n'.join(rows),
                 '[Tasks]\n' + '\n'.join(tasks), '[CustomMessages]\n' + '\n'.join(messages), '\n'.join(code)]
     (output / 'components.generated.iss').write_text('\n\n'.join(sections) + '\n', encoding='utf-8-sig')
     (output / 'previews.generated.iss').write_text('[Files]\n' + '\n'.join(preview_files) + '\n', encoding='utf-8-sig')
     branding = ['[Setup]']
-    for directive, stem, extensions in [('SetupIconFile', 'setup-icon', ('.ico',)), ('WizardImageFile', 'wizard-large', ('.bmp', '.png')),
+    for directive, stem, extensions in [('SetupIconFile', 'setup-icon', ('.ico',)),
+                                        ('WizardImageFile', 'wizard-large', ('.bmp', '.png')),
                                         ('WizardSmallImageFile', 'wizard-small', ('.bmp', '.png')),
                                         ('WizardBackImageFile', 'wizard-back', ('.png', '.bmp'))]:
         for extension in extensions:
@@ -220,7 +226,8 @@ end;
                     branding.append('WizardBackImageOpacity=' + str(BACK_IMAGE_OPACITY))
                 break
     (output / 'branding.generated.iss').write_text('\n'.join(branding) + '\n', encoding='utf-8-sig')
-    (output / 'choices.generated.json').write_text(json.dumps(dict(components=components, options=options, presets=presets),
+    (output / 'choices.generated.json').write_text(json.dumps(dict(components=components, options=options,
+                                                                   presets=presets),
                                                             ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return components, options, presets
 
@@ -229,7 +236,8 @@ def prepare_payload(root, artifacts, output):
     artifacts = Path(artifacts).resolve()
     manifest = read_json(artifacts / 'release.json')
     report = read_json(artifacts / 'build-report.json')
-    require(report['status'] == 'success' and manifest['version'] == report['version'], 'Invalid installer build artifacts')
+    require(report['status'] == 'success' and manifest['version'] == report['version'],
+            'Invalid installer build artifacts')
     inventory = verify_modpack(artifacts, manifest, read_json(artifacts / 'modpack.json'))
     config = read_json(root / 'build_data/build_config.json')
     require(manifest['gameVersion'] == config['game']['version'] and report['realm'] in supported_realms(config),
@@ -238,7 +246,8 @@ def prepare_payload(root, artifacts, output):
     defaults = root / config['defaults']['source_root']
     for path in defaults.rglob('*.json'):
         relative = path.relative_to(root).as_posix()
-        require(report['inputs'].get(relative) == hashlib.sha256(path.read_bytes()).hexdigest(), 'Rebuild changed defaults before installer: ' + relative)
+        require(report['inputs'].get(relative) == hashlib.sha256(path.read_bytes()).hexdigest(),
+                'Rebuild changed defaults before installer: ' + relative)
     rows = ['[Files]']
     conflicts = ['function ExistingDependenciesError: String;', 'begin', "  Result := '';", '  try']
     verification = ['procedure VerifyInstalledPayload;', 'begin']
@@ -247,7 +256,8 @@ def prepare_payload(root, artifacts, output):
             continue
         source = artifacts / ('dependencies/' if entry['kind'] == 'dependency' else '') / Path(entry['path']).name
         require(source.is_file() and source.stat().st_size == entry['size'] and
-                hashlib.sha256(source.read_bytes()).hexdigest() == entry['sha256'], 'Invalid installer payload: ' + str(source))
+                hashlib.sha256(source.read_bytes()).hexdigest() == entry['sha256'],
+                'Invalid installer payload: ' + str(source))
         destination = '{app}\\' + entry['path'].rsplit('/', 1)[0].replace('/', '\\')
         flags = 'ignoreversion' + (' uninsneveruninstall onlyifdoesntexist' if entry['kind'] == 'dependency' else '')
         rows.append('Source: ' + quoted(str(source)) + '; DestDir: ' + quoted(destination) + '; Flags: ' + flags)
@@ -257,10 +267,12 @@ def prepare_payload(root, artifacts, output):
             conflicts.extend(['    if FileExists(' + target + ') then', '      if ' + check + ' then begin',
                               '        Result := ' + literal('Dependency differs from the verified modpack: ' + entry['path']) + ';',
                               '        Exit;', '      end;'])
-        verification.extend(['  if ' + check + ' then', '    RaiseException(' + literal('Installed payload hash mismatch: ' + entry['path']) + ');'])
+        verification.extend(['  if ' + check + ' then',
+                             '    RaiseException(' + literal('Installed payload hash mismatch: ' + entry['path']) + ');'])
     conflicts.extend(['  except', '    Result := GetExceptionMessage;', '  end;', 'end;'])
     verification.append('end;')
-    (output / 'payload.generated.iss').write_text('\n'.join(rows + ['[Code]'] + conflicts + verification) + '\n', encoding='utf-8-sig')
+    (output / 'payload.generated.iss').write_text('\n'.join(rows + ['[Code]'] + conflicts + verification) + '\n',
+                                                  encoding='utf-8-sig')
     # "What's new" page: the signed manifest's changelog, not a separately edited copy.
     notes = ['Driftkings %s - World of Tanks %s' % (manifest['version'], manifest['gameVersion'])]
     for line in manifest.get('changelog', []):
@@ -270,7 +282,8 @@ def prepare_payload(root, artifacts, output):
     metadata = dict(RepoRoot=str(root.resolve()), BuildVersion=manifest['version'], GameVersion=manifest['gameVersion'],
                     GameRealm=report['realm'], SupportedRealms='|' + '|'.join(realms) + '|',
                     SupportedRealmsText=', '.join(realms), InstallerOutput=str((root / 'build/installer').resolve()))
-    (output / 'metadata.generated.iss').write_text('\n'.join('#define ' + key + ' ' + quoted(value) for key, value in metadata.items()) + '\n', encoding='utf-8-sig')
+    (output / 'metadata.generated.iss').write_text('\n'.join('#define ' + key + ' ' + quoted(value) for key,
+                                                             value in metadata.items()) + '\n', encoding='utf-8-sig')
 
 
 def attach_installer(artifacts, installer):
@@ -301,9 +314,11 @@ def attach_installer(artifacts, installer):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifacts', type=Path, help='Completed compiler output directory (debug or release)')
-    parser.add_argument('--compile', action='store_true', help='Compile locally with Inno Setup 6.7.1+; never install or publish')
+    parser.add_argument('--compile', action='store_true',
+                        help='Compile locally with Inno Setup 6.7.1+; never install or publish')
     parser.add_argument('--iscc', help='Inno compiler path')
-    parser.add_argument('--attach-to-release', action='store_true', help='Include the compiled installer in the release inventory and checksums')
+    parser.add_argument('--attach-to-release', action='store_true',
+                        help='Include the compiled installer in the release inventory and checksums')
     args = parser.parse_args()
     if args.attach_to_release and not args.compile:
         parser.error('--attach-to-release requires --compile')
@@ -320,12 +335,14 @@ def main():
             prepare_payload(ROOT, args.artifacts, output)
         if args.compile:
             compiler = args.iscc or shutil.which('ISCC.exe') or 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
-            subprocess.run([compiler, '/DInputDir=' + str(output), str(ROOT / 'installer/setup/driftkings.iss')], check=True)
+            subprocess.run([compiler, '/DInputDir=' + str(output), str(ROOT / 'installer/setup/driftkings.iss')],
+                           check=True)
             if args.attach_to_release:
                 manifest = read_json(args.artifacts / 'release.json')
                 name = 'Driftkings-%s-WoT-%s-Setup.exe' % (manifest['version'], manifest['gameVersion'])
                 print('Release installer: ' + str(attach_installer(args.artifacts, ROOT / 'build/installer' / name)))
-        print('Installer input: %d components, %d options, %d presets; %s' % (len(components), len(options), len(presets), output))
+        print('Installer input: %d components, %d options, %d presets; %s' % (len(components), len(options),
+                                                                              len(presets), output))
     except (ValueError, OSError, subprocess.SubprocessError) as error:
         parser.exit(1, 'Installer build failed: ' + str(error) + '\n')
 

@@ -34,7 +34,8 @@ def options(key, choices, kind='Dropdown', width=200, empty=False, button=None, 
 
 def images(key, icons, kind='Dropdown', width=200, empty=False, button=None, value=None):
     item = control(key, kind, width, empty, button, value)
-    item.update(options=[{'label': name[:-4], 'image': 'gui/maps/icons/sixthsense/' + name} for name in icons], previewImage=True)
+    item.update(options=[{'label': name[:-4], 'image': 'gui/maps/icons/sixthsense/' + name} for name in icons],
+                previewImage=True)
     return item
 
 

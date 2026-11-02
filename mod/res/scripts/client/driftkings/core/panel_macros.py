@@ -59,7 +59,8 @@ class Macros(object):
             if self.dependencies is not None: self.dependencies.update(('hp','hp-max'))
             try:
                 width=float(name.partition(':')[2] or 100)
-                return int(math.ceil(max(0,min(4000,width))*max(0,min(1,float(self.values['hp'])/self.values['hp-max']))))
+                return int(math.ceil(max(0,min(4000,width))*max(0,
+                                                                min(1,float(self.values['hp'])/self.values['hp-max']))))
             except (KeyError, TypeError, ValueError, ZeroDivisionError, OverflowError):
                 return None
         if self.dependencies is not None: self.dependencies.add(name)
@@ -135,7 +136,8 @@ class Macros(object):
         if isinstance(value,list): return [self.resolve(v,key) for v in value]
         if isinstance(value,(str,text_type)) and '{{' in value:
             rendered=self.render(value,html=key in ('format','text') or 'Format' in key or key.startswith('format'))
-            if key.startswith('remove') or key in ('enabled','visible','fixedPosition','darkenNotReadyIcon','bindToIcon','bold','italic','underline','onHold','visibleOnHotKey'):
+            if key.startswith('remove') or key in ('enabled','visible','fixedPosition','darkenNotReadyIcon',
+                                                   'bindToIcon','bold','italic','underline','onHold','visibleOnHotKey'):
                 return truth(rendered)
             return rendered
         return value

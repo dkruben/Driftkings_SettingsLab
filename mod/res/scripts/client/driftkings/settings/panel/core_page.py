@@ -16,14 +16,17 @@ def install(api):
         return api.mod(CORE_ID)
     from driftkings.settings.panel import VERSION
     mod = api.register_mod(CORE_ID, name=T('core.name'), version=VERSION, author=u'DriftKingsMods',
-                           description=T('core.description'), icon='gear', order=-1000, config_file='dk_settings', category='system')
+                           description=T('core.description'), icon='gear', order=-1000, config_file='dk_settings',
+                           category='system')
     languages = [('auto', T('core.language.auto'))] + list(locales.LANGUAGES)
     mod.add_section(T('core.general'))
     mod.add_dropdown('language', T('core.language'), values=languages, default='auto')
     mod.add_hotkey('openKey', T('core.hotkey'), default=[[68]])
     mod.add_section(T('core.appearance'))
     mod.add_color('accent', T('core.accent'), default='#D98219', description=T('core.accent.tip'))
-    mod.add_dropdown('theme', T('core.theme'), values=[(key, T('theme.' + key)) for key in ('wot', 'dark', 'black', 'transparent', 'custom')], default='wot')
+    mod.add_dropdown('theme', T('core.theme'),
+                     values=[(key, T('theme.' + key)) for key in ('wot', 'dark', 'black', 'transparent', 'custom')],
+                     default='wot')
     from driftkings.settings.panel.themes import THEMES
     for key in ('background', 'textColor', 'secondary', 'border', 'hover'):
         mod.add_color(key, T('core.' + key), default=THEMES['wot'][key], depends_on={'theme': 'custom'})

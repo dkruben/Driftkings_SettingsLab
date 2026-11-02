@@ -55,13 +55,16 @@ def prepare(folder):
     inventory = verify_modpack(folder, manifest, read_json(folder / 'modpack.json'))
     require(report.get('verification', {}).get('modpack', {}).get('status') == 'passed',
             'Missing packaged Python 2.7 modpack verification')
-    required = {'driftkings.wotmod', 'release.json', 'modpack.json', 'Driftkings-defaults.zip', inventory.distribution['file']}
-    required.update('dependencies/' + Path(item['path']).name for item in inventory.files if item['kind'] == 'dependency')
+    required = {'driftkings.wotmod', 'release.json', 'modpack.json', 'Driftkings-defaults.zip',
+                inventory.distribution['file']}
+    required.update('dependencies/' + Path(item['path']).name for item in inventory.files
+                    if item['kind'] == 'dependency')
     require(required.issubset(report['artifacts']), 'Incomplete release artifacts')
     for item in inventory.files:
         if item['kind'] == 'dependency':
             path = input_path(folder, 'dependencies/' + Path(item['path']).name)
-            require(path.stat().st_size == item['size'] and sha(path) == item['sha256'], 'Dependency differs from modpack')
+            require(path.stat().st_size == item['size'] and sha(path) == item['sha256'],
+                    'Dependency differs from modpack')
     # The checksum list covers the report as well as the uploaded artifacts.
     covered = set()
     for line in (folder / 'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
@@ -93,7 +96,8 @@ def main():
         if not args.live:
             command.append('--draft')
         if not args.publish:
-            print(json.dumps(dict(command=command, assets=[str(p) for p in files], publication='preview only'), indent=2))
+            print(json.dumps(dict(command=command, assets=[str(p) for p in files], publication='preview only'),
+                             indent=2))
             return
         require(not report['git']['dirty'], 'Build was produced from uncommitted sources; commit and rebuild first')
         head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip()

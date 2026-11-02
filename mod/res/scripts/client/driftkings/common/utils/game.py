@@ -7,4 +7,5 @@ __all__ = ('checkKeys',)
 
 def checkKeys(keys, key=None):
     keySets = [data if not isinstance(data, int) else (data,) for data in keys]
-    return (bool(keys) and all(any(BigWorld.isKeyDown(x) for x in keySet) for keySet in keySets) and (key is None or any(key in keySet for keySet in keySets)))
+    return (bool(keys) and all(any(BigWorld.isKeyDown(x) for x in keySet) for keySet in keySets)
+            and (key is None or any(key in keySet for keySet in keySets)))

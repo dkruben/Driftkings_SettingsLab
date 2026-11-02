@@ -5,7 +5,8 @@ import copy
 from driftkings.common.utils.formatting import is_hex_color
 from driftkings.core.vehicle_markers.fields import number, string_types
 
-INDICATORS = ('actionMarker', 'hoverMarker', 'vehicleStatusMarker', 'damageIndicator', 'damageIndicatorText', 'hitExplosion')
+INDICATORS = ('actionMarker', 'hoverMarker', 'vehicleStatusMarker', 'damageIndicator', 'damageIndicatorText',
+              'hitExplosion')
 KEYS = ('class', 'level', 'vehicle') + INDICATORS
 
 STYLE = {'enabled': True, 'x': None, 'y': None, 'scale': 1, 'alpha': 100, 'deadAlpha': 40}
@@ -49,7 +50,8 @@ def normalize(options):
             if tint is None or set(tint) - set(EXTRA['vehicle']['tint']):
                 raise ValueError('Invalid contour tint')
             number(tint['amount'], 0, 100)
-            if not isinstance(tint['color'], string_types) or not ('{{' in tint['color'] or is_hex_color(tint['color'])):
+            if not isinstance(tint['color'], string_types) or not ('{{' in tint['color']
+                                                                   or is_hex_color(tint['color'])):
                 raise ValueError('Invalid contour tint colour')
             style['tint'] = tint
         if 'glow' in style:

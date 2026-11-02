@@ -9,7 +9,8 @@ from driftkings.common.utils.compat import string_types
 
 REPOSITORY = 'dkruben/Driftkings_SettingsLab'
 RELEASES = 'https://api.github.com/repos/' + REPOSITORY + '/releases?per_page=50'
-ALLOWED_HOSTS = frozenset(('github.com', 'api.github.com', 'release-assets.githubusercontent.com', 'objects.githubusercontent.com', 'github-releases.githubusercontent.com'))
+ALLOWED_HOSTS = frozenset(('github.com', 'api.github.com', 'release-assets.githubusercontent.com',
+                           'objects.githubusercontent.com', 'github-releases.githubusercontent.com'))
 
 
 def validate_https(url):

@@ -93,10 +93,13 @@ def verify_package(path, expected, version, package_id):
             if item.filename.endswith('.swf'):
                 validate_swf(data)
         meta = ET.fromstring(archive.read('meta.xml'))
-        require(meta.findtext('id') == package_id and meta.findtext('version') == version, 'Wrong package identity/version')
-        for prefix, executable in (('updater', 'Driftkings.UpdateInstaller.exe'), ('windows-files', 'Driftkings.WindowsFiles.exe')):
+        require(meta.findtext('id') == package_id and meta.findtext('version') == version,
+                'Wrong package identity/version')
+        for prefix, executable in (('updater', 'Driftkings.UpdateInstaller.exe'),
+                                   ('windows-files', 'Driftkings.WindowsFiles.exe')):
             base = 'res/gui/driftkings/' + prefix + '/'
             binary = archive.read(base + executable)
             helper = json.loads(archive.read(base + 'helper.json').decode('utf-8'))
-            require(binary.startswith(b'MZ') and helper == dict(schema=1, size=len(binary), sha256=hashlib.sha256(binary).hexdigest()),
+            require(binary.startswith(b'MZ')
+                    and helper == dict(schema=1, size=len(binary), sha256=hashlib.sha256(binary).hexdigest()),
                     'Invalid native helper metadata: ' + prefix)

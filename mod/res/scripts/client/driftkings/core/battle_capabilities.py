@@ -62,7 +62,8 @@ class BattleCapabilities(object):
 
     def _match(self, enum, value, names):
         constants = read(self.modules.get('constants'), enum)
-        return value is not None and any(read(constants, name) is not None and value == read(constants, name) for name in names)
+        return value is not None and any(read(constants, name) is not None and value == read(constants, name)
+                                         for name in names)
 
     def _bonus(self):
         visitor = self._visitor()
@@ -73,7 +74,8 @@ class BattleCapabilities(object):
         return read(self._visitor(), 'gui')
 
     def is_comp7(self):
-        return self.is_in_battle() and self._match('ARENA_BONUS_TYPE', self._bonus(), ('COMP7', 'TOURNAMENT_COMP7', 'TRAINING_COMP7', 'COMP7_LIGHT'))
+        return self.is_in_battle() and self._match('ARENA_BONUS_TYPE', self._bonus(),
+                                                   ('COMP7', 'TOURNAMENT_COMP7', 'TRAINING_COMP7', 'COMP7_LIGHT'))
 
     def is_halloween(self):
         if not self.is_in_battle():
@@ -118,7 +120,8 @@ class BattleCapabilities(object):
         if self._match('ARENA_BONUS_TYPE', value, ('WINBACK',)):
             return True
         try:
-            return value in random_range if value is not None and random_range else call(self._gui(), 'isRandomBattle') is True
+            return (value in random_range if value is not None and random_range
+                    else call(self._gui(), 'isRandomBattle') is True)
         except Exception:
             return False
 
@@ -134,7 +137,8 @@ class BattleCapabilities(object):
 
     def is_event(self):
         return self.is_in_battle() and (self.is_white_tiger() or call(self._gui(), 'isEventBattle') is True or
-            self._match('ARENA_BONUS_TYPE', self._bonus(), ('EVENT_BATTLES', 'EVENT_BATTLES_2', 'EVENT_RANDOM', 'TOURNAMENT_EVENT')))
+            self._match('ARENA_BONUS_TYPE', self._bonus(),
+                        ('EVENT_BATTLES', 'EVENT_BATTLES_2', 'EVENT_RANDOM', 'TOURNAMENT_EVENT')))
 
     def has_gameface_hud(self):
         """True when the battle page also loads the native Gameface HUD that hosts the mod's cards.
@@ -151,7 +155,8 @@ class BattleCapabilities(object):
         return alias in (config or ())
 
     def is_special(self):
-        return self.current_mode() in ('comp7', 'frontline', 'fort_rush', 'stronghold', 'event', 'white_tiger', 'halloween', 'special')
+        return self.current_mode() in ('comp7', 'frontline', 'fort_rush', 'stronghold', 'event', 'white_tiger',
+                                       'halloween', 'special')
 
     def is_spg(self):
         if not self.is_in_battle():
@@ -206,7 +211,8 @@ class BattleCapabilities(object):
             return False
         try:
             from frameworks.wulf import View, ViewStatus
-            if not isinstance(view, View) or read(view, 'viewStatus') != ViewStatus.LOADED or read(view, 'proxy') is None:
+            if (not isinstance(view, View) or read(view, 'viewStatus') != ViewStatus.LOADED
+                or read(view, 'proxy') is None):
                 return False
             # Recognize a real client battle-view type in its inheritance chain,
             # rather than treating arbitrary lobby/settings Wulf views as overlays.
@@ -217,7 +223,8 @@ class BattleCapabilities(object):
             for part in resource_key.split('/'):
                 accessor = getattr(accessor, part)
             resource = accessor()
-            return isinstance(resource, (int, float)) and not isinstance(resource, bool) and resource > 0 and resource == read(view, 'layoutID')
+            return (isinstance(resource, (int, float)) and not isinstance(resource, bool) and resource > 0
+                    and resource == read(view, 'layoutID'))
         except Exception:
             return False
 

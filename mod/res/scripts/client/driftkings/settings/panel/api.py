@@ -25,7 +25,8 @@ class SettingsAPI(object):
         self.restart_required = set()
 
     # Mod author API --------------------------------------------------------
-    def register_mod(self, mod_id=None, name=None, version=u'', author=u'', description=u'', icon=None, order=None, config_file=None, id=None, category=None, dependencies=None):
+    def register_mod(self, mod_id=None, name=None, version=u'', author=u'', description=u'', icon=None, order=None,
+                     config_file=None, id=None, category=None, dependencies=None):
         handle = self.registry.register_mod(mod_id, name, version, author, description, icon, order, config_file, id)
         handle._mod.dependencies = list(dependencies or [])
         previous_revision = self.registry.revision

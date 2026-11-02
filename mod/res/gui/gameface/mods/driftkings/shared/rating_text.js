@@ -5,23 +5,23 @@
 }(this, function () {
     'use strict';
     function flag(value) { return !(value === false || value === null || value === undefined || value === '' || value === 0 || value === '0' || value === 'false'); }
-    function number(value, fallback) { var n=Number(value); return value === null || value === undefined || !isFinite(n) ? fallback : n; }
+    function number(value, fallback) { var n = Number(value); return value === null || value === undefined || !isFinite(n) ? fallback : n; }
     function localImage(value) {
-        value=String(value || '').replace(/^img:\/\//,'coui://');
-        return /^coui:\/\/gui\/[a-z0-9_./-]+\.(png|dds|webp)$/i.test(value) && value.indexOf('..')<0 ? value : '';
+        value = String(value || '').replace(/^img:\/\//, 'coui://');
+        return /^coui:\/\/gui\/[a-z0-9_./-]+\.(png|dds|webp)$/i.test(value) && value.indexOf('..') < 0 ? value : '';
     }
     function color(value) {
-        if (typeof value === 'number') { return '#'+('000000'+value.toString(16)).slice(-6); }
-        value=String(value || '');
+        if (typeof value === 'number') { return '#' + ('000000' + value.toString(16)).slice(-6); }
+        value = String(value || '');
         return /^#[a-f0-9]{6}$/i.test(value) ? value : 'transparent';
     }
-    function writeRuns(target,html) {
+    function writeRuns(target, html) {
         if (!html) { return; }
         if (!/[<&]/.test(html)) {
-            var run=document.createElement('span'); run.style.flexShrink='0'; run.style.whiteSpace='pre';
-            run.textContent=html; target.appendChild(run); return;
+            var run = document.createElement('span'); run.style.flexShrink = '0'; run.style.whiteSpace = 'pre';
+            run.textContent = html; target.appendChild(run); return;
         }
-        var parsed=document.createElement('div'); parsed.innerHTML=inert(html); copyRuns(parsed,target,{});
+        var parsed = document.createElement('div'); parsed.innerHTML = inert(html); copyRuns(parsed, target, {});
     }
     // Detached markup still loads <img>, so event attributes are disabled before innerHTML parses it.
     function inert(html) {
@@ -29,7 +29,7 @@
             return tag.replace(/(\s)on[a-z]+\s*=/gi, '$1data-dk-off=');
         });
     }
-    function imageSize(value) { return Math.min(2048,Math.max(0,number(value,22)))+'rem'; }
+    function imageSize(value) { return Math.min(2048, Math.max(0, number(value, 22))) + 'rem'; }
     function copyRuns(source, target, inherited) {
         for (var i = 0; i < source.childNodes.length; i++) {
             var child = source.childNodes[i];
@@ -45,18 +45,18 @@
             var tag = child.tagName.toLowerCase();
             if (/^(script|style|iframe|object)$/.test(tag)) { continue; }
             if (inherited.hidden) { continue; }
-            if (tag==='img') {
-                var src=localImage(child.getAttribute('src'));
+            if (tag === 'img') {
+                var src = localImage(child.getAttribute('src'));
                 if (src) {
-                    var image=document.createElement('img'); image.src=src; image.style.flexShrink='0';
-                    image.style.width=imageSize(child.getAttribute('width'));
-                    image.style.height=imageSize(child.getAttribute('height'));
+                    var image = document.createElement('img'); image.src = src; image.style.flexShrink = '0';
+                    image.style.width = imageSize(child.getAttribute('width'));
+                    image.style.height = imageSize(child.getAttribute('height'));
                     target.appendChild(image);
                 }
                 continue;
             }
-            if (tag==='br') {
-                var line=document.createElement('span'); line.style.flexBasis='100%'; line.style.height='0'; target.appendChild(line); continue;
+            if (tag === 'br') {
+                var line = document.createElement('span'); line.style.flexBasis = '100%'; line.style.height = '0'; target.appendChild(line); continue;
             }
             var style = {};
             Object.keys(inherited).forEach(function (key) { style[key] = inherited[key]; });
@@ -77,5 +77,5 @@
             copyRuns(child, target, style);
         }
     }
-    return {flag:flag, number:number, localImage:localImage, color:color, writeRuns:writeRuns, copyRuns:copyRuns};
+    return {flag: flag, number: number, localImage: localImage, color: color, writeRuns: writeRuns, copyRuns: copyRuns};
 }));

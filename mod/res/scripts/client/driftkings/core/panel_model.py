@@ -34,7 +34,8 @@ class Roster(object):
     def sync(self,vehicles):
         for ident,vehicle in vehicles.items():
             old=self.vehicles.get(ident)
-            signature=(vehicle.get('accountDBID'),getattr(getattr(vehicle.get('vehicleType'),'type',None),'compactDescr',None))
+            signature=(vehicle.get('accountDBID'),
+                       getattr(getattr(vehicle.get('vehicleType'),'type',None),'compactDescr',None))
             alive=vehicle.get('isAlive',True)
             if old and (old[0]!=signature or not old[1] and alive):
                 self.health.pop(ident,None)
@@ -58,7 +59,8 @@ class Roster(object):
 
     def visibility(self,ident,visible):
         if self.spotted.get(ident)=='dead': return
-        self.spotted[ident]='spotted' if visible else ('lost' if self.spotted.get(ident) in ('spotted','lost') else 'neverSeen')
+        self.spotted[ident]='spotted' if visible else ('lost' if self.spotted.get(ident) in ('spotted','lost')
+                                                       else 'neverSeen')
 
     def set_order(self,side,ids):
         self.order[side]=list(ids)
@@ -85,7 +87,8 @@ class Roster(object):
         state=self.spotted.get(ident,'neverSeen')
         own=ident==playerID
         ally=vehicle.get('team')==team
-        available=bool(data[TEAM_PANELS.STATS_ENABLED] and stats and 'battles' in stats and stats['battles']>=data[TEAM_PANELS.PERFORMANCE]['minBattlesToShow'])
+        available=bool(data[TEAM_PANELS.STATS_ENABLED] and stats and 'battles' in stats
+                       and stats['battles']>=data[TEAM_PANELS.PERFORMANCE]['minBattlesToShow'])
         values=dict(stats or {}) if available else {}
         for key in ('t_battles','t_winrate','t_wins'):
             if key in values: values[key.replace('_','-')]=values[key]
@@ -133,12 +136,14 @@ class Roster(object):
             values['rankBadgeId']=int(icon[6:])
         values['bp-stage']=badge.get('content')
         values['hasBadges']='true' if any(m.get('hasSelectedBadge') for m in self.metadata.values()) else ''
-        values['xr']=values.get({'wn8':'xwn8','eff':'xeff','wgr':'xwgr','winrate':'xwr'}.get(data[TEAM_PANELS.RATING],data[TEAM_PANELS.RATING]))
+        values['xr']=values.get({'wn8':'xwn8','eff':'xeff','wgr':'xwgr','winrate':'xwr'}.get(data[TEAM_PANELS.RATING],
+                                                                                             data[TEAM_PANELS.RATING]))
         values['r_size']={'xwn8':2,'xeff':2,'winrate':2,'wgr':5}.get(data[TEAM_PANELS.RATING],4)
         values['kb']=values.get('battles',0)/1000.0 if available else None
         for key,divisor in (('t-kb',1000.0),('t-hb',100.0)):
             values[key]=values.get('t-battles',0)/divisor if available else None
-        for key in ('wn8','eff','wgr','winrate','xwn8','xeff','battles','t-battles','t-winrate','tdv','tdb','tfb','tsb'):
+        for key in ('wn8','eff','wgr','winrate','xwn8','xeff','battles','t-battles','t-winrate','tdv','tdb','tfb',
+                    'tsb'):
             source={'t-battles':'battles','t-winrate':'winrate'}.get(key,key)
             value=values.get(key)
             values['c:'+key]='#'+color(source,value,data[TEAM_PANELS.COLOR_SCALE]).lstrip('#') if value is not None and available else '#AAAAAA'

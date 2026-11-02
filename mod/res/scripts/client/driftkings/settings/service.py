@@ -50,7 +50,8 @@ class SettingsChanged(object):
 
     def connect(self, callback, component=None, keys=None):
         self.disconnect(callback)
-        section = component.NAME if hasattr(component, 'NAME') else part_name(component) if component is not None else None
+        section = (component.NAME if hasattr(component, 'NAME') else part_name(component) if component is not None
+                   else None)
         self._listeners.append((callback, section, frozenset(keys) if keys is not None else None))
 
     def disconnect(self, callback):

@@ -45,7 +45,8 @@ class AutoClaimClanReward(object):
 
     def onCreate(self):
         self.updateCache()
-        if self.__enabled and g_clanCache.isInClan and self.__cachedQuestsData is not None and self.__cachedProgressData is not None and self.__cachedSettingsData is not None:
+        if (self.__enabled and g_clanCache.isInClan and self.__cachedQuestsData is not None
+            and self.__cachedProgressData is not None and self.__cachedSettingsData is not None):
             self.parseQuests(self.__cachedQuestsData)
             self.parseProgression(self.__cachedProgressData)
 
@@ -54,7 +55,8 @@ class AutoClaimClanReward(object):
             return
         self._subscribed = True
         self.__enabled = settings_service.getComponentDict(self.config)[GLOBAL.ENABLED]
-        settings_service.onModSettingsChanged.connect(self.onModSettingsChanged, CLAN_REWARD_COLLECTION, (GLOBAL.ENABLED,))
+        settings_service.onModSettingsChanged.connect(self.onModSettingsChanged, CLAN_REWARD_COLLECTION,
+                                                      (GLOBAL.ENABLED,))
         self.__hangarSpace.onSpaceCreate += self.onCreate
         g_wgncEvents.onProxyDataItemShowByDefault += self.__onProxyDataItemShow
         g_clanCache.clanSupplyProvider.onDataReceived += self.__onDataReceived
@@ -97,7 +99,8 @@ class AutoClaimClanReward(object):
     def __claimProgression(self, stageID, price):
         response = yield self.__webController.sendRequest(ctx=PurchaseProgressionStageCtx(stageID, price))
         if not response.isSuccess():
-            SystemMessages.pushMessage(self.config.NAME + 'Auto Claim Clan Reward - Failed to claim Progression.', type=SystemMessages.SM_TYPE.Error)
+            SystemMessages.pushMessage(self.config.NAME + 'Auto Claim Clan Reward - Failed to claim Progression.',
+                                       type=SystemMessages.SM_TYPE.Error)
             LOG.warning(('Failed to claim Progression. Code: {}').format(response.getCode()))
 
     def parseQuests(self, data):
@@ -117,7 +120,9 @@ class AutoClaimClanReward(object):
         if not getattr(data, 'points', None):
             return
         maximum_level_purchased = self.isMaximumLevelPurchased(data)
-        available_levels = [int(stateID) for stateID, stageProgress in data.points.items() if stageProgress.status == PointStatus.AVAILABLE and (int(stateID) not in SKIP_LEVELS or maximum_level_purchased)]
+        available_levels = [int(stateID) for stateID,
+                            stageProgress in data.points.items() if stageProgress.status == PointStatus.AVAILABLE
+                            and (int(stateID) not in SKIP_LEVELS or maximum_level_purchased)]
         if not available_levels:
             return
         next_level = min(available_levels)

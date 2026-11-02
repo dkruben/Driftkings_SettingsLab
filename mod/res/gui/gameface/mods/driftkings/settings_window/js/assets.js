@@ -10,7 +10,7 @@
     function asset(path) {
         if (!path) { return ''; }
         path = String(path).replace(/^img:\/\//, '').replace(/^coui:\/\//, '').replace(/^\.?\//, '');
-        if (/^[a-z]+:/i.test(path) || /(^|\/)\.\.(\/|$)/.test(path) || path.indexOf('\\')>=0) { return ''; }
+        if (/^[a-z]+:/i.test(path) || /(^|\/)\.\.(\/|$)/.test(path) || path.indexOf('\\') >= 0) { return ''; }
         // '#' starts a URL fragment; carousel colour images use '#rrggbb' filenames.
         return (window.DK_GAME_ROOT || 'coui://') + path.replace(/#/g, '%23');
     }

@@ -29,16 +29,16 @@
     function alphaFromUi(value, scale) { var n = normalizeAlpha(value, 'percent'); return n === null ? null : scale === 'byte' ? Math.round(n * 255 / 100) : n * limit(scale) / 100; }
     function spectrum(x, y) {
         var h = Math.max(0, Math.min(1, y)) * 6, i = Math.floor(h) % 6, f = h - Math.floor(h);
-        var rgb = [[1,f,0],[1-f,1,0],[0,1,f],[0,1-f,1],[f,0,1],[1,0,1-f]][i];
+        var rgb = [[1, f, 0], [1 - f, 1, 0], [0, 1, f], [0, 1 - f, 1], [f, 0, 1], [1, 0, 1 - f]][i];
         x = Math.max(0, Math.min(1, x));
-        return rgbToHex(rgb.map(function (n) { return 255 * (x <= 0.5 ? n * x * 2 : n + (1-n) * (x-0.5)*2); }));
+        return rgbToHex(rgb.map(function (n) { return 255 * (x <= 0.5 ? n * x * 2 : n + (1 - n) * (x - 0.5) * 2); }));
     }
     function spectrumPosition(value) {
-        var rgb = hexToRgb(value); if (!rgb) { return {x:0.5,y:0}; }
-        rgb = rgb.map(function (n) { return n/255; });
-        var hi=Math.max.apply(Math,rgb), lo=Math.min.apply(Math,rgb), delta=hi-lo, h=0;
-        if(delta){ h=hi===rgb[0]?(rgb[1]-rgb[2])/delta:hi===rgb[1]?2+(rgb[2]-rgb[0])/delta:4+(rgb[0]-rgb[1])/delta; h=(h+6)%6; }
-        return {x:hi+lo>1 ? (1+lo)/2 : hi/2,y:h/6};
+        var rgb = hexToRgb(value); if (!rgb) { return {x: 0.5, y: 0}; }
+        rgb = rgb.map(function (n) { return n / 255; });
+        var hi = Math.max.apply(Math, rgb), lo = Math.min.apply(Math, rgb), delta = hi - lo, h = 0;
+        if (delta) { h = hi === rgb[0] ? (rgb[1] - rgb[2]) / delta : hi === rgb[1] ? 2 + (rgb[2] - rgb[0]) / delta : 4 + (rgb[0] - rgb[1]) / delta; h = (h + 6) % 6; }
+        return {x: hi + lo > 1 ? (1 + lo) / 2 : hi / 2, y: h / 6};
     }
     DK.colors = {parseColor: parseColor, normalizeColor: normalizeColor,
         hexToRgb: hexToRgb, rgbToHex: rgbToHex, normalizeAlpha: normalizeAlpha,

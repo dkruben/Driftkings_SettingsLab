@@ -97,19 +97,24 @@ class TanksStatistic:
         return self.__enemyTeamForces
 
     def _get_team_count(self, is_enemy, with_dead=False):
-        return sum(1 for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
+        return sum(1 for value in self.base.values() if value['isEnemy'] == is_enemy
+                   and (with_dead or value['isAlive']))
 
     def _get_team_hp(self, is_enemy, with_dead=False):
-        return sum(value['hp'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
+        return sum(value['hp'] for value in self.base.values() if value['isEnemy'] == is_enemy
+                   and (with_dead or value['isAlive']))
 
     def _get_team_damage(self, is_enemy, with_dead=False):
-        return sum(value['gun']['currentDamage'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
+        return sum(value['gun']['currentDamage'] for value in self.base.values() if value['isEnemy'] == is_enemy
+                   and (with_dead or value['isAlive']))
 
     def _get_team_dpm(self, is_enemy, with_dead=False):
-        return sum(value['gun']['currentDpm'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
+        return sum(value['gun']['currentDpm'] for value in self.base.values() if value['isEnemy'] == is_enemy
+                   and (with_dead or value['isAlive']))
 
     def _get_team_forces(self, is_enemy, with_dead=False):
-        return sum(value['force'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
+        return sum(value['force'] for value in self.base.values() if value['isEnemy'] == is_enemy
+                   and (with_dead or value['isAlive']))
 
     def __getAllyTanksCount(self, with_dead=False):
         return self._get_team_count(False, with_dead)
@@ -165,9 +170,11 @@ class TanksStatistic:
             tank['hp'] = v_type.maxHealth if tank['isAlive'] else 0
             tank['gun'] = {'reload': float(v_type.gun.reloadTime)}
             if v_type.gun.clip[0] > 1:
-                tank['gun']['ammer'] = {'reload': tank['gun']['reload'], 'capacity': v_type.gun.clip[0], 'shellReload': float(v_type.gun.clip[1])}
+                tank['gun']['ammer'] = {'reload': tank['gun']['reload'], 'capacity': v_type.gun.clip[0],
+                                        'shellReload': float(v_type.gun.clip[1])}
                 tank['gun']['reload'] = (tank['gun']['ammer']['shellReload'] + tank['gun']['ammer']['reload'] / tank['gun']['ammer']['capacity'])
-            tank['gun']['shell'] = {'AP': {'damage': 0, 'dpm': 0}, 'APRC': {'damage': 0, 'dpm': 0}, 'HC': {'damage': 0, 'dpm': 0}, 'HE': {'damage': 0, 'dpm': 0}}
+            tank['gun']['shell'] = {'AP': {'damage': 0, 'dpm': 0}, 'APRC': {'damage': 0, 'dpm': 0},
+                                    'HC': {'damage': 0, 'dpm': 0}, 'HE': {'damage': 0, 'dpm': 0}}
             for shot in v_type.gun.shots:
                 shell_type = self._getShellType(shot.shell.kind)
                 damage = self._getShellDamage(shot.shell)
@@ -248,10 +255,12 @@ class TanksStatistic:
             if value['isAlive']:
                 if value['isEnemy']:
                     value['Th'] = value['hp'] / self.__allyTeamDPM if self.__allyTeamDPM > 0 else 999999.9
-                    value['Te'] = self.__allyTeamHP / value['gun']['currentDpm'] if value['gun']['currentDpm'] > 0 else 999999.9
+                    value['Te'] = (self.__allyTeamHP / value['gun']['currentDpm'] if value['gun']['currentDpm'] > 0
+                                   else 999999.9)
                 else:
                     value['Th'] = value['hp'] / self.__enemyTeamDPM if self.__enemyTeamDPM > 0 else 999999.9
-                    value['Te'] = self.__enemyTeamHP / value['gun']['currentDpm'] if value['gun']['currentDpm'] > 0 else 999999.9
+                    value['Te'] = (self.__enemyTeamHP / value['gun']['currentDpm'] if value['gun']['currentDpm'] > 0
+                                   else 999999.9)
                 value['force'] = value['Th'] / value['Te'] if value['Te'] > 0 else 999999.9
             else:
                 value['Th'] = 0
@@ -360,7 +369,9 @@ class BattleStatDisplay(CallbackDelayer):
         return '&#x007C;'
 
     def updateText(self):
-        if not self.inBattle or not settings_service.getComponentDict(battle_statistics_settings).get(GLOBAL.ENABLED, False) or g_gameface is None:
+        if (not self.inBattle
+            or not settings_service.getComponentDict(battle_statistics_settings).get(GLOBAL.ENABLED, False)
+            or g_gameface is None):
             return
         ally = g_tanksStatistic.allyChance
         enemy = g_tanksStatistic.enemyChance
@@ -372,7 +383,8 @@ class BattleStatDisplay(CallbackDelayer):
         self.delayCallback(0.3, self.updateText)
 
     def formatChanceText(self, value, comparison_value):
-        color = getComparisonColor(value, comparison_value, settings_service.getComponentDict(battle_statistics_settings).get(BATTLE_STATISTICS.COLOR_RATING, 0))
+        color = getComparisonColor(value, comparison_value,
+                                   settings_service.getComponentDict(battle_statistics_settings).get(BATTLE_STATISTICS.COLOR_RATING, 0))
         text = '%6.2f' % value
         return "<font color='%s'>%s</font>" % (color, text) if color else text
 
@@ -383,9 +395,11 @@ class BattleStatDisplay(CallbackDelayer):
 
     def formatText(self, ally_text, enemy_text, ally, enemy):
         header = getattr(battle_statistics_settings, 'i18n', {}).get('UI_teamStrength', 'Team strength')
-        data = {'header': header, 'allyChance': ally_text, 'enemyChance': enemy_text, 'compareSign': self.compare_sign(ally, enemy)}
+        data = {'header': header, 'allyChance': ally_text, 'enemyChance': enemy_text,
+                'compareSign': self.compare_sign(ally, enemy)}
         self.updateMacros(data)
-        return replaceMacros(settings_service.getComponentDict(battle_statistics_settings)[BATTLE_STATISTICS.FORMAT], self.macro)
+        return replaceMacros(settings_service.getComponentDict(battle_statistics_settings)[BATTLE_STATISTICS.FORMAT],
+                             self.macro)
 
 
 g_mod = BattleStatDisplay()

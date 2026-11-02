@@ -149,7 +149,9 @@ class LifecycleMixin(object):
             self._generation += 1
             self.checker.cancel()
             self._last_attempt = None
-            self.state.update(channel=channel, status=IDLE, latestVersion=None, changelog=[], compatible=None, error=None, canDownload=False, canCancel=False, downloadPercent=None, canInstall=False, installBlocked=None, installScheduled=False)
+            self.state.update(channel=channel, status=IDLE, latestVersion=None, changelog=[], compatible=None,
+                              error=None, canDownload=False, canCancel=False, downloadPercent=None, canInstall=False,
+                              installBlocked=None, installScheduled=False)
             self._recover_staging()
 
     def onContextEntered(self, space):
@@ -186,4 +188,5 @@ class LifecycleMixin(object):
             else: self._prepare_permit.clear()
         ready = bool(self._ready_path and not self._install_pending and not self._install_armed)
         reason = self._blocked_reason() if ready or self._install_armed else None
-        self.state.update(canInstall=ready and reason is None, installBlocked=reason, canRestart=self._install_armed and reason is None and self.restart_ready())
+        self.state.update(canInstall=ready and reason is None, installBlocked=reason,
+                          canRestart=self._install_armed and reason is None and self.restart_ready())

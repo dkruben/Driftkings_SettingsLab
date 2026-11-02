@@ -6,7 +6,8 @@ from driftkings.common.utils.formatting import is_hex_color
 from driftkings.core.vehicle_markers.fields import number
 
 DEFAULTS = {'colorBlind': {'enabled': True, 'team': {'enemy': '#C48CFF', 'teamKiller': '#66CCFF'}},
-            'team': {'allyDead': '#B8FFC1', 'enemyDead': '#E29188', 'squadDead': '#CA7000', 'teamKillerDead': '#097783', 'ally': '#99CC66', 'enemy': '#FF7777', 'squad': '#FFCC66',
+            'team': {'allyDead': '#B8FFC1', 'enemyDead': '#E29188', 'squadDead': '#CA7000',
+                     'teamKillerDead': '#097783', 'ally': '#99CC66', 'enemy': '#FF7777', 'squad': '#FFCC66',
                      'teamKiller': '#66CCFF', 'dead': '#AAAAAA', 'unknown': '#CCCCCC'},
             'hp': [{'value': 25, 'color': '#FF5555'}, {'value': 50, 'color': '#FFAA44'},
                    {'value': 75, 'color': '#FFDD66'}, {'value': 100, 'color': '#99CC66'}]}
@@ -23,7 +24,9 @@ def palette(index=0):
     source = getRatingColors(index)
     system = source['system']
     missing = source['colorRating']['nocolor']
-    return {'colors': {'team': {'allyDead': system['ally_dead'], 'enemyDead': system['enemy_dead'], 'squadDead': system['squadman_dead'], 'teamKillerDead': system['teamKiller_dead'], 'ally': system['ally_alive'], 'enemy': system['enemy_alive'],
+    return {'colors': {'team': {'allyDead': system['ally_dead'], 'enemyDead': system['enemy_dead'],
+                                'squadDead': system['squadman_dead'], 'teamKillerDead': system['teamKiller_dead'],
+                                'ally': system['ally_alive'], 'enemy': system['enemy_alive'],
                                'squad': system['squadman_alive'], 'teamKiller': system['teamKiller_alive'],
                                'dead': missing, 'unknown': missing},
                        'hp': copy.deepcopy(source['hp_ratio'])},

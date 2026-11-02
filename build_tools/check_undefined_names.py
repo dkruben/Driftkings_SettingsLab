@@ -28,7 +28,8 @@ class Reporter(object):
 
     def flake(self, message):
         if isinstance(message, messages.UndefinedName) and message.message_args[0] not in ALLOWED:
-            self.problems.append('%s:%s: undefined name %r' % (message.filename, message.lineno, message.message_args[0]))
+            self.problems.append('%s:%s: undefined name %r' % (message.filename, message.lineno,
+                                                               message.message_args[0]))
 
 
 def main():

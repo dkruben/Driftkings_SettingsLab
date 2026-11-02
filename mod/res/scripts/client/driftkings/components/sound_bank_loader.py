@@ -51,7 +51,8 @@ class AudioModsSection(object):
 class BanksLoaderController(object):
     def __init__(self, config):
         self.config = config
-        self.editedBanks = {'create': [], 'delete': [], 'memory': [], 'move': [], 'remap': set(), 'wotmod': [], 'section': []}
+        self.editedBanks = {'create': [], 'delete': [], 'memory': [], 'move': [], 'remap': set(), 'wotmod': [],
+                            'section': []}
         self.version_changed = False
         self.was_declined = False
         self._runtimeActive = False
@@ -93,14 +94,17 @@ class BanksLoaderController(object):
                 for key in self.editedBanks:
                     if self.editedBanks[key]:
                         if isinstance(self.editedBanks[key], (list, set)):
-                            reason_text = self.config.i18n['UI_restart_' + key] + ', '.join(('<b>%s</b>' % x for x in remDups(self.editedBanks[key])))
+                            reason_text = self.config.i18n['UI_restart_' + key] + ', '.join(('<b>%s</b>' % x
+                                                                                             for x in remDups(self.editedBanks[key])))
                             reasons.append(reason_text)
             reasonStr = self.config.i18n['UI_restart_reason'].format(';\n'.join(reasons)) if reasons else ''
             dialogText = self.config.i18n['UI_restart_text'].format(reason=self.config.i18n['UI_restart_reason_' + ('update' if self.version_changed else 'new')], reasons=reasonStr)
             builder = WarningDialogBuilder().setFormattedMessage(dialogText).setFormattedTitle(
                 self.config.i18n['UI_restart_header'])
-            for ID, key in ((DButtons.PURCHASE, 'restart'), (DButtons.RESEARCH, 'shutdown'), (DButtons.SUBMIT, 'close')):
-                builder.addButton(ID, None, ID == DButtons.PURCHASE, rawLabel=self.config.i18n['UI_restart_button_%s' % key])
+            for ID, key in ((DButtons.PURCHASE, 'restart'), (DButtons.RESEARCH, 'shutdown'),
+                            (DButtons.SUBMIT, 'close')):
+                builder.addButton(ID, None, ID == DButtons.PURCHASE,
+                                  rawLabel=self.config.i18n['UI_restart_button_%s' % key])
             try:
                 parent = SL.appLoader.getApp().containerManager.getContainer(WindowLayer.VIEW).getView()
             except (AttributeError, TypeError):
@@ -235,20 +239,25 @@ class BanksLoaderController(object):
             profile = soundMgr[soundMgr[profile_name].asString]
             self.manageProfileMemorySettings(profile_type, profile)
             self.manageProfileBanks(profile_type, profile, bankFiles)
-        self.saveNewFile(audio_mods_new, mediaPath + '/', 'audio_mods_edited.xml', mediaPath + '/audio_mods.xml',('delete', 'move', 'remap'))
-        self.saveNewFile(new_engine, '', 'engine_config_edited.xml', 'engine_config.xml', ('delete', 'move', 'create', 'memory'))
+        self.saveNewFile(audio_mods_new, mediaPath + '/', 'audio_mods_edited.xml', mediaPath + '/audio_mods.xml',
+                         ('delete', 'move', 'remap'))
+        self.saveNewFile(new_engine, '', 'engine_config_edited.xml', 'engine_config.xml',
+                         ('delete', 'move', 'create', 'memory'))
 
     def collectBankFiles(self, mediaPath):
         bankFiles = {
             'mods': set(), 'pkg': set(), 'ignore': set(), 'section': {},
             'audio_mods_allowed': ('protanki.bnk',),
-            'res': {os.path.basename(path) for path in glob.iglob('./res/' + mediaPath + '/*') if os.path.splitext(path)[1] in ('.bnk', '.pck')}
+            'res': {os.path.basename(path) for path in glob.iglob('./res/' + mediaPath + '/*')
+                    if os.path.splitext(path)[1] in ('.bnk', '.pck')}
         }
         for pkgPath in glob.iglob('res/packages/audioww*.pkg'):
             with zipfile.ZipFile(pkgPath) as pkg:
                 bankFiles['pkg'].update({os.path.basename(name) for name in pkg.namelist()})
         bankFiles['orig'] = bankFiles['res'] | bankFiles['pkg']
-        bankFiles['mods'] = set((x for x in ResMgr.openSection(mediaPath).keys() if os.path.splitext(x)[1] in ('.bnk', '.pck') and not any((y in bankFiles['orig'] for y in (x, x.lower())))))
+        bankFiles['mods'] = set((x for x in ResMgr.openSection(mediaPath).keys()
+                                 if os.path.splitext(x)[1] in ('.bnk', '.pck')
+                                 and not any((y in bankFiles['orig'] for y in (x, x.lower())))))
         bankFiles['all'] = bankFiles['orig'] | bankFiles['mods']
         return bankFiles
 
@@ -327,9 +336,11 @@ class BanksLoaderController(object):
             self.editedBanks['remap'].add('audio_mods.xml')
         data_structure = [
             {'name': 'events', 'key': 'event', 'keys': ('name', 'mod'), 'data': ()},
-            {'name': 'switches', 'key': 'switch', 'keys': ('name', 'mod'), 'data': {'name': 'states', 'key': 'state', 'keys': ('name', 'mod'), 'data': ()}},
+            {'name': 'switches', 'key': 'switch', 'keys': ('name', 'mod'),
+             'data': {'name': 'states', 'key': 'state', 'keys': ('name', 'mod'), 'data': ()}},
             {'name': 'RTPCs', 'key': 'RTPC', 'keys': ('name', 'mod'), 'data': ()},
-            {'name': 'states', 'key': 'stateGroup', 'keys': ('name', 'mod'), 'data': {'name': 'stateNames', 'key': 'state', 'keys': ('name', 'mod'), 'data': ()}}
+            {'name': 'states', 'key': 'stateGroup', 'keys': ('name', 'mod'),
+             'data': {'name': 'stateNames', 'key': 'state', 'keys': ('name', 'mod'), 'data': ()}}
         ]
         sources = []
         folder = ResMgr.openSection(mediaPath)
@@ -349,7 +360,8 @@ class BanksLoaderController(object):
         sources.extend(getattr(self, '_packageAudioMods', ()))
         for struct in data_structure:
             key = struct['name']
-            old = self.check_and_collect_data(key, audio_mods[key], struct, True) if audio_mods is not None and audio_mods.has_key(key) else []
+            old = (self.check_and_collect_data(key, audio_mods[key], struct, True) if audio_mods is not None
+                   and audio_mods.has_key(key) else [])
             merged = self.merge_records([], old, struct)
             for section in sources:
                 incoming = self.check_and_collect_data(key, section[key], struct, False) if section.has_key(key) else []
@@ -436,7 +448,8 @@ class BanksLoaderController(object):
                 exist.add(bankName)
         bankFiles['orig'] = {x.lower() for x in bankFiles['orig']}
         for bankName in sorted(bankFiles['mods']):
-            if not any((bankName in bankFiles[x] for x in ('orig', 'ignore', 'audio_mods_allowed'))) and bankName not in exist:
+            if not any((bankName in bankFiles[x]
+                        for x in ('orig', 'ignore', 'audio_mods_allowed'))) and bankName not in exist:
                 sectName = bankFiles['section'].get(bankName, 'SFX_soundbanks_loadonce')
                 LOG.info('creating %s section in %s for bank %s', profile_type, sectName, bankName)
                 if bankName in self.editedBanks['delete']:

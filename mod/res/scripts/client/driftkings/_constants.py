@@ -8,8 +8,11 @@ from collections import namedtuple
 # Shared value records; safe to import outside the client.
 MinMax = namedtuple('MinMax', ('min', 'max'))
 ScreenBounds = namedtuple('ScreenBounds', ('x', 'y', 'width', 'height'))
-MarksStatistics = namedtuple('MarksStatistics', ('next_percent', 'next_damage', 'damage20', 'damage40', 'damage55', 'damage65', 'damage85', 'damage95', 'damage100'))
-BattleCurve = namedtuple('BattleCurve', ('levels', 'damages', 'statistics', 'target_damage', 'target_reachable', 'limit_reached'))
+MarksStatistics = namedtuple('MarksStatistics',
+                             ('next_percent', 'next_damage', 'damage20', 'damage40', 'damage55', 'damage65',
+                              'damage85', 'damage95', 'damage100'))
+BattleCurve = namedtuple('BattleCurve',
+                         ('levels', 'damages', 'statistics', 'target_damage', 'target_reachable', 'limit_reached'))
 # Shared marks of excellence rules.
 MARK_LEVELS = (0.0, 20.0, 40.0, 55.0, 65.0, 85.0, 95.0, 100.0)
 MARK_THRESHOLDS = (65, 85, 95)
@@ -360,8 +363,10 @@ class CLAN_REWARD_COLLECTION(object):
 
 
 class VEHICLE_CAROUSEL(object):
-    ALPHA_FIELDS = ('backgroundAlpha', 'slotBackgroundAlpha', 'slotBorderAlpha', 'slotSelectedBorderAlpha', 'edgeFadeAlpha')
-    SWITCHES = ('hideBuyTank', 'hideBuySlot', 'hideRestoreTank', 'showTotalSlots', 'showUsedSlots', 'enableLockBackground', 'suppressCarouselTooltips')
+    ALPHA_FIELDS = ('backgroundAlpha', 'slotBackgroundAlpha', 'slotBorderAlpha', 'slotSelectedBorderAlpha',
+                    'edgeFadeAlpha')
+    SWITCHES = ('hideBuyTank', 'hideBuySlot', 'hideRestoreTank', 'showTotalSlots', 'showUsedSlots',
+                'enableLockBackground', 'suppressCarouselTooltips')
     FILTERS = ('params', 'bonus', 'favorite', 'elite', 'premium')
     CELL_BOUNDS = (('width', 80, 600), ('height', 35, 400), ('gap', 0, 40))
     NAME = 'vehicle_carousel'
@@ -479,10 +484,12 @@ class VEHICLE_MARKERS(object):
 # Parent switch -> controls available only while it is enabled.
 HANDLER_VALUES = {
     SIXTH_SENSE_ALERT.NAME: {
-        SIXTH_SENSE_ALERT.DEFAULT_ICON: {SIXTH_SENSE_ALERT.DEFAULT_ICON_NAME: (True,), SIXTH_SENSE_ALERT.USER_ICON: (False,)},
+        SIXTH_SENSE_ALERT.DEFAULT_ICON: {SIXTH_SENSE_ALERT.DEFAULT_ICON_NAME: (True,),
+                                         SIXTH_SENSE_ALERT.USER_ICON: (False,)},
         SIXTH_SENSE_ALERT.USER_SOUND: (SIXTH_SENSE_ALERT.SIXTH_SENSE_SOUND,),
         SIXTH_SENSE_ALERT.PLAY_TICK_SOUND: {SIXTH_SENSE_ALERT.SIXTH_SENSE_SOUND: (False,)},
-        SIXTH_SENSE_ALERT.SHOW_TIMER_GRAPHICS: (SIXTH_SENSE_ALERT.SHOW_TIMER_GRAPHICS_COLOR, SIXTH_SENSE_ALERT.SHOW_TIMER_GRAPHICS_RADIUS),
+        SIXTH_SENSE_ALERT.SHOW_TIMER_GRAPHICS: (SIXTH_SENSE_ALERT.SHOW_TIMER_GRAPHICS_COLOR,
+                                                SIXTH_SENSE_ALERT.SHOW_TIMER_GRAPHICS_RADIUS),
         SIXTH_SENSE_ALERT.SPOTTED_MESSAGE: (SIXTH_SENSE_ALERT.SPOTTED_TEXT,),
     },
     BATTLE_MARKS_OF_EXCELLENCE.NAME: {
@@ -493,26 +500,42 @@ HANDLER_VALUES = {
         TARGET_INFORMATION.BACKGROUND_ENABLED: (TARGET_INFORMATION.BACKGROUND_ALPHA,)
     },
     CREW_MANAGEMENT.NAME: {
-        CREW_MANAGEMENT.CREW_AUTO_RETURN: (CREW_MANAGEMENT.CREW_RETURN_BY_DEFAULT, CREW_MANAGEMENT.AUTO_RETURN_DELAY, CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES)
+        CREW_MANAGEMENT.CREW_AUTO_RETURN: (CREW_MANAGEMENT.CREW_RETURN_BY_DEFAULT, CREW_MANAGEMENT.AUTO_RETURN_DELAY,
+                                           CREW_MANAGEMENT.EXCLUDE_PREMIUM_VEHICLES)
     },
     HANGAR_PREFERENCES.NAME: {
         HANGAR_PREFERENCES.BLOCK_VEHICLE_IF_LOW_AMMO: (HANGAR_PREFERENCES.LOW_AMMO_PERCENTAGE,)
     },
     MINIMAP_ENHANCEMENTS.NAME: {
-        MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS: (MINIMAP_ENHANCEMENTS.LAST_POSITION_DURATION, MINIMAP_ENHANCEMENTS.LOST_MARKER + '.showSeconds', MINIMAP_ENHANCEMENTS.LOST_MARKER + '.fade', MINIMAP_ENHANCEMENTS.LOST_MARKER + '.minimumAlpha'),
-        MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES: (MINIMAP_ENHANCEMENTS.COLOR_DRAW_CIRCLE, MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE, MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE, MINIMAP_ENHANCEMENTS.COLOR_VIEW_CIRCLE),
-        MINIMAP_ENHANCEMENTS.LABELS + '.customColors': tuple(MINIMAP_ENHANCEMENTS.LABELS + '.' + key for key in MINIMAP_ENHANCEMENTS.LABEL_COLOR_KEYS),
-        MINIMAP_ENHANCEMENTS.NEARBY + '.enabled': tuple(MINIMAP_ENHANCEMENTS.NEARBY + '.' + key for key in ('range', 'distance', 'color', 'alpha')),
+        MINIMAP_ENHANCEMENTS.SHOW_LAST_POSITIONS: (MINIMAP_ENHANCEMENTS.LAST_POSITION_DURATION,
+                                                   MINIMAP_ENHANCEMENTS.LOST_MARKER + '.showSeconds',
+                                                   MINIMAP_ENHANCEMENTS.LOST_MARKER + '.fade',
+                                                   MINIMAP_ENHANCEMENTS.LOST_MARKER + '.minimumAlpha'),
+        MINIMAP_ENHANCEMENTS.CHANGE_COLOR_CIRCLES: (MINIMAP_ENHANCEMENTS.COLOR_DRAW_CIRCLE,
+                                                    MINIMAP_ENHANCEMENTS.COLOR_MAX_VIEW_CIRCLE,
+                                                    MINIMAP_ENHANCEMENTS.COLOR_MIN_SPOTTING_CIRCLE,
+                                                    MINIMAP_ENHANCEMENTS.COLOR_VIEW_CIRCLE),
+        MINIMAP_ENHANCEMENTS.LABELS + '.customColors': tuple(MINIMAP_ENHANCEMENTS.LABELS + '.' + key
+                                                             for key in MINIMAP_ENHANCEMENTS.LABEL_COLOR_KEYS),
+        MINIMAP_ENHANCEMENTS.NEARBY + '.enabled': tuple(MINIMAP_ENHANCEMENTS.NEARBY + '.' + key
+                                                        for key in ('range', 'distance', 'color', 'alpha')),
         MINIMAP_ENHANCEMENTS.LABELS + '.avoidOverlap': (MINIMAP_ENHANCEMENTS.LABELS + '.compactLength',),
         MINIMAP_ENHANCEMENTS.LOST_MARKER + '.fade': (MINIMAP_ENHANCEMENTS.LOST_MARKER + '.minimumAlpha',),
-        MINIMAP_ENHANCEMENTS.LINES + '.customStyle': tuple(MINIMAP_ENHANCEMENTS.LINES + '.' + key for key in ('directionColor', 'sectorColor', 'alpha', 'geometry', 'thickness', 'dash', 'gap')),
-        MINIMAP_ENHANCEMENTS.LINES + '.geometry': tuple(MINIMAP_ENHANCEMENTS.LINES + '.' + key for key in ('thickness', 'dash', 'gap')),
-        MINIMAP_ENHANCEMENTS.PRESENTATION + '.alternativeEnabled': (MINIMAP_ENHANCEMENTS.BUTTON, MINIMAP_ENHANCEMENTS.ZOOM_FACTOR, MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX,
+        MINIMAP_ENHANCEMENTS.LINES + '.customStyle': tuple(MINIMAP_ENHANCEMENTS.LINES + '.' + key
+                                                           for key in ('directionColor', 'sectorColor', 'alpha',
+                                                                       'geometry', 'thickness', 'dash', 'gap')),
+        MINIMAP_ENHANCEMENTS.LINES + '.geometry': tuple(MINIMAP_ENHANCEMENTS.LINES + '.' + key
+                                                        for key in ('thickness', 'dash', 'gap')),
+        MINIMAP_ENHANCEMENTS.PRESENTATION + '.alternativeEnabled': (MINIMAP_ENHANCEMENTS.BUTTON,
+                                                                    MINIMAP_ENHANCEMENTS.ZOOM_FACTOR,
+                                                                    MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX,
         MINIMAP_ENHANCEMENTS.PRESENTATION + '.zoom', MINIMAP_ENHANCEMENTS.PRESENTATION + '.center',
         MINIMAP_ENHANCEMENTS.PRESENTATION + '.alternativeAlpha', MINIMAP_ENHANCEMENTS.PRESENTATION + '.sizeIndex'),
-        MINIMAP_ENHANCEMENTS.PRESENTATION + '.zoom': (MINIMAP_ENHANCEMENTS.ZOOM_FACTOR, MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX,
+        MINIMAP_ENHANCEMENTS.PRESENTATION + '.zoom': (MINIMAP_ENHANCEMENTS.ZOOM_FACTOR,
+                                                      MINIMAP_ENHANCEMENTS.ZOOM_FACTOR_MAX,
         MINIMAP_ENHANCEMENTS.PRESENTATION + '.center', MINIMAP_ENHANCEMENTS.PRESENTATION + '.sizeIndex'),
-        MINIMAP_ENHANCEMENTS.HEALTH + '.visibility': dict((MINIMAP_ENHANCEMENTS.HEALTH + '.' + key, ('key', 'always')) for key in ('mode', 'x', 'y', 'width', 'height', 'fontSize')),
+        MINIMAP_ENHANCEMENTS.HEALTH + '.visibility': dict((MINIMAP_ENHANCEMENTS.HEALTH + '.' + key, ('key', 'always'))
+                                                          for key in ('mode', 'x', 'y', 'width', 'height', 'fontSize')),
         MINIMAP_ENHANCEMENTS.HEALTH + '.mode': {
             MINIMAP_ENHANCEMENTS.HEALTH + '.width': ('bar',), MINIMAP_ENHANCEMENTS.HEALTH + '.height': ('bar',),
             MINIMAP_ENHANCEMENTS.HEALTH + '.fontSize': ('value', 'percent')

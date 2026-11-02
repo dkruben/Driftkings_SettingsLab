@@ -61,7 +61,8 @@ class Manifest(object):
                 raise ValueError('Unexpected package name')
             if type(document['size']) not in integer_types or not 0 < document['size'] <= MAX_PACKAGE:
                 raise ValueError('Invalid package size')
-            if not isinstance(document['sha256'], string_types) or re.match(r'\A[0-9a-fA-F]{64}\Z', document['sha256']) is None:
+            if (not isinstance(document['sha256'], string_types)
+                or re.match(r'\A[0-9a-fA-F]{64}\Z', document['sha256']) is None):
                 raise ValueError('Invalid SHA-256')
             official_release_url(document['download'])
             changelog = document.get('changelog', [])
@@ -102,7 +103,10 @@ class Manifest(object):
 
     def document(self):
         download = self.download if self.inventory is None else self.download.rsplit('/', 1)[0] + '/driftkings.wotmod'
-        document = dict(schema=self.schema, version=self.version.text, channel=self.channel, gameVersion=self.game_version, minGameVersion=self.minimum, maxGameVersion=self.maximum, file='driftkings.wotmod', size=self.size, sha256=self.sha256, download=download, changelog=list(self.changelog))
+        document = dict(schema=self.schema, version=self.version.text, channel=self.channel,
+                        gameVersion=self.game_version, minGameVersion=self.minimum, maxGameVersion=self.maximum,
+                        file='driftkings.wotmod', size=self.size, sha256=self.sha256, download=download,
+                        changelog=list(self.changelog))
         if self.inventory is not None:
             document['modpack'] = self.inventory.document()
         return document

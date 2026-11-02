@@ -70,7 +70,9 @@ class WindowsPathValidator(object):
         startup = subprocess.STARTUPINFO()
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
-        self.process = subprocess.Popen([self.binary, '--serve', self.root, str(os.getpid()), self.sha256], shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startup, creationflags=0x08000000)
+        self.process = subprocess.Popen([self.binary, '--serve', self.root, str(os.getpid()), self.sha256],
+                                        shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, startupinfo=startup, creationflags=0x08000000)
         def reading():
             try:
                 while True:

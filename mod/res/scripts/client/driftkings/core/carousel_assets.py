@@ -8,7 +8,8 @@ from driftkings.logger import get_logger
 
 RESOURCE_ROOT = 'gui/maps/driftkings/carroucel/'
 ICON_PATH = re.compile(r'gui/maps/driftkings/carroucel/[#a-z0-9_-]+\.(?:png|svg)')
-SAVED_ICON_PATH = re.compile(r'(?:(?:coui|img)://)?(?:gui/maps|mods)/driftkings/carroucel/([^\s\'"<>/]+\.(?:png|svg))', re.IGNORECASE)
+SAVED_ICON_PATH = re.compile(r'(?:(?:coui|img)://)?(?:gui/maps|mods)/driftkings/carroucel/([^\s\'"<>/]+\.(?:png|svg))',
+                             re.IGNORECASE)
 MAX_IMAGE_SIZE = 2 * 1024 * 1024
 
 
@@ -84,5 +85,6 @@ class CarouselImages(object):
                 for field in profile.get('extraFields', ()):
                     if field.get('showIcons', True):
                         for key in ('src', 'format'):
-                            paths.update(path for path in ICON_PATH.findall(field.get(key, '')) if path.endswith('.png'))
+                            paths.update(path for path in ICON_PATH.findall(field.get(key, ''))
+                                         if path.endswith('.png'))
         return dict((path, self.resolve(path)) for path in sorted(paths))

@@ -36,7 +36,8 @@ LOG = get_logger('Driftkings.Stats')
 
 def finite_number(value):
     try:
-        return not isinstance(value, bool) and isinstance(value, integer_types + (float,)) and not (math.isnan(value) or math.isinf(value))
+        return (not isinstance(value, bool) and isinstance(value, integer_types + (float,))
+                and not (math.isnan(value) or math.isinf(value)))
     except OverflowError:
         return False
 
