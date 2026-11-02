@@ -79,9 +79,9 @@
         ui.brand = h('div.dk-brand', null, null, top);
         ui.version = h('div.dk-version', null, null, top);
         h('div.dk-spacer', null, null, top);
-        ['discord', 'facebook', 'youtube'].forEach(function (service) {
-            var social = h('button.dk-social', {title: {discord: 'Discord', facebook: 'Facebook', youtube: 'YouTube'}[service],
-                'aria-label': {discord: 'Discord', facebook: 'Facebook', youtube: 'YouTube'}[service]},
+        var socialNames = {discord: 'Discord', facebook: 'Facebook', youtube: 'YouTube', github: 'GitHub'};
+        ['discord', 'facebook', 'youtube', 'github'].forEach(function (service) {
+            var social = h('button.dk-social', {title: socialNames[service], 'aria-label': socialNames[service]},
                 [h('img', {src: ICONS + 'social/' + service + '.svg', alt: ''})], top);
             social.addEventListener('click', function (event) { DK.stop(event); send('open_' + service); });
         });

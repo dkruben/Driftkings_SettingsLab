@@ -42,8 +42,8 @@ assert(!app.querySelector('.dk-community'));
 assert(!app.querySelector('.dk-search'));
 assert(!app.querySelector('.dk-top-link'));
 const socials=app.querySelectorAll('.dk-social');
-assert.strictEqual(socials.length,3);
-['discord','facebook','youtube'].forEach((service,i)=>{
+assert.strictEqual(socials.length,4);
+['discord','facebook','youtube','github'].forEach((service,i)=>{
     assert(socials[i].querySelector('img').src.endsWith('/'+service+'.svg'));
     socials[i].fire('click');assert.strictEqual(sent[sent.length-1][0],'open_'+service);
 });

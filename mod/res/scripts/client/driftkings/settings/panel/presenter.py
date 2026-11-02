@@ -222,6 +222,13 @@ class Presenter(object):
         import BigWorld
         BigWorld.wg_openWebBrowser('https://www.youtube.com/@DKRubenEU')
 
+    def _on_open_github(self, data, result):
+        import BigWorld
+
+        from driftkings.core.updater.endpoints import REPOSITORY
+
+        BigWorld.wg_openWebBrowser('https://github.com/' + REPOSITORY)
+
     def _on_cancel_update_download(self, data, result):
         updater = getattr(self.api, 'updater', None)
         if updater is None:

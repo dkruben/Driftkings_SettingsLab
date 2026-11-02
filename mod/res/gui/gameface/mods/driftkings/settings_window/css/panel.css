@@ -19,7 +19,8 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 }
 .dk-window-line { position: absolute; left: 0; top: 0; right: 0; height: 2rem; opacity: 0.9; }
 
-.dk-top { display: flex; align-items: center; height: 60rem; padding: 0 12rem 0 24rem; border-bottom: 1rem solid #3a3731; flex-shrink: 0; background: rgba(0, 0, 0, 0.25); }
+.dk-top { display: flex; align-items: center; height: 80rem; padding: 0 12rem 0 24rem; border-bottom: 1rem solid #3a3731; flex-shrink: 0;
+    background: #101720 url('../assets/header_tank.jpeg') center / cover no-repeat; }
 .dk-brand { display: flex; align-items: flex-end; white-space: nowrap; }
 .dk-brand-mark { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; }
 .dk-brand-name { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; color: #f2ecd9; }
