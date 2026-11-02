@@ -21,7 +21,7 @@ from driftkings.settings.service import affects, settings_service
 
 COMPARE_MACROS = ['compareDelim', 'compareColor']
 ROMAN_LEVELS = ROMAN_NUMERALS
-# Keep the seven preset IDs stable for existing user configurations.
+# Keep the preset IDs stable for existing user configurations; new presets go at the end.
 # Reload and DPM are descriptor/base values, not inferred enemy equipment.
 def _label(key):
     return '{{i18n:card_' + key + '}}'
@@ -47,6 +47,10 @@ _ARMOR = _row((_label('hull'), '{{armor_hull_front}} / {{armor_hull_side}} / {{a
               (_label('turret'), '{{armor_turret_front}} / {{armor_turret_side}} / {{armor_turret_back}}'))
 _GUN = _row((_label('aim'), '{{gun_aiming_time}} s'), (_label('dispersion'), '{{gun_accuracy}}'),
             (_label('clip'), '{{gun_clip}}'))
+def _table(label, *macros):
+    return "<textformat tabstops='[85,125,165]'>" + _label(label) + ':' + ''.join('<tab>{{%s}}' % macro for macro in macros) + '</textformat>'
+
+
 _SHELL = _row(('{{shell_type_1}}', '{{shell_damage_1}} HP'), (_label('penetration'), '{{shell_power_1}} mm'))
 PRESET_TEMPLATES = {
     'default': _card([_FIREPOWER, _MOBILITY, _SHELL]),
@@ -68,9 +72,21 @@ PRESET_TEMPLATES = {
                   _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), (_label('penetration'), '{{shell_power_2}} mm')),
                   _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'),
                        (_label('penetration'), '{{shell_power_3}} mm'))]),
-    'driftkings': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _SHELL], '#D6BE91')
+    'driftkings': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _SHELL], '#D6BE91'),
+    # The card formerly shipped as a custom default: picture, reload with equipment and tab-aligned tables.
+    'classic': '<br/>'.join([
+        '{{vehicle_name}}', '{{gun_reload_equip}} s', "<img src='img://gui/maps/icons/vehicle/{{icon_system_name}}.png'>",
+        "<textformat tabstops='[95]'>" + _label('weight') + ': {{vehicle_weight}} t<tab>' + _label('view') +
+        ': {{vision_radius}} m</textformat>'] + [_table(*table) for table in (
+            ('hull', 'armor_hull_front', 'armor_hull_side', 'armor_hull_back'),
+            ('turret', 'armor_turret_front', 'armor_turret_side', 'armor_turret_back'),
+            ('type', 'shell_type_1', 'shell_type_2', 'shell_type_3'),
+            ('penetration', 'shell_power_1', 'shell_power_2', 'shell_power_3'),
+            ('damage', 'shell_damage_1', 'shell_damage_2', 'shell_damage_3'))])
 }
-TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4: 'kmp', 5: 'ndo', 6: 'driftkings'}
+TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4: 'kmp', 5: 'ndo', 6: 'driftkings',
+                         7: 'classic'}
+CLASSIC_PRESET = 7
 LOG = get_logger('Driftkings.TargetInformation')
 target_information_settings = TargetInformationSettings()
 g_gameface = TargetInformationAdapter()

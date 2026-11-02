@@ -86,6 +86,13 @@ class TargetInformationTests(RuntimeTest):
             self.assertEqual([key for key in keys if key not in catalog], [], name)
             self.assertNotIn('{{i18n:', expand(template), name)
         self.assertIn('Reload (base)', expand(self.api['PRESET_TEMPLATES']['default']))
+        classic = expand(self.api['PRESET_TEMPLATES']['classic'])
+        self.assertEqual(self.api['TEMPLATE_INDEX_TO_KEY'][self.api['CLASSIC_PRESET']], 'classic')
+        self.assertIn('{{gun_reload_equip}} s', classic)
+        self.assertIn("<img src='img://gui/maps/icons/vehicle/{{icon_system_name}}.png'>", classic)
+        self.assertIn("<textformat tabstops='[85,125,165]'>Type:<tab>{{shell_type_1}}<tab>{{shell_type_2}}"
+                      "<tab>{{shell_type_3}}</textformat>", classic)
+        self.assertIn('Damage:<tab>{{shell_damage_1}}', classic)
 
     def test_translated_text_is_not_expanded_again(self):
         self.api['target_information_settings'] = module(i18n={'loop': '{{i18n:loop}}', 'hp': 'PV'})
@@ -103,10 +110,14 @@ class TargetInformationSettingsTests(RuntimeTest):
             'driftkings.settings.definitions.base': module(SectionDefinition=object)})
         self.settings = self.api['TargetInformationSettings']()
 
-    def test_only_the_retired_default_card_is_cleared(self):
+    def test_only_the_retired_default_card_moves_to_the_classic_preset(self):
         retired = [u"Massa: {{vehicle_weight}} t"]
         self.api['RETIRED_DEFAULT_FORMATS'] = self.api['_formats_digest'](retired)
-        self.assertEqual(self.settings.normalize_loaded({'formats': list(retired)})['formats'], [])
+        values = self.settings.normalize_loaded({'formats': list(retired), 'templatePreset': 3})
+        self.assertEqual(values['formats'], [])
+        self.assertEqual(values['templatePreset'], 7)
         edited = [u"Peso: {{vehicle_weight}} t"]
-        self.assertEqual(self.settings.normalize_loaded({'formats': list(edited)})['formats'], edited)
+        values = self.settings.normalize_loaded({'formats': list(edited), 'templatePreset': 3})
+        self.assertEqual(values['formats'], edited)
+        self.assertEqual(values['templatePreset'], 3)
         self.assertEqual(self.settings.normalize_loaded({'formats': []})['formats'], [])

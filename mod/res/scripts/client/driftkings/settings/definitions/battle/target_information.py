@@ -6,7 +6,8 @@ from driftkings.settings.controls_schema import control, hotkey, options, slider
 from driftkings.settings.definitions.base import SectionDefinition
 
 # SHA-256 of the custom card formerly shipped as the default, with labels fixed in
-# Portuguese. Saved copies of it fall back to the translated presets; edited ones stay.
+# Portuguese. Saved copies of it move to the translated Classic preset; edited ones stay.
+CLASSIC_PRESET = 7
 RETIRED_DEFAULT_FORMATS = '90e86e50bd85c6518d5b22ea9a2421d722981175159ec3d7f508c715718dfb8a'
 
 
@@ -24,13 +25,14 @@ class TargetInformationSettings(SectionDefinition):
         formats = values.get(TARGET_INFORMATION.FORMATS)
         if isinstance(formats, list) and len(formats) == 1 and _formats_digest(formats) == RETIRED_DEFAULT_FORMATS:
             values[TARGET_INFORMATION.FORMATS] = []
+            values[TARGET_INFORMATION.TEMPLATE_PRESET] = CLASSIC_PRESET
         return values
 
     def getControlColumns(self):
         xFormat = self.i18n['UI_delay_format']
         showForOptions = ['all', 'ally', 'enemy']
         showForLabels = [self.i18n['UI_showFor_' + x] for x in showForOptions]
-        templateOptions = ['default', 'minimal', 'detailed', 'full', 'kmp', 'ndo', 'driftkings']
+        templateOptions = ['default', 'minimal', 'detailed', 'full', 'kmp', 'ndo', 'driftkings', 'classic']
         templateLabels = [self.i18n['UI_templatePreset_' + x] for x in templateOptions]
         return (
             [
