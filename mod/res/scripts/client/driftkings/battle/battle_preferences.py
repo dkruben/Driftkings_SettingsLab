@@ -42,12 +42,10 @@ fog_package = FogPackageController(battle_preferences_settings)
 _itemsCache = None
 
 
-# Declara o painel de depuração usado pelas opções de batalha.
 def getBattleViews():
     return ((BATTLE_ALIASES.DEBUG_PANEL, DebugPanelView, battle_preferences_settings),)
 
 
-# Suprime as vozes do comandante quando a opção está ativa.
 @override(SpecialSoundCtrl, '__setSpecialVoiceByTankmen')
 @override(SpecialSoundCtrl, '__setSpecialVoiceByCommanderSkinID')
 def new_setSoundMode(func, *args, **kwargs):
@@ -57,7 +55,6 @@ def new_setSoundMode(func, *args, **kwargs):
     return func(*args, **kwargs)
 
 
-# Respeita a opção de mostrar a identificação do adversário após a destruição.
 @override(_ClientArenaVisitor, 'hasDogTag')
 def new_hasDogTag(func, *args, **kwargs):
     settings = settings_service.getComponentDict(battle_preferences_settings)
@@ -113,13 +110,11 @@ def new_getBorderColor(func, self, colorBlind):
     return result
 
 
-# Verifica se a identificação de amigos deve estar ativa nesta sessão.
 def showFriends():
     settings = settings_service.getComponentDict(battle_preferences_settings)
     return settings[GLOBAL.ENABLED] and settings[BATTLE_PREFERENCES.SHOW_FRIENDS] and not isReplay()
 
 
-# Assinala os amigos conhecidos ao criar os dados do veículo.
 @override(VehicleTypeInfoVO, '__init__')
 def new_VehicleTypeInfoVO(func, self, *args, **kwargs):
     func(self, *args, **kwargs)
@@ -127,7 +122,6 @@ def new_VehicleTypeInfoVO(func, self, *args, **kwargs):
         self.isPremiumIGR |= kwargs.get('accountDBID') in _cache
 
 
-# Atualiza a identificação de amigos nos dados do veículo.
 @override(VehicleTypeInfoVO, 'update')
 def new_VehicleTypeInfoVO_update(func, self, *args, **kwargs):
     if settings_service.getComponentDict(battle_preferences_settings)[GLOBAL.ENABLED] and showFriends():
@@ -138,7 +132,6 @@ def new_VehicleTypeInfoVO_update(func, self, *args, **kwargs):
     return func(self, *args, **kwargs)
 
 
-# Envia apenas o comando nativo do F8 após a recarga manual.
 def onReload(avatar):
     settings = settings_service.getComponentDict(battle_preferences_settings)
     if (not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.CLIP_LOAD]
@@ -151,7 +144,6 @@ def onReload(avatar):
     shared.chatCommands.handleChatCommand(BATTLE_CHAT_COMMAND_NAMES.RELOADINGGUN)
 
 
-# Mantém a recarga nativa e agenda a notificação pela tecla configurada.
 @override(PlayerAvatar, 'handleKey')
 def new__handleKey(func, self, isDown, key, mods):
     settings = settings_service.getComponentDict(battle_preferences_settings)
@@ -163,7 +155,6 @@ def new__handleKey(func, self, isDown, key, mods):
     return result
 
 
-# Percorre os nomes disponíveis no descritor de um veículo.
 def _iterVehicleNames(vehicleType):
     if vehicleType is None:
         return
@@ -174,7 +165,6 @@ def _iterVehicleNames(vehicleType):
             yield name
 
 
-# Procura o nome do atacante a partir do nome do veículo.
 def _getAttackerName(vehicleName):
     player = BigWorld.player()
     arena = getattr(player, 'arena', None)
@@ -187,19 +177,16 @@ def _getAttackerName(vehicleName):
     return 'Unknown'
 
 
-# Pede ao cliente a alteração da reposição automática de diretivas.
 @adisp_process
 def changeValue(vehicle, value):
     yield VehicleAutoBattleBoosterEquipProcessor(vehicle, value).request()
 
 
-# Identifica veículos exclusivos de modos especiais.
 def isSpecialVehicle(vehicle):
     flags = ('isOnlyForFunRandomBattles', 'isOnlyForBattleRoyaleBattles', 'isOnlyForMapsTrainingBattles', 'isOnlyForClanWarsBattles', 'isOnlyForComp7Battles', 'isOnlyForEventBattles', 'isOnlyForEpicBattles')
     return any(getattr(vehicle, f, False) for f in flags)
 
 
-# Ajusta a reposição de diretivas à quantidade disponível no depósito.
 def onVehicleChanged(vehicle):
     settings = settings_service.getComponentDict(battle_preferences_settings)
     if not settings[GLOBAL.ENABLED] or not settings[BATTLE_PREFERENCES.DIRECTIVES_ONLY_FROM_STORAGE]:
@@ -218,20 +205,17 @@ def onVehicleChanged(vehicle):
             LOG.info(('VehicleAutoBattleBoosterEquipProcessor: value={} vehicle={}, booster={}').format(value, vehicle.userName, battleBooster.userName))
 
 
-# Reaplica as opções de diretivas ao veículo selecionado.
 def _onCurrentVehicleChanged(*_):
     if g_currentVehicle.isPresent():
         onVehicleChanged(g_currentVehicle.item)
 
 
-# Atualiza a cache de contactos usados na identificação de amigos.
 def __onGuiCacheSyncCompleted(_):
     _cache.clear()
     users = MessengerStorageDescriptor(UsersStorage).get().getList(_ContactsCategories().getCriteria())
     _cache.update(user._userID for user in users if not user.isIgnored())
 
 
-# Inicia as opções de nevoeiro e subscreve as alterações do hangar e dos contactos.
 def init():
     global _itemsCache
     if _itemsCache is not None:
@@ -247,7 +231,6 @@ def init():
     _onCurrentVehicleChanged()
 
 
-# Encerra as opções de nevoeiro e remove as subscrições do módulo.
 def fini():
     global _itemsCache
     if _itemsCache is None:

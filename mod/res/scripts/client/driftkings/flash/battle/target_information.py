@@ -157,7 +157,6 @@ class Flash(object):
         data = {'visible': status}
         self.updateObject(ElementType.LABEL, data)
 
-    # Expõe o mesmo contrato do cartão Gameface nos eventos sem esse HUD.
     setText = addText
     show = setVisible
 

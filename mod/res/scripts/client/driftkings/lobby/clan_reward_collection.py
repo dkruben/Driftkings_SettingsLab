@@ -31,7 +31,6 @@ class AutoClaimClanReward(object):
     __itemsCache = dependency.descriptor(IItemsCache)
     __hangarSpace = dependency.descriptor(IHangarSpace)
 
-    # Prepara o estado e as referências de recolha de recompensas do clã.
     def __init__(self, config):
         self.config = config
         self._subscribed = False
@@ -41,18 +40,15 @@ class AutoClaimClanReward(object):
         self.__claim_started = False
         self.__enabled = False
 
-    # Reaplica as opções de recolha de recompensas do clã após uma alteração de configurações.
     def onModSettingsChanged(self, component, settings):
         self.__enabled = settings_service.getComponentDict(self.config)[GLOBAL.ENABLED]
 
-    # Verifica as missões e a progressão elegíveis após atualizar a cache do clã.
     def onCreate(self):
         self.updateCache()
         if self.__enabled and g_clanCache.isInClan and self.__cachedQuestsData is not None and self.__cachedProgressData is not None and self.__cachedSettingsData is not None:
             self.parseQuests(self.__cachedQuestsData)
             self.parseProgression(self.__cachedProgressData)
 
-    # Subscreve as notificações e os dados de recompensas do clã.
     def subscribe(self):
         if self._subscribed:
             return
@@ -63,7 +59,6 @@ class AutoClaimClanReward(object):
         g_wgncEvents.onProxyDataItemShowByDefault += self.__onProxyDataItemShow
         g_clanCache.clanSupplyProvider.onDataReceived += self.__onDataReceived
 
-    # Remove as subscrições de notificações e dados do clã.
     def unsubscribe(self):
         if not self._subscribed:
             return
@@ -74,13 +69,11 @@ class AutoClaimClanReward(object):
         g_wgncEvents.onProxyDataItemShowByDefault -= self.__onProxyDataItemShow
         g_clanCache.clanSupplyProvider.onDataReceived -= self.__onDataReceived
 
-    # Atualiza os dados locais das missões, regras e progressão do clã.
     def updateCache(self):
         self.__cachedQuestsData = g_clanCache.clanSupplyProvider.getQuestsInfo().data
         self.__cachedSettingsData = g_clanCache.clanSupplyProvider.getProgressionSettings().data
         self.__cachedProgressData = g_clanCache.clanSupplyProvider.getProgressionProgress().data
 
-    # Reage às notificações de missões do clã com recompensas disponíveis.
     def __onProxyDataItemShow(self, _, item):
         if self.__enabled and g_clanCache.isInClan and item.getType() == WGNC_DATA_PROXY_TYPE.CLAN_SUPPLY_QUEST_UPDATE:
             status = item.getStatus()
@@ -89,7 +82,6 @@ class AutoClaimClanReward(object):
             elif status == QuestStatus.COMPLETE and self.__cachedProgressData and self.__cachedSettingsData:
                 self.parseProgression(self.__cachedProgressData)
 
-    # Pede a recolha das recompensas das missões do clã.
     @adisp_process
     def __claimRewards(self):
         self.__claim_started = True
@@ -101,7 +93,6 @@ class AutoClaimClanReward(object):
         finally:
             self.__claim_started = False
 
-    # Pede a aquisição do patamar de progressão elegível.
     @adisp_process
     def __claimProgression(self, stageID, price):
         response = yield self.__webController.sendRequest(ctx=PurchaseProgressionStageCtx(stageID, price))
@@ -109,12 +100,10 @@ class AutoClaimClanReward(object):
             SystemMessages.pushMessage(self.config.NAME + 'Auto Claim Clan Reward - Failed to claim Progression.', type=SystemMessages.SM_TYPE.Error)
             LOG.warning(('Failed to claim Progression. Code: {}').format(response.getCode()))
 
-    # Procura recompensas de missões disponíveis para recolha.
     def parseQuests(self, data):
         if data is not None and not self.__claim_started and any(q.status in REWARD_STATUS_OK for q in data.quests):
             self.__claimRewards()
 
-    # Verifica se o último patamar de progressão já foi adquirido.
     @staticmethod
     def isMaximumLevelPurchased(data):
         if not getattr(data, 'points', None):
@@ -122,7 +111,6 @@ class AutoClaimClanReward(object):
         maximum_level = data.points.get(str(max(map(int, data.points.keys()))), None)
         return maximum_level and maximum_level.status == PointStatus.PURCHASED
 
-    # Analisa os patamares de progressão elegíveis para recolha.
     def parseProgression(self, data):
         if data is None or self.__cachedSettingsData is None or not self.__cachedSettingsData.enabled:
             return
@@ -138,7 +126,6 @@ class AutoClaimClanReward(object):
         if next_point and currency >= next_point.price:
             self.__claimProgression(next_level, next_point.price)
 
-    # Atualiza a cache e processa os novos dados de missões ou progressão.
     def __onDataReceived(self, dataName, data):
         if dataName in (DataNames.QUESTS_INFO, DataNames.QUESTS_INFO_POST):
             self.__cachedQuestsData = data
@@ -159,7 +146,6 @@ clan_reward_collection_settings = ClanRewardCollectionSettings()
 g_autoClaimClanReward = AutoClaimClanReward(clan_reward_collection_settings)
 
 
-# Liberta os recursos do módulo de recolha de recompensas do clã.
 def fini():
     g_autoClaimClanReward.unsubscribe()
 
@@ -171,7 +157,6 @@ def onContextEntered(spaceID):
         g_autoClaimClanReward.onCreate()
 
 
-# Remove as subscrições de recompensas ao sair do hangar.
 def onContextLeft(spaceID):
     if spaceID == GuiGlobalSpaceID.LOBBY:
         g_autoClaimClanReward.unsubscribe()

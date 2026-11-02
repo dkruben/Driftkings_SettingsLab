@@ -9,23 +9,19 @@ from driftkings.settings.service import settings_service
 vehicle_markers_settings = VehicleMarkersSettings()
 
 
-# Prepara as configurações e inicia a apresentação dos marcadores dos veículos.
 def start():
     start_presentation(prepare(settings_service.getComponentDict(vehicle_markers_settings)), vehicle_markers_settings)
 
 
-# Reinicia os marcadores com as configurações aplicadas.
 def changed(component, changes):
     start()
 
 
-# Inicializa o módulo de marcadores dos veículos.
 def init():
     settings_service.onModSettingsChanged.connect(changed, vehicle_markers_settings)
     start()
 
 
-# Liberta os recursos do módulo de marcadores dos veículos.
 def fini():
     settings_service.onModSettingsChanged.disconnect(changed)
     stop()

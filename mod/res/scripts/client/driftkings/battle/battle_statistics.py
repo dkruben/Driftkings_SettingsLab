@@ -25,12 +25,10 @@ battle_statistics_settings = BattleStatisticsSettings()
 
 
 class TanksStatistic:
-    # Inicializa o registo de veículos e os totais calculados por equipa.
     def __init__(self):
         self.base = {}
         self.reset()
 
-    # Limpa os veículos e os totais calculados para as duas equipas.
     def reset(self):
         self.base.clear()
         self.__allyTanksCount = None
@@ -51,17 +49,14 @@ class TanksStatistic:
     def allyChance(self):
         return self.__allyChance
 
-    # Devolve a probabilidade calculada da equipa adversária.
     @property
     def enemyChance(self):
         return self.__enemyChance
 
-    # Devolve a quantidade de veículos da equipa aliada.
     @property
     def allyTanksCount(self):
         return self.__allyTanksCount
 
-    # Devolve a quantidade de veículos da equipa adversária.
     @property
     def enemyTanksCount(self):
         return self.__enemyTanksCount
@@ -71,7 +66,6 @@ class TanksStatistic:
     def allyTeamHP(self):
         return self.__allyTeamHP
 
-    # Devolve a vida total da equipa adversária.
     @property
     def enemyTeamHP(self):
         return self.__enemyTeamHP
@@ -81,7 +75,6 @@ class TanksStatistic:
     def allyTeamOneDamage(self):
         return self.__allyTeamOneDamage
 
-    # Devolve o dano total por disparo da equipa adversária.
     @property
     def enemyTeamOneDamage(self):
         return self.__enemyTeamOneDamage
@@ -91,46 +84,36 @@ class TanksStatistic:
     def allyTeamDPM(self):
         return self.__allyTeamDPM
 
-    # Devolve o dano total por minuto da equipa adversária.
     @property
     def enemyTeamDPM(self):
         return self.__enemyTeamDPM
 
-    # Devolve a força total calculada da equipa aliada.
     @property
     def allyTeamForces(self):
         return self.__allyTeamForces
 
-    # Devolve a força total calculada da equipa adversária.
     @property
     def enemyTeamForces(self):
         return self.__enemyTeamForces
 
-    # Conta os veículos de uma equipa, incluindo destruídos apenas se pedido.
     def _get_team_count(self, is_enemy, with_dead=False):
         return sum(1 for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
 
-    # Soma os pontos de vida dos veículos da equipa selecionada.
     def _get_team_hp(self, is_enemy, with_dead=False):
         return sum(value['hp'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
 
-    # Soma o dano por disparo dos veículos da equipa selecionada.
     def _get_team_damage(self, is_enemy, with_dead=False):
         return sum(value['gun']['currentDamage'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
 
-    # Soma o dano por minuto dos veículos da equipa selecionada.
     def _get_team_dpm(self, is_enemy, with_dead=False):
         return sum(value['gun']['currentDpm'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
 
-    # Soma a força calculada dos veículos da equipa selecionada.
     def _get_team_forces(self, is_enemy, with_dead=False):
         return sum(value['force'] for value in self.base.values() if value['isEnemy'] == is_enemy and (with_dead or value['isAlive']))
 
-    # Calcula a quantidade de veículos da equipa aliada.
     def __getAllyTanksCount(self, with_dead=False):
         return self._get_team_count(False, with_dead)
 
-    # Calcula a quantidade de veículos da equipa adversária.
     def __getEnemyTanksCount(self, with_dead=False):
         return self._get_team_count(True, with_dead)
 
@@ -138,7 +121,6 @@ class TanksStatistic:
     def __getAllyTeamHP(self, with_dead=False):
         return self._get_team_hp(False, with_dead)
 
-    # Calcula a vida total da equipa adversária.
     def __getEnemyTeamHP(self, with_dead=False):
         return self._get_team_hp(True, with_dead)
 
@@ -146,7 +128,6 @@ class TanksStatistic:
     def __getAllyTeamOneDamage(self, with_dead=False):
         return self._get_team_damage(False, with_dead)
 
-    # Calcula o dano total por disparo da equipa adversária.
     def __getEnemyTeamOneDamage(self, with_dead=False):
         return self._get_team_damage(True, with_dead)
 
@@ -154,19 +135,15 @@ class TanksStatistic:
     def __getAllyTeamDPM(self, with_dead=False):
         return self._get_team_dpm(False, with_dead)
 
-    # Calcula o dano total por minuto da equipa adversária.
     def __getEnemyTeamDPM(self, with_dead=False):
         return self._get_team_dpm(True, with_dead)
 
-    # Calcula a força total calculada da equipa aliada.
     def __getAllyTeamForces(self, with_dead=False):
         return self._get_team_forces(False, with_dead)
 
-    # Calcula a força total calculada da equipa adversária.
     def __getEnemyTeamForces(self, with_dead=False):
         return self._get_team_forces(True, with_dead)
 
-    # Recolhe os dados do veículo necessários aos cálculos de força.
     def addVehicleInfo(self, vehicle_id, vehicle_info):
         player = BigWorld.player()
         if not vehicle_info or vehicle_info.get('vehicleType') is None or player is None:
@@ -210,7 +187,6 @@ class TanksStatistic:
             return True
         return False
 
-    # Classifica a munição para os cálculos de dano.
     @staticmethod
     def _getShellType(shell_kind):
         if shell_kind == SHELL_TYPES.ARMOR_PIERCING_CR:
@@ -222,13 +198,11 @@ class TanksStatistic:
         else:
             return 'AP'
 
-    # Obtém o dano nominal da munição.
     @staticmethod
     def _getShellDamage(shell):
         damage = shell.armorDamage[0] if hasattr(shell, 'armorDamage') else shell.damage[0]
         return float(damage)
 
-    # Escolhe o tipo de munição de referência disponível para o veículo.
     @staticmethod
     def _getBestShellType(shell_data):
         if shell_data['AP']['damage'] > 0:
@@ -240,7 +214,6 @@ class TanksStatistic:
         else:
             return 'HE'
 
-    # Atualiza os totais das equipas e as probabilidades calculadas.
     def update(self, reason, vehicleID):
         if not self.base:
             return
@@ -270,7 +243,6 @@ class TanksStatistic:
             self.__allyChance = 0
             self.__enemyChance = 0
 
-    # Recalcula a força de cada veículo ainda em combate.
     def _calculateForces(self):
         for value in self.base.values():
             if value['isAlive']:
@@ -290,14 +262,12 @@ g_tanksStatistic = TanksStatistic()
 
 
 class BattleStatDisplay(CallbackDelayer):
-    # Prepara as macros e o controlo das atualizações do texto de força.
     def __init__(self):
         CallbackDelayer.__init__(self)
         self.macro = {}
         self.active = False
         self.inBattle = False
 
-    # Ativa o acompanhamento de força das equipas.
     def start(self):
         if self.active:
             return
@@ -307,7 +277,6 @@ class BattleStatDisplay(CallbackDelayer):
             signal.connect(handler)
         battleEvents.acquire(self)
 
-    # Desativa o acompanhamento de força das equipas e liberta as subscrições.
     def stop(self):
         if not self.active:
             return
@@ -320,12 +289,10 @@ class BattleStatDisplay(CallbackDelayer):
         finally:
             battleEvents.release(self)
 
-    # Atualiza força das equipas quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         if affects(changes, GLOBAL.ENABLED, BATTLE_STATISTICS.FORMAT, BATTLE_STATISTICS.COLOR_RATING):
             self.refresh()
 
-    # Declara os eventos que atualizam a força das equipas.
     def subscriptions(self):
         return ((battleEvents.started, self.onBattleStarted),
                 (battleEvents.ended, self.onBattleEnded),
@@ -333,7 +300,6 @@ class BattleStatDisplay(CallbackDelayer):
                 (battleEvents.appeared, self.onAppeared),
                 (battleEvents.killed, self.onKilled))
 
-    # Inicializa os dados das equipas nas batalhas permitidas.
     def onBattleStarted(self):
         self.onBattleEnded()
         arena = BigWorld.player().arena
@@ -344,7 +310,6 @@ class BattleStatDisplay(CallbackDelayer):
             g_tanksStatistic.addVehicleInfo(vehicleID, info)
         self.refresh()
 
-    # Cancela as atualizações e limpa os dados da batalha terminada.
     def onBattleEnded(self):
         self.inBattle = False
         self.clearCallbacks()
@@ -353,7 +318,6 @@ class BattleStatDisplay(CallbackDelayer):
         if g_gameface is not None:
             g_gameface.show(False)
 
-    # Reinicia a atualização do texto conforme o estado do módulo.
     def refresh(self):
         self.clearCallbacks()
         if g_gameface is not None:
@@ -361,7 +325,6 @@ class BattleStatDisplay(CallbackDelayer):
         if g_tanksStatistic.base:
             self.updateText()
 
-    # Atualiza a vida do veículo e os cálculos dependentes.
     def onHealthChanged(self, vehicleID, health):
         if not self.inBattle:
             return
@@ -379,18 +342,15 @@ class BattleStatDisplay(CallbackDelayer):
             tank.update(hp=health, isAlive=alive)
             g_tanksStatistic.update(reason, vehicleID)
 
-    # Recolhe a vida atual de um veículo que fica disponível.
     def onAppeared(self, vehicleID):
         if self.inBattle:
             entity = BigWorld.entity(vehicleID)
             if entity is not None:
                 self.onHealthChanged(vehicleID, entity.health)
 
-    # Atualiza os cálculos quando um veículo é destruído.
     def onKilled(self, vehicleID):
         self.onHealthChanged(vehicleID, 0)
 
-    # Escolhe o símbolo que compara os valores das duas equipas.
     @staticmethod
     def compare_sign(ally, enemy):
         if ally < enemy:
@@ -399,7 +359,6 @@ class BattleStatDisplay(CallbackDelayer):
             return '&#x003E;'
         return '&#x007C;'
 
-    # Publica o texto atualizado de força das equipas no Gameface.
     def updateText(self):
         if not self.inBattle or not settings_service.getComponentDict(battle_statistics_settings).get(GLOBAL.ENABLED, False) or g_gameface is None:
             return
@@ -412,7 +371,6 @@ class BattleStatDisplay(CallbackDelayer):
         g_gameface.show(True)
         self.delayCallback(0.3, self.updateText)
 
-    # Formata a probabilidade com a cor da comparação entre equipas.
     def formatChanceText(self, value, comparison_value):
         color = getComparisonColor(value, comparison_value, settings_service.getComponentDict(battle_statistics_settings).get(BATTLE_STATISTICS.COLOR_RATING, 0))
         text = '%6.2f' % value
@@ -423,7 +381,6 @@ class BattleStatDisplay(CallbackDelayer):
         for key, value in data.items():
             self.macro['{%s}' % key] = str(value)
 
-    # Compõe o texto final com o título e os valores das equipas.
     def formatText(self, ally_text, enemy_text, ally, enemy):
         header = getattr(battle_statistics_settings, 'i18n', {}).get('UI_teamStrength', 'Team strength')
         data = {'header': header, 'allyChance': ally_text, 'enemyChance': enemy_text, 'compareSign': self.compare_sign(ally, enemy)}
@@ -435,7 +392,6 @@ g_mod = BattleStatDisplay()
 
 
 # CompoundAppearance remains a feature-specific hook; common events belong to Core.
-# Recolhe os dados do veículo quando o cliente prepara a sua entrada.
 @override(CompoundAppearance, 'prerequisites')
 def new__prerequisites(func, self, vehicleID, *args, **kwargs):
     # Game signature: prerequisites(self, vID, vInfo, renderMode=None).
@@ -452,7 +408,6 @@ def new__prerequisites(func, self, vehicleID, *args, **kwargs):
     return result
 
 
-# Inicia o módulo de força das equipas quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     # Battle pages without the native Gameface HUD (Halloween, Fort Rush) show no text.
@@ -460,14 +415,12 @@ def new_startGUI(*args):
         g_gameface.startBattle()
 
 
-# Encerra o módulo de força das equipas quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_destroyGUI(*args):
     if g_gameface is not None:
         g_gameface.stopBattle()
 
 
-# Inicializa o módulo de força das equipas.
 def init():
     global g_gameface
     if g_gameface is None:
@@ -476,7 +429,6 @@ def init():
     g_mod.start()
 
 
-# Liberta os recursos do módulo de força das equipas.
 def fini():
     global g_gameface
     g_mod.stop()

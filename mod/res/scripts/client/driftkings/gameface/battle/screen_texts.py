@@ -125,11 +125,9 @@ class TargetInformationAdapter(ScreenTextAdapter):
     SETTINGS = 'target_information_settings'
     POSITION = TARGET_INFORMATION.TEXT_POSITION
 
-    # Prepara o cartão do alvo no HUD nativo Gameface.
     def __init__(self):
         super(TargetInformationAdapter, self).__init__('DriftkingsTargetInformation', TARGET_INFORMATION, 'TargetInformation')
 
-    # Mantém o estilo e o fundo configurados, sem alterar os modelos de texto.
     def style(self, settings):
         style = dict(settings[TARGET_INFORMATION.TEXT_FORMAT])
         style.update(rich=True, background=settings[TARGET_INFORMATION.BACKGROUND_ENABLED],

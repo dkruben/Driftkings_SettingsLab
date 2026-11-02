@@ -27,35 +27,28 @@ curCV = ResMgr.openSection('../paths.xml')['Paths'].values()[0].asString
 
 class AudioModsSection(object):
     """Read-only DataSection subset for XML stored inside mounted mod archives."""
-    # Associa o adaptador a uma secção XML de configuração de áudio.
     def __init__(self, element):
         self.element = element
 
-    # Obtém o texto da secção XML sem espaços exteriores.
     @property
     def asString(self):
         return (self.element.text or '').strip()
 
-    # Verifica se existe uma subsecção com o nome indicado.
     def has_key(self, name):
         return self.element.find(name) is not None
 
-    # Obtém o adaptador da subsecção XML pedida, quando existe.
     def __getitem__(self, name):
         element = self.element.find(name)
         return AudioModsSection(element) if element is not None else None
 
-    # Devolve os nomes e os adaptadores das subsecções XML.
     def items(self):
         return [(element.tag, AudioModsSection(element)) for element in self.element]
 
-    # Devolve os adaptadores das subsecções XML existentes.
     def values(self):
         return [AudioModsSection(element) for element in self.element]
 
 
 class BanksLoaderController(object):
-    # Inicializa o registo de alterações aos bancos de som e os estados de controlo.
     def __init__(self, config):
         self.config = config
         self.editedBanks = {'create': [], 'delete': [], 'memory': [], 'move': [], 'remap': set(), 'wotmod': [], 'section': []}
@@ -75,7 +68,6 @@ class BanksLoaderController(object):
         for event in self.restartEvents():
             event.event += self.tryRestart
 
-    # Desativa o acompanhamento de carregador de bancos de som e liberta as subscrições.
     def stop(self):
         if not self._runtimeActive:
             return
@@ -84,12 +76,10 @@ class BanksLoaderController(object):
         for event in self.restartEvents():
             event.event -= self.tryRestart
 
-    # Declara os momentos do cliente em que pode ser pedido um reinício.
     @staticmethod
     def restartEvents():
         return (events.LoginView.populate.after, events.LobbyView.populate.after, events.PlayerAvatar.startGUI.after)
 
-    # Pede o reinício quando há alterações de áudio que o exigem.
     @wg_async
     def tryRestart(self, *_, **__):
         if not self._runtimeActive or self._restartPending or self.was_declined or not any(self.editedBanks.values()):
@@ -135,7 +125,6 @@ class BanksLoaderController(object):
         finally:
             self._restartPending = False
 
-    # Desativa o carregador antigo para evitar processamento duplicado.
     @staticmethod
     def suppress_old_mod():
         oldModName = curCV + '/scripts/client/gui/mods/mod_wg_load_custom_ekspont_banks.pyc'
@@ -147,7 +136,6 @@ class BanksLoaderController(object):
         if os.path.isfile(oldModName):
             os.rename(oldModName, oldModName + '1')
 
-    # Lê os metadados dos pacotes de áudio e verifica os recursos legados.
     def check_wotmods(self, mediaPath):
         # Read package metadata directly: no masking package or renamed archive
         # is required when the consolidated XML lives in the loose overrides.
@@ -211,7 +199,6 @@ class BanksLoaderController(object):
                 self.editedBanks['wotmod'].append('load_order.xml')
         ResMgr.purge(load_order_xml, True)
 
-    # Verifica a configuração do motor e invalida a versão antiga quando necessário.
     def checkConfigs(self):
         while True:
             orig_engine = ResMgr.openSection('engine_config.xml')
@@ -251,7 +238,6 @@ class BanksLoaderController(object):
         self.saveNewFile(audio_mods_new, mediaPath + '/', 'audio_mods_edited.xml', mediaPath + '/audio_mods.xml',('delete', 'move', 'remap'))
         self.saveNewFile(new_engine, '', 'engine_config_edited.xml', 'engine_config.xml', ('delete', 'move', 'create', 'memory'))
 
-    # Reúne os bancos de som disponíveis nos mods e nos pacotes do cliente.
     def collectBankFiles(self, mediaPath):
         bankFiles = {
             'mods': set(), 'pkg': set(), 'ignore': set(), 'section': {},
@@ -266,7 +252,6 @@ class BanksLoaderController(object):
         bankFiles['all'] = bankFiles['orig'] | bankFiles['mods']
         return bankFiles
 
-    # Recolhe os bancos de som de uma extensão do cliente disponível.
     def recollectExtensionBankFiles(self, extensionName, bankFiles):
         extensionPath = 'res/packages/%s.pkg' % extensionName
         if not os.path.exists(extensionPath):
@@ -279,7 +264,6 @@ class BanksLoaderController(object):
             bankFiles['orig'] = bankFiles['res'] | bankFiles['pkg']
             bankFiles['all'] = bankFiles['orig'] | bankFiles['mods']
 
-    # Extrai os registos XML que correspondem à estrutura esperada.
     def check_and_collect_data(self, key, section, struct, is_orig):
         result = []
         for name, sect in section.items() if section is not None else ():
@@ -298,7 +282,6 @@ class BanksLoaderController(object):
             result.append(data)
         return result
 
-    # Cria as secções XML a partir dos registos de configuração reunidos.
     def create_sect_from_data(self, sect, data, struct):
         for data in data:
             new_sect = sect.createSection(struct['key'])
@@ -308,7 +291,6 @@ class BanksLoaderController(object):
                 sub_name = struct['data']['name']
                 self.create_sect_from_data(new_sect.createSection(sub_name), data[sub_name], struct['data'])
 
-    # Combina os registos de áudio pela respetiva chave de identidade.
     @staticmethod
     def merge_records(previous, incoming, struct):
         # Overlay updated mappings by identity, while retaining unrelated entries
@@ -331,7 +313,6 @@ class BanksLoaderController(object):
             result[existing] = merged
         return result
 
-    # Consolida as definições de áudio dos mods na configuração resultante.
     def merge_audio_mods(self, mediaPath, bankFiles):
         audio_mods = ResMgr.openSection(mediaPath + '/audio_mods.xml')
         edited_path = mediaPath + '/audio_mods_edited.xml'
@@ -402,7 +383,6 @@ class BanksLoaderController(object):
         bankFiles['audio_mods_allowed'] = set(bankFiles['audio_mods_allowed']) | set(banks)
         return audio_mods_new
 
-    # Aplica as opções de memória ao gestor de som.
     def manageMemorySettings(self, soundMgr):
         settings = settings_service.getComponentDict(self.config)
         for mgrKey in ('memoryLimit',):
@@ -412,7 +392,6 @@ class BanksLoaderController(object):
                 soundMgr.writeInt(mgrKey, settings[mgrKey])
                 LOG.info('changing value for memory setting: %s', mgrKey)
 
-    # Aplica os limites de memória aos perfis de áudio.
     def manageProfileMemorySettings(self, profile_type, profile):
         settings = settings_service.getComponentDict(self.config)
         poolKeys = {
@@ -429,7 +408,6 @@ class BanksLoaderController(object):
                     LOG.info('changing value for %s memory setting: %s', profile_type, poolValue)
         return
 
-    # Atualiza os bancos de som associados a um perfil de áudio.
     def manageProfileBanks(self, profile_type, profile, bankFiles):
         exist = set()
         for name, section in profile.items():
@@ -468,7 +446,6 @@ class BanksLoaderController(object):
                     self.editedBanks['create'].append(bankName)
                 profile.createSection(sectName + '/bank').writeString('name', bankName)
 
-    # Guarda a configuração gerada apenas quando existem alterações relevantes.
     def saveNewFile(self, new_file, new_dir, new_name, orig_path, keys):
         if not any((self.editedBanks[key] for key in keys)):
             ResMgr.purge(new_dir + new_name)
@@ -503,11 +480,9 @@ sound_bank_loader_settings = SoundBankLoaderSettings()
 controller = BanksLoaderController(sound_bank_loader_settings)
 
 
-# Inicializa o módulo de carregador de bancos de som.
 def init():
     controller.start()
 
 
-# Liberta os recursos do módulo de carregador de bancos de som.
 def fini():
     controller.stop()

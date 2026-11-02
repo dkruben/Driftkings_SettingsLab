@@ -13,7 +13,6 @@ main_settings = MainSettings()
 g_clockController = ClockController()
 
 
-# Instala o relógio Gameface e inicia o respetivo controlador.
 def init():
     try:
         install_clock_gameface()
@@ -22,6 +21,5 @@ def init():
         LOG.error('Gameface clock integration unavailable; rebuild the Driftkings UI resources')
 
 
-# Encerra o controlador do relógio da interface.
 def fini():
     g_clockController.stop()

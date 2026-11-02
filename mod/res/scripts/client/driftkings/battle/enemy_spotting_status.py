@@ -24,7 +24,6 @@ SUPPORTED_EVENTS = (BATTLE_EVENT_TYPE.SPOTTED,) + ASSIST_EVENTS
 
 
 class SpottedLightController(object):
-    # Prepara o estado e as referências de notificações de deteção e assistência.
     def __init__(self, config):
         self.config = config
         self.format_str = {}
@@ -34,7 +33,6 @@ class SpottedLightController(object):
     def check_macros(self, macros):
         return any(macros in settings_service.getComponentDict(self.config)[text_type] for text_type in [ENEMY_SPOTTING_STATUS.SPOTTED, ENEMY_SPOTTING_STATUS.ASSIST_RADIO, ENEMY_SPOTTING_STATUS.ASSIST_TRACK, ENEMY_SPOTTING_STATUS.ASSIST_STUN])
 
-    # Repõe os valores usados nas mensagens de deteção e assistência.
     def format_recreate(self):
         self.format_str = {
             'icons': '',
@@ -46,7 +44,6 @@ class SpottedLightController(object):
             'damage': ''
         }
 
-    # Combina os nomes disponíveis do jogador e do veículo detetado.
     @staticmethod
     def _getFullTargetLabel(targetInfo):
         parts = []
@@ -56,7 +53,6 @@ class SpottedLightController(object):
             parts.append(targetInfo.vehicleName)
         return ' - '.join(parts)
 
-    # Reproduz o som configurado para o tipo de assistência.
     def sound(self, assist_type):
         soundID = settings_service.getComponentDict(self.config)[SOUND_LIST[assist_type]]
         BigWorld.player().soundNotifications.play(soundID)
@@ -70,7 +66,6 @@ class SpottedLightController(object):
         color = settings[colorKey]
         return message, color
 
-    # Publica as notificações configuradas para os eventos recebidos.
     def postMessage(self, events):
         settings = settings_service.getComponentDict(self.config)
         if not settings[GLOBAL.ENABLED]:
@@ -122,7 +117,6 @@ enemy_spotting_status_settings = EnemySpottingStatusSettings()
 controller = SpottedLightController(enemy_spotting_status_settings)
 
 
-# Encaminha os eventos de batalha para as notificações de deteção.
 @on_event(battleEvents.feedback)
 def new__onBattleEvents(*args):
     controller.postMessage(args[1])

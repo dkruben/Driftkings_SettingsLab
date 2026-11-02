@@ -22,7 +22,6 @@ class TechTreeController(SettingsController):
     SETTINGS_SECTION = TECH_TREE_MARKS_OF_EXCELLENCE
 
 
-    # Atualiza marcas na árvore tecnológica quando mudam as opções relevantes.
     def onSettingsChanged(self, component, changes):
         if not affects(changes, GLOBAL.ENABLED, TECH_TREE_MARKS_OF_EXCELLENCE.SHOW_IN_TECH_TREE,
                        TECH_TREE_MARKS_OF_EXCELLENCE.COLOR_RATING,
@@ -43,7 +42,6 @@ tech_tree_marks_of_excellence_settings = TechTreeMarksOfExcellenceSettings()
 controller = TechTreeController()
 
 
-# Recolhe as marcas e a mestria do dossiê de um veículo da própria conta.
 def vehicle_marks(vehicle_id):
     """Only the account's own dossier; no network requests or other-player data."""
     dossier = ServicesLocator.itemsCache.items.getVehicleDossier(int(vehicle_id))
@@ -56,7 +54,6 @@ def vehicle_marks(vehicle_id):
     return {'percent': percent, 'tier': tier, 'mastery': mastery_rank(dossier)}
 
 
-# Constrói os dados dos indicadores de marcas da árvore tecnológica.
 def make_payload(vehicle_ids, records=None):
     # Raw dossier values belong to the open view; colors follow current settings.
     records = {} if records is None else records
@@ -86,7 +83,6 @@ def make_payload(vehicle_ids, records=None):
         'fontSize': data.get(TECH_TREE_MARKS_OF_EXCELLENCE.BADGE_FONT_SIZE, 14)}, separators=(',', ':'), sort_keys=True)
 
 
-# Inicializa o módulo de marcas na árvore tecnológica.
 def init():
     try:
         install()
@@ -95,6 +91,5 @@ def init():
         LOG.exception('Gameface tech tree integration unavailable; keeping the standard tree')
 
 
-# Liberta os recursos do módulo de marcas na árvore tecnológica.
 def fini():
     controller.stop()

@@ -19,7 +19,6 @@ from driftkings.ui.common.markers import StaticWorldObjectMarker3D
 
 
 class ArtySplashController(object):
-    # Prepara o estado e as referências de raio de explosão da artilharia.
     def __init__(self, config):
         self.config = config
         self._started = False
@@ -35,13 +34,11 @@ class ArtySplashController(object):
         self.scaleSplash = None
         self.player = None
 
-    # Obtém o descritor do veículo controlado, quando disponível.
     def _getVehicleDescriptor(self):
         if self.player is None or not hasattr(self.player, 'getVehicleDescriptor'):
             return None
         return self.player.getVehicleDescriptor()
 
-    # Obtém a posição atual do marcador da arma.
     def _getMarkerPosition(self):
         gunRotator = getattr(self.player, 'gunRotator', None)
         markerInfo = getattr(gunRotator, 'markerInfo', None)
@@ -52,7 +49,6 @@ class ArtySplashController(object):
         except (IndexError, TypeError):
             return None
 
-    # Prepara o módulo de raio de explosão da artilharia para a batalha atual.
     def startBattle(self):
         settings = settings_service.getComponentDict(self.config)
         if self._started:
@@ -79,7 +75,6 @@ class ArtySplashController(object):
             self.modelSplash.model.root.attach(self.modelSplashCircle)
             self.modelSplashCircle.enableAccurateCollision(False)
 
-    # Encerra raio de explosão da artilharia e cancela as atualizações da batalha.
     def stopBattle(self):
         keyboard.unsubscribe(self.injectButton)
         self._started = False
@@ -99,7 +94,6 @@ class ArtySplashController(object):
         self.modelSplashCircle = None
         self.player = None
 
-    # Atualiza o raio de explosão e o ponto de impacto conforme a munição.
     def working(self):
         settings = settings_service.getComponentDict(self.config)
         if not settings[GLOBAL.ENABLED] or self.player is None:
@@ -159,7 +153,6 @@ class ArtySplashController(object):
             self.modelDot.model.position = markerPosition
         self.setVisible()
 
-    # Aplica a visibilidade calculada aos modelos de explosão e impacto.
     def setVisible(self):
         if self.modelSplash is not None and self.modelSplash.model:
             if self.modelSplash.model.visible != self.modelSplashVisible:
@@ -168,14 +161,12 @@ class ArtySplashController(object):
             if self.modelDot.model.visible != self.modelDotVisible:
                 self.modelDot.model.visible = self.modelDotVisible
 
-    # Oculta os modelos de explosão e de impacto que estão visíveis.
     def hideVisible(self):
         if self.modelSplash is not None and self.modelSplash.model and self.modelSplash.model.visible:
             self.modelSplash.model.visible = False
         if self.modelDot is not None and self.modelDot.model and self.modelDot.model.visible:
             self.modelDot.model.visible = False
 
-    # Alterna os indicadores de explosão e impacto pelas teclas configuradas.
     @log_exceptions
     def injectButton(self, event):
         settings = settings_service.getComponentDict(self.config)
@@ -197,25 +188,21 @@ artillery_blast_radius_settings = ArtilleryBlastRadiusSettings()
 controller = ArtySplashController(artillery_blast_radius_settings)
 
 
-# Inicia o módulo de raio de explosão da artilharia quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     controller.startBattle()
 
 
-# Encerra o módulo de raio de explosão da artilharia quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.after)
 def new_destroyGUI(*args):
     controller.stopBattle()
 
 
-# Atualiza os indicadores após a atualização nativa da mira.
 @override(VehicleGunRotator, '_VehicleGunRotator__updateGunMarker')
 def new_updateMarkerPos(func, *args):
     func(*args)
     controller.working()
 
 
-# Liberta os recursos do módulo de raio de explosão da artilharia.
 def fini():
     controller.stopBattle()

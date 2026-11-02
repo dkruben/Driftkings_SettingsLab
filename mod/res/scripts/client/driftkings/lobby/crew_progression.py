@@ -6,7 +6,6 @@ from driftkings.logger import get_logger
 LOG = get_logger('Driftkings.CrewProgression')
 
 
-# Recolhe o estado e as estimativas de progressão de um tripulante.
 def collect_tankman(tankman, items, slot=None):
     row = {'slot': slot, 'id': None, 'name': '', 'role': '',
            'state': 'empty', 'remainingXP': None, 'estimatedBattles': None,
@@ -36,6 +35,5 @@ def collect_tankman(tankman, items, slot=None):
     return row
 
 
-# Constrói os dados de progressão para os lugares da tripulação do veículo.
 def collect_rows(vehicle, items):
     return [collect_tankman(tankman, items, slot) for slot, tankman in vehicle.crew] if vehicle is not None else []

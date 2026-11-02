@@ -25,8 +25,6 @@
     function lines(html, target, lineClass, options) {
         options = options || {};
         var parsed = document.createElement('div'), line = K.node('div', lineClass, target), cell = null, column = 0;
-        // <br>, <tab> e <img> do Flash viram spans fechados: o parser do Gameface perde os atributos do <br>
-        // e alguns <br> (depois de uma imagem, dentro de <p>), também nos textos da mira.
         html = inert(html).replace(/<br\s*\/?>/gi, "<span data-dk-br='1'></span>");
         parsed.innerHTML = options.rich ? html.replace(/<tab\s*\/?>/gi, "<span data-dk-tab='1'></span>")
             .replace(/<img\b([^>]*?)\s*\/?>/gi, "<span data-dk-img='1'$1></span>") : html;
@@ -63,7 +61,6 @@
                             while (line.firstChild) { cell.appendChild(line.firstChild); }
                             line.appendChild(cell);
                         }
-                        // Largura fixa como no Flash; flexDirection ou minWidth nas células empilham a linha no Gameface.
                         cell.style.display = 'flex'; cell.style.alignItems = 'flex-end'; cell.style.flexShrink = '0';
                         cell.style.width = Math.max(0, stops[column] - (column ? stops[column - 1] : 0)) + 'rem';
                         column++;

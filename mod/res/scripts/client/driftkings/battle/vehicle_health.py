@@ -17,7 +17,6 @@ g_gameface = None
 class HealthTracker(object):
     """Health, battle period and camera state of the controlled vehicle while the Gameface bar is in use."""
 
-    # Prepara o estado e as referências de barra de vida do veículo.
     def __init__(self):
         self.state = {'current': 0, 'maximum': 0, 'alive': True, 'battle': False}
         self.listener = None
@@ -25,11 +24,9 @@ class HealthTracker(object):
         self._inputHandler = None
         self._started = False
 
-    # Repõe os valores de vida e o estado de apresentação do veículo.
     def reset(self):
         self.state = {'current': 0, 'maximum': 0, 'alive': True, 'battle': False}
 
-    # Ativa o acompanhamento de barra de vida do veículo.
     def start(self, listener):
         from gui.battle_control import avatar_getter
         from PlayerEvents import g_playerEvents
@@ -58,7 +55,6 @@ class HealthTracker(object):
                 self.onVehicleControlling(vehicle)
         self.changed()
 
-    # Desativa o acompanhamento de barra de vida do veículo e liberta as subscrições.
     def stop(self):
         from PlayerEvents import g_playerEvents
         if not self._started:
@@ -80,7 +76,6 @@ class HealthTracker(object):
         if self.listener is not None:
             self.listener.refresh()
 
-    # Valida e atualiza os pontos de vida do veículo controlado.
     def setHealth(self, health):
         if not isinstance(health, (int, long, float)):
             return
@@ -90,26 +85,22 @@ class HealthTracker(object):
         self.state['alive'] = health > 0
         self.changed()
 
-    # Atualiza a vida máxima e o estado ao mudar de veículo controlado.
     def onVehicleControlling(self, vehicle):
         if vehicle is None:
             return
         self.state['maximum'] = getattr(vehicle, 'maxHealth', 0) or 0
         self.setHealth(getattr(vehicle, 'health', 0))
 
-    # Encaminha as alterações nativas do estado de vida do veículo.
     def onVehicleStateUpdated(self, state, value):
         from gui.battle_control.battle_constants import VEHICLE_VIEW_STATE
         if state == VEHICLE_VIEW_STATE.HEALTH:
             self.setHealth(value)
 
-    # Atualiza o estado de batalha usado na apresentação da barra.
     def onArenaPeriodChange(self, period, *_):
         from driftkings.game_constants import ARENA_PERIOD
         self.state['battle'] = period == ARENA_PERIOD.BATTLE
         self.changed()
 
-    # Adapta a visibilidade da barra ao modo da câmara e ao estado do jogador.
     def onCameraChanged(self, ctrlMode, *_, **__):
         from driftkings.game_constants import CTRL_MODE_NAME
 
@@ -123,7 +114,6 @@ class HealthTracker(object):
 tracker = HealthTracker()
 
 
-# Inicia o módulo de barra de vida do veículo quando a interface de batalha está disponível.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new_startGUI(*args):
     if g_gameface is None:
@@ -136,7 +126,6 @@ def new_startGUI(*args):
     g_gameface.startBattle()
 
 
-# Encerra o módulo de barra de vida do veículo quando a interface de batalha é destruída.
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_destroyGUI(*args):
     tracker.stop()
@@ -144,7 +133,6 @@ def new_destroyGUI(*args):
         g_gameface.stopBattle()
 
 
-# Inicializa o módulo de barra de vida do veículo.
 def init():
     global g_gameface
     if g_gameface is None:
@@ -152,7 +140,6 @@ def init():
         g_gameface.install()
 
 
-# Liberta os recursos do módulo de barra de vida do veículo.
 def fini():
     global g_gameface
     tracker.stop()

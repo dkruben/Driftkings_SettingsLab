@@ -21,7 +21,6 @@ repair_controls_settings = RepairControlsSettings()
 
 class Repair(object):
 
-    # Prepara o estado e as referências de controlos de reparação.
     def __init__(self):
         self.player = None
         self.ctrl = None
@@ -67,7 +66,6 @@ class Repair(object):
         self.chassis = ['chassis', 'leftTrack', 'rightTrack', 'leftTrack0', 'rightTrack0', 'leftTrack1', 'rightTrack1', 'wheel', 'wheel0', 'wheel1', 'wheel2', 'wheel3', 'wheel4', 'wheel5', 'wheel6', 'wheel7']
         self._active = False
 
-    # Ativa o acompanhamento de controlos de reparação.
     def start(self):
         if self._active:
             return
@@ -75,7 +73,6 @@ class Repair(object):
         g_eventBus.addListener(events.ComponentEvent.COMPONENT_REGISTERED, self.__onComponentRegistered, EVENT_BUS_SCOPE.GLOBAL)
         g_eventBus.addListener(events.ComponentEvent.COMPONENT_UNREGISTERED, self.__onComponentUnregistered, EVENT_BUS_SCOPE.GLOBAL)
 
-    # Desativa o acompanhamento de controlos de reparação e liberta as subscrições.
     def stop(self):
         if not self._active:
             return
@@ -84,7 +81,6 @@ class Repair(object):
         g_eventBus.removeListener(events.ComponentEvent.COMPONENT_UNREGISTERED, self.__onComponentUnregistered, EVENT_BUS_SCOPE.GLOBAL)
         self.stopBattle()
 
-    # Prepara o módulo de controlos de reparação para a batalha atual.
     def startBattle(self):
         self.player = BigWorld.player()
         if self.player is None or not hasattr(self.player, 'guiSessionProvider'):
@@ -99,7 +95,6 @@ class Repair(object):
             self.ctrl.equipments.onEquipmentUpdated += self.onEquipmentUpdated
         self.checkBattleStarted()
 
-    # Encerra controlos de reparação e cancela as atualizações da batalha.
     def stopBattle(self):
         if self._battleCheckCallback is not None:
             cancelCallback(self._battleCheckCallback)
@@ -118,7 +113,6 @@ class Repair(object):
         self.ctrl = None
         self.consumablesPanel = None
 
-    # Aguarda o início efetivo da batalha antes de permitir os consumíveis.
     def checkBattleStarted(self):
         self._battleCheckCallback = None
         if self.ctrl is None or self.player is None:
@@ -128,7 +122,6 @@ class Repair(object):
         else:
             self._battleCheckCallback = callback(0.1, self.checkBattleStarted)
 
-    # Seleciona o consumível disponível para o equipamento ou tripulante indicado.
     def useItem(self, equipment_tag, item=None):
         if not self._canUseConsumable():
             return
@@ -141,7 +134,6 @@ class Repair(object):
                 if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
                     self._activateEquipment(self.items[equipment_tag][1], item)
 
-    # Usa o consumível normal após validar o controlo manual do veículo.
     def useItemManual(self, equipment_tag, item=None):
         if not self._canUseConsumable(requireControl=True):
             return
@@ -149,7 +141,6 @@ class Repair(object):
         if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
             self._activateEquipment(self.items[equipment_tag][0], item)
 
-    # Usa o consumível melhorado após validar o controlo manual do veículo.
     def useItemGold(self, equipment_tag, item=None):
         if not self._canUseConsumable(requireControl=True):
             return
@@ -157,7 +148,6 @@ class Repair(object):
         if equipment is not None and equipment.isReady and equipment.isAvailableToUse:
             self._activateEquipment(self.items[equipment_tag][1], item)
 
-    # Aciona o extintor quando o veículo está em chamas.
     def extinguishFire(self):
         if self.ctrl is None:
             return
@@ -177,7 +167,6 @@ class Repair(object):
             elif settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.USE_GOLD_KITS] and self.items[equipment_tag][3]:
                 self.useItemGold(equipment_tag)
 
-    # Seleciona a reparação conforme as prioridades configuradas.
     def repair(self, equipment_tag):
         if self.ctrl is None or self.player is None:
             return
@@ -197,7 +186,6 @@ class Repair(object):
                 if result:
                     self.useItemManual(equipment_tag, result[0])
 
-    # Ordena os equipamentos danificados pela prioridade de reparação.
     def _damagedByPriority(self, equipment, specific):
         # Damaged devices or crew in the configured priority order, not the client's iteration order.
         result = []
@@ -207,7 +195,6 @@ class Repair(object):
         result.sort(key=lambda name: specific.index(self.complex_item.get(name, name)))
         return result
 
-    # Executa as ações de reparação e tratamento configuradas.
     def repairAll(self):
         settings = settings_service.getComponentDict(repair_controls_settings)
         if self.ctrl is None:
@@ -228,11 +215,9 @@ class Repair(object):
         if settings[REPAIR_CONTROLS.RESTORE_CHASSIS]:
             self.repairChassis()
 
-    # Atualiza a cache dos consumíveis após uma alteração do equipamento.
     def onEquipmentUpdated(self, *_):
         self._refreshEquipmentCache()
 
-    # Repara a suspensão danificada do veículo do jogador.
     def repairChassis(self):
         if self.ctrl is None:
             return
@@ -250,7 +235,6 @@ class Repair(object):
                         self.useItem(equipment_tag, name)
                         return
 
-    # Trata as teclas configuradas para reparar e usar consumíveis.
     def onHotkeyPressed(self, event):
         settings = settings_service.getComponentDict(repair_controls_settings)
         if ServicesLocator.appLoader.getDefBattleApp():
@@ -260,7 +244,6 @@ class Repair(object):
                 self.repairAll()
 
 
-    # Valida as condições de utilização dos consumíveis na sessão atual.
     def _canUseConsumable(self, requireControl=False):
         if not settings_service.getComponentDict(repair_controls_settings)[GLOBAL.ENABLED]:
             return False
@@ -276,7 +259,6 @@ class Repair(object):
             return False
         return True
 
-    # Pede ao cliente a ativação do consumível para o alvo indicado.
     def _activateEquipment(self, intCD, item=None):
         if self.ctrl is None or self.player is None:
             return False
@@ -291,25 +273,21 @@ class Repair(object):
         return result
 
 
-    # Subscreve os atalhos de reparação sem duplicar o registo.
     def _bindInputHandlers(self):
         if not self._inputBound:
             keyboard.subscribe(self.onHotkeyPressed)
             self._inputBound = True
 
-    # Remove a subscrição dos atalhos de reparação.
     def _unbindInputHandlers(self):
         keyboard.unsubscribe(self.onHotkeyPressed)
         self._inputBound = False
 
-    # Obtém a prioridade de reparação para a classe do veículo.
     def _getRepairPriority(self, equipment_tag):
         vehicle_class = Vehicle.getVehicleClassTag(self.player.vehicleTypeDescriptor.type.tags)
         priorities = settings_service.getComponentDict(repair_controls_settings)[REPAIR_CONTROLS.REPAIR_PRIORITY]
         class_priorities = priorities.get(vehicle_class, priorities['AllAvailableVariables'])
         return class_priorities[equipment_tag]
 
-    # Atualiza os consumíveis disponíveis e os respetivos identificadores.
     def _refreshEquipmentCache(self):
         if self.ctrl is None or self.ctrl.equipments is None:
             return
@@ -334,7 +312,6 @@ class Repair(object):
                     self.items[equipment_tag][3] = equipment
 
 
-    # Obtém o marcador nativo que identifica o consumível.
     @staticmethod
     def _getEquipmentMarker(equipment):
         getter = getattr(equipment, 'getMarker', None)
@@ -342,13 +319,11 @@ class Repair(object):
             return getter()
         return None
 
-    # Associa o controlador ao painel nativo de consumíveis.
     def __onComponentRegistered(self, event):
         if event.alias == BATTLE_VIEW_ALIASES.CONSUMABLES_PANEL:
             self.consumablesPanel = event.componentPy
             self.startBattle()
 
-    # Liberta o estado de reparação quando o painel de consumíveis é removido.
     def __onComponentUnregistered(self, event):
         if event.alias == BATTLE_VIEW_ALIASES.CONSUMABLES_PANEL:
             self.stopBattle()
@@ -357,11 +332,9 @@ class Repair(object):
 g_repairExtended = Repair()
 
 
-# Inicializa o módulo de controlos de reparação.
 def init():
     g_repairExtended.start()
 
 
-# Liberta os recursos do módulo de controlos de reparação.
 def fini():
     g_repairExtended.stop()

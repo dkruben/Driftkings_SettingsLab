@@ -5,7 +5,6 @@ from driftkings.settings.definitions.lobby.profile_ratings import ProfileRatings
 profile_ratings_settings = ProfileRatingsSettings()
 
 
-# Inicializa o módulo de estatísticas do registo de serviço.
 def init():
     from driftkings.flash.lobby.profile_statistics import install as install_statistics
     from driftkings.gameface.lobby.profile_ratings import install

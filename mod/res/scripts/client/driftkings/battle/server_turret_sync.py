@@ -16,7 +16,6 @@ from driftkings.settings.service import settings_service
 server_turret_sync_settings = ServerTurretSyncSettings()
 
 
-# Sincroniza a orientação da torre com os dados recebidos do servidor.
 @override(VehicleGunRotator.VehicleGunRotator, 'setShotPosition')
 def new__vehicleGunRotatorSetShotPosition(func, self, vehicleID, shotPos, shotVec, dispersionAngle, forceValueRefresh=False):
     settings = settings_service.getComponentDict(server_turret_sync_settings)
@@ -27,7 +26,6 @@ def new__vehicleGunRotatorSetShotPosition(func, self, vehicleID, shotPos, shotVe
     return func(self, vehicleID, shotPos, shotVec, dispersionAngle, forceValueRefresh)
 
 
-# Agenda a mensagem de ativação da sincronização da torre.
 @on_event(events.PlayerAvatar.startGUI.after)
 def new__startGUI(*args):
     settings = settings_service.getComponentDict(server_turret_sync_settings)

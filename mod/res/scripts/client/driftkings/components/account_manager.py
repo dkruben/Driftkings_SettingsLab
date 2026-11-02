@@ -29,7 +29,6 @@ LOG = get_logger('Driftkings.AccountManager')
 config = AccountManagerSettings()
 
 
-# Obtém a pasta das preferências locais do cliente.
 def getPreferencesDir():
     path = unicode_from_utf8(BigWorld.wg_getPreferencesFilePath())[1]
     return os.path.normpath(os.path.dirname(path))
@@ -44,7 +43,6 @@ class UserAccounts(object):
         if os.path.isfile(self.path) or os.path.isfile(self.path + '.previous'):
             self.renew_accounts()
 
-    # Recupera e lê a lista de contas protegida no ficheiro local.
     def renew_accounts(self):
         try:
             recover_file(self.path)
@@ -68,7 +66,6 @@ class UserAccounts(object):
             self.read_error = True
             LOG.error('Could not read accounts.manager (%s); existing file preserved', type(error).__name__)
 
-    # Protege e guarda a lista de contas através de escrita atómica.
     def write_accounts(self):
         if self.read_error:
             return False
@@ -86,7 +83,6 @@ class UserAccounts(object):
 
 
 class AccountsManagerController(object):
-    # Prepara as referências às janelas e ao ecrã de início de sessão.
     def __init__(self):
         self.callbackID = None
         self.launcher = None
@@ -97,31 +93,26 @@ class AccountsManagerController(object):
         on_event(events.LoginView.populate.after, self.loginPopulated)
         install_login_hooks(self)
 
-    # Associa o ecrã de início de sessão e agenda o botão do gestor.
     def loginPopulated(self, view, *args, **kwargs):
         self.login = weakref.ref(view)
         self.scheduleLauncher()
 
-    # Liberta o ecrã de início de sessão e fecha as janelas associadas.
     def loginDisposed(self, original, view, *args, **kwargs):
         if self.login is not None and self.login() is view:
             self.login = None
             self.closeViews()
         return original(view, *args, **kwargs)
 
-    # Reposiciona o botão do gestor após a atualização do ecrã de entrada.
     def loginUpdated(self, original, view, *args, **kwargs):
         result = original(view, *args, **kwargs)
         if self.login is not None and self.login() is view:
             self.scheduleLauncher()
         return result
 
-    # Agenda a criação do botão quando o ecrã de entrada está disponível.
     def scheduleLauncher(self):
         if self.active and self.canLogin() and self.callbackID is None:
             self.callbackID = callback(0.0, self.showLauncher)
 
-    # Cria ou atualiza o botão que abre o gestor de contas.
     def showLauncher(self):
         self.callbackID = None
         if not self.active or not settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True):
@@ -135,7 +126,6 @@ class AccountsManagerController(object):
         else:
             self.launcher.content.refresh()
 
-    # Abre a janela do gestor apenas no ecrã de início de sessão.
     def open(self):
         if self.window is None and self.active and self.canLogin() and settings_service.getComponentDict(config).get(GLOBAL.ENABLED, True):
             from driftkings.gameface.lobby.account_manager import AccountsWindow
@@ -149,15 +139,12 @@ class AccountsManagerController(object):
             self.window = AccountsWindow(self)
             self.window.load()
 
-    # Verifica se existe um ecrã de início de sessão válido e ativo.
     def canLogin(self):
         return self.login is not None and self.login() is not None and self.space == GuiGlobalSpaceID.LOGIN
 
-    # Obtém a posição do botão em relação ao ecrã de entrada.
     def launcherPosition(self):
         return launcher_position(self.login()) if self.canLogin() else None
 
-    # Preenche os dados da conta escolhida no início de sessão nativo.
     def useAccount(self, account_id, auto_enter):
         if not self.canLogin():
             raise AccountError('loginOnly', 'Select an account on the login screen.')
@@ -187,7 +174,6 @@ controller = AccountsManagerController()
 service = None
 
 
-# Inicializa o módulo de gestor de contas.
 def init():
     global service
     BigWorld.wh_data = UserAccounts()
@@ -195,7 +181,6 @@ def init():
     controller.active = True
 
 
-# Atualiza o contexto e prepara o botão ao entrar no início de sessão.
 def onContextEntered(spaceID):
     controller.space = spaceID
     if spaceID == GuiGlobalSpaceID.LOGIN:
@@ -204,13 +189,11 @@ def onContextEntered(spaceID):
         controller.closeViews()
 
 
-# Fecha as janelas e limpa o contexto ao sair do ecrã atual.
 def onContextLeft(spaceID):
     controller.space = None
     controller.closeViews()
 
 
-# Liberta os recursos do módulo de gestor de contas.
 def fini():
     controller.active = False
     controller.login = None

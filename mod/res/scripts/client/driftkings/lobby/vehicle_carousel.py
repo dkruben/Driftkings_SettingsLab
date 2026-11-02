@@ -52,12 +52,10 @@ CLASS_COLORS = {
 
 
 
-# Limita um valor numérico ao intervalo indicado, com uma alternativa segura.
 def bounded(value, low, high, default):
     return max(low, min(high, number(value, default)))
 
 
-# Calcula EFF, WN8 e as escalas correspondentes para o veículo.
 def ratings(values, expected, tier):
     result = {'eff': None, 'wn8': None, 'xeff': None, 'xwn8': None}
     if not values.get('battles'):
@@ -85,7 +83,6 @@ def ratings(values, expected, tier):
     return result
 
 
-# Recolhe as estatísticas e os dados de apresentação de um veículo do carrossel.
 def collect(vehicle):
     expected = getVehicleInfoData(vehicle.intCD) or {}
     low, high = battle_tiers(vehicle.level, vehicle.type, expected.get('key', getattr(vehicle, 'name', '')))
@@ -128,12 +125,9 @@ def collect(vehicle):
     return values
 
 
-# Resolve as macros, as cores e os ícones do texto de um cartão.
 def render_macro(template, values):
-    # Obtém a cor da métrica segundo a paleta configurada no carrossel.
     def color(key, value):
         return getStatisticColor(COLOR_KEYS.get(key, key), value, settings_service.getComponentDict(vehicle_carousel_settings).get(VEHICLE_CAROUSEL.COLOR_RATING, 1))
-    # Obtém o recurso visual adequado à marca ou estatística pedida.
     def icon(key):
         if key == 'marksOnGun':
             rank = int(bounded(values.get('marksOnGun'), 0, 3, 0))
@@ -152,24 +146,20 @@ vehicle_carousel_settings = VehicleCarouselSettings()
 
 
 class CarouselData(object):
-    # Prepara a cache por conta e os recursos visuais dos cartões do carrossel.
     def __init__(self):
         self.cache = {}
         self.account = None
         self.images = CarouselImages()
 
-    # Invalida a cache dos dados apresentados nos cartões.
     def invalidate(self):
         self.cache.clear()
 
-    # Limpa os dados em cache quando muda a conta do jogador.
     def _sync_account(self):
         account = getattr(BigWorld.player(), 'databaseID', None)
         if account != self.account:
             self.account = account
             self.invalidate()
 
-    # Cria dois cartões fictícios com as mesmas regras de cor dos cartões reais.
     def preview_cards(self, palette=0):
         """Two fictional cards using the same statistic colour API as live cards."""
         examples = [
@@ -188,7 +178,6 @@ class CarouselData(object):
                                   for key, value in card['stats'].items())
         return {'source': 'examples', 'vehicles': examples, 'nativeRows': next(iter(g_rowModels.values()), 1)}
 
-    # Prepara os dados e as configurações para os cartões do carrossel.
     def build_panel_model(self, requested):
         settings = settings_service.getComponentDict(vehicle_carousel_settings)
         self._sync_account()
@@ -234,7 +223,6 @@ g_filterPresenters = weakref.WeakSet()
 
 
 g_controller = CarouselController()
-# Inicializa o módulo de estatísticas do carrossel.
 def init():
     try:
         install_carousel_layout()
@@ -244,7 +232,6 @@ def init():
         LOG.exception('Gameface carousel statistics integration unavailable')
 
 
-# Liberta os recursos do módulo de estatísticas do carrossel.
 def fini():
     g_controller.stop()
     restore_carousel_layout()
