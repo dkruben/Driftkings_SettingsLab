@@ -11,7 +11,7 @@
     "BETA NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
     "Target information: each row of the card is on its own line again (Gameface had joined them into one line). The former card returns as the Classic preset, now the default: vehicle picture, reload with equipment and aligned armour and shell tables, with labels in every language. Profiles that still had that card unchanged switch to Classic automatically; edited cards and the other presets are kept.",
     "Shell types: the target card shows AP, APCR, HE, HEAT and HESH in all 18 languages instead of machine-translated words.",
-    "Frontline: player statistics now appear on the loading screen and in the TAB; the mod did not recognise the Frontline tables, so nothing was shown.",
+    "Frontline: player statistics now appear on the loading screen and in the TAB; the mod did not recognise the Frontline tables, so nothing was shown. Long vehicle names with statistics shrink to fit the narrower Frontline columns instead of being cut.",
     "Settings panel: new header image and a GitHub button that opens the project repository.",
     "Sixth Sense: a '%' in the spotted text no longer breaks the alert, and the first alert of a new battle is no longer skipped.",
     "Battle marks: the card can only be dragged while it and the cursor are visible, like the other cards. Target and player weights keep their decimal.",
