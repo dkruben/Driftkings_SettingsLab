@@ -32,9 +32,9 @@ class Window(object):
         self.loaded = True
 
 
-def component(test, directory, callbacks=None):
+def component(test, directory, callbacks=None, log=None):
     callbacks = callbacks or module(callback=lambda delay, handler: 1, cancelCallback=lambda ident: None)
-    log = module(error=lambda *args: None)
+    log = log or module(error=lambda *args: None, debug=lambda *args: None)
     constants = test.load('_constants')
     return source('components/account_manager.py', {
         'BigWorld': module(wg_getPreferencesFilePath=lambda: os.path.join(directory, 'preferences.xml'),

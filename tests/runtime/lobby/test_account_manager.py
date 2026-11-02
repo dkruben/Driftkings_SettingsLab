@@ -35,6 +35,30 @@ class AccountPersistenceTests(RuntimeTest):
         with open(path, 'rb') as stream:
             self.assertEqual(stream.read(), original)
 
+    def test_plain_json_fallback_logs_only_the_error_type(self):
+        import logging
+        records = self.capture_log('Driftkings.AccountManager', level=logging.DEBUG)
+        api = component(self, self.directory, log=self.load('logger').get_logger('Driftkings.AccountManager'))
+
+        def unprotect(raw):
+            raise ValueError('cannot decode na@example.com hunter2')
+        api['BigWorld'].wg_ucpdata = unprotect
+        path = os.path.join(self.directory, 'driftkings', 'accounts.manager')
+        os.makedirs(os.path.dirname(path))
+        legacy = [dict(id='one', title='Main NA', email='na@example.com', password='hunter2', cluster=0)]
+        with open(path, 'wb') as stream:
+            stream.write(json.dumps(legacy).encode('utf-8'))
+        store = api['UserAccounts']()
+        self.assertFalse(store.read_error)
+        self.assertEqual(store.accounts, legacy)
+        self.assertEqual(len(records), 1)
+        record = records[0]
+        self.assertEqual(record.levelname, 'DEBUG')
+        self.assertIsNone(record.exc_info)
+        self.assertEqual(record.args, ('ValueError',))
+        for secret in ('na@example.com', 'hunter2', 'Main NA', 'cannot decode'):
+            self.assertNotIn(secret, record.getMessage())
+
     def test_failed_write_rolls_back_service_records(self):
         store = Store()
         accounts = service(self, store)

@@ -55,7 +55,10 @@ class UserAccounts(object):
             try:
                 decoded = zlib.decompress(base64.b64decode(BigWorld.wg_ucpdata(raw)))
                 accounts = json.loads(decoded.decode('utf-8'))
-            except Exception:
+            except Exception as error:
+                # Type name only: the file holds e-mail addresses and passwords.
+                LOG.debug('Protected accounts.manager unreadable (%s); reading it as plain JSON',
+                          type(error).__name__)
                 accounts = json.loads(raw.decode('utf-8-sig'))
             if not isinstance(accounts, list) or any(not isinstance(item, dict) or
                     not all(key in item for key in ('id', 'title', 'email', 'password', 'cluster'))
