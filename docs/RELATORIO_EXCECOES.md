@@ -1,49 +1,56 @@
 # Exceções genéricas silenciosas
 
-Revisão de 2026-11-02, só de leitura: nenhum código foi alterado. Os caminhos partem de `mod/res/scripts/client/driftkings/`.
+Revisão de 2026-11-02. Os caminhos partem de `mod/res/scripts/client/driftkings/`. A revisão foi primeiro só de leitura; os pontos de prioridade alta e média foram depois tratados no mesmo dia (secção [Estado](#estado)), sem alterar retornos, estados nem exceções propagadas.
 
 ## Método
 
-Um analisador AST percorreu os módulos Python do cliente e listou os `except Exception`, `except StandardError`, `except BaseException` e `except:` cujo corpo não chama nenhum registo (`LOG.*`, `logging`, `print`) nem volta a lançar o erro. Encontrou **41**; **19** estão nas áreas pedidas (`core/updater`, `core/accounts.py`, `components/account_manager.py`). Cada um foi lido no contexto, incluindo o que acontece ao código de erro depois.
+Um analisador AST percorreu os módulos Python do cliente e listou os `except Exception`, `except StandardError`, `except BaseException` e `except:` cujo corpo não chama nenhum registo (`LOG.*`, `logging`, `print`) nem volta a lançar o erro. Encontrou **41**; **19** estão nas áreas pedidas (`core/updater`, `core/accounts.py`, `components/account_manager.py`). Cada um foi lido no contexto, incluindo o que acontece ao código de erro depois. Depois das correções restam **29**: os 7 das áreas pedidas que ficam silenciosos de propósito e os 22 do resto do cliente.
 
 Um `except` silencioso nem sempre é um defeito: muitos convertem a exceção num código de erro que o chamador regista. A recomendação abaixo distingue esses casos dos que perdem a causa.
 
+## Estado
+
+| Prioridade | Pontos | Estado |
+| --- | --- | --- |
+| Alta: `LOG.warning` com traceback | `checking.py`, `downloader.py`, `https_transport.py` (transporte indisponível), `accounts.py` (só o tipo) | Tratado (`8b48e6a`, `c53ada6`, `5b376f8`, `60b01e7`) |
+| Alta: `LOG.warning` sem traceback | `https_transport.py` (limpeza do staging) | Tratado (`5b376f8`) |
+| Média: `LOG.debug` | `account_manager.py` (só o tipo), `context.py`, `lifecycle.py` (política de contexto), `installation.py`, `receipts.py` (validação do pacote cancelado), `windows_files.py` (leitura do pipe), `https_transport.py` (`response.close()`) | Tratado na branch `fix/debug-logging-exceptions` |
+| Opcional | `results.py` (comparação de versões) | **Não alterado**: falha esperada com entrada externa, e a recomendação principal era nenhuma |
+| Deixar como está | `lifecycle.py` (dois reencaminhamentos), `receipts.py` (reencaminhamento) e as três limpezas de `windows_files.close()` | Sem alteração, de propósito |
+
+Cada ponto tratado tem um teste que confirma o nível do registo e que o comportamento original se mantém. Nos dois módulos de contas, os testes confirmam também que nem e-mails, nem palavras-passe, nem a mensagem da exceção chegam ao registo.
+
 ## Áreas pedidas
 
-| Ficheiro:linha | O que protege | Situação | Recomendação |
+As linhas são as atuais, depois das correções.
+
+| Ficheiro:linha | O que protege | Situação | Registo |
 | --- | --- | --- | --- |
-| `components/account_manager.py:58` | Decifrar `accounts.manager` (`wg_ucpdata` + zlib + JSON); em falha tenta ler JSON simples | Fallback intencional para ficheiros antigos não cifrados. Se o JSON também falhar, o `except` exterior regista `LOG.error` | `LOG.debug` com `type(error).__name__` (nunca o conteúdo: tem palavras-passe). Ajuda a perceber se um ficheiro cifrado deixou de abrir |
-| `core/accounts.py:98` | `store.write_accounts()` ao guardar contas | `write_accounts` já regista `LOG.error` nas suas falhas; aqui só chega um erro inesperado (por exemplo `AttributeError`), que vira `AccountError('errorSave')` sem causa | **`LOG.warning`** com `exc_info` ou o nome do tipo, sem dados das contas |
-| `core/updater/checking.py:47` | `checker.check(...)` ao pedir a verificação de atualizações | `completed(None, 'checkError')` regista `LOG.warning('Update check failed: checkError')`, mas perde o traceback | **`LOG.warning(..., exc_info=True)`**: um erro de programação no checker fica indistinguível de uma falha de rede |
-| `core/updater/context.py:46` | Ler o estado do hangar/replay para decidir se pode instalar | Devolve `unknownContext`, que bloqueia a instalação (falha fechada) | `LOG.debug` com `exc_info`; corre com frequência, por isso não `warning` |
-| `core/updater/downloader.py:178` | Iniciar o download (`transport.stream`) | Aborta o ficheiro parcial e reporta `networkError`; o erro de programação perde-se | **`LOG.warning(..., exc_info=True)`** antes de `completed` |
-| `core/updater/https_transport.py:181` | `response.close()` depois do pedido | Marca `networkError` se ainda não houver erro; o pedido principal já regista `LOG.exception` | `LOG.debug`; aceitável como está |
-| `core/updater/https_transport.py:189` | `sink.abort()` ao cancelar ou falhar | Converte em `stagingError` | `LOG.warning`: um ficheiro temporário que não se apaga merece ficar no log |
-| `core/updater/https_transport.py:244` | Criar o transporte HTTPS (SSL, CAs, verificação do hostname) | Devolve `UnavailableTransport` (falha fechada, correta) sem dizer porquê; o utilizador só vê que as atualizações não estão disponíveis | **`LOG.warning`** com o tipo do erro: é a única pista quando um cliente não tem SSL ou CAs |
-| `core/updater/installation.py:196` | Confirmar que o instalador preparado corresponde ao bilhete e ao processo atuais | Devolve `False` (não reinicia para instalar) | `LOG.debug` com `exc_info` |
-| `core/updater/lifecycle.py:80` | Enviar a leitura de resultados anteriores para a thread de ficheiros | Passa a exceção a `_previous_results_received`, que a trata | Nenhuma: o erro não é engolido, só reencaminhado |
-| `core/updater/lifecycle.py:85` | O mesmo, sem thread de ficheiros | Idem | Nenhuma |
-| `core/updater/lifecycle.py:174` | `context_policy.blocked_reason` | Igual a `context.py:46` | `LOG.debug` |
-| `core/updater/receipts.py:47` | `installer.validate_stage` de um pacote cancelado | Marca o pacote como inválido (`stageValid=False`) | `LOG.debug` com o tipo do erro, para explicar porque um pacote não é retomado |
-| `core/updater/receipts.py:55` | Enviar a validação do recibo para a thread de ficheiros | Reencaminha para `_accept_install_probe`, que volta a lançar | Nenhuma |
-| `core/updater/results.py:146` | Comparar versões (`Version(...) < Version(...)`) | Uma versão ilegível conta como não substituída | Nenhuma, ou `LOG.debug`: entrada externa, falha esperada |
-| `core/updater/windows_files.py:82` | Ler a saída do helper `WindowsFiles.exe` numa thread | Envia uma linha vazia, que o chamador trata como fim/erro do helper | `LOG.debug` |
-| `core/updater/windows_files.py:120` | `stdin.close()` em `close()` | Limpeza; `close()` também corre no `atexit` | **Manter silencioso**: registar durante o encerramento do interpretador é o problema que o comentário seguinte descreve |
-| `core/updater/windows_files.py:130` | Esperar ou matar o processo do helper em `close()` | Idem | Manter silencioso |
-| `core/updater/windows_files.py:133` | Fechar `stdout`/`stderr` em `close()` | Idem | Manter silencioso |
+| `components/account_manager.py:58` | Decifrar `accounts.manager` (`wg_ucpdata` + zlib + JSON); em falha tenta ler JSON simples | Fallback intencional para ficheiros antigos não cifrados. Se o JSON também falhar, o `except` exterior regista `LOG.error` | ✅ `LOG.debug` só com `type(error).__name__` (o ficheiro tem palavras-passe) |
+| `core/accounts.py:102` | `store.write_accounts()` ao guardar contas | `write_accounts` já regista `LOG.error` nas suas falhas; aqui só chega um erro inesperado, que vira `AccountError('errorSave')` | ✅ `LOG.warning` só com o nome do tipo, sem traceback nem dados das contas |
+| `core/updater/checking.py:47` | `checker.check(...)` ao pedir a verificação de atualizações | `completed(None, 'checkError')` regista o código, mas perdia o traceback | ✅ `LOG.warning(..., exc_info=True)` |
+| `core/updater/context.py:47` | Ler o estado do hangar/replay para decidir se pode instalar | Devolve `unknownContext`, que bloqueia a instalação (falha fechada) | ✅ `LOG.debug(..., exc_info=True)` |
+| `core/updater/downloader.py:179` | Iniciar o download (`transport.stream`) | Aborta o ficheiro parcial e reporta `networkError` | ✅ `LOG.warning(..., exc_info=True)` |
+| `core/updater/https_transport.py:181` | `response.close()` depois do pedido | Marca `networkError` se ainda não houver erro; o pedido principal já regista `LOG.exception` | ✅ `LOG.debug(..., exc_info=True)` |
+| `core/updater/https_transport.py:190` | `sink.abort()` ao cancelar ou falhar | Converte em `stagingError` | ✅ `LOG.warning` sem traceback |
+| `core/updater/https_transport.py:246` | Criar o transporte HTTPS (SSL, CAs, verificação do hostname) | Devolve `UnavailableTransport` (falha fechada, correta) | ✅ `LOG.warning(..., exc_info=True)` |
+| `core/updater/installation.py:196` | Confirmar que o instalador preparado corresponde ao bilhete e ao processo atuais | Devolve `False` (não reinicia para instalar) | ✅ `LOG.debug(..., exc_info=True)` |
+| `core/updater/lifecycle.py:80` | Enviar a leitura de resultados anteriores para a thread de ficheiros | Passa a exceção a `_previous_results_received`, que a regista | Sem alteração: o erro não é engolido, só reencaminhado |
+| `core/updater/lifecycle.py:85` | O mesmo, sem thread de ficheiros | Idem | Sem alteração |
+| `core/updater/lifecycle.py:174` | `context_policy.blocked_reason` | Devolve `unknownContext` | ✅ `LOG.debug(..., exc_info=True)` |
+| `core/updater/receipts.py:47` | `installer.validate_stage` de um pacote cancelado | Marca o pacote como inválido (`stageValid=False`) | ✅ `LOG.debug(..., exc_info=True)` |
+| `core/updater/receipts.py:56` | Enviar a validação do recibo para a thread de ficheiros | Reencaminha para `_accept_install_probe`, que volta a lançar | Sem alteração |
+| `core/updater/results.py:146` | Comparar versões (`Version(...) < Version(...)`) | Uma versão ilegível conta como não substituída | Sem alteração: entrada externa, falha esperada |
+| `core/updater/windows_files.py:84` | Ler a saída do helper `WindowsFiles.exe` numa thread | Envia uma linha vazia, que termina a sessão do helper | ✅ `LOG.debug(..., exc_info=True)` |
+| `core/updater/windows_files.py:124` | `stdin.close()` em `close()` | Limpeza; `close()` também corre no `atexit` | **Silencioso de propósito**: registar durante o encerramento do interpretador é o problema que o código já evita |
+| `core/updater/windows_files.py:134` | Esperar ou matar o processo do helper em `close()` | Idem | Silencioso de propósito |
+| `core/updater/windows_files.py:137` | Fechar `stdout`/`stderr` em `close()` | Idem | Silencioso de propósito |
 
-### Prioridade
+Nos dois módulos de contas, o registo usa só o nome do tipo da exceção, como os `LOG.error` existentes, para nunca levar e-mails ou palavras-passe para o `game.log`.
 
-1. **`LOG.warning` com `exc_info=True`:** `checking.py:47`, `downloader.py:178`, `https_transport.py:244` e `accounts.py:98`. São os pontos em que um erro de programação fica igual a uma falha esperada e o log não ajuda a diagnosticar.
-2. **`LOG.warning` sem traceback:** `https_transport.py:189`.
-3. **`LOG.debug`:** `account_manager.py:58`, `context.py:46`, `lifecycle.py:174`, `installation.py:196`, `receipts.py:47`, `windows_files.py:82`, `https_transport.py:181` e opcionalmente `results.py:146`.
-4. **Sem alteração:** `lifecycle.py:80`/`85` e `receipts.py:55` (reencaminham o erro) e as três limpezas de `windows_files.close()`.
+## Resto do cliente (fora de propósito)
 
-Nos dois módulos de contas, o registo deve continuar a usar só o nome do tipo da exceção, como os `LOG.error` existentes, para nunca levar e-mails ou palavras-passe para o `game.log`.
-
-## Resto do cliente
-
-Os outros 22 não foram analisados em detalhe. A maioria são leituras defensivas de objetos do jogo que podem não existir naquele momento (modo de batalha, hangar, veículo) e devolvem `None`, `False` ou um valor neutro:
+Os outros 22 não foram alterados. A maioria são leituras defensivas de objetos do jogo que podem não existir naquele momento (modo de batalha, hangar, veículo) e devolvem `None`, `False` ou um valor neutro:
 
 - `core/battle_capabilities.py`: linhas 27, 41, 48, 54, 125, 172, 196 e 228.
 - `core/mod_compatibility.py`: 30, 42, 52 e 87.
