@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
-from driftkings._constants import GLOBAL, HANGAR_PREFERENCES, MAIN
-from driftkings.logger import get_logger
-from driftkings.settings.service import affects, settings_service
-
-LOG = get_logger('driftkings.gameface.lobby.main')
 """Hangar clock presentation for the main section; its state stays in the component."""
 from importlib import import_module
 import weakref
 
 from helpers import getClientLanguage
 
+from driftkings._constants import GLOBAL, HANGAR_PREFERENCES, MAIN
 from driftkings.core.hooks import override
 from driftkings.gameface.lobby.common import HangarController, publish_card
 from driftkings.interface_catalog import gameface_spec
+from driftkings.logger import get_logger
+from driftkings.settings.service import affects, settings_service
 
+LOG = get_logger('driftkings.gameface.lobby.main')
 FEATURE = 'DriftkingsHangarClock'
 RESOURCE = gameface_spec(FEATURE)['resource']
 

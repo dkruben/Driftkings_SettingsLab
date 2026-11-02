@@ -8,14 +8,17 @@ from gui.Scaleform.daapi.view.battle.shared.indicators import SixthSenseIndicato
 from SoundGroups import SoundGroups
 
 from driftkings._constants import BATTLE_ALIASES, GLOBAL, SIXTH_SENSE_ALERT
+from driftkings.common.utils import events
 from driftkings.common.utils.chat import sendChatMessage
 from driftkings.common.utils.wgutils import square_position
 from driftkings.core.callbacks import callback
-from driftkings.core.hooks import override
+from driftkings.core.hooks import on_event, override
 from driftkings.flash.battle.sixth_sense_alert import set_native_visible, SixthSense
+from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.sixth_sense_alert import SixthSenseAlertSettings
 from driftkings.settings.service import settings_service
 
+LOG = get_logger('driftkings.battle.sixth_sense_alert')
 AS_BATTLE = BATTLE_ALIASES.SIXTH_SENSE_ALERT
 sixth_sense_alert_settings = SixthSenseAlertSettings()
 
@@ -27,12 +30,21 @@ class MessagesSpotted(object):
         self.__time = 0.5
         self.last_position = None
 
+    # Esquece a última posição anunciada, para a nova batalha começar sem histórico.
+    def reset(self):
+        self.last_position = None
+
     # Envia a mensagem de deteção com a posição atual, sem repetir a mesma posição.
     def sendMessage(self):
         settings = settings_service.getComponentDict(sixth_sense_alert_settings)
         self.macro['pos'] = square_position.getSquarePosition()
         if self.macro['pos'] != self.last_position:
-            message = settings[SIXTH_SENSE_ALERT.SPOTTED_TEXT] % self.macro
+            # The text is user-editable: a stray '%' must not break the native alert.
+            try:
+                message = settings[SIXTH_SENSE_ALERT.SPOTTED_TEXT] % self.macro
+            except (TypeError, ValueError):
+                LOG.warning('Invalid spotted message template %r', settings[SIXTH_SENSE_ALERT.SPOTTED_TEXT])
+                return
             if message:
                 sendChatMessage(message, 1, settings[SIXTH_SENSE_ALERT.DELAY])
                 self.last_position = self.macro['pos']
@@ -48,6 +60,12 @@ class MessagesSpotted(object):
 
 g_messages = MessagesSpotted()
 g_view = None
+
+
+# Repõe o histórico de posições no início de cada batalha.
+@on_event(events.PlayerAvatar.startGUI.after)
+def new_startGUI(*args):
+    g_messages.reset()
 
 
 # Prepara o som personalizado quando é acionado o Sexto Sentido.

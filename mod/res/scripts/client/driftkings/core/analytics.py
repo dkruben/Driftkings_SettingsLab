@@ -74,7 +74,8 @@ def default_environment():
         from realm import CURRENT_REALM
         result['realm'] = str(CURRENT_REALM)
     except Exception:
-        pass
+        # Optional metadata: events are still valid without the realm.
+        LOG.debug('Realm unavailable for analytics', exc_info=True)
     try:
         from helpers import getClientVersion
 
@@ -83,7 +84,8 @@ def default_environment():
         if version:
             result['game_version'] = version
     except Exception:
-        pass
+        # Optional metadata: events are still valid without the game version.
+        LOG.debug('Game version unavailable for analytics', exc_info=True)
     return result
 
 

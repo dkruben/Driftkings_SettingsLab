@@ -196,11 +196,15 @@ class BattleCardTests(RuntimeTest):
         adapter.startBattle()
         self.assertTrue(adapter.active)
         self.assertEqual(attached, [adapter])
-        adapter.savePosition(module(), {'x': 99999, 'y': -99999})
+        # A hidden card or cursor must not move the panel.
+        adapter.savePosition(module(_guiVisible=True, _cursorVisible=False), {'x': 1, 'y': 2})
+        self.assertEqual(changes, [])
+        child = module(_guiVisible=True, _cursorVisible=True)
+        adapter.savePosition(child, {'x': 99999, 'y': -99999})
         self.assertEqual(changes[-1][key.PANEL]['x'], 7680)
         self.assertEqual(changes[-1][key.PANEL]['y'], -4320)
         settings[key.GAMEFACE]['locked'] = True
-        adapter.savePosition(module(), {'x': 1, 'y': 2})
+        adapter.savePosition(child, {'x': 1, 'y': 2})
         self.assertEqual(len(changes), 1)
         adapter.stopBattle()
         self.assertFalse(adapter.active)

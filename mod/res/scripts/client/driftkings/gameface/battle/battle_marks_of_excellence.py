@@ -68,7 +68,8 @@ class BattleMarksAdapter(BattleCardAdapter):
 
     def savePosition(self, child, args):
         settings = settings_service.getComponentDict(_component().battle_marks_of_excellence_settings)
-        if not self.active or settings.get(BATTLE_MARKS_OF_EXCELLENCE.GAMEFACE, {}).get('locked', True):
+        if (not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible
+                or settings.get(BATTLE_MARKS_OF_EXCELLENCE.GAMEFACE, {}).get('locked', True)):
             return
         panel = moved_panel(settings[BATTLE_MARKS_OF_EXCELLENCE.PANEL], args)
         if panel is None:

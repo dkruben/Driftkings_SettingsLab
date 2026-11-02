@@ -205,8 +205,8 @@ class DataConstants(object):
             'armor_turret_front': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.primaryArmor[0],
             'armor_turret_side': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.primaryArmor[1],
             'armor_turret_back': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.turret.primaryArmor[2],
-            'vehicle_weight': lambda: '%.1f' % round(self._typeDescriptor.physics['weight'] / 1000, 1) if self._typeDescriptor else None,
-            'chassis_max_weight': lambda: None if not self._typeDescriptor else '%.1f' % round(self._typeDescriptor.chassis.maxLoad / 1000, 1),
+            'vehicle_weight': lambda: '%.1f' % round(self._typeDescriptor.physics['weight'] / 1000.0, 1) if self._typeDescriptor else None,
+            'chassis_max_weight': lambda: None if not self._typeDescriptor else '%.1f' % round(self._typeDescriptor.chassis.maxLoad / 1000.0, 1),
             'engine_name': lambda: None if not self._typeDescriptor else '%s' % self._typeDescriptor.engine.shortUserString,
             'engine_power': lambda: None if not self._typeDescriptor else '%d' % round(self._typeDescriptor.engine.power / 735.49875, 0),
             'engine_power_density': self._get_engine_power_density,
@@ -360,7 +360,7 @@ class DataConstants(object):
         typeDescriptor = self._getPlayerTypeDescriptor()
         if not typeDescriptor:
             return None
-        return '%.1f' % round(typeDescriptor.physics['weight'] / 1000, 1)
+        return '%.1f' % round(typeDescriptor.physics['weight'] / 1000.0, 1)
 
     # Obtém o tempo de recarga da arma do jogador.
     def _get_pl_gun_reload(self):
