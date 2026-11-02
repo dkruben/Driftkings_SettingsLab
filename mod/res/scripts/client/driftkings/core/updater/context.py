@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Fail-closed, read-only install policy using the existing client context."""
 from driftkings.core.battle_capabilities import battle_capabilities
+from driftkings.core.updater.shared import LOG
 
 
 class InstallContext(object):
@@ -44,6 +45,7 @@ class InstallContext(object):
                 return 'loadingContext'
             return None
         except Exception:
+            LOG.debug('Install context unreadable; treating it as unknown', exc_info=True)
             return 'unknownContext'
 
 

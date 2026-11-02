@@ -255,6 +255,28 @@ class HttpsTransportLogTests(RuntimeTest):
         self.assertIsNone(records[0].exc_info)
 
 
+class UpdaterDebugLogTests(RuntimeTest):
+    def debug_records(self):
+        import logging
+        return self.capture_log('Driftkings.Updater', level=logging.DEBUG)
+
+    def assert_one_debug(self, records, text, kind):
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].levelname, 'DEBUG')
+        self.assertIn(text, records[0].getMessage())
+        self.assertIs(records[0].exc_info[0], kind)
+
+    def test_unreadable_install_context_logs_and_stays_unknown(self):
+        records = self.debug_records()
+        api = self.load('core.updater.context')
+
+        def broken():
+            raise AttributeError('space')
+        context = api.InstallContext('lobby', module(getSpaceID=broken), None, None)
+        self.assertEqual(context.blocked_reason('lobby'), 'unknownContext')
+        self.assert_one_debug(records, 'Install context unreadable', AttributeError)
+
+
 class ServiceTests(RuntimeTest):
     def setUp(self):
         super(ServiceTests, self).setUp()
