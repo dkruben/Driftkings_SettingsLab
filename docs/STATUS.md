@@ -37,6 +37,7 @@ Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
 | Referências locais de desenvolvimento | [Development References](DEVELOPMENT_REFERENCE.md) |
 | Otimização e pendências | [Auditoria final](AUDITORIA_FINAL_INTEGRACAO.md) |
 | Exceções genéricas silenciosas | [Relatório](RELATORIO_EXCECOES.md) |
+| Eventos falsos nas estatísticas anónimas | [Proposta](RELATORIO_ANALYTICS.md) |
 
 Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`; os contratos ativos estão em `interface_catalog.py`. Os planos de migração concluídos e os estudos antigos foram retirados de `docs`. Os dados locais dos estudos foram preservados em `../Driftkings_SettingsLab_docs_backup_20261028/`; os relatórios versionados continuam recuperáveis no histórico Git. As pendências da otimização permanecem na auditoria final.
 
