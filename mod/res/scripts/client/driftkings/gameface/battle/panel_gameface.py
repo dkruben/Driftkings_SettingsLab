@@ -23,20 +23,13 @@ class GamefaceLoading(object):
         self.hookOwner=hooks.current or getattr(owner.config,'runtime_owner',None)
         self.children=weakref.WeakKeyDictionary()
         self.watched=set()
-        from frameworks.wulf import ViewModel, ViewSettings
+        from frameworks.wulf import ViewSettings
         from frameworks.wulf.gui_constants import ShowingStatus
         from gui.impl.pub import ViewImpl
 
-        from driftkings.gameface.core import attach_assets, resource_id
+        from driftkings.gameface.core import payload_model, resource_id
         bridge=self
-        class RatingModel(ViewModel):
-            def __init__(self):
-                super(RatingModel,self).__init__(properties=3,commands=1)
-            def _initialize(self):
-                super(RatingModel,self)._initialize()
-                self._addStringProperty('payload','{}')
-                self.onPerformance = self._addCommand('onPerformance')
-                attach_assets(self, 'DriftkingsRatingPlayers')
+        RatingModel = payload_model('DriftkingsRatingPlayers', ('onPerformance',))
         class RatingView(ViewImpl):
             def _getEvents(self):
                 return tuple(super(RatingView,self)._getEvents()) + (

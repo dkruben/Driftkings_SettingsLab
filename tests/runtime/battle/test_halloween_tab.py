@@ -5,7 +5,7 @@ import json
 import os
 import sys
 
-from support import CLIENT, Hooks, RuntimeTest, module, source
+from support import CLIENT, Hooks, RuntimeTest, gameface_core, module, source
 
 MODULE = 'halloween.gui.impl.battle.full_stats'
 
@@ -84,13 +84,13 @@ class GamefaceTabTests(RuntimeTest):
                 return self.model
 
         settings = module(getComponentDict=lambda config: {'performance': {'diagnostics': False}})
+        view_model = type('ViewModel', (object,), {'__init__': lambda self, **kwargs: None})
         api = source('gameface/battle/panel_gameface.py', {
-            'frameworks.wulf': module(ViewModel=type('ViewModel', (object,), {'__init__': lambda self, **kwargs: None}),
-                                      ViewSettings=lambda resource, model=None: None),
+            'frameworks.wulf': module(ViewModel=view_model, ViewSettings=lambda resource, model=None: None),
             'frameworks.wulf.gui_constants': module(ShowingStatus=module(SHOWING='SHOWING', SHOWN='SHOWN')),
             'gui.impl.pub': module(ViewImpl=Child),
             'gui.impl.battle.battle_page.tab_view': module(TabView=TabView),
-            'driftkings.gameface.core': module(attach_assets=lambda *args: None, resource_id=lambda value: 77),
+            'driftkings.gameface.core': gameface_core(view_model, resource_id=lambda value: 77),
             'driftkings.interface_catalog': module(gameface_spec=lambda name: {'resource': 'tab'}),
             'driftkings.settings.service': module(settings_service=settings),
             'driftkings._constants': module(GLOBAL=module(ENABLED='enabled'),

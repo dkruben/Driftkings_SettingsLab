@@ -2,7 +2,7 @@
 """Presentation adapter for MarksOnGunTechTree; gameplay state stays in its component."""
 from importlib import import_module
 
-from frameworks.wulf import ViewModel, ViewSettings
+from frameworks.wulf import ViewSettings
 from gui.impl.pub import ViewImpl
 
 from driftkings.core.hooks import override
@@ -20,20 +20,13 @@ def _component():
 def install():
     from gui.impl.lobby.tech_tree.tech_tree_view import TechTreeView
 
-    from driftkings.gameface.core import attach_assets, INVALID_RES_ID
+    from driftkings.gameface.core import INVALID_RES_ID, payload_model
     from driftkings.gameface.core import resource_id as resolve_resource
     for name in ('_onLoading', '_finalize', '_TechTreeView__fillNodeOverrides', '_TechTreeView__updateNodeOverrides'):
         if not callable(getattr(TechTreeView, name, None)):
             raise RuntimeError('Unsupported TechTreeView API: ' + name)
 
-    class MarksModel(ViewModel):
-        def __init__(self):
-            super(MarksModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(MarksModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, FEATURE)
+    MarksModel = payload_model(FEATURE)
 
     class MarksView(ViewImpl):
         def __init__(self, resource_id):

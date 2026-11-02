@@ -72,19 +72,11 @@ def install(config):
     if _installed:
         return
     _installed = True
-    from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import attach_assets
+    from driftkings.gameface.core import payload_model
 
-    class CrewModel(ViewModel):
-        def __init__(self):
-            super(CrewModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(CrewModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, FEATURE)
+    CrewModel = payload_model(FEATURE)
 
     class CrewView(ViewComponent):
         def __init__(self, parent, resource_id):

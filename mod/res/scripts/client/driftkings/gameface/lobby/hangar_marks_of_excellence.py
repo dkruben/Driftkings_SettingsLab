@@ -64,19 +64,11 @@ class MarksOnGunHangarController(HangarController):
 
 
 def install_gameface():
-    from frameworks.wulf import ViewModel
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import attach_assets
+    from driftkings.gameface.core import payload_model
 
-    class MarksModel(ViewModel):
-        def __init__(self):
-            super(MarksModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(MarksModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, FEATURE)
+    MarksModel = payload_model(FEATURE)
 
     class MarksView(ViewComponent):
         def __init__(self, parent, resource_id):

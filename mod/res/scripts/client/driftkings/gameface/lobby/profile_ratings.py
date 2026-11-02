@@ -33,23 +33,15 @@ def colors(presenter):
 
 
 def install():
-    from frameworks.wulf import ViewModel
     from gui.impl.lobby.achievements.achievements_main_view import AchievementMainView
     from gui.impl.lobby.achievements.summary.summary_view import SummaryView
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import attach_assets, resource_id
+    from driftkings.gameface.core import payload_model, resource_id
 
     layout_id = resource_id(gameface_spec(FEATURE)['resource'])
 
-    class RatingsModel(ViewModel):
-        def __init__(self):
-            super(RatingsModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(RatingsModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, FEATURE)
+    RatingsModel = payload_model(FEATURE)
 
     class RatingsView(ViewComponent):
         def __init__(self):

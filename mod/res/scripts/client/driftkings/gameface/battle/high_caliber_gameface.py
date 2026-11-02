@@ -30,8 +30,7 @@ class MainGunAdapter(BattleCardAdapter):
 
     def savePosition(self, child, args):
         settings = settings_service.getComponentDict(_component().high_caliber_progress_settings)
-        if (not self.active or not self.hudVisible or not child._guiVisible
-                or not child._cursorVisible or settings.get('textLock', False)
+        if (not self.canDrag(child) or settings.get('textLock', False)
                 or not _component().mainGuns.payload.get('visible')):
             return
         panel = moved_panel(settings[HIGH_CALIBER_PROGRESS.TEXT_POSITION], args)

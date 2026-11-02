@@ -79,23 +79,15 @@ def install():
     global _installed
     if _installed:
         return
-    from frameworks.wulf import ViewModel
     from gui.impl.lobby.crew.barracks_view import BarracksView
     from gui.impl.lobby.crew.container_vews.personal_file.personal_file_view import PersonalFileView
     from gui.impl.lobby.crew.container_vews.service_record.service_record_view import ServiceRecordView
     from gui.impl.lobby.crew.tooltips.tankman_tooltip import TankmanTooltip
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import attach_assets, INVALID_RES_ID, resource_id
+    from driftkings.gameface.core import INVALID_RES_ID, payload_model, resource_id
 
-    class DetailsModel(ViewModel):
-        def __init__(self):
-            super(DetailsModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(DetailsModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, FEATURE)
+    DetailsModel = payload_model(FEATURE)
 
     class DetailsView(ViewComponent):
         def __init__(self, parent, layout_id, surface):

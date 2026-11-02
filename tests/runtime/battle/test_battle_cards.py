@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Shared battle cards preserve native ownership and UI lifecycle."""
-from support import RuntimeTest, module, source
+from support import RuntimeTest, gameface_core, module, source
 
 
 class BattleCardTests(RuntimeTest):
@@ -63,7 +63,7 @@ class BattleCardTests(RuntimeTest):
             'gui.shared': module(events=module(GameEvent=module(GUI_VISIBILITY=1, SHOW_CURSOR=2, HIDE_CURSOR=3)),
                                  EVENT_BUS_SCOPE=module(BATTLE=1, GLOBAL=2)),
             'driftkings.core.hooks': module(override=override),
-            'driftkings.gameface.core': module(attach_assets=lambda *args: None, resource_id=lambda path: self.resource),
+            'driftkings.gameface.core': gameface_core(Model, resource_id=lambda path: self.resource),
             'driftkings.interface_catalog': module(gameface_spec=lambda feature: {'resource': 'test'}),
             'GUI': module(mcursor=lambda: module(visible=self.cursor)),
         }

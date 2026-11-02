@@ -72,8 +72,7 @@ class ScreenTextAdapter(BattleCardAdapter):
         # Dragged with the battle cursor (Ctrl); the position lands in the module's own position object,
         # with the anchor of the nearest screen edge.
         settings = self.settings()
-        if (not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible
-            or settings.get(TEXT_LOCK)):
+        if not self.canDrag(child) or settings.get(TEXT_LOCK):
             return
         current = settings[self.POSITION]
         panel = moved_panel(dict((key, current[key]) for key in POSITION_KEYS if key in current), args)

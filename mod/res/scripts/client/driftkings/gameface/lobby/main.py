@@ -77,21 +77,13 @@ class ClockController(HangarController):
 
 
 def install_clock_gameface():
-    from frameworks.wulf import ViewModel
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import attach_assets, INVALID_RES_ID
+    from driftkings.gameface.core import INVALID_RES_ID, payload_model
     from driftkings.gameface.core import resource_id as resolve_resource
 
-    class ClockModel(ViewModel):
-        def __init__(self):
-            super(ClockModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(ClockModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, FEATURE)
+    ClockModel = payload_model(FEATURE)
 
     class ClockView(ViewComponent):
         def __init__(self, parent, resource_id):

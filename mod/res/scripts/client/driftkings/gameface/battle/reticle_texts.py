@@ -13,9 +13,6 @@ from driftkings.logger import get_logger
 from driftkings.settings.service import settings_service
 from driftkings.views.marks_model import finite
 
-# Range of the x/y sliders in the settings panel.
-POSITION_LIMIT = 2000
-
 
 class _TemplateFormatter(string.Formatter):
     def format_field(self, value, spec):
@@ -149,10 +146,10 @@ class ReticleTextAdapter(BattleCardAdapter):
 
     def savePosition(self, child, args):
         # Dragged with the battle cursor (Ctrl); the offset lands in the module's own x/y settings.
-        if not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible:
+        if not self.canDrag(child):
             return
         try:
-            x, y = [max(-POSITION_LIMIT, min(POSITION_LIMIT, int(round(finite(args.get(key)))))) for key in ('x', 'y')]
+            x, y = [self.clampPosition(finite(args.get(key))) for key in ('x', 'y')]
         except (AttributeError, TypeError, ValueError):
             return
         values = {GLOBAL.X: x, GLOBAL.Y: y}

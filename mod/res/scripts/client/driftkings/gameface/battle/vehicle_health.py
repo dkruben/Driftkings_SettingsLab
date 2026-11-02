@@ -13,8 +13,6 @@ from driftkings.views.marks_model import moved_panel
 LOG = get_logger('Driftkings.OwnHealthBattle')
 FEATURE = 'DriftkingsOwnHealth'
 POSITION_KEYS = (GLOBAL.X, GLOBAL.Y, GLOBAL.ALIGN_X, GLOBAL.ALIGN_Y)
-# Range of the x/y sliders in the settings panel.
-POSITION_LIMIT = 2000
 
 
 def _component():
@@ -43,13 +41,13 @@ class OwnHealthAdapter(BattleCardAdapter):
     def savePosition(self, child, args):
         # Dragged with the battle cursor (Ctrl); the position lands in the same settings as the sliders.
         settings = settings_service.getComponentDict(_component().vehicle_health_settings)
-        if not self.active or not self.hudVisible or not child._guiVisible or not child._cursorVisible:
+        if not self.canDrag(child):
             return
         panel = moved_panel(dict((key, settings[key]) for key in POSITION_KEYS), args)
         if panel is None:
             return
         for key in (GLOBAL.X, GLOBAL.Y):
-            panel[key] = max(-POSITION_LIMIT, min(POSITION_LIMIT, int(round(panel[key]))))
+            panel[key] = self.clampPosition(panel[key])
         settings_service.apply(_component().vehicle_health_settings, panel)
 
     def refresh(self):

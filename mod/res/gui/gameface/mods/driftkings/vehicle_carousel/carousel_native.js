@@ -7,10 +7,10 @@
     var nations = ['ussr', 'germany', 'usa', 'china', 'france', 'uk', 'japan', 'czech', 'sweden', 'poland', 'italy'];
     var types = ['lightTank', 'mediumTank', 'heavyTank', 'AT-SPG', 'SPG'];
     function config() { return data && data.config && data.config.visible ? data.config : null; }
-    function bounded(value, lo, hi, fallback) { value = Number(value); return isFinite(value) ? Math.max(lo, Math.min(hi, value)) : fallback; }
-    function rowCount(nativeRows) { var c = config(); return Math.round(bounded(c ? c.effectiveRows : nativeRows, 1, 4, 1)); }
+    function bounded(value, fallback, lo, hi) { value = Number(value); return isFinite(value) ? Math.max(lo, Math.min(hi, value)) : fallback; }
+    function rowCount(nativeRows) { var c = config(); return Math.round(bounded(c ? c.effectiveRows : nativeRows, 1, 1, 4)); }
     function groupColumns(slots, rows, empty) {
-        rows = Math.round(bounded(rows, 1, 4, 1));
+        rows = Math.round(bounded(rows, 1, 1, 4));
         var columns = [];
         for (var i = 0; i < slots.length; i += rows) {
             var column = slots.slice(i, i + rows);

@@ -75,6 +75,17 @@ def source(relative, dependencies):
     return namespace
 
 
+def gameface_core(view_model, **values):
+    """driftkings.gameface.core stand-in: the real payload_model on view_model, plus the given attributes."""
+    namespace = source('gameface/core.py', {
+        'frameworks.wulf': module(ViewModel=view_model), 'gui.impl.gen': module(R=None),
+        'openwg_gameface': module(gf_mod_inject=None),
+        'driftkings.interface_catalog': module(GAMEFACE={}, gameface_spec=None)})
+    values.setdefault('attach_assets', lambda *args: None)
+    namespace['attach_assets'] = values['attach_assets']
+    return module(payload_model=namespace['payload_model'], **values)
+
+
 # Standard library modules a feature may import; everything else is a game boundary.
 STDLIB = frozenset(('math', 'logging', 'collections', 'functools', 're', 'json', 'weakref', 'os', 'time', 'copy',
                     'itertools', 'types', 'operator', 'codecs', 'io', 'struct', 'threading', 'sys', 'random',

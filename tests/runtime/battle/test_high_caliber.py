@@ -4,7 +4,7 @@ import json
 import os
 import ast
 
-from support import ROOT, RuntimeTest, module, source
+from support import ROOT, RuntimeTest, gameface_core, module, source
 
 
 class Signal(object):
@@ -243,7 +243,7 @@ class HighCaliberTests(RuntimeTest):
         with open(os.path.join(ROOT, 'mod/res/mods/driftkings/text/pt.yml'), 'rb') as stream:
             catalog = self.load('core.locale_catalog').parse_catalog(stream.read())['TEXT']
         component = module(high_caliber_progress_settings=module(lang='pt', i18n=catalog['high_caliber_progress']), mainGuns=self.gun)
-        ui = module(attach_assets=lambda *args: None, resource_id=lambda path: 42)
+        ui = gameface_core(Model, resource_id=lambda path: 42)
         deps = {
             'importlib': module(import_module=lambda name: component),
             'driftkings._constants': self.constants,

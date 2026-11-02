@@ -127,23 +127,23 @@ class DataConstants(object):
         self._cachedResults[cache_key] = result
         return result
 
-    def _get_gun_reload_equip_for_descriptor(self, typeDescriptor, cache_key, eq1=1, eq2=1, eq3=1, eq4=1):
+    def _get_gun_reload_equip_for_descriptor(self, typeDescriptor, cache_key):
         if cache_key in self._cachedResults:
             return self._cachedResults[cache_key]
         if not typeDescriptor:
             return None
         gun = typeDescriptor.gun
-        result = '%.2f' % reload_with_equipment(gun.reloadTime, gun.clip[0], eq1, eq2, eq3, eq4)
+        result = '%.2f' % reload_with_equipment(gun.reloadTime, gun.clip[0])
         self._cachedResults[cache_key] = result
         return result
 
-    def _get_gun_dpm_equip_for_descriptor(self, typeDescriptor, cache_key, eq1=1, eq2=1, eq3=1, eq4=1):
+    def _get_gun_dpm_equip_for_descriptor(self, typeDescriptor, cache_key):
         if cache_key in self._cachedResults:
             return self._cachedResults[cache_key]
         if not typeDescriptor or not typeDescriptor.gun.shots:
             return None
         gun = typeDescriptor.gun
-        reload_equip = reload_with_equipment(gun.reloadTime, gun.clip[0], eq1, eq2, eq3, eq4)
+        reload_equip = reload_with_equipment(gun.reloadTime, gun.clip[0])
         dpm = damage_per_minute(reload_equip, gun.clip[0], gun.clip[1], self._get_shell_damage(gun.shots[0].shell))
         if dpm is None:
             return None
@@ -189,144 +189,121 @@ class DataConstants(object):
             position = localizedMacroStart + len(macro)
         return text
 
+    def _target(self, read):
+        """Macro handler reading the target's descriptor; None without a target."""
+        return lambda: read(self._typeDescriptor) if self._typeDescriptor else None
+
+    def _player(self, read):
+        """Macro handler reading the player's own descriptor; None without one."""
+        def handler():
+            typeDescriptor = self._getPlayerTypeDescriptor()
+            return read(typeDescriptor) if typeDescriptor else None
+        return handler
+
+    def _shell(self, index, read):
+        """Macro handler reading the target gun's shot at index; None when the gun has fewer shots."""
+        def handler():
+            shots = self._gunShots
+            return read(shots[index]) if shots and len(shots) > index else None
+        return handler
+
+    def _stun(self, key, read):
+        """Cached macro handler reading the first shell's stun; None for shells without stun."""
+        def handler():
+            if key in self._cachedResults:
+                return self._cachedResults[key]
+            shots = self._gunShots
+            stun = getattr(shots[0].shell, 'stun', None) if shots else None
+            if stun is None:
+                return None
+            result = self._cachedResults[key] = read(stun)
+            return result
+        return handler
+
     def _buildMacroHandlers(self):
+        target, player = self._target, self._player
         handlers = {
             'nick_name': lambda: self._vehicle.publicInfo.name if self._vehicle else None,
             'marks_on_gun': lambda: self._vehicle.publicInfo.marksOnGun if self._vehicle else None,
             'vehicle_type': self._get_vehicle_type,
-            'vehicle_name': lambda: self._typeDescriptor.type.userString if self._typeDescriptor else None,
-            'vehicle_system_name': lambda: self._typeDescriptor.name if self._typeDescriptor else None,
-            'icon_system_name': lambda: self._typeDescriptor.name.replace(':', '-') if self._typeDescriptor else None,
-            'gun_name': lambda: self._typeDescriptor.gun.shortUserString if self._typeDescriptor else None,
-            'max_ammo': lambda: self._typeDescriptor.gun.maxAmmo if self._typeDescriptor else None,
-            'gun_reload': lambda: '%.2f' % self._typeDescriptor.gun.reloadTime if self._typeDescriptor else None,
-            'gun_reload_with_crew': lambda: '%.2f' % round(self._typeDescriptor.gun.reloadTime * self._typeDescriptor.miscAttrs.get('gunReloadTimeFactor', 1) / 1.0695 + 0.0043 * self._typeDescriptor.miscAttrs.get('crewLevelIncrease', 0), 1) if self._typeDescriptor else None,
+            'vehicle_name': target(lambda d: d.type.userString),
+            'vehicle_system_name': target(lambda d: d.name),
+            'icon_system_name': target(lambda d: d.name.replace(':', '-')),
+            'gun_name': target(lambda d: d.gun.shortUserString),
+            'max_ammo': target(lambda d: d.gun.maxAmmo),
+            'gun_reload': target(lambda d: '%.2f' % d.gun.reloadTime),
+            'gun_reload_with_crew': target(lambda d: '%.2f' % round(
+                d.gun.reloadTime * d.miscAttrs.get('gunReloadTimeFactor', 1) / 1.0695
+                + 0.0043 * d.miscAttrs.get('crewLevelIncrease', 0), 1)),
             'gun_dpm': self._get_gun_dpm,
             'gun_reload_equip': self._get_gun_reload_equip,
             'gun_dpm_equip': self._get_gun_dpm_equip,
-            'gun_clip': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.gun.clip[0],
-            'gun_clip_reload': lambda: None if not self._typeDescriptor else '%.1f' % self._typeDescriptor.gun.clip[1],
-            'gun_burst': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.gun.burst[0],
-            'gun_burst_reload': lambda: None if not self._typeDescriptor
-                else '%.1f' % self._typeDescriptor.gun.burst[1],
-            'gun_aiming_time': lambda: None if not self._typeDescriptor
-                else '%.1f' % self._typeDescriptor.gun.aimingTime,
-            'gun_accuracy': lambda: None if not self._typeDescriptor
-                else '%.2f' % round(self._typeDescriptor.gun.shotDispersionAngle * 100, 2),
-            'angle_pitch_up': lambda: None if not self._typeDescriptor
-                else '%d' % degrees(-self._typeDescriptor.gun.pitchLimits['absolute'][0]),
-            'angle_pitch_down': lambda: None if not self._typeDescriptor
-                else '%d' % degrees(-self._typeDescriptor.gun.pitchLimits['absolute'][1]),
-            'angle_pitch_left': lambda: None if not self._typeDescriptor
-                or not self._typeDescriptor.gun.turretYawLimits
-                else '%d' % degrees(-self._typeDescriptor.gun.turretYawLimits[0]),
-            'angle_pitch_right': lambda: None if not self._typeDescriptor
-                or not self._typeDescriptor.gun.turretYawLimits
-                else '%d' % degrees(self._typeDescriptor.gun.turretYawLimits[1]),
-            'vehicle_max_health': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.maxHealth,
-            'armor_hull_front': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.hull.primaryArmor[0],
-            'armor_hull_side': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.hull.primaryArmor[1],
-            'armor_hull_back': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.hull.primaryArmor[2],
-            'turret_name': lambda: None if not self._typeDescriptor
-                else '%s' % self._typeDescriptor.turret.shortUserString,
-            'armor_turret_front': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.turret.primaryArmor[0],
-            'armor_turret_side': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.turret.primaryArmor[1],
-            'armor_turret_back': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.turret.primaryArmor[2],
-            'vehicle_weight': lambda: '%.1f' % round(self._typeDescriptor.physics['weight'] / 1000.0, 1)
-                if self._typeDescriptor else None,
-            'chassis_max_weight': lambda: None if not self._typeDescriptor
-                else '%.1f' % round(self._typeDescriptor.chassis.maxLoad / 1000.0, 1),
-            'engine_name': lambda: None if not self._typeDescriptor
-                else '%s' % self._typeDescriptor.engine.shortUserString,
-            'engine_power': lambda: None if not self._typeDescriptor
-                else '%d' % round(self._typeDescriptor.engine.power / 735.49875, 0),
+            'gun_clip': target(lambda d: '%d' % d.gun.clip[0]),
+            'gun_clip_reload': target(lambda d: '%.1f' % d.gun.clip[1]),
+            'gun_burst': target(lambda d: '%d' % d.gun.burst[0]),
+            'gun_burst_reload': target(lambda d: '%.1f' % d.gun.burst[1]),
+            'gun_aiming_time': target(lambda d: '%.1f' % d.gun.aimingTime),
+            'gun_accuracy': target(lambda d: '%.2f' % round(d.gun.shotDispersionAngle * 100, 2)),
+            'angle_pitch_up': target(lambda d: '%d' % degrees(-d.gun.pitchLimits['absolute'][0])),
+            'angle_pitch_down': target(lambda d: '%d' % degrees(-d.gun.pitchLimits['absolute'][1])),
+            'angle_pitch_left': target(lambda d: '%d' % degrees(-d.gun.turretYawLimits[0])
+                                       if d.gun.turretYawLimits else None),
+            'angle_pitch_right': target(lambda d: '%d' % degrees(d.gun.turretYawLimits[1])
+                                        if d.gun.turretYawLimits else None),
+            'vehicle_max_health': target(lambda d: '%d' % d.maxHealth),
+            'armor_hull_front': target(lambda d: '%d' % d.hull.primaryArmor[0]),
+            'armor_hull_side': target(lambda d: '%d' % d.hull.primaryArmor[1]),
+            'armor_hull_back': target(lambda d: '%d' % d.hull.primaryArmor[2]),
+            'turret_name': target(lambda d: '%s' % d.turret.shortUserString),
+            'armor_turret_front': target(lambda d: '%d' % d.turret.primaryArmor[0]),
+            'armor_turret_side': target(lambda d: '%d' % d.turret.primaryArmor[1]),
+            'armor_turret_back': target(lambda d: '%d' % d.turret.primaryArmor[2]),
+            'vehicle_weight': target(lambda d: '%.1f' % round(d.physics['weight'] / 1000.0, 1)),
+            'chassis_max_weight': target(lambda d: '%.1f' % round(d.chassis.maxLoad / 1000.0, 1)),
+            'engine_name': target(lambda d: '%s' % d.engine.shortUserString),
+            'engine_power': target(lambda d: '%d' % round(d.engine.power / 735.49875, 0)),
             'engine_power_density': self._get_engine_power_density,
-            'speed_forward': lambda: None if not self._typeDescriptor
-                else '%d' % (self._typeDescriptor.physics['speedLimits'][0] * 3.6),
-            'speed_backward': lambda: None if not self._typeDescriptor
-                else '%d' % (self._typeDescriptor.physics['speedLimits'][1] * 3.6),
-            'hull_speed_turn': lambda: None if not self._typeDescriptor
-                else '%.2f' % degrees(self._typeDescriptor.chassis.rotationSpeed),
-            'turret_speed_turn': lambda: None if not self._typeDescriptor
-                else '%.2f' % degrees(self._typeDescriptor.turret.rotationSpeed),
-            'chassis_rotation_speed': lambda: None if not self._typeDescriptor
-                else '%d' % degrees(self._typeDescriptor.chassis.rotationSpeed),
-            'invis_stand': lambda: None if not self._typeDescriptor
-                else '%.1f' % (self._typeDescriptor.type.invisibility[1] * 57),
-            'invis_stand_shot': lambda: None if not self._typeDescriptor
-                else '%.2f' % (self._typeDescriptor.type.invisibility[1] * self._typeDescriptor.gun.invisibilityFactorAtShot * 57),
-            'invis_move': lambda: None if not self._typeDescriptor
-                else '%.1f' % (self._typeDescriptor.type.invisibility[0] * 57),
-            'invis_move_shot': lambda: None if not self._typeDescriptor
-                else '%.2f' % (self._typeDescriptor.type.invisibility[0] * self._typeDescriptor.gun.invisibilityFactorAtShot * 57),
-            'vision_radius': lambda: None if not self._typeDescriptor
-                else '%d' % self._typeDescriptor.turret.circularVisionRadius,
-            'radio_name': lambda: None if not self._typeDescriptor
-                else '%s' % self._typeDescriptor.radio.shortUserString,
-            'radio_radius': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.radio.distance,
-            'nation': lambda: None if not self._typeDescriptor
-                else NAMES[self._typeDescriptor.type.customizationNationID],
-            'level': lambda: None if not self._typeDescriptor else '%d' % self._typeDescriptor.type.level,
+            'speed_forward': target(lambda d: '%d' % (d.physics['speedLimits'][0] * 3.6)),
+            'speed_backward': target(lambda d: '%d' % (d.physics['speedLimits'][1] * 3.6)),
+            'hull_speed_turn': target(lambda d: '%.2f' % degrees(d.chassis.rotationSpeed)),
+            'turret_speed_turn': target(lambda d: '%.2f' % degrees(d.turret.rotationSpeed)),
+            'chassis_rotation_speed': target(lambda d: '%d' % degrees(d.chassis.rotationSpeed)),
+            'invis_stand': target(lambda d: '%.1f' % (d.type.invisibility[1] * 57)),
+            'invis_stand_shot': target(lambda d: '%.2f' % (d.type.invisibility[1]
+                                                           * d.gun.invisibilityFactorAtShot * 57)),
+            'invis_move': target(lambda d: '%.1f' % (d.type.invisibility[0] * 57)),
+            'invis_move_shot': target(lambda d: '%.2f' % (d.type.invisibility[0]
+                                                          * d.gun.invisibilityFactorAtShot * 57)),
+            'vision_radius': target(lambda d: '%d' % d.turret.circularVisionRadius),
+            'radio_name': target(lambda d: '%s' % d.radio.shortUserString),
+            'radio_radius': target(lambda d: '%d' % d.radio.distance),
+            'nation': target(lambda d: NAMES[d.type.customizationNationID]),
+            'level': target(lambda d: '%d' % d.type.level),
             'rlevel': self._get_roman_level,
-            'pl_vehicle_weight': self._get_pl_vehicle_weight,
-            'pl_gun_reload': self._get_pl_gun_reload,
-            'pl_gun_reload_equip': self._get_pl_gun_reload_equip,
-            'pl_gun_dpm': self._get_pl_gun_dpm,
-            'pl_gun_dpm_equip': self._get_pl_gun_dpm_equip,
-            'pl_vision_radius': self._get_pl_vision_radius,
-            'pl_gun_aiming_time': self._get_pl_gun_aiming_time,
+            'pl_vehicle_weight': player(lambda d: '%.1f' % round(d.physics['weight'] / 1000.0, 1)),
+            'pl_gun_reload': player(lambda d: '%.2f' % d.gun.reloadTime),
+            'pl_gun_reload_equip': lambda: self._get_gun_reload_equip_for_descriptor(
+                self._getPlayerTypeDescriptor(), 'pl_gun_reload_equip'),
+            'pl_gun_dpm': lambda: self._get_gun_dpm_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_dpm'),
+            'pl_gun_dpm_equip': lambda: self._get_gun_dpm_equip_for_descriptor(
+                self._getPlayerTypeDescriptor(), 'pl_gun_dpm_equip'),
+            'pl_vision_radius': player(lambda d: '%d' % d.turret.circularVisionRadius),
+            'pl_gun_aiming_time': player(lambda d: '%.1f' % d.gun.aimingTime),
+            'stun_radius': self._stun('stun_radius', lambda stun: '%d' % stun.stunRadius),
+            'stun_duration_min': self._stun('stun_duration_min', lambda stun: '%.1f' % round(
+                stun.stunDuration * stun.guaranteedStunDuration, 1)),
+            'stun_duration_max': self._stun('stun_duration_max', lambda stun: '%d' % stun.stunDuration),
         }
-        handlers.update(self._generateShellHandlers())
-        handlers.update({'stun_radius': self._get_stun_radius, 'stun_duration_min': self._get_stun_duration_min,
-                         'stun_duration_max': self._get_stun_duration_max, })
-        return handlers
-
-    def _generateShellHandlers(self):
-        handlers = {}
-        handlers.update({
-            'shell_name_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
-                else "%s" % self._gunShots[0].shell.userString,
-            'shell_name_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
-                else "%s" % self._gunShots[1].shell.userString,
-            'shell_name_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
-                else "%s" % self._gunShots[2].shell.userString,
-            'shell_damage_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
-                else "%d" % self._get_shell_damage(self._gunShots[0].shell),
-            'shell_damage_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
-                else "%d" % self._get_shell_damage(self._gunShots[1].shell),
-            'shell_damage_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
-                else "%d" % self._get_shell_damage(self._gunShots[2].shell),
-            'shell_power_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
-                else "%d" % (self._gunShots[0].piercingPower[0]),
-            'shell_power_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
-                else "%d" % (self._gunShots[1].piercingPower[0]),
-            'shell_power_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
-                else "%d" % (self._gunShots[2].piercingPower[0]),
-            'shell_type_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
-                else self.i18n(self._gunShots[0].shell.kind.lower()),
-            'shell_type_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
-                else self.i18n(self._gunShots[1].shell.kind.lower()),
-            'shell_type_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
-                else self.i18n(self._gunShots[2].shell.kind.lower()),
-            'shell_speed_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
-                else "%d" % round(self._gunShots[0].speed * 1.25),
-            'shell_speed_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
-                else "%d" % round(self._gunShots[1].speed * 1.25),
-            'shell_speed_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
-                else "%d" % round(self._gunShots[2].speed * 1.25),
-            'shell_distance_1': lambda: None if (not self._gunShots) or (len(self._gunShots) < 1)
-                else "%d" % self._gunShots[0].maxDistance,
-            'shell_distance_2': lambda: None if (not self._gunShots) or (len(self._gunShots) < 2)
-                else "%d" % self._gunShots[1].maxDistance,
-            'shell_distance_3': lambda: None if (not self._gunShots) or (len(self._gunShots) < 3)
-                else "%d" % self._gunShots[2].maxDistance
-        })
+        for number in (1, 2, 3):
+            index = number - 1
+            handlers.update({
+                'shell_name_%d' % number: self._shell(index, lambda shot: '%s' % shot.shell.userString),
+                'shell_damage_%d' % number: self._shell(index, lambda shot: '%d' % self._get_shell_damage(shot.shell)),
+                'shell_power_%d' % number: self._shell(index, lambda shot: '%d' % shot.piercingPower[0]),
+                'shell_type_%d' % number: self._shell(index, lambda shot: self.i18n(shot.shell.kind.lower())),
+                'shell_speed_%d' % number: self._shell(index, lambda shot: '%d' % round(shot.speed * 1.25)),
+                'shell_distance_%d' % number: self._shell(index, lambda shot: '%d' % shot.maxDistance),
+            })
         return handlers
 
     def _get_vehicle_type(self):
@@ -352,13 +329,11 @@ class DataConstants(object):
     def _get_gun_dpm(self):
         return self._get_gun_dpm_for_descriptor(self._typeDescriptor, 'gun_dpm')
 
-    def _get_gun_reload_equip(self, eq1=1, eq2=1, eq3=1, eq4=1):
-        cache_key = 'gun_reload_equip_%s_%s_%s_%s' % (eq1, eq2, eq3, eq4)
-        return self._get_gun_reload_equip_for_descriptor(self._typeDescriptor, cache_key, eq1, eq2, eq3, eq4)
+    def _get_gun_reload_equip(self):
+        return self._get_gun_reload_equip_for_descriptor(self._typeDescriptor, 'gun_reload_equip')
 
-    def _get_gun_dpm_equip(self, eq1=1, eq2=1, eq3=1, eq4=1):
-        cache_key = 'gun_dpm_equip_%s_%s_%s_%s' % (eq1, eq2, eq3, eq4)
-        return self._get_gun_dpm_equip_for_descriptor(self._typeDescriptor, cache_key, eq1, eq2, eq3, eq4)
+    def _get_gun_dpm_equip(self):
+        return self._get_gun_dpm_equip_for_descriptor(self._typeDescriptor, 'gun_dpm_equip')
 
     def _get_engine_power_density(self):
         if 'engine_power_density' in self._cachedResults:
@@ -384,70 +359,6 @@ class DataConstants(object):
             self._cachedResults['roman_level'] = result
             return result
         return None
-
-    def _get_stun_radius(self):
-        if 'stun_radius' in self._cachedResults:
-            return self._cachedResults['stun_radius']
-        if (self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun')
-            and self._gunShots[0].shell.stun is not None):
-            result = '%d' % self._gunShots[0].shell.stun.stunRadius
-            self._cachedResults['stun_radius'] = result
-            return result
-        return None
-
-    def _get_stun_duration_min(self):
-        if 'stun_duration_min' in self._cachedResults:
-            return self._cachedResults['stun_duration_min']
-        if (self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun')
-            and self._gunShots[0].shell.stun is not None):
-            time = round(self._gunShots[0].shell.stun.stunDuration * self._gunShots[0].shell.stun.guaranteedStunDuration, 1)
-            result = '%.1f' % time
-            self._cachedResults['stun_duration_min'] = result
-            return result
-        return None
-
-    def _get_stun_duration_max(self):
-        if 'stun_duration_max' in self._cachedResults:
-            return self._cachedResults['stun_duration_max']
-        if (self._gunShots is not None and len(self._gunShots) > 0 and hasattr(self._gunShots[0].shell, 'stun')
-            and self._gunShots[0].shell.stun is not None):
-            result = '%d' % self._gunShots[0].shell.stun.stunDuration
-            self._cachedResults['stun_duration_max'] = result
-            return result
-        return None
-
-    def _get_pl_vehicle_weight(self):
-        typeDescriptor = self._getPlayerTypeDescriptor()
-        if not typeDescriptor:
-            return None
-        return '%.1f' % round(typeDescriptor.physics['weight'] / 1000.0, 1)
-
-    def _get_pl_gun_reload(self):
-        typeDescriptor = self._getPlayerTypeDescriptor()
-        if not typeDescriptor:
-            return None
-        return '%.2f' % typeDescriptor.gun.reloadTime
-
-    def _get_pl_gun_reload_equip(self):
-        return self._get_gun_reload_equip_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_reload_equip')
-
-    def _get_pl_gun_dpm(self):
-        return self._get_gun_dpm_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_dpm')
-
-    def _get_pl_gun_dpm_equip(self):
-        return self._get_gun_dpm_equip_for_descriptor(self._getPlayerTypeDescriptor(), 'pl_gun_dpm_equip')
-
-    def _get_pl_vision_radius(self):
-        typeDescriptor = self._getPlayerTypeDescriptor()
-        if not typeDescriptor:
-            return None
-        return '%d' % typeDescriptor.turret.circularVisionRadius
-
-    def _get_pl_gun_aiming_time(self):
-        typeDescriptor = self._getPlayerTypeDescriptor()
-        if not typeDescriptor:
-            return None
-        return '%.1f' % typeDescriptor.gun.aimingTime
 
     def __getattr__(self, name):
         if name in self._macroHandlers:

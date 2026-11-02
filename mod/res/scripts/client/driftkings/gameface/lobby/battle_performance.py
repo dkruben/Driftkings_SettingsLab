@@ -17,26 +17,18 @@ def _component():
 
 
 def install_results_gameface():
-    from frameworks.wulf import ViewModel
     from gui.impl.lobby.battle_results.random_battle_results_view import RandomBattleResultsView
     from gui.impl.pub.view_component import ViewComponent
     from helpers import dependency
     from skeletons.gui.battle_results import IBattleResultsService
 
-    from driftkings.gameface.core import attach_assets, INVALID_RES_ID
+    from driftkings.gameface.core import INVALID_RES_ID, payload_model
     from driftkings.gameface.core import resource_id as resolve_resource
 
     feature = 'driftkingsbattleEfficiency'
     resource = gameface_spec('driftkingsbattleEfficiency')['resource']
 
-    class ResultsModel(ViewModel):
-        def __init__(self):
-            super(ResultsModel, self).__init__(properties=3, commands=0)
-
-        def _initialize(self):
-            super(ResultsModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            attach_assets(self, feature)
+    ResultsModel = payload_model(feature)
 
     class ResultsView(ViewComponent):
         def __init__(self, parent, resource_id):

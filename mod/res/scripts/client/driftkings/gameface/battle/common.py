@@ -10,6 +10,8 @@ class BattleCardAdapter(object):
     # Texts that come and go with the aim (penetration) would fill the log; they report only the
     # first visibility change at info level and the rest at debug.
     QUIET_VISIBILITY = False
+    # Range of the x/y sliders in the settings panel; dragged offsets stay within it.
+    POSITION_LIMIT = 2000
 
     def __init__(self, feature, namespace, log, title, active=False):
         self.feature = feature
@@ -25,25 +27,16 @@ class BattleCardAdapter(object):
     def install(self):
         if self.installed:
             return
-        from frameworks.wulf import ViewModel
         from gui.impl.battle.random.hud import RandomHUDView
         from gui.impl.pub.view_component import ViewComponent
         from gui.shared import EVENT_BUS_SCOPE, events
 
         from driftkings.core.hooks import override
-        from driftkings.gameface.core import attach_assets, resource_id
+        from driftkings.gameface.core import payload_model, resource_id
         from driftkings.interface_catalog import gameface_spec
         adapter = self
 
-        class BattleCardModel(ViewModel):
-            def __init__(self):
-                super(BattleCardModel, self).__init__(properties=3, commands=1)
-
-            def _initialize(self):
-                super(BattleCardModel, self)._initialize()
-                self._addStringProperty('payload', '{}')
-                self.onSavePosition = self._addCommand('onSavePosition')
-                attach_assets(self, adapter.feature)
+        BattleCardModel = payload_model(adapter.feature, ('onSavePosition',))
 
         class BattleCardView(ViewComponent):
             def __init__(self, resource):
@@ -153,6 +146,14 @@ class BattleCardAdapter(object):
 
     def savePosition(self, child, args):
         raise NotImplementedError
+
+    def canDrag(self, child):
+        """A card is dragged with the battle cursor (Ctrl) only while it and the battle HUD are visible."""
+        return bool(self.active and self.hudVisible and child._guiVisible and child._cursorVisible)
+
+    @classmethod
+    def clampPosition(cls, value):
+        return max(-cls.POSITION_LIMIT, min(cls.POSITION_LIMIT, int(round(value))))
 
     def onSettingsChanged(self, *args):
         self.refresh()

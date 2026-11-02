@@ -43,3 +43,18 @@ def attach_assets(model, name):
     model._addViewModelProperty('DriftkingsUI', AssetsModel(name))
     # Ordered assets and disposal ownership come from the generated catalog.
     gf_mod_inject(model, name + 'Bridge', scripts=[BOOTSTRAP])
+
+
+def payload_model(feature, commands=()):
+    """ViewModel class with a JSON 'payload' string, the named commands and the feature's assets."""
+    class PayloadModel(ViewModel):
+        def __init__(self):
+            super(PayloadModel, self).__init__(properties=3, commands=len(commands))
+
+        def _initialize(self):
+            super(PayloadModel, self)._initialize()
+            self._addStringProperty('payload', '{}')
+            for command in commands:
+                setattr(self, command, self._addCommand(command))
+            attach_assets(self, feature)
+    return PayloadModel
