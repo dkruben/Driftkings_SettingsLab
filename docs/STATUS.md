@@ -63,6 +63,8 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 
 Na branch `release/0.1.5-beta.4`, a versão passou a `0.1.5-beta.4` em `driftkings/__init__.py`, `build_data/release.json`, README (badge, downloads e novidades), SECURITY.md, o exemplo do formulário de bug e o fixture de `test_core_startup.py`. O changelog resume as alterações desde o tag `v0.1.5-beta.3` (`d1dbfe3`): cartão do alvo com linhas separadas e modelo Clássico por omissão, siglas das munições nas 18 línguas, cabeçalho e botão GitHub do painel, correções do Sexto Sentido, do arrasto das marcas e dos pesos, avisos Gameface de CSS e fontes, e registos novos do updater e do gestor de contas. A release **ainda não foi compilada, assinada nem publicada**; os links de download do README apontam para o tag `v0.1.5-beta.4`, que ainda não existe. A stable 0.1.4 não muda.
 
+O utilizador testou uma build debug da `0.1.5-beta.4` no cliente EU `2.4.1.1 #989` e aprovou-a: um replay e o hangar. O `game.log` regista `Driftkings 0.1.5-beta.4 for World of Tanks 2.4.1.1`, `failures=[]`, o cartão do alvo carregado em Gameface e nenhum aviso, erro ou traceback do Driftkings nem avisos de CSS ou fontes do Gameface; os restantes avisos são do jogo. O utilizador confirmou no ecrã o cartão Clássico, as siglas das munições e o cabeçalho do painel.
+
 ## Cartão do alvo, cabeçalho do painel e validações — 2026-11-02
 
 - **Cartão do alvo:** o Gameface descarta texto só com espaços entre etiquetas, por isso a quebra de linha entre as linhas do cartão perdia-se e o cartão aparecia numa só linha. `shared/flash_lines.js` converte as quebras em `<span data-dk-br>` antes de analisar o HTML nos textos ricos; o teste dos textos de ecrã passou a descartar esse texto como o Gameface.
