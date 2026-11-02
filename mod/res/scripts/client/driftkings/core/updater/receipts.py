@@ -45,6 +45,7 @@ class ReceiptMixin(object):
                     self.installer.validate_stage(ready, client, channel)
                     valid = True
                 except Exception:
+                    LOG.debug('Cancelled update package failed validation; it will not be resumed', exc_info=True)
                     valid = False
             return dict(result=result, ticket=ticket, stamp=stamp, signature=signature, stageValid=valid)
         def completed(value, error):

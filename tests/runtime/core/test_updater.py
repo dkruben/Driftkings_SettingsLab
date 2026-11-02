@@ -312,6 +312,26 @@ class UpdaterDebugLogTests(RuntimeTest):
         self.assertFalse(service.restart_ready())
         self.assert_one_debug(records, 'Could not confirm the prepared installer', OSError)
 
+    def test_invalid_cancelled_package_logs_and_is_marked_invalid(self):
+        folder = tempfile.mkdtemp(prefix='dk-debug-log-test-')
+        self.addCleanup(shutil.rmtree, folder)
+        service = self.service(folder)
+
+        def invalid(ready, client, channel):
+            raise ValueError('hash mismatch')
+        probes = []
+        service.results, service._cancel_requested, service._receipt_busy = None, True, False
+        service.installer = module(result=lambda ready: {'status': 'cancelled'}, validate_stage=invalid)
+        service.file_work = module(submit=lambda task, done: done(task(), None))
+        service._accept_install_probe = lambda generation, value, error: probes.append((value, error))
+        records = self.debug_records()
+        service._poll_install_async(1)
+        self.assertEqual(len(probes), 1)
+        self.assertIsNone(probes[0][1])
+        self.assertIs(probes[0][0]['stageValid'], False)
+        self.assertFalse(service._receipt_busy)
+        self.assert_one_debug(records, 'failed validation', ValueError)
+
 
 class ServiceTests(RuntimeTest):
     def setUp(self):
