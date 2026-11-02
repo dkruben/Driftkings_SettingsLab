@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import threading
+import time
 try:
     import Queue as queue
 except ImportError:
@@ -143,6 +145,45 @@ class PlayerRatingsTests(RuntimeTest):
         self.assertEqual(requests[1][1]['extra'], 'random')
         self.assertEqual(requests[1][1]['account_id'], '511')
         self.assertNotIn('statistics.all', requests[0][1]['fields'])
+
+    def test_vehicle_requests_run_in_parallel_and_deliver_each_account(self):
+        api = self.api
+        lock, active, peak, delivered = threading.Lock(), [0], [0], []
+
+        def request(region, endpoint, **kwargs):
+            if endpoint == 'wot/account/info':
+                return dict((dbID, {'statistics': {'random': {'battles': 1}}})
+                            for dbID in kwargs['account_id'].split(','))
+            with lock:
+                active[0] += 1
+                peak[0] = max(peak[0], active[0])
+            time.sleep(0.05)
+            with lock:
+                active[0] -= 1
+            return {kwargs['account_id']: [{'tank_id': 1, 'random': {'battles': 1}}]}
+        api['g_event'] = module(userRegion=lambda account: 'eu', request=request)
+        ids = [str(500000000 + number) for number in range(8)]
+        info, tanks = api['Statistics']().fetchPlayerStats(ids, lambda *args: delivered.append(args))
+        self.assertEqual(sorted(tanks), ids)
+        self.assertEqual(sorted(item[0] for item in delivered), ids)
+        for dbID, accountInfo, accountTanks in delivered:
+            self.assertEqual(list(accountInfo), [dbID])
+            self.assertEqual(accountTanks[dbID][0]['tank_id'], 1)
+        self.assertGreater(peak[0], 1)
+        self.assertLessEqual(peak[0], api['STATS_WORKERS'])
+
+    def test_accounts_queued_between_polls_are_applied_in_one_update(self):
+        stats = self.api['Statistics']()
+        applied = []
+        stats.applyPlayerStats = lambda info, tanks: applied.append((dict(info), dict(tanks)))
+        stats._pending.update(['1', '2'])
+        for dbID in ('1', '2'):
+            stats._responses.put((stats._generation, [dbID], {dbID: {'battles': 1}}, {dbID: [{'tank_id': 1}]}))
+        stats.pollStats()
+        self.assertEqual(len(applied), 1)
+        self.assertEqual(sorted(applied[0][0]), ['1', '2'])
+        self.assertEqual(stats._pending, set())
+        self.assertEqual(stats._received, set(['1', '2']))
 
     def test_api_vehicle_failure_is_not_cached_as_empty_statistics(self):
         api = self.api
