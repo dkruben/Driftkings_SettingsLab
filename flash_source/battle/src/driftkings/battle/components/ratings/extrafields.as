@@ -10,7 +10,9 @@ package driftkings.battle.components.ratings
         private var holders:Dictionary = new Dictionary(true);
         private var textIDs:Dictionary = new Dictionary(true);
         private var nextTextID:uint=0;
-        public function drawText(source:TextField,html:String,x:Number,width:Number,border:Boolean):void
+        // fit: shrink the text (down to MIN_FIT) instead of cutting it when it is wider than the column.
+        private static const MIN_FIT:Number=0.65;
+        public function drawText(source:TextField,html:String,x:Number,width:Number,border:Boolean,fit:Boolean=false):void
         {
             var parent:DisplayObjectContainer=source.parent;
             if (!parent) return;
@@ -36,7 +38,12 @@ package driftkings.battle.components.ratings
             field.autoSize="none"; field.width=width; field.height=source.height;
             field.border=border;
             if (record.html!==html) { field.htmlText=html; record.html=html; }
-            holder.x=x; holder.y=source.y; holder.alpha=source.alpha;
+            // The field widens by 1/scale so its alignment still ends at the column edge.
+            var scale:Number=1;
+            if (fit && width>0 && field.textWidth+4>width) scale=Math.max(MIN_FIT,width/(field.textWidth+4));
+            field.width=width/scale;
+            holder.scaleX=holder.scaleY=scale;
+            holder.x=x; holder.y=source.y+source.height*(1-scale)/2; holder.alpha=source.alpha;
             holder.filters=source.filters;
         }
         public function begin():void

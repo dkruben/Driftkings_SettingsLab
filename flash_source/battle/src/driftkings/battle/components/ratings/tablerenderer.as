@@ -60,7 +60,7 @@ package driftkings.battle.components.ratings
         {
             if (!field || !state.base(field,"visible") || text===null || text===undefined) return;
             // Native widths/positions leave room for ranks, lives and sector icons.
-            extra.drawText(field,String(text),field.x,field.width,nativestate.flag(border));
+            extra.drawText(field,String(text),field.x,field.width,nativestate.flag(border),true);
             state.setValue(field,"visible",false);
         }
         public function draw(owner:Object,payload:Object,screen:String,left:Boolean=true):void
