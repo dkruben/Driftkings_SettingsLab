@@ -12,6 +12,7 @@ import zipfile
 
 from driftkings.core.updater.https_transport import CHUNK, TransferError
 from driftkings.core.updater.manifest import Manifest
+from driftkings.core.updater.shared import LOG
 
 
 def safe_directory(directory):
@@ -176,6 +177,7 @@ class Downloader(object):
             if self.busy:
                 self.handle = handle
         except Exception:
+            LOG.warning('Update download could not start', exc_info=True)
             self.sink.abort()
             completed(None, 'networkError')
         return True

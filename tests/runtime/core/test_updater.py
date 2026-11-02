@@ -176,6 +176,23 @@ class FileTests(RuntimeTest):
             self.assertEqual(stream.read(), b'personal data')
         self.assertRaises((IOError, OSError), installer.digest, os.path.join(self.folder, 'missing'))
 
+    def test_download_that_cannot_start_logs_the_traceback_and_reports_network_error(self):
+        records = self.capture_log('Driftkings.Updater')
+        api = self.load('core.updater.downloader')
+        Manifest = self.load('core.updater.manifest').Manifest
+
+        def broken(*args):
+            raise RuntimeError('transport bug')
+        downloader = api.Downloader(module(stream=broken), self.folder)
+        results = []
+        self.assertTrue(downloader.start(Manifest(manifest(data=b'package')), lambda *result: results.append(result)))
+        self.assertEqual(results, [(None, 'networkError')])
+        self.assertFalse(downloader.busy)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].levelname, 'WARNING')
+        self.assertIn('could not start', records[0].getMessage())
+        self.assertIs(records[0].exc_info[0], RuntimeError)
+
     def test_staging_validates_size_hash_and_package_before_ready(self):
         api = self.load('core.updater.downloader')
         Manifest = self.load('core.updater.manifest').Manifest
