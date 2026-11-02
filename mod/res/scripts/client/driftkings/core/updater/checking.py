@@ -45,6 +45,7 @@ class CheckMixin(object):
         try:
             return self.checker.check(VERSION, channel, getattr(self.api, 'client_version', None), completed)
         except Exception:
+            LOG.warning('Update check could not start', exc_info=True)
             completed(None, 'checkError')
             return False
 

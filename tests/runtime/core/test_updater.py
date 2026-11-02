@@ -256,6 +256,20 @@ class ServiceTests(RuntimeTest):
         self.assertIsNone(snapshot['latestVersion'])
         self.assertFalse(snapshot['canDownload'])
 
+    def test_check_that_cannot_start_logs_the_traceback_and_reports_check_error(self):
+        records = self.capture_log('Driftkings.Updater')
+        self.transport.available = True
+
+        def broken(*args):
+            raise RuntimeError('checker bug')
+        self.service.checker.check = broken
+        self.assertFalse(self.service.check(manual=True))
+        self.assertEqual(self.service.state.snapshot()['error'], 'checkError')
+        started = [record for record in records if 'could not start' in record.getMessage()]
+        self.assertEqual(len(started), 1)
+        self.assertEqual(started[0].levelname, 'WARNING')
+        self.assertIs(started[0].exc_info[0], RuntimeError)
+
     def test_install_and_download_fail_closed_without_ready_data_or_context(self):
         self.assertFalse(self.service.download())
         self.assertFalse(self.service.schedule_install())

@@ -40,6 +40,26 @@ class RuntimeTest(unittest.TestCase):
             sys.modules[name] = package
         sys.modules['driftkings'].VERSION = '1.0.0'
 
+    def capture_log(self, name, level=None):
+        """Records emitted by the named logger; assertLogs does not exist on Python 2.7."""
+        import logging
+        records = []
+
+        class Handler(logging.Handler):
+            def emit(self, record):
+                records.append(record)
+
+        logger = logging.getLogger(name)
+        handler = Handler()
+        old_level, old_propagate = logger.level, logger.propagate
+        self.addCleanup(logger.setLevel, old_level)
+        self.addCleanup(setattr, logger, 'propagate', old_propagate)
+        self.addCleanup(logger.removeHandler, handler)
+        logger.addHandler(handler)
+        logger.setLevel(logging.WARNING if level is None else level)
+        logger.propagate = False
+        return records
+
     def restore_modules(self):
         for key in list(sys.modules):
             if key == 'driftkings' or key.startswith('driftkings.'):
