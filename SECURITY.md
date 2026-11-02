@@ -5,7 +5,7 @@
 | Version | Channel | Supported |
 | --- | --- | --- |
 | 0.1.5-beta.4 | Beta | Yes |
-| 0.1.4 | Stable | Yes |
+| 0.1.5 | Stable | Yes |
 | Older releases | — | No; update first |
 
 Both supported versions target World of Tanks 2.4.1.1 on the Wargaming EU, NA and ASIA clients.

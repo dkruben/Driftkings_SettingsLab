@@ -12,7 +12,7 @@ Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão stable publicada: `0.1.4` (latest). Beta publicada: `0.1.5-beta.3` (prerelease, tag no commit `d1dbfe3`, também em `main`). O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Versão stable publicada: `0.1.4` (latest); a stable `0.1.5` está a ser preparada em `main`. Beta publicada: `0.1.5-beta.4` (prerelease, tag no commit `080658e`, também em `main`). O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
@@ -58,6 +58,12 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Beta 0.1.5-beta.4 publicada e stable 0.1.5 em preparação — 2026-11-02
+
+A build release da beta.4 foi feita a partir da árvore limpa em `080658e`, com o CI verde, instalador Inno Setup e os três testes opcionais sobre o WOTMOD. O manifesto foi assinado com a chave existente. Os 11 assets do rascunho coincidem em nome, tamanho e SHA-256 com a build local; o manifesto e a assinatura descarregados da release pública passaram na verificação da chave de confiança. A [release v0.1.5-beta.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.4) está publicada como prerelease; a stable 0.1.4 continua marcada como latest.
+
+A stable `0.1.5` junta as quatro betas 0.1.5 com o mesmo código da beta.4: versão `0.1.5`, canal `stable`, changelog consolidado (incluindo as alterações incompatíveis das betas), README, SECURITY.md, o exemplo do formulário de bug e o fixture de `test_core_startup.py`. Publica-se primeiro como rascunho, para verificação antes de a tornar pública e latest.
 
 ## Preparação da beta 0.1.5-beta.4 — 2026-11-02
 

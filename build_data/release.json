@@ -1,22 +1,25 @@
 {
   "schema_version": 1,
-  "version": "0.1.5-beta.4",
-  "channel": "beta",
+  "version": "0.1.5",
+  "channel": "stable",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
   "package_id": "driftkings.unified",
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "BETA NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
-    "Target information: each row of the card is on its own line again (Gameface had joined them into one line). The former card returns as the Classic preset, now the default: vehicle picture, reload with equipment and aligned armour and shell tables, with labels in every language. Profiles that still had that card unchanged switch to Classic automatically; edited cards and the other presets are kept.",
-    "Shell types: the target card shows AP, APCR, HE, HEAT and HESH in all 18 languages instead of machine-translated words.",
-    "Frontline: player statistics now appear on the loading screen and in the TAB; the mod did not recognise the Frontline tables, so nothing was shown. Long vehicle names with statistics shrink to fit the narrower Frontline columns instead of being cut.",
-    "Settings panel: new header image and a GitHub button that opens the project repository.",
-    "Sixth Sense: a '%' in the spotted text no longer breaks the alert, and the first alert of a new battle is no longer skipped.",
-    "Battle marks: the card can only be dragged while it and the cursor are visible, like the other cards. Target and player weights keep their decimal.",
-    "Interface: Gameface no longer logs warnings for unsupported CSS or unloaded fonts; the clock, tech-tree marks, crew details and health bar use the game's Warhelios font.",
-    "Logs: game.log names the Driftkings and game versions at startup and no longer repeats the [LEVEL][Driftkings][module] prefix or the package name in channel names (Driftkings.core.player_ratings instead of Driftkings.driftkings.core.player_ratings). The updater and the account manager now log why an operation failed; account messages contain only the error type, never e-mail addresses or passwords.",
-    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; tested on the EU client."
+    "NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
+    "INCOMPATIBLE with custom profiles: the xvm and XVMSymbol font aliases, the {{xvm-stat}} macro and the carousel {{v.c_...}} colour macro were removed. Use dkm, {{stat-available}} and {{v.c:...}} (for example {{v.c:winrate}}); the default settings already do. Rating scales are now cached as ratingScales.json.",
+    "Target information: the card uses Gameface, each row on its own line. The former card returns as the Classic preset, now the default (vehicle picture, reload with equipment, aligned armour and shell tables), with labels in every language; unchanged copies of it switch to Classic automatically. Shell types read AP, APCR, HE, HEAT and HESH in all 18 languages.",
+    "Team panels: native panels are supported in Frontline, Black Signal and Stronghold. In Frontline, player statistics appear on the loading screen and in the TAB, and long vehicle names shrink to fit its narrower columns.",
+    "Battle HUD: the own health bar, battle efficiency, team strength, aiming countdown, shell flight time and penetration texts use Gameface and can be dragged with Ctrl. Battle pages without the Gameface HUD (Halloween, Fort Rush) do not show them.",
+    "Aiming texts: templates use {name} fields such as {timer:.1f}, {percent:d} and {countedArmor:d}; older %(name)s templates keep working.",
+    "Account manager: new page in General settings. Its switch turns the login-screen button on or off, and Manage accounts opens the manager in the hangar.",
+    "Marks of excellence: the hangar card sits under the mission column with a Show more side panel; the service-record tooltip comes only from Hangar marks; tech-tree marks drop empty records and the badge background.",
+    "Reload: manual reload (C by default) sends the native F8 command, with game-translated messages and minimap effects; the custom reload message setting was removed.",
+    "Settings panel: header image, Discord, Facebook, YouTube and GitHub shortcuts, simplified colour controls, corrected live previews, and sound bank diagnostics in general settings.",
+    "Fixes: Sixth Sense alerts with '%' in the text and the first alert of each battle; battle marks card dragging; decimal target weights; Gameface CSS and font warnings; native Halloween TAB name colours by rating.",
+    "Logs: game.log names the Driftkings and game versions at startup without repeated prefixes. The updater and the account manager log why an operation failed; account messages contain only the error type, never e-mail addresses or passwords.",
+    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed stable release, tested on the EU client; existing personal settings are preserved."
   ]
 }

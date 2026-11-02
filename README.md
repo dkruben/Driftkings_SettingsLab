@@ -3,7 +3,7 @@
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/k2Stjv5fS5)
 [![Beta 0.1.5-beta.4](https://img.shields.io/badge/Beta-0.1.5--beta.4-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.4)
-[![Stable 0.1.4](https://img.shields.io/badge/Stable-0.1.4-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)
+[![Stable 0.1.5](https://img.shields.io/badge/Stable-0.1.5-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5)
 
 # Driftkings Modpack
 
@@ -17,14 +17,24 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
-| **[Stable 0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.4/Driftkings-0.1.4-WoT-2.4.1.1.zip) |
+| **[Stable 0.1.5](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5/Driftkings-0.1.5-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5/Driftkings-0.1.5-WoT-2.4.1.1.zip) |
 | **[Beta 0.1.5-beta.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.4/Driftkings-0.1.5-beta.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.4/Driftkings-0.1.5-beta.4-WoT-2.4.1.1.zip) |
 
-Stable **0.1.4** and beta **0.1.5-beta.4** both target WoT **2.4.1.1**. The 0.1.5 betas retire legacy font and macro names, including the `{{v.c_...}}` carousel colour macro; check custom profiles before installing them.
+Stable **0.1.5** and beta **0.1.5-beta.4** both target WoT **2.4.1.1**. Version 0.1.5 retires legacy font and macro names, including the `{{v.c_...}}` carousel colour macro; check custom profiles before upgrading from 0.1.4.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
-### What's new in 0.1.5-beta.4
+### What's new in 0.1.5
+
+0.1.5 brings together the four 0.1.5 betas.
+
+- **Legacy names removed:** the `xvm`/`XVMSymbol` font aliases and the `{{xvm-stat}}` and `{{v.c_...}}` macros no longer work. Use `dkm`, `{{stat-available}}` and `{{v.c:...}}`; the default settings already do.
+- **Target card:** Gameface card with the **Classic** preset as the default and shell types AP, APCR, HE, HEAT and HESH in every language.
+- **Team panels:** Frontline, Black Signal and Stronghold; Frontline statistics on the loading screen and in the TAB.
+- **Battle HUD in Gameface:** health bar, battle efficiency, team strength and aiming texts, draggable with Ctrl.
+- **Hangar and settings:** account manager page, hangar marks card under the mission column, header image and social shortcuts in the settings panel.
+
+### Earlier in 0.1.5-beta.4
 
 - **Target card:** each row is on its own line again. The former card is back as the **Classic** preset, now the default, with the vehicle picture, reload with equipment and aligned armour and shell tables, translated into every language. Profiles that still had that card unchanged switch to Classic automatically; edited cards and other presets are kept.
 - **Shell types:** AP, APCR, HE, HEAT and HESH in all 18 languages.
