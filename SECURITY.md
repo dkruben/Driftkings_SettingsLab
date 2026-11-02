@@ -4,7 +4,7 @@
 
 | Version | Channel | Supported |
 | --- | --- | --- |
-| 0.1.5-beta.3 | Beta | Yes |
+| 0.1.5-beta.4 | Beta | Yes |
 | 0.1.4 | Stable | Yes |
 | Older releases | — | No; update first |
 

@@ -59,6 +59,10 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
 
+## Preparação da beta 0.1.5-beta.4 — 2026-11-02
+
+Na branch `release/0.1.5-beta.4`, a versão passou a `0.1.5-beta.4` em `driftkings/__init__.py`, `build_data/release.json`, README (badge, downloads e novidades), SECURITY.md, o exemplo do formulário de bug e o fixture de `test_core_startup.py`. O changelog resume as alterações desde o tag `v0.1.5-beta.3` (`d1dbfe3`): cartão do alvo com linhas separadas e modelo Clássico por omissão, siglas das munições nas 18 línguas, cabeçalho e botão GitHub do painel, correções do Sexto Sentido, do arrasto das marcas e dos pesos, avisos Gameface de CSS e fontes, e registos novos do updater e do gestor de contas. A release **ainda não foi compilada, assinada nem publicada**; os links de download do README apontam para o tag `v0.1.5-beta.4`, que ainda não existe. A stable 0.1.4 não muda.
+
 ## Cartão do alvo, cabeçalho do painel e validações — 2026-11-02
 
 - **Cartão do alvo:** o Gameface descarta texto só com espaços entre etiquetas, por isso a quebra de linha entre as linhas do cartão perdia-se e o cartão aparecia numa só linha. `shared/flash_lines.js` converte as quebras em `<span data-dk-br>` antes de analisar o HTML nos textos ricos; o teste dos textos de ecrã passou a descartar esse texto como o Gameface.
