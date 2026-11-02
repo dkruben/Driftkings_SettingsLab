@@ -28,6 +28,7 @@ Stable **0.1.4** and beta **0.1.5-beta.4** both target WoT **2.4.1.1**. The 0.1.
 
 - **Target card:** each row is on its own line again. The former card is back as the **Classic** preset, now the default, with the vehicle picture, reload with equipment and aligned armour and shell tables, translated into every language. Profiles that still had that card unchanged switch to Classic automatically; edited cards and other presets are kept.
 - **Shell types:** AP, APCR, HE, HEAT and HESH in all 18 languages.
+- **Frontline:** player statistics now appear on the loading screen and in the TAB.
 - **Settings panel:** new header image and a GitHub button.
 - **Fixes:** Sixth Sense alerts with `%` in the text and the first alert of each battle; battle marks card dragging; decimal target weights; Gameface CSS and font warnings.
 - **Logs:** `game.log` names the mod and game versions at startup; updater and account manager failures are logged, never with account data.
