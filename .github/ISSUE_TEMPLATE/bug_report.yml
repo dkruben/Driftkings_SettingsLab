@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a problem with the Driftkings modpack in the game client.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. For security problems, do not open an issue: follow [SECURITY.md](https://github.com/dkruben/Driftkings_SettingsLab/blob/main/SECURITY.md).
+  - type: input
+    id: mod-version
+    attributes:
+      label: Mod version
+      description: Shown in Driftkings settings, for example 0.1.5-beta.3.
+      placeholder: 0.1.5-beta.3
+    validations:
+      required: true
+  - type: input
+    id: game-version
+    attributes:
+      label: Game version
+      description: The client version and build, from game.log or the login screen.
+      placeholder: 2.4.1.1 #989
+    validations:
+      required: true
+  - type: dropdown
+    id: region
+    attributes:
+      label: Region
+      options:
+        - EU
+        - NA
+        - ASIA
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, what you expected and what happened instead. Include the battle mode or screen.
+      placeholder: |
+        1. Open the hangar
+        2. ...
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: game.log excerpt
+      description: |
+        The relevant lines from `<game folder>/game.log` (Driftkings lines, warnings and tracebacks).
+        **Remove personal data first:** account names, e-mail addresses, passwords, tokens and full folder paths.
+      render: text
+    validations:
+      required: true
