@@ -172,6 +172,7 @@ class LifecycleMixin(object):
         try:
             return self.context_policy.blocked_reason(self.context)
         except Exception:
+            LOG.debug('Install context policy failed; treating the context as unknown', exc_info=True)
             return 'unknownContext'
 
     def _safe_install_context(self):

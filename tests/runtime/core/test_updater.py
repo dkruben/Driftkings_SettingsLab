@@ -276,6 +276,27 @@ class UpdaterDebugLogTests(RuntimeTest):
         self.assertEqual(context.blocked_reason('lobby'), 'unknownContext')
         self.assert_one_debug(records, 'Install context unreadable', AttributeError)
 
+    def service(self, folder):
+        api = module(client_version='2.4.1.0', get=lambda section, key, default: default)
+        service = self.load('core.updater').UpdaterService(
+            api=api, transport=self.load('core.updater.transport').UnavailableTransport(),
+            clock=lambda: 1000, safe_spaces=('login', 'lobby'), staging_root=folder)
+        service.active = True
+        return service
+
+    def test_failing_context_policy_logs_and_reports_unknown_context(self):
+        folder = tempfile.mkdtemp(prefix='dk-debug-log-test-')
+        self.addCleanup(shutil.rmtree, folder)
+        service = self.service(folder)
+
+        def broken(context):
+            raise KeyError('context')
+        service.installer, service.callbacks = object(), object()
+        service.context_policy = module(blocked_reason=broken)
+        records = self.debug_records()
+        self.assertEqual(service._blocked_reason(), 'unknownContext')
+        self.assert_one_debug(records, 'context policy failed', KeyError)
+
 
 class ServiceTests(RuntimeTest):
     def setUp(self):
