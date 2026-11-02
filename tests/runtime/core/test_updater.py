@@ -297,6 +297,21 @@ class UpdaterDebugLogTests(RuntimeTest):
         self.assertEqual(service._blocked_reason(), 'unknownContext')
         self.assert_one_debug(records, 'context policy failed', KeyError)
 
+    def test_unconfirmed_installer_logs_and_keeps_restart_unavailable(self):
+        folder = tempfile.mkdtemp(prefix='dk-debug-log-test-')
+        self.addCleanup(shutil.rmtree, folder)
+        service = self.service(folder)
+
+        def broken():
+            raise OSError('process gone')
+        service._install_armed, service._cancel_requested, service._restart_requested = True, False, False
+        service.state.update(installScheduled=True)
+        service._safe_install_context = lambda: True
+        service.installer = module(process=module(poll=broken))
+        records = self.debug_records()
+        self.assertFalse(service.restart_ready())
+        self.assert_one_debug(records, 'Could not confirm the prepared installer', OSError)
+
 
 class ServiceTests(RuntimeTest):
     def setUp(self):

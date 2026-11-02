@@ -194,6 +194,7 @@ class InstallMixin(object):
                 return False
             return True
         except Exception:
+            LOG.debug('Could not confirm the prepared installer; restart stays unavailable', exc_info=True)
             return False
 
     def claim_restart(self):
