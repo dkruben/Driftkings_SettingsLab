@@ -218,6 +218,43 @@ class FileTests(RuntimeTest):
         sink.abort()
 
 
+class HttpsTransportLogTests(RuntimeTest):
+    def test_missing_verified_tls_logs_the_traceback_and_disables_updates(self):
+        records = self.capture_log('Driftkings.Updater')
+        api = self.load('core.updater.https_transport')
+
+        def unavailable():
+            raise ValueError('Verified TLS unavailable')
+        api.verified_opener = unavailable
+        transport = api.runtime_transport()
+        self.assertIsInstance(transport, self.load('core.updater.transport').UnavailableTransport)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].levelname, 'WARNING')
+        self.assertIn('HTTPS unavailable', records[0].getMessage())
+        self.assertIs(records[0].exc_info[0], ValueError)
+
+    def test_staging_that_cannot_be_removed_logs_a_warning_without_traceback(self):
+        import socket
+        records = self.capture_log('Driftkings.Updater')
+        api = self.load('core.updater.https_transport')
+
+        class Sink(object):
+            def abort(self):
+                raise OSError('locked')
+
+        def opener():
+            raise socket.timeout()
+        transport = api.HttpsTransport(module(schedule=lambda delay, call: 'token', cancel=lambda token: None),
+                                       opener_factory=opener)
+        operation = transport.stream('https://github.com/a.zip', Sink(), lambda *result: None, 30.0, 10)
+        self.assertTrue(operation.finished.wait(5))
+        self.assertEqual(operation.events.get_nowait(), ('done', (None, 'stagingError')))
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].levelname, 'WARNING')
+        self.assertIn('Could not remove failed update staging', records[0].getMessage())
+        self.assertIsNone(records[0].exc_info)
+
+
 class ServiceTests(RuntimeTest):
     def setUp(self):
         super(ServiceTests, self).setUp()

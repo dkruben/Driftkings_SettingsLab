@@ -187,6 +187,7 @@ class HttpsTransport(object):
                         try:
                             sink.abort()
                         except Exception:
+                            LOG.warning('Could not remove failed update staging')
                             error = 'stagingError'
                     operation.events.put(('done', (result, error)))
                     operation.finished.set()
@@ -242,4 +243,5 @@ def runtime_transport():
         from driftkings.core.callbacks import callbacks
         return HttpsTransport(callbacks)
     except Exception:
+        LOG.warning('Verified HTTPS unavailable; updates are disabled', exc_info=True)
         return UnavailableTransport()
