@@ -179,6 +179,7 @@ class HttpsTransport(object):
                     try:
                         response.close()
                     except Exception:
+                        LOG.debug('HTTPS response could not be closed; reporting a network error', exc_info=True)
                         error = error or 'networkError'
                 with operation.lock:
                     if operation.cancelled.is_set():

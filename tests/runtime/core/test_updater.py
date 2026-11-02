@@ -332,6 +332,35 @@ class UpdaterDebugLogTests(RuntimeTest):
         self.assertFalse(service._receipt_busy)
         self.assert_one_debug(records, 'failed validation', ValueError)
 
+    def test_response_that_cannot_be_closed_logs_and_reports_network_error(self):
+        api = self.load('core.updater.https_transport')
+
+        class Response(object):
+            def geturl(self):
+                return 'https://github.com/a.json'
+
+            def getcode(self):
+                return 200
+
+            def info(self):
+                return {}
+
+            def read(self, size):
+                return b''
+
+            def close(self):
+                raise IOError('socket already closed')
+        opener = module(open=lambda request, timeout: Response())
+        transport = api.HttpsTransport(module(schedule=lambda delay, call: 'token', cancel=lambda token: None),
+                                       opener_factory=lambda: opener)
+        records = self.debug_records()
+        operation = transport.request('https://github.com/a.json', lambda *result: None, 30.0, 10)
+        self.assertTrue(operation.finished.wait(5))
+        kind, (result, error) = operation.events.get_nowait()
+        self.assertEqual((kind, error), ('done', 'networkError'))
+        self.assertEqual(result.body, b'')
+        self.assert_one_debug(records, 'could not be closed', IOError)
+
 
 class ServiceTests(RuntimeTest):
     def setUp(self):
