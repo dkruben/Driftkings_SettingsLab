@@ -69,3 +69,44 @@ class TargetInformationTests(RuntimeTest):
         panel.hide()
         self.assertFalse(self.api['g_gameface'].shown)
         panel.onBattleEnded()
+
+    def test_preset_labels_come_from_the_yaml_catalog(self):
+        import io
+        import os
+        import re
+        from support import ROOT
+        path = os.path.join(ROOT, 'mod', 'res', 'mods', 'driftkings', 'text', 'en.yml')
+        with io.open(path, encoding='utf-8') as stream:
+            catalog = dict(re.findall(r'^target_information\.(\w+): "(.*)"$', stream.read(), re.M))
+        self.api['target_information_settings'] = module(i18n=catalog)
+        expand = self.api['DataConstants'].expandI18n
+        for name, template in self.api['PRESET_TEMPLATES'].items():
+            keys = re.findall(r'\{\{i18n:(\w+)\}\}', template)
+            self.assertTrue(keys, name)
+            self.assertEqual([key for key in keys if key not in catalog], [], name)
+            self.assertNotIn('{{i18n:', expand(template), name)
+        self.assertIn('Reload (base)', expand(self.api['PRESET_TEMPLATES']['default']))
+
+    def test_translated_text_is_not_expanded_again(self):
+        self.api['target_information_settings'] = module(i18n={'loop': '{{i18n:loop}}', 'hp': 'PV'})
+        expand = self.api['DataConstants'].expandI18n
+        self.assertEqual(expand('{{i18n:loop}} {{i18n:hp}} {{l10n:missing}}'), '{{i18n:loop}} PV missing')
+
+
+class TargetInformationSettingsTests(RuntimeTest):
+    def setUp(self):
+        super(TargetInformationSettingsTests, self).setUp()
+        from support import source
+        self.api = source('settings/definitions/battle/target_information.py', {
+            'driftkings._constants': self.load('_constants'),
+            'driftkings.settings.controls_schema': self.load('settings.controls_schema'),
+            'driftkings.settings.definitions.base': module(SectionDefinition=object)})
+        self.settings = self.api['TargetInformationSettings']()
+
+    def test_only_the_retired_default_card_is_cleared(self):
+        retired = [u"Massa: {{vehicle_weight}} t"]
+        self.api['RETIRED_DEFAULT_FORMATS'] = self.api['_formats_digest'](retired)
+        self.assertEqual(self.settings.normalize_loaded({'formats': list(retired)})['formats'], [])
+        edited = [u"Peso: {{vehicle_weight}} t"]
+        self.assertEqual(self.settings.normalize_loaded({'formats': list(edited)})['formats'], edited)
+        self.assertEqual(self.settings.normalize_loaded({'formats': []})['formats'], [])

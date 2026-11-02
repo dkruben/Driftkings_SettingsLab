@@ -23,6 +23,11 @@ COMPARE_MACROS = ['compareDelim', 'compareColor']
 ROMAN_LEVELS = ROMAN_NUMERALS
 # Keep the seven preset IDs stable for existing user configurations.
 # Reload and DPM are descriptor/base values, not inferred enemy equipment.
+# Legenda traduzida pelo catálogo YAML da secção (chaves card_*).
+def _label(key):
+    return '{{i18n:card_' + key + '}}'
+
+
 # Formata um par de legenda e valor para o cartão do alvo.
 def _field(label, value):
     return "<font color='#96A1AB'>%s</font>  <font color='#E6EBEF'>%s</font>" % (label, value)
@@ -39,18 +44,18 @@ def _card(rows, accent='#B9CAD6'):
     return "<font face='$FieldFont' size='13'><textformat leading='6'>" + header + '\n' + '\n'.join(rows) + '</textformat></font>'
 
 
-_FIREPOWER = _row(('Reload (base)', '{{gun_reload}} s'), ('DPM (base)', '{{gun_dpm}}'))
-_MOBILITY = _row(('View', '{{vision_radius}} m'), ('Speed', '{{speed_forward}} km/h'), ('HP', '{{vehicle_max_health}}'))
-_ARMOR = _row(('Hull', '{{armor_hull_front}} / {{armor_hull_side}} / {{armor_hull_back}}'), ('Turret', '{{armor_turret_front}} / {{armor_turret_side}} / {{armor_turret_back}}'))
-_GUN = _row(('Aim', '{{gun_aiming_time}} s'), ('Dispersion', '{{gun_accuracy}}'), ('Clip', '{{gun_clip}}'))
-_SHELL = _row(('{{shell_type_1}}', '{{shell_damage_1}} HP'), ('Penetration', '{{shell_power_1}} mm'))
+_FIREPOWER = _row((_label('reload'), '{{gun_reload}} s'), (_label('dpm'), '{{gun_dpm}}'))
+_MOBILITY = _row((_label('view'), '{{vision_radius}} m'), (_label('speed'), '{{speed_forward}} km/h'), (_label('hp'), '{{vehicle_max_health}}'))
+_ARMOR = _row((_label('hull'), '{{armor_hull_front}} / {{armor_hull_side}} / {{armor_hull_back}}'), (_label('turret'), '{{armor_turret_front}} / {{armor_turret_side}} / {{armor_turret_back}}'))
+_GUN = _row((_label('aim'), '{{gun_aiming_time}} s'), (_label('dispersion'), '{{gun_accuracy}}'), (_label('clip'), '{{gun_clip}}'))
+_SHELL = _row(('{{shell_type_1}}', '{{shell_damage_1}} HP'), (_label('penetration'), '{{shell_power_1}} mm'))
 PRESET_TEMPLATES = {
     'default': _card([_FIREPOWER, _MOBILITY, _SHELL]),
-    'minimal': _card([_FIREPOWER, _row(('HP', '{{vehicle_max_health}}'), ('View', '{{vision_radius}} m'))]),
+    'minimal': _card([_FIREPOWER, _row((_label('hp'), '{{vehicle_max_health}}'), (_label('view'), '{{vision_radius}} m'))]),
     'detailed': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _SHELL]),
-    'full': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _row(('Power', '{{engine_power_density}} hp/t'), ('Weight', '{{vehicle_weight}} t')), _SHELL, _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), ('Penetration', '{{shell_power_2}} mm')), _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'), ('Penetration', '{{shell_power_3}} mm'))]),
-    'kmp': _card([_FIREPOWER, _SHELL, _row(('View', '{{vision_radius}} m'), ('Weight', "<font color='{{compareColor({{vehicle_weight}}, {{pl_vehicle_weight}})}}'>{{vehicle_weight}} t {{compareDelim({{vehicle_weight}}, {{pl_vehicle_weight}})}} {{pl_vehicle_weight}} t</font>"))]),
-    'ndo': _card([_FIREPOWER, _ARMOR, _SHELL, _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), ('Penetration', '{{shell_power_2}} mm')), _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'), ('Penetration', '{{shell_power_3}} mm'))]),
+    'full': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _row((_label('power'), '{{engine_power_density}} hp/t'), (_label('weight'), '{{vehicle_weight}} t')), _SHELL, _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), (_label('penetration'), '{{shell_power_2}} mm')), _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'), (_label('penetration'), '{{shell_power_3}} mm'))]),
+    'kmp': _card([_FIREPOWER, _SHELL, _row((_label('view'), '{{vision_radius}} m'), (_label('weight'), "<font color='{{compareColor({{vehicle_weight}}, {{pl_vehicle_weight}})}}'>{{vehicle_weight}} t {{compareDelim({{vehicle_weight}}, {{pl_vehicle_weight}})}} {{pl_vehicle_weight}} t</font>"))]),
+    'ndo': _card([_FIREPOWER, _ARMOR, _SHELL, _row(('{{shell_type_2}}', '{{shell_damage_2}} HP'), (_label('penetration'), '{{shell_power_2}} mm')), _row(('{{shell_type_3}}', '{{shell_damage_3}} HP'), (_label('penetration'), '{{shell_power_3}} mm'))]),
     'driftkings': _card([_FIREPOWER, _GUN, _MOBILITY, _ARMOR, _SHELL], '#D6BE91')
 }
 TEMPLATE_INDEX_TO_KEY = {0: 'default', 1: 'minimal', 2: 'detailed', 3: 'full', 4: 'kmp', 5: 'ndo', 6: 'driftkings'}
@@ -150,9 +155,16 @@ class DataConstants(object):
             text = target_information_settings.i18n[text]
             if text is None:
                 return None
+        text = DataConstants.expandI18n(text)
+        return target_information_settings.i18n.get(text, text)
+
+    # Substitui as macros {{i18n:KEY}} pelos textos do catálogo YAML da secção.
+    @staticmethod
+    def expandI18n(text):
+        position = 0
         while True:
             # {{i18n:KEY}}; legacy {{l10n:KEY}} is read the same way.
-            starts = [start for start in (text.find('{{i18n:'), text.find('{{l10n:')) if start != -1]
+            starts = [start for start in (text.find('{{i18n:', position), text.find('{{l10n:', position)) if start != -1]
             localizedMacroStart = min(starts) if starts else -1
             if localizedMacroStart == -1:
                 break
@@ -161,7 +173,7 @@ class DataConstants(object):
                 break
             macro = text[localizedMacroStart + 7:localizedMacroEnd]
             parts = macro.split(':')
-            macro = target_information_settings.i18n.get(parts[0], parts[0])
+            macro = target_information_settings.i18n.get(parts[0]) or parts[0]
             parts = parts[1:]
             if parts:
                 try:
@@ -169,7 +181,9 @@ class DataConstants(object):
                 except StandardError:
                     LOG.exception('Could not format macro %r with params %r', macro, parts)
             text = text[:localizedMacroStart] + macro + text[localizedMacroEnd + 2:]
-        return target_information_settings.i18n.get(text, text)
+            # Translated text is final: never expand macros inside it again.
+            position = localizedMacroStart + len(macro)
+        return text
 
     # Associa as macros às funções que obtêm os dados do alvo.
     def _buildMacroHandlers(self):
@@ -605,7 +619,7 @@ class InfoPanel(DataConstants):
     def setTextsFormatted(self):
         if not settings_service.getComponentDict(target_information_settings)[GLOBAL.ENABLED]:
             return ''
-        textFormat = self.textFormats or self.getText()
+        textFormat = self.expandI18n(self.textFormats or self.getText())
         textFormat = self.replaceMacros(textFormat, self._macroHandlers.keys())
         textFormat = self.replaceCompareMacros(textFormat, COMPARE_MACROS)
         return resolve_vehicle_images(textFormat, getIconPath, getContourIconPath)

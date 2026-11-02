@@ -36,7 +36,7 @@ SOURCE_HASHES = {'default/account_manager.json': '26b3426b2593763c96d0890b4a77a0
  'default/sniper_camera.json': 'a58138d775a49624b6595fbf83b60b244a1c335477d4d703c0eb73003e7cfadb',
  'default/sound_bank_loader.json': 'edcebe8fcb7cf84052c49d888c98ecdb6a86b6d29ab574f50caca75cf777411f',
  'default/target_distance.json': '67a8200f1bcf5c001bf012b78d39d819a4b14a1ec63311393537f2fb2d6aa966',
- 'default/target_information.json': '82ae9b4bae46018fa83eb0ea2bddff5e0021af78a14aaa2137b5468d7d7d1c49',
+ 'default/target_information.json': '860a2745d971154448e4c0beabe01078b045f06635e166afbd338fadc33dea68',
  'default/team_panels/battleloading.json': '77a3b02605c06d4a4f95ab7f6dbc2482fc389382a50e9077b7004835a630db0e',
  'default/team_panels/general.json': 'fb4c2bb30136024ec63a7ddc6717ab6131301b06a353932eac297be51adaba38',
  'default/team_panels/panellarge.json': '453db9ce3364084fe0fe4b29b3266ef9de43df73d8c14e980cb235978d7cd068',
@@ -606,19 +606,7 @@ DEFAULTS = {'account_manager': {'enabled': True},
                                           'moreThan': {'color': '#FF0000', 'delim': '&gt;'}},
                         'delay': 5,
                         'enabled': True,
-                        'format': "<font face='$FieldFont' size='16' color='#FFFFFF'><b>Tank: <font "
-                                  "color='#C3C3C3'>{{vehicle_name}}</font></font>\n"
-                                  "Reload: <font color='#14AFF1'>{{gun_reload_equip}} sec.</font>\n"
-                                  "View Range: <font color='#96CC29'>{{vision_radius}} mt.</font>",
-                        'formats': ['{{vehicle_name}}<br/>{{gun_reload_equip}} s<br/><img '
-                                    "src='img://gui/maps/icons/vehicle/{{icon_system_name}}.png'><br/><textformat "
-                                    "tabstops='[95]'>Massa: {{vehicle_weight}} t<tab>Vis\xe3o: "
-                                    '{{vision_radius}} m</textformat><br/><textformat '
-                                    "tabstops='[85,125,165]'>Casco:<tab>{{armor_hull_front}}<tab>{{armor_hull_side}}<tab>{{armor_hull_back}}</textformat><br/><textformat "
-                                    "tabstops='[85,125,165]'>Torre:<tab>{{armor_turret_front}}<tab>{{armor_turret_side}}<tab>{{armor_turret_back}}</textformat><br/><textformat "
-                                    "tabstops='[85,125,165]'>Tipo:<tab>{{shell_type_1}}<tab>{{shell_type_2}}<tab>{{shell_type_3}}</textformat><br/><textformat "
-                                    "tabstops='[85,125,165]'>Penetra\xe7\xe3o:<tab>{{shell_power_1}}<tab>{{shell_power_2}}<tab>{{shell_power_3}}</textformat><br/><textformat "
-                                    "tabstops='[85,125,165]'>Dano:<tab>{{shell_damage_1}}<tab>{{shell_damage_2}}<tab>{{shell_damage_3}}</textformat>"],
+                        'formats': [],
                         'panelSize': {'height': 70.0, 'width': 150.0},
                         'showFor': 2,
                         'templatePreset': 3,

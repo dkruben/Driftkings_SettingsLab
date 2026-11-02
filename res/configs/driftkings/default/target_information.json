@@ -24,10 +24,7 @@
   },
   "delay": 5,
   "enabled": true,
-  "format": "<font face='$FieldFont' size='16' color='#FFFFFF'><b>Tank: <font color='#C3C3C3'>{{vehicle_name}}</font></font>\nReload: <font color='#14AFF1'>{{gun_reload_equip}} sec.</font>\nView Range: <font color='#96CC29'>{{vision_radius}} mt.</font>",
-  "formats": [
-    "{{vehicle_name}}<br/>{{gun_reload_equip}} s<br/><img src='img://gui/maps/icons/vehicle/{{icon_system_name}}.png'><br/><textformat tabstops='[95]'>Massa: {{vehicle_weight}} t<tab>Visão: {{vision_radius}} m</textformat><br/><textformat tabstops='[85,125,165]'>Casco:<tab>{{armor_hull_front}}<tab>{{armor_hull_side}}<tab>{{armor_hull_back}}</textformat><br/><textformat tabstops='[85,125,165]'>Torre:<tab>{{armor_turret_front}}<tab>{{armor_turret_side}}<tab>{{armor_turret_back}}</textformat><br/><textformat tabstops='[85,125,165]'>Tipo:<tab>{{shell_type_1}}<tab>{{shell_type_2}}<tab>{{shell_type_3}}</textformat><br/><textformat tabstops='[85,125,165]'>Penetração:<tab>{{shell_power_1}}<tab>{{shell_power_2}}<tab>{{shell_power_3}}</textformat><br/><textformat tabstops='[85,125,165]'>Dano:<tab>{{shell_damage_1}}<tab>{{shell_damage_2}}<tab>{{shell_damage_3}}</textformat>"
-  ],
+  "formats": [],
   "panelSize": {
     "height": 70.0,
     "width": 150.0

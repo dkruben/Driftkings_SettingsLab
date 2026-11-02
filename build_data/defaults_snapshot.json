@@ -162,7 +162,7 @@
     {
       "path": "default/target_information.json",
       "source_sha256": "8500d6ab505834f30933ad88a6da9f6f5c019d22c1e2f564828375e25fe09799",
-      "sha256": "42a40dfb9fcaedbcad24bbb38e19b22435d1f274c48e747f560b9d291a88c71b"
+      "sha256": "78d06d274ad7d34bbaccb0dce1589299d92a076a20feb41bd71a4c2989dc170d"
     },
     {
       "path": "default/team_panels/battleloading.json",
