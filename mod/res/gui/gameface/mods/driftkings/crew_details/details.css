@@ -1,4 +1,4 @@
-.dk-crew-details { margin-top:8rem; padding-top:6rem; border-top:1rem solid rgba(255,255,255,.12); color:#e8e4da; font:12rem/16rem "Warhelios",Arial,sans-serif; pointer-events:none; }
+.dk-crew-details { margin-top:8rem; padding-top:6rem; border-top:1rem solid rgba(255,255,255,.12); color:#e8e4da; font:12rem/16rem "Warhelios"; pointer-events:none; }
 .dk-crew-details__title { margin-bottom:2rem; color:#e8c55a; }
 .dk-crew-details__line { white-space:normal; overflow-wrap:break-word; word-wrap:break-word; }
 .dk-crew-details--tooltip { margin:8rem 20rem 12rem; }

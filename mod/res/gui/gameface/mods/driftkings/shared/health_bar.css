@@ -4,7 +4,7 @@
 .dk-health {
     width: 480rem;
     height: 78rem;
-    font-family: Warhelios, sans-serif;
+    font-family: Warhelios;
     transform-origin: top left;
     pointer-events: none;
 }

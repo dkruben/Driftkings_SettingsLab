@@ -8,4 +8,6 @@
 @font-face { font-family: 'DynamicOutline'; src: url('coui://gui/fonts/driftkings/DynamicOutline.ttf'); }
 @font-face { font-family: 'dynamic2'; src: url('coui://gui/fonts/driftkings/DynamicOutline.ttf'); }
 @font-face { font-family: 'mono'; src: url('coui://gui/fonts/driftkings/ZurichCondMono.ttf'); }
+@font-face { font-family: 'mono'; src: url('coui://gui/fonts/driftkings/ZurichCondMono.ttf'); font-weight: 700; }
 @font-face { font-family: 'ZurichCondMono'; src: url('coui://gui/fonts/driftkings/ZurichCondMono.ttf'); }
+@font-face { font-family: 'ZurichCondMono'; src: url('coui://gui/fonts/driftkings/ZurichCondMono.ttf'); font-weight: 700; }

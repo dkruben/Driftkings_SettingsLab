@@ -76,7 +76,7 @@
             for (var key in style) next[key] = style[key];
             if (attrs.color) next.color = clockColor(attrs.color, '#959688');
             if (attrs.size) next.size = bounded(attrs.size, 15, 6, 120);
-            if (attrs.face) next.face = attrs.face === '$FieldFont' ? 'Arial, sans-serif' : attrs.face.replace(/[^a-zA-Z0-9 ,_-]/g, '');
+            if (attrs.face) next.face = attrs.face === '$FieldFont' || attrs.face === '$TitleFont' ? 'Warhelios' : attrs.face.replace(/[^a-zA-Z0-9 ,_-]/g, '');
             if (type === 'b') next.bold = true;
             if (type === 'i') next.italic = true;
             if (type === 'textformat') {

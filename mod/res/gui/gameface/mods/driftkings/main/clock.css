@@ -1,4 +1,4 @@
-.dk-clock-custom { position:absolute; left:0; top:0; width:100%; height:100%; z-index:20; pointer-events:none; font-family:Arial,sans-serif; font-size:15px; }
+.dk-clock-custom { position:absolute; left:0; top:0; width:100%; height:100%; z-index:20; pointer-events:none; font-family:Warhelios; font-size:15px; }
 .dk-clock-custom__field { position:absolute; white-space:nowrap; }
 
 .dk-clock-custom__field { line-height:1.15; }
