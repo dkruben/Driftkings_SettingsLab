@@ -35,10 +35,10 @@ package driftkings.battle.components.ratings
         {
             if (node===ignored || !node.visible) return;
             var owner:Object=node, kind:String=getQualifiedClassName(node).toLowerCase();
-            if (/::frontlinefullstatstable$/.test(kind))
-            { bind(owner,"frontlineTab"); return; }
-            if (/::frontlinebattlestatstable$/.test(kind))
-            { bind(owner,"frontlineLoading"); return; }
+            // Frontline tables are library symbols (FrontlineFullStatsTableUI in the TAB,
+            // FrontlineStatsTableUI on loading), not the AS3 class names: match their lists.
+            if (/frontline/.test(kind) && "team1PlayerList" in owner && "team2PlayerList" in owner)
+            { bind(owner,/fullstats/.test(kind) ? "frontlineTab" : "frontlineLoading"); return; }
             if (/battleloading/.test(kind)) screen=/tip/.test(kind) ? "tips" : "loading";
             if ((screen=="loading" || screen=="tips") && "helpTip" in owner && owner.helpTip is TextField)
                 bind(owner,"clock");
