@@ -18,7 +18,7 @@ class LoggerTests(RuntimeTest):
         try:
             module.NAMESPACE = module.logging = module.os = None
             self.assertTrue(retained.filter(record))
-            self.assertIn('[ERROR][Driftkings][Reload] test_logger.py line ', record.getMessage())
+            self.assertTrue(record.getMessage().startswith('test_logger.py line '))
         finally:
             module.NAMESPACE, module.logging, module.os = saved
 
@@ -56,7 +56,7 @@ class LoggerTests(RuntimeTest):
             logger.exception('Failed: %s', 'operation')
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].getMessage(),
-                         '[ERROR][Driftkings][tests.exceptions] test_logger.py line %s: Failed: operation' % failure_line)
+                         'test_logger.py line %s: Failed: operation' % failure_line)
         self.assertEqual(records[0].args, ('operation',))
         self.assertIs(records[0].exc_info[0], ValueError)
 
@@ -67,18 +67,17 @@ class LoggerTests(RuntimeTest):
         logger.filter(record)
         logger.filter(record)
         self.assertEqual(record.getMessage(),
-                         '[ERROR][Driftkings][tests.location] example.py line 17: Failure: details')
+                         'example.py line 17: Failure: details')
         info = logging.LogRecord(logger.name, logging.INFO, 'example.py', 18,
                                  'Loaded %s', ('module',), None)
         logger.filter(info)
-        self.assertEqual(info.getMessage(), '[INFO][Driftkings][tests.location] Loaded module')
+        self.assertEqual(info.getMessage(), 'Loaded module')
 
-    def test_all_standard_levels_use_the_same_format(self):
+    def test_only_warnings_and_errors_add_a_location(self):
         logger = self.load('logger').get_logger('tests.levels')
         for level in (logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL):
             record = logging.LogRecord(logger.name, level, 'module.py', 42,
                                        'Message %s', ('details',), None)
             logger.filter(record)
-            location = ' module.py line 42:' if level >= logging.WARNING else ''
-            self.assertEqual(record.getMessage(),
-                             '[%s][Driftkings][tests.levels]%s Message details' % (logging.getLevelName(level), location))
+            location = 'module.py line 42: ' if level >= logging.WARNING else ''
+            self.assertEqual(record.getMessage(), location + 'Message details')

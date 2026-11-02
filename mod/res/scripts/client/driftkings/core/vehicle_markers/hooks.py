@@ -17,7 +17,7 @@ class Hooks(object):
             try:
                 observer(result, *args, **kwargs)
             except Exception:
-                logger.exception('[Driftkings.VehicleMarkers] Observer failed: %s', name)
+                logger.exception('Observer failed: %s', name)
             return result
 
         setattr(owner, name, wrapped)

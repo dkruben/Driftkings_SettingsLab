@@ -35,6 +35,20 @@ class CoreStartupTests(RuntimeTest):
         self.assertEqual(len(self.imported), len(NAMES))
         self.assertEqual(core.disabled, {})
 
+    def test_client_log_announces_mod_and_game_versions(self):
+        logged = []
+        api = source('core/__init__.py', {
+            'driftkings': module(VERSION='0.1.5-beta.3'),
+            'helpers': module(getClientVersion=lambda: 'v.2.4.1.1 #989'),
+            'realm': module(CURRENT_REALM='EU'),
+            'BigWorld': module(logInfo=lambda channel, message, owner: logged.append((channel, message)))})
+        core = api['Core'](names=(), services=[])
+        core.runtime = True
+        core._summary()
+        self.assertEqual(logged[:2], [('Driftkings.Loader', 'Driftkings loaded'),
+                                      ('Driftkings.Loader', 'Driftkings 0.1.5-beta.3 for World of Tanks 2.4.1.1')])
+        self.assertTrue(logged[2][1].startswith('Startup complete: '))
+
     def test_lobby_only_rule(self):
         lobby_only = self.api['lobby_only']
         self.assertTrue(lobby_only('lobby.crew_management') and lobby_only('components.account_manager'))

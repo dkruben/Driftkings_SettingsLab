@@ -41,6 +41,4 @@ def exception(message, *args):
 def debug(message, *args):
     if _state['debug']:
         # Explicit panel debug mode remains visible at the client's INFO level.
-        location = _location()
-        location['driftkings_levelname'] = 'DEBUG'
-        _fallback.info(message, *args, extra=location)
+        _fallback.info('Debug: ' + message, *args, extra=_location())

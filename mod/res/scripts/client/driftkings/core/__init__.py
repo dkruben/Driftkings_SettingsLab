@@ -254,9 +254,20 @@ class Core(object):
                 metadata.update(game=getClientVersion(), realm=CURRENT_REALM)
             except Exception:
                 LOG.warning('Client startup metadata unavailable', exc_info=True)
-        message = 'Startup complete: metadata=%s replay=%s components=%s services=%s failures=%s disabled=%s' % (
+        messages = []
+        if self.runtime:
+            from driftkings.core.updater.versioning import normalize_game_version
+            game = normalize_game_version(metadata.get('game'))
+            messages.append('Driftkings loaded')
+            messages.append('Driftkings %s for World of Tanks %s' % (metadata['mod'], game) if game
+                            else 'Driftkings %s' % metadata['mod'])
+        messages.append('Startup complete: metadata=%s replay=%s components=%s services=%s failures=%s disabled=%s' % (
             metadata, self.replay, [name for name, module in self.initialized], self.service_state, self.failures,
-            self.disabled)
+            self.disabled))
+        for message in messages:
+            self._logStartup(message)
+
+    def _logStartup(self, message):
         if self.runtime:
             try:
                 import BigWorld

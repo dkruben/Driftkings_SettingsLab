@@ -35,7 +35,7 @@ class Diagnostics(object):
     def populated(self, result, manager, *args, **kwargs):
         if self.active and self.supported(manager):
             self.state(manager)
-            self.logger.info('[Driftkings.VehicleMarkers] Native marker manager populated')
+            self.logger.info('Native marker manager populated')
 
     def created(self, result, manager, *args, **kwargs):
         if not self.active or not self.supported(manager):
@@ -44,7 +44,7 @@ class Diagnostics(object):
         state['created'] += 1
         state['live'].add(result)
         if self.debug and state['created'] <= 3:
-            self.logger.info('[Driftkings.VehicleMarkers] Marker created id=%s symbol=%s', result,
+            self.logger.info('Marker created id=%s symbol=%s', result,
                              args[0] if args else kwargs.get('symbol'))
 
     def destroyed(self, result, manager, markerID, *args, **kwargs):
@@ -59,12 +59,12 @@ class Diagnostics(object):
             return
         self.health_events += 1
         if self.debug and self.health_events <= 3:
-            self.logger.info('[Driftkings.VehicleMarkers] Native health update observed (%s)', self.health_events)
+            self.logger.info('Native health update observed (%s)', self.health_events)
 
     def disposed(self, result, manager, *args, **kwargs):
         state = self.managers.pop(id(manager), None)
         if self.active and state is not None:
-            self.logger.info('[Driftkings.VehicleMarkers] Manager disposed: created=%s destroyed=%s remaining=%s',
+            self.logger.info('Manager disposed: created=%s destroyed=%s remaining=%s',
                              state['created'], state['destroyed'], len(state['live']))
         if not self.managers:
             self.health_events = 0
@@ -78,5 +78,5 @@ class Diagnostics(object):
         self.managers.clear()
         self.health_events = 0
         if was_active:
-            self.logger.info('[Driftkings.VehicleMarkers] Diagnostics closed: manager records released=%s; marker IDs released=%s; hooks restored=%s; hooks retained in other mod chains=%s',
+            self.logger.info('Diagnostics closed: manager records released=%s; marker IDs released=%s; hooks restored=%s; hooks retained in other mod chains=%s',
                              tracked, markers, restored, retained)

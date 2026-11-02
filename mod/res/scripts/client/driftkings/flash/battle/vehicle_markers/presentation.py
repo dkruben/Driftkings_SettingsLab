@@ -36,7 +36,7 @@ class Presentation(object):
                 allowed = allowed and self.supported(manager)
             except Exception:
                 allowed = False
-                self.logger.exception('[Driftkings.VehicleMarkers] Cannot identify battle mode; keeping native settings')
+                self.logger.exception('Cannot identify battle mode; keeping native settings')
         if not allowed:
             configured = copy.deepcopy(settings)
             if isinstance(configured, dict):
@@ -44,20 +44,20 @@ class Presentation(object):
                 configured['__vmTest'] = None
             if type(manager).__name__ not in self.skipped:
                 self.skipped.add(type(manager).__name__)
-                self.logger.info('[Driftkings.VehicleMarkers] Native presentation retained for unsupported battle/manager: %s', type(manager).__name__)
+                self.logger.info('Native presentation retained for unsupported battle/manager: %s', type(manager).__name__)
             return original(manager, configured, *args, **kwargs)
         try:
             configured = apply(settings, self.options, self.fields)
         except Exception:
-            self.logger.exception('[Driftkings.VehicleMarkers] Invalid native marker data; retaining original settings')
+            self.logger.exception('Invalid native marker data; retaining original settings')
             configured = settings
         result = original(manager, configured, *args, **kwargs)
         if not self.reported:
             self.reported = True
-            self.logger.info('[Driftkings.VehicleMarkers] JSON presentation applied to native markers (normal/Alt)')
+            self.logger.info('JSON presentation applied to native markers (normal/Alt)')
         return result
 
     def close(self):
         self.active = False
         restored, retained = self.hooks.clear()
-        self.logger.info('[Driftkings.VehicleMarkers] Presentation closed: hooks restored=%s; retained in other mod chains=%s', restored, retained)
+        self.logger.info('Presentation closed: hooks restored=%s; retained in other mod chains=%s', restored, retained)
