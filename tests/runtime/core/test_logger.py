@@ -22,6 +22,11 @@ class LoggerTests(RuntimeTest):
         finally:
             module.NAMESPACE, module.logging, module.os = saved
 
+    def test_module_paths_are_not_prefixed_twice(self):
+        factory = self.load('logger').get_logger
+        self.assertIs(factory('driftkings.core.player_ratings'), logging.getLogger('Driftkings.core.player_ratings'))
+        self.assertIs(factory('Driftkings.core.player_ratings'), logging.getLogger('Driftkings.core.player_ratings'))
+
     def test_names_share_the_existing_client_logger(self):
         factory = self.load('logger').get_logger
         expected = logging.getLogger('Driftkings.Settings')

@@ -16,7 +16,7 @@
     "Sixth Sense: a '%' in the spotted text no longer breaks the alert, and the first alert of a new battle is no longer skipped.",
     "Battle marks: the card can only be dragged while it and the cursor are visible, like the other cards. Target and player weights keep their decimal.",
     "Interface: Gameface no longer logs warnings for unsupported CSS or unloaded fonts; the clock, tech-tree marks, crew details and health bar use the game's Warhelios font.",
-    "Logs: game.log names the Driftkings and game versions at startup and no longer repeats the [LEVEL][Driftkings][module] prefix. The updater and the account manager now log why an operation failed; account messages contain only the error type, never e-mail addresses or passwords.",
+    "Logs: game.log names the Driftkings and game versions at startup and no longer repeats the [LEVEL][Driftkings][module] prefix or the package name in channel names (Driftkings.core.player_ratings instead of Driftkings.driftkings.core.player_ratings). The updater and the account manager now log why an operation failed; account messages contain only the error type, never e-mail addresses or passwords.",
     "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; tested on the EU client."
   ]
 }

@@ -34,7 +34,10 @@ class LocationFilter(logging.Filter):
 
 
 def get_logger(name=NAMESPACE):
-    """Accept a full channel or a short name within the Driftkings namespace."""
+    """Accept a full channel, a short name or a module path within the Driftkings namespace."""
+    # 'driftkings.core.x' becomes 'Driftkings.core.x', not 'Driftkings.driftkings.core.x'.
+    if name.startswith('driftkings.'):
+        name = name[len('driftkings.'):]
     if name != NAMESPACE and not name.startswith(NAMESPACE + '.'):
         name = NAMESPACE + '.' + name
     logger = logging.getLogger(name)
