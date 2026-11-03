@@ -185,6 +185,52 @@ class PlayerRatingsTests(RuntimeTest):
         self.assertEqual(stats._pending, set())
         self.assertEqual(stats._received, set(['1', '2']))
 
+    def test_delivered_accounts_are_applied_within_a_frame_budget(self):
+        api = self.api
+        vehicles = dict((number, {'accountDBID': number}) for number in range(1, 7))
+        api['BigWorld'] = module(player=lambda: module(arena=module(vehicles=vehicles)))
+        api['g_settings'] = module(getColorScheme=lambda name: None)
+        api['settings_service'] = module(getComponentDict=lambda config: {'performance': {'cacheEnabled': False}})
+        scheduled, clock = [], [0.0]
+        api['callback'] = lambda delay, method: scheduled.append(method) or len(scheduled)
+        api['default_timer'] = lambda: clock[0]
+        stats = api['Statistics']()
+        applied = []
+
+        def applyPlayer(vehicleID, value, dbID, info, tanks, hasStats, scheme):
+            # Each account costs 2 ms; the budget is 3 ms per frame.
+            clock[0] += 0.002
+            applied.append(dbID)
+            stats.playersInfo[dbID] = {'stats': dbID in info}
+        stats.applyPlayer = applyPlayer
+        ids = [str(number) for number in range(1, 7)]
+        stats.applyPlayerStats(dict((dbID, {}) for dbID in ids), dict((dbID, []) for dbID in ids))
+        self.assertEqual(len(applied), 2)
+        self.assertEqual(len(scheduled), 1)
+        # Accounts delivered while a slice is pending join it instead of starting another chain.
+        stats.applyPlayerStats({'1': {'late': True}}, {'1': []})
+        self.assertEqual(len(scheduled), 1)
+        while scheduled:
+            scheduled.pop(0)()
+        self.assertEqual(sorted(set(applied)), ids)
+        self.assertEqual(applied.count('1'), 2)
+        self.assertEqual(stats._deferredInfo, {})
+        self.assertEqual(stats._deferredTanks, {})
+
+    def test_reset_drops_accounts_still_waiting_to_be_applied(self):
+        api = self.api
+        cancelled = []
+        api['cancelCallback'] = cancelled.append
+        api['settings_service'] = module(getComponentDict=lambda config: {'performance': {'cacheEnabled': False}})
+        stats = api['Statistics']()
+        stats._deferredInfo['1'] = {}
+        stats._deferredTanks['1'] = []
+        stats._apply = 7
+        stats.reset()
+        self.assertEqual(cancelled, [7])
+        self.assertIsNone(stats._apply)
+        self.assertEqual((stats._deferredInfo, stats._deferredTanks), ({}, {}))
+
     def test_api_vehicle_failure_is_not_cached_as_empty_statistics(self):
         api = self.api
         api['g_event'] = module(userRegion=lambda account: 'eu', request=lambda *args, **kwargs: None)

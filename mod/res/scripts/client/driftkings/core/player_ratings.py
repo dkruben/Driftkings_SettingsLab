@@ -7,6 +7,7 @@ import re
 import string
 import threading
 import time
+from timeit import default_timer
 import urllib
 import urllib2
 from xml.sax.saxutils import escape
@@ -42,6 +43,9 @@ MAX_STATS_RESPONSE = 16 * 1024 * 1024
 STATS_DEADLINE = 30.0
 # Per-account vehicle requests run side by side, below the Wargaming API rate for client applications.
 STATS_WORKERS = 4
+# Main-thread seconds spent applying delivered accounts per frame. Rating every account of a
+# 30v30 roster at once stalled one frame for ~200 ms; the rest waits for the next frame.
+APPLY_BUDGET = 0.003
 NUMERIC = ('wn8', 'wnx', 'winrate', 'battles', 'kb', 'wgr', 'eff', 'xwn8', 'xeff',
            't_battles', 't_winrate', 'spg_battles', 'spg_percent', 'mark_of_mastery', 'tdv')
 
@@ -456,6 +460,9 @@ class Statistics(object):
         self._localAccount = None
         self._localStats = None
         self._appliedCache = {}
+        self._deferredInfo = {}
+        self._deferredTanks = {}
+        self._apply = None
         self._listener = ArenaStatsListener(self)
         self._attached = False
         self._listening = False
@@ -611,9 +618,23 @@ class Statistics(object):
                 if dataInfo[dbID] is not None and dataTanks.get(dbID) is not None:
                     self.statsCache[dbID] = {'info': dataInfo[dbID], 'tanks': dataTanks.get(dbID, None)}
                     self.cacheTimestamp[dbID] = currentTime
+        # Newer data for an account still waiting replaces the older one.
+        self._deferredInfo.update(dataInfo)
+        self._deferredTanks.update(dataTanks)
+        if self._apply is None:
+            self.applyDeferred()
+
+    def applyDeferred(self):
+        self._apply = None
+        arena = getattr(BigWorld.player(), 'arena', None)
+        if arena is None:
+            self._deferredInfo.clear(); self._deferredTanks.clear()
+            return
+        dataInfo, dataTanks = self._deferredInfo, self._deferredTanks
         hasStats = bool(dataInfo and dataTanks)
         pColorScheme = g_settings.getColorScheme('battle/player')
-        for vehicleID, value in BigWorld.player().arena.vehicles.items():
+        started = default_timer()
+        for vehicleID, value in arena.vehicles.items():
             dbID = str(value['accountDBID'])
             if dbID not in dataInfo and dbID in self.playersInfo:
                 continue
@@ -622,6 +643,11 @@ class Statistics(object):
             except Exception as error:
                 self.playersInfo.pop(dbID, None)
                 LOG.warning(('Could not apply statistics for {}: {}').format(dbID, error))
+            dataInfo.pop(dbID, None); dataTanks.pop(dbID, None)
+            if default_timer() - started >= APPLY_BUDGET:
+                self._apply = callback(0, self.applyDeferred)
+                return
+        dataInfo.clear(); dataTanks.clear()
 
     def applyPlayer(self, vehicleID, value, dbID, dataInfo, dataTanks, hasStats, pColorScheme):
         settings = settings_service.getComponentDict(config)
@@ -845,6 +871,11 @@ class Statistics(object):
         if self._retry is not None:
             cancelCallback(self._retry)
             self._retry = None
+        if self._apply is not None:
+            cancelCallback(self._apply)
+            self._apply = None
+        self._deferredInfo.clear()
+        self._deferredTanks.clear()
         self.playersInfo = {}
         self._appliedCache.clear()
         try:
