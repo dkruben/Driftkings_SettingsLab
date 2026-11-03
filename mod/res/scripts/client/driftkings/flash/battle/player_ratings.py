@@ -26,6 +26,9 @@ from driftkings.settings.settings_data import profile_for_mode, PROFILES
 
 LOG=get_logger('Driftkings.PlayerPanelPro')
 ALIAS=BATTLE_ALIASES.PLAYERS_PANEL
+# Changes refresh at once through events; this slower tick only catches inputs without one
+# (frag counters, a key-up lost to Alt+Tab, the 15 s statistics request).
+IDLE_TICK=1.0
 
 class RatingViews(object):
     def __init__(self,config,stats):
@@ -95,6 +98,7 @@ class RatingViews(object):
             (battleEvents.appeared,self.appeared),(battleEvents.visibility,self.visibility),
             (battleEvents.killed,self.killed),(battleEvents.key,self.key))
         for signal,callback in self.subscriptions: signal.connect(callback)
+        if self.refresh not in self.stats.listeners: self.stats.listeners.append(self.refresh)
         battleEvents.acquire(self)
         g_eventBus.addListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,scope=EVENT_BUS_SCOPE.GLOBAL)
         for method in ('as_setVehiclesDataS','as_addVehiclesInfoS','as_updateVehiclesInfoS','as_updateVehicleStatusS'):
@@ -113,6 +117,7 @@ class RatingViews(object):
         self.active=False
         settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)
         for signal,callback in self.subscriptions: signal.disconnect(callback)
+        if self.refresh in self.stats.listeners: self.stats.listeners.remove(self.refresh)
         battleEvents.release(self)
         g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,
                                   scope=EVENT_BUS_SCOPE.GLOBAL)
@@ -523,8 +528,7 @@ class RatingViews(object):
                                     'format':data[TEAM_PANELS.LOADING].get('clockFormat','')},
                     'diagnostics':data[TEAM_PANELS.PERFORMANCE].get('diagnostics',False),
                     'hoverMode':profile_for_mode(self.baseMode),'hovered':self.hovered,
-                    'hoverAreaWidth':data[TEAM_PANELS.PROFILES][profile_for_mode(self.baseMode)].get('expandAreaWidth',230),
-                    'time':{'H':time.strftime('%H'),'i':time.strftime('%M'),'s':time.strftime('%S')}}
+                    'hoverAreaWidth':data[TEAM_PANELS.PROFILES][profile_for_mode(self.baseMode)].get('expandAreaWidth',230)}
                 if frontline:
                     payload['tableMode']='frontline'
                 if payload!=self.lastPayload:
@@ -557,4 +561,4 @@ class RatingViews(object):
         # refresh() can run synchronously during stats/native updates. Preserve
         # its queued tick instead of creating a second recurring chain.
         if self.active and self.callback is None:
-            self.callback=BigWorld.callback(0.25,self.tick)
+            self.callback=BigWorld.callback(IDLE_TICK,self.tick)

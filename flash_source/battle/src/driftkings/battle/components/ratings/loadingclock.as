@@ -14,12 +14,15 @@ package driftkings.battle.components.ratings
             var settings:Object=payload.loadingClock;
             var anchor:TextField=owner.helpTip as TextField;
             if (!settings || !settings.enabled || !settings.format || !anchor || !anchor.visible || !anchor.parent) return;
+            // Local time: Python no longer resends the roster every second for the clock.
+            var now:Date=new Date();
+            var time:Object={H:pad(now.getHours()),i:pad(now.getMinutes()),s:pad(now.getSeconds())};
             var text:String="", escaped:Boolean=false, format:String=String(settings.format);
             for (var i:int=0;i<format.length;++i)
             {
                 var token:String=format.charAt(i);
                 if (!escaped && token==String.fromCharCode(92)) { escaped=true; continue; }
-                text+=!escaped && payload.time && payload.time.hasOwnProperty(token) ? payload.time[token] : token;
+                text+=!escaped && time.hasOwnProperty(token) ? time[token] : token;
                 escaped=false;
             }
             // Use the native helpTip anchor. Never use container.width:
@@ -35,5 +38,7 @@ package driftkings.battle.components.ratings
             // One clock per form, independent of the two teams and row order.
             extra.draw(anchor.parent,"loadingClock",[cfg],true,0,0,0);
         }
+
+        private static function pad(value:int):String { return value<10 ? "0"+value : String(value); }
     }
 }

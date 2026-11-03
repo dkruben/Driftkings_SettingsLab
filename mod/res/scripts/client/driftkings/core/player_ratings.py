@@ -463,6 +463,8 @@ class Statistics(object):
         self._deferredInfo = {}
         self._deferredTanks = {}
         self._apply = None
+        # Called once a delivered batch is fully applied, so views redraw without polling.
+        self.listeners = []
         self._listener = ArenaStatsListener(self)
         self._attached = False
         self._listening = False
@@ -648,6 +650,11 @@ class Statistics(object):
                 self._apply = callback(0, self.applyDeferred)
                 return
         dataInfo.clear(); dataTanks.clear()
+        for listener in tuple(self.listeners):
+            try:
+                listener()
+            except Exception:
+                LOG.exception('Statistics listener failed')
 
     def applyPlayer(self, vehicleID, value, dbID, dataInfo, dataTanks, hasStats, pColorScheme):
         settings = settings_service.getComponentDict(config)

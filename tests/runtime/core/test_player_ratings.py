@@ -203,10 +203,17 @@ class PlayerRatingsTests(RuntimeTest):
             applied.append(dbID)
             stats.playersInfo[dbID] = {'stats': dbID in info}
         stats.applyPlayer = applyPlayer
+        notified = []
+
+        def failing():
+            raise RuntimeError('listener')
+        stats.listeners.extend([failing, lambda: notified.append(len(applied))])
         ids = [str(number) for number in range(1, 7)]
         stats.applyPlayerStats(dict((dbID, {}) for dbID in ids), dict((dbID, []) for dbID in ids))
         self.assertEqual(len(applied), 2)
         self.assertEqual(len(scheduled), 1)
+        # Views redraw once the batch is applied, not after every slice.
+        self.assertEqual(notified, [])
         # Accounts delivered while a slice is pending join it instead of starting another chain.
         stats.applyPlayerStats({'1': {'late': True}}, {'1': []})
         self.assertEqual(len(scheduled), 1)
@@ -214,6 +221,8 @@ class PlayerRatingsTests(RuntimeTest):
             scheduled.pop(0)()
         self.assertEqual(sorted(set(applied)), ids)
         self.assertEqual(applied.count('1'), 2)
+        # A failing listener does not keep the others from hearing about the batch.
+        self.assertEqual(notified, [len(applied)])
         self.assertEqual(stats._deferredInfo, {})
         self.assertEqual(stats._deferredTanks, {})
 
