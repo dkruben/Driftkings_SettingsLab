@@ -120,8 +120,8 @@ class RatingViews(object):
         # players panel with their own base classes; only the classic battle page loads the
         # panel classes, decided per battle, so with the panel off the client keeps its own rows.
         libraries=original(entry,*args,**kwargs)
-        from gui.Scaleform.daapi.settings.views import (RANDOM_BATTLE_PAGE_CONFIG,
-                                                        VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE, VIEW_ALIAS)
+        from gui.Scaleform.daapi.settings.views import (RANDOM_BATTLE_PAGE_CONFIG, VIEW_ALIAS,
+                                                        VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE)
         page=VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE.get(getattr(entry,'_arenaGuiType',None),RANDOM_BATTLE_PAGE_CONFIG)
         data=settings_service.getComponentDict(self.config)
         if (self.active and page and page[0]==VIEW_ALIAS.CLASSIC_BATTLE_PAGE and data[GLOBAL.ENABLED]
