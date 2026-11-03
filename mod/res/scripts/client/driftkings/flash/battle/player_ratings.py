@@ -59,7 +59,6 @@ class RatingViews(object):
         self.cacheVersion=-1
         self.panelSnapshot=None
         self.lastPayload=None
-        self.libraryAdded=False
         self.failures={}
         # Per-arena mode support; None leaves every screen to the native client.
         self.adapter=self.adapterArena=None
@@ -112,19 +111,24 @@ class RatingViews(object):
         from driftkings.gameface.battle.panel_gameface import GamefaceLoading
         if not hasattr(self, 'gameface'):
             self.gameface=GamefaceLoading(self)
-        self.syncLibrary()
+        from gui.Scaleform.battle_entry import BattleEntry
+        override(BattleEntry,'_getRequiredLibraries',self.requiredLibraries)
         self.refresh()
 
-    def syncLibrary(self):
-        # Battle libraries load before the battle page, so the panel classes take effect from the
-        # next battle; with the panel off the client's rows keep their own classes.
+    def requiredLibraries(self,original,entry,*args,**kwargs):
+        # Ranked, Frontline, Fort Rush and other modes reuse the linkage names of the classic
+        # players panel with their own base classes; only the classic battle page loads the
+        # panel classes, decided per battle, so with the panel off the client keeps its own rows.
+        libraries=original(entry,*args,**kwargs)
+        from gui.Scaleform.daapi.settings.views import (RANDOM_BATTLE_PAGE_CONFIG,
+                                                        VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE, VIEW_ALIAS)
+        page=VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE.get(getattr(entry,'_arenaGuiType',None),RANDOM_BATTLE_PAGE_CONFIG)
         data=settings_service.getComponentDict(self.config)
-        wanted=bool(self.active and data[GLOBAL.ENABLED] and data[TEAM_PANELS.PLAYERS_PANEL].get(GLOBAL.ENABLED,True))
-        if wanted==self.libraryAdded: return
-        from gui.Scaleform.required_libraries_config import BATTLE_REQUIRED_LIBRARIES
-        if wanted and PANELS_LIBRARY not in BATTLE_REQUIRED_LIBRARIES: BATTLE_REQUIRED_LIBRARIES.append(PANELS_LIBRARY)
-        elif not wanted and PANELS_LIBRARY in BATTLE_REQUIRED_LIBRARIES: BATTLE_REQUIRED_LIBRARIES.remove(PANELS_LIBRARY)
-        self.libraryAdded=wanted
+        if (self.active and page and page[0]==VIEW_ALIAS.CLASSIC_BATTLE_PAGE and data[GLOBAL.ENABLED]
+                and data[TEAM_PANELS.PLAYERS_PANEL].get(GLOBAL.ENABLED,True) and PANELS_LIBRARY not in libraries):
+            libraries=list(libraries)+[PANELS_LIBRARY]
+            LOG.info('Players panel classes loaded for the classic battle page')
+        return libraries
 
     def stop(self):
         if not self.active: return
@@ -136,7 +140,6 @@ class RatingViews(object):
         g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,
                                   scope=EVENT_BUS_SCOPE.GLOBAL)
         self.end()
-        self.syncLibrary()
         if hasattr(self, 'gameface'):
             self.gameface.dispose()
         # Native page owns component destruction; end() clears its presentation.
@@ -148,8 +151,6 @@ class RatingViews(object):
             self.stats._appliedCache.clear()
         if affects(settings, GLOBAL.ENABLED, TEAM_PANELS.STATS_ENABLED, TEAM_PANELS.COLOR_SCALE):
             self.lastRequest = 0
-        if affects(settings, GLOBAL.ENABLED, TEAM_PANELS.PLAYERS_PANEL):
-            self.syncLibrary()
         self.refresh()
 
     def end(self,*args):

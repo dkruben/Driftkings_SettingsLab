@@ -55,9 +55,11 @@ class PanelLocalizationTests(RuntimeTest):
                              arena=module(guiType=1, statistics={}, vehicles={1: {
                                  'name': 'Example', 'team': 1, 'accountDBID': 1500000000,
                                  'isAlive': False}}))
-        self.libraries = ['driftkingsbattle.swf']
+        self.pages = module(VIEW_ALIAS=module(CLASSIC_BATTLE_PAGE='classic'), RANDOM_BATTLE_PAGE_CONFIG=('classic', 'hud'),
+                            VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE={'ranked': ('ranked', 'hud'),
+                                                                      'winback': ('classic', 'hud')})
         self.api = source('flash/battle/player_ratings.py', {
-            'gui.Scaleform.required_libraries_config': module(BATTLE_REQUIRED_LIBRARIES=self.libraries),
+            'gui.Scaleform.daapi.settings.views': self.pages,
             'driftkings._constants': constants,
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.data),
                                                  SettingsChanges=lambda *args: (), changed_paths=lambda *args: (),
@@ -134,25 +136,23 @@ class PanelLocalizationTests(RuntimeTest):
                 self.assertEqual(screen['format'], 'purple' if mode else 'red')
             self.assertEqual(row['panels']['large']['fields'][0]['src'], 'hp_cb.png' if mode else 'hp_normal.png')
 
-    def test_players_panel_library_is_loaded_only_while_the_panel_is_enabled(self):
+    def test_players_panel_library_loads_only_for_the_classic_page_with_the_panel_on(self):
         panel = self.data[self.api['TEAM_PANELS'].PLAYERS_PANEL]
-        self.view.stats._appliedCache = {}
-        self.api['BigWorld'].callback = lambda delay, method: 1
-        self.view.syncLibrary()
-        # An inactive view never touches the client's battle libraries.
-        self.assertEqual(self.libraries, ['driftkingsbattle.swf'])
+        native = ['driftkingsbattle.swf']
+
+        def libraries(arena):
+            return self.view.requiredLibraries(lambda entry: list(native), module(_arenaGuiType=arena))
+        # An inactive view never adds to the client's battle libraries.
+        self.assertEqual(libraries('random'), native)
         self.view.active = True
-        self.view.syncLibrary()
-        self.view.syncLibrary()
-        self.assertEqual(self.libraries, ['driftkingsbattle.swf', 'driftkingspanels.swf'])
+        # Unlisted arena types and pages mapped to it use the classic page and its players panel.
+        for arena in ('random', 'winback'):
+            self.assertEqual(libraries(arena), native + ['driftkingspanels.swf'])
+        # Other pages reuse the panel linkage names with their own base classes.
+        self.assertEqual(libraries('ranked'), native)
         panel['enabled'] = False
-        self.view.onSettingsChanged('team_panels', ())
-        self.assertEqual(self.libraries, ['driftkingsbattle.swf'])
-        panel['enabled'] = True
-        self.view.onSettingsChanged('team_panels', ())
-        self.view.active = False
-        self.view.syncLibrary()
-        self.assertEqual(self.libraries, ['driftkingsbattle.swf'])
+        self.assertEqual(libraries('random'), native)
+        self.assertEqual(native, ['driftkingsbattle.swf'])
 
     def test_settings_are_reread_only_after_a_change_signal(self):
         first = self.view.rows()[0]['panels']['large']['format']
