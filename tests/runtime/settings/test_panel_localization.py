@@ -55,7 +55,9 @@ class PanelLocalizationTests(RuntimeTest):
                              arena=module(guiType=1, statistics={}, vehicles={1: {
                                  'name': 'Example', 'team': 1, 'accountDBID': 1500000000,
                                  'isAlive': False}}))
+        self.libraries = ['driftkingsbattle.swf']
         self.api = source('flash/battle/player_ratings.py', {
+            'gui.Scaleform.required_libraries_config': module(BATTLE_REQUIRED_LIBRARIES=self.libraries),
             'driftkings._constants': constants,
             'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: self.data),
                                                  SettingsChanges=lambda *args: (), changed_paths=lambda *args: (),
@@ -131,6 +133,26 @@ class PanelLocalizationTests(RuntimeTest):
             for screen in (row['panels']['large'], row['loading'], row['tab']):
                 self.assertEqual(screen['format'], 'purple' if mode else 'red')
             self.assertEqual(row['panels']['large']['fields'][0]['src'], 'hp_cb.png' if mode else 'hp_normal.png')
+
+    def test_players_panel_library_is_loaded_only_while_the_panel_is_enabled(self):
+        panel = self.data[self.api['TEAM_PANELS'].PLAYERS_PANEL]
+        self.view.stats._appliedCache = {}
+        self.api['BigWorld'].callback = lambda delay, method: 1
+        self.view.syncLibrary()
+        # An inactive view never touches the client's battle libraries.
+        self.assertEqual(self.libraries, ['driftkingsbattle.swf'])
+        self.view.active = True
+        self.view.syncLibrary()
+        self.view.syncLibrary()
+        self.assertEqual(self.libraries, ['driftkingsbattle.swf', 'driftkingspanels.swf'])
+        panel['enabled'] = False
+        self.view.onSettingsChanged('team_panels', ())
+        self.assertEqual(self.libraries, ['driftkingsbattle.swf'])
+        panel['enabled'] = True
+        self.view.onSettingsChanged('team_panels', ())
+        self.view.active = False
+        self.view.syncLibrary()
+        self.assertEqual(self.libraries, ['driftkingsbattle.swf'])
 
     def test_settings_are_reread_only_after_a_change_signal(self):
         first = self.view.rows()[0]['panels']['large']['format']

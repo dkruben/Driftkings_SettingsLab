@@ -81,6 +81,21 @@
       "height": 768,
       "fps": 30
     },
+    "panels_flash": {
+      "kind": "flash",
+      "entrypoint": "flash_source/battle/src/driftkingspanels.as",
+      "source_paths": [
+        "flash_source/battle/src",
+        "flash_source/shared/as3"
+      ],
+      "library_manifest": "flash_source/shared/swc/manifest.json",
+      "output": "build/flash/driftkingspanels.swf",
+      "target_player": "11.1",
+      "swf_version": 14,
+      "width": 1024,
+      "height": 768,
+      "fps": 30
+    },
     "carousel_bridge": {
       "kind": "gameface_patch",
       "resource": "gui/gameface/_dist/production/mono/hangar/main/bundle.js",

@@ -120,3 +120,4 @@ htmlcov/
 /res/.mtimes*
 # The battle movie is generated from flash_source; do not restore an old binary here.
 /mod/res/gui/flash/driftkingsbattle.swf
+/mod/res/gui/flash/driftkingspanels.swf

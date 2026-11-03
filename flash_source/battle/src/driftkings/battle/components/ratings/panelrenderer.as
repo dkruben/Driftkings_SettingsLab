@@ -12,6 +12,11 @@ package driftkings.battle.components.ratings
         public var matched:int=0;
         public var drawn:int=0;
         public var reused:int=0;
+        // Every row of the last pass belongs to driftkingspanels.swf: the client reports its own
+        // changes through panelhook, so unchanged frames can skip the pass.
+        public var hooked:Boolean=false;
+        private var lastMatched:int=0;
+        private var invites:Array=[];
         private var items:panelitems=new panelitems();
         private var rowCache:Dictionary=new Dictionary(true);
 
@@ -41,6 +46,22 @@ package driftkings.battle.components.ratings
             begin();
             end();
             widths=[0,0];
+            hooked=false; invites=[];
+        }
+        // A skipped pass keeps the rows drawn last time and re-applies only the shared overrides,
+        // which the frame's common state would otherwise restore as unused.
+        public function keep(panel:Object, payload:Object):void
+        {
+            for each (var record:panelrow in rowCache) record.used=true;
+            measuredWidths=widths.concat();
+            matched=lastMatched;
+            for each (var invite:Object in invites) drawInvite(invite.target,invite.cfg,invite.left);
+            hideSwitch(panel,payload.panel);
+        }
+        private function hideSwitch(panel:Object,globals:Object):void
+        {
+            for each (var button:String in ["panelSwitch"])
+                if (button in panel && globals.removePanelsModeSwitcher) common.setValue(panel[button],"visible",false);
         }
         public function dispose():void
         {
@@ -80,22 +101,27 @@ package driftkings.battle.components.ratings
         }
         public function draw(panel:Object, payload:Object):void
         {
+            hooked=false; invites=[];
             if (!payload.panel.enabled) return;
             var mode:String=payload.mode;
             var globals:Object=payload.panel;
             var now:int=getTimer();
+            hooked=true;
             var layout:String=[globals.iconAlpha,globals.alpha,globals.removeSelectedBackground,
                 globals.removeHealthPoints,App.appWidth,App.appHeight].join(":");
             for each (var left:Boolean in [true,false])
             {
                 var list:Object=left ? panel.listLeft : panel.listRight;
-                if (!list) continue;
+                if (!list) { hooked=false; continue; }
                 var side:String=left ? "Left" : "Right";
                 var entries:Array=match(list as DisplayObjectContainer,payload.rows,mode,left,layout,now);
                 var maxNick:Number=0;
                 for each (var entry:Object in entries) maxNick=Math.max(maxNick,entry.record.nickWidth);
                 if (mode=="none" && entries.length && "inviteReceivedIndicator" in list)
+                {
                     drawInvite(list.inviteReceivedIndicator,entries[0].cfg,left);
+                    invites.push({target:list.inviteReceivedIndicator,cfg:entries[0].cfg,left:left});
+                }
                 for each (entry in entries)
                 {
                     var record:panelrow=entry.record;
@@ -119,8 +145,8 @@ package driftkings.battle.components.ratings
                 // A measured "none" profile still publishes its real zero.
                 if (entries.length) widths[left ? 0 : 1]=measuredWidths[left ? 0 : 1];
             }
-            for each (var button:String in ["panelSwitch"])
-                if (button in panel && globals.removePanelsModeSwitcher) common.setValue(panel[button],"visible",false);
+            hideSwitch(panel,globals);
+            lastMatched=matched;
         }
         // Pairs the native rows of one side with their payload rows, in native order.
         private function match(list:DisplayObjectContainer,rows:Array,mode:String,left:Boolean,layout:String,now:int):Array
@@ -128,14 +154,18 @@ package driftkings.battle.components.ratings
             // Holders and the ID lookup are protected client members.
             var found:Array=items.find(list,mode);
             found.sort(function(a:Object,b:Object):Number { return nativeY(a)-nativeY(b); });
+            if (!found.length) hooked=false;
             var side:String=left ? "Left" : "Right";
             var entries:Array=[];
             for (var itemIndex:int=0;itemIndex<found.length;++itemIndex)
             {
                 var item:Object=found[itemIndex];
+                if (!panelhook.hooked(item)) hooked=false;
                 var record:panelrow=rowCache[item];
                 if (!record) rowCache[item]=record=new panelrow(now,itemIndex+(left ? 0 : 5));
-                var row:Object=rowlookup.find(rows,itemIndex,left,record.state.originalText(item.playerNameFullTF));
+                // Hooked rows carry their vehicle; others are matched by name, then position.
+                var row:Object=rowlookup.byVehicle(rows,"dkVehicleID" in item ? item.dkVehicleID : NaN,left) ||
+                    rowlookup.find(rows,itemIndex,left,record.state.originalText(item.playerNameFullTF));
                 if (!row) continue;
                 var cfg:Object=row.panels[mode];
                 if (!item || !cfg || !cfg.enabled) continue;

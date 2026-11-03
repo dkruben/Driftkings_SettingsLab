@@ -21,6 +21,7 @@ from driftkings.core.hooks import override
 from driftkings.core.mode_adapters import adapter_for, roster_order
 from driftkings.core.panel_model import Roster
 from driftkings.flash.battle.meta.players_panel import PlayersPanelMeta
+from driftkings.interface_catalog import PANELS_LIBRARY
 from driftkings.logger import get_logger
 from driftkings.settings.settings_data import profile_for_mode, PROFILES
 
@@ -58,6 +59,7 @@ class RatingViews(object):
         self.cacheVersion=-1
         self.panelSnapshot=None
         self.lastPayload=None
+        self.libraryAdded=False
         self.failures={}
         # Per-arena mode support; None leaves every screen to the native client.
         self.adapter=self.adapterArena=None
@@ -110,7 +112,19 @@ class RatingViews(object):
         from driftkings.gameface.battle.panel_gameface import GamefaceLoading
         if not hasattr(self, 'gameface'):
             self.gameface=GamefaceLoading(self)
+        self.syncLibrary()
         self.refresh()
+
+    def syncLibrary(self):
+        # Battle libraries load before the battle page, so the panel classes take effect from the
+        # next battle; with the panel off the client's rows keep their own classes.
+        data=settings_service.getComponentDict(self.config)
+        wanted=bool(self.active and data[GLOBAL.ENABLED] and data[TEAM_PANELS.PLAYERS_PANEL].get(GLOBAL.ENABLED,True))
+        if wanted==self.libraryAdded: return
+        from gui.Scaleform.required_libraries_config import BATTLE_REQUIRED_LIBRARIES
+        if wanted and PANELS_LIBRARY not in BATTLE_REQUIRED_LIBRARIES: BATTLE_REQUIRED_LIBRARIES.append(PANELS_LIBRARY)
+        elif not wanted and PANELS_LIBRARY in BATTLE_REQUIRED_LIBRARIES: BATTLE_REQUIRED_LIBRARIES.remove(PANELS_LIBRARY)
+        self.libraryAdded=wanted
 
     def stop(self):
         if not self.active: return
@@ -122,6 +136,7 @@ class RatingViews(object):
         g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,
                                   scope=EVENT_BUS_SCOPE.GLOBAL)
         self.end()
+        self.syncLibrary()
         if hasattr(self, 'gameface'):
             self.gameface.dispose()
         # Native page owns component destruction; end() clears its presentation.
@@ -133,6 +148,8 @@ class RatingViews(object):
             self.stats._appliedCache.clear()
         if affects(settings, GLOBAL.ENABLED, TEAM_PANELS.STATS_ENABLED, TEAM_PANELS.COLOR_SCALE):
             self.lastRequest = 0
+        if affects(settings, GLOBAL.ENABLED, TEAM_PANELS.PLAYERS_PANEL):
+            self.syncLibrary()
         self.refresh()
 
     def end(self,*args):

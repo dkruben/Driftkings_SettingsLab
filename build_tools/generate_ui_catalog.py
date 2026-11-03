@@ -179,6 +179,7 @@ def validate(root=ROOT, plan=None):
                 require(target in targets, 'UI asset is not packaged: ' + target)
     if targets is not None:
         require('res/gui/flash/' + data['FLASH_LIBRARY'] in targets, 'Flash library is not packaged')
+        require('res/gui/flash/' + data['PANELS_LIBRARY'] in targets, 'Players panel library is not packaged')
         require(BOOTSTRAP.removeprefix('mod/') in targets, 'UI bootstrap is not packaged')
     for relative, expected in outputs(root).items():
         require((root / relative).is_file() and (root / relative).read_text(encoding='utf-8') == expected,
