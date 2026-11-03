@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-03. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -12,12 +12,12 @@ Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
 ## Referência atual
 
 - Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão stable publicada: `0.1.5` (latest, tag no commit `550b800` de `main`). Beta publicada: `0.1.5-beta.4` (prerelease, tag no commit `080658e`). A stable `0.1.4` fica arquivada. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Versão stable publicada: `0.1.5` (latest, tag no commit `550b800` de `main`). Beta publicada: `0.1.5-beta.4` (prerelease, tag no commit `080658e`). A beta `0.1.6-beta.1` está preparada em `develop` (ver a secção de 2026-11-03). A stable `0.1.4` fica arquivada. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
 - O painel de configurações continua em construção (o aviso mantém-se no painel e no changelog), mas o utilizador confirmou a aceitação visual no cliente EU em 2026-11-02.
-- As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS.
+- As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS; as medições em jogo de 2026-11-03 estão na secção correspondente.
 
 ## Guias mantidos
 
@@ -58,6 +58,22 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Desempenho em batalha e beta 0.1.6-beta.1 — 2026-11-03
+
+**Medição.** No cliente EU, com a CapFrameX (gravações de 20 s nos mesmos momentos de replays) e os diagnósticos do mod (`Debug` no painel e `team_panels.performance.diagnostics`), os mods custavam ~8,5% no FPS médio e ~16% no 1% low num replay da Linha da Frente. Retirar o `RemoveFog` ou o `res_mods` não mudou os números; retirar o `driftkings.wotmod` recuperou ~70% da perda no 1% low. Os diagnósticos apontaram as paragens da aplicação das estatísticas (até 200 ms), o `gun_traverse_limits` e o painel das equipas, que numa aleatória gastava ~5,4 ms por passagem em Flash, 10 vezes por segundo.
+
+**Correções em `develop`:**
+
+- `3a410b4`: as contas entregues aplicam-se no máximo 3 ms por frame (`applyDeferred`); a paragem máxima passou de ~200 ms para ~11 ms.
+- `73104b9`: `OverlayScene.update` só envia ao Flash as propriedades alteradas (marcadores de ângulo, indicador do autoaim, informação do alvo).
+- `4c10b66`: o relógio do ecrã de carregamento passou para o Flash (o payload deixava de ser igual a cada segundo); o tick Python do painel passou de 0,25 s a 1 s, com as estatísticas a avisar o painel no fim de cada lote. Medido: 5 ticks por 5 s em vez de 20, reenvios só com alterações.
+- `4ab8855`: `rowlookup` indexa as linhas uma vez por payload em vez de ~2700 regex por passagem; o painel passou de ~5,4 ms a ~2,1 ms por passagem.
+- `eea95cb` e `d1973a2`: `driftkingspanels.swf` (só código, 1,5 KB) define as classes de ligação do painel lateral clássico com os nomes nativos; as linhas avisam os redesenhos através de `panelhook`, ficam marcadas com o `vehicleID` e o painel só é percorrido com dados novos, alterações ou a verificação de 1 s. Medido: ~0,6–1,4 ms por passagem e ~6 vezes menos verificações. Ranked, Linha da Frente e Fort Rush reutilizam os mesmos nomes com outras bases, por isso a biblioteca só é acrescentada por batalha à página clássica (`BattleEntry._getRequiredLibraries`); validado num replay aleatório (classes carregadas, 30 linhas) e da Linha da Frente (não carregadas).
+
+**Decisões.** O TAB (`FullStats`) fica com o método anterior: substituí-lo obrigava a copiar código privado da WG (`createItemHolder` e a configuração das abas de `FullStatsUI`) e só custa enquanto está aberto. O `ifc_addons` (polarfox) serviu de referência: os SWF só de código são legíveis; o Python (PjOrion) e o Gameface (JS encriptado) não foram contornados. Os scripts locais de teste de FPS ficam fora do repositório.
+
+**Beta 0.1.6-beta.1.** Versão e canal em `driftkings/__init__.py`, `build_data/release.json`, README (badge, downloads e novidades), SECURITY.md, o exemplo do formulário de bug e o fixture de `test_core_startup.py`; o CONTRIBUTING descreve o `driftkingspanels.swf` e a regra da página clássica. Os links de download do README apontam para o tag `v0.1.6-beta.1`, que só existe depois da publicação.
 
 ## Beta 0.1.5-beta.4 publicada e stable 0.1.5 em preparação — 2026-11-02
 

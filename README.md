@@ -2,7 +2,7 @@
 [![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
 [![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
 [![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/k2Stjv5fS5)
-[![Beta 0.1.5-beta.4](https://img.shields.io/badge/Beta-0.1.5--beta.4-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.4)
+[![Beta 0.1.6-beta.1](https://img.shields.io/badge/Beta-0.1.6--beta.1-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6-beta.1)
 [![Stable 0.1.5](https://img.shields.io/badge/Stable-0.1.5-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5)
 
 # Driftkings Modpack
@@ -18,11 +18,20 @@ Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 | Release | Windows installer | Manual installation |
 | --- | --- | --- |
 | **[Stable 0.1.5](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5/Driftkings-0.1.5-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5/Driftkings-0.1.5-WoT-2.4.1.1.zip) |
-| **[Beta 0.1.5-beta.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5-beta.4)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.4/Driftkings-0.1.5-beta.4-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5-beta.4/Driftkings-0.1.5-beta.4-WoT-2.4.1.1.zip) |
+| **[Beta 0.1.6-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6-beta.1)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6-beta.1/Driftkings-0.1.6-beta.1-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6-beta.1/Driftkings-0.1.6-beta.1-WoT-2.4.1.1.zip) |
 
-Stable **0.1.5** and beta **0.1.5-beta.4** both target WoT **2.4.1.1**. Version 0.1.5 retires legacy font and macro names, including the `{{v.c_...}}` carousel colour macro; check custom profiles before upgrading from 0.1.4.
+Stable **0.1.5** and beta **0.1.6-beta.1** both target WoT **2.4.1.1**. Version 0.1.5 retires legacy font and macro names, including the `{{v.c_...}}` carousel colour macro; check custom profiles before upgrading from 0.1.4.
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
+
+### What's new in 0.1.6-beta.1
+
+A performance beta: same features and settings as 0.1.5, with less work per frame in battle.
+
+- **Player statistics:** fetched in parallel, shown as each account answers, and applied a few at a time, so a batch no longer freezes a frame for up to 200 ms.
+- **Team panels:** redrawn by battle events instead of four times a second; only changed rows reach Flash, and the loading-screen clock keeps time on its own.
+- **Side panel in standard battles:** attaches to the game's own rows and redraws only when something changes (about 0.6-1.4 ms per pass instead of 5.4 ms). Ranked, Frontline and other modes keep the previous method, as do panels already replaced by another mod.
+- **Battle overlays:** gun traverse limits, the autoaim indicator and target information send only changed values to Flash.
 
 ### What's new in 0.1.5
 

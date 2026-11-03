@@ -1,25 +1,20 @@
 {
   "schema_version": 1,
-  "version": "0.1.5",
-  "channel": "stable",
+  "version": "0.1.6-beta.1",
+  "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
   "package_id": "driftkings.unified",
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
-    "INCOMPATIBLE with custom profiles: the xvm and XVMSymbol font aliases, the {{xvm-stat}} macro and the carousel {{v.c_...}} colour macro were removed. Use dkm, {{stat-available}} and {{v.c:...}} (for example {{v.c:winrate}}); the default settings already do. Rating scales are now cached as ratingScales.json.",
-    "Target information: the card uses Gameface, each row on its own line. The former card returns as the Classic preset, now the default (vehicle picture, reload with equipment, aligned armour and shell tables), with labels in every language; unchanged copies of it switch to Classic automatically. Shell types read AP, APCR, HE, HEAT and HESH in all 18 languages.",
-    "Team panels: native panels are supported in Frontline, Black Signal and Stronghold. In Frontline, player statistics appear on the loading screen and in the TAB, and long vehicle names shrink to fit its narrower columns.",
-    "Battle HUD: the own health bar, battle efficiency, team strength, aiming countdown, shell flight time and penetration texts use Gameface and can be dragged with Ctrl. Battle pages without the Gameface HUD (Halloween, Fort Rush) do not show them.",
-    "Aiming texts: templates use {name} fields such as {timer:.1f}, {percent:d} and {countedArmor:d}; older %(name)s templates keep working.",
-    "Account manager: new page in General settings. Its switch turns the login-screen button on or off, and Manage accounts opens the manager in the hangar.",
-    "Marks of excellence: the hangar card sits under the mission column with a Show more side panel; the service-record tooltip comes only from Hangar marks; tech-tree marks drop empty records and the badge background.",
-    "Reload: manual reload (C by default) sends the native F8 command, with game-translated messages and minimap effects; the custom reload message setting was removed.",
-    "Settings panel: header image, Discord, Facebook, YouTube and GitHub shortcuts, simplified colour controls, corrected live previews, and sound bank diagnostics in general settings.",
-    "Fixes: Sixth Sense alerts with '%' in the text and the first alert of each battle; battle marks card dragging; decimal target weights; Gameface CSS and font warnings; native Halloween TAB name colours by rating.",
-    "Logs: game.log names the Driftkings and game versions at startup without repeated prefixes. The updater and the account manager log why an operation failed; account messages contain only the error type, never e-mail addresses or passwords.",
-    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed stable release, tested on the EU client; existing personal settings are preserved."
+    "BETA NOTICE: the settings panel is still under construction; layouts and live previews may contain errors.",
+    "Performance: this beta lowers the modpack's cost in battle, measured with CapFrameX and the in-game diagnostics on EU replays. Settings and profiles are unchanged.",
+    "Player statistics: vehicle statistics are fetched in parallel and each account appears as soon as it answers. Delivered accounts are applied a few at a time, so a batch no longer freezes one frame for up to 200 ms (now about 11 ms at most).",
+    "Team panels: the side panel and TAB redraw when battle events change them instead of four times a second, and only changed rows are sent to Flash. The loading-screen clock now keeps time inside Flash.",
+    "Team panels: in standard battles the side panel attaches to the game's own rows (driftkingspanels.swf, loaded only for the classic battle page). It redraws only when data or a row changes and matches rows by vehicle; in a random battle each pass fell from about 5.4 ms to 0.6-1.4 ms. Ranked, Frontline and other modes keep the previous method.",
+    "Team panels: if another mod already replaces the same panel classes, Driftkings falls back to the previous method on its own instead of breaking the panel.",
+    "Battle overlays: gun traverse limits, the autoaim indicator and target information send only changed values to Flash.",
+    "Compatibility: Python 2.7 and World of Tanks 2.4.1.1 on EU, NA and ASIA. Signed beta release; tested on the EU client in random and Frontline replays."
   ]
 }

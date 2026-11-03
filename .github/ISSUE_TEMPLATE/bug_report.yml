@@ -10,8 +10,8 @@ body:
     id: mod-version
     attributes:
       label: Mod version
-      description: Shown in Driftkings settings, for example 0.1.5.
-      placeholder: 0.1.5
+      description: Shown in Driftkings settings, for example 0.1.6-beta.1.
+      placeholder: 0.1.6-beta.1
     validations:
       required: true
   - type: input
