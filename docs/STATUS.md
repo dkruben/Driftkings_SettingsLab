@@ -64,7 +64,13 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 
 A publicação passa a ter registo de validação, promoção rastreável e bloqueios para o que falhou na 0.1.6-beta.1: `publish_release.py --publish` recusa commits sem CI verde, duplicados do mesmo tag e versões stable. A stable sai de `build_tools/promote_release.py`, que exige um registo aprovado em `docs/releases/`, e o workflow `promotion-gate.yml` faz as verificações em modo de leitura. O processo está em [Releases](releases/README.md).
 
-O registo da `0.1.6-beta.1` tem as linhas automáticas verificadas e as linhas em jogo por preencher, com a decisão `PENDING`; a beta ainda não pode ser promovida. O workflow só corre quando chegar a `main`, e o ambiente `stable-release` não está criado.
+O registo da `0.1.6-beta.1` tem as linhas automáticas verificadas e as linhas em jogo por preencher, com a decisão `PENDING`; a beta ainda não pode ser promovida.
+
+**Configuração do GitHub.** `promotion-gate.yml` está disponível em `main` e `develop`, e lança-se a partir de `main`. O ambiente `stable-release` está criado e protegido, com `dkruben` como revisor obrigatório, restrição a `main` e `can_admins_bypass` a `false`. Os três rulesets estão ativos e sem lista de bypass: `protect-release-tags` (`26562419`), `protect-develop` (`26562657`) e `protect-main` (`26563825`). `main` passa a receber alterações só por pull request, e a promoção exige merge commit.
+
+**Validado.** O teste negativo do gate passou na [execução 41880158173](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/41880158173): `identity` rejeitou a combinação sintética, o título trouxe o digest, a aprovação não correu e não houve tags, releases nem notificações Discord. A primeira execução, sem aspas em `run-name`, tinha mostrado que o digest se perdia como comentário YAML; corrigido em `c7bbcc4`. Depois de uma edição do ambiente na interface ter removido a regra de revisores, a regra foi reposta pela API.
+
+**Pendente.** A validação em jogo, a primeira aprovação real no ambiente, o primeiro PR para `main`, a primeira build por `promote_release.py` e a promoção da 0.1.6.
 
 A auditoria final corrigiu seis problemas: um teste que ficaria vermelho ao aprovar o registo, caminhos locais no `build-report.json` publicado, aprovação sem ligação aos artefactos, dispensa da revisão sobre um ambiente protegido, pastas aceites sem instalador ou sem passar por `build`, e testes que não detetavam a remoção de bloqueios. As releases já publicadas mantêm os caminhos locais no `build-report.json`.
 
