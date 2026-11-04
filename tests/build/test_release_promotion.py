@@ -764,7 +764,7 @@ class ReportTests(unittest.TestCase):
         (self.folder / 'dependencies').mkdir()
         (self.folder / 'dependencies/dep.wotmod').write_bytes(b'dependency')
         (self.folder / 'release.json').write_bytes(b'{}')
-        self.report = dict(status='success', realm='EU', tools=dict(python27='F:\\Python27\\python.exe'),
+        self.report = dict(status='success', realm='EU', tools=dict(python27='C:\\Toolchain\\python.exe'),
                            logs='C:\\Users\\someone\\logs', git=dict(commit=APPROVED, dirty=False),
                            artifacts={'release.json': dict(size=2), 'dependencies/dep.wotmod': dict(size=10)})
         (self.folder / 'build-report.json').write_text(json.dumps(self.report), encoding='utf-8')
@@ -796,7 +796,7 @@ class ReportTests(unittest.TestCase):
         self.assertEqual((self.folder / 'SHA256SUMS.txt').read_bytes(), b'kept\n')
 
     def test_recognizes_paths_of_either_platform_anywhere_in_the_report(self):
-        for value in ('C:\\Users\\x', 'e:/build', '/home/x', {'a': ['F:\\Python27']}, {'D:\\key': 1}):
+        for value in ('C:\\Users\\x', 'e:/build', '/home/x', {'a': ['C:\\Toolchain']}, {'D:\\key': 1}):
             self.assertTrue(publisher.absolute_paths(dict(field=value)), value)
         for value in ('https://github.com/x', 'mod/res/a.py', 'a:b', 12, None, dict(input='res/x.json')):
             self.assertEqual(publisher.absolute_paths(dict(field=value)), [], value)
