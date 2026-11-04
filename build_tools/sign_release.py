@@ -9,13 +9,16 @@ Signing writes <version-folder>/release.json.sig, which must be uploaded with th
 import argparse
 import base64
 import binascii
+import hashlib
 import importlib.util
+import json
 import os
 from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE = ROOT / 'mod/res/scripts/client/driftkings/core/updater/signature.py'
+LOCAL_REPORT_FIELDS = ('tools', 'logs')
 
 
 def load_signature():
@@ -32,9 +35,27 @@ def read_seed(path):
     return seed
 
 
+def scrub_report(folder):
+    """Keep machine paths out of the published report; build/runs retains the complete local report."""
+    folder = Path(folder)
+    path = folder / 'build-report.json'
+    if not path.is_file():
+        return
+    report = json.loads(path.read_text(encoding='utf-8'))
+    if not any(field in report for field in LOCAL_REPORT_FIELDS):
+        return
+    for field in LOCAL_REPORT_FIELDS:
+        report.pop(field, None)
+    path.write_bytes((json.dumps(report, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
+    names = sorted(set(report['artifacts']) | {path.name})
+    lines = ['%s  %s\n' % (hashlib.sha256((folder / name).read_bytes()).hexdigest(), name) for name in names]
+    (folder / 'SHA256SUMS.txt').write_bytes(''.join(lines).encode('utf-8'))
+
+
 def sign_folder(folder, key_file, module=None):
     module = module or load_signature()
     seed = read_seed(key_file)
+    scrub_report(folder)
     raw = (Path(folder) / 'release.json').read_bytes()
     signature = module.sign(seed, raw)
     public = module.public_key(seed)

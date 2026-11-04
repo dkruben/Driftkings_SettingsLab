@@ -1,0 +1,70 @@
+name: Promotion gate
+
+# Read-only: checks one beta-to-stable promotion and optionally records an environment approval.
+# Builds and signatures stay local (they need the game client and the offline key), and so does
+# publication, because a release published with GITHUB_TOKEN would not start the Discord workflow.
+run-name: Promotion ${{ inputs.beta_version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      beta_version:
+        description: Published beta being promoted, for example 1.2.3-beta.4
+        required: true
+        type: string
+      stable_commit:
+        description: Full SHA-1 of the stable commit on main
+        required: true
+        type: string
+      artifacts_digest:
+        description: Artifacts digest printed by promote_release.py build
+        required: true
+        type: string
+      request_approval:
+        description: After the checks pass, wait for approval in the stable-release environment
+        required: false
+        default: false
+        type: boolean
+
+permissions: {}
+
+concurrency:
+  group: promotion-gate
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate promotion
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Check the promotion
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BETA_VERSION: ${{ inputs.beta_version }}
+          STABLE_COMMIT: ${{ inputs.stable_commit }}
+          ARTIFACTS_DIGEST: ${{ inputs.artifacts_digest }}
+        run: python -B build_tools/promote_release.py check --beta "$BETA_VERSION" --commit "$STABLE_COMMIT" --digest "$ARTIFACTS_DIGEST"
+
+  approve:
+    name: Environment approval
+    needs: validate
+    if: inputs.request_approval
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    environment: stable-release
+    steps:
+      - name: Record the approval
+        run: echo "Approved in the stable-release environment; publication stays local."

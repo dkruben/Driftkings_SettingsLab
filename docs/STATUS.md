@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-03. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-04. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -25,6 +25,7 @@ Atualizado em 2026-11-03. Os caminhos e comandos partem da raiz do repositório.
 | --- | --- |
 | Instalação, funcionalidades e downloads | [README](../README.md) |
 | Desenvolvimento, verificações e publicação | [CONTRIBUTING](../CONTRIBUTING.md) |
+| Validação e promoção de beta a stable | [Releases](releases/README.md) |
 | Painel de configurações | [Relatório funcional](RELATORIO_PAINEL_CONFIGURACAO.md) |
 | Marcadores dos veículos | [Guia dos marcadores](vehicle_markers/README.md) |
 | Carrossel | [Guia do carrossel](vehicle_carousel/README.md) |
@@ -58,6 +59,14 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Promoção de beta a stable — 2026-11-04
+
+A publicação passa a ter registo de validação, promoção rastreável e bloqueios para o que falhou na 0.1.6-beta.1: `publish_release.py --publish` recusa commits sem CI verde, duplicados do mesmo tag e versões stable. A stable sai de `build_tools/promote_release.py`, que exige um registo aprovado em `docs/releases/`, e o workflow `promotion-gate.yml` faz as verificações em modo de leitura. O processo está em [Releases](releases/README.md).
+
+O registo da `0.1.6-beta.1` tem as linhas automáticas verificadas e as linhas em jogo por preencher, com a decisão `PENDING`; a beta ainda não pode ser promovida. O workflow só corre quando chegar a `main`, e o ambiente `stable-release` não está criado.
+
+A auditoria final corrigiu seis problemas: um teste que ficaria vermelho ao aprovar o registo, caminhos locais no `build-report.json` publicado, aprovação sem ligação aos artefactos, dispensa da revisão sobre um ambiente protegido, pastas aceites sem instalador ou sem passar por `build`, e testes que não detetavam a remoção de bloqueios. As releases já publicadas mantêm os caminhos locais no `build-report.json`.
 
 ## Desempenho em batalha e beta 0.1.6-beta.1 — 2026-11-03
 
