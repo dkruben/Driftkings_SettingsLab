@@ -3,7 +3,7 @@ name: Promotion gate
 # Read-only: checks one beta-to-stable promotion and optionally records an environment approval.
 # Builds and signatures stay local (they need the game client and the offline key), and so does
 # publication, because a release published with GITHUB_TOKEN would not start the Discord workflow.
-run-name: Promotion ${{ inputs.beta_version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}
+run-name: "Promotion ${{ inputs.beta_version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}"
 
 on:
   workflow_dispatch:
