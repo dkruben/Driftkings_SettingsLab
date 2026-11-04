@@ -249,8 +249,13 @@ Clients that predate this feature do not verify signatures; they must update onc
 4. Sign with `python build_tools/sign_release.py build/releases/beta/<version> --key <private-key-file>` and preview with `python build_tools/publish_release.py build/releases/beta/<version>`.
 5. After GitHub Actions passes for the built commit, add `--publish` to create a draft with the verified assets. Check the uploaded filenames, sizes and SHA-256 digests against the local inventory, then publish it as a prerelease. `--publish --live` publishes directly when that is the intended workflow.
 6. Verify the public manifest/signature and tag commit. Keep the stable release as GitHub's latest stable release. Documentation edits after publication do not require replacing release assets.
+7. Create the validation record with `python build_tools/validation_record.py new <version> --commit <sha> --package-sha256 <sha256>` and fill it in while testing in the client.
 
-The publisher rejects dirty builds or a checkout that differs from the recorded source revision. A release includes the installer, distribution ZIP, defaults, dependencies, WOTMOD, modpack manifest, signed updater manifest, build report and checksums. Never publish the private signing seed.
+The publisher rejects dirty builds or a checkout that differs from the recorded source revision. `--publish` also rejects a commit without a green `python-package.yml` run on a push, and a tag that already has a release, a draft or a remote tag. It refuses stable versions, which go through promotion. Signing removes the local `tools` and `logs` fields from the published `build-report.json` and refreshes `SHA256SUMS.txt`, so sign after attaching the installer; the publisher rejects a report with absolute paths or a release without the installer.
+
+### Promote a beta to stable
+
+A stable is rebuilt and signed anew from a commit on `main` that differs from the approved beta only in metadata; it is never a renamed beta. The steps are `prepare`, commit and push on `main`, `check` and `build` from `build_tools/promote_release.py`, the `promotion-gate.yml` workflow with the digest that `build` prints, then `publish`. `publish` only uploads with `--confirm v<version>@<digest>`. The process, the validation record rules and the GitHub environment setup are in [docs/releases/README.md](docs/releases/README.md). A release includes the installer, distribution ZIP, defaults, dependencies, WOTMOD, modpack manifest, signed updater manifest, build report and checksums. Never publish the private signing seed.
 
 ### Installer content
 
@@ -265,7 +270,7 @@ The installed payload never depends on these choices: they only write JSON diffe
 
 ### Rebuilding the assets of a published release
 
-`python build_tools/update_release.py [--version <version>]` rebuilds, signs and previews the assets of an existing release, using its GitHub notes as the changelog; `--publish` replaces those assets with `gh release upload --clobber`. It is a recovery tool for the same source revision, such as an incomplete upload or corrected release notes. The checkout must be clean and be the exact commit the published tag points to; otherwise the script stops. It never moves or force-pushes a tag. Code changes require a new version.
+`python build_tools/update_release.py [--version <version>]` rebuilds, signs and previews the assets of an existing release, using its GitHub notes as the changelog; `--publish` replaces those assets with `gh release upload --clobber`. It is a recovery tool for the same source revision, such as an incomplete upload or corrected release notes. On a stable release `--publish` also needs `--replace-stable-assets`. The checkout must be clean and be the exact commit the published tag points to; otherwise the script stops. It never moves or force-pushes a tag. Code changes require a new version.
 
 ## Pull requests
 

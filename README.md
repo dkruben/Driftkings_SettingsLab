@@ -177,7 +177,7 @@ The stable release has prior in-game validation. Each beta passes package verifi
 
 The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
 
-The redesigned settings panel (since `0.1.3`) includes option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases); in-game acceptance is recorded in [docs/STATUS.md](docs/STATUS.md).
+The redesigned settings panel (since `0.1.3`) includes option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases); in-game acceptance is recorded in [docs/STATUS.md](docs/STATUS.md) and, per version, in [docs/releases](docs/releases/README.md).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
 

@@ -46,11 +46,18 @@ def require_tagged_revision(commit, head, tag):
             'its assets, or publish the changes as a new version; the tag is never moved.' % (tag, commit[:12], head[:12]))
 
 
+def require_stable_replacement_consent(channel, publish, consent):
+    require(channel != 'stable' or not publish or consent,
+            'Refusing to overwrite the assets of a stable release; pass --replace-stable-assets for a recovery')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version', help='Existing version; defaults to build_data/release.json')
     parser.add_argument('--key', type=Path, default=ROOT / 'release-signing.key')
     parser.add_argument('--publish', action='store_true', help='Replace existing release assets after validation')
+    parser.add_argument('--replace-stable-assets', action='store_true',
+                        help='Required with --publish on a stable release; this overwrites what users already download')
     args = parser.parse_args()
     try:
         release = read_json(ROOT / 'build_data/release.json')
@@ -60,6 +67,7 @@ def main():
                 'Build once to synchronize release.json and source VERSION, then commit and rerun')
         require(not subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT).strip(),
                 'Commit source changes before rebuilding a release')
+        require_stable_replacement_consent(channel, args.publish, args.replace_stable_assets)
         tag = 'v' + version
         remote = json.loads(subprocess.check_output(
             ['gh', 'release', 'view', tag, '--repo', release['repository'],
