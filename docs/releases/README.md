@@ -88,7 +88,7 @@ git switch main
 git pull --ff-only
 ```
 
-**A promoção exige merge commit: não usar squash nem rebase.** O ruleset ainda permite os três métodos, mas o squash faz o commit aprovado deixar de ser antepassado da stable, e a verificação `history` bloqueia a promoção. A falha só aparece depois do merge, com `main` já alterada e sem force-push para recuar.
+**A promoção exige merge commit: não usar squash nem rebase.** O ruleset `protect-main` (`26563825`) está ativo e permite exclusivamente `allowed_merge_methods: ["merge"]` nos pull requests destinados a `main`. O merge commit preserva o commit aprovado como antepassado da stable, conforme exigido pela verificação `history`.
 
 O commit da stable é esse commit de merge. Esperar pelo CI verde dele em `main`.
 
