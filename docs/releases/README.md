@@ -51,11 +51,12 @@ python build_tools/validation_record.py check 0.1.6-beta.1
 
 ### 3. Preparar o commit da stable
 
-`main` tem de receber o commit aprovado. Depois dele, `develop` só pode ter alterações permitidas (ver a tabela abaixo).
+A stable entra em `main` por pull request, a partir de `develop`. Depois do commit aprovado, `develop` só pode ter alterações permitidas (ver a tabela abaixo).
 
 ```bash
-git switch main
-git merge --ff-only develop
+git switch develop
+git pull --ff-only
+git switch -c release/0.1.6
 python build_tools/promote_release.py prepare --beta 0.1.6-beta.1
 ```
 
@@ -64,10 +65,19 @@ python build_tools/promote_release.py prepare --beta 0.1.6-beta.1
 ```bash
 git add -A
 git commit -m "Prepare stable 0.1.6"
-git push origin main
+git push -u origin release/0.1.6
+gh pr create --base main --title "Prepare stable 0.1.6" --fill
 ```
 
-Esperar pelo CI verde deste commit.
+Esperar pelo `validate` verde no pull request e fazer o merge com commit de merge.
+
+```bash
+gh pr merge --merge --delete-branch
+git switch main
+git pull --ff-only
+```
+
+O commit da stable é esse commit de merge. Esperar pelo CI verde dele em `main`.
 
 ### 4. Verificar a promoção
 
@@ -138,7 +148,7 @@ O ficheiro não está assinado nem coberto por `SHA256SUMS.txt`, porque estes s�
 
 ## Configuração do GitHub
 
-Nada disto foi configurado no repositório. Em 2026-11-04, `main` e `develop` não tinham proteção de branch, não havia rulesets nem ambientes, e os workflows tinham `read` como permissão por omissão.
+Em 2026-11-04, `stable-release` foi criado com o mantenedor como revisor obrigatório e restrição a `main`. A opção **Allow administrators to bypass configured protection rules** ficou ligada e só pode ser desligada na interface. `main` e `develop` ainda não têm proteção, não há rulesets, e os workflows têm `read` como permissão por omissão.
 
 **Ambiente `stable-release`** (Settings → Environments):
 
@@ -151,7 +161,7 @@ Os revisores obrigatórios estão disponíveis em repositórios públicos; num r
 
 **Disponibilidade do workflow:** `workflow_dispatch` só funciona depois de `promotion-gate.yml` estar na branch por omissão, `main`. Até lá, `publish` não encontra a execução. Em `develop` o workflow não corre, e o job termina como ignorado se for lançado noutra branch.
 
-**Recomendado, não obrigatório:** proteger `main` contra force-push e tornar `validate` obrigatório; proteger `v*` contra mover e apagar tags. Estas regras são o que torna o bloqueio efetivo do lado do GitHub, porque as ferramentas locais podem ser contornadas com `gh` diretamente.
+**Rulesets planeados, ainda não ativos:** `main` com PR e `validate` obrigatórios, sem force-push nem eliminação; `develop` sem force-push nem eliminação; `v*` sem mover nem apagar tags, mantendo a criação livre porque publicar uma release cria o tag. Sem lista de bypass; em caso de bloqueio, um ruleset pode ser posto em **Disabled**. Estas regras protegem as branches e os tags, mas não impedem um administrador de publicar com `gh` fora da ferramenta.
 
 **Limite conhecido:** com `contents: read`, o `GITHUB_TOKEN` pode não ver rascunhos, por isso a verificação `slot` no workflow pode não os detetar. A verificação local em `publish` usa as credenciais do mantenedor e deteta-os.
 

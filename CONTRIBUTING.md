@@ -20,7 +20,7 @@ This guide explains how the code is organised and how to make a change safely. S
 ## Branches and release channels
 
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
-- `main` is the stable release branch. Prepare stable releases there after integrating the validated changes from `develop`.
+- `main` is the stable release branch. Stable releases reach it from `develop` through a pull request.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
 - Stable `0.1.5` and beta `0.1.6-beta.1` target WoT `2.4.1.1`; `0.1.4` and `0.1.3` remain archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
 
@@ -257,7 +257,7 @@ The publisher rejects dirty builds or a checkout that differs from the recorded 
 
 ### Promote a beta to stable
 
-A stable is rebuilt and signed anew from a commit on `main` that differs from the approved beta only in metadata; it is never a renamed beta. The steps are `prepare`, commit and push on `main`, `check` and `build` from `build_tools/promote_release.py`, the `promotion-gate.yml` workflow with the digest that `build` prints, then `publish`. `publish` only uploads with `--confirm v<version>@<digest>`. The process, the validation record rules and the GitHub environment setup are in [docs/releases/README.md](docs/releases/README.md). A release includes the installer, distribution ZIP, defaults, dependencies, WOTMOD, modpack manifest, signed updater manifest, build report and checksums. Never publish the private signing seed.
+A stable is rebuilt and signed anew from a commit on `main` that differs from the approved beta only in metadata; it is never a renamed beta. The steps are `prepare` on a `release/<version>` branch cut from `develop`, a pull request into `main` merged with a merge commit, which becomes the stable commit, then `check` and `build` from `build_tools/promote_release.py`, the `promotion-gate.yml` workflow with the digest that `build` prints, then `publish`. `publish` only uploads with `--confirm v<version>@<digest>`. The process, the validation record rules and the GitHub environment setup are in [docs/releases/README.md](docs/releases/README.md). A release includes the installer, distribution ZIP, defaults, dependencies, WOTMOD, modpack manifest, signed updater manifest, build report and checksums. Never publish the private signing seed.
 
 ### Installer content
 
