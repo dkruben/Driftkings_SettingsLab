@@ -1,107 +1,51 @@
-[![WoT Version](https://img.shields.io/badge/WoT-2.4.1.1-red.svg)](https://worldoftanks.eu/)
-[![Python 2.7.18](https://img.shields.io/badge/Python-2.7.18-orange.svg)](https://www.python.org/downloads/release/python-2718/)
-[![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-blue.svg)](https://code.visualstudio.com/)
-[![Discord](https://img.shields.io/badge/Discord-green.svg)](https://discord.gg/k2Stjv5fS5)
-[![Beta 0.1.6-beta.1](https://img.shields.io/badge/Beta-0.1.6--beta.1-purple.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6-beta.1)
-[![Stable 0.1.5](https://img.shields.io/badge/Stable-0.1.5-blue.svg)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5)
-
 # Driftkings Modpack
 
-A configurable modpack for **Wargaming World of Tanks**, with battle statistics, vehicle markers, aiming tools, hangar improvements and an integrated settings panel.
+A customizable World of Tanks modpack with advanced battle statistics, modern interface enhancements, aiming tools, vehicle markers and integrated settings.
 
-Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
+[![Latest Stable: 0.1.6](https://img.shields.io/badge/Latest_Stable-0.1.6-blue)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6)
+[![World of Tanks: 2.4.1.1](https://img.shields.io/badge/World_of_Tanks-2.4.1.1-red)](https://worldoftanks.eu/)
+[![Regions: EU / NA / ASIA](https://img.shields.io/badge/Regions-EU%20%2F%20NA%20%2F%20ASIA-blue)](#compatibility--languages)
+[![Python 2.7](https://img.shields.io/badge/Python-2.7-orange)](https://www.python.org/downloads/release/python-2718/)
+[![GitHub Release](https://img.shields.io/github/v/release/dkruben/Driftkings_SettingsLab?label=GitHub%20Release)](https://github.com/dkruben/Driftkings_SettingsLab/releases/latest)
+[![Discord](https://img.shields.io/badge/Discord-Community-5865F2)](https://discord.gg/k2Stjv5fS5)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-green)](licence)
 
-> **Stable 0.1.6 in preparation:** based on the approved 0.1.6-beta.1, functionally validated by the project owner on EU, NA and ASIA. It has not been built or published as stable; the downloads below remain the published 0.1.5 and 0.1.6-beta.1.
+Built for the Wargaming **EU, NA and ASIA** clients. Enable the components you want and customize them through one settings panel, with profiles and previews for markers, the minimap, HUD and vehicle carousel.
+
+[Downloads](#downloads) · [What's new](#whats-new-in-v016) · [Features](#features) · [Installation](#installation) · [Settings & updates](#settings-profiles--updates) · [Contributing](#development--contributions) · [Support](#support-credits--license)
 
 ## Downloads
 
-| Release | Windows installer | Manual installation |
-| --- | --- | --- |
-| **[Stable 0.1.5](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5/Driftkings-0.1.5-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.5/Driftkings-0.1.5-WoT-2.4.1.1.zip) |
-| **[Beta 0.1.6-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6-beta.1)** | [Download Setup.exe](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6-beta.1/Driftkings-0.1.6-beta.1-WoT-2.4.1.1-Setup.exe) | [Download ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6-beta.1/Driftkings-0.1.6-beta.1-WoT-2.4.1.1.zip) |
+**[v0.1.6 is the current stable release](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6)** for World of Tanks **2.4.1.1**.
 
-Stable **0.1.5** and beta **0.1.6-beta.1** both target WoT **2.4.1.1**. Version 0.1.5 retires legacy font and macro names, including the `{{v.c_...}}` carousel colour macro; check custom profiles before upgrading from 0.1.4.
+| Download | Purpose |
+| --- | --- |
+| **[Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/Driftkings-0.1.6-WoT-2.4.1.1-Setup.exe)** | Guided installation, component selection and required dependencies. |
+| **[Manual installation ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/Driftkings-0.1.6-WoT-2.4.1.1.zip)** | Modpack and dependencies for manual installation. |
+| [Default configurations](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/Driftkings-defaults.zip) | Initial settings for a new installation; preserve existing profiles when updating. |
+| [SHA-256 checksums](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/SHA256SUMS.txt) | Verify downloaded files against the published checksums. |
 
-[All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
+[All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases) include previous stable versions and optional beta releases. Use assets from the same release when installing manually.
 
-### Planned for stable 0.1.6
+## What's New in v0.1.6
 
-Promotion of 0.1.6-beta.1: same features and settings as 0.1.5, with less work per frame in battle. The beta's functional validation is [approved](docs/releases/0.1.6-beta.1-validation.md) for EU, NA and ASIA, including real Random Battle and Frontline battles, replays, installation, updates and configuration persistence. Functional results are declarative evidence from the project owner; the performance figures below are earlier EU replay measurements, not new measurements across all three regions.
+Version 0.1.6 brings the improvements of the approved 0.1.6-beta.1 into the stable channel, preserving personal profiles and settings.
 
-- **Player statistics:** fetched in parallel, shown as each account answers, and applied a few at a time, so a batch no longer freezes a frame for up to 200 ms.
-- **Team panels:** redrawn by battle events instead of four times a second; only changed rows reach Flash, and the loading-screen clock keeps time on its own.
-- **Side panel in standard battles:** attaches to the game's own rows and redraws only when something changes (about 0.6-1.4 ms per pass instead of 5.4 ms). Ranked, Frontline and other modes keep the previous method, as do panels already replaced by another mod.
-- **Battle overlays:** gun traverse limits, the autoaim indicator and target information send only changed values to Flash.
+- **Parallel player statistics:** vehicle-statistics requests run in parallel, and each account is delivered as it answers.
+- **Progressive results:** delivered statistics are applied in small batches across frames, reducing work concentrated in a single frame.
+- **Player-panel optimizations:** battle events and delivered statistics trigger updates; only changed rows are sent to Flash. The loading-screen clock runs inside Flash.
+- **Native side-panel integration:** in standard battles, the panel follows the game's own row redraws. Other modes and panels replaced by another mod retain the fallback renderer.
+- **Leaner combat overlays:** gun traverse limits, the autoaim indicator and target information send only changed values to Flash.
 
-### What's new in 0.1.5
+The source beta was functionally validated on **EU, NA and ASIA**, including real Random Battle and Frontline battles, replays, installation, updates and configuration persistence. These results are documented declarations by the project owner; the [approved validation record](docs/releases/0.1.6-beta.1-validation.md) distinguishes confirmed checks from features not individually tested.
 
-0.1.5 brings together the four 0.1.5 betas.
+Earlier measurements used **EU replays**, CapFrameX and the mod's diagnostics: the player-statistics batch stall fell from about 200 ms to about 11 ms, and side-panel processing in a random replay fell from about 5.4 ms to 0.6–1.4 ms per pass. These measurements describe those scenarios, rather than performance measured across all three regions. See the [measurement context and implementation history](docs/STATUS.md).
 
-- **Legacy names removed:** the `xvm`/`XVMSymbol` font aliases and the `{{xvm-stat}}` and `{{v.c_...}}` macros no longer work. Use `dkm`, `{{stat-available}}` and `{{v.c:...}}`; the default settings already do.
-- **Target card:** Gameface card with the **Classic** preset as the default and shell types AP, APCR, HE, HEAT and HESH in every language.
-- **Team panels:** Frontline, Black Signal and Stronghold; Frontline statistics on the loading screen and in the TAB.
-- **Battle HUD in Gameface:** health bar, battle efficiency, team strength and aiming texts, draggable with Ctrl.
-- **Hangar and settings:** account manager page, hangar marks card under the mission column, header image and social shortcuts in the settings panel.
-
-### Earlier in 0.1.5-beta.4
-
-- **Target card:** each row is on its own line again. The former card is back as the **Classic** preset, now the default, with the vehicle picture, reload with equipment and aligned armour and shell tables, translated into every language. Profiles that still had that card unchanged switch to Classic automatically; edited cards and other presets are kept.
-- **Shell types:** AP, APCR, HE, HEAT and HESH in all 18 languages.
-- **Frontline:** player statistics now appear on the loading screen and in the TAB, shrinking to fit the narrower columns.
-- **Settings panel:** new header image and a GitHub button.
-- **Fixes:** Sixth Sense alerts with `%` in the text and the first alert of each battle; battle marks card dragging; decimal target weights; Gameface CSS and font warnings.
-- **Logs:** `game.log` names the mod and game versions at startup; updater and account manager failures are logged, never with account data.
-
-### Earlier in 0.1.5-beta.3
-
-- **Carousel colour macro:** `{{v.c_...}}` no longer works. Use `{{v.c:...}}`, for example `{{v.c:winrate}}`; the default settings already do.
-- **Account manager page:** a General settings page turns the login-screen button on or off, and **Manage accounts** opens the manager in the hangar to add, edit or delete accounts.
-- **Aiming texts:** the aiming countdown, shell flight time and penetration templates use `{name}` fields such as `{timer:.1f}`; older `%(name)s` templates keep working.
-- **Battle:** the target card uses Gameface, native team panels work in Frontline, Black Signal and Stronghold, and manual reload uses the native command.
-- **Marks of excellence:** a single achievement tooltip in the service record, controlled by Hangar marks.
-
-See [the macro reference](docs/macros/README.md) for every template macro.
-
-### Earlier in 0.1.5-beta.1
-
-- **Legacy names removed:** the `xvm` and `XVMSymbol` font aliases and the `{{xvm-stat}}` macro no longer work. Use `dkm` and `{{stat-available}}` in custom profiles; the default settings already do.
-- **Validated in game:** `dkm` fonts in markers, team panels and the carousel, and rating colours on Halloween TAB player names (NA 2.4.1.1).
-- **Release tooling:** stricter signing and tag protection, and builds that work with EU, NA and ASIA clients.
-
-### What's new in 0.1.4
-
-- **Account Manager:** corrected intermittent clipping and Escape handling; saved passwords can be explicitly revealed, with a visible checkbox state.
-- **Self-contained fonts:** embedded Flash fonts and Gameface resources preserve `dkm` and existing aliases, without OpenWG Common or its additional native modules.
-- **Battle fixes:** corrected minimap sector direction, improved player-panel discovery and added native Halloween TAB colour integration, later accepted in game (NA 2.4.1.1, 2026-10-30).
-- **Shared contracts:** consolidated constants and numeric/colour helpers while preserving personal settings, defaults and JSON formats.
-- **Regression coverage:** reorganised Python and frontend suites, added account lifecycle and compiled-font checks, and updated CI.
-
-## Installation
-
-### Windows installer
-
-1. Close World of Tanks.
-2. Download the installer for your chosen release and pick your language.
-3. Read what's new, then select your game installation.
-4. Choose **Recommended**, **Complete** or **Custom** and pick the components you want enabled; each one shows a preview.
-5. Start the game and open **Driftkings settings** through the mods list.
-
-The installer checks the game version and region, installs the required dependencies and keeps existing profiles when reinstalling. To choose the components again, select **Reset to defaults and choose the components again** on the folder page; your current settings are backed up first.
-
-### Manual installation
-
-1. Close World of Tanks and download the ZIP for your chosen release.
-2. Extract its `mods` folder into the game installation, merging folders.
-3. For a new installation, download `Driftkings-defaults.zip` from the **same release** and extract it into the game installation.
-4. Start the game and open Driftkings settings through the mods list.
-
-**Upgrading from the old configuration layout:** back up your personal images and sounds, then remove the old `mods/configs/driftkings` folder before the first launch of version 0.1.3. Configure the mod again in the hangar. Older settings and caches are no longer imported automatically.
-
-## Included features
+## Features
 
 Components can be enabled and configured individually. Availability depends on the vehicle, battle mode and selected options.
 
-### Battle interface and statistics
+### Battle & statistics
 
 | Feature | What it does |
 | --- | --- |
@@ -119,7 +63,7 @@ Components can be enabled and configured individually. Availability depends on t
 | Battle damage log | Event filters and optional swapping of the native top/bottom logs. |
 | Battle preferences | Hints, notifications, fog and other native interface options. |
 
-### Camera, aiming and controls
+### Camera, aiming & controls
 
 | Feature | What it does |
 | --- | --- |
@@ -134,7 +78,7 @@ Components can be enabled and configured individually. Availability depends on t
 | Autoaim target indicator | Configurable highlight for the native autoaim target. |
 | Repair controls | Shortcuts and priorities for repairs, crew treatment and fire extinguishing. |
 
-### Hangar and utilities
+### Hangar & utilities
 
 | Feature | What it does |
 | --- | --- |
@@ -150,13 +94,40 @@ Components can be enabled and configured individually. Availability depends on t
 
 Ratings and progress displays are estimates; they do not guarantee a battle result, server award or gun-mark increase. Vehicle-marker customization applies to supported regular modes; special modes retain native markers. XMQP is not included.
 
-## Settings and updates
+Feature guides: [vehicle markers](docs/vehicle_markers/README.md) · [vehicle carousel](docs/vehicle_carousel/README.md) · [template macros](docs/macros/README.md) · [fonts](docs/fonts/README.md) · [custom Sixth Sense icons](docs/sixthsense_icons/README.md).
+
+## Installation
+
+### Windows installer
+
+1. Close World of Tanks.
+2. Download the installer for v0.1.6 and pick your language.
+3. Read what's new, then select your game installation.
+4. Choose **Recommended**, **Complete** or **Custom** and pick the components you want enabled; each one shows a preview.
+5. Start the game and open **Driftkings settings** through the mods list.
+
+The installer checks the game version and region, installs the required dependencies and keeps existing profiles when reinstalling. To choose the components again, select **Reset to defaults and choose the components again** on the folder page; your current settings are backed up first.
+
+### Manual installation
+
+1. Close World of Tanks and download the ZIP for v0.1.6.
+2. Extract its `mods` folder into the game installation, merging folders.
+3. For a new installation, download `Driftkings-defaults.zip` from the **same release** and extract it into the game installation.
+4. Start the game and open Driftkings settings through the mods list.
+
+**Upgrading from the old configuration layout:** back up your personal images and sounds, then remove the old `mods/configs/driftkings` folder before the first launch of version 0.1.3. Configure the mod again in the hangar. Older settings and caches are no longer imported automatically.
+
+**Updating an existing installation:** keep personal settings under `mods/configs/driftkings/`. Extract the defaults archive for a new installation; do not overwrite current profiles with defaults during a normal update. The manual ZIP includes the required ModsListAPI and OpenWG Gameface packages.
+
+To verify a downloaded file on Windows, compare `Get-FileHash -Algorithm SHA256 -LiteralPath '<downloaded-file>'` with its entry in the published `SHA256SUMS.txt`.
+
+## Settings, profiles & updates
 
 The integrated settings panel includes **profiles, themes, UI scale, translations and update channels**. Marker changes can be checked in the tank preview before applying them.
 
 Default configurations are based on the author's EU profile, except vehicle markers, which now follow the reference layout. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
 
-To receive beta updates, select the **Beta** update channel in Driftkings settings. The `develop` branch carries beta development; `main` carries the stable version.
+Use the **stable** update channel for stable releases. Select **Beta** only if you want prerelease updates. The updater authenticates the signed manifest, verifies the package size and SHA-256, and applies the update after restarting. See [release integrity and security](SECURITY.md).
 
 For custom media, use `mods/configs/driftkings/images/` and `mods/configs/driftkings/sixthsense/`. The default custom Sixth Sense icon is `SixthSenseIcon.png`. Packaged `gui/maps/driftkings/...` image paths are also supported. Select the paths in settings; uninstall preserves your media folders.
 
@@ -166,36 +137,48 @@ Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX incl
 
 The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c:wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
 
-### Languages
-
-**18 languages:** Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese.
-
-English is the fallback language. Translation corrections are welcome.
-
 ### Optional anonymous statistics
 
 Anonymous usage statistics are **off by default**. You can enable them in settings. When enabled, the mod sends a random installation ID, mod/game versions, region, activity heartbeats and error-location metadata to Google Analytics. It does not send player names, account details, error messages or full filesystem paths. Disabling the option stops sending and deletes the installation ID. Replays are not counted.
 
-## Compatibility
+## Compatibility & languages
 
-Supports Wargaming **EU, NA and ASIA** clients for **WoT 2.4.1.1**. Mir Tankov/RU is outside the project's scope.
+| Area | Support |
+| --- | --- |
+| Game | Wargaming World of Tanks **2.4.1.1** |
+| Regions | **EU, NA and ASIA**; Mir Tankov/RU is outside the project's scope. |
+| Client runtime | Python 2.7, ActionScript 3 / Scaleform and ES5 JavaScript / Gameface. |
+| Dependencies | ModsListAPI by poliroid and OpenWG Gameface, included in the release distribution. |
 
-The stable release has prior in-game validation. Each beta passes package verification and GitHub Actions, including Python 2/3 and Gameface tests, and is tested on the EU client before publication.
+**18 interface languages:** Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese.
 
-## Development
+English is the fallback. Regional Spanish and Portuguese variants reuse the existing catalogs. See the [language guide](docs/i18n/README.md) for aliases and coverage. Translation corrections and native-speaker terminology reviews are welcome.
 
-The project uses **Python 2.7**, **ActionScript 3** and **ES5 JavaScript** for Gameface. Build and validation tools run on Python 3.
+Special modes may retain native markers or omit Gameface HUD elements when the game's battle page does not provide that HUD. See the feature guides for limitations.
 
-The redesigned settings panel (since `0.1.3`) includes option details, change review and minimap/HUD/carousel previews, while retaining the original spectrum colour picker. Published release checks are recorded in the [release history](https://github.com/dkruben/Driftkings_SettingsLab/releases); in-game acceptance is recorded in [docs/STATUS.md](docs/STATUS.md) and, per version, in [docs/releases](docs/releases/README.md).
+## Release history & changelog
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, architecture, tests, translations and release instructions. Feature guides and historical reviews are available in [`docs/`](docs/).
+- **[v0.1.6 — current stable](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6):** statistics, player-panel and overlay optimizations described above.
+- **[v0.1.5](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5):** consolidated the four 0.1.5 betas, including the Classic target card, Gameface HUD, expanded team-panel support, account management and settings improvements.
+- **[v0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4):** account-manager fixes, self-contained fonts, minimap/player-panel corrections and shared configuration contracts.
+- [Complete release history](https://github.com/dkruben/Driftkings_SettingsLab/releases) · [release and promotion process](docs/releases/README.md) · [project status and historical validation](docs/STATUS.md).
 
-## Support and credits
+**Older custom profiles:** version 0.1.5 retired the `xvm`/`XVMSymbol` font aliases, `{{xvm-stat}}` and carousel `{{v.c_...}}` macros. Use `dkm`, `{{stat-available}}` and `{{v.c:...}}` instead. Aiming texts support `{name}` fields such as `{timer:.1f}`; older `%(name)s` templates remain supported. See the [macro reference](docs/macros/README.md).
+
+## Development & contributions
+
+Runtime code targets **Python 2.7**, **ActionScript 3** and **ES5 JavaScript**. Build and validation tools run on **Python 3**. The published stable source is on `main`; `develop` is the development branch. Stable preparation uses a release branch and a reviewed merge commit.
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) for environment setup, architecture, tests, translations and release instructions. The [documentation index](docs/STATUS.md#guias-mantidos) links to feature guides and technical references. Contributions can cover fixes, configuration examples, translations, documentation and reproducible bug reports.
+
+Stable releases promoted through the current process are rebuilt and signed from an approved beta and carry `promotion.json` for traceability. Functional acceptance is recorded separately from automated CI and package checks.
+
+## Support, credits & license
 
 [Join Discord](https://discord.gg/k2Stjv5fS5) · [Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) · [Browse releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
 
-When reporting a problem, include the mod version, game version, region, reproduction steps and relevant `game.log` excerpts. Remove personal information before sharing logs.
+Include the mod version, full game version, region, steps to reproduce and relevant `game.log` excerpts when reporting a problem. Remove personal information before sharing logs. For security reports, follow [SECURITY.md](SECURITY.md).
 
-Dependencies: **ModsListAPI** by poliroid and **OpenWG Gameface**.
+Thanks to **poliroid** for ModsListAPI and the **OpenWG Gameface** project for the interface dependency.
 
-Licensed under [GPL-3.0](licence).
+Licensed under the [GNU General Public License v3.0](licence).
