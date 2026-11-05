@@ -8,10 +8,12 @@
     // Section pages name their "enabled" control field_<sha1("enabled")[:16]> (settings/panel/sections.py).
     var ENABLED_IDS = ['enabled', 'field_3ea3f9802accf881'];
     var ICONS = window.DK_ASSETS || 'coui://gui/gameface/mods/driftkings/settings_window/assets/';
+    // Trusted packaged SVGs, kept in sync by the header test; no fetch or external dependency.
+    var SOCIAL_SVG = {"discord": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" role=\"img\" aria-label=\"Discord\"><title>Discord</title><path fill=\"#FFFFFF\" d=\"M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z\"/></svg>", "facebook": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" role=\"img\" aria-label=\"Facebook\"><title>Facebook</title><path fill=\"#FFFFFF\" d=\"M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z\"/></svg>", "youtube": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" role=\"img\" aria-label=\"Youtube\"><title>Youtube</title><path fill=\"#FFFFFF\" d=\"M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z\"/></svg>", "github": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" role=\"img\" aria-label=\"Github\"><title>Github</title><path fill=\"#FFFFFF\" d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></svg>"};
     var CATEGORY_ORDER = ['general', 'battle', 'hangar', 'system'];
     // Icon per module (assets/mods/*.svg). Section pages are named legacy.<previous section name>.
     var MOD_ICONS = {
-        'dk.settings': 'settings', 'legacy.main': 'general', 'legacy.BanksLoader': 'soundbank', 'legacy.BattleEfficiency': 'efficiency',
+        'dk.settings': 'settings', 'legacy.AccountManager': 'accounts', 'legacy.main': 'general', 'legacy.BanksLoader': 'soundbank', 'legacy.BattleEfficiency': 'efficiency',
         'legacy.LogsSwapper': 'damagelog', 'legacy.ZoomExtended': 'sniper', 'legacy.DispersionCircle': 'reticle', 'legacy.ArcadeZoom': 'arcadezoom',
         'legacy.DispersionTimer': 'aimtimer', 'legacy.FlightTimer': 'flighttime', 'legacy.AimingAngles': 'traverse', 'legacy.AutoAimOptimize': 'autoaim',
         'legacy.DistanceMarker': 'distance', 'legacy.ArmorCalculator': 'penetration', 'legacy.InfoPanel': 'targetinfo', 'legacy.ArtySplash': 'artillery',
@@ -33,6 +35,19 @@
     var query = '', tab = '', focusId = null, pendingFocus = null, collapsed = {};
     var dialogs = {confirm: null, review: null, profiles: null, installed: null};
     var lastMessage = 0, toastTimer = null, layoutTimer = null, lastLayout = '', lastTheme = '', disposed = false;
+
+    function refreshSocial(entry) {
+        var target = (entry.hovered || entry.focused) && !entry.failed && entry.tint ? entry.tint : entry.normal;
+        if (entry.image.src !== target) { entry.image.src = target; }
+    }
+
+    function tintSocials(accent) {
+        (ui.socials || []).forEach(function (entry) {
+            entry.tint = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SOCIAL_SVG[entry.service].replace(/#FFFFFF/g, accent));
+            entry.failed = false;
+            refreshSocial(entry);
+        });
+    }
 
     /* Helpers --------------------------------------------------------------- */
     function categoryName(category) {
@@ -77,15 +92,27 @@
 
         var top = h('div.dk-top', null, null, ui.window);
         ui.brand = h('div.dk-brand', null, null, top);
+        ui.logo = h('img.dk-brand-logo', {src: ICONS + 'driftkings_settingslab.png', alt: 'Driftkings Settings Lab'}, null, ui.brand);
         ui.version = h('div.dk-version', null, null, top);
         h('div.dk-spacer', null, null, top);
+        var topControls = h('div.dk-top-controls', null, null, top);
+        ui.socials = [];
         var socialNames = {discord: 'Discord', facebook: 'Facebook', youtube: 'YouTube', github: 'GitHub'};
         ['discord', 'facebook', 'youtube', 'github'].forEach(function (service) {
-            var social = h('button.dk-social', {title: socialNames[service], 'aria-label': socialNames[service]},
-                [h('img', {src: ICONS + 'social/' + service + '.svg', alt: ''})], top);
+            var image = h('img', {src: ICONS + 'social/' + service + '.svg', alt: ''});
+            var social = h('button.dk-social', {title: socialNames[service], 'aria-label': socialNames[service]}, [image], topControls);
+            var entry = {service: service, image: image, normal: image.src, hovered: false, focused: false, failed: false};
+            ui.socials.push(entry);
+            social.addEventListener('mouseenter', function () { entry.hovered = true; refreshSocial(entry); });
+            social.addEventListener('mouseleave', function () { entry.hovered = false; refreshSocial(entry); });
+            social.addEventListener('focus', function () { entry.focused = true; refreshSocial(entry); });
+            social.addEventListener('blur', function () { entry.focused = false; refreshSocial(entry); });
+            image.addEventListener('error', function () {
+                if (image.src !== entry.normal) { entry.failed = true; refreshSocial(entry); }
+            });
             social.addEventListener('click', function (event) { DK.stop(event); send('open_' + service); });
         });
-        ui.close = h('button.dk-close', {text: '×', onclick: function (event) { DK.stop(event); send('close'); }}, null, top);
+        ui.close = h('button.dk-close', {text: '×', onclick: function (event) { DK.stop(event); send('close'); }}, null, topControls);
 
         ui.construction = h('div.dk-construction', {role: 'note'}, null, ui.window);
         var body = h('div.dk-body', null, null, ui.window);
@@ -144,9 +171,7 @@
         DK.setCatalog(schema.labels, schema.language);
         DK.calendar = schema.calendar || {};
         mods = {}; order = []; index = {};
-        var title = String(t('title', 'DRIFTKINGS · SETTINGS')), cut = title.indexOf(' · ');
-        DK.clear(ui.brand);
-        h('span.dk-brand-name', {text: (cut > 0 ? title.slice(cut + 3) : title).replace(/^DK\s+/, '')}, null, ui.brand);
+        ui.brand.title = String(t('title', 'Driftkings Settings Lab'));
         ui.construction.textContent = t('constructionNotice');
         ui.close.title = t('close') + ' (Esc)';
         ui.themeReset.textContent = t('resetTheme');
@@ -859,7 +884,9 @@
             '.dk-mk-text.is-selected,.dk-mk-icon.is-selected,.dk-mk-bar.is-selected{outline-color:' + accent + '}',
             'button:focus,input:focus,textarea:focus,[tabindex]:focus{outline-color:' + DK.rgba(accent, 0.7) + '}'
         ];
+        css.push('.dk-social:hover,.dk-social:focus,.dk-close:hover,.dk-close:focus{color:' + accent + '}');
         document.getElementById('dk-theme').textContent = css.join('\n');
+        tintSocials(accent);
     }
     function layout() {
         if (disposed) { return; }
