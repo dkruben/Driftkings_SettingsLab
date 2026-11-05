@@ -21,11 +21,15 @@ from driftkings.core.hooks import override
 from driftkings.core.mode_adapters import adapter_for, roster_order
 from driftkings.core.panel_model import Roster
 from driftkings.flash.battle.meta.players_panel import PlayersPanelMeta
+from driftkings.interface_catalog import PANELS_LIBRARY
 from driftkings.logger import get_logger
 from driftkings.settings.settings_data import profile_for_mode, PROFILES
 
 LOG=get_logger('Driftkings.PlayerPanelPro')
 ALIAS=BATTLE_ALIASES.PLAYERS_PANEL
+# Changes refresh at once through events; this slower tick only catches inputs without one
+# (frag counters, a key-up lost to Alt+Tab, the 15 s statistics request).
+IDLE_TICK=1.0
 
 class RatingViews(object):
     def __init__(self,config,stats):
@@ -95,6 +99,7 @@ class RatingViews(object):
             (battleEvents.appeared,self.appeared),(battleEvents.visibility,self.visibility),
             (battleEvents.killed,self.killed),(battleEvents.key,self.key))
         for signal,callback in self.subscriptions: signal.connect(callback)
+        if self.refresh not in self.stats.listeners: self.stats.listeners.append(self.refresh)
         battleEvents.acquire(self)
         g_eventBus.addListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,scope=EVENT_BUS_SCOPE.GLOBAL)
         for method in ('as_setVehiclesDataS','as_addVehiclesInfoS','as_updateVehiclesInfoS','as_updateVehicleStatusS'):
@@ -106,13 +111,31 @@ class RatingViews(object):
         from driftkings.gameface.battle.panel_gameface import GamefaceLoading
         if not hasattr(self, 'gameface'):
             self.gameface=GamefaceLoading(self)
+        from gui.Scaleform.battle_entry import BattleEntry
+        override(BattleEntry,'_getRequiredLibraries',self.requiredLibraries)
         self.refresh()
+
+    def requiredLibraries(self,original,entry,*args,**kwargs):
+        # Ranked, Frontline, Fort Rush and other modes reuse the linkage names of the classic
+        # players panel with their own base classes; only the classic battle page loads the
+        # panel classes, decided per battle, so with the panel off the client keeps its own rows.
+        libraries=original(entry,*args,**kwargs)
+        from gui.Scaleform.daapi.settings.views import (RANDOM_BATTLE_PAGE_CONFIG, VIEW_ALIAS,
+                                                        VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE)
+        page=VIEW_BATTLE_PAGE_CONFIG_BY_ARENA_GUI_TYPE.get(getattr(entry,'_arenaGuiType',None),RANDOM_BATTLE_PAGE_CONFIG)
+        data=settings_service.getComponentDict(self.config)
+        if (self.active and page and page[0]==VIEW_ALIAS.CLASSIC_BATTLE_PAGE and data[GLOBAL.ENABLED]
+                and data[TEAM_PANELS.PLAYERS_PANEL].get(GLOBAL.ENABLED,True) and PANELS_LIBRARY not in libraries):
+            libraries=list(libraries)+[PANELS_LIBRARY]
+            LOG.info('Players panel classes loaded for the classic battle page')
+        return libraries
 
     def stop(self):
         if not self.active: return
         self.active=False
         settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)
         for signal,callback in self.subscriptions: signal.disconnect(callback)
+        if self.refresh in self.stats.listeners: self.stats.listeners.remove(self.refresh)
         battleEvents.release(self)
         g_eventBus.removeListener(events.ComponentEvent.COMPONENT_REGISTERED,self.component,
                                   scope=EVENT_BUS_SCOPE.GLOBAL)
@@ -523,8 +546,7 @@ class RatingViews(object):
                                     'format':data[TEAM_PANELS.LOADING].get('clockFormat','')},
                     'diagnostics':data[TEAM_PANELS.PERFORMANCE].get('diagnostics',False),
                     'hoverMode':profile_for_mode(self.baseMode),'hovered':self.hovered,
-                    'hoverAreaWidth':data[TEAM_PANELS.PROFILES][profile_for_mode(self.baseMode)].get('expandAreaWidth',230),
-                    'time':{'H':time.strftime('%H'),'i':time.strftime('%M'),'s':time.strftime('%S')}}
+                    'hoverAreaWidth':data[TEAM_PANELS.PROFILES][profile_for_mode(self.baseMode)].get('expandAreaWidth',230)}
                 if frontline:
                     payload['tableMode']='frontline'
                 if payload!=self.lastPayload:
@@ -557,4 +579,4 @@ class RatingViews(object):
         # refresh() can run synchronously during stats/native updates. Preserve
         # its queued tick instead of creating a second recurring chain.
         if self.active and self.callback is None:
-            self.callback=BigWorld.callback(0.25,self.tick)
+            self.callback=BigWorld.callback(IDLE_TICK,self.tick)

@@ -4,11 +4,12 @@
 
 | Version | Channel | Supported |
 | --- | --- | --- |
-| 0.1.5-beta.4 | Beta | Yes |
+| 0.1.6 | Stable in preparation; not published | Pending publication |
+| 0.1.6-beta.1 | Beta | Yes |
 | 0.1.5 | Stable | Yes |
 | Older releases | — | No; update first |
 
-Both supported versions target World of Tanks 2.4.1.1 on the Wargaming EU, NA and ASIA clients.
+The published supported versions and the planned stable 0.1.6 target World of Tanks 2.4.1.1 on the Wargaming EU, NA and ASIA clients. The source beta 0.1.6-beta.1 has an approved functional validation record for all three regions; stable 0.1.6 has not been built or published. Published stable 0.1.5 remains supported during preparation.
 
 ## Reporting a vulnerability
 
@@ -23,4 +24,4 @@ Include the mod version, game version and region, the steps to reproduce and the
 
 The in-game updater only installs releases whose `release.json` manifest carries a valid Ed25519 signature from a key built into the mod. The manifest pins the package size and SHA-256, and the download is checked against both before installation. A release without a valid signature is rejected. Clients older than this check must update once manually to receive it.
 
-Stable releases are rebuilt and signed anew from an approved beta. Each one carries a `promotion.json` asset naming the source commit, the beta and the validation record; see [docs/releases/README.md](docs/releases/README.md).
+Stable releases promoted through this process are rebuilt and signed anew from an approved beta, and carry a `promotion.json` asset naming the source commit, the beta and the validation record. Stable `0.1.5` and older predate it; see [docs/releases/README.md](docs/releases/README.md).

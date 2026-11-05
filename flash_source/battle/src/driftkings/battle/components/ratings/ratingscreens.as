@@ -28,6 +28,8 @@ package driftkings.battle.components.ratings
         private var mouseStage:Stage;
         private var lastScan:int=0;
         private var lastRender:int=-100;
+        private var lastPanelPass:int=-1000;
+        private var panelPass:Boolean=true;
         private var dirty:Boolean=true;
         private var lastReport:String="";
         private var lastWidths:String="";
@@ -63,7 +65,11 @@ package driftkings.battle.components.ratings
             var now:int=getTimer();
             // Native fields may change independently (TAB, mode, resolution).
             // Poll them at 10 Hz; payload changes are drawn on the next frame.
-            if (!dirty && now-lastRender<100) return;
+            if (!dirty && !panelhook.dirty && now-lastRender<100) return;
+            // Hooked panel rows report the client's redraws, so the side panel is only walked
+            // for new data, a reported change or a once-a-second safety audit.
+            panelPass=dirty || panelhook.dirty || !panels.hooked || now-lastPanelPass>=1000;
+            if (panelPass) { lastPanelPass=now; panelhook.dirty=false; }
             lastRender=now; dirty=false;
             extra.begin();
             if (!payload.enabled) { panels.restore(); state.restore(); extra.end(); bindings.clear(); return; }
@@ -132,7 +138,10 @@ package driftkings.battle.components.ratings
                 }
                 if (payload.tableMode=="frontline") continue;
                 if (binding.screen=="panel")
-                { panels.draw(binding.owner,payload); profiler.panel+=getTimer()-checkpoint; }
+                {
+                    if (panelPass) panels.draw(binding.owner,payload); else panels.keep(binding.owner,payload);
+                    profiler.panel+=getTimer()-checkpoint;
+                }
                 else
                 {
                     if (binding.screen=="clock") clock.draw(binding.owner,payload);

@@ -37,6 +37,17 @@ Uma região nunca vale como prova de outra. Uma região sem validação fica `NO
 
 ## Processo completo
 
+Pontos de paragem obrigatórios: cada um exige que a verificação indicada passe antes de avançar.
+
+| Antes de | Parar e confirmar |
+| --- | --- |
+| Abrir o PR da stable | `validation_record.py check` sem erros e `stable-release` com `required_reviewers` |
+| Fazer o merge do PR | Diff só com versão e metadados; `validate` verde |
+| `build` | CI verde no commit de merge em `main`; `promote_release.py check` com tudo em PASS |
+| Pedir a aprovação | `build` terminou e mostrou o commit e o digest |
+| Aprovar | O título da execução mostra esse commit e esse digest |
+| `publish --confirm` | A pré-visualização mostra os assets e hashes esperados; depois disto não há recuo simples |
+
 ### 1. Desenvolver e publicar a beta
 
 Desenvolver em `develop` e publicar a beta como descrito em [Build and publish a new beta](../../CONTRIBUTING.md#build-and-publish-a-new-beta). `publish_release.py --publish` recusa agora um commit sem CI verde e um tag que já tenha release, rascunho ou tag remoto. O publicador exige também o instalador em qualquer canal.
@@ -63,7 +74,7 @@ python build_tools/promote_release.py prepare --beta 0.1.6-beta.1
 `prepare` só altera a versão e o canal em `build_data/release.json` e `VERSION`; não faz commit. Completar à mão: changelog de `release.json` sem avisos de beta e a dizer que regiões foram testadas, README, SECURITY, exemplo em `.github/ISSUE_TEMPLATE/bug_report.yml` e fixture de `tests/runtime/integration/test_core_startup.py`.
 
 ```bash
-git add -A
+git add build_data/release.json mod/res/scripts/client/driftkings/__init__.py README.md SECURITY.md .github/ISSUE_TEMPLATE/bug_report.yml tests/runtime/integration/test_core_startup.py
 git commit -m "Prepare stable 0.1.6"
 git push -u origin release/0.1.6
 gh pr create --base main --title "Prepare stable 0.1.6" --fill
@@ -76,6 +87,8 @@ gh pr merge --merge --delete-branch
 git switch main
 git pull --ff-only
 ```
+
+**A promoção exige merge commit: não usar squash nem rebase.** O ruleset `protect-main` (`26563825`) está ativo e permite exclusivamente `allowed_merge_methods: ["merge"]` nos pull requests destinados a `main`. O merge commit preserva o commit aprovado como antepassado da stable, conforme exigido pela verificação `history`.
 
 O commit da stable é esse commit de merge. Esperar pelo CI verde dele em `main`.
 
@@ -132,13 +145,22 @@ Sem `--confirm`, é uma pré-visualização: gera `promotion.json`, mostra o SHA
 
 Uma stable publicada nunca é sobrescrita por esta ferramenta.
 
-`--waive-environment-review` aceita só o registo e fica escrita em `promotion.json`. É recusada quando `stable-release` tem revisores obrigatórios, e nesse caso a aprovação no ambiente é a única via.
+`--waive-environment-review` é recusada enquanto `stable-release` tiver revisores obrigatórios, e nesse caso a aprovação no ambiente é a única via. Se a regra `required_reviewers` for removida, a dispensa volta a ser aceite e fica escrita em `promotion.json`, por isso a regra tem de ser confirmada antes de cada promoção.
 
 ### 8. Depois de publicar
 
-- Confirmar a notificação no Discord: o evento `published` dispara `discord-releases.yml`. Se falhar, repetir a execução com `gh run rerun <id>`.
-- Trazer `main` de volta para `develop`: `git switch develop` e `git merge --ff-only main`.
-- Atualizar `docs/STATUS.md`, README e SECURITY, se ainda faltar.
+Confirmar a notificação no Discord: o evento `published` dispara `discord-releases.yml`. Se falhar, repetir a execução com `gh run rerun <id>`.
+
+Sincronizar `develop` com `main`:
+
+```bash
+git switch develop
+git pull --ff-only
+git merge --ff-only main
+git push origin develop
+```
+
+`develop` fica em versão stable até à beta seguinte. Atualizar `docs/STATUS.md`, README e SECURITY, se ainda faltar.
 
 ## `promotion.json`
 
@@ -148,20 +170,21 @@ O ficheiro não está assinado nem coberto por `SHA256SUMS.txt`, porque estes s�
 
 ## Configuração do GitHub
 
-Em 2026-11-04, `stable-release` foi criado com o mantenedor como revisor obrigatório e restrição a `main`. A opção **Allow administrators to bypass configured protection rules** ficou ligada e só pode ser desligada na interface. `main` e `develop` ainda não têm proteção, não há rulesets, e os workflows têm `read` como permissão por omissão.
+Estado em 2026-11-04. Os workflows têm `read` como permissão por omissão.
 
-**Ambiente `stable-release`** (Settings → Environments):
+**Ambiente `stable-release`:** ativo, com `dkruben` como revisor obrigatório, restrição à branch `main`, sem temporizador nem secrets, e `can_admins_bypass` a `false`. **Prevent self-review** fica desligado: sendo o único mantenedor, com essa opção ligada ninguém poderia aprovar.
 
-1. Criar o ambiente `stable-release`.
-2. Ativar **Required reviewers** e indicar quem aprova.
-3. Em **Deployment branches and tags**, limitar a `main`.
-4. Sendo o único mantenedor, deixar **Prevent self-review** desligado; com ele ligado ninguém poderia aprovar.
+**Rulesets, os três ativos e sem lista de bypass:**
 
-Os revisores obrigatórios estão disponíveis em repositórios públicos; num repositório privado dependem do plano. Convém confirmar na documentação do GitHub antes de contar com isto. Se o ambiente não existir, o GitHub cria-o na primeira execução sem proteção. A aprovação fica vazia e `publish` recusa-a, a menos que se use `--waive-environment-review`. Por isso, o ambiente deve ser criado antes da primeira promoção.
+| Ruleset | ID | Alvo | Regras |
+| --- | --- | --- | --- |
+| `protect-release-tags` | `26562419` | `refs/tags/v*` | Sem eliminar nem mover tags; a criação continua livre, porque publicar uma release cria o tag |
+| `protect-develop` | `26562657` | `refs/heads/develop` | Sem force-push nem eliminação; push direto e PRs opcionais continuam possíveis |
+| `protect-main` | `26563825` | `refs/heads/main` | Sem force-push nem eliminação; PR obrigatório com 0 aprovações; `validate` do GitHub Actions verde, com a branch atualizada face a `main` |
 
-**Disponibilidade do workflow:** `workflow_dispatch` só funciona depois de `promotion-gate.yml` estar na branch por omissão, `main`. Até lá, `publish` não encontra a execução. Em `develop` o workflow não corre, e o job termina como ignorado se for lançado noutra branch.
+`main` só recebe alterações por pull request, e isso aplica-se também aos administradores. Em caso de bloqueio, um ruleset pode ser posto em **Disabled** em Settings → Rules → Rulesets. Estas regras protegem as branches e os tags, mas não impedem um administrador de publicar com `gh` fora da ferramenta.
 
-**Rulesets planeados, ainda não ativos:** `main` com PR e `validate` obrigatórios, sem force-push nem eliminação; `develop` sem force-push nem eliminação; `v*` sem mover nem apagar tags, mantendo a criação livre porque publicar uma release cria o tag. Sem lista de bypass; em caso de bloqueio, um ruleset pode ser posto em **Disabled**. Estas regras protegem as branches e os tags, mas não impedem um administrador de publicar com `gh` fora da ferramenta.
+**Disponibilidade do workflow:** `promotion-gate.yml` está em `main` e em `develop`. Lança-se sempre com `--ref main`; noutra branch o job termina como ignorado.
 
 **Limite conhecido:** com `contents: read`, o `GITHUB_TOKEN` pode não ver rascunhos, por isso a verificação `slot` no workflow pode não os detetar. A verificação local em `publish` usa as credenciais do mantenedor e deteta-os.
 

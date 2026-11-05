@@ -4,6 +4,9 @@ Technical aliases are independent of settings section names. Importing this
 catalog performs no engine initialization and creates no views.
 """
 FLASH_LIBRARY = 'driftkingsbattle.swf'
+# Code-only classes named like the client's players panel linkage classes; loaded while team
+# panels are enabled so the native rows report their own redraws.
+PANELS_LIBRARY = 'driftkingspanels.swf'
 FLASH_COMPONENTS = {
     'DistanceMarkerView': {
         'as3': 'driftkings.battle.components.distance_marker.distancemarkerui',

@@ -22,7 +22,7 @@ This guide explains how the code is organised and how to make a change safely. S
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
 - `main` is the stable release branch. Stable releases reach it from `develop` through a pull request.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
-- Stable `0.1.5` targets WoT `2.4.1.1`; `0.1.4` and `0.1.3` remain archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
+- Stable `0.1.5` and beta `0.1.6-beta.1` target WoT `2.4.1.1`; `0.1.4` and `0.1.3` remain archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5504`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
 
 ## Repository layout
 
@@ -67,6 +67,8 @@ Keep Wulf ViewModels, views, native presenter hooks and resource resolution insi
 ### Flash/Scaleform presentation
 
 Keep DAAPI views, metas, AS3 payload transport, native Flash registration and presentation hooks under `flash/`. The native battle package is `driftkings.flash.battle`; its registry uses the six contracts in `interface_catalog.py`. The own health bar (`gameface/battle/vehicle_health.py`), the aiming countdown, shell flight time and penetration texts (`gameface/battle/reticle_texts.py`) and the battle efficiency and team strength texts (`gameface/battle/screen_texts.py`) are Gameface only. Keep calculations, game state and data collection in feature/core modules. Preserve aliases, AS3 methods and the existing `flash_source/battle` resources. Reuse ComponentMeta setter caching and the existing hook registry. See the [vehicle-marker guide](docs/vehicle_markers/README.md) and `flash/battle/registry.py` for the current integration. Structural changes alone do not establish an FPS improvement.
+
+The side panel of the classic battle page also uses `driftkingspanels.swf`, a code-only library built from `flash_source/battle/src/driftkingspanels.as`. Its classes carry the names of the client's players panel linkage classes (`PlayersPanelListItemLeftUI`, `PlayerPanelListLeftUI` and their right-hand pairs); loaded before `playersPanel.swf`, they receive the native row symbols, report the client's redraws through `panelhook` and tag each row with its vehicle. Ranked, Frontline, Fort Rush and other pages reuse those names with their own base classes, so `flash/battle/player_ratings.py` adds the library per battle through `BattleEntry._getRequiredLibraries`, only for the classic battle page and while the side panel is enabled; never add it to the global battle libraries. Rows of any other class (another mod, another mode) fall back to the polled renderer. Recheck these linkage names and base classes after every client update.
 
 ### Shared constants and fonts
 
@@ -311,4 +313,4 @@ Templates use `{{stat-available}}`, and rating scales are cached as `ratingScale
 
 External service URLs, third-party module detection paths and source attribution keep their original spelling. They are compatibility or provenance identifiers, not names for Driftkings components. Do not create old-name wrapper modules or duplicate palette assets.
 
-The source Wwise project keeps its WAV/WWU/WPROJ inputs. Its `.cache`, `GeneratedSoundBanks`, validation cache and generated `Wwise.dat` files are local outputs. Keep them out of Git, together with generated battle SWFs and installer helper output. The supported build regenerates the battle movie from `flash_source`; the retired `res_map` declarations are not used by the current Gameface dependency.
+The source Wwise project keeps its WAV/WWU/WPROJ inputs. Its `.cache`, `GeneratedSoundBanks`, validation cache and generated `Wwise.dat` files are local outputs. Keep them out of Git, together with generated battle SWFs and installer helper output. The supported build regenerates the battle movie and the players panel library from `flash_source`; the retired `res_map` declarations are not used by the current Gameface dependency.

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import threading
+import time
 try:
     import Queue as queue
 except ImportError:
@@ -143,6 +145,100 @@ class PlayerRatingsTests(RuntimeTest):
         self.assertEqual(requests[1][1]['extra'], 'random')
         self.assertEqual(requests[1][1]['account_id'], '511')
         self.assertNotIn('statistics.all', requests[0][1]['fields'])
+
+    def test_vehicle_requests_run_in_parallel_and_deliver_each_account(self):
+        api = self.api
+        lock, active, peak, delivered = threading.Lock(), [0], [0], []
+
+        def request(region, endpoint, **kwargs):
+            if endpoint == 'wot/account/info':
+                return dict((dbID, {'statistics': {'random': {'battles': 1}}})
+                            for dbID in kwargs['account_id'].split(','))
+            with lock:
+                active[0] += 1
+                peak[0] = max(peak[0], active[0])
+            time.sleep(0.05)
+            with lock:
+                active[0] -= 1
+            return {kwargs['account_id']: [{'tank_id': 1, 'random': {'battles': 1}}]}
+        api['g_event'] = module(userRegion=lambda account: 'eu', request=request)
+        ids = [str(500000000 + number) for number in range(8)]
+        info, tanks = api['Statistics']().fetchPlayerStats(ids, lambda *args: delivered.append(args))
+        self.assertEqual(sorted(tanks), ids)
+        self.assertEqual(sorted(item[0] for item in delivered), ids)
+        for dbID, accountInfo, accountTanks in delivered:
+            self.assertEqual(list(accountInfo), [dbID])
+            self.assertEqual(accountTanks[dbID][0]['tank_id'], 1)
+        self.assertGreater(peak[0], 1)
+        self.assertLessEqual(peak[0], api['STATS_WORKERS'])
+
+    def test_accounts_queued_between_polls_are_applied_in_one_update(self):
+        stats = self.api['Statistics']()
+        applied = []
+        stats.applyPlayerStats = lambda info, tanks: applied.append((dict(info), dict(tanks)))
+        stats._pending.update(['1', '2'])
+        for dbID in ('1', '2'):
+            stats._responses.put((stats._generation, [dbID], {dbID: {'battles': 1}}, {dbID: [{'tank_id': 1}]}))
+        stats.pollStats()
+        self.assertEqual(len(applied), 1)
+        self.assertEqual(sorted(applied[0][0]), ['1', '2'])
+        self.assertEqual(stats._pending, set())
+        self.assertEqual(stats._received, set(['1', '2']))
+
+    def test_delivered_accounts_are_applied_within_a_frame_budget(self):
+        api = self.api
+        vehicles = dict((number, {'accountDBID': number}) for number in range(1, 7))
+        api['BigWorld'] = module(player=lambda: module(arena=module(vehicles=vehicles)))
+        api['g_settings'] = module(getColorScheme=lambda name: None)
+        api['settings_service'] = module(getComponentDict=lambda config: {'performance': {'cacheEnabled': False}})
+        scheduled, clock = [], [0.0]
+        api['callback'] = lambda delay, method: scheduled.append(method) or len(scheduled)
+        api['default_timer'] = lambda: clock[0]
+        stats = api['Statistics']()
+        applied = []
+
+        def applyPlayer(vehicleID, value, dbID, info, tanks, hasStats, scheme):
+            # Each account costs 2 ms; the budget is 3 ms per frame.
+            clock[0] += 0.002
+            applied.append(dbID)
+            stats.playersInfo[dbID] = {'stats': dbID in info}
+        stats.applyPlayer = applyPlayer
+        notified = []
+
+        def failing():
+            raise RuntimeError('listener')
+        stats.listeners.extend([failing, lambda: notified.append(len(applied))])
+        ids = [str(number) for number in range(1, 7)]
+        stats.applyPlayerStats(dict((dbID, {}) for dbID in ids), dict((dbID, []) for dbID in ids))
+        self.assertEqual(len(applied), 2)
+        self.assertEqual(len(scheduled), 1)
+        # Views redraw once the batch is applied, not after every slice.
+        self.assertEqual(notified, [])
+        # Accounts delivered while a slice is pending join it instead of starting another chain.
+        stats.applyPlayerStats({'1': {'late': True}}, {'1': []})
+        self.assertEqual(len(scheduled), 1)
+        while scheduled:
+            scheduled.pop(0)()
+        self.assertEqual(sorted(set(applied)), ids)
+        self.assertEqual(applied.count('1'), 2)
+        # A failing listener does not keep the others from hearing about the batch.
+        self.assertEqual(notified, [len(applied)])
+        self.assertEqual(stats._deferredInfo, {})
+        self.assertEqual(stats._deferredTanks, {})
+
+    def test_reset_drops_accounts_still_waiting_to_be_applied(self):
+        api = self.api
+        cancelled = []
+        api['cancelCallback'] = cancelled.append
+        api['settings_service'] = module(getComponentDict=lambda config: {'performance': {'cacheEnabled': False}})
+        stats = api['Statistics']()
+        stats._deferredInfo['1'] = {}
+        stats._deferredTanks['1'] = []
+        stats._apply = 7
+        stats.reset()
+        self.assertEqual(cancelled, [7])
+        self.assertIsNone(stats._apply)
+        self.assertEqual((stats._deferredInfo, stats._deferredTanks), ({}, {}))
 
     def test_api_vehicle_failure_is_not_cached_as_empty_statistics(self):
         api = self.api

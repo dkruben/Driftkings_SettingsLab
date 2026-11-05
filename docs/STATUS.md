@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -11,13 +11,19 @@ Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
 
 ## Referência atual
 
-- Branch de desenvolvimento: `develop`; `main` é a branch stable.
-- Versão stable publicada: `0.1.5` (latest, tag no commit `550b800` de `main`). Beta publicada: `0.1.5-beta.4` (prerelease, tag no commit `080658e`). A stable `0.1.4` fica arquivada. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
+- Branch de desenvolvimento: `develop`; `main` é a branch stable. Preparação local da stable `0.1.6` em `release/0.1.6`, criada de `develop` no commit `6fe17215c9860fc062230757fe54c76c46379007`; sem commit de preparação, push, PR, build, assinatura ou publicação nesta etapa.
+- Versão stable publicada: `0.1.5` (latest, tag no commit `550b800` de `main`). Beta publicada: `0.1.6-beta.1` (prerelease, tag no commit `22a1931` de `develop`; ver a secção de 2026-11-03). A beta `0.1.5-beta.4` e a stable `0.1.4` ficam arquivadas. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
-- O painel de configurações continua em construção (o aviso mantém-se no painel e no changelog), mas o utilizador confirmou a aceitação visual no cliente EU em 2026-11-02.
-- As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS.
+- A beta `0.1.6-beta.1` foi aprovada funcionalmente por Ruben Gameiro Lopes Gonçalves em 2026-11-05, com testes declarados de 2026-11-04 em EU, NA e ASIA. Os 18 bloqueantes estão PASS nas três regiões; 57 células PASS e 36 NOT TESTED no [registo oficial](releases/0.1.6-beta.1-validation.md). O painel e os perfis têm persistência confirmada; detalhes históricos sobre construção/aceitação visual do painel permanecem nas secções datadas abaixo. A aprovação funcional não é uma nova medição de desempenho.
+- As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS; as medições em jogo de 2026-11-03 estão na secção correspondente.
+
+## Preparação local da stable 0.1.6 — 2026-11-05
+
+`prepare` atualizou apenas a versão/canal em `build_data/release.json` e o literal `VERSION` para `0.1.6`/`stable`. Changelog, README, SECURITY, exemplo de reporte e expectativas de arranque foram preparados sem mudanças funcionais. Não há links de download para assets 0.1.6 inexistentes; stable 0.1.5 e beta 0.1.6-beta.1 continuam as versões publicadas.
+
+A beta aprovada permanece no commit `22a19317a19b0969351ed1514ec63d3d7f4831f2`, com os registos e artefactos preservados. A stable terá de ser recompilada e assinada após PR, merge commit em `main`, CI verde e `promote_release.py check` aprovado; o hash da beta não é reutilizado como hash da stable. Commit/push, PR, merge, build, gate e publicação aguardam autorizações posteriores.
 
 ## Guias mantidos
 
@@ -25,6 +31,7 @@ Atualizado em 2026-11-02. Os caminhos e comandos partem da raiz do repositório.
 | --- | --- |
 | Instalação, funcionalidades e downloads | [README](../README.md) |
 | Desenvolvimento, verificações e publicação | [CONTRIBUTING](../CONTRIBUTING.md) |
+| Validação e promoção de beta a stable | [Releases](releases/README.md) |
 | Painel de configurações | [Relatório funcional](RELATORIO_PAINEL_CONFIGURACAO.md) |
 | Marcadores dos veículos | [Guia dos marcadores](vehicle_markers/README.md) |
 | Carrossel | [Guia do carrossel](vehicle_carousel/README.md) |
@@ -58,6 +65,36 @@ Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e
 - O dano efetuado e o esperado têm macros de cor independentes; o separador pode ter a sua própria cor.
 - Apply também persiste valores, conforme o contrato atual do painel. Os riscos de aplicação parcial, gravação de segredos e invalidação de estatísticas estão na auditoria final.
 - As correções históricas do replay retiraram acessos TextField não suportados do relógio, declararam fontes nativas dos cartões e rejeitaram curvas de calibração planas/invertidas.
+
+## Promoção de beta a stable — 2026-11-04
+
+A publicação passa a ter registo de validação, promoção rastreável e bloqueios para o que falhou na 0.1.6-beta.1: `publish_release.py --publish` recusa commits sem CI verde, duplicados do mesmo tag e versões stable. A stable sai de `build_tools/promote_release.py`, que exige um registo aprovado em `docs/releases/`, e o workflow `promotion-gate.yml` faz as verificações em modo de leitura. O processo está em [Releases](releases/README.md).
+
+O registo da `0.1.6-beta.1` tem as linhas automáticas verificadas e as linhas em jogo por preencher, com a decisão `PENDING`; a beta ainda não pode ser promovida.
+
+**Configuração do GitHub.** `promotion-gate.yml` está disponível em `main` e `develop`, e lança-se a partir de `main`. O ambiente `stable-release` está criado e protegido, com `dkruben` como revisor obrigatório, restrição a `main` e `can_admins_bypass` a `false`. Os três rulesets estão ativos e sem lista de bypass: `protect-release-tags` (`26562419`), `protect-develop` (`26562657`) e `protect-main` (`26563825`). `main` passa a receber alterações só por pull request, e a promoção exige merge commit.
+
+**Validado.** O teste negativo do gate passou na [execução 41880158173](https://github.com/dkruben/Driftkings_SettingsLab/actions/runs/41880158173): `identity` rejeitou a combinação sintética, o título trouxe o digest, a aprovação não correu e não houve tags, releases nem notificações Discord. A primeira execução, sem aspas em `run-name`, tinha mostrado que o digest se perdia como comentário YAML; corrigido em `c7bbcc4`. Depois de uma edição do ambiente na interface ter removido a regra de revisores, a regra foi reposta pela API.
+
+**Pendente.** A validação em jogo, a primeira aprovação real no ambiente, o primeiro PR para `main`, a primeira build por `promote_release.py` e a promoção da 0.1.6.
+
+A auditoria final corrigiu seis problemas: um teste que ficaria vermelho ao aprovar o registo, caminhos locais no `build-report.json` publicado, aprovação sem ligação aos artefactos, dispensa da revisão sobre um ambiente protegido, pastas aceites sem instalador ou sem passar por `build`, e testes que não detetavam a remoção de bloqueios. As releases já publicadas mantêm os caminhos locais no `build-report.json`.
+
+## Desempenho em batalha e beta 0.1.6-beta.1 — 2026-11-03
+
+**Medição.** No cliente EU, com a CapFrameX (gravações de 20 s nos mesmos momentos de replays) e os diagnósticos do mod (`Debug` no painel e `team_panels.performance.diagnostics`), os mods custavam ~8,5% no FPS médio e ~16% no 1% low num replay da Linha da Frente. Retirar o `RemoveFog` ou o `res_mods` não mudou os números; retirar o `driftkings.wotmod` recuperou ~70% da perda no 1% low. Os diagnósticos apontaram as paragens da aplicação das estatísticas (até 200 ms), o `gun_traverse_limits` e o painel das equipas, que numa aleatória gastava ~5,4 ms por passagem em Flash, 10 vezes por segundo.
+
+**Correções em `develop`:**
+
+- `3a410b4`: as contas entregues aplicam-se no máximo 3 ms por frame (`applyDeferred`); a paragem máxima passou de ~200 ms para ~11 ms.
+- `73104b9`: `OverlayScene.update` só envia ao Flash as propriedades alteradas (marcadores de ângulo, indicador do autoaim, informação do alvo).
+- `4c10b66`: o relógio do ecrã de carregamento passou para o Flash (o payload deixava de ser igual a cada segundo); o tick Python do painel passou de 0,25 s a 1 s, com as estatísticas a avisar o painel no fim de cada lote. Medido: 5 ticks por 5 s em vez de 20, reenvios só com alterações.
+- `4ab8855`: `rowlookup` indexa as linhas uma vez por payload em vez de ~2700 regex por passagem; o painel passou de ~5,4 ms a ~2,1 ms por passagem.
+- `eea95cb` e `d1973a2`: `driftkingspanels.swf` (só código, 1,5 KB) define as classes de ligação do painel lateral clássico com os nomes nativos; as linhas avisam os redesenhos através de `panelhook`, ficam marcadas com o `vehicleID` e o painel só é percorrido com dados novos, alterações ou a verificação de 1 s. Medido: ~0,6–1,4 ms por passagem e ~6 vezes menos verificações. Ranked, Linha da Frente e Fort Rush reutilizam os mesmos nomes com outras bases, por isso a biblioteca só é acrescentada por batalha à página clássica (`BattleEntry._getRequiredLibraries`); validado num replay aleatório (classes carregadas, 30 linhas) e da Linha da Frente (não carregadas).
+
+**Decisões.** O TAB (`FullStats`) fica com o método anterior: substituí-lo obrigava a copiar código privado da WG (`createItemHolder` e a configuração das abas de `FullStatsUI`) e só custa enquanto está aberto. O `ifc_addons` (polarfox) serviu de referência: os SWF só de código são legíveis; o Python (PjOrion) e o Gameface (JS encriptado) não foram contornados. Os scripts locais de teste de FPS ficam fora do repositório.
+
+**Beta 0.1.6-beta.1.** Versão e canal em `driftkings/__init__.py`, `build_data/release.json`, README (badge, downloads e novidades), SECURITY.md, o exemplo do formulário de bug e o fixture de `test_core_startup.py`; o CONTRIBUTING descreve o `driftkingspanels.swf` e a regra da página clássica. O CI falhou no `b6f03f1` pela ordem de um import (isort), corrigida em `22a1931`. A build release foi refeita a partir da árvore limpa em `22a1931`, com o CI verde, instalador Inno Setup e os três testes sobre o WOTMOD, e o manifesto foi assinado com a chave existente. Os 11 assets do rascunho coincidiram em nome, tamanho e SHA-256 com a build local; o manifesto e a assinatura descarregados da release pública são iguais aos locais e os links de download do README respondem. A [release v0.1.6-beta.1](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6-beta.1) está publicada como prerelease; a stable 0.1.5 continua latest. Um rascunho anterior com o mesmo tag e alvo `b6f03f1` foi apagado sem ser publicado.
 
 ## Beta 0.1.5-beta.4 publicada e stable 0.1.5 em preparação — 2026-11-02
 

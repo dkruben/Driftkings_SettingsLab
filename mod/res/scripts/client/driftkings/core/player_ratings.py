@@ -7,6 +7,7 @@ import re
 import string
 import threading
 import time
+from timeit import default_timer
 import urllib
 import urllib2
 from xml.sax.saxutils import escape
@@ -40,8 +41,38 @@ FAILED_RETRY_SECONDS = 5
 CACHE_LIMIT = 300
 MAX_STATS_RESPONSE = 16 * 1024 * 1024
 STATS_DEADLINE = 30.0
+# Per-account vehicle requests run side by side, below the Wargaming API rate for client applications.
+STATS_WORKERS = 4
+# Main-thread seconds spent applying delivered accounts per frame. Rating every account of a
+# 30v30 roster at once stalled one frame for ~200 ms; the rest waits for the next frame.
+APPLY_BUDGET = 0.003
 NUMERIC = ('wn8', 'wnx', 'winrate', 'battles', 'kb', 'wgr', 'eff', 'xwn8', 'xeff',
            't_battles', 't_winrate', 'spg_battles', 'spg_percent', 'mark_of_mastery', 'tdv')
+
+
+def run_parallel(items, work, workers=STATS_WORKERS):
+    """Call work(item) for every item on up to `workers` daemon threads; return when all are done."""
+    pending = Queue()
+    for item in items:
+        pending.put(item)
+
+    def drain():
+        while True:
+            try:
+                item = pending.get_nowait()
+            except Empty:
+                return
+            try:
+                work(item)
+            except Exception as error:
+                LOG.warning(('Statistics worker failed: {}').format(error))
+
+    threads = [threading.Thread(target=drain, name='Driftkings.Statistics') for _ in range(min(workers, len(items)))]
+    for thread in threads:
+        thread.setDaemon(True)
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 
 def tank_damage_ratio(stats, maxHP):
@@ -429,6 +460,11 @@ class Statistics(object):
         self._localAccount = None
         self._localStats = None
         self._appliedCache = {}
+        self._deferredInfo = {}
+        self._deferredTanks = {}
+        self._apply = None
+        # Called once a delivered batch is fully applied, so views redraw without polling.
+        self.listeners = []
         self._listener = ArenaStatsListener(self)
         self._attached = False
         self._listening = False
@@ -501,23 +537,31 @@ class Statistics(object):
             self._responses.put((generation, None, None, None))
 
     def _loadPlayerStats(self, databaseIDs, generation, tankIDs=None):
+        started = time.time()
+
+        def deliver(dbID, info, tanks):
+            # Each account is shown as soon as it answers, not after the whole team.
+            if generation == self._generation:
+                self._responses.put((generation, [dbID], info, tanks))
         try:
-            info, tanks = self.fetchPlayerStats(databaseIDs)
+            info, tanks = self.fetchPlayerStats(databaseIDs, deliver)
         except Exception as error:
             LOG.warning(('Could not fetch player statistics: {}').format(error))
             info, tanks = {}, {}
+        # The complete answer still settles retries for accounts that were never delivered.
         self._responses.put((generation, databaseIDs, info, tanks))
-        for dbID, tankID in (tankIDs or {}).items():
+        if generation == self._generation:
+            LOG.info('Player statistics: %d accounts in %.1f s, %d with vehicle data',
+                     len(databaseIDs), time.time() - started, len([dbID for dbID in tanks if tanks[dbID]]))
+
+        def detail(item):
+            dbID, tankID = item
             if generation != self._generation:
-                break
-            if dbID not in info or not info[dbID] or not tanks.get(dbID):
-                continue
-            if any(tank.get('tank_id') == tankID and 'damageStats' in tank for tank in tanks[dbID]):
-                continue
-            detail = g_event.request(g_event.userRegion(int(dbID)), 'wot/tanks/stats',
-                                     account_id=dbID, tank_id=tankID,
-                                     extra='random', fields='tank_id,random.damage_dealt,random.battles')
-            entries = detail.get(dbID) if isinstance(detail, dict) else None
+                return
+            response = g_event.request(g_event.userRegion(int(dbID)), 'wot/tanks/stats',
+                                       account_id=dbID, tank_id=tankID,
+                                       extra='random', fields='tank_id,random.damage_dealt,random.battles')
+            entries = response.get(dbID) if isinstance(response, dict) else None
             for entry in entries or []:
                 if entry.get('tank_id') != tankID:
                     continue
@@ -526,8 +570,13 @@ class Statistics(object):
                     if tank.get('tank_id') == tankID:
                         tank['damageStats'] = entry.get('random', {})
                 self._responses.put((generation, [], {dbID: info[dbID]}, {dbID: updated}))
+        missing = [(dbID, tankID) for dbID, tankID in (tankIDs or {}).items()
+                   if dbID in info and info[dbID] and tanks.get(dbID)
+                   and not any(tank.get('tank_id') == tankID and 'damageStats' in tank for tank in tanks[dbID])]
+        if missing and generation == self._generation:
+            run_parallel(missing, detail)
 
-    def fetchPlayerStats(self, databaseIDs):
+    def fetchPlayerStats(self, databaseIDs, deliver=None):
         regions = {}
         for databaseID in databaseIDs:
             regions.setdefault(g_event.userRegion(int(databaseID)), []).append(databaseID)
@@ -548,7 +597,7 @@ class Statistics(object):
                 dataInfo.update(infoResponse)
             # tanks/stats accepts one account per request. Keep its random
             # counts paired with the account's random totals, never all-mode data.
-            for databaseID in regions[region]:
+            def vehicles(databaseID, region=region, tankFields=tankFields):
                 tanks_response = g_event.request(region, 'wot/tanks/stats', account_id=databaseID,
                                                  extra='random', fields=tankFields)
                 if tanks_response and databaseID in tanks_response:
@@ -557,6 +606,11 @@ class Statistics(object):
                         {'tank_id': entry['tank_id'], 'mark_of_mastery': entry.get('mark_of_mastery', 0),
                          'statistics': entry['random'], 'damageStats': entry['random']}
                         for entry in entries if entry.get('random') is not None]
+                if deliver is not None:
+                    deliver(databaseID,
+                            {databaseID: dataInfo[databaseID]} if databaseID in dataInfo else {},
+                            {databaseID: dataTanks[databaseID]} if databaseID in dataTanks else {})
+            run_parallel(regions[region], vehicles)
         return dataInfo, dataTanks
 
     def applyPlayerStats(self, dataInfo, dataTanks, updateCache=True):
@@ -566,9 +620,23 @@ class Statistics(object):
                 if dataInfo[dbID] is not None and dataTanks.get(dbID) is not None:
                     self.statsCache[dbID] = {'info': dataInfo[dbID], 'tanks': dataTanks.get(dbID, None)}
                     self.cacheTimestamp[dbID] = currentTime
+        # Newer data for an account still waiting replaces the older one.
+        self._deferredInfo.update(dataInfo)
+        self._deferredTanks.update(dataTanks)
+        if self._apply is None:
+            self.applyDeferred()
+
+    def applyDeferred(self):
+        self._apply = None
+        arena = getattr(BigWorld.player(), 'arena', None)
+        if arena is None:
+            self._deferredInfo.clear(); self._deferredTanks.clear()
+            return
+        dataInfo, dataTanks = self._deferredInfo, self._deferredTanks
         hasStats = bool(dataInfo and dataTanks)
         pColorScheme = g_settings.getColorScheme('battle/player')
-        for vehicleID, value in BigWorld.player().arena.vehicles.items():
+        started = default_timer()
+        for vehicleID, value in arena.vehicles.items():
             dbID = str(value['accountDBID'])
             if dbID not in dataInfo and dbID in self.playersInfo:
                 continue
@@ -577,6 +645,16 @@ class Statistics(object):
             except Exception as error:
                 self.playersInfo.pop(dbID, None)
                 LOG.warning(('Could not apply statistics for {}: {}').format(dbID, error))
+            dataInfo.pop(dbID, None); dataTanks.pop(dbID, None)
+            if default_timer() - started >= APPLY_BUDGET:
+                self._apply = callback(0, self.applyDeferred)
+                return
+        dataInfo.clear(); dataTanks.clear()
+        for listener in tuple(self.listeners):
+            try:
+                listener()
+            except Exception:
+                LOG.exception('Statistics listener failed')
 
     def applyPlayer(self, vehicleID, value, dbID, dataInfo, dataTanks, hasStats, pColorScheme):
         settings = settings_service.getComponentDict(config)
@@ -685,6 +763,8 @@ class Statistics(object):
 
     def pollStats(self):
         self._poll = None
+        # Accounts delivered since the last poll are applied together, in one update.
+        mergedInfo, mergedTanks, received = {}, {}, False
         while True:
             try:
                 generation, ids, info, tanks = self._responses.get_nowait()
@@ -704,8 +784,12 @@ class Statistics(object):
                 self._attempts.update((dbID, retry) for dbID in failed)
                 if self._retry is None:
                     self._retry = callback(FAILED_RETRY_SECONDS, self.retryStats)
+            mergedInfo.update(info)
+            mergedTanks.update(tanks)
+            received = True
+        if received:
             try:
-                self.applyPlayerStats(info, tanks)
+                self.applyPlayerStats(mergedInfo, mergedTanks)
             except Exception as error:
                 LOG.warning(('Could not apply player statistics: {}').format(error))
         if self._workers and getattr(BigWorld.player(), 'arena', None) is not None:
@@ -794,6 +878,11 @@ class Statistics(object):
         if self._retry is not None:
             cancelCallback(self._retry)
             self._retry = None
+        if self._apply is not None:
+            cancelCallback(self._apply)
+            self._apply = None
+        self._deferredInfo.clear()
+        self._deferredTanks.clear()
         self.playersInfo = {}
         self._appliedCache.clear()
         try:

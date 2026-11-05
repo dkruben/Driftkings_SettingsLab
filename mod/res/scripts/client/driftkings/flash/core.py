@@ -70,9 +70,15 @@ class OverlayScene(object):
     def update(self, alias, props, animation=None):
         if alias not in self.elements:
             return False
-        self.elements[alias][1].update(deepcopy(props))
+        # Per-tick callers resend whole states; only changed properties cross into Flash.
+        # The scene keeps every value, so a recreated view still receives the full state.
+        current = self.elements[alias][1]
+        changed = dict((key, value) for key, value in props.items() if key not in current or current[key] != value)
+        if not changed:
+            return True
+        current.update(deepcopy(changed))
         if self.view is not None:
-            self.view.update(alias, deepcopy(props), float((animation or {}).get('duration', 0)))
+            self.view.update(alias, deepcopy(changed), float((animation or {}).get('duration', 0)))
         return True
 
     def animate(self, alias, duration, props, replace=True):
