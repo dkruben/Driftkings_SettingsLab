@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "game_version": "2.4.1.1",
-  "realm": "NA",
-  "client_build": "987",
+  "realm": "EU",
+  "client_build": "993",
   "resource": "gui/gameface/_dist/production/mono/hangar/main/bundle.js",
-  "source_sha256": "0f70f90d3ed8154f46bae0c02d13497c8cc2134035205b2d9fd1dc5ef511df47",
-  "output_sha256": "2ebd38962658806fc5b3d03b676d6c3bd9d195a4bd7f754937a8259ed5ea8d03",
+  "source_sha256": "bc947b3d9ee261181f8903afc297f34451f5a0328875f92dda3f5c3ffdc044dc",
+  "output_sha256": "884c57a68fecfe88ab3a711261c021bde8ae19a167b36dec96187e38088923d3",
   "operations": [
     {
       "find": "var[tr,ar]=ba(\"HeroTankModelProvider\")",

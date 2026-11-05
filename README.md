@@ -27,6 +27,10 @@ Built for the Wargaming **EU, NA and ASIA** clients. Enable the components you w
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases) include previous stable versions and optional beta releases. Use assets from the same release when installing manually.
 
+## Beta 0.1.7-beta.1
+
+Beta preparation for the World of Tanks 2.4.1.1 micro-update: updated carousel and vehicle-marker build resources, refreshed Flash libraries, optimized images and custom minimap support restricted to Random Battles and 7x7/Onslaught. Other modes retain the native minimap. The project owner confirmed the local EU test build in game; NA and ASIA have not been revalidated in game for this beta. Stable downloads above remain at 0.1.6 until the beta is published and validated.
+
 ## What's New in v0.1.6
 
 Version 0.1.6 brings the improvements of the approved 0.1.6-beta.1 into the stable channel, preserving personal profiles and settings.

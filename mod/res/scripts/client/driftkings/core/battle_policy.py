@@ -21,6 +21,8 @@ class BattlePolicy(object):
             reason = 'outside_battle'
         elif feature in STATISTICS_ONLY and not context.is_statistics_battle():
             reason = 'requires_statistics_battle'
+        elif feature == 'minimap_enhancements' and context.current_mode() not in ('random', 'comp7'):
+            reason = 'requires_random_or_comp7'
         elif spg_only and not context.is_spg():
             reason = 'requires_spg'
         else:

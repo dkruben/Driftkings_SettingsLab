@@ -2,6 +2,12 @@
 
 Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
 
+## Preparação da beta 0.1.7-beta.1 — 2026-11-05
+
+A beta seguinte integra a microatualização, as cinco imagens otimizadas e a restrição do minimapa a aleatórias/Comp7. `build_data/release.json`, `VERSION` e o teste de arranque estão alinhados em `0.1.7-beta.1`/`beta`. O autor confirmou todos os testes da build local instalada no EU nesta conversa; não foi declarada uma nova validação NA/ASIA. Essa build debug não substitui a identificação e validação do pacote release para promoção a stable.
+
+A stable publicada atual é `0.1.6` (confirmada no GitHub). As secções antigas abaixo sobre preparação da stable são históricas. A referência de compilação continua EU `2.4.1.5514`; CT será trabalho posterior. Verificações desta preparação: 834 testes Python 3 (runtime/build), 654 testes runtime Python 2.7 e 18 suites frontend aprovados; lint, imports, nomes, traduções, defaults, catálogo UI e contratos aprovados.
+
 ## Como retomar o trabalho
 
 1. Ler este documento para conhecer o estado e as pendências; depois [CONTRIBUTING](../CONTRIBUTING.md) para arquitetura, contratos, verificações e build, e [Development References](DEVELOPMENT_REFERENCE.md) para as fontes externas.
@@ -11,13 +17,25 @@ Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
 
 ## Referência atual
 
-- Branch de desenvolvimento: `develop`; `main` é a branch stable. Preparação local da stable `0.1.6` em `release/0.1.6`, criada de `develop` no commit `6fe17215c9860fc062230757fe54c76c46379007`; sem commit de preparação, push, PR, build, assinatura ou publicação nesta etapa.
-- Versão stable publicada: `0.1.5` (latest, tag no commit `550b800` de `main`). Beta publicada: `0.1.6-beta.1` (prerelease, tag no commit `22a1931` de `develop`; ver a secção de 2026-11-03). A beta `0.1.5-beta.4` e a stable `0.1.4` ficam arquivadas. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
-- Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
+- Branch de desenvolvimento: `develop`, com a beta `0.1.7-beta.1` em preparação; `main` mantém a stable publicada `0.1.6`.
+- Versão stable publicada: `0.1.6` (latest). Beta publicada anterior: `0.1.6-beta.1`; os assets `0.1.7-beta.1` serão compilados do novo commit em `develop`. O código posterior a um tag não altera os assets já publicados.
+- Base desta preparação: `4cf49575` em `develop`. As integrações anteriores mencionadas nas secções datadas são histórico, não o HEAD atual.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
 - A beta `0.1.6-beta.1` foi aprovada funcionalmente por Ruben Gameiro Lopes Gonçalves em 2026-11-05, com testes declarados de 2026-11-04 em EU, NA e ASIA. Os 18 bloqueantes estão PASS nas três regiões; 57 células PASS e 36 NOT TESTED no [registo oficial](releases/0.1.6-beta.1-validation.md). O painel e os perfis têm persistência confirmada; detalhes históricos sobre construção/aceitação visual do painel permanecem nas secções datadas abaixo. A aprovação funcional não é uma nova medição de desempenho.
 - As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS; as medições em jogo de 2026-11-03 estão na secção correspondente.
+
+## Restrição do minimapa por modo — 2026-11-05
+
+O minimapa do mod passa a funcionar apenas em batalhas aleatórias (incluindo as variantes reconhecidas pelo cliente) e 7x7/Comp7. Nos restantes modos, incluindo eventos, Frontline, Stronghold e modos desconhecidos, ficam os plugins e a apresentação nativos. A restrição usa a política central de batalha tanto na substituição dos plugins como na ativação da apresentação Flash; não altera as preferências gravadas. Validação visual desta alteração em jogo pendente.
+
+## Compatibilidade da microatualização — 2026-11-05
+
+A referência de produção passou de EU `2.4.1.5504` para `2.4.1.5514` (cliente `2.4.1.1 #993`; NA instalado `#992`). Foram alinhados o contrato de build, os hashes de entrada/saída do patch do carrossel, o lock do SWF nativo dos marcadores e as oito bibliotecas SWC exportadas da referência EU. Os 23 pontos de inserção do carrossel e os métodos/campos usados pelo patch dos marcadores foram verificados; não foi necessário alterar a lógica dos patches. Os recursos dos quartéis e tooltips da tripulação mantêm os hashes anteriores.
+
+As cinco imagens otimizadas pelo autor foram preservadas: ícones de contas a 128×128 (apresentação controlada por CSS), barras HP a 72×24 com transparência. Redução total aproximada de 4,62 MiB nos PNG de origem; sem alteração dos caminhos ou configurações.
+
+Validação local: contratos Gameface aprovados nos clientes EU e NA, 180 testes de build aprovados e compilação debug completa com os novos recursos. A build de ensaio usa `0.1.7-beta.1` apenas no pacote, através de `--keep-source-version`; a versão/canal de release no repositório permanecem intactos. O autor confirmou o aspeto visual do mod anteriormente instalado após a atualização; essa confirmação não valida em jogo esta nova build. Sem instalação, assinatura, publicação, commit ou push. A referência CT não foi selecionada para compilação.
 
 ## Preparação local da stable 0.1.6 — 2026-11-05
 

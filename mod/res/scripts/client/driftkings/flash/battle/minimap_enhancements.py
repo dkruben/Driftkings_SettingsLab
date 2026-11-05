@@ -10,6 +10,7 @@ from gui.battle_control.avatar_getter import getInputHandler
 
 from driftkings.common.utils.game import checkKeys
 from driftkings.common.utils.wgutils import hasCompetingMarkers
+from driftkings.core.battle_policy import battle_policy
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.flash.battle.meta.minimap import MinimapMeta
 from driftkings.ui.common.events import g_events
@@ -27,11 +28,15 @@ class MinimapEnhancementsView(MinimapMeta):
     def __init__(self):
         super(MinimapEnhancementsView, self).__init__(_component().minimap_settings.NAME)
         self._releaseCallback = None
+        self._supportedMode = False
 
 
     def _populate(self):
         # noinspection PyProtectedMember
         super(MinimapEnhancementsView, self)._populate()
+        self._supportedMode = battle_policy.decision('minimap_enhancements')[0]
+        if not self._supportedMode:
+            return
         g_events.onAltKey += self.onAltKey
         handler = getInputHandler()
         if handler is not None and hasattr(handler, 'onCameraChanged'):
@@ -48,6 +53,9 @@ class MinimapEnhancementsView(MinimapMeta):
                 self.onRanges(plugin._ranges)
 
     def _dispose(self):
+        if not self._supportedMode:
+            super(MinimapEnhancementsView, self)._dispose()
+            return
         # AS disposal restores zoom; arena data may already be gone here.
         if self._releaseCallback is not None:
             cancelCallback(self._releaseCallback)
