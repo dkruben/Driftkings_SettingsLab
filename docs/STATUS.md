@@ -1,6 +1,6 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-04. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
 
 ## Como retomar o trabalho
 
@@ -11,13 +11,19 @@ Atualizado em 2026-11-04. Os caminhos e comandos partem da raiz do repositório.
 
 ## Referência atual
 
-- Branch de desenvolvimento: `develop`; `main` é a branch stable.
+- Branch de desenvolvimento: `develop`; `main` é a branch stable. Preparação local da stable `0.1.6` em `release/0.1.6`, criada de `develop` no commit `6fe17215c9860fc062230757fe54c76c46379007`; sem commit de preparação, push, PR, build, assinatura ou publicação nesta etapa.
 - Versão stable publicada: `0.1.5` (latest, tag no commit `550b800` de `main`). Beta publicada: `0.1.6-beta.1` (prerelease, tag no commit `22a1931` de `develop`; ver a secção de 2026-11-03). A beta `0.1.5-beta.4` e a stable `0.1.4` ficam arquivadas. O código posterior ao tag não atualiza automaticamente os assets publicados; não reconstruir nem mover tags existentes para incluir novas alterações.
 - Último commit funcional de integração: `dbbe7dd` (testes, constantes e utilidades), enviado para `develop` e integrado em `main` para stable 0.1.4. `88930b6` contém as correções do Account Manager; `4d40588` removeu OpenWG Common.
 - Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
-- O painel de configurações continua em construção (o aviso mantém-se no painel e no changelog), mas o utilizador confirmou a aceitação visual no cliente EU em 2026-11-02.
+- A beta `0.1.6-beta.1` foi aprovada funcionalmente por Ruben Gameiro Lopes Gonçalves em 2026-11-05, com testes declarados de 2026-11-04 em EU, NA e ASIA. Os 18 bloqueantes estão PASS nas três regiões; 57 células PASS e 36 NOT TESTED no [registo oficial](releases/0.1.6-beta.1-validation.md). O painel e os perfis têm persistência confirmada; detalhes históricos sobre construção/aceitação visual do painel permanecem nas secções datadas abaixo. A aprovação funcional não é uma nova medição de desempenho.
 - As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS; as medições em jogo de 2026-11-03 estão na secção correspondente.
+
+## Preparação local da stable 0.1.6 — 2026-11-05
+
+`prepare` atualizou apenas a versão/canal em `build_data/release.json` e o literal `VERSION` para `0.1.6`/`stable`. Changelog, README, SECURITY, exemplo de reporte e expectativas de arranque foram preparados sem mudanças funcionais. Não há links de download para assets 0.1.6 inexistentes; stable 0.1.5 e beta 0.1.6-beta.1 continuam as versões publicadas.
+
+A beta aprovada permanece no commit `22a19317a19b0969351ed1514ec63d3d7f4831f2`, com os registos e artefactos preservados. A stable terá de ser recompilada e assinada após PR, merge commit em `main`, CI verde e `promote_release.py check` aprovado; o hash da beta não é reutilizado como hash da stable. Commit/push, PR, merge, build, gate e publicação aguardam autorizações posteriores.
 
 ## Guias mantidos
 

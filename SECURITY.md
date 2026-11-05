@@ -4,11 +4,12 @@
 
 | Version | Channel | Supported |
 | --- | --- | --- |
+| 0.1.6 | Stable in preparation; not published | Pending publication |
 | 0.1.6-beta.1 | Beta | Yes |
 | 0.1.5 | Stable | Yes |
 | Older releases | — | No; update first |
 
-Both supported versions target World of Tanks 2.4.1.1 on the Wargaming EU, NA and ASIA clients.
+The published supported versions and the planned stable 0.1.6 target World of Tanks 2.4.1.1 on the Wargaming EU, NA and ASIA clients. The source beta 0.1.6-beta.1 has an approved functional validation record for all three regions; stable 0.1.6 has not been built or published. Published stable 0.1.5 remains supported during preparation.
 
 ## Reporting a vulnerability
 

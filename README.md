@@ -11,7 +11,7 @@ A configurable modpack for **Wargaming World of Tanks**, with battle statistics,
 
 Built for **WoT 2.4.1.1** on **EU, NA and ASIA**.
 
-> **Settings panel under construction:** the panel passed visual acceptance in the EU game client, but layouts and live previews may still change between versions.
+> **Stable 0.1.6 in preparation:** based on the approved 0.1.6-beta.1, functionally validated by the project owner on EU, NA and ASIA. It has not been built or published as stable; the downloads below remain the published 0.1.5 and 0.1.6-beta.1.
 
 ## Downloads
 
@@ -24,9 +24,9 @@ Stable **0.1.5** and beta **0.1.6-beta.1** both target WoT **2.4.1.1**. Version 
 
 [All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases). Each release includes the defaults archive, required dependencies, signed updater manifest and SHA-256 checksums.
 
-### What's new in 0.1.6-beta.1
+### Planned for stable 0.1.6
 
-A performance beta: same features and settings as 0.1.5, with less work per frame in battle.
+Promotion of 0.1.6-beta.1: same features and settings as 0.1.5, with less work per frame in battle. The beta's functional validation is [approved](docs/releases/0.1.6-beta.1-validation.md) for EU, NA and ASIA, including real Random Battle and Frontline battles, replays, installation, updates and configuration persistence. Functional results are declarative evidence from the project owner; the performance figures below are earlier EU replay measurements, not new measurements across all three regions.
 
 - **Player statistics:** fetched in parallel, shown as each account answers, and applied a few at a time, so a batch no longer freezes a frame for up to 200 ms.
 - **Team panels:** redrawn by battle events instead of four times a second; only changed rows reach Flash, and the loading-screen clock keeps time on its own.
