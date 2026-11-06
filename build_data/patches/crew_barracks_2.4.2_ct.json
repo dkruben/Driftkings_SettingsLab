@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "CT",
+  "client_build": "995",
+  "resource": "gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.js",
+  "source_sha256": "d4784c9c6f1b66452dad287e89ffad84e142309a75599c3866498d16e3f0162a",
+  "output_sha256": "5d71e2cf13e0934bb4adeb6fb3039e5f580ef4e2425daa75ceadb66e357eb619",
+  "operations": [
+    {
+      "find": "className:p()(Hn.base,Hn[`base__${e.cardState}`],o),onMouseEnter:c",
+      "replace": "\"data-dk-barracks-id\":g?\"\":e.tankmanID,\"data-dk-barracks-kind\":e.tankmanKind,className:p()(Hn.base,Hn[`base__${e.cardState}`],o),onMouseEnter:c",
+      "count": 1
+    }
+  ]
+}

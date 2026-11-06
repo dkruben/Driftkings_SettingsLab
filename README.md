@@ -1,5 +1,8 @@
 # Driftkings Modpack
 
+> **Common Test development branch:** `feature/wot-2.4.2-ct` targets WoT `2.4.2.0 Common Test #995` with local test version `0.1.8-beta.1`. The project owner approved local test build `0.1.8-beta.2` in game on 2026-11-06; CT remains unpublished. Production 0.1.7-beta.1 and stable 0.1.6 remain separate. See [CT compatibility and build commands](docs/CT_COMPATIBILITY.md).
+
+
 A customizable World of Tanks modpack with advanced battle statistics, modern interface enhancements, aiming tools, vehicle markers and integrated settings.
 
 [![Latest Stable: 0.1.6](https://img.shields.io/badge/Latest_Stable-0.1.6-blue)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6)

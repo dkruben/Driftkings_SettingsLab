@@ -22,7 +22,7 @@ This guide explains how the code is organised and how to make a change safely. S
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
 - `main` is the stable release branch. Stable releases reach it from `develop` through a pull request.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
-- Stable `0.1.6` and development beta `0.1.7-beta.1` target WoT `2.4.1.1`; `0.1.4` and `0.1.3` remain archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. Current development target: WoT `2.4.1.1`, source reference EU `2.4.1.5514`. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
+- Stable `0.1.6` and development beta `0.1.7-beta.1` target WoT `2.4.1.1`; `0.1.4` and `0.1.3` remain archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. On `feature/wot-2.4.2-ct`, the development target is WoT `2.4.2.0`, realm CT, source reference `2.4.2.5516`, local version `0.1.8-beta.1`. Production `develop` remains separate. Use the explicit CT client/reference overrides in [the CT guide](docs/CT_COMPATIBILITY.md); machine-local defaults still point to production EU. A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
 
 ## Repository layout
 

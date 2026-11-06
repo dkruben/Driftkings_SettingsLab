@@ -81,7 +81,7 @@
                         var dx = (x - px) / 100 * area.clientWidth, dy = (y - py) / 100 * area.clientHeight;
                         style(segments[i - 1], 'left', px + '%'); style(segments[i - 1], 'top', py + '%');
                         style(segments[i - 1], 'width', Math.sqrt(dx * dx + dy * dy) + 'px');
-                        style(segments[i - 1], 'transform', 'rotate(' + Math.atan2(dy, dx) + 'rad)');
+                        style(segments[i - 1], 'transform', 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg)');
                     }
                 });
                 segments.forEach(function (line, i) { show(line, i < valid.length - 1); });

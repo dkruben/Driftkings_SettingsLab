@@ -19,15 +19,20 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 }
 .dk-window-line { position: absolute; left: 0; top: 0; right: 0; height: 2rem; opacity: 0.9; }
 
-.dk-top { display: flex; align-items: center; height: 80rem; padding: 0 12rem 0 24rem; border-bottom: 1rem solid #3a3731; flex-shrink: 0;
-    background: #101720 url('../assets/header_tank.jpeg') center / cover no-repeat; }
-.dk-brand { display: flex; align-items: flex-end; white-space: nowrap; }
-.dk-brand-mark { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; }
-.dk-brand-name { font-size: 19rem; font-weight: 700; letter-spacing: 3rem; color: #f2ecd9; }
-.dk-social { width: 36rem; height: 36rem; margin-left: 8rem; padding: 6rem; background: transparent; border: 1rem solid #4a463e; border-radius: 5rem; }
-.dk-social:hover { background: #302e29; }
-.dk-social img { width: 24rem; height: 24rem; }
-.dk-version { margin-left: 14rem; font-size: 12rem; color: #7a7466; }
+.dk-top { position: relative; display: flex; align-items: center; height: 80rem; padding: 0 12rem 0 24rem;
+    border-bottom: 1rem solid #664025; flex-shrink: 0;
+    background: #0b0d10 url('../assets/header_driftkings.png') center / cover no-repeat; }
+.dk-brand { position: absolute; left: 50%; top: 0; width: 320rem; height: 80rem; margin-left: -160rem;
+    overflow: hidden; pointer-events: none; }
+/* Gameface needs explicit image dimensions here; do not derive height from the PNG or a percentage transform. */
+.dk-brand-logo { position: absolute; left: 0; top: -13.46rem; width: 320rem; height: 106.93rem; }
+.dk-top-controls { position: relative; display: flex; align-items: center; flex-shrink: 0; }
+.dk-social { width: 40rem; height: 40rem; margin-left: 4rem; padding: 11rem; background: transparent; border: 0; }
+.dk-social:hover, .dk-social:focus { background: transparent; }
+.dk-social img { display: block; width: 18rem; height: 18rem; }
+.dk-version { position: absolute; left: 24rem; top: 14rem; margin: 0; padding: 5rem 8rem; max-width: 220rem;
+    font-size: 12rem; line-height: 16rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: #c8c5bd; border: 1rem solid #4b443b; background: rgba(9, 11, 13, 0.5); }
 .dk-search {
     position: relative; display: flex; align-items: center; width: 340rem; height: 34rem; padding: 0 6rem 0 10rem; margin-right: 14rem;
     border: 1rem solid #4a463e; background: rgba(0, 0, 0, 0.45);
@@ -41,8 +46,9 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-search.has-query .dk-kbd { display: none; }
 .dk-top-link { height: 34rem; padding: 0 12rem; border: 1rem solid transparent; background: transparent; color: #b3ae9f; font-size: 13rem; white-space: nowrap; }
 .dk-top-link:hover { color: #ffffff; border-color: #4a463e; }
-.dk-close { width: 40rem; height: 40rem; margin-left: 4rem; padding: 0; border: 1rem solid transparent; background: transparent; color: #b3ae9f; font-size: 26rem; line-height: 36rem; }
-.dk-close:hover { color: #ffffff; border-color: #4a463e; }
+.dk-close { width: 40rem; height: 40rem; margin-left: 16rem; padding: 0; border: 0;
+    background: transparent; color: #DCDEDC; font-size: 26rem; line-height: 36rem; }
+.dk-close:hover, .dk-close:focus { background: transparent; }
 
 .dk-construction { flex-shrink: 0; padding: 7rem 24rem; border-bottom: 1rem solid #5b4825; background: rgba(217, 130, 25, 0.10); color: #f2c14e; font-size: 12rem; line-height: 17rem; }
 .dk-body { display: flex; flex: 1 1 auto; min-height: 0; }
@@ -374,7 +380,11 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-window.is-compact .dk-detail { display: none; }
 .dk-window.is-compact .dk-side { width: 220rem; }
 .dk-window.is-compact .dk-search { width: 230rem; }
-.dk-window.is-compact .dk-version, .dk-window.is-compact .dk-kbd { display: none; }
+.dk-window.is-compact .dk-kbd { display: none; }
+.dk-window.is-compact .dk-brand { width: 220rem; margin-left: -110rem; }
+.dk-window.is-compact .dk-brand-logo { top: 3.24rem; width: 220rem; height: 73.51rem; }
+.dk-window.is-compact .dk-version { left: 14rem; max-width: 160rem; font-size: 11rem; padding: 4rem 6rem; }
+.dk-window.is-compact .dk-social { width: 36rem; margin-left: 2rem; padding: 11rem 9rem; }
 .dk-window.is-compact .dk-row-input { flex-basis: 320rem; }
 .dk-window.is-compact .dk-foot .dk-button { min-width: 70rem; padding: 0 10rem; }
 

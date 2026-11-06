@@ -1,15 +1,13 @@
 {
   "schema_version": 1,
   "game": {
-    "version": "2.4.1.1",
+    "version": "2.4.2.0",
     "supported_realms": [
-      "EU",
-      "NA",
-      "ASIA"
+      "CT"
     ]
   },
   "reference": {
-    "version": "2.4.1.5514",
+    "version": "2.4.2.5516",
     "read_only": true
   },
   "package": {
@@ -108,7 +106,7 @@
       "output": "build/gameface/carousel/bundle.js",
       "implementation": "replace_exact",
       "required": true,
-      "patch_file": "build_data/patches/carousel_2.4.1.json"
+      "patch_file": "build_data/patches/carousel_2.4.2_ct.json"
     },
     "updater_helper": {
       "kind": "csharp",
@@ -155,7 +153,7 @@
       "output": "build/gameface/crew/BarracksView.js",
       "implementation": "replace_exact",
       "required": true,
-      "patch_file": "build_data/patches/crew_barracks_2.4.1.json"
+      "patch_file": "build_data/patches/crew_barracks_2.4.2_ct.json"
     },
     "crew_tooltip_bridge": {
       "kind": "gameface_patch",
@@ -169,7 +167,7 @@
       "output": "build/gameface/crew/tooltips.js",
       "implementation": "replace_exact",
       "required": true,
-      "patch_file": "build_data/patches/crew_tooltip_2.4.1.json"
+      "patch_file": "build_data/patches/crew_tooltip_2.4.2_ct.json"
     },
     "vehicle_markers_flash": {
       "kind": "vehicle_markers",

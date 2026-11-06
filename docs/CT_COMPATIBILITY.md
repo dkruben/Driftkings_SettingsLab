@@ -1,0 +1,89 @@
+# Compatibilidade com WoT Common Test
+
+Revisão e adaptação de 2026-11-05, na branch `feature/wot-2.4.2-ct`, criada da base `832d3263` (`0.1.7-beta.1`). Os contratos desta branch apontam exclusivamente para CT; `develop`, `main`, os pacotes publicados e `toolchain.local.json` não foram alterados. A versão local CT é `0.1.8-beta.1`, sem publicação.
+
+## Correções implementadas e build de teste
+
+- Arranque explicitamente permitido no realm CT; a normalização reconhece o rótulo `Common Test` sem aceitar sufixos arbitrários.
+- Atualizador de produção desativado no runtime CT para evitar a instalação futura de pacotes de produção nesse cliente.
+- Contratos, locales, bibliotecas SWC e lock dos marcadores alinhados com CT `2.4.2.5516`/`2.4.2.0`.
+- Patches CT guardados em `build_data/patches/*_2.4.2_ct.json`; os patches de produção permanecem preservados. Carrossel e tooltip têm as âncoras e aliases das funções importadas remapeados; os exports de observable, action, optional, array, string e object foram verificados no bundle lib do CT.
+- O patch ABC existente aplica-se ao filme CT e preserva o código nativo, incluindo `updateHpGlow`; não foi necessário substituir a lógica do marcador.
+
+Compilar sem mudar os caminhos de produção guardados em `toolchain.local.json`:
+
+```powershell
+python -B build_tools/compiler.py --mode debug --channel beta --game-root C:/Games/World_of_Tanks_CT --reference-root E:/Wot_Mods_/Drift_Kings_ModPack/WoT_Tools/wot-src-CT
+```
+
+Saída: `build/debug/beta/0.1.8-beta.1/driftkings.wotmod`. Não instalar em EU/NA/ASIA. A build não foi instalada no CT nesta etapa.
+
+Validação: compilação CT completa, contratos Gameface contra pacotes CT, análise de escopo sem novas referências JavaScript indefinidas, 657 testes runtime em Python 3 e Python 2.7, 181 testes build e 18 suites frontend. Passaram também lint, imports e nomes indefinidos. Os três testes sobre os SWF/fontes do pacote compilado passaram. Estes resultados não substituem validação visual/funcional no CT; serviços e estatísticas de contas CT também precisam dessa confirmação.
+
+## Referências verificadas
+
+| Referência | Snapshot | Cliente |
+| --- | --- | --- |
+| EU selecionada para produção | `2.4.1.5514` | `2.4.1.1 #993`, realm EU |
+| CT para comparação | `2.4.2.5516` | `2.4.2.0 Common Test #995`, realm CT |
+
+As fontes foram lidas em `WoT_Tools/wot-src-EU` e `WoT_Tools/wot-src-CT`. O cliente CT foi localizado em `C:/Games/World_of_Tanks_CT`; o seu `version.xml` confirma `2.4.2.0 Common Test #995`, realm CT, client `2655094`, overrides `2649229`. Os quatro pacotes GUI estão disponíveis. A extração de fontes não contém o dist Gameface; os pacotes instalados fornecem os recursos originais para a adaptação.
+
+## Impactos identificados antes da adaptação
+
+- **Arranque bloqueado:** `gui/mods/mod_driftkings.py` só aceita EU, NA e ASIA. O mod atual desativa-se no realm CT. Uma adaptação de teste deve tratar explicitamente CT sem o confundir com uma região de produção; os serviços de conta, estatísticas e atualização também devem ser revistos antes de permitir o arranque.
+- **Contrato de build:** alvo `2.4.1.1`, referência EU e realms de produção não aceitam o cliente CT. Os hashes dos três patches Gameface, o SWF dos marcadores e as bibliotecas SWC têm de ser verificados contra o CT; não basta alterar a versão.
+- **Marcadores:** `VehicleMarker.as` acrescenta `HP_GLOW_NAME` e `updateHpGlow()`, chamado após atualizar o hover. O brilho acompanha a visibilidade e posição do HP nativo. Confirmar a interação com barras/textos personalizados; preservar essa atualização. `VehicleMarkersManager.as` não mudou na comparação.
+- **Página de batalha:** `BaseBattlePage.as` posiciona mensagens de erro segundo a mira e passa a escutar `CROSSHAIR_LAYOUT_CHANGE`; deixa de chamar `dualGunPanel.updateStage` naquele bloco. Revalidar sobreposições e alterações de resolução/mira.
+- **Câmara estratégica:** nova compensação do pivot pela inclinação. Os hooks do mod delegam no método original; não foi identificada mudança direta de assinatura nos pontos consultados. A geometria dos limites de rotação e o zoom exigem teste no CT.
+- **Temporizadores:** novos argumentos opcionais `isRestored`, deduplicação de efeitos e remoção de `hasActiveTimer` nas classes consultadas. O hook atual do mod usa `TimersPanel.__playStunSoundIfNeed`, não os métodos removidos; não foi identificada quebra direta nesse hook.
+- **Carrossel:** removidos `_getVehicleTypesFilter` e `_getVehicleLevelsFilter` de `VehicleFiltersDataProvider`; a referência passa a usar as constantes diretamente. O mod não usa esses dois métodos e mantém hooks em `__updateModel` e `_finalize`. O bundle Gameface continua por validar.
+- **Battle Pass e TAB:** alterações internas no cálculo de tempo/capítulos e na atualização de informação de veículo. Os hooks e modelos consumidos devem ser revalidados com o cliente; alteração de ficheiro por si só não prova quebra.
+
+## Comparação dos pacotes CT com os patches de produção
+
+| Recurso | SHA-256 CT | Compatibilidade dos pontos de substituição atuais |
+| --- | --- | --- |
+| Carrossel/hangar | `7e28391b4c51daa555b04d103a4031f7734b8d0728df03f7b73b47fa781873e5` | 18 de 23 operações não encontram o texto esperado; precisa de remapeamento |
+| Quartéis | `d4784c9c6f1b66452dad287e89ffad84e142309a75599c3866498d16e3f0162a` | Recurso igual à produção; único ponto presente |
+| Tooltips de tripulação | `a7cb133ce2d0495bd8b9cc29794755c55bc6e694f36e6d257b17fc4b6a4967dd` | 1 de 3 operações não encontra o texto esperado |
+| SWF nativo dos marcadores | `34d92354f1c755313b99fd4e268bb78dc130ece24797a271aece5f0a7346537e` | Hash diferente da produção; revisão do patch ABC necessária |
+
+Os resultados medem correspondências textuais das operações, não falhas observadas em jogo. A ausência de uma âncora pode resultar de renomeação de variáveis na minificação ou de uma alteração estrutural; é preciso distinguir as duas antes de adaptar. Os pacotes do cliente foram apenas lidos.
+
+## Inventário e limites
+
+Foram identificados 202 módulos em instruções Python `from ... import ...` do runtime, excluindo imports Driftkings e relativos. Entre os módulos resolvidos na extração EU, nenhum desapareceu na CT e 17 têm conteúdo diferente. Este inventário não cobre todos os imports dinâmicos, símbolos de extensões nem todos os caminhos de importação possíveis e não prova compatibilidade de execução.
+
+As 18 classes ActionScript explicitamente importadas com namespace `net.*` foram comparadas onde disponíveis; `BaseBattlePage` mudou. A análise separada dos marcadores encontrou a alteração acima. As classes `PlayersPanelListItem` e `PlayersPanelListLeft` disponíveis para random, ranked e epicRandom mantêm o conteúdo. Os linkage classes `*UI` não estão disponíveis como ficheiros próprios na extração, pelo que os símbolos dos filmes ainda precisam de verificação.
+
+## Validação pendente no CT
+
+Instalar a build de teste com backup dos ficheiros existentes e testar login/hangar, contas, estatísticas, carrossel, quartéis/tooltips, marcadores normal/ALT/vivos/destruídos, mira/câmara, painéis, mensagens e minimapa por modo. Confirmar no `game.log` que os componentes e hooks iniciam e descarregam corretamente. Não atribuir compatibilidade completa ao CT com base apenas em compilação e testes portáteis.
+
+## Correções após leitura do game.log — 2026-11-06
+
+Cliente movido para `C:/Games/World_of_Tanks_CT`. O log contém uma sessão em F: e outra em C:, com arranque `failures=[]`/`disabled={}`. O pacote instalado corresponde à build local 0.1.8-beta.1; isto não constitui aprovação completa do CT.
+
+Foram corrigidos dois pontos na build de teste local `0.1.8-beta.2` (versão apenas no pacote, sem alterar os metadados de release):
+
+- Remoção do nevoeiro: o runtime Python e o helper C# resolvem o destino a partir de `paths.xml`, aceitando apenas a versão canónica ou a mesma versão com sufixo ` Common Test`. No CT o destino correto é `mods/2.4.2.0 Common Test`, não `mods/2.4.2.0`. Caminhos desconhecidos, ambíguos e diretórios inexistentes são rejeitados. Sem paths.xml mantém-se o destino numérico de produção. O protocolo de pedidos/resultados continua a usar a versão canónica; não foram apagados caches, resultados anteriores nem pastas do cliente.
+- Gráfico das marcas: os segmentos passam a usar rotações em graus; o Gameface rejeitava `rotate(0rad)` no log. As coordenadas e comprimentos dos segmentos são preservados.
+
+Verificação: 174 testes core em Python 3 e Python 2.7, 18 suites frontend, lint ES5, nomes indefinidos, contratos contra o CT em C: e compilação debug completa aprovados. Um probe compilado com o C# real confirmou o destino CT instalado, produção e rejeição de caminhos ambíguos/traversal, sem aplicar operações no cliente. A regressão do gráfico verifica segmentos horizontais, ascendentes e descendentes. Falta confirmar no jogo o gráfico e aplicar a opção de nevoeiro, fechar o cliente para o helper concluir e voltar a abrir para verificar o resultado.
+
+Sem instalação, commit, push ou publicação destas correções. O painel redesenhado mantém-se na branch separada.
+
+## Painel aprovado integrado no CT — 2026-11-06
+
+Por autorização do autor, foram trazidos apenas os oito ficheiros do painel aprovados no commit `6c4bed01` de `feature/settings-header`: cabeçalho, duas imagens, SVG do gestor de contas, testes e guia. As correções CT locais foram preservadas. Não houve cherry-pick/commit/merge nem alteração das referências das outras branches.
+
+A build debug CT mantém o mesmo número de teste `0.1.8-beta.2`, através do override já usado com `--keep-source-version`; os metadados versionados `0.1.8-beta.1` não foram incrementados. A regra de manter o número foi pedida apenas para este ciclo de teste CT e não altera as regras de novas versões/publicações nas restantes branches. O WOTMOD anterior sem o novo painel foi guardado em backup local antes da recompilação. Lint ES5, 19 suites frontend, contratos CT e catálogo UI aprovados; confirmar o painel no CT em jogo. Sem instalação ou publicação.
+
+## Aprovação do CT e autorização de envio — 2026-11-06
+
+O autor declarou a build CT `0.1.8-beta.2`, incluindo as correções de nevoeiro/gráfico e o painel atualizado, testada e aprovada em jogo, e autorizou commit e push na branch `feature/wot-2.4.2-ct`. A declaração não é uma nova matriz individual de testes por tema/modo nem validação de regiões de produção. As referências históricas a pendências nas secções anteriores descrevem as etapas anteriores à aprovação.
+
+O número do pacote testado permanece `0.1.8-beta.2`; `build_data/release.json` e `VERSION` permanecem `0.1.8-beta.1`, conforme o ciclo local com override documentado. Não há publicação CT nem incremento de versão autorizado nesta etapa. Produção e a branch independente do cabeçalho não são alteradas por este envio.
+
+SHA-256 do pacote local aprovado: `714e08cf625f981596e765d91ef12cede2fe9184af68ca46aeaa1d4d02d0c8f9`.

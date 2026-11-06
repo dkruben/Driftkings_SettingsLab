@@ -12,6 +12,11 @@ class LifecycleMixin(object):
     def start(self):
         if self.active:
             return
+        if self._runtime_transport:
+            from realm import CURRENT_REALM
+            if CURRENT_REALM == 'CT':
+                LOG.info('Production updates are disabled on Common Test')
+                return
         if self.api is None:
             from driftkings.settings.panel import settings
             self.api = settings

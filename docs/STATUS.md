@@ -2,6 +2,14 @@
 
 Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
 
+## Aprovação local do CT — 2026-11-06
+
+O autor aprovou em jogo a build local `0.1.8-beta.2`, com o painel aprovado em `6c4bed01` e as correções de nevoeiro e rotação do gráfico, autorizando commit e push da branch `feature/wot-2.4.2-ct`. O ciclo CT mantém o número do pacote e os metadados versionados sem incremento, conforme [registo CT](CT_COMPATIBILITY.md). As secções anteriores de preparação abaixo são históricas; não representam uma publicação CT ou promoção da produção.
+
+## Adaptação Common Test — 2026-11-05
+
+Trabalho local em `feature/wot-2.4.2-ct`, base `832d3263`, versão `0.1.8-beta.1`. Esta branch aponta para CT `2.4.2.0 #995` / SRC `2.4.2.5516`; as secções de produção abaixo são histórico da preparação anterior. Build CT compilada com patches Gameface específicos e bibliotecas/filme nativo CT; arranque permitido em CT e atualizador de produção desativado nesse realm. Ver [compatibilidade CT](CT_COMPATIBILITY.md) para comandos, verificações e testes em jogo pendentes. Sem instalação, commit, push ou publicação desta adaptação.
+
 ## Preparação da beta 0.1.7-beta.1 — 2026-11-05
 
 A beta seguinte integra a microatualização, as cinco imagens otimizadas e a restrição do minimapa a aleatórias/Comp7. `build_data/release.json`, `VERSION` e o teste de arranque estão alinhados em `0.1.7-beta.1`/`beta`. O autor confirmou todos os testes da build local instalada no EU nesta conversa; não foi declarada uma nova validação NA/ASIA. Essa build debug não substitui a identificação e validação do pacote release para promoção a stable.
