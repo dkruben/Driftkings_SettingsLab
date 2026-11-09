@@ -1,7 +1,13 @@
 (function (root, factory) {
     if (typeof module === 'object' && module.exports) { module.exports = factory(); }
-    else { root.DKCarouselLayout = factory(); }
-}(this, function () {
+    else {
+        var generation = root.__dkCarouselLoad;
+        if (generation && (generation.cancelled || root.DKCarouselLayout)) { return; }
+        var owner = factory(); owner.generation = generation;
+        root.DKCarouselLayout = owner;
+        if (generation) { generation.layout = owner; }
+    }
+}(typeof window === 'undefined' ? this : window, function () {
     'use strict';
     var selectors = {
         flag: '[class*="Background_flag_"]', tankIcon: '[class*="Background_vehicle_"]',
@@ -88,67 +94,82 @@
         });
     }
     function mount(card, profile, document, images) {
-        var changes = [], layers = [];
+        var changes = [], layers = [], released = false;
+        function cleanup() {
+            if (released) { return; } released = true;
+            var error = null;
+            function attempt(action) { try { action(); } catch (fault) { error = error || fault; } }
+            layers.forEach(function (layer) {
+                attempt(function () { [].slice.call(layer.querySelectorAll ? layer.querySelectorAll('img') : []).forEach(function (img) { img.onerror = null; }); });
+                attempt(function () { if (layer.parentNode) { layer.parentNode.removeChild(layer); } });
+            });
+            changes.reverse().forEach(function (entry) {
+                attempt(function () { if (entry.node.style[entry.key] === entry.after) { entry.node.style[entry.key] = entry.before; } });
+            });
+            if (error) { throw error; }
+        }
         function change(node, key, value) {
             var before = node.style[key]; node.style[key] = value;
             changes.push({node: node, key: key, before: before, after: node.style[key]});
         }
-        if (getComputedStyle(card).position === 'static') change(card, 'position', 'relative');
-        Object.keys(profile.fields || {}).forEach(function (key) {
-            if (!selectors[key]) return;
-            var setting = profile.fields[key], nodes = card.querySelectorAll(selectors[key]);
-            for (var i = 0; i < nodes.length; i++) {
-                var node = nodes[i];
-                if (setting.enabled === false) { change(node, 'visibility', 'hidden'); change(node, 'opacity', '0'); }
-                else if (setting.alpha !== 100) change(node, 'opacity', String(setting.alpha / 100));
-                if (setting.dx || setting.dy || setting.scale !== 1) {
-                    var base = getComputedStyle(node).transform;
-                    change(node, 'transform', (base === 'none' ? '' : base + ' ') + 'translate(' + setting.dx + 'rem,' + setting.dy + 'rem) scale(' + setting.scale + ')');
+        try {
+            if (getComputedStyle(card).position === 'static') change(card, 'position', 'relative');
+            Object.keys(profile.fields || {}).forEach(function (key) {
+                if (!selectors[key]) return;
+                var setting = profile.fields[key], nodes = card.querySelectorAll(selectors[key]);
+                for (var i = 0; i < nodes.length; i++) {
+                    var node = nodes[i];
+                    if (setting.enabled === false) { change(node, 'visibility', 'hidden'); change(node, 'opacity', '0'); }
+                    else if (setting.alpha !== 100) change(node, 'opacity', String(setting.alpha / 100));
+                    if (setting.dx || setting.dy || setting.scale !== 1) {
+                        var base = getComputedStyle(node).transform;
+                        change(node, 'transform', (base === 'none' ? '' : base + ' ') + 'translate(' + setting.dx + 'rem,' + setting.dy + 'rem) scale(' + setting.scale + ')');
+                    }
                 }
-            }
-        });
-        var width = card.clientWidth, height = card.clientHeight;
-        ['substrate', 'top'].forEach(function (level) {
-            var layer = document.createElement('div'); layer.className = 'dk-carousel-stats';
-            layer.style.width = profile.width + 'px'; layer.style.height = profile.height + 'px';
-            layer.style.transform = 'scale(' + (width / profile.width) + ',' + (height / profile.height) + ')';
-            layer.style.transformOrigin = '0 0'; layer.style.zIndex = level === 'top' ? '10' : '0';
-            profile.extraFields.forEach(function (field) {
-                if (field.layer !== level) return;
-                var node = document.createElement('div'); node.className = 'dk-carousel-field';
-                node.style.left = field.x + 'px'; node.style.top = field.y + 'px'; node.style.fontSize = field.fontSize + 'px';
-                node.style.color = color(field.color, '#FFFFFF'); node.style.opacity = field.alpha / 100;
-                node.style.transform = field.align === 'right' ? 'translateX(-100%)' : field.align === 'center' ? 'translateX(-50%)' : '';
-                node.style.justifyContent = field.align === 'right' ? 'flex-end' : field.align === 'center' ? 'center' : 'flex-start';
-                node.style.textAlign = field.align;
-                if (field.width) node.style.width = field.width + 'px';
-                if (field.height) node.style.height = field.height + 'px';
-                if (field.bgColor) node.style.backgroundColor = color(field.bgColor, 'transparent');
-                var shadow = field.shadow;
-                var angle = (shadow.angle === undefined ? 45 : shadow.angle) * Math.PI / 180;
-                var effect = (shadow.distance * Math.cos(angle)) + 'px ' + (shadow.distance * Math.sin(angle)) + 'px ' + shadow.blur + 'px ' + rgba(shadow.color, shadow.alpha);
-                var repeats = Math.max(1, Math.min(5, Math.round(shadow.strength || 1))), effects = [];
-                while (repeats--) effects.push(effect);
-                node.style.textShadow = shadow.enabled ? effects.join(',') : 'none';
-                var icon = field.showIcons === false ? '' : localIcon(field.src, images);
-                if (icon) {
-                    var img = document.createElement('img'); img.src = icon; img.alt = '';
-                    img.style.width = (field.format ? field.iconSize : field.width || field.iconSize) + 'px';
-                    img.style.height = (field.format ? field.iconSize : field.height || field.iconSize) + 'px';
-                    img.onerror = function () { this.style.display = 'none'; }; node.appendChild(img);
-                }
-                if (field.showIcons !== false && field.src === '--' && !field.format) { node.appendChild(document.createTextNode('--')); }
-                var span = document.createElement('span'); richText(span, field.format, document, images, field.showIcons); node.appendChild(span);
-                layer.appendChild(node);
             });
-            if (level === 'substrate') card.insertBefore(layer, card.firstChild);
-            else card.appendChild(layer);
-            layers.push(layer);
-        });
-        return function () {
-            layers.forEach(function (layer) { if (layer.parentNode) layer.parentNode.removeChild(layer); });
-            changes.reverse().forEach(function (entry) { if (entry.node.style[entry.key] === entry.after) entry.node.style[entry.key] = entry.before; });
-        };
+            var width = card.clientWidth, height = card.clientHeight;
+            ['substrate', 'top'].forEach(function (level) {
+                var layer = document.createElement('div'); layer.className = 'dk-carousel-stats';
+                layer.style.width = profile.width + 'px'; layer.style.height = profile.height + 'px';
+                layer.style.transform = 'scale(' + (width / profile.width) + ',' + (height / profile.height) + ')';
+                layer.style.transformOrigin = '0 0'; layer.style.zIndex = level === 'top' ? '10' : '0';
+                profile.extraFields.forEach(function (field) {
+                    if (field.layer !== level) return;
+                    var node = document.createElement('div'); node.className = 'dk-carousel-field';
+                    node.style.left = field.x + 'px'; node.style.top = field.y + 'px'; node.style.fontSize = field.fontSize + 'px';
+                    node.style.color = color(field.color, '#FFFFFF'); node.style.opacity = field.alpha / 100;
+                    node.style.transform = field.align === 'right' ? 'translateX(-100%)' : field.align === 'center' ? 'translateX(-50%)' : '';
+                    node.style.justifyContent = field.align === 'right' ? 'flex-end' : field.align === 'center' ? 'center' : 'flex-start';
+                    node.style.textAlign = field.align;
+                    if (field.width) node.style.width = field.width + 'px';
+                    if (field.height) node.style.height = field.height + 'px';
+                    if (field.bgColor) node.style.backgroundColor = color(field.bgColor, 'transparent');
+                    var shadow = field.shadow;
+                    var angle = (shadow.angle === undefined ? 45 : shadow.angle) * Math.PI / 180;
+                    var effect = (shadow.distance * Math.cos(angle)) + 'px ' + (shadow.distance * Math.sin(angle)) + 'px ' + shadow.blur + 'px ' + rgba(shadow.color, shadow.alpha);
+                    var repeats = Math.max(1, Math.min(5, Math.round(shadow.strength || 1))), effects = [];
+                    while (repeats--) effects.push(effect);
+                    node.style.textShadow = shadow.enabled ? effects.join(',') : 'none';
+                    var icon = field.showIcons === false ? '' : localIcon(field.src, images);
+                    if (icon) {
+                        var img = document.createElement('img'); img.src = icon; img.alt = '';
+                        img.style.width = (field.format ? field.iconSize : field.width || field.iconSize) + 'px';
+                        img.style.height = (field.format ? field.iconSize : field.height || field.iconSize) + 'px';
+                        img.onerror = function () { this.style.display = 'none'; }; node.appendChild(img);
+                    }
+                    if (field.showIcons !== false && field.src === '--' && !field.format) { node.appendChild(document.createTextNode('--')); }
+                    var span = document.createElement('span'); richText(span, field.format, document, images, field.showIcons); node.appendChild(span);
+                    layer.appendChild(node);
+                });
+                layers.push(layer);
+                if (level === 'substrate') card.insertBefore(layer, card.firstChild);
+                else card.appendChild(layer);
+            });
+        } catch (error) {
+            try { cleanup(); } catch (cleanupError) { /* Keep the original render fault. */ }
+            throw error;
+        }
+        return cleanup;
     }
     return {color: color, localIcon: localIcon, profileName: profileName, richText: richText, mount: mount};
 }));

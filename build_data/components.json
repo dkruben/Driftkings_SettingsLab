@@ -406,6 +406,7 @@
         },
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.js",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/vehicle_carousel/carousel_plugin.js",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/model.html",

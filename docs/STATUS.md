@@ -2,6 +2,20 @@
 
 Atualizado em 2026-11-09. Os caminhos e comandos partem da raiz do repositório.
 
+## Fases 3E.2–3E.6 — Native Carousel PoC — 2026-11-09
+
+**APTO PARA COMMIT LOCAL — INSTALAÇÃO CONTROLADA CONCLUÍDA E PRIMEIRA CONFIRMAÇÃO VISUAL CT REGISTADA; COMMIT NÃO AUTORIZADO.** Fase 3E.2: implementação experimental concluída. CarouselStats passa a quarto plugin nativo independente, com onRequestVehicles preservado; 16 consumidores continuam OpenWG e duas janelas próprias. Factory nativa recebe comandos opcionais; três plugins anteriores mantêm zero comandos e fontes protegidas. Backend funcional, patches, CrewDetails, launcher e dependências preservados.
+
+Resultados históricos da Fase 3E.2: 869 testes Python 3, 678 Python 2.7, 26 suites frontend, seis testes de artefactos, lint e validadores PASS. As 24 ordens dos quatro plugins foram simuladas, não observadas no CT. Snapshot/logs em `build/diagnostics/phase3e2/20261109T155134Z/verified/`. Build debug beta `0.1.8-beta.3`, fonte 0.1.8-beta.1, 626 entradas, 13609962 bytes, SHA-256 `f0ff0cde074b25e0ee5d3f3c0647c870d01a85e6c8dfb8ed5b17bdf0709259a8`. Nenhum teste ou build novo executado na correção documental 3E.6.
+
+Fase 3E.3: instalação controlada da beta.3 concluída, com integridade verificada. Entre 712 ficheiros do CT, apenas driftkings.wotmod foi substituído; OpenWG, ModsListAPI, perfis e configurações preservados. Versão CT #995 confirmada por version.xml, conforme substituição de fonte expressamente autorizada; sem criar .version_name. Relatório: `build/diagnostics/phase3e3/20261109T195257156673Z/installation-report.json`. Backup independente 3D em `build/backups/ct-phase3e3-install-20261109T195257156673Z/`, SHA-256 `7c50836f5f53eaf97a8c3a63433cc71e6889089b4d50b8fd98770888477ad89c`; rollback não executado.
+
+Fase 3E.4: primeira sessão CT do utilizador em 09/11/2026, aproximadamente 20:01:09–20:03:21. Beta.3 carregada, serviços ativos e sem failures declaradas, quatro descriptors nativos registados, garagem carregada/HANGAR READY, sem tracebacks Python identificados e encerramento com `Scaleform Memory arenas are empty`. **PASS — confirmação visual manual do utilizador:** carrossel, estatísticas e campos adicionais apresentados normalmente. Registo de descriptors não comprova isoladamente init(); chamadas internas, payload e destroy() individual não estão demonstrados diretamente nos logs.
+
+Sem prova abrangente nesta beta: todas as combinações de linhas/filtros/ordenações, todas as transições de modo, ciclos garagem → batalha → garagem, fault injection no CT real e destroy() individual. Não se declara ausência absoluta de fugas. Aviso Scaleform anterior continua em observação, causa não determinada e sem resolução definitiva; TextureManager, BZ-75 e DeviceCallback/BW::MouseCursor não têm causalidade demonstrada com Driftkings. MouseCursor é distinto do Scaleform.
+
+Fase 3E.5 identificou a desatualização documental; Fase 3E.6 corrige apenas os três documentos autorizados e verifica a integridade dos 21 caminhos não documentais. **APTO PARA COMMIT LOCAL**, sujeito à verificação final e autorização expressa posterior. Sem staging, commit, push, release, nova instalação ou migração adicional nesta fase. [Contratos, evidências, limitações, checklist e rollback](NATIVE_CAROUSEL_POC.md). Secções seguintes são checkpoints históricos.
+
 ## Fase 3D.3 — apto para commit local, memória em observação — 2026-11-09
 
 **APTO PARA COMMIT LOCAL**, sem staging/commit autorizado nesta execução. Nova execução: 864 testes Python 3, 675 Python 2.7, 25 suites frontend, cinco testes de artefactos, lint e validadores PASS, todos com exit code 0. Snapshot `2bf769feb61120aa1ae64e2e7a0842cafe63061cbb6a6d29639049b8d3326ea6` liga comandos/logs aos hashes atuais de origem e testes; hashes antes/depois dos testes idênticos. Evidência local ignorada em `build/diagnostics/phase3d3/20261109T131245Z/`; apenas os três documentos da Fase 3D foram posteriormente atualizados. 20 caminhos previstos, staging vazio, branch/HEAD e worktrees preservados; build/backup com hashes autorizados.

@@ -33,17 +33,6 @@
                 "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
             ]
         },
-        "DriftkingsCarouselStats": {
-            "owner": "__dkCarouselStats",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel.css"
-            ]
-        },
         "DriftkingsCrewDetails": {
             "owner": "__dkCrewDetails",
             "scripts": [

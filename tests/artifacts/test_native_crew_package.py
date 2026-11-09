@@ -21,7 +21,7 @@ class NativeCrewPackageTests(unittest.TestCase):
                 self.assertEqual(current.read(target), (ROOT / 'mod' / target).read_bytes())
             for target in before.namelist():
                 if any(token in target for token in ('/main/clock', '/hangar_marks_of_excellence/',
-                        '/mono/driftkings/hangar_marks/', '/vehicle_carousel/', '/crew_details/')) or target in (
+                        '/mono/driftkings/hangar_marks/', '/crew_details/')) or target in (
                         'res/gui/gameface/_dist/production/mono/hangar/main/bundle.js',
                         'res/gui/gameface/_dist/production/mono/hangar/tooltips/bundle.js'):
                     self.assertEqual(current.read(target), before.read(target), target)
@@ -29,5 +29,6 @@ class NativeCrewPackageTests(unittest.TestCase):
             self.assertFalse(any('/tests/' in target for target in current.namelist()))
             block = current.read('res/gui/gameface/mods/driftkings/shared/bootstrap.js').decode('utf-8').split('/* GENERATED CATALOG START */')[1].split('/* GENERATED CATALOG END */')[0]
             self.assertNotIn('DriftkingsCrewProgression', block)
-            for name in ('DriftkingsCrewDetails', 'DriftkingsCarouselStats', 'DriftkingsFooterLauncher'):
+            self.assertNotIn('DriftkingsCarouselStats', block)
+            for name in ('DriftkingsCrewDetails', 'DriftkingsFooterLauncher'):
                 self.assertIn(name, block)

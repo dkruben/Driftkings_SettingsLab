@@ -14,7 +14,7 @@ class NativeCrewCatalogTests(unittest.TestCase):
         tree = ast.parse(baseline.decode('utf-8'))
         old = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
                    and any(isinstance(t, ast.Name) and t.id == 'GAMEFACE' for t in n.targets))
-        self.assertEqual([name for name in data if data[name] != old[name]], ['DriftkingsCrewProgression'])
+        self.assertEqual([name for name in data if data[name] != old[name]], ['DriftkingsCrewProgression', 'DriftkingsCarouselStats'])
         names = ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression')
         native = [data[name] for name in names]
         self.assertTrue(all(x.get('transport') == 'native_user_missions' for x in native))
@@ -32,7 +32,7 @@ class NativeCrewCatalogTests(unittest.TestCase):
             self.assertNotIn(name, block)
         legacy = [name for name, spec in data.items() if spec['owner'] is not None
                   and spec.get('transport', 'openwg') == 'openwg']
-        self.assertEqual(len(legacy), 17)
+        self.assertEqual(len(legacy), 16)
         for name in legacy:
             self.assertIn(name, block)
 
@@ -49,7 +49,6 @@ class NativeCrewCatalogTests(unittest.TestCase):
             'mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js',
             'mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js',
             'mod/res/gui/gameface/mods/driftkings/crew_progression/model.html',
-            'mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js',
             'build_data/patches/carousel_2.4.2_ct.json', 'build_data/patches/crew_tooltip_2.4.2_ct.json',
             'build_data/build_config.json']
         for path in paths:

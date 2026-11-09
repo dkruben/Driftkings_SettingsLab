@@ -221,6 +221,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/battle_performance/results.css']
     },
     'DriftkingsCarouselStats': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/vehicle_carousel/carousel_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/vehicle_carousel/model.html',
         'owner': '__dkCarouselStats',
