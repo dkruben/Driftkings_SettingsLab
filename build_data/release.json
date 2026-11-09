@@ -11,6 +11,7 @@
     "Common Test development build for WoT 2.4.2.0 #995, using CT source 2.4.2.5516. Not a production EU/NA/ASIA release.",
     "Adapted hangar carousel and crew-tooltip patches, refreshed CT Flash libraries and native vehicle markers.",
     "Fixed fog package destination for the declared Common Test mod folder and changed marks-graph rotation to degree units.",
-    "Integrated the approved settings header and Account Manager icon. The owner approved local test package 0.1.8-beta.2 in game; tracked version remains 0.1.8-beta.1 during this CT-only override cycle."
+    "Integrated the approved settings header and Account Manager icon. The owner approved local test package 0.1.8-beta.2 in game; tracked version remains 0.1.8-beta.1 during this CT-only override cycle.",
+    "Added three optional health-bar frames docked above the native battle ammunition and consumables panel; existing floating styles and saved profile selection are preserved. Pending in-game validation."
   ]
 }

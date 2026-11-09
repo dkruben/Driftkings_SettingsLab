@@ -1,6 +1,14 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
+Atualizado em 2026-11-09. Os caminhos e comandos partem da raiz do repositório.
+
+## Ponto de controlo antes da autonomia das dependências — 2026-11-09
+
+O autor autorizou commit e push das alterações locais da barra de vida na branch CT antes de iniciar qualquer migração. A documentação deve acompanhar as alterações futuras. ModsListAPI e OpenWG Gameface continuam obrigatórios no pacote atual; o botão próprio e a ponte interna foram apenas analisados, sem implementação. A validação visual da barra integrada permanece pendente. Ver [guia da barra integrada](AMMO_HEALTH.md) e [compatibilidade CT](CT_COMPATIBILITY.md).
+
+## Barra de vida no painel de munições — 2026-11-07
+
+Implementação local no CT: três opções adicionais no estilo da vida do veículo (Painel de munições — Minimalista / Clássica WoT / Driftkings), preservando os cinco índices anteriores e o estilo guardado. A nova apresentação usa um componente Flash filho do painel nativo de consumíveis, largura `basePanelWidth`, moldura de 26 px e intervalo de 8 px. Valores de vida e cores reutilizam o tracker atual. O Gameface flutuante é ocultado nestes três estilos. Ver [guia da barra integrada](AMMO_HEALTH.md) para âmbito e validação. O teste visual em batalha está pendente; não confundir com a aprovação CT anterior. Versões mantidas, outras branches intactas.
 
 ## Aprovação local do CT — 2026-11-06
 

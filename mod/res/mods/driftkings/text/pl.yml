@@ -1836,3 +1836,9 @@ panel.hud.health: "PW"
 vehicle_health.UI_setting_style_tooltip: "Wybierz ramkę paska punktów wytrzymałości."
 vehicle_health.UI_health_color_tooltip: "Dynamiczny kolor według pozostałych punktów wytrzymałości."
 vehicle_health.UI_health_minimal: "Minimalistyczny"
+
+vehicle_health.UI_health_ammo_minimal: "Panel amunicji — Minimalistyczny"
+
+vehicle_health.UI_health_ammo_classic: "Panel amunicji — Klasyczny WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Panel amunicji — Driftkings"

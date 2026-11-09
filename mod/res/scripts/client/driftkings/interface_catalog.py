@@ -8,6 +8,13 @@ FLASH_LIBRARY = 'driftkingsbattle.swf'
 # panels are enabled so the native rows report their own redraws.
 PANELS_LIBRARY = 'driftkingspanels.swf'
 FLASH_COMPONENTS = {
+    'DriftkingsAmmoHealth': {
+        'as3': 'driftkings.battle.components.vehicle_health.ammohealthui',
+        'component': 'battle.vehicle_health',
+        'python': 'driftkings.flash.battle.vehicle_health.AmmoHealthView',
+        'section': 'vehicle_health',
+        'surfaces': ['battle']
+    },
     'DistanceMarkerView': {
         'as3': 'driftkings.battle.components.distance_marker.distancemarkerui',
         'component': 'battle.target_distance',

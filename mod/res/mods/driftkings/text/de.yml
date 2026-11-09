@@ -1836,3 +1836,9 @@ panel.hud.health: "Strukturpunkte"
 vehicle_health.UI_setting_style_tooltip: "Rahmen des Strukturpunktebalkens auswählen."
 vehicle_health.UI_health_color_tooltip: "Dynamische Farbe anhand der verbleibenden Strukturpunkte."
 vehicle_health.UI_health_minimal: "Minimalistisch"
+
+vehicle_health.UI_health_ammo_minimal: "Munitionsleiste — Minimalistisch"
+
+vehicle_health.UI_health_ammo_classic: "Munitionsleiste — WoT-Klassisch"
+
+vehicle_health.UI_health_ammo_driftkings: "Munitionsleiste — Driftkings"

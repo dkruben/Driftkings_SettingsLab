@@ -7,6 +7,7 @@ package driftkings.battle.factory
     import driftkings.battle.components.overlay.overlayui;
     import driftkings.battle.components.ratings.ratingscreens;
     import driftkings.battle.components.sixth_sense.sixthsenseui;
+    import driftkings.battle.components.vehicle_health.ammohealthui;
 
     public class componentcatalog
     {
@@ -14,6 +15,7 @@ package driftkings.battle.factory
         {
         if (surface == "battle") return {
                 DistanceMarkerView:distancemarkerui,
+                DriftkingsAmmoHealth:ammohealthui,
                 DriftkingsDebugPanel:debugpanelui,
                 DriftkingsOverlay:overlayui,
                 DriftkingsRatingScreens:ratingscreens,

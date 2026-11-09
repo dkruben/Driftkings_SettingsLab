@@ -1836,3 +1836,9 @@ panel.hud.health: "Životy"
 vehicle_health.UI_setting_style_tooltip: "Vyberte rámeček ukazatele životů."
 vehicle_health.UI_health_color_tooltip: "Dynamická barva podle zbývajících životů."
 vehicle_health.UI_health_minimal: "Minimalistický"
+
+vehicle_health.UI_health_ammo_minimal: "Panel munice — Minimalistický"
+
+vehicle_health.UI_health_ammo_classic: "Panel munice — Klasický WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Panel munice — Driftkings"

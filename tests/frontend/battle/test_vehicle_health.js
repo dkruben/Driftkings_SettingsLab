@@ -25,11 +25,17 @@ assert.strictEqual(host.querySelector('.dk-health__text').textContent,'1200 / 24
 bar.render({style:1,percent:.5});
 assert.strictEqual(host.querySelector('.dk-health__image').style.display,'');
 assert.strictEqual(host.querySelector('.dk-health__frame').src.endsWith('/bastion.png'),true);
-for(const value of [-1,5,1.5,'1',null,true,Infinity]){
+for(const value of [-1,8,1.5,'1',null,true,Infinity]){
     bar.render({style:value,percent:NaN,color:'invalid',text:''});
     assert.strictEqual(host.getAttribute('data-health-style'),'classic');
     assert.strictEqual(host.querySelector('.dk-health__fill').style.width,'0%');
     assert.strictEqual(host.querySelector('.dk-health__fill').style.backgroundColor,'#3FC23A');
+}
+for (const [index,name] of [[5,'ammo_minimal'],[6,'ammo_classic'],[7,'ammo_driftkings']]) {
+    bar.render({style:index,percent:.72,text:'1440 / 2000'});
+    assert.strictEqual(host.getAttribute('data-health-style'),name);
+    assert.strictEqual(host.style.height,'26rem');
+    assert.strictEqual(host.querySelector('.dk-health__image').style.display,'none');
 }
 bar.render({style:0,percent:2,text:'<font>literal</font>'});
 assert.strictEqual(host.querySelector('.dk-health__fill').style.width,'100%');
@@ -76,8 +82,14 @@ assert.strictEqual(previewHost.querySelector('.dk-health__fill').style.width,'0%
 assert.strictEqual(env.sent.length,sent,'sample HP never saves configuration');
 preview.preview(id('x'),99999);
 assert.strictEqual(previewHost.querySelector('.is-current').style.left,'1440rem');
+for (const style of [5,6,7]) {
+    preview.preview(id('style'),style);
+    const docked=previewHost.querySelector('.is-current');
+    assert.strictEqual(docked.style.left,'789rem');
+    assert.strictEqual(docked.style.top,'988rem');
+}
 preview.preview(id('enabled'),false);
 assert.strictEqual(previewHost.querySelector('.is-current'),null);
 preview.dispose();assert.strictEqual(previewHost.children.length,0);
 DK.app.dispose();
-console.log('Health bar: five styles, shared battle/preview renderer, HP samples and live colour passed');
+console.log('Health bar: five floating and three docked styles, HP samples and live colour passed');

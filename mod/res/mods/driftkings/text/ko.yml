@@ -1836,3 +1836,9 @@ panel.hud.health: "내구도"
 vehicle_health.UI_setting_style_tooltip: "내구도 막대의 테두리를 선택합니다."
 vehicle_health.UI_health_color_tooltip: "남은 내구도에 따라 색상이 변합니다."
 vehicle_health.UI_health_minimal: "미니멀"
+
+vehicle_health.UI_health_ammo_minimal: "탄약 패널 — 미니멀"
+
+vehicle_health.UI_health_ammo_classic: "탄약 패널 — WoT 클래식"
+
+vehicle_health.UI_health_ammo_driftkings: "탄약 패널 — Driftkings"

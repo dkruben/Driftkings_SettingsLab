@@ -2,6 +2,10 @@
 
 Revisão e adaptação de 2026-11-05, na branch `feature/wot-2.4.2-ct`, criada da base `832d3263` (`0.1.7-beta.1`). Os contratos desta branch apontam exclusivamente para CT; `develop`, `main`, os pacotes publicados e `toolchain.local.json` não foram alterados. A versão local CT é `0.1.8-beta.1`, sem publicação.
 
+## Ponto de controlo — 2026-11-09
+
+O autor autorizou commit e push da barra de vida integrada antes da futura migração das dependências. Os três estilos adicionais e a preservação dos estilos/perfis anteriores estão descritos em [AMMO_HEALTH.md](AMMO_HEALTH.md). A aprovação CT de 2026-11-06 não valida esta nova apresentação; o teste visual em batalha continua pendente. O ciclo de versão CT permanece inalterado. ModsListAPI e OpenWG Gameface continuam dependências atuais; a sua substituição ainda não foi implementada.
+
 ## Correções implementadas e build de teste
 
 - Arranque explicitamente permitido no realm CT; a normalização reconhece o rótulo `Common Test` sem aceitar sufixos arbitrários.
