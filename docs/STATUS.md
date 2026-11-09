@@ -2,6 +2,26 @@
 
 Atualizado em 2026-11-09. Os caminhos e comandos partem da raiz do repositório.
 
+## Fase 2 encerrada — 2026-11-09
+
+**Fase 2 — Validada funcionalmente no CT 2.4.2.0 sem ModsListAPI.** O autor confirmou botão/hover, abertura, X, Esc, atalho, regresso ao hangar e ausência de duplicações. A sessão sem ModsList já analisada confirma serviços ativos e ausência de falhas identificadas do launcher. Pacote ModsList restaurado e hash confirmado. OpenWG continua utilizado e ambos os pacotes permanecem no contrato de distribuição; futuras versões requerem revalidação. Ver [encerramento e evidências](NATIVE_FOOTER_LAUNCHER.md#encerramento-formal-da-fase-2--2026-11-09). As pendências nas secções seguintes são históricas. Commit local autorizado, sem push; Fase 3 apenas em investigação read-only.
+
+## Fase 2.5 — arranque sem ModsList confirmado no log — 2026-11-09
+
+Isolamento reversível concluído; sessão CT 04:52–04:53 carregou OpenWG e Driftkings sem ModsList, com serviços ativos, `failures=[]` e `disabled={}`, sem erros identificados do launcher. Confirmação manual dos controlos nesse cenário ainda pendente. ModsList restaurado após encerramento do CT, com hash confirmado e cópia de recuperação preservada. Erros de partículas e SVG sociais registados separadamente. Ver [registo detalhado](NATIVE_FOOTER_LAUNCHER.md#fase-25--sessão-sem-modslist-e-recuperação--2026-11-09). Sem alterações de código ou Fase 3.
+
+## Launcher confirmado no CT pelo autor — 2026-11-09
+
+O autor confirmou o funcionamento visual e funcional do launcher instalado. O log da sessão CT #995 regista serviços ativos, `failures=[]` e `disabled={}`, sem erros identificados do launcher ou tracebacks. Há erros de partículas BZ-75 e de SVG dos ícones YouTube/GitHub do painel, registados separadamente. Ambas as bibliotecas externas estavam presentes; os restantes cenários de coexistência e a matriz de modos/escalas não foram declarados como testados. Ver [evidência e âmbito](NATIVE_FOOTER_LAUNCHER.md#confirmação-do-autor-e-revisão-do-log--2026-11-09). As pendências abaixo descrevem checkpoints anteriores. Sem commit, push ou Fase 3.
+
+## Instalação do launcher no CT — 2026-11-09
+
+Instalação autorizada e concluída apenas no cliente CT, com backup verificado do pacote anterior e confirmação do SHA-256 instalado. Perfis e bibliotecas externas preservados. O cliente não foi iniciado e a validação visual continua pendente. Ver [registo de instalação e recuperação](NATIVE_FOOTER_LAUNCHER.md#instalação-autorizada--2026-11-09).
+
+## Native Footer Launcher — Fase 2 — 2026-11-09
+
+Implementação local na branch CT: botão próprio no footer através de filho Wulf e adaptador DOM localizado, reutilizando o OpenWG e bootstrap existentes. Registo ativo Driftkings na ModsList removido; atalho, janela, contextos e perfis preservados. Ambos os pacotes externos continuam na distribuição. **IMPLEMENTADO — VALIDAÇÃO EM JOGO PENDENTE.** Ver [contratos, testes e rollback](NATIVE_FOOTER_LAUNCHER.md). Sem instalação, commit, push ou início da Fase 3.
+
 ## Ponto de controlo antes da autonomia das dependências — 2026-11-09
 
 O autor autorizou commit e push das alterações locais da barra de vida na branch CT antes de iniciar qualquer migração. A documentação deve acompanhar as alterações futuras. ModsListAPI e OpenWG Gameface continuam obrigatórios no pacote atual; o botão próprio e a ponte interna foram apenas analisados, sem implementação. A validação visual da barra integrada permanece pendente. Ver [guia da barra integrada](AMMO_HEALTH.md) e [compatibilidade CT](CT_COMPATIBILITY.md).

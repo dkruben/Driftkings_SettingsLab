@@ -367,6 +367,8 @@
           "target": "res/gui/flash/driftkingspanels.swf",
           "generator": "panels_flash"
         },
+        "mod/res/gui/gameface/mods/driftkings/launcher/**",
+        "mod/res/gui/gen_resources/driftkings.launcher.json",
         "mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_tokens.css",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js",

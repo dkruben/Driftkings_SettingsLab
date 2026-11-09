@@ -2,6 +2,18 @@
 
 Revisão e adaptação de 2026-11-05, na branch `feature/wot-2.4.2-ct`, criada da base `832d3263` (`0.1.7-beta.1`). Os contratos desta branch apontam exclusivamente para CT; `develop`, `main`, os pacotes publicados e `toolchain.local.json` não foram alterados. A versão local CT é `0.1.8-beta.1`, sem publicação.
 
+## Encerramento Fase 2 — 2026-11-09
+
+**Fase 2 — Validada funcionalmente no CT 2.4.2.0 sem ModsListAPI.** Confirmação do autor inclui botão, hover, abertura, X, Esc, atalho, regresso ao hangar e ausência de duplicações. O log sem ModsList confirma serviços ativos, `failures=[]` e `disabled={}`. ModsList restaurado após o teste. OpenWG continua utilizado; os dois pacotes mantêm-se no contrato de distribuição. Outros modos/escalas e futuras versões WoT requerem revalidação. [Registo completo](NATIVE_FOOTER_LAUNCHER.md#encerramento-formal-da-fase-2--2026-11-09). As pendências anteriores abaixo são históricas; sem implementação da Fase 3.
+
+## Confirmação funcional do launcher — 2026-11-09
+
+O autor confirmou em jogo a apresentação e o funcionamento do launcher da Fase 2. Revisão do log CT: arranque sem falhas/componentes desativados e sem erros identificados do launcher. Foram observados erros de partículas e dos SVG sociais do painel, sem atribuição ao launcher. ModsList e OpenWG estavam presentes; cenários sem ModsList, outros modos e escalas continuam por confirmar individualmente. Ver [registo detalhado](NATIVE_FOOTER_LAUNCHER.md#confirmação-do-autor-e-revisão-do-log--2026-11-09). A pendência na secção de implementação seguinte é histórica.
+
+## Launcher CT — Fase 2 — 2026-11-09
+
+O launcher próprio substitui o registo ativo Driftkings na ModsList, mantendo OpenWG e os dois pacotes na distribuição. Usa `_initChildren`, `setChildView` e a âncora DOM do footer CT; os modos com override próprio são tratados separadamente. **IMPLEMENTADO — VALIDAÇÃO EM JOGO PENDENTE.** O ciclo de versões local permanece inalterado. Ver [guia e rollback](NATIVE_FOOTER_LAUNCHER.md). Esta alteração não está abrangida pela aprovação anterior do CT.
+
 ## Ponto de controlo — 2026-11-09
 
 O autor autorizou commit e push da barra de vida integrada antes da futura migração das dependências. Os três estilos adicionais e a preservação dos estilos/perfis anteriores estão descritos em [AMMO_HEALTH.md](AMMO_HEALTH.md). A aprovação CT de 2026-11-06 não valida esta nova apresentação; o teste visual em batalha continua pendente. O ciclo de versão CT permanece inalterado. ModsListAPI e OpenWG Gameface continuam dependências atuais; a sua substituição ainda não foi implementada.

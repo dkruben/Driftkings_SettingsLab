@@ -62,6 +62,8 @@ Inside the client package:
 
 ### Gameface presentation
 
+On the CT branch, `settings_panel` owns the footer launcher in `gameface/lobby/launcher.py`. It delegates to the existing settings controller and uses the existing OpenWG/bootstrap loading chain. There is no active Driftkings ModsList registration. Both dependency packages remain distributed. The owner validated the launcher on CT without ModsListAPI; OpenWG remains required and future client versions need revalidation. See [the Phase 2 guide](docs/NATIVE_FOOTER_LAUNCHER.md) for native/DOM contracts, the author-confirmed CT test scope, remaining in-game checks and scoped rollback.
+
 Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. Use `interface_catalog.py` for the active contracts and the [settings-panel report](docs/RELATORIO_PAINEL_CONFIGURACAO.md) for the configuration flow; confirm affected views in the client.
 
 ### Flash/Scaleform presentation

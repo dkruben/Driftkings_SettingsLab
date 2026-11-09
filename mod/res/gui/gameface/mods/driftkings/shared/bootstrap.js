@@ -72,6 +72,15 @@
                 "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
             ]
         },
+        "DriftkingsFooterLauncher": {
+            "owner": "__dkFooterLauncher",
+            "scripts": [
+                "coui://gui/gameface/mods/driftkings/launcher/launcher.js"
+            ],
+            "styles": [
+                "coui://gui/gameface/mods/driftkings/launcher/launcher.css"
+            ]
+        },
         "DriftkingsHangarClock": {
             "owner": "__dkHangarClock",
             "scripts": [

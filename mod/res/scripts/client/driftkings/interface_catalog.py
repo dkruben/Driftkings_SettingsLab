@@ -62,6 +62,15 @@ FLASH_COMPONENTS = {
 # The catalog is used by the runtime to determine which features are available and to load the appropriate resources.
 # Each feature has a context, layout, owner, python module, resource path, scripts, section, and styles.
 GAMEFACE = {
+    'DriftkingsFooterLauncher': {
+        'context': 'footer',
+        'layout': 'coui://gui/gameface/mods/driftkings/launcher/model.html',
+        'owner': '__dkFooterLauncher',
+        'python': 'driftkings.gameface.lobby.launcher',
+        'resource': 'mods/driftkings/launcher/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/launcher/launcher.js'],
+        'section': 'driftkings',
+        'styles': ['coui://gui/gameface/mods/driftkings/launcher/launcher.css']},
     'DriftkingsProfileRatings': {
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/profile_ratings/model.html',

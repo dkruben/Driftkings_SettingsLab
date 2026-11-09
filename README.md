@@ -2,6 +2,8 @@
 
 > **Common Test development branch:** `feature/wot-2.4.2-ct` targets WoT `2.4.2.0 Common Test #995` with local test version `0.1.8-beta.1`. The project owner approved local test build `0.1.8-beta.2` in game on 2026-11-06; CT remains unpublished. Production 0.1.7-beta.1 and stable 0.1.6 remain separate. The CT branch also includes three optional health-bar styles docked above the native ammunition/consumables panel, pending in-game visual validation; see [the integrated health-bar guide](docs/AMMO_HEALTH.md). See [CT compatibility and build commands](docs/CT_COMPATIBILITY.md).
 
+> **CT launcher validation (2026-11-09):** the dedicated Driftkings footer launcher is functionally validated by the author on CT 2.4.2.0 without ModsListAPI, including click, hover, X/Esc, shortcut, return to hangar and no duplicates. OpenWG is still used and both dependency packages remain bundled; this is not a fully standalone distribution. Future client versions require revalidation. See [Phase 2 evidence and rollback](docs/NATIVE_FOOTER_LAUNCHER.md). Stable installation instructions below describe the published release.
+
 
 A customizable World of Tanks modpack with advanced battle statistics, modern interface enhancements, aiming tools, vehicle markers and integrated settings.
 

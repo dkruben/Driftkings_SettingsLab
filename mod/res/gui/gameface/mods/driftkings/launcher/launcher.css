@@ -1,0 +1,10 @@
+.driftkings-launcher {
+    display: flex; align-items: center; justify-content: center;
+    width: 40rem; height: 32rem; margin: 0 6rem; padding: 4rem;
+    border: 1rem solid transparent; border-radius: 2rem;
+    background-color: transparent; cursor: pointer;
+}
+.driftkings-launcher:hover { background-color: rgba(255, 230, 170, .12); border-color: rgba(220, 180, 100, .4); }
+.driftkings-launcher:active { background-color: rgba(220, 180, 100, .24); }
+.driftkings-launcher:focus { border-color: #D0A54A; }
+.driftkings-launcher__icon { width: 24rem; height: 24rem; pointer-events: none; }
