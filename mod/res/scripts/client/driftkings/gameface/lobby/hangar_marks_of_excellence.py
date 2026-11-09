@@ -66,9 +66,13 @@ class MarksOnGunHangarController(HangarController):
 def install_gameface():
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import payload_model
+    from gui.impl.gen.view_models.views.lobby.hangar.user_missions_plugin_model import UserMissionsPluginModel
+    from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
+    from driftkings.core.hooks import override
+    from driftkings.gameface.core import INVALID_RES_ID, native_payload_model, resource_id
 
-    MarksModel = payload_model(FEATURE)
+    MarksModel = native_payload_model(FEATURE)
+    plugin_url = gameface_spec(FEATURE)['plugin']
 
     class MarksView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -121,3 +125,40 @@ def install_gameface():
                     model._setString(0, '{"config":{"visible":false}}')
 
     install_card(_component, MarksView, __name__, RESOURCE)
+
+    @override(UserMissionsPresenter, '_onLoading')
+    def plugin_loading(original, presenter, *args, **kwargs):
+        result = original(presenter, *args, **kwargs)
+        try:
+            alias = resource_id(RESOURCE)
+            if alias == INVALID_RES_ID:
+                raise ValueError('Hangar marks resource unavailable')
+            with presenter.viewModel.transaction() as model:
+                plugins = model.getPlugins()
+                if alias in plugins:
+                    _component().LOG.warning('Hangar marks native plugin slot already occupied')
+                    return result
+                descriptor = UserMissionsPluginModel()
+                descriptor.setUrl(plugin_url)
+                plugins.set(alias, descriptor)
+            presenter._dkHangarMarksPlugin = (alias, descriptor)
+            _component().LOG.info('Hangar marks native plugin registered; OpenWG injection not requested')
+        except Exception:
+            _component().LOG.exception('Could not register native hangar marks plugin')
+        return result
+
+    @override(UserMissionsPresenter, '_finalize')
+    def plugin_finalize(original, presenter, *args, **kwargs):
+        owned = getattr(presenter, '_dkHangarMarksPlugin', None)
+        if owned is not None:
+            try:
+                alias, descriptor = owned
+                with presenter.viewModel.transaction() as model:
+                    plugins = model.getPlugins()
+                    current = plugins.get(alias)
+                    if current is descriptor and current.getUrl() == plugin_url:
+                        plugins.remove(alias)
+                presenter._dkHangarMarksPlugin = None
+            except Exception:
+                _component().LOG.exception('Could not detach native hangar marks plugin')
+        return original(presenter, *args, **kwargs)

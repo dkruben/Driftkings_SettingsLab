@@ -109,17 +109,6 @@
                 "coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css"
             ]
         },
-        "DriftkingsMarksOnGunHangar": {
-            "owner": "__dkHangarMarks",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.css",
-                "coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css"
-            ]
-        },
         "DriftkingsMarksOnGunTechTree": {
             "owner": "__dkTechMarks",
             "scripts": [

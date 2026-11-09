@@ -165,6 +165,7 @@
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css",
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js",
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js",
         "mod/res/gui/gen_resources/driftkings.hangar_marks_of_excellence.json"
       ]
     },

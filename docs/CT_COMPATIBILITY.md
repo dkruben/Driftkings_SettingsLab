@@ -2,6 +2,10 @@
 
 Revisão e adaptação de 2026-11-05, na branch `feature/wot-2.4.2-ct`, criada da base `832d3263` (`0.1.7-beta.1`). Os contratos desta branch apontam exclusivamente para CT; `develop`, `main`, os pacotes publicados e `toolchain.local.json` não foram alterados. A versão local CT é `0.1.8-beta.1`, sem publicação.
 
+## Encerramento Fase 3C — 2026-11-09
+
+**Fase 3C concluída e validada no CT #995 no âmbito confirmado pelo autor.** Relógio e marcas da garagem usam plugins nativos independentes; os outros 18 consumidores continuam OpenWG e ambas as dependências de distribuição são preservadas. Confirmação inclui coexistência, hidePrestige, ativação/desativação, veículos, três ciclos sem duplicação e launcher. Log da build instalada identifica os dois registos backend e encerramento; não expõe init/destroy JS. Testes finais: 860 Python 3, 673 Python 2.7, 23 suites frontend, quatro artefactos e validadores aprovados. Pacote local/instalado `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`, backup Fase 3A verificado. Sem nova instalação/build, push, release ou Fase 3D. Escalas/resoluções adicionais e memória não foram individualmente medidas. [Evidências e rollback](NATIVE_HANGAR_MARKS_POC.md#auditoria-final-e-encerramento--2026-11-09). O estado da Fase 3A abaixo é histórico.
+
 ## PoC Fase 3A — 2026-11-09
 
 Relógio com arranque pelo loader nativo de plugins da garagem CT; os outros 19 consumidores ficam no OpenWG. Gate fundamentado nas fontes e bundles CT; testes automáticos e build aprovados. **Fase 3A concluída e validada no CT #995 no âmbito da checklist confirmada pelo autor, incluindo posição/escala, prestígio, três ciclos e regressões. Telemetria JS direta de destroy não observada; limites documentados no guia.** SHA-256 do PoC: `d08148935218a1fd9ee697e31f3e686928b4ac16bfc8e7d39a906b30d6eb3d14`. A aprovação da Fase 2 abaixo não abrange este PoC. [Contratos e rollback](NATIVE_CLOCK_POC.md).

@@ -2,6 +2,20 @@
 
 Atualizado em 2026-11-09. Os caminhos e comandos partem da raiz do repositório.
 
+## Fase 3C encerrada e validada — 2026-11-09
+
+**FASE 3C CONCLUÍDA E VALIDADA no CT #995, no âmbito confirmado pelo autor.** Confirmados coexistência relógio/marcas, hidePrestige, troca repetida de veículos, três ciclos sem duplicações e launcher; ativação/desativação já confirmada. Sessão 11:02:53–11:09:32 identificada após instalação, serviços active, failures=[] e disabled={}, três pares de registos nativos e nenhum erro novo relevante dos plugins identificado. Telemetria JS de init/destroy ausente; matriz visual de múltiplas escalas e memória não medida. Testes repetidos: 860 Python 3, 673 Python 2.7, 23 suites frontend, quatro artefactos e validadores PASS. Hash local/instalado e backup reconfirmados. Consolidação em commit local `feat(gameface): add native hangar marks plugin`, sem push. Sem nova build, instalação, correção de código ou Fase 3D. Dois nativos e 18 OpenWG; sem independência global. [Auditoria, classificação e limites](NATIVE_HANGAR_MARKS_POC.md#auditoria-final-e-encerramento--2026-11-09). Checkpoints abaixo são históricos.
+
+## Fase 3C — funcionamento confirmado pelo autor no CT — 2026-11-09
+
+O autor confirmou “Está a funcionar bem e sem problemas” após testar a build instalada da Fase 3C. Confirmou também que ativar/desativar as marcas funciona, retirando o relato inicial em contrário; nenhuma correção de código foi feita durante essa investigação. Hash instalado reconfirmado: `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`. Confirmação funcional no âmbito relatado, sem atribuir testes individuais ou três ciclos não explicitados e sem nova análise de logs. Sem commit/push ou alterações de código. [Confirmação e limites](NATIVE_HANGAR_MARKS_POC.md#confirmação-funcional-do-autor--2026-11-09). Checkpoints abaixo são históricos.
+
+## Fase 3C experimental implementada — validação CT pendente — 2026-11-09
+
+Instalação controlada posteriormente autorizada e concluída às 11:02 UTC: apenas `driftkings.wotmod` substituído no CT encerrado, hash instalado `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`. Backup Fase 3A verificado; inventário integral de 706 ficheiros confirma uma única alteração. Jogo não iniciado. Sem alterações de código, commit ou push. Validação funcional pelo autor continua pendente. [Relatório e backup](NATIVE_HANGAR_MARKS_POC.md#instalação-controlada-autorizada--2026-11-09). O parágrafo seguinte regista o estado anterior à instalação.
+
+**FASE 3C IMPLEMENTADA — VALIDAÇÃO CT PENDENTE.** Apenas as marcas da garagem passam a plugin nativo independente; relógio original preservado. Catálogo: duas janelas próprias, dois nativos, 18 OpenWG. Testes: 860 Python 3, 673 runtime Python 2.7, 23 suites frontend e quatro de artefactos; lint e validadores aprovados. Fault injection é isolada, sem execução do loader real. Build debug CT 0.1.8-beta.2 (fonte 0.1.8-beta.1), SHA-256 `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`. Não instalada; CT mantém a build validada da Fase 3A. Sem commit/push. [Arquitetura, evidências, limites e rollback](NATIVE_HANGAR_MARKS_POC.md). Registos abaixo permanecem históricos.
+
 ## Fase 3A encerrada e validada — 2026-11-09
 
 **FASE 3A CONCLUÍDA E VALIDADA no CT #995.** O autor respondeu afirmativamente à checklist final de formatos/posição/escala/ativação, alternância de prestígio, três ciclos sem duplicação e regressões do launcher/restantes módulos. Testes finais já aprovados e código inalterado desde essa verificação. CT fechado, hash do PoC e backup confirmados; sessão adicional encerrada às 05:54:41 com serviços sem falhas e sem erros identificados do relógio/lifecycle, mantendo apenas os erros conhecidos de partículas. Ausência de telemetria JS explícita permanece documentada. [Encerramento e âmbito](NATIVE_CLOCK_POC.md#encerramento-após-respostas-à-checklist--2026-11-09). Commit local autorizado, sem push. OpenWG continua necessário para os outros 19 consumidores; sem Fase 3B. Pendências abaixo são históricas.

@@ -39,7 +39,8 @@ module.exports = [
     },
     {
         // The CT native plugin loader imports an ES module; the clock renderer remains ES5.
-        files: ["mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js"],
+        files: ["mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js",
+            "mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js"],
         languageOptions: { ecmaVersion: 2015, sourceType: "module", globals: { Promise: "readonly" } }
     }
 ];

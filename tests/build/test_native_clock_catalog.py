@@ -14,8 +14,8 @@ class NativeClockCatalogTests(unittest.TestCase):
         block = generated.split(catalog.START, 1)[1].split(catalog.END, 1)[0]
         self.assertNotIn('DriftkingsHangarClock', block)
         legacy = [name for name, spec in data['GAMEFACE'].items()
-                  if spec['owner'] is not None and name != 'DriftkingsHangarClock']
-        self.assertEqual(len(legacy), 19)
+                  if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg']
+        self.assertEqual(len(legacy), 18)
         for name in legacy:
             self.assertIn(name, block)
         plan = build_plan(catalog.ROOT)
@@ -28,7 +28,7 @@ class NativeClockCatalogTests(unittest.TestCase):
         data['GAMEFACE']['DriftkingsFooterLauncher']['transport'] = 'native_user_missions'
         data['GAMEFACE']['DriftkingsFooterLauncher']['plugin'] = data['GAMEFACE']['DriftkingsHangarClock']['plugin']
         with patch.object(catalog, 'read_catalog', return_value=data):
-            with self.assertRaisesRegex(ValueError, 'Native PoC is clock only'):
+            with self.assertRaisesRegex(ValueError, 'Native PoC is clock and hangar marks only'):
                 catalog.validate()
 
     def test_unknown_transport_is_rejected(self):

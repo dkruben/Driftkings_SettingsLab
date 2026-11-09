@@ -292,6 +292,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css']
     },
     'DriftkingsMarksOnGunHangar': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html',
         'owner': '__dkHangarMarks',

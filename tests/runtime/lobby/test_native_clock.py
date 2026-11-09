@@ -84,15 +84,15 @@ class NativeClockTests(RuntimeTest):
             'openwg_gameface': module(gf_mod_inject=lambda model, *a, **k: self.injected.append(model)),
             'driftkings.interface_catalog': self.catalog})
 
-    def test_native_model_has_no_injection_and_other_nineteen_stay_on_openwg(self):
+    def test_native_model_has_no_injection_and_other_eighteen_stay_on_openwg(self):
         model = self.core['native_payload_model']('DriftkingsHangarClock')()
         self.assertEqual(model.properties, 2)
         self.assertEqual(set(model.fields), set(('payload', 'DriftkingsUI')))
         self.assertFalse(self.injected)
         for name, spec in self.catalog.GAMEFACE.items():
-            if spec['owner'] is not None and name != 'DriftkingsHangarClock':
+            if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg':
                 self.core['payload_model'](name)()
-        self.assertEqual(len(self.injected), 19)
+        self.assertEqual(len(self.injected), 18)
         self.assertRaises(ValueError, self.core['native_payload_model'], 'DriftkingsFooterLauncher')
 
     def test_native_registration_payload_and_disposal(self):

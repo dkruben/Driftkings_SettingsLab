@@ -158,6 +158,7 @@ def validate(root=ROOT, plan=None):
     require(len(set(resources.values())) == len(resources), 'Independent UI resources must have distinct layout paths')
     targets = {item['target'] for item in plan['assets']} if plan is not None else None
     owners = set()
+    native_ids = set()
     for name, spec in face.items():
         require(spec['section'] in sections, 'Unknown Gameface section: ' + name)
         require((root / ('mod/res/scripts/client/' + spec['python'].replace('.', '/') + '.py')).is_file(),
@@ -176,7 +177,11 @@ def validate(root=ROOT, plan=None):
         transport = spec.get('transport', 'openwg')
         require(transport in ('openwg', 'native_user_missions'), 'Unknown transport: ' + name)
         if transport == 'native_user_missions':
-            require(name == 'DriftkingsHangarClock' and bool(spec.get('plugin')), 'Native PoC is clock only')
+            require(name in ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar') and bool(spec.get('plugin')),
+                    'Native PoC is clock and hangar marks only')
+            identity = (spec['plugin'].split('mono/')[1] if 'mono/' in spec['plugin'] else '') or 'unknown'
+            require(identity not in native_ids, 'Duplicate native SDK identity: ' + identity)
+            native_ids.add(identity)
         for url in [spec['layout']] + spec['styles'] + spec['scripts'] + ([spec['plugin']] if 'plugin' in spec else []):
             target = asset_target(url)
             require((root / 'mod' / target).is_file(), 'Missing UI asset: ' + target)
