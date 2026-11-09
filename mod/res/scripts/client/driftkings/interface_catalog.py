@@ -188,6 +188,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/crew_details/details.css']
     },
     'DriftkingsCrewProgression': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/crew_progression/model.html',
         'owner': '__dkCrewProgression',

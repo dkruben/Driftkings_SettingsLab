@@ -177,8 +177,8 @@ def validate(root=ROOT, plan=None):
         transport = spec.get('transport', 'openwg')
         require(transport in ('openwg', 'native_user_missions'), 'Unknown transport: ' + name)
         if transport == 'native_user_missions':
-            require(name in ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar') and bool(spec.get('plugin')),
-                    'Native PoC is clock and hangar marks only')
+            require(name in ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression')
+                    and bool(spec.get('plugin')), 'Native PoC is clock, hangar marks and crew progression only')
             identity = (spec['plugin'].split('mono/')[1] if 'mono/' in spec['plugin'] else '') or 'unknown'
             require(identity not in native_ids, 'Duplicate native SDK identity: ' + identity)
             native_ids.add(identity)

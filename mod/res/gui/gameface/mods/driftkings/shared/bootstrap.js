@@ -53,13 +53,6 @@
                 "coui://gui/gameface/mods/driftkings/crew_details/details.css"
             ]
         },
-        "DriftkingsCrewProgression": {
-            "owner": "__dkCrewProgression",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/crew_progression/crew.js"
-            ],
-            "styles": []
-        },
         "DriftkingsFlightTime": {
             "owner": "__dkFlightTime",
             "scripts": [

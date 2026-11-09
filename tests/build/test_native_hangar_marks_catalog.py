@@ -23,7 +23,7 @@ class NativeHangarMarksTests(unittest.TestCase):
         self.assertNotEqual(identity(clock['plugin']), identity(marks['plugin']))
         legacy = [name for name, spec in face.items() if spec['owner'] is not None
                   and spec.get('transport', 'openwg') == 'openwg']
-        self.assertEqual(len(legacy), 18)
+        self.assertEqual(len(legacy), 17)
         block = catalog.outputs()[catalog.BOOTSTRAP].split(catalog.START)[1].split(catalog.END)[0]
         self.assertNotIn('DriftkingsMarksOnGunHangar', block)
         for name in legacy:

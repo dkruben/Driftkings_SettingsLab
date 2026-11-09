@@ -120,6 +120,7 @@
       ],
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/crew_progression/**",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js",
         "mod/res/gui/gen_resources/driftkings.crew_progression.json",
         "mod/res/gui/gameface/mods/driftkings/crew_details/**",
         "mod/res/gui/gen_resources/driftkings.crew_details.json",
