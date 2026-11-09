@@ -131,3 +131,7 @@ Evidence used in this review:
 - [`package.json`](../build_tools/javascript/package.json), npm scripts and the CI workflow.
 
 The older Portuguese companion guide, `FONTES_DESENVOLVIMENTO.md`, was retired; it remains recoverable from the Git history.
+
+## Native clock PoC reference — 2026-11-09
+
+The CT Phase 3A investigation confirmed the hangar native plugin contract through UserMissionsPresenter/UserMissionsPluginModel and the original hangar lib/main bundles. The clock-only PoC uses that entry point; OpenWG remains installed and serves the other 19 injected owners. See [NATIVE_CLOCK_POC.md](NATIVE_CLOCK_POC.md) for exact files, hashes, lifecycle, gate, JavaScript module exception, owner-confirmed CT validation scope and remaining telemetry limitations. This does not establish a generic automatic R.plugins.js extension or compatibility beyond the inspected CT.

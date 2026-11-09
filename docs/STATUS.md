@@ -2,6 +2,30 @@
 
 Atualizado em 2026-11-09. Os caminhos e comandos partem da raiz do repositório.
 
+## Fase 3A encerrada e validada — 2026-11-09
+
+**FASE 3A CONCLUÍDA E VALIDADA no CT #995.** O autor respondeu afirmativamente à checklist final de formatos/posição/escala/ativação, alternância de prestígio, três ciclos sem duplicação e regressões do launcher/restantes módulos. Testes finais já aprovados e código inalterado desde essa verificação. CT fechado, hash do PoC e backup confirmados; sessão adicional encerrada às 05:54:41 com serviços sem falhas e sem erros identificados do relógio/lifecycle, mantendo apenas os erros conhecidos de partículas. Ausência de telemetria JS explícita permanece documentada. [Encerramento e âmbito](NATIVE_CLOCK_POC.md#encerramento-após-respostas-à-checklist--2026-11-09). Commit local autorizado, sem push. OpenWG continua necessário para os outros 19 consumidores; sem Fase 3B. Pendências abaixo são históricas.
+
+## Encerramento Fase 3A condicionado — 2026-11-09
+
+**FASE 3A IMPLEMENTADA — VALIDAÇÃO PENDENTE.** Auditoria limitada ao relógio aprovada, testes finais repetidos (856 Python 3, 672 Python 2.7, 21 suites frontend e três de artefactos). Build instalada e backup confirmados por hash. Log após encerramento CT sem falhas identificadas do plugin, com três registos nativos; não comprova três ciclos completos nem telemetria de destroy. Checklist adicional enviada ao autor para formatos/escala, alternância repetida de prestígio, ciclos e regressões nesta build. Commit suspenso enquanto critérios essenciais permanecem pendentes; staging vazio, sem alterações de código nesta verificação. [Resultados e limites](NATIVE_CLOCK_POC.md#verificação-final-condicionada--2026-11-09). Sem Fase 3B.
+
+## Relógio e hidePrestige confirmados pelo autor — 2026-11-09
+
+O autor confirmou apresentação/atualização do relógio e ocultação/reposição do prestígio no PoC instalado. A confirmação complementa o log de registo do plugin nativo e a separação dos transportes no código. OpenWG permanece instalado para os outros 19 consumidores; não há declaração de runtime global sem OpenWG. Outros formatos, escalas, modos e descarte/transições continuam por confirmar individualmente. [Âmbito da confirmação](NATIVE_CLOCK_POC.md#confirmação-funcional-do-autor--2026-11-09). Sem commit/push ou Fase 3B.
+
+## Primeira leitura do log Fase 3A — 2026-11-09
+
+PoC inicia com serviços ativos, `failures=[]`, `disabled={}` e registo Python do plugin nativo confirmado às 05:44:36. Sem erros identificados do plugin no snapshot; erros de partículas conhecidos separados. A mensagem de arranque JS não aparece no log consultado, portanto a execução frontend e hidePrestige não estão confirmados apenas pelo log. CT ainda aberto; descarte e validação visual pendentes. [Evidência e limites](NATIVE_CLOCK_POC.md#primeira-leitura-do-log-do-poc--2026-11-09).
+
+## PoC Fase 3A instalado para teste — 2026-11-09
+
+Instalação do relógio nativo autorizada e concluída apenas no CT, hash `d08148935218a1fd9ee697e31f3e686928b4ac16bfc8e7d39a906b30d6eb3d14`, com backup verificado da Fase 2. Perfis e dependências preservados. CT não iniciado pelo agente; validação em jogo pendente. [Registo e recuperação](NATIVE_CLOCK_POC.md#instalação-autorizada-no-ct--2026-11-09). Os estados de não instalação abaixo são históricos.
+
+## Fase 3A — PoC do relógio nativo — 2026-11-09
+
+Gate aprovado por contratos CT: loader nativo de plugins da garagem com import de módulo, init/destroy e mapa UserMissionsPluginModel. PoC implementado apenas para o relógio; renderer/CSS/HTML e hidePrestige preservados, 19 consumidores continuam OpenWG. 856 testes Python 3, 672 runtime Python 2.7, 21 suites frontend e três testes de artefactos aprovados; build debug CT concluída. **Validação real pendente; não instalado, sem commit/push.** O CT mantém o pacote da Fase 2. Ver [evidências, riscos e rollback](NATIVE_CLOCK_POC.md). OpenWG e os dois pacotes da distribuição permanecem.
+
 ## Fase 2 encerrada — 2026-11-09
 
 **Fase 2 — Validada funcionalmente no CT 2.4.2.0 sem ModsListAPI.** O autor confirmou botão/hover, abertura, X, Esc, atalho, regresso ao hangar e ausência de duplicações. A sessão sem ModsList já analisada confirma serviços ativos e ausência de falhas identificadas do launcher. Pacote ModsList restaurado e hash confirmado. OpenWG continua utilizado e ambos os pacotes permanecem no contrato de distribuição; futuras versões requerem revalidação. Ver [encerramento e evidências](NATIVE_FOOTER_LAUNCHER.md#encerramento-formal-da-fase-2--2026-11-09). As pendências nas secções seguintes são históricas. Commit local autorizado, sem push; Fase 3 apenas em investigação read-only.

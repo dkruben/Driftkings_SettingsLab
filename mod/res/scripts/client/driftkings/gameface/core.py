@@ -58,3 +58,19 @@ def payload_model(feature, commands=()):
                 setattr(self, command, self._addCommand(command))
             attach_assets(self, feature)
     return PayloadModel
+
+
+def native_payload_model(feature):
+    """Clock PoC: publish metadata/data without requesting OpenWG injection."""
+    if gameface_spec(feature).get('transport') != 'native_user_missions':
+        raise ValueError('Feature has no native plugin transport: ' + feature)
+
+    class NativePayloadModel(ViewModel):
+        def __init__(self):
+            super(NativePayloadModel, self).__init__(properties=2, commands=0)
+
+        def _initialize(self):
+            super(NativePayloadModel, self)._initialize()
+            self._addStringProperty('payload', '{}')
+            self._addViewModelProperty('DriftkingsUI', AssetsModel(feature))
+    return NativePayloadModel

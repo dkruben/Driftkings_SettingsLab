@@ -6,7 +6,7 @@ This guide explains how the code is organised and how to make a change safely. S
 
 - **Client scripts run on Python 2.7** (the World of Tanks client). Write code that is valid on both 2.7 and 3: no f-strings, no type hints, no `nonlocal`, no keyword-only arguments. CI parses every client source with Python 2.7.
 - **Keep Python imports alphabetical in three groups**, separated by a blank line: Python standard libraries, game libraries, then Driftkings modules. Keep conditional and local imports in their existing execution scope. Run `python -m isort --settings-path mod/res/scripts/client mod/res/scripts/client` to apply the client configuration, or add `--check-only` to check it; CI enforces this with isort 9.0.2. On Windows, set `PYTHONUTF8=1` so files with non-ASCII text are read correctly.
-- **Gameface JavaScript is ES5.** `npm --prefix build_tools/javascript run lint` enforces this.
+- **Gameface renderer JavaScript is ES5.** The CT clock PoC entry `main/clock_plugin.js` is the single ES2015/module exception required by the native plugin loader; its ESLint override is file-specific. See [the PoC contract](docs/NATIVE_CLOCK_POC.md). `npm --prefix build_tools/javascript run lint` enforces this.
 - Vehicle markers build from a SHA-256-pinned native movie. Configure RABCDAsm with
   `DK_RABCDASM_HOME` or `--rabcdasm-home`; see the [vehicle marker guide](docs/vehicle_markers/README.md).
 - **Use `logging`, never `print`.** Import `get_logger` from `driftkings.logger` and declare `LOG = get_logger('Driftkings.<Area>')`. The shared factory preserves client-owned handlers and output. Use `LOG.exception(...)` inside `except` blocks so the traceback reaches the game log.
@@ -61,6 +61,8 @@ Inside the client package:
 3. A component that fails to import or initialise is **disabled and logged** (`LOG.exception`), and its settings are disabled; it must never take the rest of the mod down.
 
 ### Gameface presentation
+
+The CT Phase 3A PoC (installed and validated on CT #995 within the owner-confirmed final checklist; telemetry limits and scope documented) selects native plugin loading only for the hangar clock. The catalog excludes it from the OpenWG bootstrap while preserving the other 19 owners. Keep the legacy factories unchanged for those consumers; see [native clock evidence and rollback](docs/NATIVE_CLOCK_POC.md).
 
 On the CT branch, `settings_panel` owns the footer launcher in `gameface/lobby/launcher.py`. It delegates to the existing settings controller and uses the existing OpenWG/bootstrap loading chain. There is no active Driftkings ModsList registration. Both dependency packages remain distributed. The owner validated the launcher on CT without ModsListAPI; OpenWG remains required and future client versions need revalidation. See [the Phase 2 guide](docs/NATIVE_FOOTER_LAUNCHER.md) for native/DOM contracts, the author-confirmed CT test scope, remaining in-game checks and scoped rollback.
 

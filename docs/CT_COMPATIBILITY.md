@@ -2,6 +2,10 @@
 
 Revisão e adaptação de 2026-11-05, na branch `feature/wot-2.4.2-ct`, criada da base `832d3263` (`0.1.7-beta.1`). Os contratos desta branch apontam exclusivamente para CT; `develop`, `main`, os pacotes publicados e `toolchain.local.json` não foram alterados. A versão local CT é `0.1.8-beta.1`, sem publicação.
 
+## PoC Fase 3A — 2026-11-09
+
+Relógio com arranque pelo loader nativo de plugins da garagem CT; os outros 19 consumidores ficam no OpenWG. Gate fundamentado nas fontes e bundles CT; testes automáticos e build aprovados. **Fase 3A concluída e validada no CT #995 no âmbito da checklist confirmada pelo autor, incluindo posição/escala, prestígio, três ciclos e regressões. Telemetria JS direta de destroy não observada; limites documentados no guia.** SHA-256 do PoC: `d08148935218a1fd9ee697e31f3e686928b4ac16bfc8e7d39a906b30d6eb3d14`. A aprovação da Fase 2 abaixo não abrange este PoC. [Contratos e rollback](NATIVE_CLOCK_POC.md).
+
 ## Encerramento Fase 2 — 2026-11-09
 
 **Fase 2 — Validada funcionalmente no CT 2.4.2.0 sem ModsListAPI.** Confirmação do autor inclui botão, hover, abertura, X, Esc, atalho, regresso ao hangar e ausência de duplicações. O log sem ModsList confirma serviços ativos, `failures=[]` e `disabled={}`. ModsList restaurado após o teste. OpenWG continua utilizado; os dois pacotes mantêm-se no contrato de distribuição. Outros modos/escalas e futuras versões WoT requerem revalidação. [Registo completo](NATIVE_FOOTER_LAUNCHER.md#encerramento-formal-da-fase-2--2026-11-09). As pendências anteriores abaixo são históricas; sem implementação da Fase 3.

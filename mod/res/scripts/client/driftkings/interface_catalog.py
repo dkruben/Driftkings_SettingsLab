@@ -258,6 +258,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/settings_window/css/color_picker.css']
     },
     'DriftkingsHangarClock': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/main/clock_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/main/clock.html',
         'owner': '__dkHangarClock',

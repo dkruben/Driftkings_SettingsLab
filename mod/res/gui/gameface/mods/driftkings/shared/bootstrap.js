@@ -81,15 +81,6 @@
                 "coui://gui/gameface/mods/driftkings/launcher/launcher.css"
             ]
         },
-        "DriftkingsHangarClock": {
-            "owner": "__dkHangarClock",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/main/clock.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/main/clock.css"
-            ]
-        },
         "DriftkingsHangarHeaderOptions": {
             "owner": "__dkHangarHeaderOptions",
             "scripts": [

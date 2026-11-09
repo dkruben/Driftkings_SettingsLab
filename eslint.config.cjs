@@ -36,5 +36,10 @@ module.exports = [
             "mod/res/gui/gameface/mods/driftkings/shared/rating_text.js",
             "mod/res/gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js"],
         languageOptions: { globals: { module: "readonly" } }
+    },
+    {
+        // The CT native plugin loader imports an ES module; the clock renderer remains ES5.
+        files: ["mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js"],
+        languageOptions: { ecmaVersion: 2015, sourceType: "module", globals: { Promise: "readonly" } }
     }
 ];

@@ -4,6 +4,8 @@
 
 > **CT launcher validation (2026-11-09):** the dedicated Driftkings footer launcher is functionally validated by the author on CT 2.4.2.0 without ModsListAPI, including click, hover, X/Esc, shortcut, return to hangar and no duplicates. OpenWG is still used and both dependency packages remain bundled; this is not a fully standalone distribution. Future client versions require revalidation. See [Phase 2 evidence and rollback](docs/NATIVE_FOOTER_LAUNCHER.md). Stable installation instructions below describe the published release.
 
+> **CT clock PoC (Phase 3A):** a native plugin entry point for the hangar clock is implemented and passes automated checks/build, and is installed in the local CT: Phase 3A is validated on CT #995 within the owner-confirmed checklist, including clock behavior, position/scale, prestige toggles, three return-to-hangar cycles and regressions. Direct JS lifecycle telemetry remains unavailable; this is not a claim for all modes or future clients. Other integrations still use OpenWG. See [scope, evidence and rollback](docs/NATIVE_CLOCK_POC.md).
+
 
 A customizable World of Tanks modpack with advanced battle statistics, modern interface enhancements, aiming tools, vehicle markers and integrated settings.
 

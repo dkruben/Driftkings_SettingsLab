@@ -197,6 +197,7 @@
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/main/clock.css",
         "mod/res/gui/gameface/mods/driftkings/main/clock.js",
+        "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js",
         "mod/res/gui/gameface/mods/driftkings/main/clock.html",
         "mod/res/gui/gen_resources/driftkings.main.json",
         "mod/res/gui/maps/driftkings/clock/clockbg.svg"
