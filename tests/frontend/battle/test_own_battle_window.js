@@ -1,7 +1,7 @@
 'use strict';
 // Shared own battle window: the host layout document loads the catalog assets of every own_window
 // feature itself, once and in order, and each unchanged renderer finds its own card through subViews
-// without the OpenWG bootstrap. TeamStrength and OwnHealth live in the same document, independently.
+// without the OpenWG bootstrap. All nine HUD cards live in the same document, independently.
 var assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 var base = path.join(__dirname, '../../../mod/res/gui/gameface/mods/driftkings');
 var prefix = 'coui://gui/gameface/mods/driftkings/';
@@ -14,26 +14,28 @@ function feature(name) {
     var entry = catalog.split("'" + name + "': {")[1].split('},')[0];
     function list(key) { return (new RegExp("'" + key + "': \\[([^\\]]*)\\]").exec(entry)[1].match(/coui:[^']+/g) || []); }
     assert.ok(/'transport': 'own_window'/.test(entry), 'the catalog selects the own window for ' + name);
-    return {scripts: list('scripts'), styles: list('styles')};
+    return {scripts: list('scripts'), styles: list('styles'), owner: /'owner': '([^']+)'/.exec(entry)[1]};
 }
 var strengthSpec = feature('DriftkingsTeamStrength'), healthSpec = feature('DriftkingsOwnHealth');
 function union(a, b) { return a.concat(b.filter(function (url) { return a.indexOf(url) < 0; })); }
-var spec = {scripts: union(strengthSpec.scripts, healthSpec.scripts), styles: union(strengthSpec.styles, healthSpec.styles)};
+var names = ['DriftkingsTeamStrength', 'DriftkingsOwnHealth', 'DriftkingsAimingCountdown', 'DriftkingsFlightTime',
+    'DriftkingsPenetration', 'DriftkingsBattleEfficiency', 'DriftkingsTargetInformation', 'DriftkingsMainGun', 'DriftkingsMarksOnGunBattle'];
+var spec = {scripts: [], styles: []};
+names.forEach(function (name) {
+    var card = feature(name);
+    spec.scripts = union(spec.scripts, card.scripts); spec.styles = union(spec.styles, card.styles);
+});
 assert.strictEqual(strengthSpec.scripts.length, 4);
-assert.strictEqual(spec.scripts.length, 6, 'the shared kit is loaded once for both features');
-assert.deepStrictEqual(scripts.slice(0, 4), strengthSpec.scripts, 'TeamStrength keeps the validated loading order');
-// The OpenWG bootstrap no longer loads this feature, so its scripts cannot be loaded twice; the other
-// eight HUD cards and the rest of the OpenWG consumers are still listed.
+assert.strictEqual(spec.scripts.length, 15, 'the shared kits load once for all nine cards');
+assert.deepStrictEqual(scripts.slice(0, 6), union(strengthSpec.scripts, healthSpec.scripts), 'beta.7 asset order preserved');
 var bootstrap = fs.readFileSync(path.join(base, 'shared/bootstrap.js'), 'utf8');
 var features = JSON.parse(bootstrap.split('/* GENERATED CATALOG START */')[1].split('/* GENERATED CATALOG END */')[0]
     .replace(/^\s*var features = /, '').replace(/;\s*$/, ''));
-assert.strictEqual(features.DriftkingsTeamStrength, undefined);
-assert.strictEqual(features.DriftkingsOwnHealth, undefined);
-assert.strictEqual(Object.keys(features).length, 13);
-['DriftkingsAimingCountdown', 'DriftkingsFlightTime', 'DriftkingsPenetration', 'DriftkingsBattleEfficiency',
- 'DriftkingsTargetInformation', 'DriftkingsMainGun', 'DriftkingsMarksOnGunBattle'].forEach(function (name) {
-    assert.ok(features[name], name + ' stays an OpenWG consumer');
-});
+assert.strictEqual(Object.keys(features).length, 6);
+names.forEach(function (name) { assert.strictEqual(features[name], undefined, name + ' has no OpenWG entry'); });
+function disposeAll(page) {
+    names.forEach(function (name) { var owner = page.window[feature(name).owner]; if (owner) { owner.dispose(); } });
+}
 assert.deepStrictEqual(scripts, spec.scripts);
 assert.deepStrictEqual(styles, [prefix + 'shared/fonts.css'].concat(spec.styles));
 scripts.concat(styles).forEach(function (url) {
@@ -115,7 +117,7 @@ var owner = page.window.__dkTeamStrength, healthOwner = page.window.__dkOwnHealt
 assert.ok(owner && typeof owner.dispose === 'function', 'the renderer creates its usual owner');
 assert.ok(healthOwner && typeof healthOwner.dispose === 'function' && healthOwner !== owner, 'OwnHealth has its own owner');
 assert.strictEqual(page.window.__dkUIBridge, undefined, 'the OpenWG bootstrap bridge is not involved');
-assert.strictEqual(page.document.body.children.length, 2, 'one renderer root per feature');
+assert.strictEqual(page.document.body.children.length, 9, 'one renderer root per feature');
 var root = page.document.body.children[0], healthRoot = page.document.body.children[1];
 assert.strictEqual(root.className, 'dk-screen-text dk-screen-text--strength');
 assert.strictEqual(healthRoot.className, 'dk-health');
@@ -173,33 +175,83 @@ assert.strictEqual(saved.length, 1, 'the team strength position was not saved ag
 
 // Teardown is per feature and idempotent: one owner leaves the other untouched.
 owner.dispose(); owner.dispose();
-assert.strictEqual(page.document.body.children.length, 1);
+assert.strictEqual(page.document.body.children.length, 8);
 assert.strictEqual(page.document.body.children[0], healthRoot);
 health.percent = 0.5; updateHealth();
 assert.strictEqual(healthRoot.querySelector('.dk-health__fill').style.width, '50%');
 healthOwner.dispose(); healthOwner.dispose();
+disposeAll(page);
 assert.strictEqual(page.document.body.children.length, 0);
 assert.deepStrictEqual(page.callbacks, [null, null]);
 assert.strictEqual(page.engine.count(), 0);
 assert.strictEqual(page.document.count(), 0);
 
 // A document without the card (or with another feature's card) stays empty and inert.
-var foreign = documentContext({7: {payload: JSON.stringify(data), DriftkingsUI: {name: 'DriftkingsBattleEfficiency'}}});
+var foreign = documentContext({7: {payload: JSON.stringify(data), DriftkingsUI: {name: 'DriftkingsRatingPlayers'}}});
 foreign.loadDocument();
 assert.deepStrictEqual(foreign.callbacks, []);
 assert.ok(foreign.document.body.children.every(function (node) { return node.style.display !== 'block'; }));
-foreign.window.__dkTeamStrength.dispose(); foreign.window.__dkOwnHealth.dispose();
+disposeAll(foreign);
 
 // Only OwnHealth present (TeamStrength component not installed): the host document still serves it.
 var alone = documentContext({43: {payload: JSON.stringify(health), DriftkingsUI: {name: 'DriftkingsOwnHealth'}}});
 alone.loadDocument();
 assert.deepStrictEqual(alone.callbacks, [43]);
 assert.strictEqual(alone.document.body.children.filter(function (node) { return node.style.display === 'block'; }).length, 1);
-alone.window.__dkTeamStrength.dispose(); alone.window.__dkOwnHealth.dispose();
+disposeAll(alone);
 
 // Loading the document twice in one page (defensive) keeps a single renderer root.
 var twice = documentContext({42: {payload: JSON.stringify(data), DriftkingsUI: {name: 'DriftkingsTeamStrength'}}});
 twice.loadDocument(); twice.loadDocument();
-assert.strictEqual(twice.document.body.children.filter(function (node) { return /dk-screen-text/.test(node.className); }).length, 1, 'no duplicated renderer');
-twice.window.__dkTeamStrength.dispose();
-console.log('Shared own battle window document: catalog assets once and in order, independent TeamStrength and OwnHealth renderers, drag, teardown and isolation passed');
+assert.strictEqual(twice.document.body.children.filter(function (node) { return node.className === 'dk-screen-text dk-screen-text--strength'; }).length, 1, 'no duplicated renderer');
+disposeAll(twice);
+// All nine real renderers together: models, positions and saves stay isolated.
+var models = {}, saves = {}, payloads = {}, roots = {};
+names.forEach(function (name, index) {
+    saves[name] = [];
+    payloads[name] = {text: name, percent: 0.5, state: 'unavailable', progress: 25,
+        primaryText: '3000 HP', secondaryText: 'remaining', progressText: '25%', progressLabel: 'Progress',
+        style: {font: '$FieldFont', size: 16, color: '#DBD7D2', align: 'left'},
+        config: {visible: true, draggable: true, locked: false, scale: 1,
+            x: 20 + index * 10, y: 20 + index * 10, anchorX: 0.5, anchorY: 0.5}};
+    models[100 + index] = {payload: JSON.stringify(payloads[name]), DriftkingsUI: {name: name},
+        onSavePosition: function (value) { saves[name].push(value); }};
+});
+var together = documentContext(models);
+together.loadDocument();
+assert.strictEqual(together.document.body.children.length, 9);
+assert.strictEqual(together.callbacks.filter(Boolean).length, 9);
+names.forEach(function (name, index) {
+    roots[name] = together.document.body.children[index];
+    assert.strictEqual(roots[name].style.display, 'block', name + ' renders beside the other cards');
+});
+names.forEach(function (name, index) {
+    var node = roots[name], before = names.map(function (other) { return roots[other].style.left; });
+    var event = {target: node.firstChild, button: 0, clientX: 200, clientY: 200,
+        preventDefault: function () {}, stopPropagation: function () {}};
+    together.document.fire('mousedown', event);
+    event.clientX = 300; event.clientY = 300;
+    together.document.fire('mousemove', event); together.document.fire('mouseup', event);
+    assert.strictEqual(saves[name].length, 1, name + ' saves through its own model');
+    names.forEach(function (other, otherIndex) {
+        if (other !== name) {
+            assert.strictEqual(roots[other].style.left, before[otherIndex], other + ' position stays independent');
+            assert.strictEqual(saves[other].length, otherIndex < index ? 1 : 0);
+        }
+    });
+    payloads[name].config.visible = false;
+    models[100 + index].payload = JSON.stringify(payloads[name]);
+    together.engine.fire('viewEnv.onDataChanged'); together.flush();
+    assert.strictEqual(node.style.display, 'none');
+});
+// Reloading the document retains exactly one root and subscription per card.
+together.loadDocument();
+assert.strictEqual(together.document.body.children.length, 9);
+assert.strictEqual(together.callbacks.filter(Boolean).length, 9);
+disposeAll(together);
+assert.strictEqual(together.document.body.children.length, 0);
+assert.strictEqual(together.callbacks.filter(Boolean).length, 0);
+assert.strictEqual(together.document.count(), 0);
+assert.strictEqual(together.window.count(), 0);
+assert.strictEqual(together.engine.count(), 0);
+console.log('Shared own battle window: nine independent renderers, payloads, drag, visibility, deduplication and teardown passed');

@@ -25,8 +25,8 @@ class NativeHangarMarksTests(unittest.TestCase):
         self.assertNotEqual(identity(clock['plugin']), identity(marks['plugin']))
         legacy = [name for name, spec in face.items() if spec['owner'] is not None
                   and spec.get('transport', 'openwg') == 'openwg']
-        # TeamStrength and OwnHealth moved to the own battle window (transport 'own_window').
-        self.assertEqual(len(legacy), 13)
+        # All nine battle HUD cards moved to the own battle window (transport 'own_window').
+        self.assertEqual(len(legacy), 6)
         block = catalog.outputs()[catalog.BOOTSTRAP].split(catalog.START)[1].split(catalog.END)[0]
         self.assertNotIn('DriftkingsMarksOnGunHangar', block)
         for name in legacy:

@@ -5,14 +5,15 @@ from support import gameface_core, module, RuntimeTest, source
 
 FEATURE = 'DriftkingsTeamStrength'
 HEALTH = 'DriftkingsOwnHealth'
-OTHER = 'DriftkingsBattleEfficiency'
-OWN = (FEATURE, HEALTH)
+OTHER = 'unselected-test-card'
+OWN = (FEATURE, HEALTH, 'DriftkingsBattleEfficiency', 'DriftkingsMainGun', 'DriftkingsMarksOnGunBattle',
+       'DriftkingsTargetInformation', 'DriftkingsPenetration', 'DriftkingsFlightTime', 'DriftkingsAimingCountdown')
 
 
 class OwnBattleWindowTests(RuntimeTest):
     def setUp(self):
         super(OwnBattleWindowTests, self).setUp()
-        self.resources = {FEATURE: 42, HEALTH: 43}
+        self.resources = dict((name, 42 + index) for index, name in enumerate(OWN))
         self.logged = []
         self.fail_load = False
         self.fail_feature = None
@@ -191,7 +192,7 @@ class OwnBattleWindowTests(RuntimeTest):
         return [payload for target, payload in self.published if target is child]
 
     def test_other_battle_cards_keep_the_openwg_child(self):
-        for feature in (OTHER, 'DriftkingsMainGun', 'test'):
+        for feature in (OTHER, 'test'):
             self.Window.created[:] = []
             del self.injections[:]
             self.session()
@@ -203,13 +204,13 @@ class OwnBattleWindowTests(RuntimeTest):
             self.assertEqual(len(self.injections), 1)  # OpenWG injection still requested
             self.assertEqual(self.Window.created, [])
 
-    def test_real_catalog_selects_team_strength_and_own_health(self):
+    def test_real_catalog_selects_all_nine_hud_cards(self):
         import os
         catalog = self.load('interface_catalog').GAMEFACE
         self.assertEqual(sorted(name for name, spec in catalog.items() if spec.get('transport') == 'own_window'),
                          sorted(OWN))
         hud = [name for name, spec in catalog.items() if spec['context'] == 'battle' and name not in OWN]
-        self.assertEqual(len(hud), 7)
+        self.assertEqual(len(hud), 0)
         self.assertTrue(all('transport' not in catalog[name] for name in hud))
         self.assertNotIn('transport', catalog['DriftkingsRatingPlayers'])
         self.assertNotEqual(catalog[FEATURE]['resource'], catalog[HEALTH]['resource'])
@@ -220,6 +221,51 @@ class OwnBattleWindowTests(RuntimeTest):
         for name in ('common.py', 'own_window.py'):
             with open(os.path.join(base, name), 'rb') as stream:
                 self.assertNotIn(b'environ', stream.read())
+
+    def test_nine_cards_share_one_window_and_keep_independent_state_across_battles(self):
+        adapters = [self.adapter(feature) for feature in OWN]
+        hud = self.load_hud()
+        self.load_hud(hud)
+        self.assertEqual(len(self.Window.created), 1)
+        window = self.Window.created[0]
+        self.assertEqual(sorted(window.content.children), sorted(self.resources.values()))
+        children = [window.content.children[self.resources[feature]] for feature in OWN]
+        self.assertEqual(len(set(type(child.model) for child in children)), 9)
+        for adapter, child, feature in zip(adapters, children, OWN):
+            self.assertIs(adapter.ownWindows[hud], window)
+            self.assertEqual(child.layoutID, 0)
+            self.assertEqual(child.model.injected, {'properties': 2, 'commands': 1})
+            self.assertEqual(child.model.DriftkingsUI.name, feature)
+            child._onLoaded()
+        for index, (adapter, child) in enumerate(zip(adapters, children)):
+            before = [len(self.sent(other)) for other in children]
+            child._showCursor(None)
+            child._savePosition({'x': index, 'y': index + 10})
+            child._visibility(module(ctx={'visible': False}))
+            self.assertFalse(self.sent(child)[-1]['config']['visible'])
+            child._visibility(module(ctx={'visible': True}))
+            self.assertEqual(adapter.positions, [{'x': index, 'y': index + 10}])
+            self.assertEqual(self.sent(child)[-1]['text'], OWN[index])
+            for other_index, other in enumerate(children):
+                if other is not child:
+                    self.assertEqual(len(self.sent(other)), before[other_index])
+            child._hideCursor(None)
+        self.assertEqual(self.injections, [])
+        self.finalize_hud(hud)
+        self.assertEqual(window.destroyed, 1)
+        # The framework finalizes child views as it destroys their parent.
+        for child in children:
+            child._finalize()
+        self.assertTrue(all(not adapter.views for adapter in adapters))
+        second = self.load_hud()
+        self.assertEqual(len(self.Window.created), 2)
+        self.assertEqual(len(adapters[0].ownWindows[second].content.children), 9)
+        for adapter in adapters:
+            adapter.dispose()
+        self.assertEqual(self.Window.created[1].destroyed, 1)
+        self.assertFalse(self.own['_cards'])
+        self.assertFalse(self.own['_windows'])
+        self.assertTrue(all(not adapter.views for adapter in adapters))
 
     def test_one_window_hosts_two_independent_cards_without_openwg(self):
         strength, health = self.adapter(FEATURE), self.adapter(HEALTH)

@@ -95,6 +95,7 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/shared/health_bar.css',
                    'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css']},
     'DriftkingsAimingCountdown': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/aiming_countdown/model.html',
         'owner': '__dkAimingCountdown',
@@ -107,6 +108,7 @@ GAMEFACE = {
         'section': 'aiming_countdown',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsFlightTime': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/shell_flight_time/model.html',
         'owner': '__dkFlightTime',
@@ -119,6 +121,7 @@ GAMEFACE = {
         'section': 'shell_flight_time',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsPenetration': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/penetration_indicator/model.html',
         'owner': '__dkPenetration',
@@ -131,6 +134,7 @@ GAMEFACE = {
         'section': 'penetration_indicator',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsBattleEfficiency': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_performance_hud/model.html',
         'owner': '__dkBattleEfficiencyHud',
@@ -156,6 +160,7 @@ GAMEFACE = {
         'section': 'battle_statistics',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsTargetInformation': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/target_information/model.html',
         'owner': '__dkTargetInformation',
@@ -169,6 +174,7 @@ GAMEFACE = {
         'section': 'target_information',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsMainGun': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/high_caliber_gameface/model.html',
         'owner': '__dkMainGun',
@@ -288,6 +294,7 @@ GAMEFACE = {
         'styles': []
     },
     'DriftkingsMarksOnGunBattle': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/model.html',
         'owner': '__dkBattleMarks',

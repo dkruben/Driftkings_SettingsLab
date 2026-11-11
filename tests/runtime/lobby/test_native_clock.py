@@ -92,8 +92,8 @@ class NativeClockTests(RuntimeTest):
         for name, spec in self.catalog.GAMEFACE.items():
             if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg':
                 self.core['payload_model'](name)()
-        # TeamStrength and OwnHealth moved to the own battle window (transport 'own_window').
-        self.assertEqual(len(self.injected), 13)
+        # All nine battle HUD cards moved to the own battle window (transport 'own_window').
+        self.assertEqual(len(self.injected), 6)
         self.assertRaises(ValueError, self.core['native_payload_model'], 'DriftkingsFooterLauncher')
 
     def test_native_registration_payload_and_disposal(self):

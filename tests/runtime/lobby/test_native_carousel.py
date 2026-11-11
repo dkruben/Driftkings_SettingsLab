@@ -73,8 +73,8 @@ class NativeCarouselTests(RuntimeTest):
         for name, spec in self.catalog.GAMEFACE.items():
             if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg':
                 self.core['payload_model'](name)()
-        # TeamStrength and OwnHealth moved to the own battle window (transport 'own_window').
-        self.assertEqual(len(self.injected), 13)
+        # All nine battle HUD cards moved to the own battle window (transport 'own_window').
+        self.assertEqual(len(self.injected), 6)
 
     def adapter(self):
         hooks, installed, builds = Hooks(), [], []

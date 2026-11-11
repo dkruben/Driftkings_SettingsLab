@@ -9,30 +9,6 @@
     document.head.appendChild(fonts);
     /* GENERATED CATALOG START */
     var features = {
-        "DriftkingsAimingCountdown": {
-            "owner": "__dkAimingCountdown",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
-                "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
-                "coui://gui/gameface/mods/driftkings/aiming_countdown/aiming_countdown.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
-            ]
-        },
-        "DriftkingsBattleEfficiency": {
-            "owner": "__dkBattleEfficiencyHud",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
-                "coui://gui/gameface/mods/driftkings/shared/screen_text.js",
-                "coui://gui/gameface/mods/driftkings/battle_performance_hud/battle_performance_hud.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
-            ]
-        },
         "DriftkingsCrewDetails": {
             "owner": "__dkCrewDetails",
             "scripts": [
@@ -40,18 +16,6 @@
             ],
             "styles": [
                 "coui://gui/gameface/mods/driftkings/crew_details/details.css"
-            ]
-        },
-        "DriftkingsFlightTime": {
-            "owner": "__dkFlightTime",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
-                "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
-                "coui://gui/gameface/mods/driftkings/shell_flight_time/shell_flight_time.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
             ]
         },
         "DriftkingsFooterLauncher": {
@@ -70,27 +34,6 @@
             ],
             "styles": []
         },
-        "DriftkingsMainGun": {
-            "owner": "__dkMainGun",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/high_caliber_gameface/main_gun.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/high_caliber_gameface/main_gun.css"
-            ]
-        },
-        "DriftkingsMarksOnGunBattle": {
-            "owner": "__dkBattleMarks",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.css",
-                "coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css"
-            ]
-        },
         "DriftkingsMarksOnGunTechTree": {
             "owner": "__dkTechMarks",
             "scripts": [
@@ -99,18 +42,6 @@
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/marks_tokens.css",
                 "coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css"
-            ]
-        },
-        "DriftkingsPenetration": {
-            "owner": "__dkPenetration",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
-                "coui://gui/gameface/mods/driftkings/shared/reticle_text.js",
-                "coui://gui/gameface/mods/driftkings/penetration_indicator/penetration_indicator.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
             ]
         },
         "DriftkingsProfileRatings": {
@@ -129,19 +60,6 @@
                 "coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js"
             ],
             "styles": []
-        },
-        "DriftkingsTargetInformation": {
-            "owner": "__dkTargetInformation",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/rating_text.js",
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
-                "coui://gui/gameface/mods/driftkings/shared/screen_text.js",
-                "coui://gui/gameface/mods/driftkings/target_information/target_information.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
-            ]
         }
     };
     /* GENERATED CATALOG END */

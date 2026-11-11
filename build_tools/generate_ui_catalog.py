@@ -14,7 +14,9 @@ PREFIX = 'coui://gui/gameface/mods/driftkings/'
 # Battle cards hosted by the single owned battle window; the host feature's layout is its document
 # (HOST_FEATURE in gameface/battle/own_window.py).
 OWN_WINDOW_HOST = 'DriftkingsTeamStrength'
-OWN_WINDOW_FEATURES = ('DriftkingsTeamStrength', 'DriftkingsOwnHealth')
+OWN_WINDOW_FEATURES = ('DriftkingsTeamStrength', 'DriftkingsOwnHealth', 'DriftkingsBattleEfficiency',
+                       'DriftkingsMainGun', 'DriftkingsMarksOnGunBattle', 'DriftkingsTargetInformation',
+                       'DriftkingsPenetration', 'DriftkingsFlightTime', 'DriftkingsAimingCountdown')
 
 
 def require(condition, message):
@@ -79,6 +81,16 @@ def asset_target(url):
     return 'res/' + relative
 
 
+def own_window_assets(face, kind):
+    """Host first, then selected battle cards in catalog order; shared assets only once."""
+    shared = [OWN_WINDOW_HOST] + [name for name, spec in face.items()
+                                  if spec.get('transport') == 'own_window' and name != OWN_WINDOW_HOST]
+    result = [PREFIX + 'shared/fonts.css'] if kind == 'styles' else []
+    for name in shared:
+        result.extend(url for url in face[name][kind] if url not in result)
+    return result
+
+
 def outputs(root=ROOT):
     root = Path(root)
     catalog = read_catalog(root)
@@ -114,7 +126,19 @@ package driftkings.battle.factory
     generated = json.dumps(definitions, ensure_ascii=True, sort_keys=True, indent=4)
     block = START + '\n    var features = ' + generated.replace('\n', '\n    ') + ';\n'
     bootstrap = text[:text.index(START)] + block + text[text.index(END):]
-    return {AS3: as3, BOOTSTRAP: bootstrap}
+    host = 'mod/' + asset_target(face[OWN_WINDOW_HOST]['layout'])
+    document = '''<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<!-- Generated from the catalog: one shared battle window, host assets first, each asset once. -->
+%s
+<style>html, body { margin: 0; background: transparent; pointer-events: none; }</style>
+</head><body>
+%s
+</body></html>
+''' % ('\n'.join('<link rel="stylesheet" href="%s">' % url for url in own_window_assets(face, 'styles')),
+       '\n'.join('<script src="%s"></script>' % url for url in own_window_assets(face, 'scripts')))
+    return {AS3: as3, BOOTSTRAP: bootstrap, host: document}
 
 
 def validate(root=ROOT, plan=None):
@@ -182,7 +206,8 @@ def validate(root=ROOT, plan=None):
         require(transport in ('openwg', 'native_user_missions', 'native_battle_results', 'own_window'),
                 'Unknown transport: ' + name)
         if transport == 'own_window':
-            require(name in OWN_WINDOW_FEATURES, 'Own battle window transport is TeamStrength and OwnHealth only')
+            require(name in OWN_WINDOW_FEATURES and spec['context'] == 'battle',
+                    'Own battle window transport is reserved for battle HUD cards')
         if transport == 'native_battle_results':
             require(name == 'driftkingsbattleEfficiency' and bool(spec.get('plugin')), 'Native results transport is results only')
         if transport == 'native_user_missions':
@@ -199,15 +224,11 @@ def validate(root=ROOT, plan=None):
                 require(target in targets, 'UI asset is not packaged: ' + target)
     # The owned battle window has no OpenWG bootstrap: the layout document of its host feature must load
     # the assets of every own_window feature itself, once, host first and then catalog order.
-    shared = [OWN_WINDOW_HOST] + [name for name, spec in face.items()
-                                  if spec.get('transport') == 'own_window' and name != OWN_WINDOW_HOST]
     require(face[OWN_WINDOW_HOST].get('transport') == 'own_window', 'Own battle window host must use own_window')
     document = (root / 'mod' / asset_target(face[OWN_WINDOW_HOST]['layout'])).read_text(encoding='utf-8')
-    for kind, pattern, first in (('scripts', r'<script src="([^"]+)"></script>', []),
-                                 ('styles', r'<link rel="stylesheet" href="([^"]+)">', [PREFIX + 'shared/fonts.css'])):
-        expected = list(first)
-        for name in shared:
-            expected.extend(url for url in face[name][kind] if url not in expected)
+    for kind, pattern in (('scripts', r'<script src="([^"]+)"></script>'),
+                          ('styles', r'<link rel="stylesheet" href="([^"]+)">')):
+        expected = own_window_assets(face, kind)
         require(re.findall(pattern, document) == expected,
                 'Own window document must load the catalog %s once, in order' % kind)
     if targets is not None:

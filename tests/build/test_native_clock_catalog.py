@@ -15,8 +15,8 @@ class NativeClockCatalogTests(unittest.TestCase):
         self.assertNotIn('DriftkingsHangarClock', block)
         legacy = [name for name, spec in data['GAMEFACE'].items()
                   if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg']
-        # TeamStrength and OwnHealth moved to the own battle window (transport 'own_window').
-        self.assertEqual(len(legacy), 13)
+        # All nine battle HUD cards moved to the own battle window (transport 'own_window').
+        self.assertEqual(len(legacy), 6)
         for name in legacy:
             self.assertIn(name, block)
         plan = build_plan(catalog.ROOT)
