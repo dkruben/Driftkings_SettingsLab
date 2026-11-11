@@ -62,7 +62,7 @@ def payload_model(feature, commands=()):
 
 def native_payload_model(feature, commands=()):
     """Publish metadata/data and optional Wulf commands without OpenWG injection."""
-    if gameface_spec(feature).get('transport') != 'native_user_missions':
+    if gameface_spec(feature).get('transport') not in ('native_user_missions', 'native_battle_results'):
         raise ValueError('Feature has no native plugin transport: ' + feature)
 
     class NativePayloadModel(ViewModel):

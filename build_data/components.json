@@ -65,7 +65,17 @@
         "mod/res/gui/gameface/mods/driftkings/battle_performance/results.js",
         "mod/res/gui/gen_resources/driftkings.battle_performance.json",
         "mod/res/gui/gameface/mods/driftkings/battle_performance_hud/**",
-        "mod/res/gui/gen_resources/driftkings.battle_performance_hud.json"
+        "mod/res/gui/gen_resources/driftkings.battle_performance_hud.json",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/results_binding.js",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/battleinfo_adapter.js",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/battle_results/results_extension.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/native_extension_core.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/native_assets.js",
+        {
+          "source": "build/gameface/battle_results/bundle.js",
+          "target": "res/gui/gameface/_dist/production/mono/post_battle/random/bundle.js",
+          "generator": "battleinfo_native"
+        }
       ]
     },
     "battle_preferences": {

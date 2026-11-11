@@ -44,5 +44,9 @@ module.exports = [
             "mod/res/gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js",
             "mod/res/gui/gameface/mods/driftkings/mono/driftkings/vehicle_carousel/carousel_plugin.js"],
         languageOptions: { ecmaVersion: 2015, sourceType: "module", globals: { Promise: "readonly" } }
-    }
+    },
+    {files: ["mod/res/gui/gameface/mods/driftkings/shared/native_*.js",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/*.js",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/battle_results/*.js"],
+     languageOptions: {ecmaVersion: 2022, sourceType: "module"}}
 ];

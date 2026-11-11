@@ -175,7 +175,9 @@ def validate(root=ROOT, plan=None):
             owners.add(spec['owner'])
             require(spec['scripts'], 'Injected feature has no scripts: ' + name)
         transport = spec.get('transport', 'openwg')
-        require(transport in ('openwg', 'native_user_missions'), 'Unknown transport: ' + name)
+        require(transport in ('openwg', 'native_user_missions', 'native_battle_results'), 'Unknown transport: ' + name)
+        if transport == 'native_battle_results':
+            require(name == 'driftkingsbattleEfficiency' and bool(spec.get('plugin')), 'Native results transport is results only')
         if transport == 'native_user_missions':
             require(name in ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression',
                              'DriftkingsCarouselStats') and bool(spec.get('plugin')),
@@ -197,7 +199,7 @@ def validate(root=ROOT, plan=None):
                 'Stale generated UI catalog: ' + relative + '; run python build_tools/generate_ui_catalog.py --write')
     return {'flash': len(flash), 'gameface': len(face), 'injected': sum(spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'
                                                                  for spec in face.values()),
-            'native': sum(spec.get('transport') == 'native_user_missions' for spec in face.values())}
+            'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results') for spec in face.values())}
 
 
 def main():

@@ -1,10 +1,11 @@
-(function () {
-    'use strict';
-    var FEATURE = 'driftkingsbattleEfficiency';
-    if (window.__dkBattleEfficiency) { window.__dkBattleEfficiency.dispose(); }
-    var disposed = false, node = null, resourceId = null, callbackId = null;
-    var lastPayload = null, timer = null;
+import {createResultsBinding} from './results_binding.js';
+import {loadResultsAssets} from '../shared/native_assets.js';
 
+export function create({React,scope,report,createFlashText}, environment){
+ const env=environment||{root:window,document:window.document,engine:engine,viewEnv:viewEnv};
+ const document=env.document;let dead=false;
+ const shared=env.root.DriftkingsFlashText;
+ const flashText=shared&&typeof shared.inert==='function'&&typeof shared.copy==='function'?shared:(createFlashText&&createFlashText(document));
     function formatSeparators(parent) {
         var children = Array.prototype.slice.call(parent.childNodes);
         for (var i = 0; i < children.length; i++) {
@@ -28,62 +29,21 @@
         }
     }
 
-    // Translate the configured Flash text to a small, safe HTML subset.
-    function hide() {
-        if (node && node.parentNode) { node.parentNode.removeChild(node); }
-        node = null;
-    }
-    function render(payload) {
-        var data;
-        try { data = JSON.parse(payload || '{}'); } catch (e) { data = {}; }
-        if (!data.enabled || !data.html) { hide(); return; }
-        // Native post_battle/random BattleInfo: append after the vehicle state.
-        // Match the CSS module name, independent of its generated hash or locale.
-        var host = document.querySelector('[class^="BattleInfo_"]');
-        if (!host) { hide(); return; }
-        if (!node) { node = document.createElement('div'); node.id = 'dk-battle-efficiency'; }
-        if (node.parentNode !== host) { host.appendChild(node); }
-        while (node.firstChild) { node.removeChild(node.firstChild); }
+    function render(node,data){
+        while(node.firstChild)node.removeChild(node.firstChild);
+        if(!data.enabled||!data.html)return;
         var parsed = document.createElement('div');
-        parsed.innerHTML = window.DriftkingsFlashText.inert(data.html.replace(/<tab\s*\/?\s*>/gi, '\t'));
-        window.DriftkingsFlashText.copy(parsed, node, {fontFamily: true, fontAlpha: true, sizeUnit: 'rem'});
+        parsed.innerHTML = flashText.inert(data.html.replace(/<tab\s*\/?\s*>/gi, '\t'));
+        flashText.copy(parsed, node, {fontFamily: true, fontAlpha: true, sizeUnit: 'rem'});
         formatSeparators(node);
     }
-    function refresh() {
-        if (disposed || !window.subViews) { return; }
-        var ids = window.subViews.ids();
-        for (var i = 0; i < ids.length; i++) {
-            var subview = window.subViews.get(ids[i]), model = subview && subview.model;
-            if (!model || !model.DriftkingsUI || model.DriftkingsUI.name !== FEATURE) { continue; }
-            if (resourceId !== ids[i]) {
-                if (callbackId !== null) { viewEnv.removeDataChangedCallback(callbackId, resourceId); }
-                resourceId = ids[i]; lastPayload = null;
-                callbackId = viewEnv.addDataChangedCallback('model', resourceId, true);
-            }
-            // React can replace the native line when switching result tabs.
-            // Reattach even when the ratings payload itself did not change.
-            var host = document.querySelector('[class^="BattleInfo_"]');
-            if (lastPayload !== model.payload || !node || node.parentNode !== host) {
-                lastPayload = model.payload; render(lastPayload);
-            }
-            return;
-        }
-        lastPayload = null; hide();
-    }
-    function dispose() {
-        disposed = true;
-        if (timer !== null) { clearInterval(timer); }
-        engine.off('viewEnv.onDataChanged', refresh);
-        engine.off('subViews.onAdded', refresh); engine.off('subViews.onRemoved', refresh);
-        if (callbackId !== null) { viewEnv.removeDataChangedCallback(callbackId, resourceId); }
-        window.removeEventListener('unload', dispose); hide();
-    }
-    window.__dkBattleEfficiency = {dispose: dispose};
-    engine.whenReady.then(function () {
-        if (disposed) { return; }
-        engine.on('viewEnv.onDataChanged', refresh);
-        engine.on('subViews.onAdded', refresh); engine.on('subViews.onRemoved', refresh);
-        window.addEventListener('unload', dispose);
-        timer = setInterval(refresh, 500); refresh();
-    });
-}());
+ function Component(){
+  const [payload,setPayload]=React.useState({enabled:false}),host=React.useRef(null);
+  React.useEffect(()=>{let active=true;const binding=createResultsBinding({...env,onPayload:data=>{if(active&&!dead&&!scope.closed)setPayload(data);},onError:()=>{if(active)setPayload({enabled:false});report({phase:'binding',event:'BINDING_FAILED',success:false,errorClassification:'BINDING_ERROR'});}});
+   scope.defer(()=>{active=false;binding.dispose();});binding.start();return()=>{active=false;void scope.dispose();};
+  },[]);
+  React.useLayoutEffect(()=>{const node=host.current;if(node&&!dead)render(node,payload);return()=>{if(node)while(node.firstChild)node.removeChild(node.firstChild);};},[payload]);
+  return !dead&&payload.enabled&&payload.html?React.createElement('div',{id:'dk-battle-efficiency',ref:host}):null;
+ }
+ return {async init(){await env.engine.whenReady;if(scope.closed)return;if(!flashText||!flashText.inert||!flashText.copy)throw new Error('FlashText unavailable');await loadResultsAssets(scope,document,env.root);},Component,destroy(){dead=true;return scope.dispose();}};
+}

@@ -29,6 +29,6 @@ class NativeMarksArtifactTests(unittest.TestCase):
             self.assertNotIn('DriftkingsMarksOnGunHangar', block)
             legacy = [name for name, spec in face.items() if spec['owner'] is not None
                       and spec.get('transport', 'openwg') == 'openwg']
-            self.assertEqual(len(legacy), 16)
+            self.assertEqual(len(legacy), 15)
             for name in legacy:
                 self.assertIn(name, block)

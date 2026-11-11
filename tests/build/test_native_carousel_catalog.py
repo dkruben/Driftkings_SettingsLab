@@ -1,27 +1,21 @@
 """Four native contracts, preserved calculations and isolated carousel transport."""
 import ast
-import hashlib
-import subprocess
+import json
 import unittest
 from pathlib import Path
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
+from support.baselines import baseline, changed_catalog_entries, file_hash, json_hash, text_hash
 
 ROOT = catalog.ROOT
-BASE = '501aec366fa3ef51e895a745cf9735ccf5a1db38'
-
-
-def previous(path):
-    return subprocess.check_output(['git', 'show', BASE + ':' + path], cwd=str(ROOT)).decode('utf-8').replace('\r\n', '\n')
+# Content baseline recorded from commit 501aec36 (native crew progression plugin).
+BASE = baseline('native_crew')
 
 
 class NativeCarouselCatalogTests(unittest.TestCase):
     def test_only_carousel_changes_and_four_resources_are_distinct(self):
         data = catalog.read_catalog()['GAMEFACE']
-        tree = ast.parse(previous(catalog.SOURCE))
-        old = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
-                   and any(isinstance(t, ast.Name) and t.id == 'GAMEFACE' for t in n.targets))
-        self.assertEqual([n for n in data if data[n] != old[n]], ['DriftkingsCarouselStats'])
+        self.assertEqual(changed_catalog_entries('native_crew', data), ['driftkingsbattleEfficiency', 'DriftkingsCarouselStats'])
         native = [s for s in data.values() if s.get('transport') == 'native_user_missions']
         self.assertEqual(len(native), 4)
         self.assertEqual(len(set(s['resource'] for s in native)), 4)
@@ -32,7 +26,7 @@ class NativeCarouselCatalogTests(unittest.TestCase):
         for n, s in data.items():
             if s['owner'] is not None:
                 self.assertEqual(n in block, s.get('transport', 'openwg') == 'openwg')
-        self.assertEqual(sum(s['owner'] is not None and s.get('transport', 'openwg') == 'openwg' for s in data.values()), 16)
+        self.assertEqual(sum(s['owner'] is not None and s.get('transport', 'openwg') == 'openwg' for s in data.values()), 15)
         plan = build_plan(ROOT)
         self.assertIn(catalog.asset_target(data['DriftkingsCarouselStats']['plugin']), {a['target'] for a in plan['assets']})
         self.assertEqual(len(plan['dependencies']), 2)
@@ -51,12 +45,20 @@ class NativeCarouselCatalogTests(unittest.TestCase):
                  'mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css',
                  'mod/res/gui/gameface/mods/driftkings/vehicle_carousel/model.html', 'build_data/build_config.json']
         for path in paths:
-            self.assertEqual(previous(path), (ROOT / path).read_text(encoding='utf-8'), path)
+            if path == 'build_data/build_config.json':
+                current = json.loads((ROOT / path).read_text())
+                self.assertEqual(current['generators'].pop('battleinfo_native')['kind'], 'native_battleinfo_patch')
+                self.assertEqual(json_hash(current), BASE['build_config'])
+                continue
+            self.assertEqual(BASE['files'][path], file_hash(path), path)
         path = 'mod/res/scripts/client/driftkings/gameface/lobby/vehicle_carousel.py'
-        old, new = ast.parse(previous(path)), ast.parse((ROOT / path).read_text())
+        new = ast.parse((ROOT / path).read_text(encoding='utf-8'))
+        functions = BASE['sources']['vehicle_carousel_functions']
         for name in ('get_view_config', 'CarouselController', 'install_carousel_layout', 'restore_carousel_layout'):
-            select = lambda tree: ast.dump(next(n for n in tree.body if getattr(n, 'name', None) == name))
-            self.assertEqual(select(old), select(new), name)
+            old = ast.parse(functions[name]).body[0]
+            self.assertEqual(old.name, name)
+            self.assertEqual(ast.dump(old), ast.dump(next(n for n in new.body if getattr(n, 'name', None) == name)), name)
         path = 'mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js'
         math = lambda s: s.split('    function config()')[1].split('    function setData')[0]
-        self.assertEqual(math(previous(path)), math((ROOT / path).read_text()))
+        self.assertEqual(BASE['sections']['carousel_native_math'],
+                         text_hash(math((ROOT / path).read_text(encoding='utf-8'))))

@@ -1,0 +1,146 @@
+{
+  "baselines": {
+    "native_carousel": {
+      "catalog": {
+        "DriftkingsAccountManager": "06f896230f3e4e698aa9e2ba37d438523d76f399106b81cd66ba8c2fea5fd867",
+        "DriftkingsAimingCountdown": "1c9dfe9f2ebdef98ce73570c6e9e2873c684f106ffdaa2febfa6cd3433c44185",
+        "DriftkingsBattleEfficiency": "00da1ef8167dea21264683cf56d0928ce2893839189be68c96f3953c42b44c88",
+        "DriftkingsCarouselStats": "84396a25ae2023b0a7829e4bc46f45c506a5c2308f307298e2457fd3c145b76b",
+        "DriftkingsCrewDetails": "17b90946cc74f45eea04a2f15f1eb7fbde048c2006765df667d09e83acef03fe",
+        "DriftkingsCrewProgression": "2b09adaff1e27da4625e4be52698e9cc27234c2e1b9bd81becd898cd3b72c8ad",
+        "DriftkingsFlightTime": "d0fd1db081e7ec5aef0a6bf14ba3dcc326051f68d5eb80ba503a3c17d5f8f7f9",
+        "DriftkingsFooterLauncher": "934186984161805730fdb4ebd12b60ae843dfa422fca08b0a9f017f3b066103a",
+        "DriftkingsHangarClock": "fe2ec15b02212826fb18be7d72e21f34c919a385020ff9fe15310695585f3415",
+        "DriftkingsHangarHeaderOptions": "9d06bc29f107fdf78aadf5351f819f11a44190c9c379105537078ecea5368933",
+        "DriftkingsMainGun": "ccb007c6465a316e0181b7e850098cb57d028e9459fe426d7ee2cd8623e33795",
+        "DriftkingsMarksOnGunBattle": "6c9f74e193d97eed219319f589cfbc5d568ea89c05f3af53df4c7464d611f84d",
+        "DriftkingsMarksOnGunHangar": "3982fa55d2d5aaec278edb0435fe03b971b87755f212faa351d613576ef16548",
+        "DriftkingsMarksOnGunTechTree": "e778c4279b56f94ddad2762ca76196ff4377f2b5647b962776d5cd4dc0e7d8a9",
+        "DriftkingsModSettings": "8b39688afd28fe3e2dd1d9f713fa980844d9545ca2c177c454c15e93cc721168",
+        "DriftkingsOwnHealth": "37f48fd794e9cf09d864f253c9efe218a7451c8e6a94d3f77c459c381fbb8007",
+        "DriftkingsPenetration": "9b808a08edca8731ade8fccdb1f10cb562e15e1abbe451aaaa1e478be03472db",
+        "DriftkingsProfileRatings": "9e7e8fe9c8f8f4355389b1a5996511178419e212d0dc57f4dd1ad41350be75ed",
+        "DriftkingsRatingPlayers": "af568be2f25ffbc662a5820382e8532e99b6f9288881290a7542c895fdbce0d1",
+        "DriftkingsTargetInformation": "4a0ea8dadc46fbe69e131da2d884282ddc52ceb8c2958ba0f6e1c4eff94509da",
+        "DriftkingsTeamStrength": "8dd1d5eb3a97259bf40f5bf1b02194590f1558998cd88c01378b5660feecd2ec",
+        "driftkingsbattleEfficiency": "457338043b97e3d4809bd5cafec2dcd084ad5eff2fa17752a8a98229dc8573d4"
+      },
+      "commit": "769c81d10e7fc4707ee2ffe6d7003a060d40486b"
+    },
+    "native_clock": {
+      "commit": "57881e7b1b099191c4a286fbb842cf2954646c0b",
+      "files": {
+        "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css": "10f42fb1431e9687d1c643228a47c7c13b0e67d382354e40a88daf6f9146749e",
+        "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html": "2b2cb95c36b17849b24bbac43f7ce3e1e25c04435f95ed1e3a1c8984a4f139a5",
+        "mod/res/gui/gameface/mods/driftkings/main/clock.js": "dd7d3424ff8587ece62f07cf5712471b18c83068d7c5e0ffe387ef0d28e71d41",
+        "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js": "f77c15cf735991a02982a13be65c253de71d65cdb20a281e29cd373a1afbe64f",
+        "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js": "fc2e10b74d5899c98551a355e90b975436d6f84ba83f9aa5199bcbb4a82f60af",
+        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+        "mod/res/scripts/client/driftkings/lobby/hangar_marks_of_excellence.py": "2c7cfc24b9d0d4ba04b64c67d094f4844c4a2769cf1b6827e83f9dc6a2074c2d"
+      },
+      "sections": {
+        "marks_visual_renderer": "c5a5ddc86024c57d412d634383319b358ac1656a1059e80c8aec9973b0a528b1"
+      }
+    },
+    "native_crew": {
+      "build_config": "0a4ed48654e2f75b08fb9e8bd461d1d49f2761d9bc8f3e6063465e11554e2306",
+      "catalog": {
+        "DriftkingsAccountManager": "06f896230f3e4e698aa9e2ba37d438523d76f399106b81cd66ba8c2fea5fd867",
+        "DriftkingsAimingCountdown": "1c9dfe9f2ebdef98ce73570c6e9e2873c684f106ffdaa2febfa6cd3433c44185",
+        "DriftkingsBattleEfficiency": "00da1ef8167dea21264683cf56d0928ce2893839189be68c96f3953c42b44c88",
+        "DriftkingsCarouselStats": "1aa4b1c09a17a6ddf31e5784f3b45146a36783d0e31e294f7aabb998a01c5273",
+        "DriftkingsCrewDetails": "17b90946cc74f45eea04a2f15f1eb7fbde048c2006765df667d09e83acef03fe",
+        "DriftkingsCrewProgression": "2b09adaff1e27da4625e4be52698e9cc27234c2e1b9bd81becd898cd3b72c8ad",
+        "DriftkingsFlightTime": "d0fd1db081e7ec5aef0a6bf14ba3dcc326051f68d5eb80ba503a3c17d5f8f7f9",
+        "DriftkingsFooterLauncher": "934186984161805730fdb4ebd12b60ae843dfa422fca08b0a9f017f3b066103a",
+        "DriftkingsHangarClock": "fe2ec15b02212826fb18be7d72e21f34c919a385020ff9fe15310695585f3415",
+        "DriftkingsHangarHeaderOptions": "9d06bc29f107fdf78aadf5351f819f11a44190c9c379105537078ecea5368933",
+        "DriftkingsMainGun": "ccb007c6465a316e0181b7e850098cb57d028e9459fe426d7ee2cd8623e33795",
+        "DriftkingsMarksOnGunBattle": "6c9f74e193d97eed219319f589cfbc5d568ea89c05f3af53df4c7464d611f84d",
+        "DriftkingsMarksOnGunHangar": "3982fa55d2d5aaec278edb0435fe03b971b87755f212faa351d613576ef16548",
+        "DriftkingsMarksOnGunTechTree": "e778c4279b56f94ddad2762ca76196ff4377f2b5647b962776d5cd4dc0e7d8a9",
+        "DriftkingsModSettings": "8b39688afd28fe3e2dd1d9f713fa980844d9545ca2c177c454c15e93cc721168",
+        "DriftkingsOwnHealth": "37f48fd794e9cf09d864f253c9efe218a7451c8e6a94d3f77c459c381fbb8007",
+        "DriftkingsPenetration": "9b808a08edca8731ade8fccdb1f10cb562e15e1abbe451aaaa1e478be03472db",
+        "DriftkingsProfileRatings": "9e7e8fe9c8f8f4355389b1a5996511178419e212d0dc57f4dd1ad41350be75ed",
+        "DriftkingsRatingPlayers": "af568be2f25ffbc662a5820382e8532e99b6f9288881290a7542c895fdbce0d1",
+        "DriftkingsTargetInformation": "4a0ea8dadc46fbe69e131da2d884282ddc52ceb8c2958ba0f6e1c4eff94509da",
+        "DriftkingsTeamStrength": "8dd1d5eb3a97259bf40f5bf1b02194590f1558998cd88c01378b5660feecd2ec",
+        "driftkingsbattleEfficiency": "457338043b97e3d4809bd5cafec2dcd084ad5eff2fa17752a8a98229dc8573d4"
+      },
+      "commit": "501aec366fa3ef51e895a745cf9735ccf5a1db38",
+      "files": {
+        "build_data/patches/carousel_2.4.2_ct.json": "6104bb045fbf3273d307199a46924908f6c47b55d1a4036d9a0f7704f1cd9d75",
+        "build_data/patches/crew_tooltip_2.4.2_ct.json": "a2feab31b4a7677ddd758f1490e216982dee8a91c55f31e0b751e7cd8af6b50f",
+        "mod/res/gui/gameface/mods/driftkings/launcher/launcher.js": "39480b06c535ce3b8bfa00cac5bb14812988c46639acc63410fe1f25aa659982",
+        "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js": "f77c15cf735991a02982a13be65c253de71d65cdb20a281e29cd373a1afbe64f",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js": "642f948d1b1d59d72dc0533c253e0288125e4f4fb9ae8a1fc41cdc5da5dad6a3",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js": "7477ac90519226a2b8846eb2989b15df9df2f8bc7a79cada6dfe9af3b86a9d6d",
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css": "90336cab15dcf601a1f5aefbfaf9922a1b026f5108207119e67cb3950329b8f2",
+        "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/model.html": "2b2cb95c36b17849b24bbac43f7ce3e1e25c04435f95ed1e3a1c8984a4f139a5",
+        "mod/res/scripts/client/driftkings/gameface/lobby/crew_details.py": "5796edc345fa9d57a179c6f28c2b0e33daed4e734a2e7c96281980c26e822808",
+        "mod/res/scripts/client/driftkings/gameface/lobby/crew_progression.py": "d59bd2c2d242951ecccfab9180812661d88b6f10054412945b2a38cae5e8b74f",
+        "mod/res/scripts/client/driftkings/gameface/lobby/hangar_marks_of_excellence.py": "b4301f6db46612ff3af383cb2f1105b05d0d8798fd68a03f74a62fab6dd25cb0",
+        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+        "mod/res/scripts/client/driftkings/lobby/vehicle_carousel.py": "1b336a2493122aaa3eccf9adf83ec4f4bf0bb70a14badff6ab0cde85b136f094"
+      },
+      "sections": {
+        "carousel_native_math": "c89fc9e941c6b7870dff523002141428c9cd20d72864f555a26f7ac4ebc93dbe"
+      },
+      "sources": {
+        "native_payload_model": "def native_payload_model(feature):\n    \"\"\"Clock PoC: publish metadata/data without requesting OpenWG injection.\"\"\"\n    if gameface_spec(feature).get('transport') != 'native_user_missions':\n        raise ValueError('Feature has no native plugin transport: ' + feature)\n\n    class NativePayloadModel(ViewModel):\n        def __init__(self):\n            super(NativePayloadModel, self).__init__(properties=2, commands=0)\n\n        def _initialize(self):\n            super(NativePayloadModel, self)._initialize()\n            self._addStringProperty('payload', '{}')\n            self._addViewModelProperty('DriftkingsUI', AssetsModel(feature))\n    return NativePayloadModel\n",
+        "vehicle_carousel_functions": {
+          "CarouselController": "class CarouselController(HangarController):\n    def start(self):\n        if self.active:\n            return\n        cache = ServicesLocator.itemsCache\n        settings_service.onModSettingsChanged.connect(self.onSettingsChanged, VEHICLE_CAROUSEL)\n        try:\n            # Remember the exact service whose event owns this subscription.\n            cache.onSyncCompleted += self.onItemsSyncCompleted\n        except Exception:\n            settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)\n            raise\n        self._syncCache = cache\n        self.active = True\n\n    def stop(self):\n        if not self.active:\n            return\n        self.active = False\n        try:\n            self._syncCache.onSyncCompleted -= self.onItemsSyncCompleted\n        finally:\n            self._syncCache = None\n            settings_service.onModSettingsChanged.disconnect(self.onSettingsChanged)\n\n    def onItemsSyncCompleted(self, *args):\n        if not self.active:\n            return\n        _component().g_data.invalidate()\n        for child in list(self.views.values()):\n            child.refresh()\n\n    def onSettingsChanged(self, component, changes):\n        if self.active:\n            self.onApplySettings(changes)\n\n    def onApplySettings(self, changes=None):\n        all_settings = changes is None\n        self.updatingSettings = True\n        try:\n            if all_settings or affects(changes, GLOBAL.ENABLED, (VEHICLE_CAROUSEL.CAROUSEL, 'rows'),\n                                        (VEHICLE_CAROUSEL.CAROUSEL, 'cellType')):\n                for model, native in list(_component().g_rowModels.items()):\n                    model.setCarouselRowCount(native)\n            if all_settings or affects(changes, GLOBAL.ENABLED, (VEHICLE_CAROUSEL.CAROUSEL, 'nations_order')):\n                for presenter in list(_component().g_filterPresenters):\n                    presenter._VehicleFiltersDataProvider__updateModel()\n        finally:\n            self.updatingSettings = False\n        super(CarouselController, self).onApplySettings(changes)\n",
+          "get_view_config": "def get_view_config(config, row_models):\n    carousel = settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]\n    result = from_carousel(carousel)\n    native = next(iter(row_models.values()), 1)\n    result.update(cellType=carousel['cellType'], effectiveRows=layout.row_count(carousel, native))\n    for mode in ('normal', 'small'):\n        result[mode] = dict((key, carousel[mode][key]) for key in ('width', 'height', 'gap'))\n    items = ServicesLocator.itemsCache.items\n    total = items.stats.vehicleSlots\n    free = items.inventory.getFreeSlots(total)\n    result.update(totalSlots=total, freeSlots=free, usedSlots=max(0, total-free))\n    return result\n",
+          "install_carousel_layout": "def install_carousel_layout():\n    component = _component()\n    config = component.vehicle_carousel_settings\n    LOG = component.LOG\n    g_rowModels = component.g_rowModels\n    g_filterPresenters = component.g_filterPresenters\n    g_controller = component.g_controller\n    from gui.impl.gen.view_models.views.lobby.hangar.sub_views.vehicle_filter_model import VehicleFilterModel\n    @override(VehicleFilterModel, 'setCarouselRowCount')\n    def set_rows(original, model, value):\n        try:\n            g_rowModels[model] = value\n        except TypeError:\n            LOG.debug('Carousel model is not weak-referenceable; row count not tracked')\n        rows = layout.row_count(settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL],\n                                value) if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else value\n        # The client model/toggle remains single or double; our Gameface bridge\n        # expands effectiveRows to three/four without saving invalid client prefs.\n        result = original(model, min(2, rows))\n        if not getattr(g_controller, 'updatingSettings', False):\n            for child in list(g_controller.views.values()):\n                child.refresh()\n        return result\n\n    from gui.impl.lobby.hangar.presenters.vehicle_filters_presenter import VehicleFiltersDataProvider\n    @override(VehicleFiltersDataProvider, '_VehicleFiltersDataProvider__updateModel')\n    def update_filters(original, presenter):\n        result = original(presenter)\n        g_filterPresenters.add(presenter)\n        order = (settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['nations_order']\n                 if settings_service.getComponentDict(config)[GLOBAL.ENABLED] else [])\n        if order:\n            with presenter.viewModel.transaction() as model:\n                target = model.getNationsOrder()\n                existing = list(target)\n                ordered = [value for value in order if value in existing] + [value for value in existing\n                                                                             if value not in order]\n                target.clear()\n                for value in ordered:\n                    target.addString(value)\n        return result\n\n    @override(VehicleFiltersDataProvider, '_finalize')\n    def finalize_filters(original, presenter, *args, **kwargs):\n        g_filterPresenters.discard(presenter)\n        return original(presenter, *args, **kwargs)\n\n    from gui.impl.gen import R\n    from gui.impl.lobby.hangar.presenters.vehicle_inventory_presenter import VehicleInventoryPresenter\n    @override(VehicleInventoryPresenter, 'createToolTipContent')\n    def tooltip(original, presenter, event, contentID):\n        if (settings_service.getComponentDict(config)[GLOBAL.ENABLED]\n            and settings_service.getComponentDict(config)[VEHICLE_CAROUSEL.CAROUSEL]['suppressCarouselTooltips']\n            and contentID == R.views.mono.hangar.vehicle_tooltip()):\n            return None\n        return original(presenter, event, contentID)\n",
+          "restore_carousel_layout": "def restore_carousel_layout():\n    component = _component()\n    g_rowModels = component.g_rowModels\n    g_filterPresenters = component.g_filterPresenters\n    for model, native in list(g_rowModels.items()):\n        model.setCarouselRowCount(native)\n    g_rowModels.clear()\n    for presenter in list(g_filterPresenters):\n        presenter._VehicleFiltersDataProvider__updateModel()\n    g_filterPresenters.clear()\n"
+        }
+      }
+    },
+    "native_marks": {
+      "build_config": "0a4ed48654e2f75b08fb9e8bd461d1d49f2761d9bc8f3e6063465e11554e2306",
+      "catalog": {
+        "DriftkingsAccountManager": "06f896230f3e4e698aa9e2ba37d438523d76f399106b81cd66ba8c2fea5fd867",
+        "DriftkingsAimingCountdown": "1c9dfe9f2ebdef98ce73570c6e9e2873c684f106ffdaa2febfa6cd3433c44185",
+        "DriftkingsBattleEfficiency": "00da1ef8167dea21264683cf56d0928ce2893839189be68c96f3953c42b44c88",
+        "DriftkingsCarouselStats": "1aa4b1c09a17a6ddf31e5784f3b45146a36783d0e31e294f7aabb998a01c5273",
+        "DriftkingsCrewDetails": "17b90946cc74f45eea04a2f15f1eb7fbde048c2006765df667d09e83acef03fe",
+        "DriftkingsCrewProgression": "712f71677188c1e420414fbffd4bf5889e03e0904af1818f7f4a4485e5bf9b8d",
+        "DriftkingsFlightTime": "d0fd1db081e7ec5aef0a6bf14ba3dcc326051f68d5eb80ba503a3c17d5f8f7f9",
+        "DriftkingsFooterLauncher": "934186984161805730fdb4ebd12b60ae843dfa422fca08b0a9f017f3b066103a",
+        "DriftkingsHangarClock": "fe2ec15b02212826fb18be7d72e21f34c919a385020ff9fe15310695585f3415",
+        "DriftkingsHangarHeaderOptions": "9d06bc29f107fdf78aadf5351f819f11a44190c9c379105537078ecea5368933",
+        "DriftkingsMainGun": "ccb007c6465a316e0181b7e850098cb57d028e9459fe426d7ee2cd8623e33795",
+        "DriftkingsMarksOnGunBattle": "6c9f74e193d97eed219319f589cfbc5d568ea89c05f3af53df4c7464d611f84d",
+        "DriftkingsMarksOnGunHangar": "3982fa55d2d5aaec278edb0435fe03b971b87755f212faa351d613576ef16548",
+        "DriftkingsMarksOnGunTechTree": "e778c4279b56f94ddad2762ca76196ff4377f2b5647b962776d5cd4dc0e7d8a9",
+        "DriftkingsModSettings": "8b39688afd28fe3e2dd1d9f713fa980844d9545ca2c177c454c15e93cc721168",
+        "DriftkingsOwnHealth": "37f48fd794e9cf09d864f253c9efe218a7451c8e6a94d3f77c459c381fbb8007",
+        "DriftkingsPenetration": "9b808a08edca8731ade8fccdb1f10cb562e15e1abbe451aaaa1e478be03472db",
+        "DriftkingsProfileRatings": "9e7e8fe9c8f8f4355389b1a5996511178419e212d0dc57f4dd1ad41350be75ed",
+        "DriftkingsRatingPlayers": "af568be2f25ffbc662a5820382e8532e99b6f9288881290a7542c895fdbce0d1",
+        "DriftkingsTargetInformation": "4a0ea8dadc46fbe69e131da2d884282ddc52ceb8c2958ba0f6e1c4eff94509da",
+        "DriftkingsTeamStrength": "8dd1d5eb3a97259bf40f5bf1b02194590f1558998cd88c01378b5660feecd2ec",
+        "driftkingsbattleEfficiency": "457338043b97e3d4809bd5cafec2dcd084ad5eff2fa17752a8a98229dc8573d4"
+      },
+      "commit": "fa8c699000535276e12a08f1fb089ebd7783a26b",
+      "files": {
+        "build_data/patches/carousel_2.4.2_ct.json": "6104bb045fbf3273d307199a46924908f6c47b55d1a4036d9a0f7704f1cd9d75",
+        "build_data/patches/crew_tooltip_2.4.2_ct.json": "a2feab31b4a7677ddd758f1490e216982dee8a91c55f31e0b751e7cd8af6b50f",
+        "mod/res/gui/gameface/mods/driftkings/crew_progression/model.html": "2b2cb95c36b17849b24bbac43f7ce3e1e25c04435f95ed1e3a1c8984a4f139a5",
+        "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js": "f77c15cf735991a02982a13be65c253de71d65cdb20a281e29cd373a1afbe64f",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js": "7477ac90519226a2b8846eb2989b15df9df2f8bc7a79cada6dfe9af3b86a9d6d",
+        "mod/res/scripts/client/driftkings/core/crew_progression.py": "d389498c32b9fd667ffd051524bf19eca71dadacf31fd34bdf1060e0ae9cb979",
+        "mod/res/scripts/client/driftkings/gameface/lobby/common.py": "bf6678ce22a72a3103da4fba9ba822f8e014ba45e17551bce13b47748fb632c5",
+        "mod/res/scripts/client/driftkings/gameface/lobby/crew_details.py": "5796edc345fa9d57a179c6f28c2b0e33daed4e734a2e7c96281980c26e822808",
+        "mod/res/scripts/client/driftkings/gameface/lobby/hangar_marks_of_excellence.py": "b4301f6db46612ff3af383cb2f1105b05d0d8798fd68a03f74a62fab6dd25cb0",
+        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+        "mod/res/scripts/client/driftkings/lobby/crew_management.py": "72e272ed983ab7e68a9a93c9150daa2ef8b227594ffa8b27ecf4a37266dad26a",
+        "mod/res/scripts/client/driftkings/lobby/crew_progression.py": "f20f92f0fc6fd3f2c5c65224743ce6d1a0fdb4a317ddf9a8da20977123329388",
+        "mod/res/scripts/client/driftkings/views/crew_progression_model.py": "480c80b359c1274519bd009a8855bcb04a3f0f05d0e49fb320f54cad4b141a72"
+      }
+    }
+  },
+  "description": "Historical baselines for the native plugin migration tests. Each value was derived once from the named commit; tests compare against this file and never call git. Text hashes are SHA-256 of the UTF-8 bytes with CRLF normalised to LF. Catalog/config hashes are SHA-256 of canonical JSON (sorted keys, compact separators, ASCII).",
+  "schema": 1
+}

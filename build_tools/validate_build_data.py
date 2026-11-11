@@ -1,10 +1,13 @@
 """Validate build inputs and resolve a package plan without compiling or deploying."""
 import argparse
+import base64
+import subprocess
 import ast
 import fnmatch
 import hashlib
 import json
 import re
+import shutil
 from pathlib import Path, PurePosixPath
 import sys
 import zipfile
@@ -113,6 +116,61 @@ def apply_patch_set(raw, patch):
     result = text.encode('utf-8')
     require(hashlib.sha256(result).hexdigest() == patch['output_sha256'], 'Carousel patch output hash mismatch')
     return result
+
+
+def read_gameface_resource(game_root, packages, resource):
+    raw = None
+    for name in packages:
+        with zipfile.ZipFile(Path(game_root) / name) as archive:
+            if resource in archive.namelist():
+                require(raw is None, 'Ambiguous Gameface resource')
+                raw = archive.read(resource)
+    require(raw is not None, 'Gameface resource not found')
+    return raw
+
+
+JAVASCRIPT_TOOLS = 'build_tools/javascript'
+JAVASCRIPT_SETUP = 'npm --prefix build_tools/javascript ci --ignore-scripts'
+
+
+def battleinfo_parser_pin(root, patch):
+    """Static check: manifest, package.json and lockfile must name the same exact parser version."""
+    tools = Path(root) / JAVASCRIPT_TOOLS
+    wanted = patch['parser_version']
+    declared = read_json(tools / 'package.json').get('devDependencies', {}).get('acorn')
+    locked = read_json(tools / 'package-lock.json').get('packages', {}).get('node_modules/acorn', {}).get('version')
+    require(declared == wanted and locked == wanted,
+            'BattleInfo AST parser acorn %s is not pinned in %s (package.json: %s, package-lock.json: %s)'
+            % (wanted, JAVASCRIPT_TOOLS, declared, locked))
+
+
+def require_battleinfo_toolchain(root, patch, which=shutil.which):
+    """Fail early and clearly when Node.js or the locked parser is missing; never installs anything."""
+    battleinfo_parser_pin(root, patch)
+    node = which('node')
+    require(node, 'Node.js was not found on PATH; the BattleInfo AST patch needs it. Install Node.js, then run: '
+            + JAVASCRIPT_SETUP)
+    package = Path(root) / JAVASCRIPT_TOOLS / 'node_modules/acorn/package.json'
+    require(package.is_file(), 'acorn is not installed in %s/node_modules; run: %s' % (JAVASCRIPT_TOOLS, JAVASCRIPT_SETUP))
+    installed = read_json(package).get('version')
+    require(installed == patch['parser_version'], 'acorn %s is installed in %s/node_modules but %s is required; run: %s'
+            % (installed, JAVASCRIPT_TOOLS, patch['parser_version'], JAVASCRIPT_SETUP))
+    return node
+
+
+def apply_battleinfo_patch(raw, patch, root=ROOT):
+    require(patch['resource'] == 'gui/gameface/_dist/production/mono/post_battle/random/bundle.js', 'Invalid BattleInfo target')
+    node = require_battleinfo_toolchain(root, patch)
+    job = json.dumps({'input': base64.b64encode(raw).decode('ascii'), 'manifest': patch}).encode('utf-8')
+    from build_tools.isolated_output import active_output, tool_environment
+    scope = active_output()
+    process_options = dict(cwd=str(scope.path / 'workspace'), env=tool_environment()) if scope else {}
+    result = subprocess.run([node, str(Path(root) / 'build_tools/native_battleinfo_patch.cjs')], input=job,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False, **process_options)
+    require(result.returncode == 0, 'BattleInfo AST patch failed: ' + result.stderr.decode('utf-8', 'replace'))
+    output = base64.b64decode(json.loads(result.stdout)['output'])
+    require(hashlib.sha256(output).hexdigest() == patch['output_sha256'], 'BattleInfo output hash mismatch')
+    return output
 
 
 def build_plan(root=ROOT, check_generated=False, check_game=False, check_component_list=True, game_root=None,
@@ -306,6 +364,21 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                             raw = archive.read(spec['resource'])
                 require(raw is not None, 'Carousel bundle not found in game packages')
                 apply_patch_set(raw, patch)
+        elif spec['kind'] == 'native_battleinfo_patch':
+            require(spec['implementation'] == 'ast_battleinfo', 'Invalid BattleInfo implementation')
+            patch = read_json(input_path(root, spec['patch_file']))
+            require(patch['schema_version'] == 1 and patch['runtime_normalization'] == 'lf'
+                    and patch['game_version'] == config['game']['version'] and patch['realm'] == 'CT'
+                    and patch['client_build'] == '995' and patch['resource'] == spec['resource']
+                    and spec['resource'] == 'gui/gameface/_dist/production/mono/post_battle/random/bundle.js',
+                    'BattleInfo version/target mismatch')
+            for item in patch['runtime_inputs']:
+                require(hashlib.sha256(input_path(root, item['path']).read_text(encoding='utf-8').encode('utf-8')).hexdigest() == item['sha256'],
+                        'BattleInfo runtime input mismatch')
+            require(re.match(r'^[a-f0-9]{64}$', patch['output_sha256']), 'Invalid BattleInfo output hash')
+            battleinfo_parser_pin(root, patch)
+            if check_game:
+                apply_battleinfo_patch(read_gameface_resource(game_root, spec['game_packages'], spec['resource']), patch, root)
         elif spec['kind'] == 'csharp':
             require(input_path(root, spec['source']).is_file(), 'Missing C# source: %s' % spec['source'])
             require(isinstance(spec.get('additional_sources', []), list), 'Invalid additional C# sources')

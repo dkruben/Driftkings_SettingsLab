@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "CT",
+  "client_build": "995",
+  "resource": "gui/gameface/_dist/production/mono/post_battle/random/bundle.js",
+  "source_sha256": "0857328db3a7e880b48c1785c77acd24e436d8862cd47c3ea41b52ef96059267",
+  "output_sha256": "fdb10d97190bb9ba4600f59826b3515c8235c54a0aaa77a2ff138e3b520118a2",
+  "parser_version": "8.19.0",
+  "entrypoint": "coui://gui/gameface/mods/driftkings/mono/driftkings/battle_results/results_extension.js",
+  "runtime_inputs": [
+    {
+      "path": "mod/res/gui/gameface/mods/driftkings/shared/native_extension_core.js",
+      "sha256": "04daa613d5dbff92361a171b822ccae57a1c601d856556eb8cbcf7ca9c91e4db"
+    },
+    {
+      "path": "mod/res/gui/gameface/mods/driftkings/battle_performance/battleinfo_adapter.js",
+      "sha256": "9ce56f33aa37bada972380d71f69f1afd897fb0f3d8ea4e4b121d58a6fdb7584"
+    },
+    {
+      "path": "mod/res/gui/gameface/mods/driftkings/shared/flash_text.js",
+      "mode": "isolated_flash_text",
+      "sha256": "3873fca1b14a2392bfbd06b53a07dfc390267f62af11d5d921fb25ef6da08af8"
+    }
+  ],
+  "runtime_normalization": "lf"
+}

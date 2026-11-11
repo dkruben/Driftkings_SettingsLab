@@ -210,6 +210,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/account_manager/accounts.css']
     },
     'driftkingsbattleEfficiency': {
+        'transport': 'native_battle_results',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/battle_results/results_extension.js',
         'context': 'results',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_performance/model.html',
         'owner': '__dkBattleEfficiency',

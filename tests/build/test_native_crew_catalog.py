@@ -1,20 +1,19 @@
 """Native crew transport and protected consumer contracts."""
-import ast
-import subprocess
+import json
 import unittest
 
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
+from support.baselines import baseline, changed_catalog_entries, file_hash, json_hash
+
+# Content baseline recorded from commit fa8c6990 (native hangar marks plugin).
+BASE = baseline('native_marks')
 
 
 class NativeCrewCatalogTests(unittest.TestCase):
     def test_three_distinct_identities_and_only_crew_changes_transport(self):
         data = catalog.read_catalog()['GAMEFACE']
-        baseline = subprocess.check_output(['git', 'show', 'fa8c6990:' + catalog.SOURCE], cwd=str(catalog.ROOT))
-        tree = ast.parse(baseline.decode('utf-8'))
-        old = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
-                   and any(isinstance(t, ast.Name) and t.id == 'GAMEFACE' for t in n.targets))
-        self.assertEqual([name for name in data if data[name] != old[name]], ['DriftkingsCrewProgression', 'DriftkingsCarouselStats'])
+        self.assertEqual(changed_catalog_entries('native_marks', data), ['DriftkingsCrewProgression', 'driftkingsbattleEfficiency', 'DriftkingsCarouselStats'])
         names = ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression')
         native = [data[name] for name in names]
         self.assertTrue(all(x.get('transport') == 'native_user_missions' for x in native))
@@ -32,7 +31,7 @@ class NativeCrewCatalogTests(unittest.TestCase):
             self.assertNotIn(name, block)
         legacy = [name for name, spec in data.items() if spec['owner'] is not None
                   and spec.get('transport', 'openwg') == 'openwg']
-        self.assertEqual(len(legacy), 16)
+        self.assertEqual(len(legacy), 15)
         for name in legacy:
             self.assertIn(name, block)
 
@@ -52,6 +51,9 @@ class NativeCrewCatalogTests(unittest.TestCase):
             'build_data/patches/carousel_2.4.2_ct.json', 'build_data/patches/crew_tooltip_2.4.2_ct.json',
             'build_data/build_config.json']
         for path in paths:
-            before = subprocess.check_output(['git', 'show', 'fa8c6990:' + path], cwd=str(catalog.ROOT))
-            self.assertEqual(before.replace(b'\r\n', b'\n'),
-                             (catalog.ROOT / path).read_bytes().replace(b'\r\n', b'\n'), path)
+            if path == 'build_data/build_config.json':
+                current = json.loads((catalog.ROOT / path).read_text())
+                self.assertEqual(current['generators'].pop('battleinfo_native')['kind'], 'native_battleinfo_patch')
+                self.assertEqual(json_hash(current), BASE['build_config'])
+                continue
+            self.assertEqual(BASE['files'][path], file_hash(path), path)

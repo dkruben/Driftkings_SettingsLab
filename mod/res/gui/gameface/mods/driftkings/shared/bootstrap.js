@@ -166,16 +166,6 @@
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
             ]
-        },
-        "driftkingsbattleEfficiency": {
-            "owner": "__dkBattleEfficiency",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/flash_text.js",
-                "coui://gui/gameface/mods/driftkings/battle_performance/results.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/battle_performance/results.css"
-            ]
         }
     };
     /* GENERATED CATALOG END */

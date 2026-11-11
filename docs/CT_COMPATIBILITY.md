@@ -1,5 +1,25 @@
 # Compatibilidade com WoT Common Test
 
+## Fases 3F.2B–3F.2D — build experimental, validação CT e pré-consolidação — 2026-11-10
+
+**ARTIFACT PASS, CT INSTALL PASS e CT RUNTIME PASS — experimental, não publicável, sem consolidação Git.** A integração Native BattleInfo da Fase 3F.2A foi compilada com `--isolated-output --keep-source-version`, auditada, instalada no CT e validada em runtime. Nenhuma release foi autorizada; `VERSION` e `release.json` continuam em `0.1.8-beta.1`.
+
+- **Build (3F.2B).** Pacote experimental `0.1.8-beta.4`, 632 entradas ZIP, SHA-256 `49749a9e221cecca45b83978edd113f0b2b60e54dabee09760f01f280e5118d0`, em `build/experiments/20261110T031027Z-b23d8daf/output/`. A primeira tentativa falhou na limpeza do temporário de `vehicle_markers_flash` (WinError 145) e ficou preservada; a correção FIX-B2 permitiu a build seguinte com cleanup Windows completo. `build/unified` e a beta.3 (`f0ff0cde074b25e0ee5d3f3c0647c870d01a85e6c8dfb8ed5b17bdf0709259a8`) não foram alterados. Face à beta.3: seis entradas novas, 312 modificadas, nenhuma removida; bundle `post_battle/random` com o hash previsto no manifesto do patch; catálogo 5 nativos / 15 OpenWG / 2 janelas próprias.
+- **Instalação (3F.2C).** Substituição única e verificada de `driftkings.wotmod` no CT `2.4.2.0 Common Test #995`, com backup da beta.3 em `build/backups/ct-phase3f2c-install-20261110T202843925222Z/`. Nenhum outro mod foi alterado.
+- **Runtime (3F.2C).** Confirmação visual do utilizador, apoiada no `game.log`: arranque e garagem; os quatro plugins nativos anteriores; painel Driftkings; HUD BattleEfficiency (continua em OpenWG); nova zona BattleInfo nos resultados; Mission Progress e Battle Pass preservados; duas batalhas diferentes com valores distintos; reabertura de resultados sem duplicação visível. O log regista três batalhas distintas ao longo de três sessões e nenhuma linha de aviso ou erro do Driftkings. A alternância A/B/A/B foi confirmada visualmente; o log analisado contém as aberturas A, B e A.
+- **Pré-consolidação (3F.2D-FIX).** Testes sem dependência de `build/diagnostics` nem de `git show`; baselines históricas versionadas em `tests/fixtures/native_baselines.json`; verificação explícita de Node.js e do `acorn` fixado antes do patch AST. Execução desta fase: 907 testes Python 3 (`--suite all`), 682 runtime Python 2.7, seis testes de artefactos sobre o pacote experimental, 27 suites frontend, ESLint e validadores PASS. Numa exportação temporária sem `.git`, `build/`, `node_modules` nem fontes CT: 225 testes de build com três SKIP opcionais (fixture CT ausente) e 682 runtime em ambos os interpretadores.
+
+**Limitações.** Não foram testados o estado sem dados nem a extensão desativada. O lifecycle interno em JavaScript não está instrumentado: os diagnósticos da sessão não chegam ao `game.log`, pelo que a libertação de listeners no Gameface real não foi observada. O pacote substitui integralmente o bundle oficial `post_battle/random` e só é válido para o CT #995; qualquer atualização do cliente exige novo manifesto. A validação visual não é uma medição automatizada. O código continua por consolidar em commits.
+
+## Fase 3F.2A — Native BattleInfo Extension — 2026-11-09
+
+**SOURCE INTEGRATION PASS — estado à data, anterior à build e à validação CT descritas acima.** O catálogo de origem passa a cinco transportes nativos, 15 consumidores OpenWG e duas janelas próprias. Os quatro plugins anteriores permanecem inalterados. A beta.3 instalada mantém quatro plugins/16 consumidores/duas janelas, com o mesmo SHA-256.
+
+Integração localizada no BattleInfo, core mínimo de lifecycle, transporte Wulf `native_battle_results`, binding por instância e patch AST específico CT #995. Resultados locais: 879 testes Python 3, 682 runtime Python 2.7, 27 suites frontend e ESLint PASS. A nova suite frontend contém 13 grupos de asserções; não são 13 casos independentes do runner. Artefactos compilados não foram testados nesta fase.
+
+Gameface real, resolução `coui://`, renderer visual e comportamento dos proxies Wulf ficaram, nesta fase, pendentes da Fase 3F.2B (entretanto concluída; ver secção anterior). Aviso Scaleform 3D.1 em observação, causa não determinada. Sem build, instalação, arranque do CT, staging, commit ou push. [Relatório técnico, inventário e limitações](NATIVE_BATTLE_RESULTS_POC.md). As secções seguintes são históricas.
+
+
 Revisão e adaptação de 2026-11-05, na branch `feature/wot-2.4.2-ct`, criada da base `832d3263` (`0.1.7-beta.1`). Os contratos desta branch apontam exclusivamente para CT; `develop`, `main`, os pacotes publicados e `toolchain.local.json` não foram alterados. A versão local CT é `0.1.8-beta.1`, sem publicação.
 
 ## Fases 3E.2–3E.6 — Native Carousel PoC — 2026-11-09

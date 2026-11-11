@@ -6,6 +6,12 @@ This guide identifies the sources used to develop Driftkings SettingsLab. These 
 
 Updated on **2026-10-29** for current dependency and handoff context, and on **2026-10-30** for local build paths. Read [STATUS.md](STATUS.md) first for the development revision, in-game validation and remaining work, then [CONTRIBUTING.md](../CONTRIBUTING.md) for architecture and build/install commands. This document describes reference sources, not the entire project state. Verify dated versions against the current build contract before using them.
 
+## Isolated experimental debug builds
+
+The source-only pipeline correction of 2026-11-10 adds `--isolated-output` for debug prereleases with `--keep-source-version`. It reserves a fresh workspace and skips global output promotion. See [contract, write audit, tests and limitations](ISOLATED_DEBUG_OUTPUT.md). One real experimental build (`0.1.8-beta.4`, Phase 3F.2B) has used this option; it is not publishable.
+
+The BattleInfo AST patch runs `build_tools/native_battleinfo_patch.cjs` with Node.js and the `acorn` version pinned in `build_tools/javascript/package-lock.json`. The build checks both before patching and never installs them; prepare the environment with `npm --prefix build_tools/javascript ci --ignore-scripts`.
+
 ## CT development branch override
 
 On `feature/wot-2.4.2-ct`, the build contract targets `2.4.2.0` / realm CT / source `2.4.2.5516`. The machine-local defaults below still point to EU; pass the CT client and reference explicitly as documented in [CT compatibility](CT_COMPATIBILITY.md). The inventory below records production and comparison inputs; it does not override the branch build contract.

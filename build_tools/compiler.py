@@ -23,7 +23,7 @@ from build_tools.build_diagnostics import exception_record, record_failure
 from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
 from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
-from build_tools.validate_build_data import apply_patch_set, build_plan, client_realm, input_path, read_json, require
+from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, read_gameface_resource, build_plan, client_realm, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
 
@@ -189,6 +189,10 @@ def generate(root, config, plan, tools, run, epoch):
             require(raw is not None, 'Gameface resource not found')
             patch = read_json(input_path(root, spec['patch_file']))
             destination.write_bytes(apply_patch_set(raw, patch))
+        elif spec['kind'] == 'native_battleinfo_patch':
+            raw = read_gameface_resource(tools['game_root'], spec['game_packages'], spec['resource'])
+            output = apply_battleinfo_patch(raw, read_json(input_path(root, spec['patch_file'])), root)
+            destination.write_bytes(output)
         elif spec['kind'] == 'csharp':
             if deterministic_csharp is None:
                 deterministic_csharp = supports_deterministic_csharp(tools['csc'])

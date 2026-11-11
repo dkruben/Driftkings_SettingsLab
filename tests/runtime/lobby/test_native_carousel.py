@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Actual carousel adapter and Wulf command contract with isolated native services."""
 import json
-import subprocess
 from support import Hooks, RuntimeTest, module, source
+from support.baselines import baseline
 from test_native_clock import Model, View, Descriptor, PluginMap, RandomHangar, UserMissionsPresenter
 
 
@@ -55,9 +55,10 @@ class NativeCarouselTests(RuntimeTest):
             'driftkings.interface_catalog': self.catalog})
 
     def test_factory_default_equivalence_and_native_command(self):
-        baseline = subprocess.check_output(['git', 'show', '501aec36:mod/res/scripts/client/driftkings/gameface/core.py']).decode('utf-8')
+        # Source of native_payload_model as recorded from commit 501aec36.
+        previous = baseline('native_crew')['sources']['native_payload_model']
         namespace = dict(self.core)
-        eval(compile(baseline[baseline.index('def native_payload_model('):], '<baseline>', 'exec'), namespace)
+        eval(compile(previous, '<baseline>', 'exec'), namespace)
         for name in ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression'):
             old = namespace['native_payload_model'](name)()
             current = self.core['native_payload_model'](name)()
@@ -72,7 +73,7 @@ class NativeCarouselTests(RuntimeTest):
         for name, spec in self.catalog.GAMEFACE.items():
             if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg':
                 self.core['payload_model'](name)()
-        self.assertEqual(len(self.injected), 16)
+        self.assertEqual(len(self.injected), 15)
 
     def adapter(self):
         hooks, installed, builds = Hooks(), [], []
