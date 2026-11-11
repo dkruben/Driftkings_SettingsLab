@@ -1,5 +1,6 @@
 """Build Driftkings locally: Python 2.7, Flash, native helpers and release artifacts."""
 import argparse
+from contextlib import ExitStack
 import ast
 from datetime import datetime, timezone
 import importlib.util
@@ -18,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from build_tools.build_diagnostics import exception_record, record_failure
+from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
 from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
 from build_tools.validate_build_data import apply_patch_set, build_plan, client_realm, input_path, read_json, require
@@ -89,6 +92,11 @@ def output_path(root, value):
 
 
 def run_tool(command, log, env=None, timeout=240, cwd=None):
+    scope = active_output()
+    if scope is not None:
+        scope.check(log)
+        cwd = scope.check(cwd or scope.path / "workspace")
+        env = tool_environment(env)
     log = Path(log)
     log.parent.mkdir(parents=True, exist_ok=True)
     with log.open('wb') as stream:
@@ -127,7 +135,10 @@ def run_worker(tools, run, job, name):
 def supports_deterministic_csharp(csc):
     """Roslyn compilers omit timestamps and random module IDs on request; the .NET Framework 4 csc cannot."""
     try:
-        result = subprocess.run([str(csc), '-help'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60,
+        scope = active_output()
+        result = subprocess.run([str(csc), '-help'],
+                                cwd=str(scope.path / 'workspace') if scope else None,
+                                env=tool_environment(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60,
                                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
     except (OSError, subprocess.SubprocessError):
         return False
@@ -140,6 +151,9 @@ def generate(root, config, plan, tools, run, epoch):
     needed = {a['generator'] for a in plan['assets'] if a['generator']}
     for name in sorted(needed):
         spec = config['generators'][name]
+        scope = active_output()
+        if scope:
+            scope.phase, scope.component = 'generate', name
         output_path(root, spec['output'])
         destination = run / 'generated' / spec['output']
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -198,9 +212,10 @@ def generate(root, config, plan, tools, run, epoch):
     return outputs
 
 
-def git_state(root):
+def git_state(root, readonly=False):
     def git(*args):
-        return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.DEVNULL).decode('utf-8').strip()
+        options = dict(env=dict(os.environ, GIT_OPTIONAL_LOCKS='0')) if readonly else {}
+        return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.DEVNULL, **options).decode('utf-8').strip()
     try:
         return dict(commit=git('rev-parse', 'HEAD'), dirty=bool(git('status', '--porcelain')),
                     epoch=int(git('log', '-1', '--format=%ct')))
@@ -344,42 +359,84 @@ def artifact_files(candidate):
     return [p for p in sorted(candidate.rglob('*')) if p.is_file()]
 
 
+def validate_isolated_args(args, channel=None):
+    if not getattr(args, 'isolated_output', False):
+        return
+    require(args.mode == 'debug', '--isolated-output requires --mode debug; publication is forbidden')
+    require(args.keep_source_version, '--isolated-output requires --keep-source-version')
+    require(args.channel != 'stable' and channel != 'stable', '--isolated-output requires an experimental prerelease')
+
+
 def build(args):
+    validate_isolated_args(args)
+    previous_bytecode = sys.dont_write_bytecode
+    if getattr(args, 'isolated_output', False):
+        sys.dont_write_bytecode = True
+    try:
+        with ExitStack() as stack:
+            return _build(args, stack)
+    finally:
+        sys.dont_write_bytecode = previous_bytecode
+
+
+def _build(args, stack):
     root = ROOT
     config = read_json(root / 'build_data/build_config.json')
     release = read_json(root / 'build_data/release.json')
     check_release_identity(root, release)
     version, channel, source_version = select_version(root, release, args.version, args.channel)
+    validate_isolated_args(args, channel)
+    isolated = getattr(args, "isolated_output", False)
     tools = discover(root, vars(args))
     plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
     destination = output_path(root,
                               config['package']['release_root' if args.mode == 'release'
                                                 else 'debug_root'] + '/' + channel + '/' + version)
     if args.plan:
-        print(json.dumps(dict(version=version, source_version=source_version, channel=channel, mode=args.mode,
-                              output=str(destination), tools=tools,
-                              python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults'])),
-                              indent=2))
+        preview = dict(version=version, source_version=source_version, channel=channel, mode=args.mode,
+                       output=str(destination), tools=tools, python=len(plan['python']),
+                       assets=len(plan['assets']), defaults=len(plan['defaults']))
+        if isolated:
+            preview.update(output='build/experiments/<exclusive-run-id>/output', isolated_output=True)
+        print(json.dumps(preview, indent=2))
         return destination
     require_tools(tools)
     realm = check_client(root, config, tools)
+    build_git = git_state(root, True) if isolated else None
     if not args.keep_source_version:
         sync_release_version(root, release, version, channel)
         source_version = version
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
-    run = output_path(root, 'build/runs/' + stamp)
-    run.mkdir(parents=True)
+    if isolated:
+        # Validate all configuration-derived output names BEFORE reserving anything.
+        for spec in config['generators'].values():
+            output_path(root, spec['output'])
+            if 'metadata' in spec:
+                output_path(root, spec['metadata'])
+        read_changelog(release, args.changelog)
+        epoch = int(os.environ.get('SOURCE_DATE_EPOCH', build_git['epoch']))
+        require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
+        scope = stack.enter_context(IsolatedOutput(root, stamp))
+        run = scope.path / 'workspace'
+        destination = scope.path / 'output'
+    else:
+        run = output_path(root, 'build/runs/' + stamp)
+        run.mkdir(parents=True)
     report = dict(schema=1, status='running', version=version, source_version=source_version, channel=channel,
                   mode=args.mode, publishable=False, gameVersion=config['game']['version'],
-                  realm=realm, tools=tools, git=git_state(root), logs=str(run / 'logs'))
+                  realm=realm, tools=tools, git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
     started = time.monotonic()
     try:
+        if isolated:
+            write_json(scope.path / 'diagnostics' / 'state.json', dict(status='running', publishable=False))
         inventory = source_inventory(root, plan)
         report['inputs'] = inventory
         components = sorted(c['entrypoint'] for c in plan['components'] if c['enabled'] and c['kind'] == 'feature')
         overrides = python_overrides(root, config, release, version, components)
         epoch = int(os.environ.get('SOURCE_DATE_EPOCH', report['git']['epoch']))
         require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
+        if isolated:
+            scope.phase, scope.component = 'compile', 'python27'
         compiled = run / 'compiled'
         print('Compiling Python 2.7: %d modules (%s, %s)' % (len(plan['python']), version, channel), flush=True)
         report['python'] = run_worker(tools, run,
@@ -388,9 +445,12 @@ def build(args):
                                                   for i in plan['python']],
                                                     output=str(compiled), overrides=overrides, epoch=epoch), 'python')
         generated = generate(root, config, plan, tools, run, epoch)
+        if isolated:
+            scope.phase, scope.component = 'package', None
         entries = package_entries(root, release, plan, compiled, generated, version)
-        candidate = destination.parent / ('.' + version + '-' + stamp)
-        candidate.mkdir(parents=True)
+        candidate = destination if isolated else destination.parent / ('.' + version + '-' + stamp)
+        if not isolated:
+            candidate.mkdir(parents=True)
         package = candidate / 'driftkings.wotmod'
         zip_entries(package, entries)
         verify_package(package, entries, version, release['package_id'])
@@ -404,6 +464,8 @@ def build(args):
         release_manifest.update(schema=2, modpack=modpack)
         write_json(candidate / 'release.json', release_manifest)
         expected_defaults, selector, _ = assemble_defaults(root)
+        if isolated:
+            scope.phase, scope.component = 'verify', 'python27'
         report['verification'] = run_worker(tools, run,
                                             dict(action='verify', package=str(package),
                                                  manifest=str(candidate / 'release.json'),
@@ -425,18 +487,29 @@ def build(args):
         sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix())
                          for p in artifact_files(candidate)) + '\n'
         (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
-        publish_local(root, candidate, destination, config, generated, compiled, plan)
+        if isolated:
+            write_json(scope.path / 'manifests' / 'build-report.json', report)
+        else:
+            publish_local(root, candidate, destination, config, generated, compiled, plan)
         write_json(run / 'build-report.json', report)
+        if isolated:
+            write_json(scope.path / 'diagnostics' / 'state.json', dict(status='complete', publishable=False))
         print('Build complete: ' + str(destination), flush=True)
         return destination
     except Exception as error:
-        report.update(status='failed', error=str(error), seconds=round(time.monotonic() - started, 3))
-        write_json(run / 'build-report.json', report)
+        if isolated:
+            report['seconds'] = round(time.monotonic() - started, 3)
+            record_failure(scope, report, error, write_json)
+        else:
+            report.update(status='failed', error=str(error), seconds=round(time.monotonic() - started, 3))
+            write_json(run / 'build-report.json', report)
         raise
 
 
-def main():
+def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--isolated-output', action='store_true',
+                        help='Debug prerelease only; requires --keep-source-version; keep ALL outputs in a fresh experiment')
     parser.add_argument('--mode', choices=('debug', 'release'), default='debug')
     parser.add_argument('--version', help='Override JSON version and synchronize release.json and source VERSION')
     parser.add_argument('--keep-source-version', action='store_true',
@@ -449,11 +522,18 @@ def main():
     for key in TOOL_KEYS:
         if key != 'game_root':
             parser.add_argument('--' + key.replace('_', '-'), dest=key)
+    return parser
+
+
+def main():
+    parser = argument_parser()
     args = parser.parse_args()
     try:
         build(args)
     except (ValueError, OSError, KeyError, TypeError, StopIteration, subprocess.SubprocessError,
             zipfile.BadZipFile) as error:
+        if args.isolated_output:
+            parser.exit(1, 'Build failed:\n' + exception_record(error)['traceback'])
         parser.exit(1, 'Build failed: %s\n' % error)
 
 
