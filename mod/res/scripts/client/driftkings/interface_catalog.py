@@ -8,6 +8,13 @@ FLASH_LIBRARY = 'driftkingsbattle.swf'
 # panels are enabled so the native rows report their own redraws.
 PANELS_LIBRARY = 'driftkingspanels.swf'
 FLASH_COMPONENTS = {
+    'DriftkingsAmmoHealth': {
+        'as3': 'driftkings.battle.components.vehicle_health.ammohealthui',
+        'component': 'battle.vehicle_health',
+        'python': 'driftkings.flash.battle.vehicle_health.AmmoHealthView',
+        'section': 'vehicle_health',
+        'surfaces': ['battle']
+    },
     'DistanceMarkerView': {
         'as3': 'driftkings.battle.components.distance_marker.distancemarkerui',
         'component': 'battle.target_distance',
@@ -55,6 +62,15 @@ FLASH_COMPONENTS = {
 # The catalog is used by the runtime to determine which features are available and to load the appropriate resources.
 # Each feature has a context, layout, owner, python module, resource path, scripts, section, and styles.
 GAMEFACE = {
+    'DriftkingsFooterLauncher': {
+        'context': 'footer',
+        'layout': 'coui://gui/gameface/mods/driftkings/launcher/model.html',
+        'owner': '__dkFooterLauncher',
+        'python': 'driftkings.gameface.lobby.launcher',
+        'resource': 'mods/driftkings/launcher/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/launcher/launcher.js'],
+        'section': 'driftkings',
+        'styles': ['coui://gui/gameface/mods/driftkings/launcher/launcher.css']},
     'DriftkingsProfileRatings': {
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/profile_ratings/model.html',
@@ -172,6 +188,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/crew_details/details.css']
     },
     'DriftkingsCrewProgression': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/crew_progression/model.html',
         'owner': '__dkCrewProgression',
@@ -192,6 +210,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/account_manager/accounts.css']
     },
     'driftkingsbattleEfficiency': {
+        'transport': 'native_battle_results',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/battle_results/results_extension.js',
         'context': 'results',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_performance/model.html',
         'owner': '__dkBattleEfficiency',
@@ -203,6 +223,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/battle_performance/results.css']
     },
     'DriftkingsCarouselStats': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/vehicle_carousel/carousel_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/vehicle_carousel/model.html',
         'owner': '__dkCarouselStats',
@@ -242,6 +264,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/settings_window/css/color_picker.css']
     },
     'DriftkingsHangarClock': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/main/clock_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/main/clock.html',
         'owner': '__dkHangarClock',
@@ -274,6 +298,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css']
     },
     'DriftkingsMarksOnGunHangar': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html',
         'owner': '__dkHangarMarks',

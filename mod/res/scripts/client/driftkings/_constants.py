@@ -262,7 +262,8 @@ class VEHICLE_HEALTH(object):
     NAME = 'vehicle_health'
     AVG_COLOR = 'avgColor'
     STYLE = 'style'
-    STYLES = ('classic', 'bastion', 'vanguard', 'ion', 'minimal')
+    STYLES = ('classic', 'bastion', 'vanguard', 'ion', 'minimal',
+              'ammo_minimal', 'ammo_classic', 'ammo_driftkings')
 
 
 class TEAM_PANELS(object):
@@ -575,6 +576,7 @@ HANDLER_VALUES = {
 
 # Flash component aliases shared by registration and controllers.
 class BATTLE_ALIASES(object):
+    AMMO_HEALTH = 'DriftkingsAmmoHealth'
     DEBUG_PANEL = 'DriftkingsDebugPanel'
     TARGET_DISTANCE = 'DistanceMarkerView'
     SIXTH_SENSE_ALERT = 'SixthSenseView'

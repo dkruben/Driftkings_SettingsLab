@@ -1836,3 +1836,9 @@ panel.hud.health: "Міцність"
 vehicle_health.UI_setting_style_tooltip: "Виберіть рамку смуги міцності."
 vehicle_health.UI_health_color_tooltip: "Динамічний колір залежно від залишку міцності."
 vehicle_health.UI_health_minimal: "Мінімалізм"
+
+vehicle_health.UI_health_ammo_minimal: "Панель боєприпасів — Мінімалізм"
+
+vehicle_health.UI_health_ammo_classic: "Панель боєприпасів — Класика WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Панель боєприпасів — Driftkings"

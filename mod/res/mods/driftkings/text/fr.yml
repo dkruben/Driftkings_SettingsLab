@@ -1836,3 +1836,9 @@ panel.hud.health: "Points de structure"
 vehicle_health.UI_setting_style_tooltip: "Choisissez le cadre de la barre de structure."
 vehicle_health.UI_health_color_tooltip: "Couleur dynamique selon les points de structure restants."
 vehicle_health.UI_health_minimal: "Minimaliste"
+
+vehicle_health.UI_health_ammo_minimal: "Panneau de munitions — Minimaliste"
+
+vehicle_health.UI_health_ammo_classic: "Panneau de munitions — Classique WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Panneau de munitions — Driftkings"

@@ -1,6 +1,132 @@
 # Estado do projeto e da documentação
 
-Atualizado em 2026-11-05. Os caminhos e comandos partem da raiz do repositório.
+## Fases 3F.2B–3F.2D — build experimental, validação CT e pré-consolidação — 2026-11-10
+
+**ARTIFACT PASS, CT INSTALL PASS e CT RUNTIME PASS — experimental, não publicável, sem consolidação Git.** A integração Native BattleInfo da Fase 3F.2A foi compilada com `--isolated-output --keep-source-version`, auditada, instalada no CT e validada em runtime. Nenhuma release foi autorizada; `VERSION` e `release.json` continuam em `0.1.8-beta.1`.
+
+- **Build (3F.2B).** Pacote experimental `0.1.8-beta.4`, 632 entradas ZIP, SHA-256 `49749a9e221cecca45b83978edd113f0b2b60e54dabee09760f01f280e5118d0`, em `build/experiments/20261110T031027Z-b23d8daf/output/`. A primeira tentativa falhou na limpeza do temporário de `vehicle_markers_flash` (WinError 145) e ficou preservada; a correção FIX-B2 permitiu a build seguinte com cleanup Windows completo. `build/unified` e a beta.3 (`f0ff0cde074b25e0ee5d3f3c0647c870d01a85e6c8dfb8ed5b17bdf0709259a8`) não foram alterados. Face à beta.3: seis entradas novas, 312 modificadas, nenhuma removida; bundle `post_battle/random` com o hash previsto no manifesto do patch; catálogo 5 nativos / 15 OpenWG / 2 janelas próprias.
+- **Instalação (3F.2C).** Substituição única e verificada de `driftkings.wotmod` no CT `2.4.2.0 Common Test #995`, com backup da beta.3 em `build/backups/ct-phase3f2c-install-20261110T202843925222Z/`. Nenhum outro mod foi alterado.
+- **Runtime (3F.2C).** Confirmação visual do utilizador, apoiada no `game.log`: arranque e garagem; os quatro plugins nativos anteriores; painel Driftkings; HUD BattleEfficiency (continua em OpenWG); nova zona BattleInfo nos resultados; Mission Progress e Battle Pass preservados; duas batalhas diferentes com valores distintos; reabertura de resultados sem duplicação visível. O log regista três batalhas distintas ao longo de três sessões e nenhuma linha de aviso ou erro do Driftkings. A alternância A/B/A/B foi confirmada visualmente; o log analisado contém as aberturas A, B e A.
+- **Pré-consolidação (3F.2D-FIX).** Testes sem dependência de `build/diagnostics` nem de `git show`; baselines históricas versionadas em `tests/fixtures/native_baselines.json`; verificação explícita de Node.js e do `acorn` fixado antes do patch AST. Execução desta fase: 907 testes Python 3 (`--suite all`), 682 runtime Python 2.7, seis testes de artefactos sobre o pacote experimental, 27 suites frontend, ESLint e validadores PASS. Numa exportação temporária sem `.git`, `build/`, `node_modules` nem fontes CT: 225 testes de build com três SKIP opcionais (fixture CT ausente) e 682 runtime em ambos os interpretadores.
+
+**Limitações.** Não foram testados o estado sem dados nem a extensão desativada. O lifecycle interno em JavaScript não está instrumentado: os diagnósticos da sessão não chegam ao `game.log`, pelo que a libertação de listeners no Gameface real não foi observada. O pacote substitui integralmente o bundle oficial `post_battle/random` e só é válido para o CT #995; qualquer atualização do cliente exige novo manifesto. A validação visual não é uma medição automatizada. O código continua por consolidar em commits.
+
+## Fase 3F.2A — Native BattleInfo Extension — 2026-11-09
+
+**SOURCE INTEGRATION PASS — estado à data, anterior à build e à validação CT descritas acima.** O catálogo de origem passa a cinco transportes nativos, 15 consumidores OpenWG e duas janelas próprias. Os quatro plugins anteriores permanecem inalterados. A beta.3 instalada mantém quatro plugins/16 consumidores/duas janelas, com o mesmo SHA-256.
+
+Integração localizada no BattleInfo, core mínimo de lifecycle, transporte Wulf `native_battle_results`, binding por instância e patch AST específico CT #995. Resultados locais: 879 testes Python 3, 682 runtime Python 2.7, 27 suites frontend e ESLint PASS. A nova suite frontend contém 13 grupos de asserções; não são 13 casos independentes do runner. Artefactos compilados não foram testados nesta fase.
+
+Gameface real, resolução `coui://`, renderer visual e comportamento dos proxies Wulf ficaram, nesta fase, pendentes da Fase 3F.2B (entretanto concluída; ver secção anterior). Aviso Scaleform 3D.1 em observação, causa não determinada. Sem build, instalação, arranque do CT, staging, commit ou push. [Relatório técnico, inventário e limitações](NATIVE_BATTLE_RESULTS_POC.md). As secções seguintes são históricas.
+
+
+Atualizado em 2026-11-09. Os caminhos e comandos partem da raiz do repositório.
+
+## Fases 3E.2–3E.6 — Native Carousel PoC — 2026-11-09
+
+**APTO PARA COMMIT LOCAL — INSTALAÇÃO CONTROLADA CONCLUÍDA E PRIMEIRA CONFIRMAÇÃO VISUAL CT REGISTADA; COMMIT NÃO AUTORIZADO.** Fase 3E.2: implementação experimental concluída. CarouselStats passa a quarto plugin nativo independente, com onRequestVehicles preservado; 16 consumidores continuam OpenWG e duas janelas próprias. Factory nativa recebe comandos opcionais; três plugins anteriores mantêm zero comandos e fontes protegidas. Backend funcional, patches, CrewDetails, launcher e dependências preservados.
+
+Resultados históricos da Fase 3E.2: 869 testes Python 3, 678 Python 2.7, 26 suites frontend, seis testes de artefactos, lint e validadores PASS. As 24 ordens dos quatro plugins foram simuladas, não observadas no CT. Snapshot/logs em `build/diagnostics/phase3e2/20261109T155134Z/verified/`. Build debug beta `0.1.8-beta.3`, fonte 0.1.8-beta.1, 626 entradas, 13609962 bytes, SHA-256 `f0ff0cde074b25e0ee5d3f3c0647c870d01a85e6c8dfb8ed5b17bdf0709259a8`. Nenhum teste ou build novo executado na correção documental 3E.6.
+
+Fase 3E.3: instalação controlada da beta.3 concluída, com integridade verificada. Entre 712 ficheiros do CT, apenas driftkings.wotmod foi substituído; OpenWG, ModsListAPI, perfis e configurações preservados. Versão CT #995 confirmada por version.xml, conforme substituição de fonte expressamente autorizada; sem criar .version_name. Relatório: `build/diagnostics/phase3e3/20261109T195257156673Z/installation-report.json`. Backup independente 3D em `build/backups/ct-phase3e3-install-20261109T195257156673Z/`, SHA-256 `7c50836f5f53eaf97a8c3a63433cc71e6889089b4d50b8fd98770888477ad89c`; rollback não executado.
+
+Fase 3E.4: primeira sessão CT do utilizador em 09/11/2026, aproximadamente 20:01:09–20:03:21. Beta.3 carregada, serviços ativos e sem failures declaradas, quatro descriptors nativos registados, garagem carregada/HANGAR READY, sem tracebacks Python identificados e encerramento com `Scaleform Memory arenas are empty`. **PASS — confirmação visual manual do utilizador:** carrossel, estatísticas e campos adicionais apresentados normalmente. Registo de descriptors não comprova isoladamente init(); chamadas internas, payload e destroy() individual não estão demonstrados diretamente nos logs.
+
+Sem prova abrangente nesta beta: todas as combinações de linhas/filtros/ordenações, todas as transições de modo, ciclos garagem → batalha → garagem, fault injection no CT real e destroy() individual. Não se declara ausência absoluta de fugas. Aviso Scaleform anterior continua em observação, causa não determinada e sem resolução definitiva; TextureManager, BZ-75 e DeviceCallback/BW::MouseCursor não têm causalidade demonstrada com Driftkings. MouseCursor é distinto do Scaleform.
+
+Fase 3E.5 identificou a desatualização documental; Fase 3E.6 corrige apenas os três documentos autorizados e verifica a integridade dos 21 caminhos não documentais. **APTO PARA COMMIT LOCAL**, sujeito à verificação final e autorização expressa posterior. Sem staging, commit, push, release, nova instalação ou migração adicional nesta fase. [Contratos, evidências, limitações, checklist e rollback](NATIVE_CAROUSEL_POC.md). Secções seguintes são checkpoints históricos.
+
+## Fase 3D.3 — apto para commit local, memória em observação — 2026-11-09
+
+**APTO PARA COMMIT LOCAL**, sem staging/commit autorizado nesta execução. Nova execução: 864 testes Python 3, 675 Python 2.7, 25 suites frontend, cinco testes de artefactos, lint e validadores PASS, todos com exit code 0. Snapshot `2bf769feb61120aa1ae64e2e7a0842cafe63061cbb6a6d29639049b8d3326ea6` liga comandos/logs aos hashes atuais de origem e testes; hashes antes/depois dos testes idênticos. Evidência local ignorada em `build/diagnostics/phase3d3/20261109T131245Z/`; apenas os três documentos da Fase 3D foram posteriormente atualizados. 20 caminhos previstos, staging vazio, branch/HEAD e worktrees preservados; build/backup com hashes autorizados.
+
+A investigação 3D.1 encontrou três sessões posteriores com arenas vazias: A com tooltips de Natal (identificação do utilizador); B com tentativa incompleta por falta de jogadores, sem batalha efetiva ou três ciclos adicionais; C com interações da tripulação, sem prova no log de todos os passos/restauração das opções. Uma ocorrência original de `Memory arena contains allocations. Lobby = true, Battle = false`, sem objetos/tamanhos/owners identificados; sem associação causal demonstrada à progressão e sem prova de ausência absoluta de fugas. **Risco residual EM OBSERVAÇÃO, causa não determinada.** Os oito cenários funcionais anteriores continuam PASS por confirmação separada do utilizador. A enumeração da sessão original foi corrigida para **oito grupos de registo**, com o último confirmado nas linhas 5494–5496 do excerto preservado.
+
+Import rejeitado/promises retidas pelo loader continuam limitação conhecida; telemetria individual JS é insuficiente, cenário B complementar permanece pendente e profiling completo não foi realizado. Não são regressões automaticamente demonstradas nem bloqueios concretos identificados. Sem código/testes/catálogo/packaging alterados, build, instalação, arranque do CT, rollback, commit/push ou Fase 3E. [Rastreabilidade, resultados, cenários e riscos](NATIVE_CREW_PROGRESSION_POC.md#fase-3d3--rastreabilidade-e-encerramento-documental--2026-11-09). Secções seguintes são checkpoints históricos.
+
+## Fase 3D — funcionalmente validada, auditoria técnica pendente — 2026-11-09
+
+O autor confirmou os oito cenários funcionais, incluindo tooltips/XP/batalhas, veículos, opções, CrewDetails/carrossel, relógio/hidePrestige/marcas, três ciclos e launcher. Sessão Fase 3D identificada em game.log: 11:59:17–12:28:14, serviços active, failures=[] e disabled={}, oito grupos de registos backend (contagem corrigida na Fase 3D.3) dos três plugins. Sem diagnósticos de falha do bridge identificados; telemetria JS individual de init/destroy ausente. No encerramento surgiu ERROR Scaleform “Memory arena contains allocations. Lobby = true, Battle = false”, sem owner no relatório e sem atribuição causal à progressão. Por isso: **FASE 3D FUNCIONALMENTE VALIDADA — AUDITORIA TÉCNICA PENDENTE**. Testes repetidos: 864 Python 3, 675 Python 2.7, 25 suites frontend, cinco artefactos e validadores PASS; hash local/instalado e backup íntegros. Apenas documentação alterada nesta auditoria, sem código, build, instalação, rollback, commit, push ou Fase 3E. [Evidências e pendência de teardown](NATIVE_CREW_PROGRESSION_POC.md#auditoria-final-de-logs-e-lifecycle--2026-11-09). Checkpoints abaixo são históricos.
+
+## Fase 3D experimental implementada — validação CT pendente — 2026-11-09
+
+Instalação controlada posteriormente autorizada e concluída às 11:55:42 UTC no CT #995 encerrado. Hash instalado `7c50836f5f53eaf97a8c3a63433cc71e6889089b4d50b8fd98770888477ad89c`; backup independente da Fase 3C verificado antes/depois. Comparação integral de 706 ficheiros confirma apenas driftkings.wotmod alterado, com OpenWG/ModsListAPI preservados. Três entrypoints presentes no pacote. Jogo não iniciado, sem código/build/commit/push novos. Validação funcional pelo autor continua pendente. [Relatório de instalação e backup](NATIVE_CREW_PROGRESSION_POC.md#instalação-controlada-autorizada--2026-11-09). O parágrafo seguinte regista o estado anterior à instalação.
+
+**FASE 3D IMPLEMENTADA — VALIDAÇÃO CT PENDENTE.** Apenas CrewProgression passa a terceiro plugin nativo; getRow, evento sem payload e passagem JSON aos tooltips preservados. Controlador/registo partilhados com CrewDetails mantidos, sem alterar carrossel, patches, relógio ou marcas. Catálogo: duas janelas próprias, três nativos e 17 OpenWG; dependências mantidas. Testes: 864 Python 3, 675 runtime Python 2.7, 25 suites frontend e cinco artefactos; lint e validadores PASS. Build debug CT 0.1.8-beta.2 (fonte 0.1.8-beta.1), SHA-256 `7c50836f5f53eaf97a8c3a63433cc71e6889089b4d50b8fd98770888477ad89c`. Não instalada: o CT mantém a build validada da Fase 3C, preservada também em build/reference. Sem commit/push. [Contratos, testes, limites e rollback](NATIVE_CREW_PROGRESSION_POC.md). Checkpoints abaixo mantêm o estado histórico.
+
+## Fase 3C encerrada e validada — 2026-11-09
+
+**FASE 3C CONCLUÍDA E VALIDADA no CT #995, no âmbito confirmado pelo autor.** Confirmados coexistência relógio/marcas, hidePrestige, troca repetida de veículos, três ciclos sem duplicações e launcher; ativação/desativação já confirmada. Sessão 11:02:53–11:09:32 identificada após instalação, serviços active, failures=[] e disabled={}, três pares de registos nativos e nenhum erro novo relevante dos plugins identificado. Telemetria JS de init/destroy ausente; matriz visual de múltiplas escalas e memória não medida. Testes repetidos: 860 Python 3, 673 Python 2.7, 23 suites frontend, quatro artefactos e validadores PASS. Hash local/instalado e backup reconfirmados. Consolidação em commit local `feat(gameface): add native hangar marks plugin`, sem push. Sem nova build, instalação, correção de código ou Fase 3D. Dois nativos e 18 OpenWG; sem independência global. [Auditoria, classificação e limites](NATIVE_HANGAR_MARKS_POC.md#auditoria-final-e-encerramento--2026-11-09). Checkpoints abaixo são históricos.
+
+## Fase 3C — funcionamento confirmado pelo autor no CT — 2026-11-09
+
+O autor confirmou “Está a funcionar bem e sem problemas” após testar a build instalada da Fase 3C. Confirmou também que ativar/desativar as marcas funciona, retirando o relato inicial em contrário; nenhuma correção de código foi feita durante essa investigação. Hash instalado reconfirmado: `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`. Confirmação funcional no âmbito relatado, sem atribuir testes individuais ou três ciclos não explicitados e sem nova análise de logs. Sem commit/push ou alterações de código. [Confirmação e limites](NATIVE_HANGAR_MARKS_POC.md#confirmação-funcional-do-autor--2026-11-09). Checkpoints abaixo são históricos.
+
+## Fase 3C experimental implementada — validação CT pendente — 2026-11-09
+
+Instalação controlada posteriormente autorizada e concluída às 11:02 UTC: apenas `driftkings.wotmod` substituído no CT encerrado, hash instalado `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`. Backup Fase 3A verificado; inventário integral de 706 ficheiros confirma uma única alteração. Jogo não iniciado. Sem alterações de código, commit ou push. Validação funcional pelo autor continua pendente. [Relatório e backup](NATIVE_HANGAR_MARKS_POC.md#instalação-controlada-autorizada--2026-11-09). O parágrafo seguinte regista o estado anterior à instalação.
+
+**FASE 3C IMPLEMENTADA — VALIDAÇÃO CT PENDENTE.** Apenas as marcas da garagem passam a plugin nativo independente; relógio original preservado. Catálogo: duas janelas próprias, dois nativos, 18 OpenWG. Testes: 860 Python 3, 673 runtime Python 2.7, 23 suites frontend e quatro de artefactos; lint e validadores aprovados. Fault injection é isolada, sem execução do loader real. Build debug CT 0.1.8-beta.2 (fonte 0.1.8-beta.1), SHA-256 `09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec`. Não instalada; CT mantém a build validada da Fase 3A. Sem commit/push. [Arquitetura, evidências, limites e rollback](NATIVE_HANGAR_MARKS_POC.md). Registos abaixo permanecem históricos.
+
+## Fase 3A encerrada e validada — 2026-11-09
+
+**FASE 3A CONCLUÍDA E VALIDADA no CT #995.** O autor respondeu afirmativamente à checklist final de formatos/posição/escala/ativação, alternância de prestígio, três ciclos sem duplicação e regressões do launcher/restantes módulos. Testes finais já aprovados e código inalterado desde essa verificação. CT fechado, hash do PoC e backup confirmados; sessão adicional encerrada às 05:54:41 com serviços sem falhas e sem erros identificados do relógio/lifecycle, mantendo apenas os erros conhecidos de partículas. Ausência de telemetria JS explícita permanece documentada. [Encerramento e âmbito](NATIVE_CLOCK_POC.md#encerramento-após-respostas-à-checklist--2026-11-09). Commit local autorizado, sem push. OpenWG continua necessário para os outros 19 consumidores; sem Fase 3B. Pendências abaixo são históricas.
+
+## Encerramento Fase 3A condicionado — 2026-11-09
+
+**FASE 3A IMPLEMENTADA — VALIDAÇÃO PENDENTE.** Auditoria limitada ao relógio aprovada, testes finais repetidos (856 Python 3, 672 Python 2.7, 21 suites frontend e três de artefactos). Build instalada e backup confirmados por hash. Log após encerramento CT sem falhas identificadas do plugin, com três registos nativos; não comprova três ciclos completos nem telemetria de destroy. Checklist adicional enviada ao autor para formatos/escala, alternância repetida de prestígio, ciclos e regressões nesta build. Commit suspenso enquanto critérios essenciais permanecem pendentes; staging vazio, sem alterações de código nesta verificação. [Resultados e limites](NATIVE_CLOCK_POC.md#verificação-final-condicionada--2026-11-09). Sem Fase 3B.
+
+## Relógio e hidePrestige confirmados pelo autor — 2026-11-09
+
+O autor confirmou apresentação/atualização do relógio e ocultação/reposição do prestígio no PoC instalado. A confirmação complementa o log de registo do plugin nativo e a separação dos transportes no código. OpenWG permanece instalado para os outros 19 consumidores; não há declaração de runtime global sem OpenWG. Outros formatos, escalas, modos e descarte/transições continuam por confirmar individualmente. [Âmbito da confirmação](NATIVE_CLOCK_POC.md#confirmação-funcional-do-autor--2026-11-09). Sem commit/push ou Fase 3B.
+
+## Primeira leitura do log Fase 3A — 2026-11-09
+
+PoC inicia com serviços ativos, `failures=[]`, `disabled={}` e registo Python do plugin nativo confirmado às 05:44:36. Sem erros identificados do plugin no snapshot; erros de partículas conhecidos separados. A mensagem de arranque JS não aparece no log consultado, portanto a execução frontend e hidePrestige não estão confirmados apenas pelo log. CT ainda aberto; descarte e validação visual pendentes. [Evidência e limites](NATIVE_CLOCK_POC.md#primeira-leitura-do-log-do-poc--2026-11-09).
+
+## PoC Fase 3A instalado para teste — 2026-11-09
+
+Instalação do relógio nativo autorizada e concluída apenas no CT, hash `d08148935218a1fd9ee697e31f3e686928b4ac16bfc8e7d39a906b30d6eb3d14`, com backup verificado da Fase 2. Perfis e dependências preservados. CT não iniciado pelo agente; validação em jogo pendente. [Registo e recuperação](NATIVE_CLOCK_POC.md#instalação-autorizada-no-ct--2026-11-09). Os estados de não instalação abaixo são históricos.
+
+## Fase 3A — PoC do relógio nativo — 2026-11-09
+
+Gate aprovado por contratos CT: loader nativo de plugins da garagem com import de módulo, init/destroy e mapa UserMissionsPluginModel. PoC implementado apenas para o relógio; renderer/CSS/HTML e hidePrestige preservados, 19 consumidores continuam OpenWG. 856 testes Python 3, 672 runtime Python 2.7, 21 suites frontend e três testes de artefactos aprovados; build debug CT concluída. **Validação real pendente; não instalado, sem commit/push.** O CT mantém o pacote da Fase 2. Ver [evidências, riscos e rollback](NATIVE_CLOCK_POC.md). OpenWG e os dois pacotes da distribuição permanecem.
+
+## Fase 2 encerrada — 2026-11-09
+
+**Fase 2 — Validada funcionalmente no CT 2.4.2.0 sem ModsListAPI.** O autor confirmou botão/hover, abertura, X, Esc, atalho, regresso ao hangar e ausência de duplicações. A sessão sem ModsList já analisada confirma serviços ativos e ausência de falhas identificadas do launcher. Pacote ModsList restaurado e hash confirmado. OpenWG continua utilizado e ambos os pacotes permanecem no contrato de distribuição; futuras versões requerem revalidação. Ver [encerramento e evidências](NATIVE_FOOTER_LAUNCHER.md#encerramento-formal-da-fase-2--2026-11-09). As pendências nas secções seguintes são históricas. Commit local autorizado, sem push; Fase 3 apenas em investigação read-only.
+
+## Fase 2.5 — arranque sem ModsList confirmado no log — 2026-11-09
+
+Isolamento reversível concluído; sessão CT 04:52–04:53 carregou OpenWG e Driftkings sem ModsList, com serviços ativos, `failures=[]` e `disabled={}`, sem erros identificados do launcher. Confirmação manual dos controlos nesse cenário ainda pendente. ModsList restaurado após encerramento do CT, com hash confirmado e cópia de recuperação preservada. Erros de partículas e SVG sociais registados separadamente. Ver [registo detalhado](NATIVE_FOOTER_LAUNCHER.md#fase-25--sessão-sem-modslist-e-recuperação--2026-11-09). Sem alterações de código ou Fase 3.
+
+## Launcher confirmado no CT pelo autor — 2026-11-09
+
+O autor confirmou o funcionamento visual e funcional do launcher instalado. O log da sessão CT #995 regista serviços ativos, `failures=[]` e `disabled={}`, sem erros identificados do launcher ou tracebacks. Há erros de partículas BZ-75 e de SVG dos ícones YouTube/GitHub do painel, registados separadamente. Ambas as bibliotecas externas estavam presentes; os restantes cenários de coexistência e a matriz de modos/escalas não foram declarados como testados. Ver [evidência e âmbito](NATIVE_FOOTER_LAUNCHER.md#confirmação-do-autor-e-revisão-do-log--2026-11-09). As pendências abaixo descrevem checkpoints anteriores. Sem commit, push ou Fase 3.
+
+## Instalação do launcher no CT — 2026-11-09
+
+Instalação autorizada e concluída apenas no cliente CT, com backup verificado do pacote anterior e confirmação do SHA-256 instalado. Perfis e bibliotecas externas preservados. O cliente não foi iniciado e a validação visual continua pendente. Ver [registo de instalação e recuperação](NATIVE_FOOTER_LAUNCHER.md#instalação-autorizada--2026-11-09).
+
+## Native Footer Launcher — Fase 2 — 2026-11-09
+
+Implementação local na branch CT: botão próprio no footer através de filho Wulf e adaptador DOM localizado, reutilizando o OpenWG e bootstrap existentes. Registo ativo Driftkings na ModsList removido; atalho, janela, contextos e perfis preservados. Ambos os pacotes externos continuam na distribuição. **IMPLEMENTADO — VALIDAÇÃO EM JOGO PENDENTE.** Ver [contratos, testes e rollback](NATIVE_FOOTER_LAUNCHER.md). Sem instalação, commit, push ou início da Fase 3.
+
+## Ponto de controlo antes da autonomia das dependências — 2026-11-09
+
+O autor autorizou commit e push das alterações locais da barra de vida na branch CT antes de iniciar qualquer migração. A documentação deve acompanhar as alterações futuras. ModsListAPI e OpenWG Gameface continuam obrigatórios no pacote atual; o botão próprio e a ponte interna foram apenas analisados, sem implementação. A validação visual da barra integrada permanece pendente. Ver [guia da barra integrada](AMMO_HEALTH.md) e [compatibilidade CT](CT_COMPATIBILITY.md).
+
+## Barra de vida no painel de munições — 2026-11-07
+
+Implementação local no CT: três opções adicionais no estilo da vida do veículo (Painel de munições — Minimalista / Clássica WoT / Driftkings), preservando os cinco índices anteriores e o estilo guardado. A nova apresentação usa um componente Flash filho do painel nativo de consumíveis, largura `basePanelWidth`, moldura de 26 px e intervalo de 8 px. Valores de vida e cores reutilizam o tracker atual. O Gameface flutuante é ocultado nestes três estilos. Ver [guia da barra integrada](AMMO_HEALTH.md) para âmbito e validação. O teste visual em batalha está pendente; não confundir com a aprovação CT anterior. Versões mantidas, outras branches intactas.
+
+## Aprovação local do CT — 2026-11-06
+
+O autor aprovou em jogo a build local `0.1.8-beta.2`, com o painel aprovado em `6c4bed01` e as correções de nevoeiro e rotação do gráfico, autorizando commit e push da branch `feature/wot-2.4.2-ct`. O ciclo CT mantém o número do pacote e os metadados versionados sem incremento, conforme [registo CT](CT_COMPATIBILITY.md). As secções anteriores de preparação abaixo são históricas; não representam uma publicação CT ou promoção da produção.
+
+## Adaptação Common Test — 2026-11-05
+
+Trabalho local em `feature/wot-2.4.2-ct`, base `832d3263`, versão `0.1.8-beta.1`. Esta branch aponta para CT `2.4.2.0 #995` / SRC `2.4.2.5516`; as secções de produção abaixo são histórico da preparação anterior. Build CT compilada com patches Gameface específicos e bibliotecas/filme nativo CT; arranque permitido em CT e atualizador de produção desativado nesse realm. Ver [compatibilidade CT](CT_COMPATIBILITY.md) para comandos, verificações e testes em jogo pendentes. Sem instalação, commit, push ou publicação desta adaptação.
 
 ## Preparação da beta 0.1.7-beta.1 — 2026-11-05
 

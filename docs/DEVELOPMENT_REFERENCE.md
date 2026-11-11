@@ -1,10 +1,20 @@
 # Development References
 
-EU reference and installed EU/NA clients rechecked on **2026-11-05**; other reference baseline verified on **2026-10-28** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
+EU/CT references and installed EU/NA clients rechecked on **2026-11-05**; other reference baseline verified on **2026-10-28** against the local reference folders, the installed NA client's `version.xml`, and [`build_data/build_config.json`](../build_data/build_config.json).
 
 This guide identifies the sources used to develop Driftkings SettingsLab. These paths describe the maintainer's Windows workspace; they are not bundled with this repository. Other developers may store them elsewhere. The build contract fixes the reference version; each machine sets the reference and game locations in the ignored `build_data/toolchain.local.json`.
 
 Updated on **2026-10-29** for current dependency and handoff context, and on **2026-10-30** for local build paths. Read [STATUS.md](STATUS.md) first for the development revision, in-game validation and remaining work, then [CONTRIBUTING.md](../CONTRIBUTING.md) for architecture and build/install commands. This document describes reference sources, not the entire project state. Verify dated versions against the current build contract before using them.
+
+## Isolated experimental debug builds
+
+The source-only pipeline correction of 2026-11-10 adds `--isolated-output` for debug prereleases with `--keep-source-version`. It reserves a fresh workspace and skips global output promotion. See [contract, write audit, tests and limitations](ISOLATED_DEBUG_OUTPUT.md). One real experimental build (`0.1.8-beta.4`, Phase 3F.2B) has used this option; it is not publishable.
+
+The BattleInfo AST patch runs `build_tools/native_battleinfo_patch.cjs` with Node.js and the `acorn` version pinned in `build_tools/javascript/package-lock.json`. The build checks both before patching and never installs them; prepare the environment with `npm --prefix build_tools/javascript ci --ignore-scripts`.
+
+## CT development branch override
+
+On `feature/wot-2.4.2-ct`, the build contract targets `2.4.2.0` / realm CT / source `2.4.2.5516`. The machine-local defaults below still point to EU; pass the CT client and reference explicitly as documented in [CT compatibility](CT_COMPATIBILITY.md). The inventory below records production and comparison inputs; it does not override the branch build contract.
 
 ## Reference locations
 
@@ -27,19 +37,20 @@ The `Atualizados/` directory also exists under the tools root, but was empty whe
 | --- | --- | --- |
 | EU SRC snapshot | `2.4.1.5514` | `wot-src-EU/.version_name` |
 | EU source client | `v.2.4.1.1 #993`, realm `EU` | `wot-src-EU/sources/version.xml` |
-| CT SRC snapshot | `2.4.1.5466` | `wot-src-CT/.version_name` |
-| CT source client | `v.2.4.1.0 Common Test #960`, realm `CT` | `wot-src-CT/sources/version.xml` |
-| Build game target | `2.4.1.1` | Build contract, `game.version` |
+| CT SRC snapshot | `2.4.2.5516` | `wot-src-CT/.version_name` |
+| CT source client | `v.2.4.2.0 Common Test #995`, realm `CT` | `wot-src-CT/sources/version.xml` |
+| Branch build game target | `2.4.2.0` | Build contract, `game.version` |
 | Configured game root | `D:/Games/World_of_Tanks_EU` | Local `build_data/toolchain.local.json`, `game_root` |
+| Installed CT client | `v.2.4.2.0 Common Test #995`, realm `CT` | `C:/Games/World_of_Tanks_CT/version.xml` |
 | Installed EU client | `v.2.4.1.1 #993`, realm `EU` | Installed client's `version.xml` |
 | Installed NA client | `v.2.4.1.1 #992`, realm `NA` | Installed client's `version.xml` |
-| Supported realms | `EU`, `NA`, `ASIA` | Build contract, `game.supported_realms` |
-| Selected source | `WoT_Tools/wot-src-EU`, snapshot `2.4.1.5514` | Build contract `reference.version`; local `reference_root` |
+| Branch supported realms | `CT` | Build contract, `game.supported_realms` |
+| Branch source override | `WoT_Tools/wot-src-CT`, snapshot `2.4.2.5516` | Build contract `reference.version`; explicit `--reference-root` |
 | Reference policy | `read_only: true` | Build contract; this declares the intended access policy, not filesystem permissions |
 
 The snapshot number and the game installation version are different identifiers. The EU reference and the installed NA client also have different build numbers. Verify changed APIs and behavior against the target client; these labels do not prove identical implementations.
 
-Use the configured EU source as the starting point. The current CT snapshot is older than the EU snapshot and targets `2.4.1.0`; its name does not establish that its APIs belong to the current production client.
+Use the configured EU source as the starting point. The CT snapshot now targets `2.4.2.0`, ahead of production `2.4.1.1`. It is a comparison input, not the selected build reference. See [the CT compatibility review](CT_COMPATIBILITY.md) for verified differences and missing client inputs.
 
 If additional reference copies are created, compare versions, revisions and relevant files. Do not silently switch the compiler to another copy or edit the reference sources to make a build pass.
 
@@ -126,3 +137,7 @@ Evidence used in this review:
 - [`package.json`](../build_tools/javascript/package.json), npm scripts and the CI workflow.
 
 The older Portuguese companion guide, `FONTES_DESENVOLVIMENTO.md`, was retired; it remains recoverable from the Git history.
+
+## Native clock PoC reference — 2026-11-09
+
+The CT Phase 3A investigation confirmed the hangar native plugin contract through UserMissionsPresenter/UserMissionsPluginModel and the original hangar lib/main bundles. The clock-only PoC uses that entry point; OpenWG remains installed and serves the other 19 injected owners. See [NATIVE_CLOCK_POC.md](NATIVE_CLOCK_POC.md) for exact files, hashes, lifecycle, gate, JavaScript module exception, owner-confirmed CT validation scope and remaining telemetry limitations. This does not establish a generic automatic R.plugins.js extension or compatibility beyond the inspected CT.

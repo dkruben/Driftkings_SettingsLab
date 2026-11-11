@@ -77,13 +77,16 @@ class ClockController(HangarController):
 
 
 def install_clock_gameface():
+    from gui.impl.gen.view_models.views.lobby.hangar.user_missions_plugin_model import UserMissionsPluginModel
+    from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
     from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import INVALID_RES_ID, payload_model
+    from driftkings.gameface.core import INVALID_RES_ID, native_payload_model
     from driftkings.gameface.core import resource_id as resolve_resource
 
-    ClockModel = payload_model(FEATURE)
+    ClockModel = native_payload_model(FEATURE)
+    plugin_url = gameface_spec(FEATURE)['plugin']
 
     class ClockView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -152,3 +155,39 @@ def install_clock_gameface():
     def on_hidden(original, parent, *args, **kwargs):
         _component().g_clockController.setVisible(parent, False)
         return original(parent, *args, **kwargs)
+
+    @override(UserMissionsPresenter, '_onLoading')
+    def native_plugin_loading(original, presenter, *args, **kwargs):
+        result = original(presenter, *args, **kwargs)
+        try:
+            alias = resolve_resource(RESOURCE)
+            if alias == INVALID_RES_ID:
+                raise ValueError('Clock resource unavailable')
+            with presenter.viewModel.transaction() as model:
+                plugins = model.getPlugins()
+                if alias in plugins:
+                    LOG.warning('Clock native plugin slot already occupied')
+                    return result
+                descriptor = UserMissionsPluginModel()
+                descriptor.setUrl(plugin_url)
+                plugins.set(alias, descriptor)
+            presenter._dkClockPluginAlias = alias
+            LOG.info('Clock native plugin registered; OpenWG injection not requested')
+        except Exception:
+            LOG.exception('Could not register native clock plugin')
+        return result
+
+    @override(UserMissionsPresenter, '_finalize')
+    def native_plugin_finalize(original, presenter, *args, **kwargs):
+        alias = getattr(presenter, '_dkClockPluginAlias', None)
+        if alias is not None:
+            try:
+                with presenter.viewModel.transaction() as model:
+                    plugins = model.getPlugins()
+                    descriptor = plugins.get(alias)
+                    if descriptor is not None and descriptor.getUrl() == plugin_url:
+                        plugins.remove(alias)
+                presenter._dkClockPluginAlias = None
+            except Exception:
+                LOG.exception('Could not detach native clock plugin')
+        return original(presenter, *args, **kwargs)

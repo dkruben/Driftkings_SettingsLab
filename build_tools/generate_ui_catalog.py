@@ -105,7 +105,8 @@ package driftkings.battle.factory
     text = (root / BOOTSTRAP).read_text(encoding='utf-8')
     require(text.count(START) == text.count(END) == 1, 'Missing UI catalog generation markers')
     definitions = {name: {key: spec[key] for key in ('owner', 'styles', 'scripts')}
-                   for name, spec in sorted(face.items()) if spec['owner'] is not None}
+                   for name, spec in sorted(face.items())
+                   if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'}
     generated = json.dumps(definitions, ensure_ascii=True, sort_keys=True, indent=4)
     block = START + '\n    var features = ' + generated.replace('\n', '\n    ') + ';\n'
     bootstrap = text[:text.index(START)] + block + text[text.index(END):]
@@ -157,6 +158,7 @@ def validate(root=ROOT, plan=None):
     require(len(set(resources.values())) == len(resources), 'Independent UI resources must have distinct layout paths')
     targets = {item['target'] for item in plan['assets']} if plan is not None else None
     owners = set()
+    native_ids = set()
     for name, spec in face.items():
         require(spec['section'] in sections, 'Unknown Gameface section: ' + name)
         require((root / ('mod/res/scripts/client/' + spec['python'].replace('.', '/') + '.py')).is_file(),
@@ -172,7 +174,18 @@ def validate(root=ROOT, plan=None):
                     'Invalid/duplicate JS owner: ' + name)
             owners.add(spec['owner'])
             require(spec['scripts'], 'Injected feature has no scripts: ' + name)
-        for url in [spec['layout']] + spec['styles'] + spec['scripts']:
+        transport = spec.get('transport', 'openwg')
+        require(transport in ('openwg', 'native_user_missions', 'native_battle_results'), 'Unknown transport: ' + name)
+        if transport == 'native_battle_results':
+            require(name == 'driftkingsbattleEfficiency' and bool(spec.get('plugin')), 'Native results transport is results only')
+        if transport == 'native_user_missions':
+            require(name in ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression',
+                             'DriftkingsCarouselStats') and bool(spec.get('plugin')),
+                    'Native PoC is clock, hangar marks, crew progression and carousel only')
+            identity = (spec['plugin'].split('mono/')[1] if 'mono/' in spec['plugin'] else '') or 'unknown'
+            require(identity not in native_ids, 'Duplicate native SDK identity: ' + identity)
+            native_ids.add(identity)
+        for url in [spec['layout']] + spec['styles'] + spec['scripts'] + ([spec['plugin']] if 'plugin' in spec else []):
             target = asset_target(url)
             require((root / 'mod' / target).is_file(), 'Missing UI asset: ' + target)
             if targets is not None:
@@ -184,7 +197,9 @@ def validate(root=ROOT, plan=None):
     for relative, expected in outputs(root).items():
         require((root / relative).is_file() and (root / relative).read_text(encoding='utf-8') == expected,
                 'Stale generated UI catalog: ' + relative + '; run python build_tools/generate_ui_catalog.py --write')
-    return {'flash': len(flash), 'gameface': len(face), 'injected': len(owners)}
+    return {'flash': len(flash), 'gameface': len(face), 'injected': sum(spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'
+                                                                 for spec in face.values()),
+            'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results') for spec in face.values())}
 
 
 def main():

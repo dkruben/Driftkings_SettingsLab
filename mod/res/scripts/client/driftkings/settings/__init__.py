@@ -10,6 +10,7 @@ class SettingsService(object):
         self.registry = registry
         self.active = False
         self.controller = None
+        self.launcher = None
 
     def start(self):
         if self.active:
@@ -26,29 +27,29 @@ class SettingsService(object):
         controller.adapter = SectionPanelBinding(settings, self.registry)
         self.controller = controller
         controller.start(settings)
-        try:
-            from gui.modsListApi import g_modsListApi
-        except ImportError:
-            class MissingModsList(object):
-                def __getattr__(self, name):
-                    return lambda *args, **kwargs: None
-            g_modsListApi = MissingModsList()
-        g_modsListApi.addModification(id='driftkings', name=u'driftkings', description=settings.strings['title'],
-                                      icon='gui/maps/icons/driftkings/small.png', enabled=True, login=True, lobby=True,
-                                      callback=controller.open)
+        from driftkings.gameface.lobby.launcher import FooterLauncher
+        if self.launcher is None:
+            self.launcher = FooterLauncher(controller, settings.strings['title'])
+        self.launcher.start()
         self.active = True
 
     def onContextEntered(self, space):
         if self.controller is not None:
             self.controller.onContextEntered(space)
+        if self.launcher is not None:
+            self.launcher.refresh()
 
     def onContextLeft(self, space):
         if self.controller is not None:
             self.controller.onContextLeft(space)
+        if self.launcher is not None:
+            self.launcher.refresh()
 
     def stop(self):
         self.active = False
         from driftkings.core.diagnostics import diagnostics
         diagnostics.configure(False)
+        if self.launcher is not None:
+            self.launcher.stop()
         if self.controller is not None:
             self.controller.stop()

@@ -72,11 +72,15 @@ def install(config):
     if _installed:
         return
     _installed = True
+    from gui.impl.gen.view_models.views.lobby.hangar.user_missions_plugin_model import UserMissionsPluginModel
+    from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import payload_model
+    from driftkings.core.hooks import override
+    from driftkings.gameface.core import INVALID_RES_ID, native_payload_model, resource_id
 
-    CrewModel = payload_model(FEATURE)
+    CrewModel = native_payload_model(FEATURE)
+    plugin_url = gameface_spec(FEATURE)['plugin']
 
     class CrewView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -118,3 +122,40 @@ def install(config):
     install_card(lambda: sys.modules[__name__], CrewView, __name__, RESOURCE)
     from driftkings.gameface.lobby import crew_details
     crew_details.install()
+
+    @override(UserMissionsPresenter, '_onLoading')
+    def plugin_loading(original, presenter, *args, **kwargs):
+        result = original(presenter, *args, **kwargs)
+        try:
+            alias = resource_id(RESOURCE)
+            if alias == INVALID_RES_ID:
+                raise ValueError('Crew progression resource unavailable')
+            with presenter.viewModel.transaction() as model:
+                plugins = model.getPlugins()
+                if alias in plugins:
+                    LOG.warning('Crew progression native plugin slot already occupied')
+                    return result
+                descriptor = UserMissionsPluginModel()
+                descriptor.setUrl(plugin_url)
+                plugins.set(alias, descriptor)
+            presenter._dkCrewProgressionPlugin = (alias, descriptor)
+            LOG.info('Crew progression native plugin registered; OpenWG injection not requested')
+        except Exception:
+            LOG.exception('Could not register native crew progression plugin')
+        return result
+
+    @override(UserMissionsPresenter, '_finalize')
+    def plugin_finalize(original, presenter, *args, **kwargs):
+        owned = getattr(presenter, '_dkCrewProgressionPlugin', None)
+        if owned is not None:
+            try:
+                alias, descriptor = owned
+                with presenter.viewModel.transaction() as model:
+                    plugins = model.getPlugins()
+                    current = plugins.get(alias)
+                    if current is descriptor and current.getUrl() == plugin_url:
+                        plugins.remove(alias)
+                presenter._dkCrewProgressionPlugin = None
+            except Exception:
+                LOG.exception('Could not detach native crew progression plugin')
+        return original(presenter, *args, **kwargs)

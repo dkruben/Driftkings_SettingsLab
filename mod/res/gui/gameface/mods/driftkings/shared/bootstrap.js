@@ -33,17 +33,6 @@
                 "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
             ]
         },
-        "DriftkingsCarouselStats": {
-            "owner": "__dkCarouselStats",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/vehicle_carousel/carousel.css"
-            ]
-        },
         "DriftkingsCrewDetails": {
             "owner": "__dkCrewDetails",
             "scripts": [
@@ -52,13 +41,6 @@
             "styles": [
                 "coui://gui/gameface/mods/driftkings/crew_details/details.css"
             ]
-        },
-        "DriftkingsCrewProgression": {
-            "owner": "__dkCrewProgression",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/crew_progression/crew.js"
-            ],
-            "styles": []
         },
         "DriftkingsFlightTime": {
             "owner": "__dkFlightTime",
@@ -72,13 +54,13 @@
                 "coui://gui/gameface/mods/driftkings/shared/reticle_text.css"
             ]
         },
-        "DriftkingsHangarClock": {
-            "owner": "__dkHangarClock",
+        "DriftkingsFooterLauncher": {
+            "owner": "__dkFooterLauncher",
             "scripts": [
-                "coui://gui/gameface/mods/driftkings/main/clock.js"
+                "coui://gui/gameface/mods/driftkings/launcher/launcher.js"
             ],
             "styles": [
-                "coui://gui/gameface/mods/driftkings/main/clock.css"
+                "coui://gui/gameface/mods/driftkings/launcher/launcher.css"
             ]
         },
         "DriftkingsHangarHeaderOptions": {
@@ -107,17 +89,6 @@
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/marks_panel.css",
                 "coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css"
-            ]
-        },
-        "DriftkingsMarksOnGunHangar": {
-            "owner": "__dkHangarMarks",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.css",
-                "coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css"
             ]
         },
         "DriftkingsMarksOnGunTechTree": {
@@ -194,16 +165,6 @@
             ],
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
-            ]
-        },
-        "driftkingsbattleEfficiency": {
-            "owner": "__dkBattleEfficiency",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/flash_text.js",
-                "coui://gui/gameface/mods/driftkings/battle_performance/results.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/battle_performance/results.css"
             ]
         }
     };

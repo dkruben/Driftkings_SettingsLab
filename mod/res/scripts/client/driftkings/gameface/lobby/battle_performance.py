@@ -22,13 +22,13 @@ def install_results_gameface():
     from helpers import dependency
     from skeletons.gui.battle_results import IBattleResultsService
 
-    from driftkings.gameface.core import INVALID_RES_ID, payload_model
+    from driftkings.gameface.core import INVALID_RES_ID, native_payload_model
     from driftkings.gameface.core import resource_id as resolve_resource
 
     feature = 'driftkingsbattleEfficiency'
     resource = gameface_spec('driftkingsbattleEfficiency')['resource']
 
-    ResultsModel = payload_model(feature)
+    ResultsModel = native_payload_model(feature)
 
     class ResultsView(ViewComponent):
         def __init__(self, parent, resource_id):

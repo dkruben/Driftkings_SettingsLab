@@ -15,7 +15,8 @@ class GamefaceArchitectureTests(RuntimeTest):
 
     def test_catalog_implementations_exist_in_the_correct_context(self):
         catalog = self.load('interface_catalog').GAMEFACE
-        self.assertEqual(len(catalog), 21)
+        self.assertEqual(len(catalog), 22)
+        self.assertEqual(catalog['DriftkingsFooterLauncher']['context'], 'footer')
         resources = set()
         owners = set()
         for name, spec in catalog.items():

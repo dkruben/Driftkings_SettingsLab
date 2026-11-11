@@ -65,7 +65,17 @@
         "mod/res/gui/gameface/mods/driftkings/battle_performance/results.js",
         "mod/res/gui/gen_resources/driftkings.battle_performance.json",
         "mod/res/gui/gameface/mods/driftkings/battle_performance_hud/**",
-        "mod/res/gui/gen_resources/driftkings.battle_performance_hud.json"
+        "mod/res/gui/gen_resources/driftkings.battle_performance_hud.json",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/results_binding.js",
+        "mod/res/gui/gameface/mods/driftkings/battle_performance/battleinfo_adapter.js",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/battle_results/results_extension.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/native_extension_core.js",
+        "mod/res/gui/gameface/mods/driftkings/shared/native_assets.js",
+        {
+          "source": "build/gameface/battle_results/bundle.js",
+          "target": "res/gui/gameface/_dist/production/mono/post_battle/random/bundle.js",
+          "generator": "battleinfo_native"
+        }
       ]
     },
     "battle_preferences": {
@@ -120,6 +130,7 @@
       ],
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/crew_progression/**",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js",
         "mod/res/gui/gen_resources/driftkings.crew_progression.json",
         "mod/res/gui/gameface/mods/driftkings/crew_details/**",
         "mod/res/gui/gen_resources/driftkings.crew_details.json",
@@ -165,6 +176,7 @@
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css",
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js",
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js",
         "mod/res/gui/gen_resources/driftkings.hangar_marks_of_excellence.json"
       ]
     },
@@ -197,6 +209,7 @@
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/main/clock.css",
         "mod/res/gui/gameface/mods/driftkings/main/clock.js",
+        "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js",
         "mod/res/gui/gameface/mods/driftkings/main/clock.html",
         "mod/res/gui/gen_resources/driftkings.main.json",
         "mod/res/gui/maps/driftkings/clock/clockbg.svg"
@@ -367,6 +380,8 @@
           "target": "res/gui/flash/driftkingspanels.swf",
           "generator": "panels_flash"
         },
+        "mod/res/gui/gameface/mods/driftkings/launcher/**",
+        "mod/res/gui/gen_resources/driftkings.launcher.json",
         "mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_tokens.css",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js",
@@ -401,6 +416,7 @@
         },
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.css",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel.js",
+        "mod/res/gui/gameface/mods/driftkings/mono/driftkings/vehicle_carousel/carousel_plugin.js",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_layout.js",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/carousel_native.js",
         "mod/res/gui/gameface/mods/driftkings/vehicle_carousel/model.html",

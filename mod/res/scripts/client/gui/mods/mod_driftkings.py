@@ -10,7 +10,7 @@ def init():
     if _core is not None:
         return
     from realm import CURRENT_REALM
-    if CURRENT_REALM not in ('EU', 'NA', 'ASIA'):
+    if CURRENT_REALM not in ('EU', 'NA', 'ASIA', 'CT'):
         logging.getLogger('Driftkings.Loader').warning('Unsupported client realm: %s; Driftkings disabled',
                                                        CURRENT_REALM)
         return

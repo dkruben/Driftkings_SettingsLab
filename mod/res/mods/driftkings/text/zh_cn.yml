@@ -1836,3 +1836,9 @@ panel.hud.health: "生命值"
 vehicle_health.UI_setting_style_tooltip: "选择血条边框。"
 vehicle_health.UI_health_color_tooltip: "颜色随剩余生命值变化。"
 vehicle_health.UI_health_minimal: "极简"
+
+vehicle_health.UI_health_ammo_minimal: "弹药面板 — 极简"
+
+vehicle_health.UI_health_ammo_classic: "弹药面板 — WoT经典"
+
+vehicle_health.UI_health_ammo_driftkings: "弹药面板 — Driftkings"

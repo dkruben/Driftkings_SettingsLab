@@ -1836,3 +1836,9 @@ panel.hud.health: "Health"
 vehicle_health.UI_setting_style_tooltip: "Choose the health bar frame."
 vehicle_health.UI_health_color_tooltip: "Dynamic colour based on remaining health."
 vehicle_health.UI_health_minimal: "Minimalist"
+
+vehicle_health.UI_health_ammo_minimal: "Ammo panel — Minimalist"
+
+vehicle_health.UI_health_ammo_classic: "Ammo panel — WoT Classic"
+
+vehicle_health.UI_health_ammo_driftkings: "Ammo panel — Driftkings"
