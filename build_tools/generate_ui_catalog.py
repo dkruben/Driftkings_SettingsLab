@@ -175,7 +175,17 @@ def validate(root=ROOT, plan=None):
             owners.add(spec['owner'])
             require(spec['scripts'], 'Injected feature has no scripts: ' + name)
         transport = spec.get('transport', 'openwg')
-        require(transport in ('openwg', 'native_user_missions', 'native_battle_results'), 'Unknown transport: ' + name)
+        require(transport in ('openwg', 'native_user_missions', 'native_battle_results', 'own_window'),
+                'Unknown transport: ' + name)
+        if transport == 'own_window':
+            # An owned battle window: no OpenWG bootstrap, so the layout document itself must load
+            # the catalog assets, once and in catalog order.
+            require(name == 'DriftkingsTeamStrength', 'Own battle window transport is TeamStrength only')
+            document = (root / 'mod' / asset_target(spec['layout'])).read_text(encoding='utf-8')
+            require(re.findall(r'<script src="([^"]+)"></script>', document) == spec['scripts']
+                    and re.findall(r'<link rel="stylesheet" href="([^"]+)">', document)
+                    == [PREFIX + 'shared/fonts.css'] + spec['styles'],
+                    'Own window document must load the catalog assets once, in order: ' + name)
         if transport == 'native_battle_results':
             require(name == 'driftkingsbattleEfficiency' and bool(spec.get('plugin')), 'Native results transport is results only')
         if transport == 'native_user_missions':
@@ -199,7 +209,8 @@ def validate(root=ROOT, plan=None):
                 'Stale generated UI catalog: ' + relative + '; run python build_tools/generate_ui_catalog.py --write')
     return {'flash': len(flash), 'gameface': len(face), 'injected': sum(spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'
                                                                  for spec in face.values()),
-            'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results') for spec in face.values())}
+            'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results', 'own_window')
+                          for spec in face.values())}
 
 
 def main():

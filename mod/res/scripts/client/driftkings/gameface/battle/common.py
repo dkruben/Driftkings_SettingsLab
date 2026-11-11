@@ -36,7 +36,13 @@ class BattleCardAdapter(object):
         from driftkings.interface_catalog import gameface_spec
         adapter = self
 
-        BattleCardModel = payload_model(adapter.feature, ('onSavePosition',))
+        own_window = None
+        if gameface_spec(adapter.feature).get('transport') == 'own_window':
+            # Catalog selection: an owned window instead of an OpenWG child of the HUD.
+            from driftkings.gameface.battle import own_window
+
+        model_type = own_window.payload_model if own_window else payload_model
+        BattleCardModel = model_type(adapter.feature, ('onSavePosition',))
 
         class BattleCardView(ViewComponent):
             def __init__(self, resource):
@@ -109,9 +115,12 @@ class BattleCardAdapter(object):
                 adapter.log.exception('Could not attach %s Gameface battle panel', adapter.title)
             return result
 
-        # The shared installer still declares this hook on behalf of its feature.
-        setattr(children, '__module__', self.__class__.__module__)
-        override(RandomHUDView, '_getChildComponents')(children)
+        if own_window:
+            own_window.install(adapter, BattleCardView)
+        else:
+            # The shared installer still declares this hook on behalf of its feature.
+            setattr(children, '__module__', self.__class__.__module__)
+            override(RandomHUDView, '_getChildComponents')(children)
         self.connectSignals()
         self.installed = True
         self.onInstalled()

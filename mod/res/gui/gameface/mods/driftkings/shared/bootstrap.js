@@ -154,18 +154,6 @@
             "styles": [
                 "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
             ]
-        },
-        "DriftkingsTeamStrength": {
-            "owner": "__dkTeamStrength",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/flash_lines.js",
-                "coui://gui/gameface/mods/driftkings/shared/screen_text.js",
-                "coui://gui/gameface/mods/driftkings/battle_statistics/battle_statistics.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/screen_text.css"
-            ]
         }
     };
     /* GENERATED CATALOG END */

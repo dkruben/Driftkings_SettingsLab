@@ -25,10 +25,12 @@ class NativeResultsSourceTests(unittest.TestCase):
         # Content baseline recorded from commit 769c81d1 (native carousel plugin).
         previous = baseline('native_carousel')['catalog']
         current = read_catalog()['GAMEFACE']
-        self.assertEqual(changed_catalog_entries('native_carousel', current), ['driftkingsbattleEfficiency'])
+        self.assertEqual(changed_catalog_entries('native_carousel', current),
+                         ['DriftkingsTeamStrength', 'driftkingsbattleEfficiency'])
         self.assertEqual(json_hash(current['DriftkingsBattleEfficiency']), previous['DriftkingsBattleEfficiency'])
         counts = validate()
-        self.assertEqual((counts['native'], counts['injected']), (5, 15))
+        # TeamStrength moved to its own battle window (transport 'own_window').
+        self.assertEqual((counts['native'], counts['injected']), (6, 14))
 
     def test_package_plan_contains_source_assets_and_exact_target_once(self):
         plan = build_plan(ROOT)

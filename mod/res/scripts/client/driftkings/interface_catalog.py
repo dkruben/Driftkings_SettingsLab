@@ -142,6 +142,7 @@ GAMEFACE = {
         'section': 'battle_performance',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsTeamStrength': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_statistics/model.html',
         'owner': '__dkTeamStrength',

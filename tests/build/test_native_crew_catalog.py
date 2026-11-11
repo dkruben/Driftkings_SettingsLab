@@ -14,7 +14,8 @@ BASE = baseline('native_marks')
 class NativeCrewCatalogTests(unittest.TestCase):
     def test_three_distinct_identities_and_only_crew_changes_transport(self):
         data = catalog.read_catalog()['GAMEFACE']
-        self.assertEqual(changed_catalog_entries('native_marks', data), ['DriftkingsCrewProgression', 'driftkingsbattleEfficiency', 'DriftkingsCarouselStats'])
+        self.assertEqual(changed_catalog_entries('native_marks', data), ['DriftkingsTeamStrength', 'DriftkingsCrewProgression',
+                                                                          'driftkingsbattleEfficiency', 'DriftkingsCarouselStats'])
         names = ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression')
         native = [data[name] for name in names]
         self.assertTrue(all(x.get('transport') == 'native_user_missions' for x in native))
@@ -32,7 +33,7 @@ class NativeCrewCatalogTests(unittest.TestCase):
             self.assertNotIn(name, block)
         legacy = [name for name, spec in data.items() if spec['owner'] is not None
                   and spec.get('transport', 'openwg') == 'openwg']
-        self.assertEqual(len(legacy), 15)
+        self.assertEqual(len(legacy), 14)  # TeamStrength moved to its own battle window (transport 'own_window')
         for name in legacy:
             self.assertIn(name, block)
 
