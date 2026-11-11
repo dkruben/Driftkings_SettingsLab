@@ -72,10 +72,10 @@ def install(config):
     if _installed:
         return
     _installed = True
-    from gui.impl.pub.view_component import ViewComponent
-
     from gui.impl.gen.view_models.views.lobby.hangar.user_missions_plugin_model import UserMissionsPluginModel
     from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
+    from gui.impl.pub.view_component import ViewComponent
+
     from driftkings.core.hooks import override
     from driftkings.gameface.core import INVALID_RES_ID, native_payload_model, resource_id
 

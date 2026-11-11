@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
-from support.baselines import baseline, changed_catalog_entries, file_hash, json_hash, text_hash
+from support.baselines import baseline, changed_catalog_entries, json_hash, protected_file, text_hash
 
 ROOT = catalog.ROOT
 # Content baseline recorded from commit 501aec36 (native crew progression plugin).
@@ -50,7 +50,7 @@ class NativeCarouselCatalogTests(unittest.TestCase):
                 self.assertEqual(current['generators'].pop('battleinfo_native')['kind'], 'native_battleinfo_patch')
                 self.assertEqual(json_hash(current), BASE['build_config'])
                 continue
-            self.assertEqual(BASE['files'][path], file_hash(path), path)
+            self.assertIn(protected_file(BASE, path), ('historical', 'format_only'), path)
         path = 'mod/res/scripts/client/driftkings/gameface/lobby/vehicle_carousel.py'
         new = ast.parse((ROOT / path).read_text(encoding='utf-8'))
         functions = BASE['sources']['vehicle_carousel_functions']

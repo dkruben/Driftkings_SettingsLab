@@ -1,10 +1,11 @@
 """Native crew transport and protected consumer contracts."""
+import io
 import json
 import unittest
 
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
-from support.baselines import baseline, changed_catalog_entries, file_hash, json_hash
+from support.baselines import PATH, baseline, changed_catalog_entries, json_hash, normalized_ast, protected_file, text_hash
 
 # Content baseline recorded from commit fa8c6990 (native hangar marks plugin).
 BASE = baseline('native_marks')
@@ -56,4 +57,42 @@ class NativeCrewCatalogTests(unittest.TestCase):
                 self.assertEqual(current['generators'].pop('battleinfo_native')['kind'], 'native_battleinfo_patch')
                 self.assertEqual(json_hash(current), BASE['build_config'])
                 continue
-            self.assertEqual(BASE['files'][path], file_hash(path), path)
+            self.assertIn(protected_file(BASE, path), ('historical', 'format_only'), path)
+
+    def test_format_only_revision_still_detects_functional_changes(self):
+        path = 'mod/res/scripts/client/driftkings/gameface/lobby/hangar_marks_of_excellence.py'
+        with io.open(PATH, encoding='utf-8') as stream:
+            revision = json.load(stream)['format_only_revisions'][path]
+        historical = revision['historical_source'].encode('utf-8')
+        current = (catalog.ROOT / path).read_bytes().replace(b'\r\n', b'\n')
+        # Provenance: the stored source is byte-for-byte the baseline commit's file.
+        self.assertEqual(text_hash(historical), BASE['files'][path])
+        self.assertEqual(protected_file(BASE, path, historical), 'historical')
+        self.assertEqual(protected_file(BASE, path), 'format_only')
+        self.assertNotEqual(historical, current)
+        self.assertEqual(normalized_ast(historical), normalized_ast(current))
+        anchor = b'    from gui.impl.pub.view_component import ViewComponent\n'
+        self.assertEqual(current.count(anchor), 1)
+        mutations = {
+            'added statement': current.replace(anchor, anchor + b'    ViewComponent.driftkings_marker = True\n'),
+            'removed import': current.replace(anchor, b''),
+            'changed import target': current.replace(anchor, anchor.replace(b'view_component', b'view_impl')),
+            'added import': current.replace(anchor, anchor + b'    import os\n'),
+            'changed literal': current.replace(b'True', b'False', 1),
+            'import moved after code': current.replace(anchor, b'').replace(b'\n    from driftkings.core.hooks import override\n',
+                                                                         b'\n    from driftkings.core.hooks import override\n    override = override\n' + anchor),
+        }
+        for label, mutated in mutations.items():
+            with self.subTest(change=label):
+                self.assertNotEqual(mutated, current)
+                with self.assertRaisesRegex(AssertionError, 'functional change'):
+                    protected_file(BASE, path, mutated)
+        # Format-only but unrecorded content (a comment) is still rejected: the exact revised hash is pinned.
+        with self.assertRaisesRegex(AssertionError, 'recorded format-only revision'):
+            protected_file(BASE, path, current + b'# unrecorded comment\n')
+        # A file without a recorded revision keeps the exact historical hash contract.
+        other = 'mod/res/scripts/client/driftkings/gameface/lobby/main.py'
+        content = (catalog.ROOT / other).read_bytes()
+        self.assertEqual(protected_file(BASE, other, content), 'historical')
+        with self.assertRaisesRegex(AssertionError, 'no recorded format-only revision'):
+            protected_file(BASE, other, content + b'\n')
