@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html><head>
 <link rel="stylesheet" href="coui://gui/gameface/mods/driftkings/shared/fonts.css"><meta charset="utf-8">
-<!-- Own battle window (catalog transport 'own_window'): this document loads the feature's assets
-     itself, once and in catalog order. There is no OpenWG bootstrap entry for this feature. -->
+<!-- Own battle window (catalog transport 'own_window'): this document is shared by every feature with
+     that transport and loads their assets itself, once: the host feature first, then the others in
+     catalog order. There is no OpenWG bootstrap entry for these features. -->
 <link rel="stylesheet" href="coui://gui/gameface/mods/driftkings/shared/screen_text.css">
+<link rel="stylesheet" href="coui://gui/gameface/mods/driftkings/shared/health_bar.css">
+<link rel="stylesheet" href="coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css">
 <style>html, body { margin: 0; background: transparent; pointer-events: none; }</style>
 </head><body>
 <script src="coui://gui/gameface/mods/driftkings/shared/marks_panel.js"></script>
 <script src="coui://gui/gameface/mods/driftkings/shared/flash_lines.js"></script>
 <script src="coui://gui/gameface/mods/driftkings/shared/screen_text.js"></script>
 <script src="coui://gui/gameface/mods/driftkings/battle_statistics/battle_statistics.js"></script>
+<script src="coui://gui/gameface/mods/driftkings/shared/health_bar.js"></script>
+<script src="coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.js"></script>
 </body></html>

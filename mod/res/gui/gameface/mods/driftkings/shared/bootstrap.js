@@ -101,18 +101,6 @@
                 "coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css"
             ]
         },
-        "DriftkingsOwnHealth": {
-            "owner": "__dkOwnHealth",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_panel.js",
-                "coui://gui/gameface/mods/driftkings/shared/health_bar.js",
-                "coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/health_bar.css",
-                "coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css"
-            ]
-        },
         "DriftkingsPenetration": {
             "owner": "__dkPenetration",
             "scripts": [

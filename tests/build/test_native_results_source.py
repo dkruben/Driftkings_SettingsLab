@@ -26,11 +26,11 @@ class NativeResultsSourceTests(unittest.TestCase):
         previous = baseline('native_carousel')['catalog']
         current = read_catalog()['GAMEFACE']
         self.assertEqual(changed_catalog_entries('native_carousel', current),
-                         ['DriftkingsTeamStrength', 'driftkingsbattleEfficiency'])
+                         ['DriftkingsOwnHealth', 'DriftkingsTeamStrength', 'driftkingsbattleEfficiency'])
         self.assertEqual(json_hash(current['DriftkingsBattleEfficiency']), previous['DriftkingsBattleEfficiency'])
         counts = validate()
-        # TeamStrength moved to its own battle window (transport 'own_window').
-        self.assertEqual((counts['native'], counts['injected']), (6, 14))
+        # TeamStrength and OwnHealth moved to the own battle window (transport 'own_window').
+        self.assertEqual((counts['native'], counts['injected']), (7, 13))
 
     def test_package_plan_contains_source_assets_and_exact_target_once(self):
         plan = build_plan(ROOT)

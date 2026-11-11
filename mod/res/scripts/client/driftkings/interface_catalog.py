@@ -82,6 +82,7 @@ GAMEFACE = {
         'styles': []
     },
     'DriftkingsOwnHealth': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/vehicle_health/model.html',
         'owner': '__dkOwnHealth',

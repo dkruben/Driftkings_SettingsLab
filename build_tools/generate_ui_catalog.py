@@ -11,6 +11,10 @@ AS3 = 'flash_source/battle/src/driftkings/battle/factory/componentcatalog.as'
 BOOTSTRAP = 'mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js'
 START, END = '    /* GENERATED CATALOG START */', '    /* GENERATED CATALOG END */'
 PREFIX = 'coui://gui/gameface/mods/driftkings/'
+# Battle cards hosted by the single owned battle window; the host feature's layout is its document
+# (HOST_FEATURE in gameface/battle/own_window.py).
+OWN_WINDOW_HOST = 'DriftkingsTeamStrength'
+OWN_WINDOW_FEATURES = ('DriftkingsTeamStrength', 'DriftkingsOwnHealth')
 
 
 def require(condition, message):
@@ -178,14 +182,7 @@ def validate(root=ROOT, plan=None):
         require(transport in ('openwg', 'native_user_missions', 'native_battle_results', 'own_window'),
                 'Unknown transport: ' + name)
         if transport == 'own_window':
-            # An owned battle window: no OpenWG bootstrap, so the layout document itself must load
-            # the catalog assets, once and in catalog order.
-            require(name == 'DriftkingsTeamStrength', 'Own battle window transport is TeamStrength only')
-            document = (root / 'mod' / asset_target(spec['layout'])).read_text(encoding='utf-8')
-            require(re.findall(r'<script src="([^"]+)"></script>', document) == spec['scripts']
-                    and re.findall(r'<link rel="stylesheet" href="([^"]+)">', document)
-                    == [PREFIX + 'shared/fonts.css'] + spec['styles'],
-                    'Own window document must load the catalog assets once, in order: ' + name)
+            require(name in OWN_WINDOW_FEATURES, 'Own battle window transport is TeamStrength and OwnHealth only')
         if transport == 'native_battle_results':
             require(name == 'driftkingsbattleEfficiency' and bool(spec.get('plugin')), 'Native results transport is results only')
         if transport == 'native_user_missions':
@@ -200,6 +197,19 @@ def validate(root=ROOT, plan=None):
             require((root / 'mod' / target).is_file(), 'Missing UI asset: ' + target)
             if targets is not None:
                 require(target in targets, 'UI asset is not packaged: ' + target)
+    # The owned battle window has no OpenWG bootstrap: the layout document of its host feature must load
+    # the assets of every own_window feature itself, once, host first and then catalog order.
+    shared = [OWN_WINDOW_HOST] + [name for name, spec in face.items()
+                                  if spec.get('transport') == 'own_window' and name != OWN_WINDOW_HOST]
+    require(face[OWN_WINDOW_HOST].get('transport') == 'own_window', 'Own battle window host must use own_window')
+    document = (root / 'mod' / asset_target(face[OWN_WINDOW_HOST]['layout'])).read_text(encoding='utf-8')
+    for kind, pattern, first in (('scripts', r'<script src="([^"]+)"></script>', []),
+                                 ('styles', r'<link rel="stylesheet" href="([^"]+)">', [PREFIX + 'shared/fonts.css'])):
+        expected = list(first)
+        for name in shared:
+            expected.extend(url for url in face[name][kind] if url not in expected)
+        require(re.findall(pattern, document) == expected,
+                'Own window document must load the catalog %s once, in order' % kind)
     if targets is not None:
         require('res/gui/flash/' + data['FLASH_LIBRARY'] in targets, 'Flash library is not packaged')
         require('res/gui/flash/' + data['PANELS_LIBRARY'] in targets, 'Players panel library is not packaged')
