@@ -43,7 +43,7 @@
       }
     },
     "native_crew": {
-      "build_config": "0a4ed48654e2f75b08fb9e8bd461d1d49f2761d9bc8f3e6063465e11554e2306",
+      "build_config": "f283710e21ff754a33c7aa11fb301aa292ddf98937b7810ffcdb2165f85d20aa",
       "catalog": {
         "DriftkingsAccountManager": "06f896230f3e4e698aa9e2ba37d438523d76f399106b81cd66ba8c2fea5fd867",
         "DriftkingsAimingCountdown": "1c9dfe9f2ebdef98ce73570c6e9e2873c684f106ffdaa2febfa6cd3433c44185",
@@ -98,7 +98,7 @@
       }
     },
     "native_marks": {
-      "build_config": "0a4ed48654e2f75b08fb9e8bd461d1d49f2761d9bc8f3e6063465e11554e2306",
+      "build_config": "f283710e21ff754a33c7aa11fb301aa292ddf98937b7810ffcdb2165f85d20aa",
       "catalog": {
         "DriftkingsAccountManager": "06f896230f3e4e698aa9e2ba37d438523d76f399106b81cd66ba8c2fea5fd867",
         "DriftkingsAimingCountdown": "1c9dfe9f2ebdef98ce73570c6e9e2873c684f106ffdaa2febfa6cd3433c44185",
@@ -150,6 +150,16 @@
       "approved_sha256": "042a35d9ff65c67651fd242e4819d05311ff638204fe692a0c0de1da5edd9b93",
       "approved": "2026-11-13 F6-G5.1",
       "reason": "Phase 3 G2 JavaScript cleanup (accepted): K.connect owner is a stable bridge object compared by identity; optional seventh lifecycle argument (afterLayout, dispose); second-measure frame owned per instance with generation, owner, subview and payload guards and cancellation; unload registered when the owner is created. No other change against the historical file."
+    },
+    "build_data/build_config.json": {
+      "baselines": [
+        "native_crew",
+        "native_marks"
+      ],
+      "historical_sha256": "0a4ed48654e2f75b08fb9e8bd461d1d49f2761d9bc8f3e6063465e11554e2306",
+      "approved_sha256": "f283710e21ff754a33c7aa11fb301aa292ddf98937b7810ffcdb2165f85d20aa",
+      "approved": "2026-11-13 F6-G5",
+      "reason": "CT #996 support: reference.ct_builds (F6-G2); carousel_bridge and crew_tooltip_bridge patch_file -> patch_files by build (F6-G3); vehicle_markers_flash lock -> locks by build (F6-G4). Reverting exactly these deltas reproduces the historical hash."
     },
     "mod/res/gui/gameface/mods/driftkings/launcher/launcher.js": {
       "baselines": [

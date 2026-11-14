@@ -8,6 +8,7 @@
   },
   "reference": {
     "version": "2.4.2.5516",
+    "ct_builds": {"995": "2655094", "996": "2660091"},
     "read_only": true
   },
   "package": {
@@ -106,7 +107,7 @@
       "output": "build/gameface/carousel/bundle.js",
       "implementation": "replace_exact",
       "required": true,
-      "patch_file": "build_data/patches/carousel_2.4.2_ct.json"
+      "patch_files": {"995": "build_data/patches/carousel_2.4.2_ct.json", "996": "build_data/patches/carousel_2.4.2_ct996.json"}
     },
     "updater_helper": {
       "kind": "csharp",
@@ -167,12 +168,12 @@
       "output": "build/gameface/crew/tooltips.js",
       "implementation": "replace_exact",
       "required": true,
-      "patch_file": "build_data/patches/crew_tooltip_2.4.2_ct.json"
+      "patch_files": {"995": "build_data/patches/crew_tooltip_2.4.2_ct.json", "996": "build_data/patches/crew_tooltip_2.4.2_ct996.json"}
     },
     "vehicle_markers_flash": {
       "kind": "vehicle_markers",
       "entrypoint": "flash_source/vehicle_markers/DriftkingsVehicleMarkersFlash.as",
-      "lock": "flash_source/vehicle_markers/native-lock.json",
+      "locks": {"995": "flash_source/vehicle_markers/native-lock.json", "996": "flash_source/vehicle_markers/native-lock.ct996.json"},
       "output": "build/flash/driftkings_vehicle_markers.swf"
     },
     "battleinfo_native": {

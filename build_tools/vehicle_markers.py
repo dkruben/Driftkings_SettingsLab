@@ -7,7 +7,10 @@ import tempfile
 import zipfile
 from pathlib import Path
 from build_tools.isolated_output import active_output, tool_environment
-from build_tools.vehicle_markers_patch import patch_marker, patch_manager, inject_helper, swf_parts
+from build_tools.validate_build_data import ct_client_build
+from build_tools.vehicle_markers_patch import (inject_helper, marker_lock_for_build, patch_manager, patch_marker,
+                                              swf_parts, verify_manager_contract, verify_marker_contract,
+                                              verify_native_movie)
 
 
 # Budget for the complete relative disassembly tree, not specific observed names.
@@ -52,11 +55,12 @@ def marker_workspace(destination):
 
 
 def build(root, destination, spec, tools, game_root):
-    lock = json.loads((root / spec['lock']).read_text(encoding='utf-8'))
+    config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
+    build_id, _ = ct_client_build(game_root, config)
+    locks = {key: json.loads((root / value).read_text(encoding='utf-8')) for key, value in spec['locks'].items()}
+    lock = marker_lock_for_build(locks, build_id)
     with zipfile.ZipFile(Path(game_root) / 'res/packages' / lock['package']) as archive:
-        native = archive.read(lock['resource'])
-    if hashlib.sha256(native).hexdigest() != lock['sha256']:
-        raise ValueError('Vehicle marker native movie changed; review the pinned patch before building')
+        native = verify_native_movie(archive.read(lock['resource']), lock)
     binary = Path(tools['rabcdasm_home'])
     sdk = Path(tools['flex_home'])
     libraries = root / 'flash_source/shared/swc/manifest.json'
@@ -86,10 +90,12 @@ def build(root, destination, spec, tools, game_root):
         run([binary / 'rabcdasm.exe', work / 'markers-0.abc'])
         disassembly = work / 'markers-0'
         base = disassembly / 'net/wg/gui/battle/views/vehicleMarkers'
-        for filename, patch in (('VehicleMarker.class.asasm', patch_marker),
-                                ('VehicleMarkersManager.class.asasm', patch_manager)):
+        for filename, verify, patch in (('VehicleMarker.class.asasm', verify_marker_contract, patch_marker),
+                                        ('VehicleMarkersManager.class.asasm', verify_manager_contract, patch_manager)):
             path = base / filename
-            path.write_text(patch(path.read_text()), encoding='utf-8')
+            text = path.read_text()
+            verify(text)
+            path.write_text(patch(text), encoding='utf-8')
         run([binary / 'rabcasm.exe', disassembly / 'markers-0.main.asasm'])
         run([binary / 'abcreplace.exe', movie, '0', disassembly / 'markers-0.main.abc'])
         output = inject_helper(movie.read_bytes(), helper.read_bytes())

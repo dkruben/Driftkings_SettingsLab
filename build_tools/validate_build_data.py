@@ -10,6 +10,7 @@ import re
 import shutil
 from pathlib import Path, PurePosixPath
 import sys
+import xml.etree.ElementTree as ET
 import zipfile
 
 try:
@@ -116,6 +117,32 @@ def apply_patch_set(raw, patch):
     result = text.encode('utf-8')
     require(hashlib.sha256(result).hexdigest() == patch['output_sha256'], 'Carousel patch output hash mismatch')
     return result
+
+
+def ct_client_build(game_root, config):
+    """Return (build, revision) of an installed CT client; unknown builds or revisions are refused."""
+    version = ET.parse(Path(game_root) / 'version.xml')
+    match = re.fullmatch(r'v\.(\d+\.\d+\.\d+\.\d+) Common Test #(\d+)', (version.findtext('version') or '').strip())
+    require(match is not None, 'Unknown installed CT build identifier')
+    build = match.group(2)
+    revision = (version.findtext('meta/client') or '').strip()
+    require(config['reference']['ct_builds'].get(build) == revision, 'Unsupported installed CT build or revision')
+    return build, revision
+
+
+def gameface_patch_for_build(root, spec, build):
+    """Select the pinned variant for exactly this CT build; never fall back to another build's patch.
+
+    Single-file generators (native documents, crew barracks) keep their historical pin unchanged;
+    their exact source hash is still enforced by apply_patch_set.
+    """
+    if 'patch_files' not in spec:
+        return read_json(input_path(root, spec['patch_file']))
+    require(build in spec['patch_files'], 'No Gameface patch pinned for CT #%s: %s' % (build, spec['resource']))
+    patch = read_json(input_path(root, spec['patch_files'][build]))
+    require(patch['client_build'] == build and patch['resource'] == spec['resource'],
+            'Gameface patch build identity mismatch for CT #' + build)
+    return patch
 
 
 def read_gameface_resource(game_root, packages, resource):
@@ -336,23 +363,39 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                         'Flash library hash mismatch: %s' % library['name'])
         elif spec['kind'] == 'vehicle_markers':
             require(input_path(root, spec['entrypoint']).is_file(), 'Missing vehicle marker Flash source')
-            lock = read_json(input_path(root, spec['lock']))
-            require(lock['gameVersion'] == config['game']['version'], 'Vehicle marker version mismatch')
-            require(re.match(r'^[a-f0-9]{64}$', lock['sha256']), 'Invalid marker movie digest')
+            require(spec['locks'] and set(spec['locks']) <= set(config['reference']['ct_builds']),
+                    'Vehicle marker lock pinned to an unknown CT build')
+            digests = set()
+            for build, relative in sorted(spec['locks'].items()):
+                lock = read_json(input_path(root, relative))
+                require(lock['gameVersion'] == config['game']['version'], 'Vehicle marker version mismatch')
+                # The historical lock predates build tagging and stays byte-identical: it is #995 only.
+                require(lock.get('clientBuild', '995') == build, 'Vehicle marker lock belongs to another CT build')
+                require(re.match(r'^[a-f0-9]{64}$', lock['sha256']), 'Invalid marker movie digest')
+                digests.add(lock['sha256'])
+            require(len(digests) == len(spec['locks']), 'Vehicle marker locks must pin distinct native movies')
         elif spec['kind'] == 'gameface_patch':
             require(spec['implementation'] == 'replace_exact', 'Unsupported patch implementation')
-            patch = read_json(input_path(root, spec['patch_file']))
-            require(patch['schema_version'] == 1 and patch['game_version'] == config['game']['version']
-                    and patch['realm'] in config['game']['supported_realms'] and patch['resource'] == spec['resource'],
-                    'Carousel patch target mismatch')
-            require(patch['operations'], 'Empty carousel patch')
-            for operation in patch['operations']:
-                require(set(operation) == {'find', 'replace', 'count'} and isinstance(operation['find'], str)
-                        and operation['find'] and isinstance(operation['replace'], str)
-                        and type(operation['count']) is int and operation['count'] > 0,
-                        'Invalid carousel patch operation')
+            variants = spec.get('patch_files')
+            if variants is not None:
+                require(variants and set(variants) <= set(config['reference']['ct_builds']),
+                        'Gameface patch pinned to an unknown CT build')
+            for build, relative in sorted((variants or {'995': spec['patch_file']}).items()):
+                patch = read_json(input_path(root, relative))
+                require(patch['schema_version'] == 1 and patch['game_version'] == config['game']['version']
+                        and patch['realm'] in config['game']['supported_realms'] and patch['resource'] == spec['resource']
+                        and patch['client_build'] == build,
+                        'Gameface patch target mismatch for CT #' + build)
+                require(patch['operations'], 'Empty Gameface patch for CT #' + build)
+                for operation in patch['operations']:
+                    require(set(operation) == {'find', 'replace', 'count'} and isinstance(operation['find'], str)
+                            and operation['find'] and isinstance(operation['replace'], str)
+                            and type(operation['count']) is int and operation['count'] > 0,
+                            'Invalid Gameface patch operation for CT #' + build)
             if check_game:
                 require(game_root, 'A game installation is required to check game resources')
+                build, _ = ct_client_build(game_root, config)
+                patch = gameface_patch_for_build(root, spec, build)
                 raw = None
                 for name in spec['game_packages']:
                     relative_path(name)

@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -23,7 +24,7 @@ from build_tools.build_diagnostics import exception_record, record_failure
 from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
 from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
-from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, read_gameface_resource, build_plan, client_realm, input_path, read_json, require
+from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, ct_client_build, gameface_patch_for_build, read_gameface_resource, build_plan, client_realm, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
 
@@ -187,7 +188,8 @@ def generate(root, config, plan, tools, run, epoch):
                         require(raw is None, 'Ambiguous Gameface resource')
                         raw = archive.read(spec['resource'])
             require(raw is not None, 'Gameface resource not found')
-            patch = read_json(input_path(root, spec['patch_file']))
+            build, _ = ct_client_build(tools['game_root'], config)
+            patch = gameface_patch_for_build(root, spec, build)
             destination.write_bytes(apply_patch_set(raw, patch))
         elif spec['kind'] == 'native_battleinfo_patch':
             raw = read_gameface_resource(tools['game_root'], spec['game_packages'], spec['resource'])
@@ -291,16 +293,66 @@ def check_release_identity(root, release):
     require(release['repository'] == repository, 'Release repository must match the packaged updater')
 
 
-def check_client(root, config, tools):
-    """Confirm the read-only game installation and reference snapshot; return the client realm."""
-    version_xml = ET.parse(Path(tools['game_root']) / 'version.xml')
-    require(version_contract(root).normalize_game_version(version_xml.findtext('version')) == config['game']['version'], 'Installed game version differs from build target')
-    realm = client_realm(version_xml.findtext('meta/realm'), config)
-    reference = Path(tools['reference_root']) / '.version_name'
-    require(reference.read_text(encoding='utf-8-sig').strip() == config['reference']['version'],
-            'Reference source version mismatch')
-    return realm
+CT_REFERENCE_FILES = (
+    'gui/impl/lobby/page/lobby_footer.py',
+    'frameworks/wulf/view/view.py',
+    'gui/impl/pub/view_component.py',
+    'gui/impl/battle/random/hud.py',
+    'gui/impl/lobby/hangar/random/random_hangar.py',
+    'gui/impl/lobby/hangar/presenters/user_missions_presenter.py',
+    'gui/Scaleform/daapi/view/meta/PlayersPanelMeta.py',
+    'gui/Scaleform/framework/package_layout.py',
+)
 
+
+def check_client(root, config, tools):
+    """Check CT identity and required reference files; never generate build outputs."""
+    version_xml = ET.parse(Path(tools['game_root']) / 'version.xml')
+    public = version_contract(root).normalize_game_version(version_xml.findtext('version'))
+    require(public == config['game']['version'], 'Installed game version differs from build target')
+    realm = client_realm(version_xml.findtext('meta/realm'), config)
+    require(realm == 'CT', 'Reference identity requires the CT client')
+    build, revision = ct_client_build(tools['game_root'], config)
+    reference_root = Path(tools['reference_root'])
+    name = (reference_root / '.version_name').read_text(encoding='utf-8-sig').strip()
+    if name == config['reference']['version']:
+        # Preserve the exact historical reference contract only for its #995 target.
+        # This legacy label is not a public version or a #996 revision mapping.
+        require(build == '995', 'Legacy reference label cannot identify CT #' + build)
+        if not (reference_root / 'manifest.json').exists():
+            for relative in CT_REFERENCE_FILES:
+                target = reference_root / 'sources/res/scripts/client' / relative
+                require(target.is_file() and target.resolve().is_relative_to(reference_root.resolve()),
+                        'Missing or escaped legacy reference contract: ' + relative)
+            return realm
+    else:
+        expected = public + ' Common Test #' + build
+        require(name == expected, 'Reference source version/build mismatch')
+    manifest = read_json(reference_root / 'manifest.json')
+    identity = manifest.get('game_version', {})
+    require(manifest.get('schema') == 1 and manifest.get('realm') == realm
+            and manifest.get('version_name') == public + ' Common Test'
+            and manifest.get('consistent') is True, 'Inconsistent CT reference manifest')
+    require(identity.get('raw') == 'v.' + public + ' Common Test #' + build
+            and identity.get('number') == public and identity.get('suffix') == 'Common Test'
+            and type(identity.get('build')) is int and identity['build'] == int(build)
+            and identity.get('client_revision') == revision and identity.get('realm') == realm,
+            'CT reference identity contradicts installed version/build/revision')
+    for directory in ('sources', 'sources_as', 'sources_gameface', '__stubs'):
+        require((reference_root / directory).is_dir(), 'Incomplete CT reference: ' + directory)
+    for relative in CT_REFERENCE_FILES:
+        output = 'sources/res/scripts/client/' + relative
+        entry = manifest.get('entries', {}).get('res/scripts/client/' + relative[:-3] + '.pyc', {})
+        recovered = entry.get('decompiled', {})
+        target = reference_root / output
+        require(target.is_file() and target.resolve().is_relative_to(reference_root.resolve()),
+                'Missing or escaped CT reference contract: ' + relative)
+        require(recovered.get('status') == 'success' and recovered.get('output') == output
+                and re.fullmatch(r'[0-9a-f]{64}', entry.get('sha256', '')) is not None
+                and recovered.get('input_sha256') == entry['sha256']
+                and recovered.get('sha256') == sha(target),
+                'CT reference integrity mismatch: ' + relative)
+    return realm
 
 def python_overrides(root, config, release, version, components):
     """Generated sources compiled in place of their checked-in counterparts."""
