@@ -2,7 +2,7 @@ package driftkings.battle.components.ratings
 {
     // Each holder owns its overrides. Reusing a row must not require touching
     // every property merely to keep the shared end-of-frame cleanup happy.
-    public class panelrow
+    public class PanelRow
     {
         public var state:nativestate=new nativestate();
         public var extra:extrafields=new extrafields();
@@ -17,7 +17,7 @@ package driftkings.battle.components.ratings
         private var signature:String;
         private var components:Array;
         private var nextAudit:int;
-        public function panelrow(now:int,slot:int)
+        public function PanelRow(now:int,slot:int)
         { nextAudit=now+100+(slot%10)*100; }
         private function parts(item:Object):Array
         {

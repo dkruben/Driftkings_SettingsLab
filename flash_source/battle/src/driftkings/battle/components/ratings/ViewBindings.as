@@ -6,12 +6,12 @@ package driftkings.battle.components.ratings
     import flash.utils.getQualifiedClassName;
 
     // Native views the ratings draw on: players panel, TAB, loading screens and their clock.
-    public class viewbindings
+    public class ViewBindings
     {
         public var list:Array=[];
         private var ignored:DisplayObject;
 
-        public function viewbindings(ignored:DisplayObject)
+        public function ViewBindings(ignored:DisplayObject)
         {
             this.ignored=ignored;
         }

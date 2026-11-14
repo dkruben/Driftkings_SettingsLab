@@ -9,7 +9,7 @@ package driftkings.battle.factory
     import driftkings.battle.components.sixth_sense.sixthsenseui;
     import driftkings.battle.components.vehicle_health.ammohealthui;
 
-    public class componentcatalog
+    public class ComponentCatalog
     {
         public static function classes(surface:String):Object
         {

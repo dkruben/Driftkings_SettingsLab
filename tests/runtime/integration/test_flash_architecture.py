@@ -59,6 +59,80 @@ class FlashArchitectureTests(RuntimeTest):
             self.assertRaises(ValueError, registry.register, alias, view, config)
         self.assertEqual(len(registry.definitions), 7)
 
+    def test_ratings_class_names_are_case_sensitive_and_keep_their_package(self):
+        folder = os.path.join(ROOT, 'flash_source', 'battle', 'src', 'driftkings', 'battle', 'components', 'ratings')
+        filenames = os.listdir(folder)
+        renamed = (('panelrow', 'PanelRow'), ('panelrenderer', 'PanelRenderer'), ('viewbindings', 'ViewBindings'))
+        for old, new in renamed:
+            self.assertIn(new + '.as', filenames)
+            self.assertNotIn(old + '.as', filenames)
+            with open(os.path.join(folder, new + '.as'), 'rb') as stream:
+                text = stream.read().decode('utf-8')
+            self.assertIn('package driftkings.battle.components.ratings', text)
+            self.assertIsNotNone(re.search(r'public class ' + new + r'\b', text))
+            self.assertIn('public function ' + new + '(', text)
+            self.assertIsNone(re.search(r'\b' + old + r'\b', text))
+        for filename in ('PanelRenderer.as', 'ratingscreens.as'):
+            with open(os.path.join(folder, filename), 'rb') as stream:
+                text = stream.read().decode('utf-8')
+            for old, new in renamed:
+                self.assertIsNone(re.search(r'\b' + old + r'\b', text))
+        with open(os.path.join(folder, 'ratingscreens.as'), 'rb') as stream:
+            text = stream.read().decode('utf-8')
+        self.assertIn('public class ratingscreens extends BattleUIDisplayable', text)
+        self.assertIn('new PanelRenderer(state)', text)
+        self.assertIn('new ViewBindings(this)', text)
+
+    def test_battle_displayable_name_and_six_subclasses_preserve_contracts(self):
+        root = os.path.join(ROOT, 'flash_source', 'battle', 'src', 'driftkings', 'battle')
+        self.assertIn('BattleDisplayable.as', os.listdir(os.path.join(root, 'base')))
+        self.assertNotIn('battledisplayable.as', os.listdir(os.path.join(root, 'base')))
+        with open(os.path.join(root, 'base', 'BattleDisplayable.as'), 'rb') as stream:
+            base = stream.read().decode('utf-8')
+        self.assertIn('package driftkings.battle.base', base)
+        self.assertIn('public class BattleDisplayable extends BattleUIDisplayable', base)
+        self.assertIn('public function BattleDisplayable()', base)
+        self.assertIn('function as_setBattleHudVisible(value:Boolean):void', base)
+        subclasses = []
+        for folder, dirs, files in os.walk(root):
+            for name in files:
+                if not name.endswith('.as'):
+                    continue
+                with open(os.path.join(folder, name), 'rb') as stream:
+                    source_text = stream.read().decode('utf-8')
+                self.assertIsNone(re.search(r'\bbattledisplayable\b', source_text))
+                if re.search(r'extends\s+BattleDisplayable\b', source_text):
+                    subclasses.append(name)
+                    self.assertIn('import driftkings.battle.base.BattleDisplayable;', source_text)
+        # Independent inheritance contract: do not derive expected subclasses from the implementation.
+        self.assertEqual(sorted(subclasses), sorted(('debugpanelui.as', 'distancemarkerui.as',
+                         'minimapenhancementsui.as', 'overlayui.as', 'sixthsenseui.as', 'ammohealthui.as')))
+        with open(os.path.join(root, 'factory', 'ComponentFactory.as'), 'rb') as stream:
+            factory = stream.read().decode('utf-8')
+        self.assertIn('var hud:BattleDisplayable = component as BattleDisplayable;', factory)
+        self.assertIn('host.registerFlashComponentS(component, alias);', factory)
+
+    def test_component_factory_identity_and_both_entrypoint_calls(self):
+        folder = os.path.join(ROOT, 'flash_source', 'battle', 'src')
+        factory_folder = os.path.join(folder, 'driftkings', 'battle', 'factory')
+        self.assertIn('ComponentFactory.as', os.listdir(factory_folder))
+        self.assertNotIn('componentfactory.as', os.listdir(factory_folder))
+        with open(os.path.join(factory_folder, 'ComponentFactory.as'), 'rb') as stream:
+            factory = stream.read().decode('utf-8')
+        self.assertIn('package driftkings.battle.factory', factory)
+        self.assertIn('public class ComponentFactory', factory)
+        self.assertIn('public static function create(host:Object, aliases:Array, surface:String):void', factory)
+        self.assertIn('ComponentCatalog.classes(surface)', factory)
+        self.assertNotIn('function ComponentFactory(', factory)
+        with open(os.path.join(folder, 'driftkingsbattle.as'), 'rb') as stream:
+            root = stream.read().decode('utf-8')
+        self.assertIn('import driftkings.battle.factory.ComponentFactory;', root)
+        self.assertEqual(root.count('ComponentFactory.create('), 2)
+        for surface in ('battle', 'ratings'):
+            self.assertIn('ComponentFactory.create(this, aliases, "' + surface + '")', root)
+        for value in (factory, root):
+            self.assertIsNone(re.search(r'\b(componentfactory|componentcatalog)\b', value))
+
     def test_daapi_methods_still_exist_in_the_preserved_as3_sources(self):
         methods = set()
         for folder, dirs, files in os.walk(os.path.join(ROOT, 'flash_source', 'battle', 'src')):

@@ -7,7 +7,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = 'mod/res/scripts/client/driftkings/interface_catalog.py'
-AS3 = 'flash_source/battle/src/driftkings/battle/factory/componentcatalog.as'
+AS3 = 'flash_source/battle/src/driftkings/battle/factory/ComponentCatalog.as'
 BOOTSTRAP = 'mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js'
 START, END = '    /* GENERATED CATALOG START */', '    /* GENERATED CATALOG END */'
 PREFIX = 'coui://gui/gameface/mods/driftkings/'
@@ -122,7 +122,7 @@ package driftkings.battle.factory
 {
 %s
 
-    public class componentcatalog
+    public class ComponentCatalog
     {
         public static function classes(surface:String):Object
         {

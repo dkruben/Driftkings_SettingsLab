@@ -4,7 +4,7 @@ package driftkings.battle.components.ratings
     import flash.display.DisplayObjectContainer;
     import flash.utils.Dictionary;
     import flash.utils.getTimer;
-    public class panelrenderer
+    public class PanelRenderer
     {
         private var common:nativestate;
         public var widths:Array = [0,0];
@@ -20,7 +20,7 @@ package driftkings.battle.components.ratings
         private var items:panelitems=new panelitems();
         private var rowCache:Dictionary=new Dictionary(true);
 
-        public function panelrenderer(s:nativestate)
+        public function PanelRenderer(s:nativestate)
         {
             common=s;
         }
@@ -28,7 +28,7 @@ package driftkings.battle.components.ratings
         {
             matched=drawn=reused=0;
             measuredWidths=[0,0];
-            for each (var record:panelrow in rowCache)
+            for each (var record:PanelRow in rowCache)
                 record.used=false;
         }
         public function end():void
@@ -52,7 +52,7 @@ package driftkings.battle.components.ratings
         // which the frame's common state would otherwise restore as unused.
         public function keep(panel:Object, payload:Object):void
         {
-            for each (var record:panelrow in rowCache) record.used=true;
+            for each (var record:PanelRow in rowCache) record.used=true;
             measuredWidths=widths.concat();
             matched=lastMatched;
             for each (var invite:Object in invites) drawInvite(invite.target,invite.cfg,invite.left);
@@ -124,7 +124,7 @@ package driftkings.battle.components.ratings
                 }
                 for each (entry in entries)
                 {
-                    var record:panelrow=entry.record;
+                    var record:PanelRow=entry.record;
                     // A wider nickname changes the shared column, so layout
                     // must also refresh otherwise unchanged members of this team.
                     if (!record.dirty && record.maxNick!==maxNick) record.prepare(entry.item,entry.cfg,side);
@@ -161,8 +161,8 @@ package driftkings.battle.components.ratings
             {
                 var item:Object=found[itemIndex];
                 if (!panelhook.hooked(item)) hooked=false;
-                var record:panelrow=rowCache[item];
-                if (!record) rowCache[item]=record=new panelrow(now,itemIndex+(left ? 0 : 5));
+                var record:PanelRow=rowCache[item];
+                if (!record) rowCache[item]=record=new PanelRow(now,itemIndex+(left ? 0 : 5));
                 // Hooked rows carry their vehicle; others are matched by name, then position.
                 var row:Object=rowlookup.byVehicle(rows,"dkVehicleID" in item ? item.dkVehicleID : NaN,left) ||
                     rowlookup.find(rows,itemIndex,left,record.state.originalText(item.playerNameFullTF));
@@ -197,7 +197,7 @@ package driftkings.battle.components.ratings
         private function drawRow(entry:Object,globals:Object,left:Boolean,side:String,maxNick:Number):void
         {
             var item:Object=entry.item, cfg:Object=entry.cfg, row:Object=entry.row;
-            var record:panelrow=entry.record, state:nativestate=record.state;
+            var record:PanelRow=entry.record, state:nativestate=record.state;
             var last:Number=layoutColumns(item,cfg,state,left,side,maxNick);
             var squadSpace:Number=cfg.removeSquadIcon ? 0 : 25;
             state.setValue(item,"x",-last+(left ? squadSpace : -squadSpace));

@@ -4,7 +4,7 @@ package driftkings.battle.base
 	import net.wg.gui.battle.components.BattleUIDisplayable;
 	import net.wg.gui.battle.views.BaseBattlePage;
 
-	public class battledisplayable extends BattleUIDisplayable
+	public class BattleDisplayable extends BattleUIDisplayable
 	{
 		public var battlePage:BaseBattlePage;
 
@@ -44,7 +44,7 @@ package driftkings.battle.base
 			super.visible = requestedVisible && hudVisible && nativeVisible;
 		}
 
-		public function battledisplayable()
+		public function BattleDisplayable()
 		{
 			super();
 		}

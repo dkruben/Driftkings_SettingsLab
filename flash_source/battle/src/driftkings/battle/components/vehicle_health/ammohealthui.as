@@ -1,5 +1,5 @@
 package driftkings.battle.components.vehicle_health {
-import driftkings.battle.base.battledisplayable;
+import driftkings.battle.base.BattleDisplayable;
 import driftkings.utils.colorutils;
 import flash.display.Shape;
 import flash.text.TextField;
@@ -10,7 +10,7 @@ import scaleform.gfx.TextFieldEx;
 
 // Owned and disposed by the page's DAAPI registry; visually parented to the native
 // panel so its transforms, animations, visibility and UI scale are inherited.
-public class ammohealthui extends battledisplayable {
+public class ammohealthui extends BattleDisplayable {
     private var panel:ConsumablesPanel;
     private var art:Shape = new Shape();
     private var label:TextField = new TextField();
