@@ -3,9 +3,11 @@
 // feature itself, once and in order, and each unchanged renderer finds its own card through subViews
 // without the OpenWG bootstrap. All nine HUD cards live in the same document, independently.
 var assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
+var createScheduler = require('../../support/frontend/deterministic_scheduler');
 var base = path.join(__dirname, '../../../mod/res/gui/gameface/mods/driftkings');
 var prefix = 'coui://gui/gameface/mods/driftkings/';
-var html = fs.readFileSync(path.join(base, 'battle_statistics/model.html'), 'utf8');
+var html = fs.readFileSync(path.join(base, 'battle_hud/window.html'), 'utf8');
+assert.strictEqual(html, fs.readFileSync(path.join(base, 'battle_statistics/model.html'), 'utf8'));
 function urls(pattern) { var result = [], match; while ((match = pattern.exec(html))) { result.push(match[1]); } return result; }
 var scripts = urls(/<script src="([^"]+)"><\/script>/g), styles = urls(/<link rel="stylesheet" href="([^"]+)">/g);
 // The same assets as the interface catalog entries: the host feature first, then the others, no repeats.
@@ -31,7 +33,7 @@ assert.deepStrictEqual(scripts.slice(0, 6), union(strengthSpec.scripts, healthSp
 var bootstrap = fs.readFileSync(path.join(base, 'shared/bootstrap.js'), 'utf8');
 var features = JSON.parse(bootstrap.split('/* GENERATED CATALOG START */')[1].split('/* GENERATED CATALOG END */')[0]
     .replace(/^\s*var features = /, '').replace(/;\s*$/, ''));
-assert.strictEqual(Object.keys(features).length, 6);
+assert.strictEqual(Object.keys(features).length, 0);
 names.forEach(function (name) { assert.strictEqual(features[name], undefined, name + ' has no OpenWG entry'); });
 function disposeAll(page) {
     names.forEach(function (name) { var owner = page.window[feature(name).owner]; if (owner) { owner.dispose(); } });
@@ -46,12 +48,17 @@ assert.ok(!/bootstrap\.js|openwg|ModInject/i.test(html.replace(/<!--[\s\S]*?-->/
 assert.ok(/pointer-events:\s*none/.test(html) && /background:\s*transparent/.test(html), 'the empty document must not cover or capture the battle');
 
 function target() {
-    return {handlers: {}, addEventListener: function (name, fn) {
-        (this.handlers[name] || (this.handlers[name] = [])).push(fn);
-    }, removeEventListener: function (name, fn) {
-        this.handlers[name] = (this.handlers[name] || []).filter(function (item) { return item !== fn; });
+    return {handlers: {}, addEventListener: function (name, fn, capture) {
+        var entries = this.handlers[name] || (this.handlers[name] = []);
+        if (!entries.some(function (entry) { return entry.fn === fn && entry.capture === !!capture; })) {
+            entries.push({fn: fn, capture: !!capture});
+        }
+    }, removeEventListener: function (name, fn, capture) {
+        this.handlers[name] = (this.handlers[name] || []).filter(function (entry) {
+            return entry.fn !== fn || entry.capture !== !!capture;
+        });
     }, fire: function (name, event) {
-        (this.handlers[name] || []).slice().forEach(function (fn) { fn(event); });
+        (this.handlers[name] || []).slice().forEach(function (entry) { entry.fn(event); });
     }, count: function () {
         var self = this; return Object.keys(self.handlers).reduce(function (total, name) { return total + self.handlers[name].length; }, 0);
     }};
@@ -87,24 +94,36 @@ function element(tag) {
     };
     return node;
 }
-function documentContext(models) {
-    var document = target(), window = target(), engine = target(), queue = [], callbacks = [];
+function documentContext(models, options) {
+    options = options || {};
+    var document = target(), window = target(), engine = target(), scheduler = createScheduler();
+    var callbacks = [], removals = [], waiting = [], scheduledFrames = [], ready = options.ready !== false;
     document.body = element('body'); document.documentElement = element('html'); document.createElement = element;
     window.innerWidth = 1920; window.innerHeight = 1080;
     window.getComputedStyle = function () { return {fontSize: '2px'}; };
     window.subViews = {ids: function () { return Object.keys(models).map(Number); }, get: function (id) { return {model: models[id]}; }};
-    engine.whenReady = {then: function (fn) { fn(); }}; engine.on = engine.addEventListener; engine.off = engine.removeEventListener;
-    var context = vm.createContext({window: window, document: document, engine: engine, Date: Date,
+    engine.whenReady = {then: function (fn) { if (ready) { fn(); } else { waiting.push(fn); } }};
+    engine.on = engine.addEventListener; engine.off = engine.removeEventListener;
+    function requestFrame(callback) {
+        var id = scheduler.requestAnimationFrame(callback);
+        scheduledFrames.push({id: id, callback: callback});
+        return id;
+    }
+    window.requestAnimationFrame = requestFrame; window.cancelAnimationFrame = scheduler.cancelAnimationFrame;
+    var context = vm.createContext({window: window, document: document, engine: engine, Date: {now: scheduler.now},
         viewEnv: {addDataChangedCallback: function (name, id) { callbacks.push(id); return callbacks.length; },
-                  removeDataChangedCallback: function (id) { callbacks[id - 1] = null; }},
-        setTimeout: function (fn) { queue.push(fn); return queue.length; }, clearTimeout: function () { queue = []; },
-        requestAnimationFrame: function (fn) { queue.push(fn); return queue.length; }});
-    return {document: document, window: window, engine: engine, callbacks: callbacks,
-        flush: function () { while (queue.length) { queue.shift()(); } },
-        // Classic scripts of the document, executed in document order.
-        loadDocument: function () {
-            scripts.forEach(function (url) { vm.runInContext(fs.readFileSync(path.join(base, url.slice(prefix.length)), 'utf8'), context); });
-            this.flush();
+                  removeDataChangedCallback: function (id) { removals.push(id); callbacks[id - 1] = null; }},
+        setTimeout: scheduler.setTimeout, clearTimeout: scheduler.clearTimeout,
+        requestAnimationFrame: requestFrame, cancelAnimationFrame: scheduler.cancelAnimationFrame});
+    function loadScript(url) {
+        vm.runInContext(fs.readFileSync(path.join(base, url.slice(prefix.length)), 'utf8'), context);
+    }
+    return {document: document, window: window, engine: engine, callbacks: callbacks, removals: removals,
+        scheduler: scheduler, scheduledFrames: scheduledFrames, flush: scheduler.flush, loadScript: loadScript,
+        ready: function () { ready = true; waiting.splice(0).forEach(function (fn) { fn(); }); },
+        loadDocument: function (flush) {
+            scripts.forEach(loadScript);
+            if (flush !== false) { scheduler.flush(); }
         }};
 }
 
@@ -255,3 +274,224 @@ assert.strictEqual(together.document.count(), 0);
 assert.strictEqual(together.window.count(), 0);
 assert.strictEqual(together.engine.count(), 0);
 console.log('Shared own battle window: nine independent renderers, payloads, drag, visibility, deduplication and teardown passed');
+
+var characterizationCount = 0;
+function characterize(label, check) {
+    check(); characterizationCount++;
+    console.log('Lifecycle regression PASS: ' + label);
+}
+function card(name, visible) {
+    return {DriftkingsUI: {name: name}, payload: JSON.stringify({text: name, percent: 0.5,
+        style: {size: 16}, config: {visible: !!visible, draggable: false, locked: false,
+            x: 30, y: 40, alignX: 'left', alignY: 'top'}}), onSavePosition: function () {}};
+}
+function liveOwners(context) {
+    return names.filter(function (name) { return !!context.window[feature(name).owner]; });
+}
+
+characterize('cancelling one pending owner leaves all other timers and models intact', function () {
+    var models = {};
+    names.forEach(function (name, index) { models[100 + index] = card(name, false); });
+    var context = documentContext(models);
+    context.loadDocument(false);
+    assert.strictEqual(context.scheduler.pending().timers.length, 9);
+    context.window.__dkTeamStrength.dispose();
+    assert.strictEqual(context.scheduler.pending().timers.length, 8);
+    context.flush();
+    assert.strictEqual(context.callbacks.filter(Boolean).length, 8);
+    disposeAll(context);
+    assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+});
+
+characterize('same resource with a new model releases the old callback and rebinds once', function () {
+    var models = {42: card('DriftkingsTeamStrength', true)}, context = documentContext(models);
+    context.loadDocument();
+    var original = models[42], owner = context.window.__dkTeamStrength;
+    var staleNotification = context.engine.handlers['viewEnv.onDataChanged'][0].fn;
+    models[42] = card('DriftkingsTeamStrength', true);
+    context.engine.fire('subViews.onAdded'); context.flush();
+    assert.deepStrictEqual(context.callbacks, [null, 42]);
+    assert.deepStrictEqual(context.removals, [1]);
+    assert.strictEqual(context.window.__dkTeamStrength, owner);
+    delete models[42]; context.engine.fire('subViews.onRemoved'); context.flush();
+    assert.deepStrictEqual(context.callbacks, [null, null]);
+    assert.strictEqual(context.document.body.children[0].style.display, 'none');
+    owner.dispose();
+    original.payload = JSON.stringify({text: 'stale', config: {visible: true}});
+    staleNotification();
+    assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+    assert.strictEqual(context.document.body.children.some(function (root) {
+        return root.className === 'dk-screen-text dk-screen-text--strength';
+    }), false);
+    disposeAll(context);
+});
+
+characterize('explicit disposal before engine readiness cannot register late listeners', function () {
+    var context = documentContext({}, {ready: false});
+    context.loadDocument(false); disposeAll(context); context.ready();
+    assert.strictEqual(context.document.body.children.length, 0);
+    assert.strictEqual(context.engine.count(), 0);
+    assert.strictEqual(context.document.count(), 0);
+    assert.strictEqual(context.window.count(), 0);
+    assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+});
+
+characterize('G2 owner cleanup includes every reticle', function () {
+    var context = documentContext({});
+    context.loadDocument(); disposeAll(context); disposeAll(context);
+    assert.deepStrictEqual(liveOwners(context), []);
+    assert.strictEqual(context.document.count(), 0);
+    assert.strictEqual(context.window.count(), 0);
+});
+
+characterize('G2 unload follows the full cleanup path for every reticle', function () {
+    var models = {};
+    names.forEach(function (name, index) { models[index] = card(name, false); });
+    var context = documentContext(models);
+    context.loadDocument(); context.window.fire('unload'); context.window.fire('unload');
+    assert.strictEqual(context.engine.count(), 0);
+    assert.strictEqual(context.window.count(), 0);
+    assert.strictEqual(context.callbacks.filter(Boolean).length, 0);
+    assert.strictEqual(context.document.body.children.length, 0);
+    assert.strictEqual(context.document.count(), 0, 'all six extra reticle listeners are removed');
+    assert.deepStrictEqual(liveOwners(context), []);
+    disposeAll(context);
+    assert.strictEqual(context.document.count(), 0);
+});
+
+[
+    'DriftkingsTeamStrength', 'DriftkingsOwnHealth', 'DriftkingsAimingCountdown'
+].forEach(function (name) {
+    characterize('G2 cancelled stale frame stays inert: ' + name, function () {
+        var context = documentContext({42: card(name, true)});
+        context.loadDocument(false); context.scheduler.runTimers();
+        assert.strictEqual(context.scheduler.pending().frames.length, 1);
+        var root = context.document.body.children[names.indexOf(name)];
+        disposeAll(context);
+        assert.strictEqual(root.parentNode, null);
+        assert.strictEqual(context.scheduler.pending().frames.length, 0, 'owner frame cancelled');
+        root.style.left = 'detached sentinel';
+        context.scheduler.frame();
+        context.scheduledFrames[0].callback(); // even an already-delivered stale callback must be inert
+        assert.strictEqual(root.style.left, 'detached sentinel');
+        assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+    });
+});
+
+characterize('G2 unload before engine readiness prevents late registration', function () {
+    var context = documentContext({}, {ready: false});
+    context.loadDocument(false); context.window.fire('unload');
+    assert.strictEqual(context.document.body.children.length, 0);
+    assert.deepStrictEqual(liveOwners(context), []);
+    assert.strictEqual(context.document.count(), 0);
+    context.ready();
+    assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+    assert.strictEqual(context.engine.count(), 0);
+    assert.strictEqual(context.window.count(), 0);
+    disposeAll(context);
+});
+
+characterize('old owner notifications stay inert after a new renderer generation is installed', function () {
+    var context = documentContext({42: card('DriftkingsTeamStrength', false)});
+    context.loadDocument();
+    var previous = context.window.__dkTeamStrength;
+    var oldNotification = context.engine.handlers['viewEnv.onDataChanged'][0].fn;
+    context.loadScript(prefix + 'battle_statistics/battle_statistics.js'); context.flush();
+    var replacement = context.window.__dkTeamStrength;
+    assert.notStrictEqual(previous, replacement);
+    previous.dispose(); oldNotification();
+    assert.strictEqual(context.window.__dkTeamStrength, replacement);
+    assert.strictEqual(context.document.body.children.length, 9);
+    assert.strictEqual(context.callbacks.filter(Boolean).length, 1);
+    context.window.fire('unload'); disposeAll(context);
+    assert.strictEqual(context.engine.count(), 0);
+    var reopened = documentContext({42: card('DriftkingsTeamStrength', false)});
+    reopened.loadDocument();
+    assert.strictEqual(reopened.document.body.children.length, 9);
+    assert.strictEqual(reopened.callbacks.filter(Boolean).length, 1);
+    assert.strictEqual(reopened.engine.count(), 27, 'three subscriptions per new renderer, no previous-context handlers');
+    disposeAll(reopened);
+});
+
+characterize('G2 frame cancellation is isolated to its owner', function () {
+    var context = documentContext({42: card('DriftkingsTeamStrength', true),
+        43: card('DriftkingsOwnHealth', true), 44: card('DriftkingsAimingCountdown', true)});
+    context.loadDocument(false); context.scheduler.runTimers();
+    assert.strictEqual(context.scheduler.pending().frames.length, 3);
+    var root = context.document.body.children[0], health = context.document.body.children[1];
+    var stale = context.scheduledFrames[0].callback;
+    context.window.__dkTeamStrength.dispose();
+    assert.strictEqual(context.scheduler.pending().frames.length, 2);
+    root.style.left = 'retired'; health.style.left = 'healthy';
+    stale(); context.scheduler.frame();
+    assert.strictEqual(root.style.left, 'retired');
+    assert.notStrictEqual(health.style.left, 'healthy', 'another owner still receives its layout frame');
+    disposeAll(context);
+    assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+});
+
+characterize('G2 model replacement/removal invalidates an old frame even before the update timer runs', function () {
+    var models = {42: card('DriftkingsTeamStrength', true)}, context = documentContext(models);
+    context.loadDocument(false); context.scheduler.runTimers();
+    var root = context.document.body.children[0];
+    models[42] = card('DriftkingsTeamStrength', true);
+    context.engine.fire('subViews.onAdded');
+    root.style.left = 'replacement pending'; context.scheduler.frame();
+    assert.strictEqual(root.style.left, 'replacement pending');
+    context.scheduler.runTimers();
+    assert.strictEqual(context.callbacks.filter(Boolean).length, 1);
+    assert.strictEqual(context.scheduler.pending().frames.length, 1, 'one frame belongs to the rebound model');
+    var previousFrame = context.scheduledFrames[context.scheduledFrames.length - 1];
+    models[42] = card('DriftkingsTeamStrength', true);
+    context.engine.fire('subViews.onAdded'); context.scheduler.runTimers();
+    assert.strictEqual(context.scheduler.pending().frames.length, 1);
+    assert.notStrictEqual(context.scheduler.pending().frames[0], previousFrame.id, 'rebind cancels the old frame ID');
+    root.style.left = 'old generation'; previousFrame.callback();
+    assert.strictEqual(root.style.left, 'old generation');
+    delete models[42]; context.engine.fire('subViews.onRemoved');
+    root.style.left = 'removal pending'; context.scheduler.frame();
+    assert.strictEqual(root.style.left, 'removal pending');
+    context.flush();
+    assert.strictEqual(context.scheduler.pending().frames.length, 0);
+    assert.strictEqual(context.callbacks.filter(Boolean).length, 0);
+    disposeAll(context);
+});
+
+characterize('G2 stable owner identity survives an external dispose wrapper', function () {
+    var context = documentContext({});
+    context.loadDocument();
+    var owner = context.window.__dkTeamStrength, original = owner.dispose, calls = 0;
+    owner.dispose = function () { calls++; original(); };
+    owner.dispose(); owner.dispose();
+    assert.strictEqual(calls, 2);
+    assert.strictEqual(context.window.__dkTeamStrength, undefined);
+    disposeAll(context);
+    assert.strictEqual(context.document.count(), 0);
+});
+
+characterize('G2 replacing every renderer leaves one owner and listener set per card', function () {
+    var models = {};
+    names.forEach(function (name, index) { models[100 + index] = card(name, false); });
+    var context = documentContext(models);
+    context.loadDocument();
+    var listeners = context.document.count();
+    names.forEach(function (name) {
+        var previous = context.window[feature(name).owner];
+        context.loadScript(feature(name).scripts.slice(-1)[0]); context.flush();
+        var replacement = context.window[feature(name).owner];
+        assert.notStrictEqual(previous, replacement);
+        previous.dispose();
+        assert.strictEqual(context.window[feature(name).owner], replacement);
+        assert.strictEqual(context.document.body.children.length, 9);
+        assert.strictEqual(context.engine.count(), 27);
+        assert.strictEqual(context.document.count(), listeners);
+        assert.strictEqual(context.callbacks.filter(Boolean).length, 9);
+    });
+    context.window.fire('unload'); context.window.fire('unload');
+    assert.deepStrictEqual(liveOwners(context), []);
+    assert.strictEqual(context.document.count(), 0);
+    assert.strictEqual(context.engine.count(), 0);
+    assert.deepStrictEqual(context.scheduler.pending(), {timers: [], frames: []});
+});
+
+console.log('G2 lifecycle regressions: ' + characterizationCount + '; no pending JavaScript defect markers');

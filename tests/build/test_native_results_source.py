@@ -26,13 +26,13 @@ class NativeResultsSourceTests(unittest.TestCase):
         previous = baseline('native_carousel')['catalog']
         current = read_catalog()['GAMEFACE']
         self.assertEqual(changed_catalog_entries('native_carousel', current),
-                         ['DriftkingsOwnHealth', 'DriftkingsAimingCountdown', 'DriftkingsFlightTime', 'DriftkingsPenetration', 'DriftkingsBattleEfficiency', 'DriftkingsTeamStrength', 'DriftkingsTargetInformation', 'DriftkingsMainGun', 'driftkingsbattleEfficiency', 'DriftkingsMarksOnGunBattle'])
+                         ['DriftkingsFooterLauncher', 'DriftkingsProfileRatings', 'DriftkingsOwnHealth', 'DriftkingsAimingCountdown', 'DriftkingsFlightTime', 'DriftkingsPenetration', 'DriftkingsBattleEfficiency', 'DriftkingsTeamStrength', 'DriftkingsTargetInformation', 'DriftkingsMainGun', 'DriftkingsCrewDetails', 'driftkingsbattleEfficiency', 'DriftkingsHangarHeaderOptions', 'DriftkingsMarksOnGunBattle', 'DriftkingsMarksOnGunTechTree', 'DriftkingsRatingPlayers'])
         hud = dict(current['DriftkingsBattleEfficiency'])
         self.assertEqual(hud.pop('transport'), 'own_window')
         self.assertEqual(json_hash(hud), previous['DriftkingsBattleEfficiency'])
         counts = validate()
         # All nine battle HUD cards moved to the own battle window (transport 'own_window').
-        self.assertEqual((counts['native'], counts['injected']), (14, 6))
+        self.assertEqual((counts['native'], counts['injected']), (20, 0))
 
     def test_package_plan_contains_source_assets_and_exact_target_once(self):
         plan = build_plan(ROOT)

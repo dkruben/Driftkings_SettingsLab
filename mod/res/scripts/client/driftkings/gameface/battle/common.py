@@ -23,10 +23,14 @@ class BattleCardAdapter(object):
         self.hudVisible = True
         self.views = weakref.WeakKeyDictionary()
         self.installed = False
+        self._disposed = False
+        self._disposeFailures = []
 
     def install(self):
         if self.installed:
             return
+        self._disposed = False
+        self._disposeFailures = []
         from gui.impl.battle.random.hud import RandomHUDView
         from gui.impl.pub.view_component import ViewComponent
         from gui.shared import EVENT_BUS_SCOPE, events
@@ -138,15 +142,55 @@ class BattleCardAdapter(object):
         pass
 
     def dispose(self):
-        self.beforeDispose()
-        self.disconnectSignals()
-        resource = self.resourceID()
-        for parent, child in list(self.views.items()):
-            if parent.getChildView(resource) is child:
-                child.setEnabled(False)
-                child.destroy()
-        self.views.clear()
-        self.installed = False
+        if self._disposed:
+            return
+        self._disposed = True
+
+        def failed(phase, child=None):
+            # Retiring our references does not confirm that a failed resource was released.
+            self._disposeFailures.append(phase)
+            self.log.exception('%s cleanup failed at %s (child=%r); release not confirmed',
+                               self.title, phase, child)
+
+        try:
+            try:
+                self.beforeDispose()
+            except Exception:
+                failed('beforeDispose')
+            try:
+                self.disconnectSignals()
+            except Exception:
+                failed('disconnectSignals')
+            resource = None
+            try:
+                resource = self.resourceID()
+            except Exception:
+                failed('resourceID')
+            for parent, child in list(self.views.items()):
+                if resource is None or resource == -1:
+                    self._disposeFailures.append('child.ownership')
+                    self.log.warning('%s cannot verify child ownership; release not confirmed (child=%r)',
+                                     self.title, child)
+                    continue
+                try:
+                    current = parent.getChildView(resource)
+                except Exception:
+                    failed('child.ownership', child)
+                    continue
+                if current is not child:
+                    continue
+                try:
+                    child.setEnabled(False)
+                except Exception:
+                    failed('child.setEnabled', child)
+                try:
+                    child.destroy()
+                except Exception:
+                    failed('child.destroy', child)
+        finally:
+            self.views.clear()
+            self.installed = False
+            self.active = False
 
     def resourceID(self):
         from driftkings.gameface.core import resource_id

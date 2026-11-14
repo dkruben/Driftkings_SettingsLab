@@ -84,7 +84,7 @@ class NativeCrewRuntimeTests(RuntimeTest):
         self.settings['showCrewProgression'] = False
         controller.onSettingsChanged(None, {})
         self.assertEqual(json.loads(child.model.fields['payload']), {'config': {'visible': False}, 'rows': []})
-        # Install and exercise the PROTECTED actual CrewDetails implementation, still OpenWG.
+        # Install and exercise the actual CrewDetails implementation, now loaded by its native documents.
         details = source('gameface/lobby/crew_details.py', {
             'gui.shared.personality': module(ServicesLocator=module(itemsCache=self.cache)),
             'driftkings._constants': self.constants,
@@ -108,7 +108,7 @@ class NativeCrewRuntimeTests(RuntimeTest):
         tooltip = Tooltip(); self.hooks.get('Tooltip', '_onLoading')(lambda *args: None, tooltip)
         detail = tooltip.children[45]; detail._onLoading()
         self.assertTrue(json.loads(detail.model.fields['payload'])['config']['visible'])
-        self.assertEqual(len(self.injected), 1)  # only CrewDetails; no injection for CrewProgression.
+        self.assertEqual(len(self.injected), 0)  # CrewDetails and CrewProgression both avoid injection.
         child._finalize()
         self.assertIs(controller.views[tooltip], detail)
         controller.onSettingsChanged(None, {})

@@ -74,7 +74,7 @@ class NativeCarouselTests(RuntimeTest):
             if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg':
                 self.core['payload_model'](name)()
         # All nine battle HUD cards moved to the own battle window (transport 'own_window').
-        self.assertEqual(len(self.injected), 6)
+        self.assertEqual(len(self.injected), 0)
 
     def adapter(self):
         hooks, installed, builds = Hooks(), [], []

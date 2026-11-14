@@ -107,6 +107,6 @@ class HalloweenRosterTests(RuntimeTest):
             payload = harness.tick()
             self.assertEqual((payload['enabled'], payload['rows']), (False, []))
         self.assertEqual(len(harness.sent), 1)
-        # Only the TAB table receives the allies.
-        self.assertEqual([len(rows) for enabled, rows in harness.gameface], [6, 6, 6])
+        # Seasonal RatingPlayers TAB is disabled; neither presentation receives rows.
+        self.assertEqual(harness.gameface, [(False, []), (False, []), (False, [])])
         self.assertNotIn('medium2', [payload['mode'] for payload in harness.sent])

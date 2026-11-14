@@ -34,7 +34,7 @@
         "mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html": "2b2cb95c36b17849b24bbac43f7ce3e1e25c04435f95ed1e3a1c8984a4f139a5",
         "mod/res/gui/gameface/mods/driftkings/main/clock.js": "dd7d3424ff8587ece62f07cf5712471b18c83068d7c5e0ffe387ef0d28e71d41",
         "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js": "f77c15cf735991a02982a13be65c253de71d65cdb20a281e29cd373a1afbe64f",
-        "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js": "fc2e10b74d5899c98551a355e90b975436d6f84ba83f9aa5199bcbb4a82f60af",
+        "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js": "042a35d9ff65c67651fd242e4819d05311ff638204fe692a0c0de1da5edd9b93",
         "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
         "mod/res/scripts/client/driftkings/lobby/hangar_marks_of_excellence.py": "2c7cfc24b9d0d4ba04b64c67d094f4844c4a2769cf1b6827e83f9dc6a2074c2d"
       },
@@ -139,6 +139,17 @@
         "mod/res/scripts/client/driftkings/lobby/crew_progression.py": "f20f92f0fc6fd3f2c5c65224743ce6d1a0fdb4a317ddf9a8da20977123329388",
         "mod/res/scripts/client/driftkings/views/crew_progression_model.py": "480c80b359c1274519bd009a8855bcb04a3f0f05d0e49fb320f54cad4b141a72"
       }
+    }
+  },
+  "approved_revisions": {
+    "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js": {
+      "baselines": [
+        "native_clock"
+      ],
+      "historical_sha256": "fc2e10b74d5899c98551a355e90b975436d6f84ba83f9aa5199bcbb4a82f60af",
+      "approved_sha256": "042a35d9ff65c67651fd242e4819d05311ff638204fe692a0c0de1da5edd9b93",
+      "approved": "2026-11-13 F6-G5.1",
+      "reason": "Phase 3 G2 JavaScript cleanup (accepted): K.connect owner is a stable bridge object compared by identity; optional seventh lifecycle argument (afterLayout, dispose); second-measure frame owned per instance with generation, owner, subview and payload guards and cancellation; unload registered when the owner is created. No other change against the historical file."
     }
   },
   "description": "Historical baselines for the native plugin migration tests. Each value was derived once from the named commit; tests compare against this file and never call git. Text hashes are SHA-256 of the UTF-8 bytes with CRLF normalised to LF. Catalog/config hashes are SHA-256 of canonical JSON (sorted keys, compact separators, ASCII). 'format_only_revisions' is a separate, current reference: for a protected file that changed in layout or import order only, it keeps the exact historical source (which must still hash to the baseline value), the exact hash of the revised file and the reason. Tests accept such a file only when its normalized syntax tree equals the historical one; baseline hashes are never rewritten.",

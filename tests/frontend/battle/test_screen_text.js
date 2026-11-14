@@ -1,6 +1,7 @@
 'use strict';
 // Texts at a fixed place on the screen: settings position and style, Flash runs, dragged with Ctrl.
 var assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
+var createScheduler = require('../../support/frontend/deterministic_scheduler');
 function target() {
     return {handlers: {}, addEventListener: function (name, fn) {
         (this.handlers[name] || (this.handlers[name] = [])).push(fn);
@@ -47,18 +48,18 @@ document.body = element('body'); document.documentElement = element('html'); doc
 var window = target();
 window.innerWidth = 1920; window.innerHeight = 1080;
 window.getComputedStyle = function () { return {fontSize: '2px'}; };
-var queue = [], saved = [];
+var scheduler = createScheduler(), saved = [];
 var model = {payload: '{}', DriftkingsUI: {name: 'DriftkingsBattleEfficiency'}, onSavePosition: function (value) { saved.push(value); }};
 window.subViews = {ids: function () { return [42]; }, get: function () { return {model: model}; }};
 var engine = target();
 engine.whenReady = {then: function (fn) { fn(); }}; engine.on = engine.addEventListener; engine.off = engine.removeEventListener;
 var context = vm.createContext({window: window, document: document, engine: engine, Date: Date,
     viewEnv: {addDataChangedCallback: function () { return 7; }, removeDataChangedCallback: function () {}},
-    setTimeout: function (fn) { queue.push(fn); return queue.length; }, clearTimeout: function () { queue = []; },
-    requestAnimationFrame: function (fn) { queue.push(fn); return queue.length; }});
+    setTimeout: scheduler.setTimeout, clearTimeout: scheduler.clearTimeout,
+    requestAnimationFrame: scheduler.requestAnimationFrame, cancelAnimationFrame: scheduler.cancelAnimationFrame});
 var base = path.join(__dirname, '../../../mod/res/gui/gameface/mods/driftkings');
 function load(relative) { vm.runInContext(fs.readFileSync(path.join(base, relative), 'utf8'), context); }
-function flush() { while (queue.length) { queue.shift()(); } }
+function flush() { scheduler.flush(); }
 load('shared/marks_panel.js'); load('shared/flash_lines.js'); load('shared/screen_text.js'); load('battle_performance_hud/battle_performance_hud.js'); flush();
 var root = document.body.firstChild, content = root.children[0];
 assert.strictEqual(root.className, 'dk-screen-text dk-screen-text--efficiency');

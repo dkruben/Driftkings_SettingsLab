@@ -198,14 +198,6 @@ class RatingViews(object):
         adapter=self.modeAdapter()
         return adapter.tab if adapter is not None else None
 
-    def summary(self,values,data,enabled):
-        # Halloween TAB: a fixed allies table drawn beside the native one.
-        result=dict((key,values.get(key)) for key in ('r','c:r','winrate','c:winrate','battles','c:battles'))
-        result.update({'enabled':bool(enabled),'name':values['name'],'clan':values['clannb'],
-                       'vehicle':values['vehicle-short'],'alive':bool(values['alive']),'self':bool(values['player']),
-                       'stats':bool(values['stat-available']),'rating':data[TEAM_PANELS.RATING]})
-        return result
-
     def classicModes(self):
         # Halloween's HWPlayersPanel inherits the classic hooks without having its modes.
         adapter=self.modeAdapter()
@@ -490,8 +482,6 @@ class RatingViews(object):
                     row[screen]=result
                     rebuilt=rebuilt or changed
                 else: row[screen]={'enabled':False}
-            if adapter is not None and adapter.tab=='halloween' and 'tab' in active:
-                row['summary']=self.summary(values,data,row['tab'].get('enabled',True))
             if rebuilt: self.resolvedRows+=1
             self.rowCache[ident]=(deepcopy(stamp),row)
             rows.append(row)
@@ -527,7 +517,6 @@ class RatingViews(object):
             self.logFailure('Roster'); rows=None
         if rows is not None and hasattr(self,'gameface'):
             try:
-                self.gameface.watch(self.tabKind())
                 self.gameface.update(enabled and self.supports('tab'),rows)
             except Exception:
                 self.logFailure('Gameface roster')

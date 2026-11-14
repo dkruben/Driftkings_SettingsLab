@@ -67,9 +67,7 @@
         }
         function position(element, cfg) {
             K.position(element, cfg);
-            // A new text can still measure empty right after display:block.
-            requestAnimationFrame(function () { K.position(element, cfg); });
         }
-        return K.connect(feature, owner, root, render, position, K.savedPosition);
+        return K.connect(feature, owner, root, render, position, K.savedPosition, {afterLayout: true});
     };
 }());

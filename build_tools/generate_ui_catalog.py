@@ -11,12 +11,18 @@ AS3 = 'flash_source/battle/src/driftkings/battle/factory/componentcatalog.as'
 BOOTSTRAP = 'mod/res/gui/gameface/mods/driftkings/shared/bootstrap.js'
 START, END = '    /* GENERATED CATALOG START */', '    /* GENERATED CATALOG END */'
 PREFIX = 'coui://gui/gameface/mods/driftkings/'
-# Battle cards hosted by the single owned battle window; the host feature's layout is its document
-# (HOST_FEATURE in gameface/battle/own_window.py).
-OWN_WINDOW_HOST = 'DriftkingsTeamStrength'
 OWN_WINDOW_FEATURES = ('DriftkingsTeamStrength', 'DriftkingsOwnHealth', 'DriftkingsBattleEfficiency',
                        'DriftkingsMainGun', 'DriftkingsMarksOnGunBattle', 'DriftkingsTargetInformation',
                        'DriftkingsPenetration', 'DriftkingsFlightTime', 'DriftkingsAimingCountdown')
+NATIVE_DOCUMENT_FEATURES = ('DriftkingsFooterLauncher', 'DriftkingsProfileRatings', 'DriftkingsCrewDetails',
+                            'DriftkingsHangarHeaderOptions', 'DriftkingsMarksOnGunTechTree', 'DriftkingsRatingPlayers')
+
+
+def document_assets(spec):
+    """Classic assets deferred after the native document's scripts, in catalog order."""
+    styles = [PREFIX + 'shared/fonts.css'] + spec['styles']
+    return '\n' + '\n'.join('<link rel="stylesheet" href="%s">' % url for url in dict.fromkeys(styles)) + '\n' + \
+        '\n'.join('<script defer src="%s"></script>' % url for url in spec['scripts']) + '\n'
 
 
 def require(condition, message):
@@ -26,6 +32,9 @@ def require(condition, message):
 
 def read_catalog(root=ROOT):
     tree = ast.parse((Path(root) / SOURCE).read_text(encoding='utf-8'))
+    for mapping in (node for node in ast.walk(tree) if isinstance(node, ast.Dict)):
+        keys = [ast.literal_eval(key) for key in mapping.keys]
+        require(len(keys) == len(set(keys)), 'Duplicate catalog identity or field')
     return {node.targets[0].id: ast.literal_eval(node.value) for node in tree.body
             if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)}
 
@@ -81,10 +90,15 @@ def asset_target(url):
     return 'res/' + relative
 
 
-def own_window_assets(face, kind):
-    """Host first, then selected battle cards in catalog order; shared assets only once."""
-    shared = [OWN_WINDOW_HOST] + [name for name, spec in face.items()
-                                  if spec.get('transport') == 'own_window' and name != OWN_WINDOW_HOST]
+def own_window_assets(face, kind, host=None):
+    """Historical asset priority, then catalog order; independent of the host identity."""
+    host = read_catalog()['BATTLE_HUD_HOST'] if host is None else host
+    priority = list(host['asset_priority'])
+    require(len(priority) == len(set(priority)) and all(
+        name in face and face[name].get('transport') == 'own_window' for name in priority),
+        'Invalid own window asset priority')
+    shared = priority + [name for name, spec in face.items()
+                         if spec.get('transport') == 'own_window' and name not in priority]
     result = [PREFIX + 'shared/fonts.css'] if kind == 'styles' else []
     for name in shared:
         result.extend(url for url in face[name][kind] if url not in result)
@@ -126,7 +140,7 @@ package driftkings.battle.factory
     generated = json.dumps(definitions, ensure_ascii=True, sort_keys=True, indent=4)
     block = START + '\n    var features = ' + generated.replace('\n', '\n    ') + ';\n'
     bootstrap = text[:text.index(START)] + block + text[text.index(END):]
-    host = 'mod/' + asset_target(face[OWN_WINDOW_HOST]['layout'])
+    host = 'mod/' + asset_target(catalog['BATTLE_HUD_HOST']['layout'])
     document = '''<!DOCTYPE html>
 <html><head>
 <meta charset="utf-8">
@@ -136,9 +150,10 @@ package driftkings.battle.factory
 </head><body>
 %s
 </body></html>
-''' % ('\n'.join('<link rel="stylesheet" href="%s">' % url for url in own_window_assets(face, 'styles')),
-       '\n'.join('<script src="%s"></script>' % url for url in own_window_assets(face, 'scripts')))
-    return {AS3: as3, BOOTSTRAP: bootstrap, host: document}
+''' % ('\n'.join('<link rel="stylesheet" href="%s">' % url for url in own_window_assets(face, 'styles', catalog['BATTLE_HUD_HOST'])),
+       '\n'.join('<script src="%s"></script>' % url for url in own_window_assets(face, 'scripts', catalog['BATTLE_HUD_HOST'])))
+    return {AS3: as3, BOOTSTRAP: bootstrap, host: document,
+            'mod/' + asset_target(face['DriftkingsTeamStrength']['layout']): document}
 
 
 def validate(root=ROOT, plan=None):
@@ -182,10 +197,44 @@ def validate(root=ROOT, plan=None):
                     'Invalid UI resource: ' + key)
             resources[key] = entry['path']
             resource_sources[key] = path.relative_to(root / 'mod').as_posix()
-    require(set(resources) == {spec['resource'] for spec in face.values()}, 'R resources and Gameface catalog differ')
+    require(len({spec['resource'] for spec in face.values()}) == len(face),
+            'Duplicate component resource identity')
+    host = data['BATTLE_HUD_HOST']
+    require(set(host) == {'resource', 'layout', 'asset_priority'}, 'Invalid battle HUD host metadata')
+    require(host['resource'] not in {spec['resource'] for spec in face.values()}, 'Host resource collides with a component')
+    require(len(host['resource'].split('/')) == 4 and host['resource'].startswith('mods/driftkings/'),
+            'Invalid battle HUD host resource')
+    require(set(resources) == {spec['resource'] for spec in face.values()} | {host['resource']},
+            'R resources and Gameface catalog differ')
+    require(resources[host['resource']] == host['layout'], 'Wrong battle HUD host layout')
+    require((root / 'mod' / asset_target(host['layout'])).is_file(), 'Missing battle HUD host layout')
     require(len(set(resources.values())) == len(resources), 'Independent UI resources must have distinct layout paths')
-    targets = {item['target'] for item in plan['assets']} if plan is not None else None
+    # Reuse manifest expansion without requiring a compiler build or generated binaries.
+    try:
+        from .components import read_components
+        from .validate_build_data import expand_asset
+    except ImportError:
+        from components import read_components
+        from validate_build_data import expand_asset
+    config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
+    declared_assets = []
+    host_targets = {asset_target(host['layout']), resource_sources[host['resource']]}
+    for manifest in read_components(root, config['components']['source']):
+        for asset in manifest['assets']:
+            for item in expand_asset(root, asset, config['assets']['exclude']):
+                declared_assets.append(item)
+                if item['target'] in host_targets:
+                    require(manifest['id'] == 'ui' and manifest['kind'] == 'shared' and manifest['enabled'],
+                            'Battle HUD host must belong to shared ui manifest')
+    declared_targets = [item['target'] for item in declared_assets]
+    require(len(declared_targets) == len(set(declared_targets)), 'Duplicate manifest target')
+    require(host_targets <= set(declared_targets), 'Battle HUD host is missing from ui manifest')
+    selected_assets = declared_assets if plan is None else plan['assets']
+    selected_targets = [item['target'] for item in selected_assets]
+    require(len(selected_targets) == len(set(selected_targets)), 'Duplicate packaging target')
+    targets = set(selected_targets)
     owners = set()
+    document_owners = set()
     native_ids = set()
     for name, spec in face.items():
         require(spec['section'] in sections, 'Unknown Gameface section: ' + name)
@@ -203,8 +252,28 @@ def validate(root=ROOT, plan=None):
             owners.add(spec['owner'])
             require(spec['scripts'], 'Injected feature has no scripts: ' + name)
         transport = spec.get('transport', 'openwg')
-        require(transport in ('openwg', 'native_user_missions', 'native_battle_results', 'own_window'),
+        require(transport in ('openwg', 'native_user_missions', 'native_battle_results', 'own_window', 'native_document'),
                 'Unknown transport: ' + name)
+        if transport == 'native_document':
+            require(name in NATIVE_DOCUMENT_FEATURES and bool(spec.get('documents')),
+                    'Native document transport requires an approved context and documents: ' + name)
+            config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
+            for document in spec['documents']:
+                require(document.startswith('gui/gameface/_dist/production/') and document.endswith('.html')
+                        and '..' not in document.split('/') and document not in document_owners,
+                        'Invalid or shared native document: ' + document)
+                document_owners.add(document)
+                matches = [item for item in config['generators'].values()
+                           if item.get('resource') == document and item.get('kind') == 'gameface_patch']
+                require(len(matches) == 1, 'Native document must have one pinned generator: ' + document)
+                generator = matches[0]
+                patch = json.loads((root / generator['patch_file']).read_text(encoding='utf-8'))
+                require(patch.get('feature') == name and patch.get('resource') == document
+                        and patch.get('client_build') == '995', 'Native document identity mismatch: ' + document)
+                require(patch['operations'] == [{'find': '</body>', 'replace': document_assets(spec) + '</body>', 'count': 1}],
+                        'Native document assets differ from catalog: ' + document)
+                if targets is not None:
+                    require('res/' + document in targets, 'Native document is not packaged: ' + document)
         if transport == 'own_window':
             require(name in OWN_WINDOW_FEATURES and spec['context'] == 'battle',
                     'Own battle window transport is reserved for battle HUD cards')
@@ -222,13 +291,21 @@ def validate(root=ROOT, plan=None):
             require((root / 'mod' / target).is_file(), 'Missing UI asset: ' + target)
             if targets is not None:
                 require(target in targets, 'UI asset is not packaged: ' + target)
-    # The owned battle window has no OpenWG bootstrap: the layout document of its host feature must load
-    # the assets of every own_window feature itself, once, host first and then catalog order.
-    require(face[OWN_WINDOW_HOST].get('transport') == 'own_window', 'Own battle window host must use own_window')
-    document = (root / 'mod' / asset_target(face[OWN_WINDOW_HOST]['layout'])).read_text(encoding='utf-8')
+    # Check only our owned host; native WoT layouts/resources remain outside this invariant.
+    host_tree = ast.parse((root / 'mod/res/scripts/client/driftkings/gameface/battle/own_window.py').read_text(encoding='utf-8'))
+    opening = next(node for node in host_tree.body if isinstance(node, ast.FunctionDef) and node.name == '_open')
+    resolutions = [node for node in ast.walk(opening) if isinstance(node, ast.Call)
+                   and isinstance(node.func, ast.Name) and node.func.id == 'resource_id']
+    expected_resource = ast.parse("resource_id(BATTLE_HUD_HOST['resource'])", mode='eval').body
+    require(len(resolutions) == 1 and ast.dump(resolutions[0]) == ast.dump(expected_resource),
+            'Battle HUD must select only the neutral root resource')
+    document = (root / 'mod' / asset_target(host['layout'])).read_text(encoding='utf-8')
+    if targets is not None:
+        require(resource_sources[host['resource']] in targets and asset_target(host['layout']) in targets,
+                'Battle HUD host is not packaged')
     for kind, pattern in (('scripts', r'<script src="([^"]+)"></script>'),
                           ('styles', r'<link rel="stylesheet" href="([^"]+)">')):
-        expected = own_window_assets(face, kind)
+        expected = own_window_assets(face, kind, host)
         require(re.findall(pattern, document) == expected,
                 'Own window document must load the catalog %s once, in order' % kind)
     if targets is not None:
@@ -238,9 +315,14 @@ def validate(root=ROOT, plan=None):
     for relative, expected in outputs(root).items():
         require((root / relative).is_file() and (root / relative).read_text(encoding='utf-8') == expected,
                 'Stale generated UI catalog: ' + relative + '; run python build_tools/generate_ui_catalog.py --write')
+    require(len(face) == 22 and sum(spec['owner'] is None for spec in face.values()) == 2
+            and sum(spec.get('transport') == 'own_window' for spec in face.values()) == 9
+            and sum(spec.get('transport') in ('native_user_missions', 'native_battle_results', 'own_window', 'native_document')
+                    for spec in face.values()) == 20,
+            'Gameface component/infrastructure classification differs from 20/0/2')
     return {'flash': len(flash), 'gameface': len(face), 'injected': sum(spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'
                                                                  for spec in face.values()),
-            'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results', 'own_window')
+            'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results', 'own_window', 'native_document')
                           for spec in face.values())}
 
 

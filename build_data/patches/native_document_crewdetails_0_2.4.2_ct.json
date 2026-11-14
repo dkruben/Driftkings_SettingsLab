@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "CT",
+  "client_build": "995",
+  "feature": "DriftkingsCrewDetails",
+  "resource": "gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.html",
+  "source_sha256": "648b12781f90c2eac81bb5503ec63971cff736e45051098a89a73995119008f3",
+  "output_sha256": "3c8f5ad16b4c2a70464c1af1eb867ccd4e3f998f46f90f5dcdffa05c6689f336",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/crew_details/details.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/crew_details/details.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

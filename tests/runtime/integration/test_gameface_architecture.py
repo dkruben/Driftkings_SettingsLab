@@ -141,7 +141,11 @@ class GamefaceArchitectureTests(RuntimeTest):
             'driftkings.interface_catalog': catalog})
         for spec in catalog.GAMEFACE.values():
             self.assertEqual(api['resource_id'](spec['resource']), 42)
-        self.assertRaises(ValueError, api['resource_id'], 'mods/driftkings/missing/model')
+        self.assertEqual(api['resource_id'](catalog.BATTLE_HUD_HOST['resource']), 42)
+        for unknown in ('mods/driftkings/missing/model', 'mods/driftkings/battle_hud/unknown',
+                        'mods/foreign/battle_hud/window', 'gui/native/client/layout',
+                        'mods/driftkings/battle_hud/window/extra'):
+            self.assertRaises(ValueError, api['resource_id'], unknown)
 
     def test_payload_cache_commits_only_after_successful_transaction(self):
         publish = self.load('gameface.payloads').publish_card

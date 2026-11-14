@@ -13,8 +13,12 @@ OWN = (FEATURE, HEALTH, 'DriftkingsBattleEfficiency', 'DriftkingsMainGun', 'Drif
 class OwnBattleWindowTests(RuntimeTest):
     def setUp(self):
         super(OwnBattleWindowTests, self).setUp()
+        self.host_resource = 'mods/driftkings/battle_hud/window'
+        self.host_id = 142
         self.resources = dict((name, 42 + index) for index, name in enumerate(OWN))
+        self.resources[self.host_resource] = self.host_id
         self.logged = []
+        self.settings_signals = []
         self.fail_load = False
         self.fail_feature = None
         test = self
@@ -113,7 +117,8 @@ class OwnBattleWindowTests(RuntimeTest):
                           debug=lambda *args: None)
         self.deps = {
             'driftkings.settings.service': module(settings_service=module(onModSettingsChanged=module(
-                connect=lambda *args: None, disconnect=lambda *args: None))),
+                connect=lambda *args: self.settings_signals.append(('connect', args)),
+                disconnect=lambda *args: self.settings_signals.append(('disconnect', args))))),
             'driftkings.gameface.payloads': module(publish_card=lambda child, payload: self.published.append((child, payload))),
             'gui.impl.battle.random.hud': module(RandomHUDView=Hud),
             'frameworks.wulf': module(ViewModel=Model, WindowFlags=module(WINDOW=1, WINDOW_FULLSCREEN=1024),
@@ -124,7 +129,7 @@ class OwnBattleWindowTests(RuntimeTest):
             'gui.shared': module(events=module(GameEvent=module(GUI_VISIBILITY=1, SHOW_CURSOR=2, HIDE_CURSOR=3)),
                                  EVENT_BUS_SCOPE=module(BATTLE=1, GLOBAL=2)),
             'driftkings.gameface.core': core,
-            'driftkings.interface_catalog': module(gameface_spec=lambda feature: dict(
+            'driftkings.interface_catalog': module(BATTLE_HUD_HOST={'resource': self.host_resource}, gameface_spec=lambda feature: dict(
                 {'resource': feature}, **({'transport': 'own_window'} if feature in OWN else {}))),
             'GUI': module(mcursor=lambda: module(visible=False)),
         }
@@ -191,6 +196,13 @@ class OwnBattleWindowTests(RuntimeTest):
     def sent(self, child):
         return [payload for target, payload in self.published if target is child]
 
+    def test_missing_neutral_resource_never_falls_back_to_feature(self):
+        self.resources[self.host_resource] = -1
+        adapter = self.adapter()
+        hud = self.load_hud()
+        self.assertEqual(self.Window.created, [])
+        self.assertFalse(self.own['_windows'])
+
     def test_other_battle_cards_keep_the_openwg_child(self):
         for feature in (OTHER, 'test'):
             self.Window.created[:] = []
@@ -212,10 +224,14 @@ class OwnBattleWindowTests(RuntimeTest):
         hud = [name for name, spec in catalog.items() if spec['context'] == 'battle' and name not in OWN]
         self.assertEqual(len(hud), 0)
         self.assertTrue(all('transport' not in catalog[name] for name in hud))
-        self.assertNotIn('transport', catalog['DriftkingsRatingPlayers'])
+        self.assertEqual(catalog['DriftkingsRatingPlayers']['transport'], 'native_document')
         self.assertNotEqual(catalog[FEATURE]['resource'], catalog[HEALTH]['resource'])
         self.assertNotEqual(catalog[FEATURE]['owner'], catalog[HEALTH]['owner'])
-        self.assertEqual(self.session()['HOST_FEATURE'], FEATURE)
+        self.session()
+        self.assertNotIn('HOST_FEATURE', self.own)
+        adapter = self.adapter()
+        hud = self.load_hud()
+        self.assertEqual(self.Window.created[-1].content.layoutID, self.host_id)
         # No environment switch remains in the client sources.
         base = os.path.join(os.path.dirname(os.path.abspath(self.load('interface_catalog').__file__)), 'gameface', 'battle')
         for name in ('common.py', 'own_window.py'):
@@ -228,7 +244,7 @@ class OwnBattleWindowTests(RuntimeTest):
         self.load_hud(hud)
         self.assertEqual(len(self.Window.created), 1)
         window = self.Window.created[0]
-        self.assertEqual(sorted(window.content.children), sorted(self.resources.values()))
+        self.assertEqual(sorted(window.content.children), sorted(self.resources[name] for name in OWN))
         children = [window.content.children[self.resources[feature]] for feature in OWN]
         self.assertEqual(len(set(type(child.model) for child in children)), 9)
         for adapter, child, feature in zip(adapters, children, OWN):
@@ -277,7 +293,7 @@ class OwnBattleWindowTests(RuntimeTest):
         self.assertEqual(len(self.Window.created), 1)
         window = self.Window.created[0]
         self.assertEqual((window.flags, window.layer, window.loaded), (1 | 1024, 3, 1))
-        self.assertEqual(window.content.layoutID, 42)  # the host document, whichever feature opened it
+        self.assertEqual(window.content.layoutID, self.host_id)  # the host document, whichever feature opened it
         self.assertIs(strength.ownWindows[hud], window)
         self.assertIs(health.ownWindows[hud], window)
         self.assertEqual(sorted(window.content.children), [42, 43])
@@ -373,14 +389,15 @@ class OwnBattleWindowTests(RuntimeTest):
             self.assertEqual(run(feature), native)
 
     def test_window_does_not_depend_on_the_host_feature_being_installed(self):
-        health = self.adapter(HEALTH)
+        adapters = [self.adapter(feature) for feature in OWN if feature != FEATURE]
         hud = self.load_hud()
         window = self.Window.created[0]
-        self.assertEqual(window.content.layoutID, 42)
-        self.assertEqual(list(window.content.children), [43])
-        child = window.content.children[43]
-        child._onLoaded()
-        self.assertEqual(self.sent(child)[-1]['text'], HEALTH)
+        self.assertEqual(window.content.layoutID, self.host_id)
+        self.assertEqual(sorted(window.content.children), sorted(self.resources[adapter.feature] for adapter in adapters))
+        for adapter in adapters:
+            child = window.content.children[self.resources[adapter.feature]]
+            child._onLoaded()
+            self.assertEqual(self.sent(child)[-1]['text'], adapter.feature)
         self.finalize_hud(hud)
         self.assertEqual(window.destroyed, 1)
 
@@ -425,10 +442,10 @@ class OwnBattleWindowTests(RuntimeTest):
     def test_failures_stay_inside_one_feature(self):
         strength, health = self.adapter(FEATURE), self.adapter(HEALTH)
         # No document resource: no window, the native load still returns.
-        self.resources[FEATURE] = -1
+        self.resources[self.host_resource] = -1
         self.load_hud()
         self.assertEqual(self.Window.created, [])
-        self.resources[FEATURE] = 42
+        self.resources[self.host_resource] = self.host_id
         # A window that fails to load is released and not retained.
         self.fail_load = True
         hud = self.load_hud()
@@ -469,3 +486,296 @@ class OwnBattleWindowTests(RuntimeTest):
         content.children[43]._finalize()
         self.assertNotIn(content, health.views)
         self.assertIn(content, strength.views)
+
+
+    def test_repeated_install_and_loading_preserve_one_window_and_nine_models(self):
+        adapters = [self.adapter(feature) for feature in OWN]
+        before = dict((name, len(handlers)) for name, handlers in self.hooks.items())
+        for adapter in adapters:
+            adapter.install()
+        self.assertEqual(dict((name, len(handlers)) for name, handlers in self.hooks.items()), before)
+        hud = self.load_hud()
+        self.load_hud(hud)
+        self.assertEqual(len(self.Window.created), 1)
+        window = self.Window.created[0]
+        self.assertEqual((window.flags, window.layer), (1025, 3))
+        self.assertEqual(len(window.content.children), 9)
+        for child in window.content.children.values():
+            self.assertEqual(child.layoutID, 0)  # only the host loads HTML
+            self.assertEqual(child.model.properties, ['payload', 'DriftkingsUI'])
+            self.assertEqual(child.model.commands, ['onSavePosition'])
+        self.assertEqual(self.injections, [])
+
+    def test_before_dispose_error_does_not_block_other_cleanup(self):
+        strength, health = self.adapter(FEATURE), self.adapter(HEALTH)
+        hud = self.load_hud()
+        window = self.Window.created[0]
+        first, second = window.content.children[42], window.content.children[43]
+        first._onLoaded()
+        second._onLoaded()
+        attempts = []
+
+        def broken():
+            attempts.append('beforeDispose')
+            raise RuntimeError('beforeDispose failure')
+        strength.beforeDispose = broken
+        strength.dispose()
+        self.assertFalse(strength.installed)
+        self.assertTrue(first.destroyed)
+        self.assertEqual(len(strength.views), 0)
+        self.assertEqual(strength._disposeFailures, ['beforeDispose'])
+        self.assertEqual([event for event, _ in self.settings_signals], ['connect', 'connect', 'disconnect'])
+        self.assertEqual([card[0] for card in self.own['_cards']], [health])
+        before = len(self.sent(second))
+        health.refresh()
+        self.assertEqual(len(self.sent(second)), before + 1)
+        self.assertIn(hud, self.own['_windows'])
+        strength.dispose()
+        self.assertEqual(attempts, ['beforeDispose'])
+        health.dispose()
+        self.assertTrue(second.destroyed)
+        self.assertEqual(self.own['_cards'], [])
+        self.assertEqual(window.destroyed, 1)
+
+    def test_child_destroy_error_does_not_block_bookkeeping_or_other_cards(self):
+        strength, health = self.adapter(FEATURE), self.adapter(HEALTH)
+        hud = self.load_hud()
+        window = self.Window.created[0]
+        first, second = window.content.children[42], window.content.children[43]
+        attempts = []
+
+        def broken():
+            attempts.append('child.destroy')
+            raise RuntimeError('child destroy failure')
+        first.destroy = broken
+        strength.dispose()
+        self.assertFalse(first.enabled)
+        self.assertFalse(first.destroyed)  # failed release must not be reported as successful
+        self.assertFalse(strength.installed)
+        self.assertEqual(len(strength.views), 0)
+        self.assertEqual(strength._disposeFailures, ['child.destroy'])
+        self.assertEqual([card[0] for card in self.own['_cards']], [health])
+        self.assertFalse(second.destroyed)
+        self.assertIn(hud, self.own['_windows'])
+        strength.dispose()
+        self.assertEqual(attempts, ['child.destroy'])
+        health.dispose()
+        self.assertTrue(second.destroyed)
+        self.assertEqual(window.destroyed, 1)
+        self.assertEqual(strength._disposeFailures, ['child.destroy'])
+        self.assertIn('release not confirmed', str(self.logged))
+
+    def test_destroy_failure_drops_handle_and_allows_second_initialization(self):
+        """Current policy, not a successful destroy: G3 must decide whether retaining a handle is safer."""
+        strength, health = self.adapter(FEATURE), self.adapter(HEALTH)
+        hud = self.load_hud()
+        old = self.Window.created[0]
+        attempts = []
+
+        def broken():
+            attempts.append('destroy')
+            raise RuntimeError('window destroy failure')
+        old.destroy = broken
+        self.assertEqual(len(self.finalize_hud(hud)), 2)
+        self.assertEqual(attempts, ['destroy'])
+        self.assertEqual(old.destroyed, 0)
+        self.assertNotIn(hud, self.own['_windows'])
+        self.assertIn('exception', [level for level, _ in self.logged])
+        # Same native context can be loaded again because the failed window is no longer recorded.
+        self.load_hud(hud)
+        new = self.own['_windows'][hud]
+        self.assertIsNot(old, new)
+        self.assertEqual(new.loaded, 1)
+        self.assertEqual(len(new.content.children), 2)
+        self.assertEqual(old.destroyed, 0)  # no automatic retry, not evidence of resource recovery
+        # Explicitly model framework finalization; Window stub does not cascade child finalizers.
+        for child in old.content.children.values():
+            child._finalize()
+        strength.dispose()
+        health.dispose()
+        self.assertEqual(new.destroyed, 1)
+
+    def test_cleanup_continues_after_before_dispose_error(self):
+        """G1-PY-DISPOSE invariant is now an ordinary regression test."""
+        adapter = self.adapter()
+        self.load_hud()
+
+        def broken():
+            raise RuntimeError('beforeDispose failure')
+        adapter.beforeDispose = broken
+        adapter.dispose()
+        self.assertFalse(adapter.installed, 'G3: cleanup must finish despite beforeDispose failure')
+        self.assertEqual(adapter.views, {})
+        self.assertEqual(self.own['_cards'], [])
+
+    def test_cleanup_continues_after_child_destroy_error(self):
+        """G1-PY-CHILD invariant is now an ordinary regression test."""
+        adapter = self.adapter()
+        self.load_hud()
+        child = self.Window.created[0].content.children[42]
+
+        def broken():
+            raise RuntimeError('child destroy failure')
+        child.destroy = broken
+        adapter.dispose()
+        self.assertFalse(adapter.installed, 'G3: cleanup bookkeeping must finish after child destroy failure')
+        self.assertEqual(adapter.views, {})
+        self.assertEqual(self.own['_cards'], [])
+
+
+    def test_cleanup_attempts_all_children_and_logs_each_independent_failure(self):
+        adapter = self.adapter()
+        huds = [self.load_hud(), self.load_hud()]
+        first, second = [self.Window.created[i].content.children[42] for i in range(2)]
+        attempts = []
+
+        def before():
+            attempts.append('before')
+            raise RuntimeError('before failure')
+
+        def disconnect():
+            attempts.append('disconnect')
+            raise RuntimeError('disconnect failure')
+
+        def disable(value):
+            attempts.append('disable')
+            raise RuntimeError('disable failure')
+
+        def destroy():
+            attempts.append('destroy')
+            raise RuntimeError('destroy failure')
+        adapter.beforeDispose, adapter.disconnectSignals = before, disconnect
+        first.setEnabled, first.destroy = disable, destroy
+        adapter.dispose()
+        self.assertTrue(second.destroyed)
+        self.assertFalse(first.destroyed)
+        self.assertEqual(sorted(adapter._disposeFailures),
+                         ['beforeDispose', 'child.destroy', 'child.setEnabled', 'disconnectSignals'])
+        failures = [args for level, args in self.logged if level == 'exception']
+        self.assertEqual(len(failures), 4)
+        self.assertEqual(attempts.count('before'), 1)
+        self.assertEqual(attempts.count('disconnect'), 1)
+        self.assertEqual(attempts.count('disable'), 1)
+        self.assertEqual(attempts.count('destroy'), 1)
+        self.assertFalse(adapter.installed)
+        self.assertEqual(len(adapter.views), 0)
+        self.assertEqual(self.own['_cards'], [])
+        self.assertTrue(all(window.destroyed == 1 for window in self.Window.created))
+        adapter.dispose()
+        self.assertEqual(len(attempts), 4)
+        self.assertEqual(len(self.own['_windows']), 0)
+        self.assertEqual(len(huds), 2)
+
+    def test_ownership_lookup_failure_does_not_destroy_replacement_or_block_other_parent(self):
+        adapter = self.adapter()
+        huds = [self.load_hud(), self.load_hud(), self.load_hud()]
+        windows = list(self.Window.created)
+        first, second, replaced = [window.content.children[42] for window in windows]
+
+        def broken(resource):
+            raise RuntimeError('ownership lookup failure')
+        windows[0].content.getChildView = broken
+        foreign = module(destroy=lambda: self.fail('foreign replacement was destroyed'))
+        windows[2].content.children[42] = foreign
+        adapter.dispose()
+        self.assertFalse(first.destroyed)
+        self.assertTrue(second.destroyed)
+        self.assertFalse(replaced.destroyed)
+        self.assertEqual(adapter._disposeFailures, ['child.ownership'])
+        self.assertEqual(adapter.views, {})
+        self.assertEqual(len(self.own['_windows']), 0)
+        self.assertEqual(len(huds), 3)
+
+    def test_missing_resource_identity_is_diagnosed_without_guessing_child_ownership(self):
+        adapter = self.adapter()
+        hud = self.load_hud()
+        window = self.Window.created[0]
+        child = window.content.children[42]
+
+        def broken():
+            raise RuntimeError('resource resolution failure')
+        adapter.resourceID = broken
+        adapter.dispose()
+        self.assertFalse(child.destroyed)
+        self.assertEqual(adapter._disposeFailures, ['resourceID', 'child.ownership'])
+        self.assertIn('release not confirmed', str(self.logged))
+        self.assertEqual(adapter.views, {})
+        self.assertFalse(adapter.installed)
+        self.assertNotIn(hud, self.own['_windows'])
+        self.assertEqual(window.destroyed, 1)
+
+    def test_registration_retires_even_if_adapter_dispose_implementation_raises(self):
+        self.session()
+        attempts = []
+
+        def broken():
+            attempts.append('dispose')
+            raise RuntimeError('unexpected adapter failure')
+        adapter = module(dispose=broken, title='external test adapter', log=self.log)
+        self.own['install'](adapter, object)
+        adapter.dispose()
+        self.assertEqual(self.own['_cards'], [])
+        self.assertIn('retiring registration', str(self.logged))
+        adapter.dispose()
+        self.assertEqual(attempts, ['dispose'])
+
+    def test_multiple_failing_cards_still_retire_the_last_shared_window(self):
+        adapters = [self.adapter(feature) for feature in OWN]
+        hud = self.load_hud()
+        window = self.Window.created[0]
+
+        def broken():
+            raise RuntimeError('injected failure')
+        adapters[0].beforeDispose = broken
+        window.content.children[self.resources[OWN[1]]].destroy = broken
+        adapters[2].disconnectSignals = broken
+        for adapter in adapters:
+            adapter.dispose()
+        self.assertEqual(self.own['_cards'], [])
+        self.assertNotIn(hud, self.own['_windows'])
+        self.assertEqual(window.destroyed, 1)
+        self.assertTrue(all(not adapter.installed and not adapter.views for adapter in adapters))
+        self.assertTrue(all(window.content.children[self.resources[name]].destroyed for name in OWN[2:]))
+        for adapter in adapters:
+            adapter.dispose()
+        self.assertEqual(window.destroyed, 1)
+
+    def test_reentrant_dispose_does_not_destroy_the_host_twice(self):
+        adapter = self.adapter()
+        hud = self.load_hud()
+        window = self.Window.created[0]
+        child = window.content.children[42]
+        original = child.destroy
+
+        def destroy():
+            adapter.dispose()
+            original()
+        child.destroy = destroy
+        adapter.dispose()
+        self.assertTrue(child.destroyed)
+        self.assertEqual(window.destroyed, 1)
+        self.assertEqual(self.own['_cards'], [])
+        self.assertNotIn(hud, self.own['_windows'])
+
+    def test_failed_window_destroy_does_not_block_other_windows_or_retry(self):
+        adapter = self.adapter()
+        huds = [self.load_hud(), self.load_hud()]
+        first, second = self.Window.created
+        attempts = []
+
+        def broken():
+            attempts.append('window.destroy')
+            raise RuntimeError('window destroy failure')
+        first.destroy = broken
+        adapter.dispose()
+        self.assertEqual(first.destroyed, 0)
+        self.assertEqual(second.destroyed, 1)
+        self.assertEqual(len(self.own['_windows']), 0)
+        self.assertEqual(self.own['_cards'], [])
+        self.assertIn('handle removed without retry', str(self.logged))
+        self.assertIn('window release not confirmed', str(self.logged))
+        adapter.dispose()
+        for hud in huds:
+            self.finalize_hud(hud)
+        self.assertEqual(attempts, ['window.destroy'])
+        self.assertEqual(second.destroyed, 1)

@@ -61,8 +61,16 @@ FLASH_COMPONENTS = {
 # Gameface features are defined in the catalog to allow for validation and discovery of available features.
 # The catalog is used by the runtime to determine which features are available and to load the appropriate resources.
 # Each feature has a context, layout, owner, python module, resource path, scripts, section, and styles.
+BATTLE_HUD_HOST = {
+    'resource': 'mods/driftkings/battle_hud/window',
+    'layout': 'coui://gui/gameface/mods/driftkings/battle_hud/window.html',
+    'asset_priority': ('DriftkingsTeamStrength',),
+}
+
 GAMEFACE = {
     'DriftkingsFooterLauncher': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/mono/hangar/footer/footer.html'],
         'context': 'footer',
         'layout': 'coui://gui/gameface/mods/driftkings/launcher/model.html',
         'owner': '__dkFooterLauncher',
@@ -72,6 +80,8 @@ GAMEFACE = {
         'section': 'driftkings',
         'styles': ['coui://gui/gameface/mods/driftkings/launcher/launcher.css']},
     'DriftkingsProfileRatings': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/lobby/achievements/AchievementsMainView/AchievementsMainView.html'],
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/profile_ratings/model.html',
         'owner': '__dkProfileRatings',
@@ -186,6 +196,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/high_caliber_gameface/main_gun.css']
     },
     'DriftkingsCrewDetails': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.html', 'gui/gameface/_dist/production/lobby/crew/tooltips/TankmanTooltip/TankmanTooltip.html', 'gui/gameface/_dist/production/lobby/crew/personal_case/PersonalFileView/PersonalFileView.html', 'gui/gameface/_dist/production/lobby/crew/personal_case/ServiceRecordView/ServiceRecordView.html'],
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/crew_details/model.html',
         'owner': '__dkCrewDetails',
@@ -284,6 +296,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/main/clock.css']
     },
     'DriftkingsHangarHeaderOptions': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/mono/hangar/header/header.html'],
         'context': 'header',
         'layout': 'coui://gui/gameface/mods/driftkings/hangar_preferences/header_options.html',
         'owner': '__dkHangarHeaderOptions',
@@ -321,6 +335,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css']
     },
     'DriftkingsMarksOnGunTechTree': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/mono/tech_tree/main/main.html'],
         'context': 'tech_tree',
         'layout': 'coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/model.html',
         'owner': '__dkTechMarks',
@@ -331,6 +347,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/shared/marks_tokens.css',
                    'coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css']},
     'DriftkingsRatingPlayers': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/battle/battle_page/TabView/TabView.html'],
         'context': 'tab',
         'layout': 'coui://gui/gameface/mods/driftkings/panel_gameface/model.html',
         'owner': '__dkPlayerRatings',
@@ -338,7 +356,6 @@ GAMEFACE = {
         'resource': 'mods/driftkings/panel_gameface/model',
         'scripts': ['coui://gui/gameface/mods/driftkings/shared/rating_text.js',
                     'coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js',
-                    'coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js',
                     'coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js'],
         'section': 'team_panels',
         'styles': []

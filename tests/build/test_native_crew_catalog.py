@@ -14,7 +14,7 @@ BASE = baseline('native_marks')
 class NativeCrewCatalogTests(unittest.TestCase):
     def test_three_distinct_identities_and_only_crew_changes_transport(self):
         data = catalog.read_catalog()['GAMEFACE']
-        self.assertEqual(changed_catalog_entries('native_marks', data), ['DriftkingsOwnHealth', 'DriftkingsAimingCountdown', 'DriftkingsFlightTime', 'DriftkingsPenetration', 'DriftkingsBattleEfficiency', 'DriftkingsTeamStrength', 'DriftkingsTargetInformation', 'DriftkingsMainGun', 'DriftkingsCrewProgression', 'driftkingsbattleEfficiency', 'DriftkingsCarouselStats', 'DriftkingsMarksOnGunBattle'])
+        self.assertEqual(changed_catalog_entries('native_marks', data), ['DriftkingsFooterLauncher', 'DriftkingsProfileRatings', 'DriftkingsOwnHealth', 'DriftkingsAimingCountdown', 'DriftkingsFlightTime', 'DriftkingsPenetration', 'DriftkingsBattleEfficiency', 'DriftkingsTeamStrength', 'DriftkingsTargetInformation', 'DriftkingsMainGun', 'DriftkingsCrewDetails', 'DriftkingsCrewProgression', 'driftkingsbattleEfficiency', 'DriftkingsCarouselStats', 'DriftkingsHangarHeaderOptions', 'DriftkingsMarksOnGunBattle', 'DriftkingsMarksOnGunTechTree', 'DriftkingsRatingPlayers'])
         names = ('DriftkingsHangarClock', 'DriftkingsMarksOnGunHangar', 'DriftkingsCrewProgression')
         native = [data[name] for name in names]
         self.assertTrue(all(x.get('transport') == 'native_user_missions' for x in native))
@@ -33,7 +33,7 @@ class NativeCrewCatalogTests(unittest.TestCase):
         legacy = [name for name, spec in data.items() if spec['owner'] is not None
                   and spec.get('transport', 'openwg') == 'openwg']
         # All nine battle HUD cards moved to the own battle window (transport 'own_window').
-        self.assertEqual(len(legacy), 6)
+        self.assertEqual(len(legacy), 0)
         for name in legacy:
             self.assertIn(name, block)
 
@@ -56,6 +56,10 @@ class NativeCrewCatalogTests(unittest.TestCase):
             if path == 'build_data/build_config.json':
                 current = json.loads((catalog.ROOT / path).read_text())
                 self.assertEqual(current['generators'].pop('battleinfo_native')['kind'], 'native_battleinfo_patch')
+                # New pinned document generators are validated separately; historical generators stay exact.
+                for key in list(current['generators']):
+                    if key.startswith('native_document_'):
+                        current['generators'].pop(key)
                 self.assertEqual(json_hash(current), BASE['build_config'])
                 continue
             self.assertIn(protected_file(BASE, path), ('historical', 'format_only'), path)

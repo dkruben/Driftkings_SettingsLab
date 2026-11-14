@@ -143,6 +143,26 @@
           "source": "build/gameface/crew/tooltips.js",
           "target": "res/gui/gameface/_dist/production/mono/hangar/tooltips/bundle.js",
           "generator": "crew_tooltip_bridge"
+        },
+        {
+          "source": "build/gameface/native_documents/native_document_crewdetails_0.html",
+          "target": "res/gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.html",
+          "generator": "native_document_crewdetails_0"
+        },
+        {
+          "source": "build/gameface/native_documents/native_document_crewdetails_1.html",
+          "target": "res/gui/gameface/_dist/production/lobby/crew/tooltips/TankmanTooltip/TankmanTooltip.html",
+          "generator": "native_document_crewdetails_1"
+        },
+        {
+          "source": "build/gameface/native_documents/native_document_crewdetails_2.html",
+          "target": "res/gui/gameface/_dist/production/lobby/crew/personal_case/PersonalFileView/PersonalFileView.html",
+          "generator": "native_document_crewdetails_2"
+        },
+        {
+          "source": "build/gameface/native_documents/native_document_crewdetails_3.html",
+          "target": "res/gui/gameface/_dist/production/lobby/crew/personal_case/ServiceRecordView/ServiceRecordView.html",
+          "generator": "native_document_crewdetails_3"
         }
       ]
     },
@@ -188,7 +208,12 @@
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.js",
         "mod/res/gui/gen_resources/driftkings.hangar_preferences.json",
-        "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.html"
+        "mod/res/gui/gameface/mods/driftkings/hangar_preferences/header_options.html",
+        {
+          "source": "build/gameface/native_documents/native_document_hangarheaderoptions_0.html",
+          "target": "res/gui/gameface/_dist/production/mono/hangar/header/header.html",
+          "generator": "native_document_hangarheaderoptions_0"
+        }
       ]
     },
     "high_caliber_progress": {
@@ -326,7 +351,12 @@
         "mod/res/gui/gameface/mods/driftkings/panel_gameface/**",
         "mod/res/gui/gen_resources/driftkings.panel_gameface.json",
         "mod/res/gui/maps/driftkings/playerpanelpro/hp/**",
-        "mod/res/gui/maps/driftkings/playerpanelpro/spotted/**"
+        "mod/res/gui/maps/driftkings/playerpanelpro/spotted/**",
+        {
+          "source": "build/gameface/native_documents/native_document_ratingplayers_0.html",
+          "target": "res/gui/gameface/_dist/production/battle/battle_page/TabView/TabView.html",
+          "generator": "native_document_ratingplayers_0"
+        }
       ]
     },
     "tech_tree_marks_of_excellence": {
@@ -338,7 +368,12 @@
         "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css",
         "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.js",
         "mod/res/gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/model.html",
-        "mod/res/gui/gen_resources/driftkings.tech_tree_marks_of_excellence.json"
+        "mod/res/gui/gen_resources/driftkings.tech_tree_marks_of_excellence.json",
+        {
+          "source": "build/gameface/native_documents/native_document_marksonguntechtree_0.html",
+          "target": "res/gui/gameface/_dist/production/mono/tech_tree/main/main.html",
+          "generator": "native_document_marksonguntechtree_0"
+        }
       ]
     },
     "third_person_zoom": {
@@ -350,6 +385,8 @@
     "ui": {
       "kind": "shared",
       "assets": [
+        "mod/res/gui/gen_resources/driftkings.battle_hud.json",
+        "mod/res/gui/gameface/mods/driftkings/battle_hud/window.html",
         {
           "source": "build/native/updater/Driftkings.UpdateInstaller.exe",
           "target": "res/gui/driftkings/updater/Driftkings.UpdateInstaller.exe",
@@ -398,7 +435,12 @@
         "mod/res/gui/gameface/mods/driftkings/shared/assets/**",
         "mod/res/mods/driftkings/text/**",
         "mod/res/gui/fonts/driftkings/**",
-        "mod/res/gui/gameface/mods/driftkings/shared/fonts.css"
+        "mod/res/gui/gameface/mods/driftkings/shared/fonts.css",
+        {
+          "source": "build/gameface/native_documents/native_document_footerlauncher_0.html",
+          "target": "res/gui/gameface/_dist/production/mono/hangar/footer/footer.html",
+          "generator": "native_document_footerlauncher_0"
+        }
       ]
     },
     "vehicle_carousel": {
@@ -441,7 +483,12 @@
       ],
       "assets": [
         "mod/res/gui/gameface/mods/driftkings/profile_ratings/**",
-        "mod/res/gui/gen_resources/driftkings.profile_ratings.json"
+        "mod/res/gui/gen_resources/driftkings.profile_ratings.json",
+        {
+          "source": "build/gameface/native_documents/native_document_profileratings_0.html",
+          "target": "res/gui/gameface/_dist/production/lobby/achievements/AchievementsMainView/AchievementsMainView.html",
+          "generator": "native_document_profileratings_0"
+        }
       ]
     },
     "vehicle_markers": {

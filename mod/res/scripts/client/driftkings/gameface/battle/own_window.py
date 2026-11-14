@@ -4,15 +4,11 @@
 Selected per feature by 'transport': 'own_window' in the interface catalog; other battle cards stay
 OpenWG children of the native battle HUD and never import this module. Every selected card shares a
 single window per native battle HUD. The window follows the lifecycle of RandomHUDView and uses the
-same flags and MARKER layer as the native HUD window; its layout document (the layout of
-HOST_FEATURE) loads the assets of all selected features once, and each renderer finds its own card
+same flags and MARKER layer as the native HUD window; its neutral infrastructure document loads
+the assets of all selected features once, and each renderer finds its own card
 through subViews, exactly as it does inside the HUD. Each card keeps its own model, adapter and
-state. Validated in CT 2.4.2.0 #995 for DriftkingsTeamStrength."""
+state. The neutral host identity awaits CT validation."""
 import weakref
-
-# The feature whose layout is the shared window document. The document exists in every package, so
-# the window does not depend on this feature being enabled.
-HOST_FEATURE = 'DriftkingsTeamStrength'
 
 # Installed cards, in installation order: (adapter, card view type).
 _cards = []
@@ -98,7 +94,8 @@ def _close(hud, log):
         try:
             window.destroy()
         except Exception:
-            log.exception('Could not destroy the own battle window')
+            log.exception('Own battle window destroy failed; handle removed without retry; '
+                          'window release not confirmed (window=%r)', window)
 
 
 def _open(hud, log):
@@ -107,8 +104,8 @@ def _open(hud, log):
         return
     try:
         from driftkings.gameface.core import resource_id
-        from driftkings.interface_catalog import gameface_spec
-        resource = resource_id(gameface_spec(HOST_FEATURE)['resource'])
+        from driftkings.interface_catalog import BATTLE_HUD_HOST
+        resource = resource_id(BATTLE_HUD_HOST['resource'])
         if resource == -1:
             log.warning('Own battle window document is unavailable')
             return
@@ -140,14 +137,27 @@ def install(adapter, card_type):
         return original(hud, *args, **kwargs)
 
     dispose = adapter.dispose
+    disposing = [False]
 
     def dispose_card():
         # The adapter destroys its own card; the window goes with the last card.
-        dispose()
-        _cards[:] = [card for card in _cards if card[0] is not adapter]
-        if not _cards:
-            for hud in list(_windows.keys()):
-                _close(hud, adapter.log)
+        if disposing[0] or not any(card[0] is adapter for card in _cards):
+            return
+        disposing[0] = True
+        try:
+            try:
+                dispose()
+            except Exception:
+                adapter.log.exception('%s adapter dispose failed; retiring registration; release not confirmed',
+                                      adapter.title)
+        finally:
+            try:
+                _cards[:] = [card for card in _cards if card[0] is not adapter]
+                if not _cards:
+                    for hud in list(_windows.keys()):
+                        _close(hud, adapter.log)
+            finally:
+                disposing[0] = False
     adapter.dispose = dispose_card
 
     for name, handler in (('_onLoading', loading), ('_finalize', finalize)):

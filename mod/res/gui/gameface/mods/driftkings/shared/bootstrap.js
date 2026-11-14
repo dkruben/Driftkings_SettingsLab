@@ -8,60 +8,7 @@
     fonts.href = 'coui://gui/gameface/mods/driftkings/shared/fonts.css';
     document.head.appendChild(fonts);
     /* GENERATED CATALOG START */
-    var features = {
-        "DriftkingsCrewDetails": {
-            "owner": "__dkCrewDetails",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/crew_details/details.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/crew_details/details.css"
-            ]
-        },
-        "DriftkingsFooterLauncher": {
-            "owner": "__dkFooterLauncher",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/launcher/launcher.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/launcher/launcher.css"
-            ]
-        },
-        "DriftkingsHangarHeaderOptions": {
-            "owner": "__dkHangarHeaderOptions",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/hangar_preferences/header_options.js"
-            ],
-            "styles": []
-        },
-        "DriftkingsMarksOnGunTechTree": {
-            "owner": "__dkTechMarks",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.js"
-            ],
-            "styles": [
-                "coui://gui/gameface/mods/driftkings/shared/marks_tokens.css",
-                "coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css"
-            ]
-        },
-        "DriftkingsProfileRatings": {
-            "owner": "__dkProfileRatings",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/profile_ratings/ratings.js"
-            ],
-            "styles": []
-        },
-        "DriftkingsRatingPlayers": {
-            "owner": "__dkPlayerRatings",
-            "scripts": [
-                "coui://gui/gameface/mods/driftkings/shared/rating_text.js",
-                "coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js",
-                "coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js",
-                "coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js"
-            ],
-            "styles": []
-        }
-    };
+    var features = {};
     /* GENERATED CATALOG END */
 
     function remove(node) {
