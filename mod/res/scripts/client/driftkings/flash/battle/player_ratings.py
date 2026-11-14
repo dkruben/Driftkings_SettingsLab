@@ -71,16 +71,21 @@ class RatingViews(object):
                 owner.refresh()
                 LOG.info('Roster v2 Flash ready')
             def reportState(self,state):
+                if owner.view is not self: return
                 LOG.info('Roster v2: %s',state)
             def hoverPanel(self,expanded):
+                if owner.view is not self: return
                 owner.hover(expanded)
             def reportWidths(self,left,right):
+                if owner.view is not self: return
                 owner.model.widths=(left,right)
             def reportScreens(self,panel,loading,tab):
+                if owner.view is not self: return
                 owner.visibleScreens=set(name for name,
                                          visible in (('panel',panel),('loading',loading),('tab',tab)) if visible)
                 owner.refresh()
             def reportPerformance(self,message):
+                if owner.view is not self: return
                 if settings_service.getComponentDict(owner.config)[TEAM_PANELS.PERFORMANCE].get('diagnostics',False): LOG.info('Performance Flash: %s',message)
             def _dispose(self):
                 if owner.view is self: owner.view=None

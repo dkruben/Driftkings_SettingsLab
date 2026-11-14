@@ -42,6 +42,11 @@ class RandomRosterTests(RuntimeTest):
         harness = Harness(self, battle(15, 15), 'random')
         self.exchange(harness)
         visibility = harness.views.screenClass()
+        # This test simulates the current Flash view; constructing a callback
+        # emitter alone does not give it ownership after F4-G3.3.
+        visibility._isDAAPIInited = harness.view._isDAAPIInited
+        visibility.as_setRosterS = harness.view.as_setRosterS
+        harness.views.view = visibility
         visibility.reportScreens(False, True, False)
         self.assertEqual(len(harness.tick()['rows']), 30)
         visibility.reportScreens(False, False, False)
