@@ -4,7 +4,7 @@
     if (window.__dkFooterLauncher) { window.__dkFooterLauncher.dispose(); }
     var disposed = false, observer = null, pending = null, button = null;
     var model = null, resource = null, subscription = null, visible = false, title = '';
-    function click() { if (!disposed && visible && model) { model.onOpen(); } }
+    function click() { if (!disposed && visible && model && button && !button.disabled) { model.onOpen(); } }
     function removeButton() {
         if (!button) { return; }
         button.removeEventListener('click', click);
@@ -28,7 +28,7 @@
                 button.setAttribute('data-test-id', 'driftkings-launcher');
                 var image = document.createElement('img');
                 image.className = 'driftkings-launcher__icon';
-                image.src = 'coui://gui/maps/icons/driftkings/small.png'; image.alt = '';
+                image.src = 'coui://gui/gameface/mods/driftkings/launcher/launcher_dk.svg'; image.alt = '';
                 button.appendChild(image); button.addEventListener('click', click);
             }
             button.title = title; button.setAttribute('aria-label', title);

@@ -72,7 +72,7 @@
       "files": {
         "build_data/patches/carousel_2.4.2_ct.json": "6104bb045fbf3273d307199a46924908f6c47b55d1a4036d9a0f7704f1cd9d75",
         "build_data/patches/crew_tooltip_2.4.2_ct.json": "a2feab31b4a7677ddd758f1490e216982dee8a91c55f31e0b751e7cd8af6b50f",
-        "mod/res/gui/gameface/mods/driftkings/launcher/launcher.js": "39480b06c535ce3b8bfa00cac5bb14812988c46639acc63410fe1f25aa659982",
+        "mod/res/gui/gameface/mods/driftkings/launcher/launcher.js": "82efc1d4796a01d1d005f3a6710675eba2d884fdfa8b3a908846c1703698de65",
         "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js": "f77c15cf735991a02982a13be65c253de71d65cdb20a281e29cd373a1afbe64f",
         "mod/res/gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js": "642f948d1b1d59d72dc0533c253e0288125e4f4fb9ae8a1fc41cdc5da5dad6a3",
         "mod/res/gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js": "7477ac90519226a2b8846eb2989b15df9df2f8bc7a79cada6dfe9af3b86a9d6d",
@@ -150,6 +150,15 @@
       "approved_sha256": "042a35d9ff65c67651fd242e4819d05311ff638204fe692a0c0de1da5edd9b93",
       "approved": "2026-11-13 F6-G5.1",
       "reason": "Phase 3 G2 JavaScript cleanup (accepted): K.connect owner is a stable bridge object compared by identity; optional seventh lifecycle argument (afterLayout, dispose); second-measure frame owned per instance with generation, owner, subview and payload guards and cancellation; unload registered when the owner is created. No other change against the historical file."
+    },
+    "mod/res/gui/gameface/mods/driftkings/launcher/launcher.js": {
+      "baselines": [
+        "native_crew"
+      ],
+      "historical_sha256": "39480b06c535ce3b8bfa00cac5bb14812988c46639acc63410fe1f25aa659982",
+      "approved_sha256": "82efc1d4796a01d1d005f3a6710675eba2d884fdfa8b3a908846c1703698de65",
+      "approved": "2026-11-13 F6-G5",
+      "reason": "Phase 5 native launcher: click ignored while the button is disabled; icon source changed to launcher/launcher_dk.svg. Two lines; no other change against the historical file."
     }
   },
   "description": "Historical baselines for the native plugin migration tests. Each value was derived once from the named commit; tests compare against this file and never call git. Text hashes are SHA-256 of the UTF-8 bytes with CRLF normalised to LF. Catalog/config hashes are SHA-256 of canonical JSON (sorted keys, compact separators, ASCII). 'format_only_revisions' is a separate, current reference: for a protected file that changed in layout or import order only, it keeps the exact historical source (which must still hash to the baseline value), the exact hash of the revised file and the reason. Tests accept such a file only when its normalized syntax tree equals the historical one; baseline hashes are never rewritten.",

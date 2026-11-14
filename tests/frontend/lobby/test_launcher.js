@@ -41,6 +41,8 @@ load(); flush();
 var button = section.children[0];
 assert.strictEqual(button.className, 'driftkings-launcher'); assert.strictEqual(button.parentNode, section);
 assert.strictEqual(button.title, 'Configurações Driftkings'); button.fire('click'); assert.strictEqual(calls, 1);
+assert.strictEqual(button.children[0].src, 'coui://gui/gameface/mods/driftkings/launcher/launcher_dk.svg');
+button.disabled = true; button.fire('click'); assert.strictEqual(calls, 1); button.disabled = false;
 observer.fn(); observer.fn(); flush(); assert.strictEqual(section.children.length, 2);
 engine.fire('self.onScaleUpdated'); assert.strictEqual(section.children[0], button);
 footer(); observer.fn(); flush(); assert.strictEqual(button.parentNode, section);
@@ -60,4 +62,6 @@ css.split('}').filter(function (part) { return part.trim(); }).forEach(function 
     assert(/^\s*\.driftkings-launcher/.test(part));
 });
 assert(css.indexOf(':hover') >= 0 && css.indexOf(':active') >= 0 && css.indexOf('rem') >= 0);
+assert(css.indexOf(':disabled') >= 0 && css.indexOf('grayscale(1)') >= 0);
+assert(css.indexOf('width: 40rem; height: 32rem; margin: 0 6rem; padding: 4rem;') >= 0);
 console.log('Footer launcher: ownership, click, anchor replacement, model changes, recreation and cleanup passed');
