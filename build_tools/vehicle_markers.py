@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 import zipfile
@@ -17,10 +18,46 @@ from build_tools.vehicle_markers_patch import (inject_helper, marker_lock_for_bu
 # The pinned movie currently needs 107 chars; allow 120 and reserve 8 more.
 DISASSEMBLY_BUDGET = 120
 PATH_MARGIN = 8
+SHORT_WORKSPACE_FOLDER = 'DK_TMP'
+
+
+def too_deep(path):
+    return len(str(path).encode('utf-16-le')) // 2 + 1 + DISASSEMBLY_BUDGET + PATH_MARGIN >= 260
+
+
+def short_workspace_root(root):
+    """Short location for the marker disassembly when the run folder is too deep.
+
+    DK_MARKER_WORKSPACE overrides it; the default is a folder on the drive of the repository.
+    """
+    configured = os.environ.get('DK_MARKER_WORKSPACE')
+    return Path(configured) if configured else Path(Path(root).absolute().anchor) / SHORT_WORKSPACE_FOLDER
 
 
 @contextmanager
-def marker_workspace(destination):
+def short_marker_workspace(scope, short_root, protected=()):
+    """Run-owned workspace outside the isolated run folder; same path budget, never shared."""
+    work = Path(short_root) / ('vm_' + scope.run_id)
+    if too_deep(work):
+        raise ValueError('Short marker workspace too deep for safe Windows paths')
+    work = scope.adopt(work, protected)
+    try:
+        # Diagnostics stay with the run: record where the disassembly happened.
+        (scope.check(scope.path / 'workspace' / 'marker_workspace.txt')).write_text(str(work), encoding='utf-8')
+        print('Marker workspace: ' + str(work), flush=True)
+        yield work
+    except BaseException as original:
+        try:
+            scope.release(work)
+        except BaseException as cleanup_error:
+            raise cleanup_error from original
+        raise
+    else:
+        scope.release(work)
+
+
+@contextmanager
+def marker_workspace(destination, short_root=None, protected=()):
     scope = active_output()
     if scope is None:
         with tempfile.TemporaryDirectory(prefix='vehicle-markers-', dir=str(destination.parent)) as directory:
@@ -30,8 +67,12 @@ def marker_workspace(destination):
     parent = scope.check(scope.path / 'workspace/tmp')
     # tempfile's random suffix is eight characters on the supported runtime.
     projected = parent / ('vm-' + 'x' * 8)
-    if len(str(projected).encode('utf-16-le')) // 2 + 1 + DISASSEMBLY_BUDGET + PATH_MARGIN >= 260:
-        raise ValueError('Isolated marker workspace too deep for safe Windows paths')
+    if too_deep(projected):
+        if short_root is None:
+            raise ValueError('Isolated marker workspace too deep for safe Windows paths')
+        with short_marker_workspace(scope, short_root, protected) as work:
+            yield work
+        return
     parent.mkdir(exist_ok=True)
     temporary = tempfile.TemporaryDirectory(prefix='vm-', dir=str(parent))
     work = Path(temporary.name)
@@ -70,7 +111,8 @@ def build(root, destination, spec, tools, game_root):
         if hashlib.sha256(library.read_bytes()).hexdigest().lower() != item['sha256'].lower():
             raise ValueError('Flash library hash mismatch: ' + item['name'])
         external_libraries.append('-compiler.external-library-path+=' + str(library))
-    with marker_workspace(destination) as work:
+    with marker_workspace(destination, short_workspace_root(root),
+                          (game_root, tools.get('reference_root'), tools.get('rabcdasm_home'))) as work:
         def run(command):
             scope = active_output()
             if scope:

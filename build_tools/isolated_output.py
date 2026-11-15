@@ -4,6 +4,7 @@ import ctypes
 import os
 from pathlib import Path
 import re
+import shutil
 import stat
 import sys
 import uuid
@@ -106,6 +107,8 @@ class IsolatedOutput:
         self.path = self.root / 'build' / 'experiments' / self.run_id
         self.identity = None
         self.handles = {}
+        self.external = None
+        self.external_identity = None
 
     def _pin(self, path):
         # Windows directory handles deny DELETE sharing: pinned directories cannot
@@ -157,6 +160,12 @@ class IsolatedOutput:
         if '..' in value.parts:
             raise ValueError('Parent traversal in isolated output')
         path = no_redirects(value)
+        if self.external is not None and path.is_relative_to(self.external):
+            info = self.external.stat()
+            if (info.st_dev, info.st_ino) != self.external_identity:
+                raise ValueError('External workspace ownership changed')
+            self._pin(path.parent)
+            return path
         if not path.is_relative_to(self.path):
             raise ValueError('Write outside isolated output: ' + str(path))
         info = self.path.stat()
@@ -164,6 +173,49 @@ class IsolatedOutput:
             raise ValueError('Isolated output ownership changed')
         self._pin(path.parent)
         return path
+
+    def adopt(self, path, protected=()):
+        """Create and own ONE extra directory outside the run folder; it is never reused or shared.
+
+        Meant for a tool workspace that needs a shorter path than the run folder allows.
+        The directory is named after this run, created exclusively and removed only by release().
+        """
+        if self.external is not None:
+            raise ValueError('Isolated output already owns an external workspace')
+        path = Path(path)
+        if not path.is_absolute() or '..' in path.parts:
+            raise ValueError('External workspace must be an absolute path without traversal')
+        if self.run_id not in path.name:
+            raise ValueError('External workspace must be named after the run')
+        path = no_redirects(path)
+        for guarded in (self.root,) + tuple(Path(item).absolute() for item in protected if item):
+            if path.is_relative_to(guarded) or guarded.is_relative_to(path):
+                raise ValueError('External workspace overlaps a protected directory: ' + str(guarded))
+        token = _ACTIVE.set(None)  # only these two creations happen outside the write guard
+        try:
+            try:
+                path.parent.mkdir()
+            except FileExistsError:
+                if not path.parent.is_dir():
+                    raise ValueError('External workspace parent is not a directory')
+            no_redirects(path.parent)
+            path.mkdir()  # exclusive; NEVER exist_ok=True
+        finally:
+            _ACTIVE.reset(token)
+        no_redirects(path)
+        info = path.stat()
+        self.external, self.external_identity = path, (info.st_dev, info.st_ino)
+        self._pin(path)
+        return path
+
+    def release(self, path):
+        """Remove the adopted directory, and only it, then forget it."""
+        if self.external is None or Path(path) != self.external:
+            raise ValueError('Not the external workspace owned by this run')
+        self.check(self.external)
+        self.unpin_tree(self.external)
+        shutil.rmtree(self.external)
+        self.external = self.external_identity = None
 
     def activate(self):
         self.token = _ACTIVE.set(self)
