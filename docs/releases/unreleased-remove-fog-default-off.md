@@ -13,7 +13,10 @@ Status: **unreleased.** No version number, release, tag or download link is assi
 - An explicit `removeFog` value in your profile (`true` or `false`) is kept as it is.
 - A profile file that exists but has no `removeFog` entry, and the Driftkings package installed for your client, is migrated to `true`, so the package is not removed unexpectedly. Only that one entry is written; the other settings are kept.
 - A profile with no file is treated as new: it stays off and never removes the package.
-- Only a change you make removes the package: starting the game, opening the settings panel, reloading settings or switching profiles never does.
+- Only changing the Remove fog option removes the package. The master switch never removes it; it installs the package only when the option is on and the package is missing.
+- Starting the game, opening the settings panel, reloading settings or switching profiles never removes the package.
+- The settings panel shows the preference the package follows, even after a profile file was deleted or lost its entry during the session. Driftkings does not rewrite the file for this. A deleted file may be recreated by the game client with the default value, which takes effect at the next launch.
+- The package belongs to the game client, not to a profile.
 - Packages for another client folder or realm are never treated as your preference.
 - If the state cannot be determined safely, nothing is written and no install or removal is scheduled. Change the option yourself to apply a choice.
 - Nothing is deleted automatically during the migration.
