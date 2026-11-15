@@ -44,10 +44,18 @@ def package_evidence(path):
 
 
 def classify_preference(profile_file, package):
-    """Resolve the legacy state from the active profile and the package of the matching client folder only."""
+    """Resolve the legacy state from the active profile and the package of the matching client folder only.
+
+    The key's presence is read from the file, never inferred from its value. The loader writes defaults into a
+    missing file before this runs, so a file that exists with an explicit false is indistinguishable from a
+    materialized default; that is why automatic code never removes a package (see startup()).
+    """
     from driftkings.settings.store import read_object
+    if not os.path.isfile(profile_file):
+        # A profile with no stored preference is a new profile: never migrated, never written here.
+        return DEFAULT_OFF
     try:
-        values = read_object(profile_file) if os.path.isfile(profile_file) else {}
+        values = read_object(profile_file)
     except (IOError, OSError, ValueError):
         return AMBIGUOUS
     if BATTLE_PREFERENCES.REMOVE_FOG in values:
@@ -165,15 +173,23 @@ class FogPackageController(object):
         self.target = os.path.join(mod_directory(self.root, self.version), PACKAGE)
         self.active = True
         _controller = self
+        # Resolve the stored preference before any signal can call changed(): the connection comes after.
+        from driftkings.settings.loader import settings_loader
+        self.prepare(settings_loader.path(BATTLE_PREFERENCES.NAME))
         self.event = events.LobbyView.populate.after.event
         self.event += self.lobby
         settings_service.onModSettingsChanged.connect(self.changed, BATTLE_PREFERENCES.NAME,
             (GLOBAL.ENABLED, BATTLE_PREFERENCES.REMOVE_FOG))
-        from driftkings.settings.loader import settings_loader
-        self.prepare(settings_loader.path(BATTLE_PREFERENCES.NAME))
         self.previous_result()
-        if not self.hold:
-            self.changed(None, {})
+        self.startup()
+
+    def startup(self):
+        """Automatic work at launch: install or refresh only for an on preference; never remove."""
+        if self.hold:
+            return
+        if self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG) is not True:
+            return
+        self.changed(None, {})
 
     def prepare(self, profile_file):
         """Resolve the persisted preference before any automatic decision; ambiguity schedules nothing."""
@@ -254,6 +270,9 @@ class FogPackageController(object):
                 return
             self.hold = False
         desired = bool(self.config.data[GLOBAL.ENABLED] and value)
+        if component is None and not desired:
+            # Automatic calls never remove: a materialized or stale false is not a user decision.
+            return
         try:
             if self.process is None:
                 if desired and package_current(self.target, source_stamp(self.root)):

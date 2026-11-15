@@ -133,14 +133,13 @@ class FogPreferenceTests(RuntimeTest):
         self.assertIs(controller.config.data[self.REMOVE], True)
         self.assertEqual(open(self.profile, 'rb').read(), before)
 
-    def test_explicit_false_with_package_schedules_helper_after_close_and_keeps_file(self):
+    def test_explicit_false_with_package_is_not_removed_at_startup(self):
         self.write_profile({self.REMOVE: False, 'enabled': True})
         self.write_package()
         controller = self.controller({self.REMOVE: False, 'enabled': True})
         self.assertEqual(controller.prepare(self.profile), self.api['EXPLICIT'])
-        controller.changed(None, {})
-        self.assertEqual(controller.scheduled, [False])
-        # Python never deletes the package itself; the helper does, after the client exits.
+        controller.startup()
+        self.assertEqual(controller.scheduled, [])
         self.assertTrue(os.path.isfile(self.package))
 
     # Legacy profiles
@@ -236,9 +235,9 @@ class FogPreferenceTests(RuntimeTest):
         self.write_package(mod_id='someone.else')
         controller = self.controller({self.REMOVE: False, 'enabled': True})
         controller.prepare(self.profile)
-        controller.changed(None, {'enabled': False})
+        controller.changed('battle_preferences', {'enabled': False})
         self.assertEqual(controller.scheduled, [])
-        controller.changed(None, {self.REMOVE: False})
+        controller.changed('battle_preferences', {self.REMOVE: False})
         self.assertEqual(controller.scheduled, [False])
         self.assertFalse(controller.hold)
 
@@ -290,6 +289,206 @@ class FogPreferenceTests(RuntimeTest):
         self.write_package()
         self.api['migrate_preference'](self.profile, self.package)
         self.assertEqual(open(other_profile, 'rb').read(), b'{"enabled": true}')
+
+
+class FogStartupTests(RuntimeTest):
+    """Startup order, loader materialization, profile switching and manual changes, with mocks only."""
+
+    REMOVE = 'removeFog'
+
+    def setUp(self):
+        super(FogStartupTests, self).setUp()
+        self.root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.root)
+        self.profile_dir = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'default')
+        self.profile = os.path.join(self.profile_dir, 'battle_preferences.json')
+        self.client_mods = os.path.join(self.root, 'mods', '2.4.2.0')
+        os.makedirs(self.profile_dir)
+        os.makedirs(self.client_mods)
+        self.package = os.path.join(self.client_mods, 'Driftkings.RemoveFog.wotmod')
+        self.api = source('core/fog_package.py', {
+            'driftkings.core.updater.installer': module(read_resource=None),
+            'driftkings.settings.service': module(settings_service=None),
+            'driftkings.settings.store': module(read_object=FogPreferenceTests._read_object,
+                                                SettingsStore=_JsonStore)})
+        self.api['package_current'] = lambda path, stamp: os.path.isfile(path)
+        self.api['source_stamp'] = lambda root: 'test-stamp'
+
+    def materialize(self, defaults):
+        """Mirror settings/loader.py: a missing profile file receives the defaults before fog code runs."""
+        if not os.path.isfile(self.profile):
+            _JsonStore(self.profile).write(defaults)
+
+    def write_package(self, mod_id='driftkings.removefog', path=None):
+        target = path or self.package
+        if not os.path.isdir(os.path.dirname(target)):
+            os.makedirs(os.path.dirname(target))
+        with zipfile.ZipFile(target, 'w') as archive:
+            archive.writestr('meta.xml', '<root><id>%s</id></root>' % mod_id)
+
+    def controller(self, data):
+        controller = self.api['FogPackageController'](_Config(data))
+        controller.active = True
+        controller.root = self.root
+        controller.version = '2.4.2.0'
+        controller.target = self.package
+        controller.scheduled = []
+        controller.schedule = lambda desired: controller.scheduled.append(desired)
+        return controller
+
+    def launch(self, data):
+        """Preference resolution followed by the automatic startup decision, as in production order."""
+        controller = self.controller(data)
+        controller.prepare(self.profile)
+        controller.startup()
+        return controller
+
+    def test_preparation_runs_before_the_settings_signal_is_connected(self):
+        order = []
+
+        class Signal(object):
+            def connect(self, callback, component=None, keys=None):
+                order.append('connect')
+
+            def disconnect(self, callback):
+                pass
+
+        class Event(object):
+            def __iadd__(self, other):
+                return self
+
+            def __isub__(self, other):
+                return self
+
+        self.write_package()
+        # start() takes the client root from the working directory; point it at the temporary client.
+        previous_directory = os.getcwd()
+        os.chdir(self.root)
+        self.addCleanup(os.chdir, previous_directory)
+        api = source('core/fog_package.py', {
+            'helpers': module(getClientVersion=lambda: '2.4.2.0'),
+            'driftkings.common.utils': module(events=module(LobbyView=module(
+                populate=module(after=module(event=Event()))))),
+            'driftkings.core.callbacks': module(callbacks=None),
+            'driftkings.core.updater.installer': module(read_resource=None),
+            'driftkings.settings.service': module(settings_service=module(onModSettingsChanged=Signal())),
+            'driftkings.settings.loader': module(settings_loader=module(path=lambda component: self.profile)),
+            'driftkings.settings.store': module(read_object=FogPreferenceTests._read_object,
+                                                SettingsStore=_JsonStore)})
+        _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        controller = api['FogPackageController'](_Config({self.REMOVE: False, 'enabled': True}))
+        original_prepare = controller.prepare
+        original_startup = controller.startup
+
+        def recorded_prepare(profile_file):
+            order.append('prepare')
+            return original_prepare(profile_file)
+
+        def recorded_startup():
+            order.append('startup')
+            return original_startup()
+        controller.prepare = recorded_prepare
+        controller.startup = recorded_startup
+        controller.schedule = lambda desired: order.append(('schedule', desired))
+        controller.start()
+        self.assertLess(order.index('prepare'), order.index('connect'))
+        self.assertIs(controller.config.data[self.REMOVE], True)
+        self.assertNotIn(('schedule', False), order)
+
+    def test_loader_materialized_false_with_package_from_another_profile_removes_nothing(self):
+        # Case E: a new profile, no stored file; the loader materializes false; another profile's package exists.
+        self.write_package()
+        self.materialize({self.REMOVE: False, 'enabled': True})
+        controller = self.launch({self.REMOVE: False, 'enabled': True})
+        self.assertEqual(controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+        self.assertEqual(FogPreferenceTests._read_object(self.profile), {self.REMOVE: False, 'enabled': True})
+
+    def test_new_profile_with_absent_file_and_package_is_not_migrated(self):
+        self.write_package()
+        controller = self.controller({self.REMOVE: False, 'enabled': True})
+        self.assertEqual(controller.prepare(self.profile), self.api['DEFAULT_OFF'])
+        self.assertFalse(os.path.exists(self.profile))
+        controller.startup()
+        self.assertEqual(controller.scheduled, [])
+
+    def test_alternating_profiles_never_remove_the_shared_package(self):
+        # Profile "default" has a materialized false; profile "other" has an explicit true. The package is shared.
+        other_dir = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'other')
+        os.makedirs(other_dir)
+        other_profile = os.path.join(other_dir, 'battle_preferences.json')
+        _JsonStore(other_profile).write({self.REMOVE: True, 'enabled': True})
+        self.write_package()
+        self.materialize({self.REMOVE: False, 'enabled': True})
+        first = self.launch({self.REMOVE: False, 'enabled': True})
+        self.assertEqual(first.scheduled, [])
+        second = self.controller({self.REMOVE: True, 'enabled': True})
+        second.prepare(other_profile)
+        second.startup()
+        self.assertEqual(second.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+        self.assertIs(FogPreferenceTests._read_object(other_profile)[self.REMOVE], True)
+
+    def test_explicit_true_is_preserved_and_installs_when_missing(self):
+        _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        controller = self.launch({self.REMOVE: True, 'enabled': True})
+        self.assertEqual(controller.scheduled, [True])
+        self.assertIs(FogPreferenceTests._read_object(self.profile)[self.REMOVE], True)
+
+    def test_explicit_true_with_package_present_schedules_nothing(self):
+        _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        self.write_package()
+        controller = self.launch({self.REMOVE: True, 'enabled': True})
+        self.assertEqual(controller.scheduled, [])
+
+    def test_explicit_false_is_preserved_without_removal(self):
+        _JsonStore(self.profile).write({self.REMOVE: False, 'enabled': True})
+        self.write_package()
+        controller = self.launch({self.REMOVE: False, 'enabled': True})
+        self.assertEqual(controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+
+    def test_manual_true_to_false_schedules_removal_after_close(self):
+        _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        self.write_package()
+        controller = self.launch({self.REMOVE: True, 'enabled': True})
+        controller.config.data[self.REMOVE] = False
+        controller.changed('battle_preferences', {self.REMOVE: False})
+        self.assertEqual(controller.scheduled, [False])
+        self.assertTrue(os.path.isfile(self.package))
+
+    def test_materialized_default_is_not_taken_as_a_manual_disable(self):
+        self.materialize({self.REMOVE: False, 'enabled': True})
+        self.write_package()
+        controller = self.launch({self.REMOVE: False, 'enabled': True})
+        self.assertEqual(controller.scheduled, [])
+
+    def test_automatic_calls_with_a_false_result_never_schedule(self):
+        self.write_package()
+        controller = self.controller({self.REMOVE: False, 'enabled': True})
+        controller.changed(None, {})
+        controller.changed(None, {self.REMOVE: False})
+        self.assertEqual(controller.scheduled, [])
+
+    def test_realm_and_client_isolation_at_startup(self):
+        other_root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, other_root)
+        other_package = os.path.join(other_root, 'mods', '2.4.2.0', 'Driftkings.RemoveFog.wotmod')
+        self.write_package(path=other_package)
+        _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        controller = self.launch({self.REMOVE: True, 'enabled': True})
+        self.assertEqual(controller.scheduled, [True])
+        self.assertTrue(os.path.isfile(other_package))
+
+    def test_ambiguous_startup_writes_nothing_and_schedules_nothing(self):
+        with open(self.profile, 'wb') as stream:
+            stream.write(b'{broken')
+        self.write_package(mod_id='someone.else')
+        before = open(self.profile, 'rb').read()
+        controller = self.launch({self.REMOVE: False, 'enabled': True})
+        self.assertTrue(controller.hold)
+        self.assertEqual(controller.scheduled, [])
+        self.assertEqual(open(self.profile, 'rb').read(), before)
 
 
 class _JsonStore(object):
