@@ -39,7 +39,7 @@
     {
       "path": "default/battle_preferences.json",
       "source_sha256": "353c0981c97751352ac897a1b18599ae23fb8e54aada1a4b350fd678cf58bd01",
-      "sha256": "28d03136dcdbb4375c4861a0a9852d3292925dfc585d9d472238fd4e7930d74c"
+      "sha256": "ddd58e26f69cee829e2f5a8b132d4e48c6a8a1aafba7b94231ba736f29e01fe4"
     },
     {
       "path": "default/battle_statistics.json",
