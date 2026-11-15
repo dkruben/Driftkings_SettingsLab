@@ -148,6 +148,16 @@ Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX incl
 
 The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c:wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
 
+### Remove fog (optional, off by default)
+
+The **Remove fog** option is **off by default**. A new installation does not create or install the separate `Driftkings.RemoveFog.wotmod` package.
+
+- **Enabling it** builds a separate package from the maps of your own installed client. The package is installed or removed only after you close the game, and the change takes effect after the client restarts.
+- **Disabling it** removes the package that Driftkings installed, again only after the game is closed. The main `driftkings.wotmod` is never changed by this option.
+- **Existing settings are kept.** An explicit `true` or `false` in your profile is never overwritten. A profile that has no such entry but has the Driftkings package installed for your client is set to `true`, so the package is not removed unexpectedly. The package of another client or realm is never used as evidence of your preference.
+- **Ambiguous cases are left alone.** If the profile cannot be read, or a package that is not Driftkings' own is present, nothing is changed and no install or removal is scheduled. Enable or disable the option yourself to apply a choice.
+- **Fair Play.** Removing fog changes what is visible in battle. Use it only if you accept that risk. Wargaming's Fair Play policy has not approved this feature, and this documentation is not a statement of approval.
+
 ### Optional anonymous statistics
 
 Anonymous usage statistics are **off by default**. You can enable them in settings. When enabled, the mod sends a random installation ID, mod/game versions, region, activity heartbeats and error-location metadata to Google Analytics. It does not send player names, account details, error messages or full filesystem paths. Disabling the option stops sending and deletes the installation ID. Replays are not counted.
