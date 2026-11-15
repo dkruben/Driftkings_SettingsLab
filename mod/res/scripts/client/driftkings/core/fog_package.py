@@ -17,7 +17,66 @@ LOG = get_logger('Driftkings.Fog')
 RESOURCE = 'gui/driftkings/fog/Driftkings.FogPackage.exe'
 INFO = 'gui/driftkings/fog/helper.json'
 PACKAGE = 'Driftkings.RemoveFog.wotmod'
+REMOVE_FOG_MOD_ID = 'driftkings.removefog'
+# Legacy resolution of the persisted preference; EXPLICIT and DEFAULT_OFF never write.
+DEFAULT_OFF = 'default_off'
+EXPLICIT = 'explicit'
+LEGACY_MIGRATE = 'legacy_migrate'
+AMBIGUOUS = 'ambiguous'
 _controller = None
+
+
+def package_evidence(path):
+    """'absent', 'owned' (a readable Driftkings Remove Fog package) or 'foreign' (anything else)."""
+    if not os.path.lexists(path):
+        return 'absent'
+    try:
+        if not os.path.isfile(path):
+            return 'foreign'
+        with zipfile.ZipFile(path) as archive:
+            info = archive.getinfo('meta.xml')
+            if info.file_size > 8192:
+                return 'foreign'
+            meta = ET.fromstring(archive.read(info))
+            return 'owned' if meta.findtext('id') == REMOVE_FOG_MOD_ID else 'foreign'
+    except (IOError, OSError, KeyError, ValueError, zipfile.BadZipfile, ET.ParseError):
+        return 'foreign'
+
+
+def classify_preference(profile_file, package):
+    """Resolve the legacy state from the active profile and the package of the matching client folder only."""
+    from driftkings.settings.store import read_object
+    try:
+        values = read_object(profile_file) if os.path.isfile(profile_file) else {}
+    except (IOError, OSError, ValueError):
+        return AMBIGUOUS
+    if BATTLE_PREFERENCES.REMOVE_FOG in values:
+        return EXPLICIT if type(values[BATTLE_PREFERENCES.REMOVE_FOG]) is bool else AMBIGUOUS
+    evidence = package_evidence(package)
+    if evidence == 'absent':
+        return DEFAULT_OFF
+    if evidence == 'owned':
+        return LEGACY_MIGRATE
+    return AMBIGUOUS
+
+
+def migrate_preference(profile_file, package):
+    """Persist removeFog=true for a legacy profile with no key and an owned package; idempotent, no marker file."""
+    state = classify_preference(profile_file, package)
+    if state == LEGACY_MIGRATE:
+        from driftkings.settings.store import SettingsStore, read_object
+        values = read_object(profile_file) if os.path.isfile(profile_file) else {}
+        values[BATTLE_PREFERENCES.REMOVE_FOG] = True
+        SettingsStore(profile_file).write(values)
+        LOG.info('Legacy Remove Fog preference migrated to true (owned package present)')
+    return state
+
+
+def mentions_remove_fog(changes):
+    try:
+        return BATTLE_PREFERENCES.REMOVE_FOG in changes
+    except TypeError:
+        return False
 
 
 def coordinated_restart():
@@ -88,6 +147,7 @@ class FogPackageController(object):
         self.desired = None
         self.revision = 0
         self.restart_requested = False
+        self.hold = False
 
     def start(self):
         global _controller
@@ -109,8 +169,27 @@ class FogPackageController(object):
         self.event += self.lobby
         settings_service.onModSettingsChanged.connect(self.changed, BATTLE_PREFERENCES.NAME,
             (GLOBAL.ENABLED, BATTLE_PREFERENCES.REMOVE_FOG))
+        from driftkings.settings.loader import settings_loader
+        self.prepare(settings_loader.path(BATTLE_PREFERENCES.NAME))
         self.previous_result()
-        self.changed(None, {})
+        if not self.hold:
+            self.changed(None, {})
+
+    def prepare(self, profile_file):
+        """Resolve the persisted preference before any automatic decision; ambiguity schedules nothing."""
+        from driftkings.settings.store import read_object
+        try:
+            state = migrate_preference(profile_file, self.target)
+            if state in (EXPLICIT, LEGACY_MIGRATE):
+                value = read_object(profile_file)[BATTLE_PREFERENCES.REMOVE_FOG]
+                self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = bool(value)
+        except Exception:
+            state = AMBIGUOUS
+            LOG.exception('Remove Fog preference could not be resolved safely')
+        if state == AMBIGUOUS:
+            self.hold = True
+            LOG.warning('Remove Fog preference ambiguous; no automatic fog operation is scheduled')
+        return state
 
     def previous_result(self):
         if not os.path.isdir(self.cache):
@@ -165,7 +244,16 @@ class FogPackageController(object):
     def changed(self, component, changes):
         if not self.active:
             return
-        desired = bool(self.config.data[GLOBAL.ENABLED] and self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG, False))
+        value = self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG)
+        if type(value) is not bool:
+            LOG.warning('Remove Fog preference missing or invalid; no fog operation is scheduled')
+            return
+        if self.hold:
+            # Ambiguous legacy state: only an explicit user change to the option may act.
+            if not mentions_remove_fog(changes):
+                return
+            self.hold = False
+        desired = bool(self.config.data[GLOBAL.ENABLED] and value)
         try:
             if self.process is None:
                 if desired and package_current(self.target, source_stamp(self.root)):
