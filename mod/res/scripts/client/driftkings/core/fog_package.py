@@ -270,11 +270,23 @@ class FogPackageController(object):
             except Exception:
                 LOG.debug('Kept fog session folder %s', folder, exc_info=True)
 
+    def present_intent(self, changes):
+        """After a reload, show the preference the package follows; no write, no event, no scheduled work.
+
+        The panel describes the live dictionary, so the in-memory option is set to the known intent when a reload
+        replaced it with a default. Unknown or held states keep what was read.
+        """
+        if not mentions_remove_fog(changes) or self.hold or self.intent_value is None:
+            return
+        if self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG) != self.intent_value:
+            self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = self.intent_value
+
     def changed(self, component, changes):
         if not self.active:
             return
         if getattr(changes, 'origin', None) == 'reload':
             # Reading storage (panel open, missing file, missing key, external edit) never schedules work.
+            self.present_intent(changes)
             return
         mentions = mentions_remove_fog(changes)
         if self.hold and not mentions:
@@ -292,8 +304,9 @@ class FogPackageController(object):
             LOG.warning('Remove Fog preference unknown; no fog operation is scheduled')
             return
         desired = bool(self.config.data[GLOBAL.ENABLED] and intent)
-        if component is None and not desired:
-            # Automatic calls never remove: a materialized or stale false is not a user decision.
+        if (component is None or not mentions) and not desired:
+            # Automatic calls, and the master switch alone, never remove the package: only an explicit change of
+            # the Remove Fog option may order a removal.
             return
         try:
             if self.process is None:

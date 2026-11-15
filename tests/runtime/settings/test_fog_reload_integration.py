@@ -189,12 +189,13 @@ class RemoveFogIntegrationTests(RuntimeTest):
         self.assertIs(self.read_profile()[FOG], False)
         self.assertTrue(os.path.isfile(self.package))
 
-    def test_explicit_master_switch_changes_are_applied(self):
+    def test_master_switch_off_with_a_package_present_never_removes(self):
         self.write_profile({FOG: True, MASTER: True})
         self.write_package()
         self.launch()
         self.service.apply(self.section, {MASTER: False})
-        self.assertEqual(self.controller.scheduled, [False])
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
 
     def test_explicit_master_switch_on_installs_when_missing(self):
         self.write_profile({FOG: True, MASTER: False})
@@ -285,6 +286,87 @@ class RemoveFogIntegrationTests(RuntimeTest):
         self.reload_section()
         origins = [origin for _, origin, _ in listener.calls]
         self.assertIn('reload', origins)
+
+    # Master switch: it never removes; only the option does (fix B)
+    def test_master_on_with_false_intent_and_installed_package_never_removes(self):
+        self.write_profile({FOG: False, MASTER: False})
+        self.write_package()
+        self.launch()
+        self.service.apply(self.section, {MASTER: True})
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+
+    def test_master_off_on_cycle_with_true_keeps_the_package(self):
+        self.write_profile({FOG: True, MASTER: True})
+        self.write_package()
+        self.launch()
+        self.service.apply(self.section, {MASTER: False})
+        self.service.apply(self.section, {MASTER: True})
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+
+    def test_master_off_then_explicit_option_disable_schedules_removal(self):
+        self.write_profile({FOG: True, MASTER: True})
+        self.write_package()
+        self.launch()
+        self.service.apply(self.section, {MASTER: False})
+        self.service.apply(self.section, {FOG: False})
+        self.assertEqual(self.controller.scheduled, [False])
+        self.assertTrue(os.path.isfile(self.package))
+
+    # UI versus intent after reloads (fix D). The panel describes the live dictionary, config.data.
+    def test_panel_shows_the_intent_after_the_file_is_deleted(self):
+        self.write_profile({FOG: True, MASTER: True})
+        self.write_package()
+        self.launch()
+        os.remove(self.profile_file())
+        self.reload_section()
+        self.assertIs(self.section.data[FOG], True)
+        self.assertIs(self.controller.current_intent(), True)
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+
+    def test_panel_shows_the_intent_after_the_key_is_removed_without_writing(self):
+        self.write_profile({FOG: True, MASTER: True})
+        self.write_package()
+        self.launch()
+        self.write_profile({MASTER: True})
+        before = open(self.profile_file(), 'rb').read()
+        self.reload_section()
+        self.assertIs(self.section.data[FOG], True)
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertEqual(open(self.profile_file(), 'rb').read(), before)
+
+    def test_panel_shows_false_intent_when_the_key_is_missing(self):
+        self.write_profile({FOG: False, MASTER: True})
+        self.write_package()
+        self.launch()
+        self.write_profile({MASTER: True})
+        self.reload_section()
+        self.assertIs(self.section.data[FOG], False)
+        self.assertEqual(self.controller.scheduled, [])
+
+    def test_held_state_does_not_invent_a_value_for_the_panel(self):
+        self.write_profile({MASTER: True})
+        self.write_package(mod_id='someone.else')
+        self.launch()
+        self.assertTrue(self.controller.hold)
+        self.reload_section()
+        self.assertIsNone(self.controller.intent_value)
+        self.assertIs(self.section.data[FOG], False)  # the value the file has, with the default for the key
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
+
+    def test_repeated_panel_opens_do_not_order_anything(self):
+        self.write_profile({FOG: True, MASTER: True})
+        self.write_package()
+        self.launch()
+        os.remove(self.profile_file())
+        for _ in range(3):
+            self.reload_section()
+        self.assertIs(self.section.data[FOG], True)
+        self.assertEqual(self.controller.scheduled, [])
+        self.assertTrue(os.path.isfile(self.package))
 
     @staticmethod
     def changes(values):

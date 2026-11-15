@@ -273,11 +273,11 @@ class FogPreferenceTests(RuntimeTest):
         self.assertEqual(controller.scheduled, [False])
         self.assertTrue(os.path.isfile(self.package))
 
-    def test_master_switch_off_schedules_removal_path(self):
+    def test_master_switch_off_never_schedules_removal(self):
         self.write_package()
         controller = self.controller({self.REMOVE: True, 'enabled': False})
         controller.changed('battle_preferences', {'enabled': False})
-        self.assertEqual(controller.scheduled, [False])
+        self.assertEqual(controller.scheduled, [])
 
     def test_profile_isolation_is_per_profile_file(self):
         # Two profiles: only the active profile file is read and migrated.
