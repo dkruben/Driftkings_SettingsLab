@@ -156,6 +156,15 @@ class FogPackageController(object):
         self.revision = 0
         self.restart_requested = False
         self.hold = False
+        # The preference the fog package should follow. Set by prepare() and by explicit user changes only;
+        # a reload, a profile load or a materialized default never sets it.
+        self.intent_value = None
+
+    def current_intent(self):
+        if self.intent_value is not None:
+            return self.intent_value
+        value = self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG)
+        return value if type(value) is bool else None
 
     def start(self):
         global _controller
@@ -187,7 +196,7 @@ class FogPackageController(object):
         """Automatic work at launch: install or refresh only for an on preference; never remove."""
         if self.hold:
             return
-        if self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG) is not True:
+        if self.current_intent() is not True:
             return
         self.changed(None, {})
 
@@ -196,13 +205,17 @@ class FogPackageController(object):
         from driftkings.settings.store import read_object
         try:
             state = migrate_preference(profile_file, self.target)
-            if state in (EXPLICIT, LEGACY_MIGRATE):
-                value = read_object(profile_file)[BATTLE_PREFERENCES.REMOVE_FOG]
-                self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = bool(value)
+            if state == DEFAULT_OFF:
+                self.intent_value = False
+            elif state in (EXPLICIT, LEGACY_MIGRATE):
+                value = bool(read_object(profile_file)[BATTLE_PREFERENCES.REMOVE_FOG])
+                self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = value
+                self.intent_value = value
         except Exception:
             state = AMBIGUOUS
             LOG.exception('Remove Fog preference could not be resolved safely')
         if state == AMBIGUOUS:
+            self.intent_value = None
             self.hold = True
             LOG.warning('Remove Fog preference ambiguous; no automatic fog operation is scheduled')
         return state
@@ -260,16 +273,25 @@ class FogPackageController(object):
     def changed(self, component, changes):
         if not self.active:
             return
-        value = self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG)
-        if type(value) is not bool:
-            LOG.warning('Remove Fog preference missing or invalid; no fog operation is scheduled')
+        if getattr(changes, 'origin', None) == 'reload':
+            # Reading storage (panel open, missing file, missing key, external edit) never schedules work.
             return
-        if self.hold:
+        mentions = mentions_remove_fog(changes)
+        if self.hold and not mentions:
             # Ambiguous legacy state: only an explicit user change to the option may act.
-            if not mentions_remove_fog(changes):
+            return
+        if mentions and component is not None:
+            value = self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG)
+            if type(value) is not bool:
+                LOG.warning('Remove Fog preference missing or invalid; no fog operation is scheduled')
                 return
+            self.intent_value = value
             self.hold = False
-        desired = bool(self.config.data[GLOBAL.ENABLED] and value)
+        intent = self.current_intent()
+        if intent is None:
+            LOG.warning('Remove Fog preference unknown; no fog operation is scheduled')
+            return
+        desired = bool(self.config.data[GLOBAL.ENABLED] and intent)
         if component is None and not desired:
             # Automatic calls never remove: a materialized or stale false is not a user decision.
             return
