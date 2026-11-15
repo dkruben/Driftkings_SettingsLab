@@ -36,6 +36,7 @@ class VersionsTests(RuntimeTest):
     def test_game_version_normalization_and_unknown_versions(self):
         api = self.load('core.updater.versioning')
         self.assertEqual(api.normalize_game_version(' v.2.04.1.0 #970 '), '2.4.1.0')
+        self.assertEqual(api.normalize_game_version(' v.2.4.2.0 Common Test #995 '), '2.4.2.0')
         self.assertGreater(api.game_key('2.10.0.0'), api.game_key('2.9.0.0'))
         for value in (None, '', '2.4.1', '2.4.1.0-beta', '2.4.1.0 garbage'):
             self.assertIsNone(api.normalize_game_version(value))

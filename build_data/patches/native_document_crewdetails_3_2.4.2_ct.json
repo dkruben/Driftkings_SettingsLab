@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "CT",
+  "client_build": "995",
+  "feature": "DriftkingsCrewDetails",
+  "resource": "gui/gameface/_dist/production/lobby/crew/personal_case/ServiceRecordView/ServiceRecordView.html",
+  "source_sha256": "19af8fa84fa98b6c100c7375af9ec16a9d68d57a5205bb46a859425ba89b11f4",
+  "output_sha256": "d4b68cb46c4558317a9f725013a22dd650534fbc994463ce73688bb81ca2620d",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/crew_details/details.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/crew_details/details.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

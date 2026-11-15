@@ -27,3 +27,12 @@
 .dk-health[data-health-style="minimal"] .dk-health__track { background-image: none; background-color: #202326; box-shadow: 0 0 0 2rem #101214; }
 .dk-health[data-health-style="minimal"] .dk-health__stripes,
 .dk-health[data-health-style="minimal"] .dk-health__gloss { display: none; }
+
+/* Compact docked styles: live geometry is drawn by the native Flash component. */
+.dk-health[data-health-style="ammo_minimal"],
+.dk-health[data-health-style="ammo_classic"],
+.dk-health[data-health-style="ammo_driftkings"] { background-color: #101315; border: 1rem solid #656B70; }
+.dk-health[data-health-style="ammo_classic"] { border: 2rem solid #A79B77; }
+.dk-health[data-health-style="ammo_driftkings"] { border: 2rem solid #D0A54A; }
+.dk-health[data-health-style="ammo_minimal"] .dk-health__stripes,
+.dk-health[data-health-style="ammo_minimal"] .dk-health__gloss { display: none; }

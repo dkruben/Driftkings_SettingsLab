@@ -1,12 +1,16 @@
 """Validate build inputs and resolve a package plan without compiling or deploying."""
 import argparse
+import base64
+import subprocess
 import ast
 import fnmatch
 import hashlib
 import json
 import re
+import shutil
 from pathlib import Path, PurePosixPath
 import sys
+import xml.etree.ElementTree as ET
 import zipfile
 
 try:
@@ -113,6 +117,87 @@ def apply_patch_set(raw, patch):
     result = text.encode('utf-8')
     require(hashlib.sha256(result).hexdigest() == patch['output_sha256'], 'Carousel patch output hash mismatch')
     return result
+
+
+def ct_client_build(game_root, config):
+    """Return (build, revision) of an installed CT client; unknown builds or revisions are refused."""
+    version = ET.parse(Path(game_root) / 'version.xml')
+    match = re.fullmatch(r'v\.(\d+\.\d+\.\d+\.\d+) Common Test #(\d+)', (version.findtext('version') or '').strip())
+    require(match is not None, 'Unknown installed CT build identifier')
+    build = match.group(2)
+    revision = (version.findtext('meta/client') or '').strip()
+    require(config['reference']['ct_builds'].get(build) == revision, 'Unsupported installed CT build or revision')
+    return build, revision
+
+
+def gameface_patch_for_build(root, spec, build):
+    """Select the pinned variant for exactly this CT build; never fall back to another build's patch.
+
+    Single-file generators (native documents, crew barracks) keep their historical pin unchanged;
+    their exact source hash is still enforced by apply_patch_set.
+    """
+    if 'patch_files' not in spec:
+        return read_json(input_path(root, spec['patch_file']))
+    require(build in spec['patch_files'], 'No Gameface patch pinned for CT #%s: %s' % (build, spec['resource']))
+    patch = read_json(input_path(root, spec['patch_files'][build]))
+    require(patch['client_build'] == build and patch['resource'] == spec['resource'],
+            'Gameface patch build identity mismatch for CT #' + build)
+    return patch
+
+
+def read_gameface_resource(game_root, packages, resource):
+    raw = None
+    for name in packages:
+        with zipfile.ZipFile(Path(game_root) / name) as archive:
+            if resource in archive.namelist():
+                require(raw is None, 'Ambiguous Gameface resource')
+                raw = archive.read(resource)
+    require(raw is not None, 'Gameface resource not found')
+    return raw
+
+
+JAVASCRIPT_TOOLS = 'build_tools/javascript'
+JAVASCRIPT_SETUP = 'npm --prefix build_tools/javascript ci --ignore-scripts'
+
+
+def battleinfo_parser_pin(root, patch):
+    """Static check: manifest, package.json and lockfile must name the same exact parser version."""
+    tools = Path(root) / JAVASCRIPT_TOOLS
+    wanted = patch['parser_version']
+    declared = read_json(tools / 'package.json').get('devDependencies', {}).get('acorn')
+    locked = read_json(tools / 'package-lock.json').get('packages', {}).get('node_modules/acorn', {}).get('version')
+    require(declared == wanted and locked == wanted,
+            'BattleInfo AST parser acorn %s is not pinned in %s (package.json: %s, package-lock.json: %s)'
+            % (wanted, JAVASCRIPT_TOOLS, declared, locked))
+
+
+def require_battleinfo_toolchain(root, patch, which=shutil.which):
+    """Fail early and clearly when Node.js or the locked parser is missing; never installs anything."""
+    battleinfo_parser_pin(root, patch)
+    node = which('node')
+    require(node, 'Node.js was not found on PATH; the BattleInfo AST patch needs it. Install Node.js, then run: '
+            + JAVASCRIPT_SETUP)
+    package = Path(root) / JAVASCRIPT_TOOLS / 'node_modules/acorn/package.json'
+    require(package.is_file(), 'acorn is not installed in %s/node_modules; run: %s' % (JAVASCRIPT_TOOLS, JAVASCRIPT_SETUP))
+    installed = read_json(package).get('version')
+    require(installed == patch['parser_version'], 'acorn %s is installed in %s/node_modules but %s is required; run: %s'
+            % (installed, JAVASCRIPT_TOOLS, patch['parser_version'], JAVASCRIPT_SETUP))
+    return node
+
+
+def apply_battleinfo_patch(raw, patch, root=ROOT):
+    require(patch['resource'] == 'gui/gameface/_dist/production/mono/post_battle/random/bundle.js', 'Invalid BattleInfo target')
+    node = require_battleinfo_toolchain(root, patch)
+    job = json.dumps({'input': base64.b64encode(raw).decode('ascii'), 'manifest': patch}).encode('utf-8')
+    from build_tools.isolated_output import active_output, tool_environment
+    scope = active_output()
+    process_options = dict(cwd=str(scope.path / 'workspace'), env=tool_environment()) if scope else {}
+    result = subprocess.run([node, str(Path(root) / 'build_tools/native_battleinfo_patch.cjs')], input=job,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False, **process_options)
+    require(result.returncode == 0, 'BattleInfo AST patch failed: ' + result.stderr.decode('utf-8', 'replace'))
+    output = base64.b64decode(json.loads(result.stdout)['output'])
+    require(hashlib.sha256(output).hexdigest() == patch['output_sha256'], 'BattleInfo output hash mismatch')
+    return output
 
 
 def build_plan(root=ROOT, check_generated=False, check_game=False, check_component_list=True, game_root=None,
@@ -278,23 +363,39 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                         'Flash library hash mismatch: %s' % library['name'])
         elif spec['kind'] == 'vehicle_markers':
             require(input_path(root, spec['entrypoint']).is_file(), 'Missing vehicle marker Flash source')
-            lock = read_json(input_path(root, spec['lock']))
-            require(lock['gameVersion'] == config['game']['version'], 'Vehicle marker version mismatch')
-            require(re.match(r'^[a-f0-9]{64}$', lock['sha256']), 'Invalid marker movie digest')
+            require(spec['locks'] and set(spec['locks']) <= set(config['reference']['ct_builds']),
+                    'Vehicle marker lock pinned to an unknown CT build')
+            digests = set()
+            for build, relative in sorted(spec['locks'].items()):
+                lock = read_json(input_path(root, relative))
+                require(lock['gameVersion'] == config['game']['version'], 'Vehicle marker version mismatch')
+                # The historical lock predates build tagging and stays byte-identical: it is #995 only.
+                require(lock.get('clientBuild', '995') == build, 'Vehicle marker lock belongs to another CT build')
+                require(re.match(r'^[a-f0-9]{64}$', lock['sha256']), 'Invalid marker movie digest')
+                digests.add(lock['sha256'])
+            require(len(digests) == len(spec['locks']), 'Vehicle marker locks must pin distinct native movies')
         elif spec['kind'] == 'gameface_patch':
             require(spec['implementation'] == 'replace_exact', 'Unsupported patch implementation')
-            patch = read_json(input_path(root, spec['patch_file']))
-            require(patch['schema_version'] == 1 and patch['game_version'] == config['game']['version']
-                    and patch['realm'] in config['game']['supported_realms'] and patch['resource'] == spec['resource'],
-                    'Carousel patch target mismatch')
-            require(patch['operations'], 'Empty carousel patch')
-            for operation in patch['operations']:
-                require(set(operation) == {'find', 'replace', 'count'} and isinstance(operation['find'], str)
-                        and operation['find'] and isinstance(operation['replace'], str)
-                        and type(operation['count']) is int and operation['count'] > 0,
-                        'Invalid carousel patch operation')
+            variants = spec.get('patch_files')
+            if variants is not None:
+                require(variants and set(variants) <= set(config['reference']['ct_builds']),
+                        'Gameface patch pinned to an unknown CT build')
+            for build, relative in sorted((variants or {'995': spec['patch_file']}).items()):
+                patch = read_json(input_path(root, relative))
+                require(patch['schema_version'] == 1 and patch['game_version'] == config['game']['version']
+                        and patch['realm'] in config['game']['supported_realms'] and patch['resource'] == spec['resource']
+                        and patch['client_build'] == build,
+                        'Gameface patch target mismatch for CT #' + build)
+                require(patch['operations'], 'Empty Gameface patch for CT #' + build)
+                for operation in patch['operations']:
+                    require(set(operation) == {'find', 'replace', 'count'} and isinstance(operation['find'], str)
+                            and operation['find'] and isinstance(operation['replace'], str)
+                            and type(operation['count']) is int and operation['count'] > 0,
+                            'Invalid Gameface patch operation for CT #' + build)
             if check_game:
                 require(game_root, 'A game installation is required to check game resources')
+                build, _ = ct_client_build(game_root, config)
+                patch = gameface_patch_for_build(root, spec, build)
                 raw = None
                 for name in spec['game_packages']:
                     relative_path(name)
@@ -306,6 +407,21 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
                             raw = archive.read(spec['resource'])
                 require(raw is not None, 'Carousel bundle not found in game packages')
                 apply_patch_set(raw, patch)
+        elif spec['kind'] == 'native_battleinfo_patch':
+            require(spec['implementation'] == 'ast_battleinfo', 'Invalid BattleInfo implementation')
+            patch = read_json(input_path(root, spec['patch_file']))
+            require(patch['schema_version'] == 1 and patch['runtime_normalization'] == 'lf'
+                    and patch['game_version'] == config['game']['version'] and patch['realm'] == 'CT'
+                    and patch['client_build'] == '995' and patch['resource'] == spec['resource']
+                    and spec['resource'] == 'gui/gameface/_dist/production/mono/post_battle/random/bundle.js',
+                    'BattleInfo version/target mismatch')
+            for item in patch['runtime_inputs']:
+                require(hashlib.sha256(input_path(root, item['path']).read_text(encoding='utf-8').encode('utf-8')).hexdigest() == item['sha256'],
+                        'BattleInfo runtime input mismatch')
+            require(re.match(r'^[a-f0-9]{64}$', patch['output_sha256']), 'Invalid BattleInfo output hash')
+            battleinfo_parser_pin(root, patch)
+            if check_game:
+                apply_battleinfo_patch(read_gameface_resource(game_root, spec['game_packages'], spec['resource']), patch, root)
         elif spec['kind'] == 'csharp':
             require(input_path(root, spec['source']).is_file(), 'Missing C# source: %s' % spec['source'])
             require(isinstance(spec.get('additional_sources', []), list), 'Invalid additional C# sources')

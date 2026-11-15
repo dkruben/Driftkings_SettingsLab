@@ -1836,3 +1836,9 @@ panel.hud.health: "Vida"
 vehicle_health.UI_setting_style_tooltip: "Elige el marco de la barra de vida."
 vehicle_health.UI_health_color_tooltip: "Color dinámico según la vida restante."
 vehicle_health.UI_health_minimal: "Minimalista"
+
+vehicle_health.UI_health_ammo_minimal: "Panel de munición — Minimalista"
+
+vehicle_health.UI_health_ammo_classic: "Panel de munición — Clásico WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Panel de munición — Driftkings"

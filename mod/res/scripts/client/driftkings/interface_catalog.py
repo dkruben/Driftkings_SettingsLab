@@ -8,6 +8,13 @@ FLASH_LIBRARY = 'driftkingsbattle.swf'
 # panels are enabled so the native rows report their own redraws.
 PANELS_LIBRARY = 'driftkingspanels.swf'
 FLASH_COMPONENTS = {
+    'DriftkingsAmmoHealth': {
+        'as3': 'driftkings.battle.components.vehicle_health.ammohealthui',
+        'component': 'battle.vehicle_health',
+        'python': 'driftkings.flash.battle.vehicle_health.AmmoHealthView',
+        'section': 'vehicle_health',
+        'surfaces': ['battle']
+    },
     'DistanceMarkerView': {
         'as3': 'driftkings.battle.components.distance_marker.distancemarkerui',
         'component': 'battle.target_distance',
@@ -54,8 +61,27 @@ FLASH_COMPONENTS = {
 # Gameface features are defined in the catalog to allow for validation and discovery of available features.
 # The catalog is used by the runtime to determine which features are available and to load the appropriate resources.
 # Each feature has a context, layout, owner, python module, resource path, scripts, section, and styles.
+BATTLE_HUD_HOST = {
+    'resource': 'mods/driftkings/battle_hud/window',
+    'layout': 'coui://gui/gameface/mods/driftkings/battle_hud/window.html',
+    'asset_priority': ('DriftkingsTeamStrength',),
+}
+
 GAMEFACE = {
+    'DriftkingsFooterLauncher': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/mono/hangar/footer/footer.html'],
+        'context': 'footer',
+        'layout': 'coui://gui/gameface/mods/driftkings/launcher/model.html',
+        'owner': '__dkFooterLauncher',
+        'python': 'driftkings.gameface.lobby.launcher',
+        'resource': 'mods/driftkings/launcher/model',
+        'scripts': ['coui://gui/gameface/mods/driftkings/launcher/launcher.js'],
+        'section': 'driftkings',
+        'styles': ['coui://gui/gameface/mods/driftkings/launcher/launcher.css']},
     'DriftkingsProfileRatings': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/lobby/achievements/AchievementsMainView/AchievementsMainView.html'],
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/profile_ratings/model.html',
         'owner': '__dkProfileRatings',
@@ -66,6 +92,7 @@ GAMEFACE = {
         'styles': []
     },
     'DriftkingsOwnHealth': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/vehicle_health/model.html',
         'owner': '__dkOwnHealth',
@@ -78,6 +105,7 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/shared/health_bar.css',
                    'coui://gui/gameface/mods/driftkings/vehicle_health/vehicle_health.css']},
     'DriftkingsAimingCountdown': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/aiming_countdown/model.html',
         'owner': '__dkAimingCountdown',
@@ -90,6 +118,7 @@ GAMEFACE = {
         'section': 'aiming_countdown',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsFlightTime': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/shell_flight_time/model.html',
         'owner': '__dkFlightTime',
@@ -102,6 +131,7 @@ GAMEFACE = {
         'section': 'shell_flight_time',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsPenetration': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/penetration_indicator/model.html',
         'owner': '__dkPenetration',
@@ -114,6 +144,7 @@ GAMEFACE = {
         'section': 'penetration_indicator',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/reticle_text.css']},
     'DriftkingsBattleEfficiency': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_performance_hud/model.html',
         'owner': '__dkBattleEfficiencyHud',
@@ -126,6 +157,7 @@ GAMEFACE = {
         'section': 'battle_performance',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsTeamStrength': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_statistics/model.html',
         'owner': '__dkTeamStrength',
@@ -138,6 +170,7 @@ GAMEFACE = {
         'section': 'battle_statistics',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsTargetInformation': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/target_information/model.html',
         'owner': '__dkTargetInformation',
@@ -151,6 +184,7 @@ GAMEFACE = {
         'section': 'target_information',
         'styles': ['coui://gui/gameface/mods/driftkings/shared/screen_text.css']},
     'DriftkingsMainGun': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/high_caliber_gameface/model.html',
         'owner': '__dkMainGun',
@@ -162,6 +196,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/high_caliber_gameface/main_gun.css']
     },
     'DriftkingsCrewDetails': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.html', 'gui/gameface/_dist/production/lobby/crew/tooltips/TankmanTooltip/TankmanTooltip.html', 'gui/gameface/_dist/production/lobby/crew/personal_case/PersonalFileView/PersonalFileView.html', 'gui/gameface/_dist/production/lobby/crew/personal_case/ServiceRecordView/ServiceRecordView.html'],
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/crew_details/model.html',
         'owner': '__dkCrewDetails',
@@ -172,6 +208,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/crew_details/details.css']
     },
     'DriftkingsCrewProgression': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/crew_progression/crew_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/crew_progression/model.html',
         'owner': '__dkCrewProgression',
@@ -192,6 +230,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/account_manager/accounts.css']
     },
     'driftkingsbattleEfficiency': {
+        'transport': 'native_battle_results',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/battle_results/results_extension.js',
         'context': 'results',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_performance/model.html',
         'owner': '__dkBattleEfficiency',
@@ -203,6 +243,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/battle_performance/results.css']
     },
     'DriftkingsCarouselStats': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/vehicle_carousel/carousel_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/vehicle_carousel/model.html',
         'owner': '__dkCarouselStats',
@@ -242,6 +284,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/settings_window/css/color_picker.css']
     },
     'DriftkingsHangarClock': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/main/clock_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/main/clock.html',
         'owner': '__dkHangarClock',
@@ -252,6 +296,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/main/clock.css']
     },
     'DriftkingsHangarHeaderOptions': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/mono/hangar/header/header.html'],
         'context': 'header',
         'layout': 'coui://gui/gameface/mods/driftkings/hangar_preferences/header_options.html',
         'owner': '__dkHangarHeaderOptions',
@@ -262,6 +308,7 @@ GAMEFACE = {
         'styles': []
     },
     'DriftkingsMarksOnGunBattle': {
+        'transport': 'own_window',
         'context': 'battle',
         'layout': 'coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/model.html',
         'owner': '__dkBattleMarks',
@@ -274,6 +321,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/battle_marks_of_excellence/marks.css']
     },
     'DriftkingsMarksOnGunHangar': {
+        'transport': 'native_user_missions',
+        'plugin': 'coui://gui/gameface/mods/driftkings/mono/driftkings/hangar_marks/marks_plugin.js',
         'context': 'hangar',
         'layout': 'coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/model.html',
         'owner': '__dkHangarMarks',
@@ -286,6 +335,8 @@ GAMEFACE = {
                    'coui://gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css']
     },
     'DriftkingsMarksOnGunTechTree': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/mono/tech_tree/main/main.html'],
         'context': 'tech_tree',
         'layout': 'coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/model.html',
         'owner': '__dkTechMarks',
@@ -296,6 +347,8 @@ GAMEFACE = {
         'styles': ['coui://gui/gameface/mods/driftkings/shared/marks_tokens.css',
                    'coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css']},
     'DriftkingsRatingPlayers': {
+        'transport': 'native_document',
+        'documents': ['gui/gameface/_dist/production/battle/battle_page/TabView/TabView.html'],
         'context': 'tab',
         'layout': 'coui://gui/gameface/mods/driftkings/panel_gameface/model.html',
         'owner': '__dkPlayerRatings',
@@ -303,7 +356,6 @@ GAMEFACE = {
         'resource': 'mods/driftkings/panel_gameface/model',
         'scripts': ['coui://gui/gameface/mods/driftkings/shared/rating_text.js',
                     'coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js',
-                    'coui://gui/gameface/mods/driftkings/panel_gameface/halloween_tab.js',
                     'coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js'],
         'section': 'team_panels',
         'styles': []

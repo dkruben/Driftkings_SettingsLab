@@ -14,6 +14,13 @@ for(const mod of data.schema.mods){
     count+=mod.controls.length;
 }
 assert(data.schema.mods.length>=35);
+// Resolve the real backend identity rather than inventing a canonical settings-name ID.
+const accounts=data.schema.mods.find(m=>m.id==='legacy.AccountManager');
+assert(accounts,'Account Manager must be present in the real backend schema');
+callbacks.state(Object.assign({},data.state,{selected:accounts.id}));env.flush();
+assert(app.querySelector('.dk-title-icon').src.endsWith('/mods/accounts.svg'));
+assert(app.querySelectorAll('.dk-nav-icon').some(icon=>icon.src.endsWith('/mods/accounts.svg')));
+
 // Clan collection keeps its original owner/action contract but is shown under general settings.
 const main=data.schema.mods.find(m=>m.id==='legacy.main');
 const clan=data.schema.mods.find(m=>m.id==='legacy.AutoClaimClan');

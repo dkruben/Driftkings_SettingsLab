@@ -42,6 +42,11 @@ class RandomRosterTests(RuntimeTest):
         harness = Harness(self, battle(15, 15), 'random')
         self.exchange(harness)
         visibility = harness.views.screenClass()
+        # This test simulates the current Flash view; constructing a callback
+        # emitter alone does not give it ownership after F4-G3.3.
+        visibility._isDAAPIInited = harness.view._isDAAPIInited
+        visibility.as_setRosterS = harness.view.as_setRosterS
+        harness.views.view = visibility
         visibility.reportScreens(False, True, False)
         self.assertEqual(len(harness.tick()['rows']), 30)
         visibility.reportScreens(False, False, False)
@@ -107,6 +112,6 @@ class HalloweenRosterTests(RuntimeTest):
             payload = harness.tick()
             self.assertEqual((payload['enabled'], payload['rows']), (False, []))
         self.assertEqual(len(harness.sent), 1)
-        # Only the TAB table receives the allies.
-        self.assertEqual([len(rows) for enabled, rows in harness.gameface], [6, 6, 6])
+        # Seasonal RatingPlayers TAB is disabled; neither presentation receives rows.
+        self.assertEqual(harness.gameface, [(False, []), (False, []), (False, [])])
         self.assertNotIn('medium2', [payload['mode'] for payload in harness.sent])

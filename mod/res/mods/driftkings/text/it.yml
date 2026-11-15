@@ -1836,3 +1836,9 @@ panel.hud.health: "Integrità"
 vehicle_health.UI_setting_style_tooltip: "Scegli la cornice della barra integrità."
 vehicle_health.UI_health_color_tooltip: "Colore dinamico in base all’integrità rimanente."
 vehicle_health.UI_health_minimal: "Minimalista"
+
+vehicle_health.UI_health_ammo_minimal: "Pannello munizioni — Minimalista"
+
+vehicle_health.UI_health_ammo_classic: "Pannello munizioni — Classico WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Pannello munizioni — Driftkings"

@@ -1836,3 +1836,9 @@ panel.hud.health: "Máu"
 vehicle_health.UI_setting_style_tooltip: "Chọn khung thanh máu."
 vehicle_health.UI_health_color_tooltip: "Màu thay đổi theo lượng máu còn lại."
 vehicle_health.UI_health_minimal: "Tối giản"
+
+vehicle_health.UI_health_ammo_minimal: "Bảng đạn — Tối giản"
+
+vehicle_health.UI_health_ammo_classic: "Bảng đạn — WoT cổ điển"
+
+vehicle_health.UI_health_ammo_driftkings: "Bảng đạn — Driftkings"

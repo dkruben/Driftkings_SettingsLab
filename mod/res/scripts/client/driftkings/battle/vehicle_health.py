@@ -5,6 +5,7 @@ Battle pages without that HUD (Halloween, Fort Rush) show no bar."""
 from driftkings.common.utils import events
 from driftkings.core.battle_capabilities import battle_capabilities
 from driftkings.core.hooks import on_event
+from driftkings.flash.battle.vehicle_health import AmmoHealthView, refresh_views
 from driftkings.gameface.battle.vehicle_health import OwnHealthAdapter
 from driftkings.logger import get_logger
 from driftkings.settings.definitions.battle.vehicle_health import VehicleHealthSettings
@@ -75,6 +76,7 @@ class HealthTracker(object):
     def changed(self):
         if self.listener is not None:
             self.listener.refresh()
+        refresh_views()
 
     def setHealth(self, health):
         if not isinstance(health, (int, long, float)):
@@ -129,6 +131,7 @@ def new_startGUI(*args):
 @on_event(events.PlayerAvatar.destroyGUI.before)
 def new_destroyGUI(*args):
     tracker.stop()
+    refresh_views()
     if g_gameface is not None:
         g_gameface.stopBattle()
 
@@ -143,6 +146,11 @@ def init():
 def fini():
     global g_gameface
     tracker.stop()
+    refresh_views()
     if g_gameface is not None:
         g_gameface.dispose()
         g_gameface = None
+
+
+def getBattleViews():
+    return (('DriftkingsAmmoHealth', AmmoHealthView, vehicle_health_settings),)

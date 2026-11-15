@@ -56,6 +56,17 @@ function load(relative) { vm.runInContext(fs.readFileSync(path.join(base, relati
 function flush() { while (queue.length) { queue.shift()(); } }
 load('shared/marks_panel.js'); load('hangar_marks_of_excellence/marks.js'); flush();
 var root = document.body.firstChild;
+// Native Gameface rejects radian transforms: exercise flat, rising and falling segments.
+var probe = window.__dkMarksKit.graph(element('div'));
+[[80, 80, 0], [80, 81, -76], [81, 80, 76]].forEach(function (sample) {
+    probe.draw([{battles: 1, percent: sample[0]}, {battles: 2, percent: sample[1]}]);
+    var line = probe.element.children.filter(function (child) { return child.className === 'dk-mog__segment'; })[0];
+    var angle = /^rotate\(([-0-9.e]+)deg\)$/.exec(line.style.transform);
+    assert(angle, 'graph rotation must use Gameface-compatible degree units');
+    assert(Math.abs(Number(angle[1]) - Math.atan2(sample[2], 400) * 180 / Math.PI) < 0.000001);
+    assert(Math.abs(parseFloat(line.style.width) - Math.sqrt(400 * 400 + sample[2] * sample[2])) < 0.000001);
+});
+
 function find(cls, parent) {
     parent = parent || root;
     if ((' ' + parent.className + ' ').indexOf(' ' + cls + ' ') >= 0) { return parent; }

@@ -1,0 +1,11 @@
+[
+  {
+    "type": "Layout",
+    "path": "coui://gui/gameface/mods/driftkings/launcher/model.html",
+    "parameters": {
+      "entrance": "main",
+      "impl": "gameface"
+    },
+    "id": "R.mods.driftkings.launcher.model"
+  }
+]

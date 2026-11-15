@@ -41,6 +41,21 @@ class GeneratorTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, path)
 
+        # Production installer fixtures stay explicit when developing a CT-only branch.
+        path = self.root / 'build_data/build_config.json'
+        config = json.loads(path.read_text())
+        config['game']['supported_realms'] = ['EU', 'NA', 'ASIA']
+        path.write_text(json.dumps(config))
+
+    def test_common_test_contract_rejects_production_realms(self):
+        config = json.loads((self.root / 'build_data/build_config.json').read_text())
+        config['game']['supported_realms'] = ['CT']
+        self.assertEqual(supported_realms(config), ['CT'])
+        self.assertEqual(client_realm(' ct ', config), 'CT')
+        for realm in ('EU', 'NA', 'ASIA', 'SEA', 'RU'):
+            with self.assertRaisesRegex(ValueError, 'Unsupported game realm'):
+                client_realm(realm, config)
+
     def test_installer_attachment_updates_release_inventory_and_checksums(self):
         folder = self.root / 'release'
         folder.mkdir()

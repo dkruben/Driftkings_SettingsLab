@@ -1836,3 +1836,9 @@ panel.hud.health: "Прочность"
 vehicle_health.UI_setting_style_tooltip: "Выберите рамку полосы прочности."
 vehicle_health.UI_health_color_tooltip: "Динамический цвет в зависимости от оставшейся прочности."
 vehicle_health.UI_health_minimal: "Минимализм"
+
+vehicle_health.UI_health_ammo_minimal: "Панель боеприпасов — Минимализм"
+
+vehicle_health.UI_health_ammo_classic: "Панель боеприпасов — Классика WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Панель боеприпасов — Driftkings"

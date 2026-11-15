@@ -17,11 +17,11 @@ class AdapterTableTests(RuntimeTest):
         self.assertEqual(random.team_size, 30)
         self.assertEqual(random.panel_modes, self.load('settings.settings_data').PROFILES)
 
-    def test_halloween_is_allies_only_with_numbers_in_its_own_tab_only(self):
+    def test_halloween_keeps_roster_rules_without_ratingplayers_tab(self):
         adapter = self.adapters.adapter_for('halloween')
         self.assertEqual((adapter.enemies, adapter.team_size, adapter.panel_modes, adapter.order),
                          (False, 5, (), 'mod'))
-        self.assertEqual((adapter.loading, adapter.panel, adapter.tab), (False, False, 'halloween'))
+        self.assertEqual((adapter.loading, adapter.panel, adapter.tab), (False, False, None))
         self.assertTrue(adapter.event_numbers)
 
     def test_modes_without_adapter_are_disabled(self):
@@ -90,7 +90,7 @@ class ScreenGateTests(RuntimeTest):
             self.assertTrue(payload['enabled'])
             self.assertEqual(len(payload['rows']), 14)
             self.assertEqual(sum(row['ally'] for row in payload['rows']), 7)
-            self.assertEqual(harness.watched[-1], tab)
+            self.assertEqual(harness.views.tabKind(), tab)
             self.assertFalse(harness.views.model.restricted)
             self.assertTrue(all(row['panels'] and row['loading']['enabled'] and row['tab']['enabled'] for row in payload['rows']))
             values = harness.views.contextCache[1][1]
@@ -185,17 +185,16 @@ class ScreenGateTests(RuntimeTest):
         self.assertTrue(payload['enabled'])
         self.assertEqual(len(payload['rows']), 30)
         self.assertEqual(harness.gameface[-1][0], True)
-        self.assertEqual(harness.watched[-1], 'classic')
+        self.assertEqual(harness.views.tabKind(), 'classic')
         self.assertNotIn('summary', payload['rows'][0])
 
-    def test_halloween_sends_the_tab_but_no_flash_rows(self):
+    def test_halloween_sends_no_ratingplayers_tab_or_flash_rows(self):
         harness = Harness(self, halloween(), 'halloween')
         payload = harness.tick()
         self.assertEqual((payload['enabled'], payload['rows']), (False, []))
         enabled, rows = harness.gameface[-1]
-        self.assertTrue(enabled)
-        self.assertEqual(sorted(row['id'] for row in rows), [1, 2, 3, 4, 5, 6])
-        self.assertEqual(harness.watched[-1], 'halloween')
+        self.assertEqual((enabled, rows), (False, []))
+        self.assertIsNone(harness.views.tabKind())
 
     def test_unsupported_modes_send_nothing_to_draw(self):
         for mode, vehicles in (('comp7', battle(7, 7)), ('unknown', battle(15, 15))):

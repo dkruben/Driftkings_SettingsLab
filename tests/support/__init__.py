@@ -100,7 +100,7 @@ def gameface_core(view_model, **values):
     namespace = source('gameface/core.py', {
         'frameworks.wulf': module(ViewModel=view_model), 'gui.impl.gen': module(R=None),
         'openwg_gameface': module(gf_mod_inject=None),
-        'driftkings.interface_catalog': module(GAMEFACE={}, gameface_spec=None)})
+        'driftkings.interface_catalog': module(GAMEFACE={}, gameface_spec=lambda name: {})})
     values.setdefault('attach_assets', lambda *args: None)
     namespace['attach_assets'] = values['attach_assets']
     return module(payload_model=namespace['payload_model'], **values)

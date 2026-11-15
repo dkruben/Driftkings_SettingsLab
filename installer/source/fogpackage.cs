@@ -174,8 +174,27 @@ internal static class FogPackage
             return source != null && source.InnerText == SourceStamp(packages);
         }
     }
+    internal static string ModDirectory(string root, string version) {
+        Require(Regex.IsMatch(version, @"\A\d+\.\d+\.\d+\.\d+\z"), "Invalid fog client version");
+        string folder = version, paths = Path.Combine(root, "paths.xml");
+        if (File.Exists(paths)) {
+            var xml = new XmlDocument(); xml.XmlResolver = null; xml.Load(paths);
+            var matches = new HashSet<string>(StringComparer.Ordinal);
+            foreach (XmlNode node in xml.SelectNodes("/root/Paths/Path")) {
+                string value = node.InnerText.Trim().Replace('\\', '/');
+                foreach (string name in new[] { version, version + " Common Test" }) {
+                    if (value == "./mods/" + name || value == "mods/" + name) matches.Add(name);
+                }
+            }
+            Require(matches.Count == 1, "Missing or ambiguous client mod path");
+            foreach (string name in matches) folder = name;
+        }
+        string directory = Path.Combine(root, "mods", folder);
+        Require(Directory.Exists(directory), "Client mod version directory missing");
+        return directory;
+    }
     internal static void Apply(string root, string version, bool enabled, string stage) {
-        string target = Path.Combine(root, "mods", version, FileName), ready = Path.Combine(stage, "fog.ready");
+        string target = Path.Combine(ModDirectory(root, version), FileName), ready = Path.Combine(stage, "fog.ready");
         Safe(target); Safe(ready); Safe(Path.Combine(root, "res", "packages"));
         Require(Directory.Exists(Path.GetDirectoryName(target)), "Client mod version directory missing");
         if (File.Exists(target)) Require(Owned(target), "Optional package belongs to another mod");

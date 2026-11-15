@@ -20,10 +20,10 @@ package driftkings.battle.components.ratings
         private var payload:Object={enabled:false,rows:[]};
         private var state:nativestate=new nativestate();
         private var extra:extrafields=new extrafields();
-        private var panels:panelrenderer=new panelrenderer(state);
+        private var panels:PanelRenderer=new PanelRenderer(state);
         private var tables:tablerenderer=new tablerenderer(state,extra);
         private var clock:loadingclock=new loadingclock(extra);
-        private var bindings:viewbindings;
+        private var bindings:ViewBindings;
         private var profiler:frameprofiler=new frameprofiler();
         private var mouseStage:Stage;
         private var lastScan:int=0;
@@ -38,7 +38,7 @@ package driftkings.battle.components.ratings
         public function ratingscreens()
         {
             super(); mouseEnabled=mouseChildren=false;
-            bindings=new viewbindings(this);
+            bindings=new ViewBindings(this);
             addEventListener(Event.ENTER_FRAME,frame,false,0,true);
             addEventListener(Event.ADDED_TO_STAGE,attached,false,0,true);
         }
@@ -113,7 +113,7 @@ package driftkings.battle.components.ratings
             var visiblePanel:Boolean=false,visibleLoading:Boolean=false,visibleTab:Boolean=false;
             for each (var binding:Object in bindings.list)
             {
-                if (!viewbindings.showing(binding.owner as DisplayObject)) continue;
+                if (!ViewBindings.showing(binding.owner as DisplayObject)) continue;
                 if (binding.screen=="panel") visiblePanel=true;
                 else if (binding.screen=="tab" || binding.screen=="frontlineTab") visibleTab=true;
                 else visibleLoading=true;
@@ -128,7 +128,7 @@ package driftkings.battle.components.ratings
             tables.matched=0;
             for each (var binding:Object in bindings.list)
             {
-                if (!viewbindings.showing(binding.owner as DisplayObject)) continue;
+                if (!ViewBindings.showing(binding.owner as DisplayObject)) continue;
                 var checkpoint:int=getTimer();
                 if (binding.screen=="frontlineTab" || binding.screen=="frontlineLoading")
                 {
@@ -167,7 +167,7 @@ package driftkings.battle.components.ratings
             var area:Number=nativestate.number(payload.hoverAreaWidth,230);
             for each (var binding:Object in bindings.list)
             {
-                if (binding.screen!="panel" || !viewbindings.showing(binding.owner as DisplayObject)) continue;
+                if (binding.screen!="panel" || !ViewBindings.showing(binding.owner as DisplayObject)) continue;
                 var panel:DisplayObject=binding.owner as DisplayObject;
                 var point:Point=panel.globalToLocal(new Point(event.stageX,event.stageY));
                 var height:Number="panelHeight" in binding.owner ? binding.owner.panelHeight : panel.height;

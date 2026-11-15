@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.7-beta.1",
+  "version": "0.1.8-beta.1",
   "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
@@ -8,10 +8,10 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "Compatibility: updated the World of Tanks 2.4.1.1 micro-update contracts to EU source 2.4.1.5514, including the hangar carousel patch, native vehicle-marker movie and Flash libraries.",
-    "Minimap: custom enhancements now run only in Random Battles and 7x7/Onslaught (Comp7). Other modes and events retain the native minimap; saved settings are preserved.",
-    "Assets: optimized Account Manager icons and player-panel HP textures, reducing source PNG size by approximately 4.62 MiB.",
-    "Validation: the project owner confirmed the locally installed EU test build after in-game testing. EU/NA build resource checks passed; this does not establish new NA or ASIA in-game validation.",
-    "Beta release for World of Tanks 2.4.1.1 on Wargaming EU, NA and ASIA; Common Test is not the production build target."
+    "Common Test development build for WoT 2.4.2.0 #995, using CT source 2.4.2.5516. Not a production EU/NA/ASIA release.",
+    "Adapted hangar carousel and crew-tooltip patches, refreshed CT Flash libraries and native vehicle markers.",
+    "Fixed fog package destination for the declared Common Test mod folder and changed marks-graph rotation to degree units.",
+    "Integrated the approved settings header and Account Manager icon. The owner approved local test package 0.1.8-beta.2 in game; tracked version remains 0.1.8-beta.1 during this CT-only override cycle.",
+    "Added three optional health-bar frames docked above the native battle ammunition and consumables panel; existing floating styles and saved profile selection are preserved. Pending in-game validation."
   ]
 }

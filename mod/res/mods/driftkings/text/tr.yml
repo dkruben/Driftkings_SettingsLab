@@ -1836,3 +1836,9 @@ panel.hud.health: "Can"
 vehicle_health.UI_setting_style_tooltip: "Can çubuğunun çerçevesini seçin."
 vehicle_health.UI_health_color_tooltip: "Kalan cana göre dinamik renk."
 vehicle_health.UI_health_minimal: "Minimalist"
+
+vehicle_health.UI_health_ammo_minimal: "Mühimmat paneli — Sade"
+
+vehicle_health.UI_health_ammo_classic: "Mühimmat paneli — Klasik WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Mühimmat paneli — Driftkings"

@@ -92,11 +92,14 @@ class CarouselController(HangarController):
 
 
 def install_gameface():
+    from gui.impl.gen.view_models.views.lobby.hangar.user_missions_plugin_model import UserMissionsPluginModel
+    from gui.impl.lobby.hangar.presenters.user_missions_presenter import UserMissionsPresenter
     from gui.impl.pub.view_component import ViewComponent
 
-    from driftkings.gameface.core import payload_model
+    from driftkings.gameface.core import INVALID_RES_ID, native_payload_model, resource_id
 
-    CarouselModel = payload_model(FEATURE, ('onRequestVehicles',))
+    CarouselModel = native_payload_model(FEATURE, ('onRequestVehicles',))
+    plugin_url = gameface_spec(FEATURE)['plugin']
 
     class CarouselView(ViewComponent):
         def __init__(self, parent, resource_id):
@@ -130,7 +133,7 @@ def install_gameface():
             self.refresh()
 
         def requestVehicles(self, args):
-            if not isinstance(args, dict):
+            if not self._carouselActive or not isinstance(args, dict):
                 return
             ids = args.get('ids', '')
             if not isinstance(ids, string_types) or len(ids) > 2048:
@@ -166,6 +169,43 @@ def install_gameface():
                     model._setString(0, '{"config":{"visible":false}}')
 
     install_card(_component, CarouselView, __name__, RESOURCE)
+
+    @override(UserMissionsPresenter, '_onLoading')
+    def plugin_loading(original, presenter, *args, **kwargs):
+        result = original(presenter, *args, **kwargs)
+        try:
+            alias = resource_id(RESOURCE)
+            if alias == INVALID_RES_ID:
+                raise ValueError('Carousel resource unavailable')
+            with presenter.viewModel.transaction() as model:
+                plugins = model.getPlugins()
+                if alias in plugins:
+                    _component().LOG.warning('Carousel native plugin slot already occupied')
+                    return result
+                descriptor = UserMissionsPluginModel()
+                descriptor.setUrl(plugin_url)
+                plugins.set(alias, descriptor)
+            presenter._dkCarouselPlugin = (alias, descriptor)
+            _component().LOG.info('Carousel native plugin registered; OpenWG injection not requested')
+        except Exception:
+            _component().LOG.exception('Could not register native carousel plugin')
+        return result
+
+    @override(UserMissionsPresenter, '_finalize')
+    def plugin_finalize(original, presenter, *args, **kwargs):
+        owned = getattr(presenter, '_dkCarouselPlugin', None)
+        if owned is not None:
+            try:
+                alias, descriptor = owned
+                with presenter.viewModel.transaction() as model:
+                    plugins = model.getPlugins()
+                    current = plugins.get(alias)
+                    if current is descriptor and current.getUrl() == plugin_url:
+                        plugins.remove(alias)
+                presenter._dkCarouselPlugin = None
+            except Exception:
+                _component().LOG.exception('Could not detach native carousel plugin')
+        return original(presenter, *args, **kwargs)
 
 
 def install_carousel_layout():

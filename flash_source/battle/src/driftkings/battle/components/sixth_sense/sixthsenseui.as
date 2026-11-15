@@ -13,7 +13,7 @@ package driftkings.battle.components.sixth_sense
 	import flash.utils.clearTimeout;
 	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
-	import driftkings.battle.base.battledisplayable;
+	import driftkings.battle.base.BattleDisplayable;
 	import net.wg.data.constants.generated.BATTLE_VIEW_ALIASES;
 	import net.wg.gui.battle.views.BaseBattlePage;
 	import driftkings.utils.constants;
@@ -22,7 +22,7 @@ package driftkings.battle.components.sixth_sense
 	import driftkings.battle.components.sixth_sense.radialprogressbar;
 	import driftkings.utils.utils;
 
-	public class sixthsenseui extends battledisplayable
+	public class sixthsenseui extends BattleDisplayable
 	{
 		private var loader:Loader;
 		private var imageDisposed:Boolean = false;

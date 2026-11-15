@@ -1836,3 +1836,9 @@ panel.hud.health: "ความทนทาน"
 vehicle_health.UI_setting_style_tooltip: "เลือกกรอบของแถบความทนทาน"
 vehicle_health.UI_health_color_tooltip: "สีเปลี่ยนตามความทนทานที่เหลือ"
 vehicle_health.UI_health_minimal: "มินิมอล"
+
+vehicle_health.UI_health_ammo_minimal: "แผงกระสุน — เรียบง่าย"
+
+vehicle_health.UI_health_ammo_classic: "แผงกระสุน — WoT คลาสสิก"
+
+vehicle_health.UI_health_ammo_driftkings: "แผงกระสุน — Driftkings"

@@ -2,7 +2,6 @@
 """Owned UI lifecycle connected to the Gameface dependency required by ModList."""
 from frameworks.wulf import ViewModel
 from gui.impl.gen import R
-from openwg_gameface import gf_mod_inject
 
 from driftkings.interface_catalog import GAMEFACE, gameface_spec
 
@@ -13,9 +12,11 @@ BOOTSTRAP = 'coui://gui/gameface/mods/driftkings/shared/bootstrap.js'
 
 
 def resource_id(key):
+    from driftkings.interface_catalog import BATTLE_HUD_HOST
+
     # WG 2.4.1 loads gui/gen_resources declarations into the native R tree.
     # Keep the existing callers' slash-separated keys within our own subtree.
-    if key not in set(spec['resource'] for spec in GAMEFACE.values()):
+    if key not in set(spec['resource'] for spec in GAMEFACE.values()) | {BATTLE_HUD_HOST['resource']}:
         raise ValueError('Unregistered Driftkings resource key: ' + key)
     parts = key.split('/')
     if len(parts) != 4 or parts[:2] != ['mods', 'driftkings'] or not all(parts):
@@ -37,6 +38,8 @@ class AssetsModel(ViewModel):
 
 
 def attach_assets(model, name):
+    from openwg_gameface import gf_mod_inject
+
     spec = gameface_spec(name)
     if spec['owner'] is None:
         raise ValueError('Standalone layouts load their own assets: ' + name)
@@ -47,6 +50,9 @@ def attach_assets(model, name):
 
 def payload_model(feature, commands=()):
     """ViewModel class with a JSON 'payload' string, the named commands and the feature's assets."""
+    if gameface_spec(feature).get('transport') == 'native_document':
+        return native_payload_model(feature, commands)
+
     class PayloadModel(ViewModel):
         def __init__(self):
             super(PayloadModel, self).__init__(properties=3, commands=len(commands))
@@ -58,3 +64,21 @@ def payload_model(feature, commands=()):
                 setattr(self, command, self._addCommand(command))
             attach_assets(self, feature)
     return PayloadModel
+
+
+def native_payload_model(feature, commands=()):
+    """Publish metadata/data and optional Wulf commands without OpenWG injection."""
+    if gameface_spec(feature).get('transport') not in ('native_user_missions', 'native_battle_results', 'native_document'):
+        raise ValueError('Feature has no native plugin transport: ' + feature)
+
+    class NativePayloadModel(ViewModel):
+        def __init__(self):
+            super(NativePayloadModel, self).__init__(properties=2, commands=len(commands))
+
+        def _initialize(self):
+            super(NativePayloadModel, self)._initialize()
+            self._addStringProperty('payload', '{}')
+            self._addViewModelProperty('DriftkingsUI', AssetsModel(feature))
+            for command in commands:
+                setattr(self, command, self._addCommand(command))
+    return NativePayloadModel

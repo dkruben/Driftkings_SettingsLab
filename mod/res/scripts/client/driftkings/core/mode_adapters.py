@@ -10,7 +10,7 @@ from driftkings._constants import TEAM_PANELS
 
 # Native PLAYERS_PANEL_STATE profiles of the classic panel (settings_data.PROFILES).
 CLASSIC_PANEL_MODES = TEAM_PANELS.MODES
-# tab: the native TAB renderer (classic Gameface, flash, frontline or halloween) or None.
+# tab: the native TAB renderer (classic Gameface, flash or frontline) or None.
 # order: 'native' follows the statistics exchange (captureOrder); 'mod' sorts the
 # roster here, for modes whose exchange is incomplete.
 # event_numbers: show numeric statistics although the mode is an event mode.
@@ -34,7 +34,7 @@ ADAPTERS = {
     # The panel AS3 layout is not in the reference sources, so nothing is drawn
     # over it until the alignment is validated in game. The TAB gets a separate
     # allies table with numeric statistics, beside the native content.
-    'halloween': ModeAdapter('halloween', loading=False, panel=False, tab='halloween', enemies=False, team_size=5,
+    'halloween': ModeAdapter('halloween', loading=False, panel=False, tab=None, enemies=False, team_size=5,
                              panel_modes=(), order='mod', event_numbers=True),
 }
 

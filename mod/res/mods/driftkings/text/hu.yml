@@ -1836,3 +1836,9 @@ panel.hud.health: "Életerő"
 vehicle_health.UI_setting_style_tooltip: "Válaszd ki az életerősáv keretét."
 vehicle_health.UI_health_color_tooltip: "Dinamikus szín a fennmaradó életerő alapján."
 vehicle_health.UI_health_minimal: "Minimalista"
+
+vehicle_health.UI_health_ammo_minimal: "Lőszerpanel — Minimalista"
+
+vehicle_health.UI_health_ammo_classic: "Lőszerpanel — Klasszikus WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Lőszerpanel — Driftkings"

@@ -1,10 +1,71 @@
 """Minimal reproducible ABC patch of the pinned EU marker movie."""
+import hashlib
 import re
 import struct
 import zlib
 
 HELPER = 'QName(PackageNamespace(""), "DriftkingsVehicleMarkersFlash")'
 PROTECTED = 'ProtectedNamespace("net.wg.gui.battle.views.vehicleMarkers:VehicleMarker")'
+
+
+def marker_lock_for_build(locks, build):
+    """Return the native movie lock pinned for exactly this CT build; never another build's lock.
+
+    ``locks`` maps a CT build to its parsed lock. The historical lock has no ``clientBuild``
+    field and is valid for #995 only.
+    """
+    if build not in locks:
+        raise ValueError('No vehicle marker lock pinned for CT #%s' % build)
+    lock = locks[build]
+    if lock.get('clientBuild', '995') != build:
+        raise ValueError('Vehicle marker lock belongs to another CT build')
+    return lock
+
+
+def verify_native_movie(native, lock):
+    if hashlib.sha256(native).hexdigest() != lock['sha256']:
+        raise ValueError('Vehicle marker native movie changed; review the pinned patch before building')
+    return native
+
+
+def _trait(text, kind, name):
+    pattern = r'(?m)^  trait ' + kind + r' [^\n]*, "' + re.escape(name) + r'"\)[^\n]*\n.*?^  end ; trait'
+    found = list(re.finditer(pattern, text, re.S))
+    if len(found) != 1:
+        raise ValueError('Expected exactly one native %s: %s' % (kind, name))
+    return found[0].group(0)
+
+
+def _types(block, keyword):
+    return re.findall(r'(?m)^\s+' + keyword + r' QName\(PackageNamespace\("[^"]*"\), "([^"]+)"\)\s*$', block)
+
+
+def _require_method(text, name, parameters):
+    block = _trait(text, 'method', name)
+    if _types(block, 'returns') != ['void'] or _types(block, 'param')[:len(parameters)] != list(parameters):
+        raise ValueError('Incompatible native method signature: ' + name)
+
+
+def verify_marker_contract(text):
+    """Refuse a native VehicleMarker whose patched members lost the shapes the injected calls need."""
+    for name in ('draw', 'updateMarkerSettings', 'updateState', 'updateCriticalLayout', 'showHitLabelAnim',
+                 'onBeforeDispose'):
+        _require_method(text, name, ())
+    _require_method(text, 'setHealth', ('int',))
+    _require_method(text, 'updateHealth', ('int', 'uint', 'String'))
+    if _types(_trait(text, 'getter', 'markerSettings'), 'returns') != ['Object']:
+        raise ValueError('Incompatible native getter: markerSettings')
+    for name, kind in (('model', 'VehicleMarkerVO'), ('vehicleDestroyed', 'Boolean'),
+                       ('isStickyAndOutOfScreen', 'Boolean')):
+        slot = (r'(?m)^  trait slot QName\(' + re.escape(PROTECTED) + r', "' + name
+                + r'"\) type QName\(PackageNamespace\("[^"]*"\), "' + kind + r'"\)')
+        if len(re.findall(slot, text)) != 1:
+            raise ValueError('Incompatible native marker field: ' + name)
+
+
+def verify_manager_contract(text):
+    _require_method(text, 'as_setMarkerSettings', ('Object',))
+    _require_method(text, 'as_setColorBlind', ('Boolean',))
 
 
 def patch_method(text, name, instructions, minimum_stack, before=False):

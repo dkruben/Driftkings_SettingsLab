@@ -27,6 +27,30 @@ def coordinated_restart():
     return _controller.request_restart()
 
 
+def mod_directory(root, version):
+    """Resolve only the client's declared version folder, including the CT suffix."""
+    if normalize_game_version(version) != version:
+        raise ValueError('Invalid fog client version')
+    names = (version, version + ' Common Test')
+    paths = os.path.join(root, 'paths.xml')
+    if os.path.isfile(paths):
+        matches = []
+        for node in ET.parse(paths).findall('./Paths/Path'):
+            value = (node.text or '').strip().replace('\\', '/')
+            for name in names:
+                if value in ('./mods/' + name, 'mods/' + name) and name not in matches:
+                    matches.append(name)
+        if len(matches) != 1:
+            raise ValueError('Missing or ambiguous client mod path')
+        folder = matches[0]
+    else:
+        folder = version
+    directory = os.path.join(root, 'mods', folder)
+    if not os.path.isdir(directory):
+        raise ValueError('Client mod version directory missing')
+    return directory
+
+
 def source_stamp(root):
     """Match the native generator's inventory stamp without reading map content."""
     import re
@@ -78,7 +102,7 @@ class FogPackageController(object):
             raise ValueError('Unknown client version for fog package')
         self.cache = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'cache', 'fog')
         self.stage = os.path.join(self.cache, 'session-' + str(os.getpid()))
-        self.target = os.path.join(self.root, 'mods', self.version, PACKAGE)
+        self.target = os.path.join(mod_directory(self.root, self.version), PACKAGE)
         self.active = True
         _controller = self
         self.event = events.LobbyView.populate.after.event

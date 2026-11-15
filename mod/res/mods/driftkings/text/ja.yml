@@ -1836,3 +1836,9 @@ panel.hud.health: "HP"
 vehicle_health.UI_setting_style_tooltip: "HPバーのフレームを選択します。"
 vehicle_health.UI_health_color_tooltip: "残りHPに応じて色が変化します。"
 vehicle_health.UI_health_minimal: "ミニマル"
+
+vehicle_health.UI_health_ammo_minimal: "弾薬パネル — ミニマル"
+
+vehicle_health.UI_health_ammo_classic: "弾薬パネル — WoTクラシック"
+
+vehicle_health.UI_health_ammo_driftkings: "弾薬パネル — Driftkings"
