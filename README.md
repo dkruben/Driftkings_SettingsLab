@@ -154,7 +154,11 @@ The **Remove fog** option is **off by default**. A new installation does not cre
 
 - **Enabling it** builds a separate package from the maps of your own installed client. The package is installed or removed only after you close the game, and the change takes effect after the client restarts.
 - **Disabling it** removes the package that Driftkings installed, again only after the game is closed. The main `driftkings.wotmod` is never changed by this option.
-- **Existing settings are kept.** An explicit `true` or `false` in your profile is never overwritten. A profile that has no such entry but has the Driftkings package installed for your client is set to `true`, so the package is not removed unexpectedly. The package of another client or realm is never used as evidence of your preference.
+- **Only a change you make removes the package.** Starting the game, opening the settings panel, reloading settings, switching profiles, a missing profile file or a missing `removeFog` entry never removes the package. Changing the option or the master switch while the game is running does, after you close the game.
+- **Existing settings are kept.** An explicit `true` or `false` in your profile is never overwritten. A profile file that exists but has no `removeFog` entry, and the Driftkings package installed for your client, is set to `true`, so the package is not removed unexpectedly.
+- **A new profile stays off.** A profile with no file is treated as new: it stays off and never removes the package.
+- **Profiles do not own the package.** The package belongs to the game client, not to a profile. Another profile's package is not evidence of your preference, and switching profiles does not remove it. Turning the option off in a profile removes the package for the whole client.
+- **A package left behind** by a removal that did not finish is not removed at startup. Turn the option on and then off again to remove it.
 - **Ambiguous cases are left alone.** If the profile cannot be read, or a package that is not Driftkings' own is present, nothing is changed and no install or removal is scheduled. Enable or disable the option yourself to apply a choice.
 - **Fair Play.** Removing fog changes what is visible in battle. Use it only if you accept that risk. Wargaming's Fair Play policy has not approved this feature, and this documentation is not a statement of approval.
 
