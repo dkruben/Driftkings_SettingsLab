@@ -61,7 +61,9 @@ def _checked(scope, path, dir_fd=None):
     if absent or isinstance(path, int) or os.path.isabs(path):
         return scope.check(path)  # the OS ignores dir_fd for absolute paths
     base = descriptor_directory(dir_fd)
-    if not base.is_relative_to(scope.path):
+    # The adopted external workspace is owned too: POSIX rmtree removes its entries through dir_fd.
+    owned = (scope.path,) if scope.external is None else (scope.path, scope.external)
+    if not any(base.is_relative_to(root) for root in owned):
         raise ValueError('dir_fd outside isolated output: ' + str(base))
     return scope.check(base / Path(path))  # rejects '..', links in any component and other runs
 

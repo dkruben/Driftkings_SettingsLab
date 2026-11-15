@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from build_tools.isolated_output import IsolatedOutput
+from test_isolated_output import simulated_descriptors
 from build_tools.vehicle_markers import (DISASSEMBLY_BUDGET, PATH_MARGIN, marker_workspace, short_workspace_root,
                                          too_deep)
 
@@ -152,6 +153,53 @@ class ShortMarkerWorkspaceTests(unittest.TestCase):
                 self.assertTrue(work.is_dir())
             with self.assertRaises(ValueError):
                 scope.adopt(self.short / 'unrelated-name')
+
+    def test_descriptor_relative_removal_is_limited_to_the_owned_workspace(self):
+        # POSIX shutil.rmtree removes entries through dir_fd; replay those audit events on any platform.
+        self.short.mkdir()
+        other = self.short / 'vm_other-run'
+        other.mkdir()
+        (other / 'victim.fixture').write_bytes(b'other')
+        with IsolatedOutput(self.deep, 'run-a') as scope:
+            work = scope.adopt(self.short / 'vm_run-a')
+            (work / 'nested').mkdir()
+            (work / 'nested' / 'inner.fixture').write_bytes(b'own')
+            (work / 'file.fixture').write_bytes(b'own')
+            table = {9001: work, 9002: work / 'nested', 9003: self.short, 9004: other, 9005: self.base}
+            with simulated_descriptors(table):
+                sys.audit('os.remove', 'file.fixture', 9001)
+                sys.audit('os.remove', 'inner.fixture', 9002)
+                sys.audit('os.rmdir', 'nested', 9001)
+                sys.audit('shutil.rmtree', 'nested', 9001)
+                rejected = (('os.remove', 'victim.fixture', 9004), ('os.rmdir', 'vm_other-run', 9003),
+                            ('os.rmdir', 'vm_run-a', 9003),  # a descriptor above the workspace never authorises
+                            ('os.remove', 's/vm_run-a/file.fixture', 9005),
+                            ('os.remove', '../vm_other-run/victim.fixture', 9001),
+                            ('os.rename', 'file.fixture', 'victim.fixture', 9001, 9004),
+                            ('shutil.rmtree', 'vm_other-run', 9003))
+                for event in rejected:
+                    with self.subTest(event=event), self.assertRaises(ValueError):
+                        sys.audit(*event)
+                with simulated_descriptors({9001: work}, proc=False):
+                    with self.assertRaises(ValueError):
+                        sys.audit('os.remove', 'file.fixture', 9001)  # unprovable descriptor: fail closed
+            scope.release(work)
+            self.assertFalse(work.exists())
+            with simulated_descriptors({9001: self.short / 'vm_run-a'}):
+                with self.assertRaises(ValueError):
+                    sys.audit('os.remove', 'file.fixture', 9001)  # ownership ended with release()
+        self.assertEqual((other / 'victim.fixture').read_bytes(), b'other')
+
+    def test_cleanup_failure_is_raised_from_the_original_body_error(self):
+        with IsolatedOutput(self.deep, 'run-a') as scope:
+            with patch('build_tools.isolated_output.shutil.rmtree', side_effect=OSError(39, 'injected cleanup')):
+                with self.assertRaises(OSError) as caught:
+                    with marker_workspace(scope.path / 'workspace/out', self.short) as work:
+                        raise RuntimeError('original body')
+            self.assertIsInstance(caught.exception.__cause__, RuntimeError)
+            self.assertTrue(work.is_dir())  # a failed cleanup never pretends success
+            self.assertEqual(scope.external, work)
+            scope.release(work)
 
     @unittest.skipUnless(os.name == 'nt', 'Windows junction')
     def test_junction_short_root_is_rejected(self):
