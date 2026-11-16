@@ -26,7 +26,7 @@ As linhas são as atuais, depois das correções.
 
 | Ficheiro:linha | O que protege | Situação | Registo |
 | --- | --- | --- | --- |
-| `components/account_manager.py:58` | Decifrar `accounts.manager` (`wg_ucpdata` + zlib + JSON); em falha tenta ler JSON simples | Fallback intencional para ficheiros antigos não cifrados. Se o JSON também falhar, o `except` exterior regista `LOG.error` | ✅ `LOG.debug` só com `type(error).__name__` (o ficheiro tem palavras-passe) |
+| `components/account_manager.py` (leitura do ficheiro antigo) | Removido na F8.3E: o Account Manager já não lê `accounts.manager`, nem cifrado nem em texto simples. | Sem fallback para JSON simples | ✅ O ficheiro legado nunca é aberto, lido, copiado nem substituído; só se verifica a sua existência |
 | `core/accounts.py:102` | `store.write_accounts()` ao guardar contas | `write_accounts` já regista `LOG.error` nas suas falhas; aqui só chega um erro inesperado, que vira `AccountError('errorSave')` | ✅ `LOG.warning` só com o nome do tipo, sem traceback nem dados das contas |
 | `core/updater/checking.py:47` | `checker.check(...)` ao pedir a verificação de atualizações | `completed(None, 'checkError')` regista o código, mas perdia o traceback | ✅ `LOG.warning(..., exc_info=True)` |
 | `core/updater/context.py:47` | Ler o estado do hangar/replay para decidir se pode instalar | Devolve `unknownContext`, que bloqueia a instalação (falha fechada) | ✅ `LOG.debug(..., exc_info=True)` |
