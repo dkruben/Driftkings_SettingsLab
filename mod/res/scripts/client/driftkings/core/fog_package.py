@@ -17,7 +17,74 @@ LOG = get_logger('Driftkings.Fog')
 RESOURCE = 'gui/driftkings/fog/Driftkings.FogPackage.exe'
 INFO = 'gui/driftkings/fog/helper.json'
 PACKAGE = 'Driftkings.RemoveFog.wotmod'
+REMOVE_FOG_MOD_ID = 'driftkings.removefog'
+# Legacy resolution of the persisted preference; EXPLICIT and DEFAULT_OFF never write.
+DEFAULT_OFF = 'default_off'
+EXPLICIT = 'explicit'
+LEGACY_MIGRATE = 'legacy_migrate'
+AMBIGUOUS = 'ambiguous'
 _controller = None
+
+
+def package_evidence(path):
+    """'absent', 'owned' (a readable Driftkings Remove Fog package) or 'foreign' (anything else)."""
+    if not os.path.lexists(path):
+        return 'absent'
+    try:
+        if not os.path.isfile(path):
+            return 'foreign'
+        with zipfile.ZipFile(path) as archive:
+            info = archive.getinfo('meta.xml')
+            if info.file_size > 8192:
+                return 'foreign'
+            meta = ET.fromstring(archive.read(info))
+            return 'owned' if meta.findtext('id') == REMOVE_FOG_MOD_ID else 'foreign'
+    except (IOError, OSError, KeyError, ValueError, zipfile.BadZipfile, ET.ParseError):
+        return 'foreign'
+
+
+def classify_preference(profile_file, package):
+    """Resolve the legacy state from the active profile and the package of the matching client folder only.
+
+    The key's presence is read from the file, never inferred from its value. The loader writes defaults into a
+    missing file before this runs, so a file that exists with an explicit false is indistinguishable from a
+    materialized default; that is why automatic code never removes a package (see startup()).
+    """
+    from driftkings.settings.store import read_object
+    if not os.path.isfile(profile_file):
+        # A profile with no stored preference is a new profile: never migrated, never written here.
+        return DEFAULT_OFF
+    try:
+        values = read_object(profile_file)
+    except (IOError, OSError, ValueError):
+        return AMBIGUOUS
+    if BATTLE_PREFERENCES.REMOVE_FOG in values:
+        return EXPLICIT if type(values[BATTLE_PREFERENCES.REMOVE_FOG]) is bool else AMBIGUOUS
+    evidence = package_evidence(package)
+    if evidence == 'absent':
+        return DEFAULT_OFF
+    if evidence == 'owned':
+        return LEGACY_MIGRATE
+    return AMBIGUOUS
+
+
+def migrate_preference(profile_file, package):
+    """Persist removeFog=true for a legacy profile with no key and an owned package; idempotent, no marker file."""
+    state = classify_preference(profile_file, package)
+    if state == LEGACY_MIGRATE:
+        from driftkings.settings.store import read_object, SettingsStore
+        values = read_object(profile_file) if os.path.isfile(profile_file) else {}
+        values[BATTLE_PREFERENCES.REMOVE_FOG] = True
+        SettingsStore(profile_file).write(values)
+        LOG.info('Legacy Remove Fog preference migrated to true (owned package present)')
+    return state
+
+
+def mentions_remove_fog(changes):
+    try:
+        return BATTLE_PREFERENCES.REMOVE_FOG in changes
+    except TypeError:
+        return False
 
 
 def coordinated_restart():
@@ -88,6 +155,16 @@ class FogPackageController(object):
         self.desired = None
         self.revision = 0
         self.restart_requested = False
+        self.hold = False
+        # The preference the fog package should follow. Set by prepare() and by explicit user changes only;
+        # a reload, a profile load or a materialized default never sets it.
+        self.intent_value = None
+
+    def current_intent(self):
+        if self.intent_value is not None:
+            return self.intent_value
+        value = self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG)
+        return value if type(value) is bool else None
 
     def start(self):
         global _controller
@@ -105,12 +182,43 @@ class FogPackageController(object):
         self.target = os.path.join(mod_directory(self.root, self.version), PACKAGE)
         self.active = True
         _controller = self
+        # Resolve the stored preference before any signal can call changed(): the connection comes after.
+        from driftkings.settings.loader import settings_loader
+        self.prepare(settings_loader.path(BATTLE_PREFERENCES.NAME))
         self.event = events.LobbyView.populate.after.event
         self.event += self.lobby
         settings_service.onModSettingsChanged.connect(self.changed, BATTLE_PREFERENCES.NAME,
             (GLOBAL.ENABLED, BATTLE_PREFERENCES.REMOVE_FOG))
         self.previous_result()
+        self.startup()
+
+    def startup(self):
+        """Automatic work at launch: install or refresh only for an on preference; never remove."""
+        if self.hold:
+            return
+        if self.current_intent() is not True:
+            return
         self.changed(None, {})
+
+    def prepare(self, profile_file):
+        """Resolve the persisted preference before any automatic decision; ambiguity schedules nothing."""
+        from driftkings.settings.store import read_object
+        try:
+            state = migrate_preference(profile_file, self.target)
+            if state == DEFAULT_OFF:
+                self.intent_value = False
+            elif state in (EXPLICIT, LEGACY_MIGRATE):
+                value = bool(read_object(profile_file)[BATTLE_PREFERENCES.REMOVE_FOG])
+                self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = value
+                self.intent_value = value
+        except Exception:
+            state = AMBIGUOUS
+            LOG.exception('Remove Fog preference could not be resolved safely')
+        if state == AMBIGUOUS:
+            self.intent_value = None
+            self.hold = True
+            LOG.warning('Remove Fog preference ambiguous; no automatic fog operation is scheduled')
+        return state
 
     def previous_result(self):
         if not os.path.isdir(self.cache):
@@ -162,10 +270,44 @@ class FogPackageController(object):
             except Exception:
                 LOG.debug('Kept fog session folder %s', folder, exc_info=True)
 
+    def present_intent(self, changes):
+        """After a reload, show the preference the package follows; no write, no event, no scheduled work.
+
+        The panel describes the live dictionary, so the in-memory option is set to the known intent when a reload
+        replaced it with a default. Unknown or held states keep what was read.
+        """
+        if not mentions_remove_fog(changes) or self.hold or self.intent_value is None:
+            return
+        if self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG) != self.intent_value:
+            self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = self.intent_value
+
     def changed(self, component, changes):
         if not self.active:
             return
-        desired = bool(self.config.data[GLOBAL.ENABLED] and self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG, False))
+        if getattr(changes, 'origin', None) == 'reload':
+            # Reading storage (panel open, missing file, missing key, external edit) never schedules work.
+            self.present_intent(changes)
+            return
+        mentions = mentions_remove_fog(changes)
+        if self.hold and not mentions:
+            # Ambiguous legacy state: only an explicit user change to the option may act.
+            return
+        if mentions and component is not None:
+            value = self.config.data.get(BATTLE_PREFERENCES.REMOVE_FOG)
+            if type(value) is not bool:
+                LOG.warning('Remove Fog preference missing or invalid; no fog operation is scheduled')
+                return
+            self.intent_value = value
+            self.hold = False
+        intent = self.current_intent()
+        if intent is None:
+            LOG.warning('Remove Fog preference unknown; no fog operation is scheduled')
+            return
+        desired = bool(self.config.data[GLOBAL.ENABLED] and intent)
+        if (component is None or not mentions) and not desired:
+            # Automatic calls, and the master switch alone, never remove the package: only an explicit change of
+            # the Remove Fog option may order a removal.
+            return
         try:
             if self.process is None:
                 if desired and package_current(self.target, source_stamp(self.root)):

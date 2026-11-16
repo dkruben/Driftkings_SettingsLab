@@ -148,6 +148,21 @@ Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX incl
 
 The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c:wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
 
+### Remove fog (optional, off by default)
+
+The **Remove fog** option is **off by default**. A new installation does not create or install the separate `Driftkings.RemoveFog.wotmod` package.
+
+- **Enabling it** builds a separate package from the maps of your own installed client. The package is installed or removed only after you close the game, and the change takes effect after the client restarts.
+- **Disabling it** removes the package that Driftkings installed, again only after the game is closed. The main `driftkings.wotmod` is never changed by this option.
+- **Only changing the Remove fog option removes the package.** Turning the option off while the game is running removes the package after you close the game. The master switch never removes it: switching it off and on keeps the package, and it installs the package only when the option is on and the package is missing. Starting the game, opening the settings panel, reloading settings, switching profiles, a missing profile file or a missing `removeFog` entry never removes the package.
+- **The panel shows the preference the package follows.** After a reload, the Remove fog switch shows the preference Driftkings knows, even if the profile file was deleted or lost its entry during the session. Driftkings does not rewrite your file for this. The game client may recreate a missing file with the default value; that default is not applied to the package until the next launch, so a deleted file can show OFF after a restart while the package is still installed. Turn the option on and off again to choose the state explicitly.
+- **Existing settings are kept.** An explicit `true` or `false` in your profile is never overwritten. A profile file that exists but has no `removeFog` entry, and the Driftkings package installed for your client, is set to `true`, so the package is not removed unexpectedly.
+- **A new profile stays off.** A profile with no file is treated as new: it stays off and never removes the package.
+- **Profiles do not own the package.** The package belongs to the game client, not to a profile. Another profile's package is not evidence of your preference, and switching profiles does not remove it. Turning the option off in a profile removes the package for the whole client.
+- **A package left behind** by a removal that did not finish is not removed at startup. Turn the option on and then off again to remove it.
+- **Ambiguous cases are left alone.** If the profile cannot be read, or a package that is not Driftkings' own is present, nothing is changed and no install or removal is scheduled. Enable or disable the option yourself to apply a choice.
+- **Fair Play.** Removing fog changes what is visible in battle. Use it only if you accept that risk. Wargaming's Fair Play policy has not approved this feature, and this documentation is not a statement of approval.
+
 ### Optional anonymous statistics
 
 Anonymous usage statistics are **off by default**. You can enable them in settings. When enabled, the mod sends a random installation ID, mod/game versions, region, activity heartbeats and error-location metadata to Google Analytics. It does not send player names, account details, error messages or full filesystem paths. Disabling the option stops sending and deletes the installation ID. Replays are not counted.
