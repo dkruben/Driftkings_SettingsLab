@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "Не удалось прочитать ф
 account_manager.UI_setting_errorRegion: "Этот аккаунт относится к региону {realm}. Используйте клиент {realm}."
 account_manager.UI_setting_errorRequired: "Укажите имя, электронную почту и пароль."
 account_manager.UI_setting_errorSave: "Не удалось сохранить аккаунты. Предыдущий файл сохранён."
+account_manager.UI_setting_accountProfilesNotice: "Профили аккаунтов больше не хранят пароли. Введите пароль на экране входа World of Tanks."
+account_manager.UI_setting_legacyAccountsNotice: "Пароли, сохранённые предыдущей версией, не импортированы и не используются. Старый файл остаётся без изменений."
+account_manager.UI_setting_errorRequiredProfile: "Заполните название и e-mail."
 account_manager.UI_setting_errorServer: "Выберите доступный сервер."
 account_manager.UI_setting_errorSteam: "Этот клиент использует Steam. Выберите аккаунт через Steam."
 account_manager.UI_setting_keepPassword: "Оставьте пустым, чтобы сохранить прежний пароль."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Запрещает переме�
 clan_reward_collection.UI_description: "Получение клановых наград"
 clan_reward_collection.UI_setting_enabled_text: "Включено"
 clan_reward_collection.UI_setting_enabled_tooltip: "Включить/отключить мод."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Автопокупки за Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "По умолчанию выключено. Если включено, следующая ступень прогресса клана покупается автоматически, когда баланса Tour Coins хватает на её цену. Тратит Tour Coins без подтверждения. Выключение не останавливает сбор бесплатных наград."
 
 # common
 common.UI_mog_accent: "Акцентный цвет"

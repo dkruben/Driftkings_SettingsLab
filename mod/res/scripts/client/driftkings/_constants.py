@@ -361,6 +361,8 @@ class ACCOUNT_MANAGER(object):
 
 class CLAN_REWARD_COLLECTION(object):
     NAME = 'clan_reward_collection'
+    # Automatic purchases with Tour Coins; only an explicit True authorises spending.
+    PURCHASE_PROGRESSION = 'purchaseProgression'
 
 
 class VEHICLE_CAROUSEL(object):

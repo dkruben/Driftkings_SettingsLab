@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "ไม่สามารถอ่าน�
 account_manager.UI_setting_errorRegion: "บัญชีนี้เป็นของภูมิภาค {realm} โปรดใช้ไคลเอนต์ {realm}"
 account_manager.UI_setting_errorRequired: "กรอกชื่อ อีเมล และรหัสผ่าน"
 account_manager.UI_setting_errorSave: "ไม่สามารถบันทึกบัญชีได้ ไฟล์ก่อนหน้ายังคงอยู่"
+account_manager.UI_setting_accountProfilesNotice: "โปรไฟล์บัญชีไม่เก็บรหัสผ่านอีกต่อไป กรุณากรอกรหัสผ่านที่หน้าจอเข้าสู่ระบบของ World of Tanks"
+account_manager.UI_setting_legacyAccountsNotice: "รหัสผ่านที่บันทึกโดยเวอร์ชันก่อนหน้าไม่ได้ถูกนำเข้าและไม่ได้ใช้งาน ไฟล์เดิมยังคงไม่เปลี่ยนแปลง"
+account_manager.UI_setting_errorRequiredProfile: "กรุณากรอกชื่อและอีเมล"
 account_manager.UI_setting_errorServer: "เลือกเซิร์ฟเวอร์ที่ใช้งานได้"
 account_manager.UI_setting_errorSteam: "ไคลเอนต์นี้ใช้ Steam โปรดเลือกบัญชีผ่าน Steam"
 account_manager.UI_setting_keepPassword: "เว้นว่างไว้เพื่อเก็บรหัสผ่านที่บันทึกไว้"
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "ป้องกันไม่�
 clan_reward_collection.UI_description: "รับรางวัลกองทัพ"
 clan_reward_collection.UI_setting_enabled_text: "เปิดใช้งานแล้ว"
 clan_reward_collection.UI_setting_enabled_tooltip: "เปิด/ปิดการใช้งานม็อด"
+clan_reward_collection.UI_setting_purchaseProgression_text: "ซื้ออัตโนมัติด้วย Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "ปิดไว้เป็นค่าเริ่มต้น เมื่อเปิด ขั้นความก้าวหน้าถัดไปของคลานจะถูกซื้ออัตโนมัติเมื่อยอด Tour Coins เพียงพอต่อราคา ใช้ Tour Coins โดยไม่ต้องยืนยัน การปิดไม่หยุดการเก็บรางวัลฟรี"
 
 # common
 common.UI_mog_accent: "สีเน้น"

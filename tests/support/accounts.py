@@ -1,26 +1,29 @@
 # -*- coding: utf-8 -*-
-"""Explicit account-manager boundaries; no automatic WG attribute creation."""
+"""Account profile test doubles. Synthetic data only: no real credentials and no real files."""
 import json
 import os
 from support import module, source
 
 
 class Store(object):
+    """In-memory store with the same surface as ProfileFile. Records hold no secrets."""
     def __init__(self):
-        self.accounts = [dict(id='first', title='Example', email='test@example.com',
-                              password='fictional-secret', cluster=0, realm='NA', server='auto')]
+        self.accounts = [dict(id='first', title='Example', email='test@example.com', cluster=0,
+                              server='auto', serverName='Automatic', realm='NA')]
         self.read_error = False
+        self.legacy_present = False
         self.saved = True
+        self.writes = 0
 
     def write_accounts(self):
+        self.writes += 1
         return self.saved
 
 
 def service(test, store=None):
     api = test.load('core.accounts')
     store = store or Store()
-    return api.AccountService(store, lambda value: value, lambda value: value,
-                              lambda: [('auto', 'Automatic', 0, None)], 'NA')
+    return api.AccountService(store, lambda: [('auto', 'Automatic', 0, None)], 'NA')
 
 
 class Window(object):
@@ -34,11 +37,10 @@ class Window(object):
 
 def component(test, directory, callbacks=None, log=None):
     callbacks = callbacks or module(callback=lambda delay, handler: 1, cancelCallback=lambda ident: None)
-    log = log or module(error=lambda *args: None, debug=lambda *args: None)
+    log = log or module(error=lambda *args: None, debug=lambda *args: None, warning=lambda *args: None)
     constants = test.load('_constants')
     return source('components/account_manager.py', {
-        'BigWorld': module(wg_getPreferencesFilePath=lambda: os.path.join(directory, 'preferences.xml'),
-                           wg_cpdata=lambda value: value, wg_ucpdata=lambda value: value),
+        'BigWorld': module(wg_getPreferencesFilePath=lambda: os.path.join(directory, 'preferences.xml')),
         'external_strings_utils': module(unicode_from_utf8=lambda value: (None, value)),
         'predefined_hosts': module(g_preDefinedHosts=module(shortList=lambda: [('auto', 'Automatic', 0, None)])),
         'realm': module(CURRENT_REALM='NA'),
@@ -46,15 +48,19 @@ def component(test, directory, callbacks=None, log=None):
         'driftkings._constants': constants,
         'driftkings.common.utils': module(events=module(LoginView=module(populate=module(after=object())))),
         'driftkings.common.utils.filesystem': test.load('common.utils.filesystem'),
+        'driftkings.core.account_profiles': test.load('core.account_profiles'),
         'driftkings.core.accounts': test.load('core.accounts'),
         'driftkings.core.callbacks': callbacks,
         'driftkings.core.hooks': module(on_event=lambda *args: None),
         'driftkings.logger': module(get_logger=lambda name: log),
         'driftkings.settings.service': module(settings_service=module(getComponentDict=lambda config: {'enabled': True})),
-        'driftkings.settings.definitions.components.account_manager': module(AccountManagerSettings=lambda: module(i18n={})),
+        'driftkings.settings.definitions.components.account_manager': module(
+            AccountManagerSettings=lambda: module(i18n={})),
         'driftkings.gameface.lobby.account_manager': module(AccountsWindow=Window),
-        'driftkings.flash.lobby.login': module(fill_credentials=lambda *args: None, install_login_hooks=lambda owner: None,
-                                               launcher_position=lambda login: (10, 20), prepare_login=lambda *args: None)})
+        'driftkings.flash.lobby.login': module(fill_credentials=lambda *args: None,
+                                               install_login_hooks=lambda owner: None,
+                                               launcher_position=lambda login: (10, 20),
+                                               prepare_login=lambda *args: None)})
 
 
 class Model(object):

@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "Não foi possível ler o ficheiro de cont
 account_manager.UI_setting_errorRegion: "Esta conta pertence à região {realm}. Utilize o cliente {realm}."
 account_manager.UI_setting_errorRequired: "Preencha o nome, o e-mail e a palavra-passe."
 account_manager.UI_setting_errorSave: "Não foi possível guardar as contas. O ficheiro anterior foi preservado."
+account_manager.UI_setting_accountProfilesNotice: "Os perfis de conta já não guardam palavras-passe. Introduza a palavra-passe no ecrã de login do World of Tanks."
+account_manager.UI_setting_legacyAccountsNotice: "As palavras-passe guardadas por uma versão anterior não foram importadas nem são usadas. O ficheiro antigo mantém-se sem alterações."
+account_manager.UI_setting_errorRequiredProfile: "Preencha o nome e o e-mail."
 account_manager.UI_setting_errorServer: "Selecione um servidor disponível."
 account_manager.UI_setting_errorSteam: "Este cliente utiliza o Steam. Selecione a conta através do Steam."
 account_manager.UI_setting_keepPassword: "Deixe em branco para manter a palavra-passe guardada."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Impede mover o painel de batalha
 clan_reward_collection.UI_description: "Recolha de recompensas do clã"
 clan_reward_collection.UI_setting_enabled_text: "Ativado"
 clan_reward_collection.UI_setting_enabled_tooltip: "Habilite/desabilite o mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Compras automáticas com Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Desligado por predefinição. Quando ligado, a próxima etapa de progressão do clã é comprada automaticamente sempre que o saldo de Tour Coins cobre o seu preço. Gasta Tour Coins sem confirmação. Desligar não para a recolha de recompensas gratuitas."
 
 # common
 common.UI_mog_accent: "Cor de destaque"

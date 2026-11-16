@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "アカウントファイルを読み込�
 account_manager.UI_setting_errorRegion: "このアカウントは{realm}リージョンのものです。{realm}クライアントを使用してください。"
 account_manager.UI_setting_errorRequired: "名前、電子メール、パスワードを入力してください。"
 account_manager.UI_setting_errorSave: "アカウントを保存できませんでした。以前のファイルは保持されています。"
+account_manager.UI_setting_accountProfilesNotice: "アカウントプロフィールはパスワードを保存しなくなりました。パスワードは World of Tanks のログイン画面で入力してください。"
+account_manager.UI_setting_legacyAccountsNotice: "以前のバージョンで保存されたパスワードはインポートされず、使用されません。古いファイルは変更されずに残ります。"
+account_manager.UI_setting_errorRequiredProfile: "名前とメールアドレスを入力してください。"
 account_manager.UI_setting_errorServer: "利用可能なサーバーを選択してください。"
 account_manager.UI_setting_errorSteam: "このクライアントはSteamを使用しています。Steamからアカウントを選択してください。"
 account_manager.UI_setting_keepPassword: "保存したパスワードを保持するには、空白のままにします。"
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 clan_reward_collection.UI_description: "クラン報酬の受け取り"
 clan_reward_collection.UI_setting_enabled_text: "有効"
 clan_reward_collection.UI_setting_enabled_tooltip: "MODを有効/無効にします。"
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coinsによる自動購入"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "既定ではオフです。オンにすると、Tour Coinsの残高が価格に足りるたびに、次のクラン進行段階が自動的に購入されます。確認なしでTour Coinsを使用します。オフにしても無料報酬の受け取りは止まりません。"
 
 # common
 common.UI_mog_accent: "アクセントカラー"

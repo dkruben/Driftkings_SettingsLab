@@ -38,7 +38,13 @@ class AutoClaimClanReward(object):
         self.__cachedQuestsData = None
         self.__cachedSettingsData = None
         self.__claim_started = False
+        self.__purchase_started = False
         self.__enabled = False
+
+    def purchasesAuthorised(self):
+        # Strict check: only an explicit boolean True in the stored settings authorises spending Tour Coins.
+        # Missing keys (older profiles) and any other value keep purchases off.
+        return settings_service.getComponentDict(self.config).get(CLAN_REWARD_COLLECTION.PURCHASE_PROGRESSION) is True
 
     def onModSettingsChanged(self, component, settings):
         self.__enabled = settings_service.getComponentDict(self.config)[GLOBAL.ENABLED]
@@ -97,11 +103,15 @@ class AutoClaimClanReward(object):
 
     @adisp_process
     def __claimProgression(self, stageID, price):
-        response = yield self.__webController.sendRequest(ctx=PurchaseProgressionStageCtx(stageID, price))
-        if not response.isSuccess():
-            SystemMessages.pushMessage(self.config.NAME + 'Auto Claim Clan Reward - Failed to claim Progression.',
-                                       type=SystemMessages.SM_TYPE.Error)
-            LOG.warning(('Failed to claim Progression. Code: {}').format(response.getCode()))
+        self.__purchase_started = True
+        try:
+            response = yield self.__webController.sendRequest(ctx=PurchaseProgressionStageCtx(stageID, price))
+            if not response.isSuccess():
+                SystemMessages.pushMessage(self.config.NAME + 'Auto Claim Clan Reward - Failed to claim Progression.',
+                                           type=SystemMessages.SM_TYPE.Error)
+                LOG.warning(('Failed to claim Progression. Code: {}').format(response.getCode()))
+        finally:
+            self.__purchase_started = False
 
     def parseQuests(self, data):
         if data is not None and not self.__claim_started and any(q.status in REWARD_STATUS_OK for q in data.quests):
@@ -115,6 +125,9 @@ class AutoClaimClanReward(object):
         return maximum_level and maximum_level.status == PointStatus.PURCHASED
 
     def parseProgression(self, data):
+        # Every purchase path comes through here: no explicit consent or a purchase already in flight means no request.
+        if not self.purchasesAuthorised() or self.__purchase_started:
+            return
         if data is None or self.__cachedSettingsData is None or not self.__cachedSettingsData.enabled:
             return
         if not getattr(data, 'points', None):

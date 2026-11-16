@@ -54,46 +54,34 @@ function editControls(editing) {
     return view;
 }
 var saved = {id: 'example', title: 'Example', email: 'test@example.com', cluster: 0};
-var editor = editControls(saved), password = editor.inputs[2];
-assert.strictEqual(password.placeholder, '********');
-assert.strictEqual(password.value, '', 'Mask must never be submitted as a replacement password');
-editor.toggle.onclick();
-assert.strictEqual(editor.sent.pop().action, 'revealPassword');
+function inputsOf(view) {
+    return descendants(view.root).filter(function (node) { return node.tagName === 'INPUT'; });
+}
+var editor = editControls(saved), fields = inputsOf(editor);
+assert.strictEqual(fields.length, 2, 'Profile editor holds only title and e-mail');
+assert.ok(fields.every(function (input) { return input.type !== 'password'; }), 'No password input in the profile editor');
+assert.strictEqual(editor.toggle, undefined, 'No show-password control in the profile editor');
 editor.listeners.keydown.fn({keyCode: 13, preventDefault: function () {}, stopPropagation: function () {}});
-assert.strictEqual(editor.sent.pop().password, '', 'Saving untouched masked field preserves stored password');
-var visible = editControls(Object.assign({}, saved, {password: 'fictional-password'}));
-assert.strictEqual(visible.inputs[2].value, 'fictional-password');
-assert.strictEqual(visible.inputs[2].type, 'text');
-assert.strictEqual(visible.toggle.children[0].className, 'check-box checked');
-assert.strictEqual(visible.toggle.attributes['aria-checked'], 'true');
-visible.toggle.onclick();
-assert.strictEqual(visible.inputs[2].type, 'password');
-assert.strictEqual(visible.toggle.children[0].className, 'check-box');
-assert.strictEqual(visible.toggle.attributes['aria-checked'], 'false');
-assert.strictEqual(visible.sent.length, 0);
-var replacement = editControls(saved);
-replacement.inputs[2].value = 'replacement'; replacement.toggle.onclick();
-assert.strictEqual(replacement.inputs[2].type, 'text');
-assert.strictEqual(replacement.sent.length, 0, 'Typed replacement must not trigger retrieval of stored password');
-console.log('Account manager saved password mask and explicit reveal: passed');
+var submitted = editor.sent.pop();
+assert.strictEqual(submitted.action, 'save');
+assert.ok(!('password' in submitted), 'A save never carries a password field');
+assert.deepStrictEqual(Object.keys(submitted).sort(), ['action', 'cluster', 'email', 'id', 'title']);
+assert.strictEqual(editor.sent.length, 0, 'Saving must not request any stored secret');
+console.log('Account profile editor has no password field and sends no secret: passed');
 
-// One view receives multiple models in the client; replacing textContent must
-// detach the previous controls instead of allowing old inputs to accumulate.
 var changing = boot(false, null, true);
 assert.strictEqual(changing.root.children.length, 0);
 changing.update({editing: saved});
-assert.strictEqual(descendants(changing.root).filter(function (n) { return n.tagName === 'INPUT'; }).length, 3);
-changing.update({editing: Object.assign({}, saved, {password: 'fictional-password'})});
+assert.strictEqual(inputsOf(changing).length, 2);
+changing.update({editing: Object.assign({}, saved, {title: 'Changed'})});
 assert.strictEqual(changing.root.children.length, 1);
-assert.strictEqual(descendants(changing.root).filter(function (n) { return n.tagName === 'INPUT'; }).length, 3);
+assert.strictEqual(inputsOf(changing).length, 2);
 changing.listeners.keydown.fn({keyCode: 27, preventDefault: function () {}, stopPropagation: function () {}});
 assert.strictEqual(changing.sent.pop().action, 'cancel');
 changing.update({editing: null});
-assert.strictEqual(descendants(changing.root).filter(function (n) { return n.tagName === 'INPUT'; }).length, 0);
-changing.update({editing: saved});
-assert.strictEqual(descendants(changing.root).filter(function (n) { return n.tagName === 'INPUT'; })[2].value, '');
+assert.strictEqual(inputsOf(changing).length, 0);
 changing.listeners.unload.fn();
 assert.strictEqual(changing.removed(), 1);
 assert.strictEqual(changing.root.children.length, 0);
 assert.strictEqual(Object.keys(changing.events).length, 0);
-console.log('Account manager delayed model, repeated edits, cancellation and disposal: passed');
+console.log('Account profile delayed model, cancellation and disposal: passed');

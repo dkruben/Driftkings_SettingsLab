@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "Impossible de lire le fichier des comptes
 account_manager.UI_setting_errorRegion: "Ce compte appartient à la région {realm}. Utilisez le client {realm}."
 account_manager.UI_setting_errorRequired: "Renseignez le nom, l’e-mail et le mot de passe."
 account_manager.UI_setting_errorSave: "Impossible d’enregistrer les comptes. Le fichier précédent a été conservé."
+account_manager.UI_setting_accountProfilesNotice: "Les profils de compte ne stockent plus de mots de passe. Saisissez votre mot de passe sur l'écran de connexion de World of Tanks."
+account_manager.UI_setting_legacyAccountsNotice: "Les mots de passe enregistrés par une version précédente n'ont pas été importés ni utilisés. L'ancien fichier est conservé sans modification."
+account_manager.UI_setting_errorRequiredProfile: "Renseignez le nom et l'e-mail."
 account_manager.UI_setting_errorServer: "Sélectionnez un serveur disponible."
 account_manager.UI_setting_errorSteam: "Ce client utilise Steam. Sélectionnez le compte via Steam."
 account_manager.UI_setting_keepPassword: "Laissez vide pour conserver le mot de passe enregistré."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Empêche de déplacer le panneau
 clan_reward_collection.UI_description: "Collecte des récompenses de clan"
 clan_reward_collection.UI_setting_enabled_text: "Activé"
 clan_reward_collection.UI_setting_enabled_tooltip: "Activer/désactiver le mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Achats automatiques avec Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Désactivé par défaut. Si activé, la prochaine étape de progression du clan est achetée automatiquement dès que votre solde de Tour Coins couvre son prix. Cela dépense des Tour Coins sans confirmation. La désactivation n'arrête pas la collecte des récompenses gratuites."
 
 # common
 common.UI_mog_accent: "Couleur d'accent"

@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "Impossibile leggere il file degli account
 account_manager.UI_setting_errorRegion: "Questo account appartiene alla regione {realm}. Usa il client {realm}."
 account_manager.UI_setting_errorRequired: "Inserisci nome, e-mail e password."
 account_manager.UI_setting_errorSave: "Impossibile salvare gli account. Il file precedente è stato conservato."
+account_manager.UI_setting_accountProfilesNotice: "I profili account non memorizzano più le password. Inserisci la password nella schermata di accesso di World of Tanks."
+account_manager.UI_setting_legacyAccountsNotice: "Le password salvate da una versione precedente non sono state importate né usate. Il file precedente resta invariato."
+account_manager.UI_setting_errorRequiredProfile: "Compila nome ed e-mail."
 account_manager.UI_setting_errorServer: "Seleziona un server disponibile."
 account_manager.UI_setting_errorSteam: "Questo client usa Steam. Seleziona l'account tramite Steam."
 account_manager.UI_setting_keepPassword: "Lascia vuoto per mantenere la password salvata."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Impedisce di spostare il pannell
 clan_reward_collection.UI_description: "Raccolta delle ricompense del clan"
 clan_reward_collection.UI_setting_enabled_text: "Abilitato"
 clan_reward_collection.UI_setting_enabled_tooltip: "Abilita/disabilita il mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Acquisti automatici con Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Disattivato per impostazione predefinita. Se attivo, la fase successiva di progressione del clan viene acquistata automaticamente quando il saldo di Tour Coins copre il prezzo. Spende Tour Coins senza conferma. Disattivarlo non interrompe la raccolta delle ricompense gratuite."
 
 # common
 common.UI_mog_accent: "Colore di risalto"

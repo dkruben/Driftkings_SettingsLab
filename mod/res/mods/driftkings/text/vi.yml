@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "Không thể đọc tệp tài khoản. T
 account_manager.UI_setting_errorRegion: "Tài khoản này thuộc khu vực {realm}. Hãy dùng ứng dụng {realm}."
 account_manager.UI_setting_errorRequired: "Hãy nhập tên, e-mail và mật khẩu."
 account_manager.UI_setting_errorSave: "Không thể lưu tài khoản. Tệp trước đó vẫn được giữ nguyên."
+account_manager.UI_setting_accountProfilesNotice: "Hồ sơ tài khoản không còn lưu mật khẩu. Hãy nhập mật khẩu trên màn hình đăng nhập của World of Tanks."
+account_manager.UI_setting_legacyAccountsNotice: "Mật khẩu đã lưu bởi phiên bản trước không được nhập và không được sử dụng. Tệp cũ được giữ nguyên."
+account_manager.UI_setting_errorRequiredProfile: "Nhập tên và e-mail."
 account_manager.UI_setting_errorServer: "Chọn một máy chủ khả dụng."
 account_manager.UI_setting_errorSteam: "Ứng dụng này dùng Steam. Hãy chọn tài khoản qua Steam."
 account_manager.UI_setting_keepPassword: "Để trống để giữ mật khẩu đã lưu."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong t
 clan_reward_collection.UI_description: "Nhận phần thưởng bang hội"
 clan_reward_collection.UI_setting_enabled_text: "Đã bật"
 clan_reward_collection.UI_setting_enabled_tooltip: "Bật/tắt chế độ."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tự động mua bằng Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Tắt theo mặc định. Khi bật, bước tiến bộ tiếp theo của clan sẽ được mua tự động khi số dư Tour Coins đủ giá. Tiêu Tour Coins mà không cần xác nhận. Tắt tùy chọn này không dừng việc nhận thưởng miễn phí."
 
 # common
 common.UI_mog_accent: "Màu nhấn"

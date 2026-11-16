@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "Nie udało się odczytać pliku kont. Ory
 account_manager.UI_setting_errorRegion: "To konto należy do regionu {realm}. Użyj klienta {realm}."
 account_manager.UI_setting_errorRequired: "Wpisz nazwę, e-mail i hasło."
 account_manager.UI_setting_errorSave: "Nie udało się zapisać kont. Poprzedni plik został zachowany."
+account_manager.UI_setting_accountProfilesNotice: "Profile kont nie przechowują już haseł. Hasło wpisz na ekranie logowania World of Tanks."
+account_manager.UI_setting_legacyAccountsNotice: "Hasła zapisane we wcześniejszej wersji nie zostały zaimportowane ani nie są używane. Stary plik pozostaje bez zmian."
+account_manager.UI_setting_errorRequiredProfile: "Uzupełnij nazwę i e-mail."
 account_manager.UI_setting_errorServer: "Wybierz dostępny serwer."
 account_manager.UI_setting_errorSteam: "Ten klient korzysta ze Steam. Wybierz konto przez Steam."
 account_manager.UI_setting_keepPassword: "Pozostaw puste, aby zachować zapisane hasło."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Blokuje przesuwanie panelu bitew
 clan_reward_collection.UI_description: "Odbieranie nagród klanowych"
 clan_reward_collection.UI_setting_enabled_text: "Włączone"
 clan_reward_collection.UI_setting_enabled_tooltip: "Włącz/wyłącz mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatyczne zakupy za Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Domyślnie wyłączone. Po włączeniu następny etap postępu klanu jest kupowany automatycznie, gdy saldo Tour Coins pokrywa jego cenę. Wydaje Tour Coins bez potwierdzenia. Wyłączenie nie zatrzymuje zbierania darmowych nagród."
 
 # common
 common.UI_mog_accent: "Kolor akcentu"

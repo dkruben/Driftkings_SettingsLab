@@ -22,6 +22,9 @@ account_manager.UI_setting_errorRead: "A fiókfájl nem olvasható. Az eredeti f
 account_manager.UI_setting_errorRegion: "Ez a fiók a(z) {realm} régióhoz tartozik. Használd a(z) {realm} klienst."
 account_manager.UI_setting_errorRequired: "Add meg a nevet, az e-mail-címet és a jelszót."
 account_manager.UI_setting_errorSave: "A fiókok nem menthetők. Az előző fájl megmaradt."
+account_manager.UI_setting_accountProfilesNotice: "A fiókprofilok már nem tárolnak jelszavakat. A jelszót a World of Tanks bejelentkezési képernyőjén add meg."
+account_manager.UI_setting_legacyAccountsNotice: "A korábbi verzió által mentett jelszavak nem lettek importálva és nem használják őket. A régi fájl változatlanul megmarad."
+account_manager.UI_setting_errorRequiredProfile: "Töltsd ki a nevet és az e-mailt."
 account_manager.UI_setting_errorServer: "Válassz egy elérhető szervert."
 account_manager.UI_setting_errorSteam: "Ez a kliens Steamet használ. A fiókot a Steamen keresztül válaszd ki."
 account_manager.UI_setting_keepPassword: "Hagyd üresen a mentett jelszó megtartásához."
@@ -218,6 +221,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Megakadályozza a csatapanel eg�
 clan_reward_collection.UI_description: "Klánjutalmak begyűjtése"
 clan_reward_collection.UI_setting_enabled_text: "Engedélyezve"
 clan_reward_collection.UI_setting_enabled_tooltip: "A mod engedélyezése/letiltása."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatikus vásárlás Tour Coins-szal"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Alapértelmezetten ki. Bekapcsolva a klán következő fejlődési szintjét automatikusan megvásárolja, amint a Tour Coins egyenleg fedezi az árat. Megerősítés nélkül költ Tour Coins-t. A kikapcsolás nem állítja le az ingyenes jutalmak gyűjtését."
 
 # common
 common.UI_mog_accent: "Kiemelőszín"
