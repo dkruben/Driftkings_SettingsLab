@@ -16,6 +16,7 @@ Status: **unreleased.** No version number, release, tag or download link is assi
 - Only changing the Remove fog option removes the package. The master switch never removes it; it installs the package only when the option is on and the package is missing.
 - Starting the game, opening the settings panel, reloading settings or switching profiles never removes the package.
 - The settings panel shows the preference the package follows, even after a profile file was deleted or lost its entry during the session. Driftkings does not rewrite the file for this. A deleted file may be recreated by the game client with the default value, which takes effect at the next launch.
+- After a restart, a profile file that was deleted during the session may show Remove fog as off while the package is still installed. Driftkings does not remove it automatically. To remove it, turn the option on and then off again, and close the game.
 - The package belongs to the game client, not to a profile.
 - Packages for another client folder or realm are never treated as your preference.
 - If the state cannot be determined safely, nothing is written and no install or removal is scheduled. Change the option yourself to apply a choice.
