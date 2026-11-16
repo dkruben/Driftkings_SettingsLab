@@ -72,7 +72,7 @@ def migrate_preference(profile_file, package):
     """Persist removeFog=true for a legacy profile with no key and an owned package; idempotent, no marker file."""
     state = classify_preference(profile_file, package)
     if state == LEGACY_MIGRATE:
-        from driftkings.settings.store import SettingsStore, read_object
+        from driftkings.settings.store import read_object, SettingsStore
         values = read_object(profile_file) if os.path.isfile(profile_file) else {}
         values[BATTLE_PREFERENCES.REMOVE_FOG] = True
         SettingsStore(profile_file).write(values)
