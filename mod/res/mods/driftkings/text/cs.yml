@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Zabraňuje přesouvání bitevn�
 clan_reward_collection.UI_description: "Vyzvedávání klanových odměn"
 clan_reward_collection.UI_setting_enabled_text: "Povoleno"
 clan_reward_collection.UI_setting_enabled_tooltip: "Povolit/zakázat mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatické nákupy za Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Vypnuto ve výchozím nastavení. Je-li zapnuto, další etapa progrese klanu se koupí automaticky, kdykoli zůstatek Tour Coins stačí na cenu. Utrácí Tour Coins bez potvrzení. Vypnutí nezastaví sběr bezplatných odměn."
 
 # common
 common.UI_mog_accent: "Barva zvýraznění"

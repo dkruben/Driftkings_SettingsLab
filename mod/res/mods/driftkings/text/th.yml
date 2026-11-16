@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "ป้องกันไม่�
 clan_reward_collection.UI_description: "รับรางวัลกองทัพ"
 clan_reward_collection.UI_setting_enabled_text: "เปิดใช้งานแล้ว"
 clan_reward_collection.UI_setting_enabled_tooltip: "เปิด/ปิดการใช้งานม็อด"
+clan_reward_collection.UI_setting_purchaseProgression_text: "ซื้ออัตโนมัติด้วย Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "ปิดไว้เป็นค่าเริ่มต้น เมื่อเปิด ขั้นความก้าวหน้าถัดไปของคลานจะถูกซื้ออัตโนมัติเมื่อยอด Tour Coins เพียงพอต่อราคา ใช้ Tour Coins โดยไม่ต้องยืนยัน การปิดไม่หยุดการเก็บรางวัลฟรี"
 
 # common
 common.UI_mog_accent: "สีเน้น"

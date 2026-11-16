@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Verhindert das Verschieben des G
 clan_reward_collection.UI_description: "Clanbelohnungen einsammeln"
 clan_reward_collection.UI_setting_enabled_text: "Aktiviert"
 clan_reward_collection.UI_setting_enabled_tooltip: "Aktivieren/deaktivieren Sie den Mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatische Käufe mit Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Standardmäßig aus. Wenn aktiviert, wird die nächste Klan-Fortschrittsstufe automatisch gekauft, sobald das Tour-Coins-Guthaben den Preis deckt. Tour Coins werden ohne Bestätigung ausgegeben. Ausschalten stoppt das Sammeln kostenloser Belohnungen nicht."
 
 # common
 common.UI_mog_accent: "Akzentfarbe"

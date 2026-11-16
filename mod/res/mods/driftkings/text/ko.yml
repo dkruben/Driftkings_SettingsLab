@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "전투 패널을 마우스로 �
 clan_reward_collection.UI_description: "클랜 보상 수령"
 clan_reward_collection.UI_setting_enabled_text: "활성화됨"
 clan_reward_collection.UI_setting_enabled_tooltip: "모드를 활성화/비활성화합니다."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coins 자동 구매"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "기본값은 꺼짐입니다. 켜면 Tour Coins 잔액이 가격을 충족할 때마다 다음 클랜 진행 단계가 자동으로 구매됩니다. 확인 없이 Tour Coins를 사용합니다. 끄더라도 무료 보상 수집은 계속됩니다."
 
 # common
 common.UI_mog_accent: "강조 색상"

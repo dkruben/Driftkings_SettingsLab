@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Megakadályozza a csatapanel eg�
 clan_reward_collection.UI_description: "Klánjutalmak begyűjtése"
 clan_reward_collection.UI_setting_enabled_text: "Engedélyezve"
 clan_reward_collection.UI_setting_enabled_tooltip: "A mod engedélyezése/letiltása."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatikus vásárlás Tour Coins-szal"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Alapértelmezetten ki. Bekapcsolva a klán következő fejlődési szintjét automatikusan megvásárolja, amint a Tour Coins egyenleg fedezi az árat. Megerősítés nélkül költ Tour Coins-t. A kikapcsolás nem állítja le az ingyenes jutalmak gyűjtését."
 
 # common
 common.UI_mog_accent: "Kiemelőszín"

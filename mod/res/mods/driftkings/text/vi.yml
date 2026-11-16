@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong t
 clan_reward_collection.UI_description: "Nhận phần thưởng bang hội"
 clan_reward_collection.UI_setting_enabled_text: "Đã bật"
 clan_reward_collection.UI_setting_enabled_tooltip: "Bật/tắt chế độ."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tự động mua bằng Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Tắt theo mặc định. Khi bật, bước tiến bộ tiếp theo của clan sẽ được mua tự động khi số dư Tour Coins đủ giá. Tiêu Tour Coins mà không cần xác nhận. Tắt tùy chọn này không dừng việc nhận thưởng miễn phí."
 
 # common
 common.UI_mog_accent: "Màu nhấn"

@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Savaş panelinin fareyle taşın
 clan_reward_collection.UI_description: "Klan ödüllerini toplama"
 clan_reward_collection.UI_setting_enabled_text: "Etkin"
 clan_reward_collection.UI_setting_enabled_tooltip: "Modu etkinleştirin/devre dışı bırakın."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coins ile otomatik satın alma"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Varsayılan olarak kapalı. Açıkken, Tour Coins bakiyeniz fiyatı karşıladığında klan ilerleme sonraki aşaması otomatik satın alınır. Onay olmadan Tour Coins harcar. Kapatmak ücretsiz ödül toplamayı durdurmaz."
 
 # common
 common.UI_mog_accent: "Vurgu rengi"

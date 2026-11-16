@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "阻止用鼠标移动战斗面�
 clan_reward_collection.UI_description: "领取军团奖励"
 clan_reward_collection.UI_setting_enabled_text: "启用"
 clan_reward_collection.UI_setting_enabled_tooltip: "启用/禁用该模组。"
+clan_reward_collection.UI_setting_purchaseProgression_text: "使用 Tour Coins 自动购买"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "默认关闭。开启后，只要 Tour Coins 余额足够支付价格，就会自动购买下一个军团进度阶段。将不经确认消耗 Tour Coins。关闭此项不会停止收取免费奖励。"
 
 # common
 common.UI_mog_accent: "强调色"

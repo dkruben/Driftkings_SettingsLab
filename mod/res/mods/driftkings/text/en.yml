@@ -217,7 +217,9 @@ battle_statistics.UI_setting_textLock_tooltip: "Prevents moving the in-battle pa
 # clan_reward_collection
 clan_reward_collection.UI_description: "Clan reward collection"
 clan_reward_collection.UI_setting_enabled_text: "Enabled"
-clan_reward_collection.UI_setting_enabled_tooltip: "Enable/disable the mod."
+clan_reward_collection.UI_setting_enabled_tooltip: "Enable/disable the mod. Free clan rewards are collected while it is on."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatic purchases with Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Off by default. When on, the next clan progression stage is bought automatically whenever your Tour Coin balance covers its price. This spends Tour Coins without a confirmation. Turning it off does not stop free reward collection."
 
 # common
 common.UI_mog_accent: "Accent color"

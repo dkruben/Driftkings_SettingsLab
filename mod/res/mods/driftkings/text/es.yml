@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Impide mover el panel de batalla
 clan_reward_collection.UI_description: "Recogida de recompensas del clan"
 clan_reward_collection.UI_setting_enabled_text: "Habilitado"
 clan_reward_collection.UI_setting_enabled_tooltip: "Activa/desactiva el mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Compras automáticas con Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Desactivado por defecto. Si está activado, la siguiente etapa de progreso del clan se compra automáticamente cuando tu saldo de Tour Coins cubra su precio. Gasta Tour Coins sin confirmación. Desactivarlo no detiene la recogida de recompensas gratuitas."
 
 # common
 common.UI_mog_accent: "Color de acento"

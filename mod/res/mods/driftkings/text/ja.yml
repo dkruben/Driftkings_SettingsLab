@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 clan_reward_collection.UI_description: "クラン報酬の受け取り"
 clan_reward_collection.UI_setting_enabled_text: "有効"
 clan_reward_collection.UI_setting_enabled_tooltip: "MODを有効/無効にします。"
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coinsによる自動購入"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "既定ではオフです。オンにすると、Tour Coinsの残高が価格に足りるたびに、次のクラン進行段階が自動的に購入されます。確認なしでTour Coinsを使用します。オフにしても無料報酬の受け取りは止まりません。"
 
 # common
 common.UI_mog_accent: "アクセントカラー"

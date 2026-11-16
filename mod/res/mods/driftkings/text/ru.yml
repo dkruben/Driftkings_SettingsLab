@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Запрещает переме�
 clan_reward_collection.UI_description: "Получение клановых наград"
 clan_reward_collection.UI_setting_enabled_text: "Включено"
 clan_reward_collection.UI_setting_enabled_tooltip: "Включить/отключить мод."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Автопокупки за Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "По умолчанию выключено. Если включено, следующая ступень прогресса клана покупается автоматически, когда баланса Tour Coins хватает на её цену. Тратит Tour Coins без подтверждения. Выключение не останавливает сбор бесплатных наград."
 
 # common
 common.UI_mog_accent: "Акцентный цвет"

@@ -218,6 +218,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Blokuje przesuwanie panelu bitew
 clan_reward_collection.UI_description: "Odbieranie nagród klanowych"
 clan_reward_collection.UI_setting_enabled_text: "Włączone"
 clan_reward_collection.UI_setting_enabled_tooltip: "Włącz/wyłącz mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatyczne zakupy za Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Domyślnie wyłączone. Po włączeniu następny etap postępu klanu jest kupowany automatycznie, gdy saldo Tour Coins pokrywa jego cenę. Wydaje Tour Coins bez potwierdzenia. Wyłączenie nie zatrzymuje zbierania darmowych nagród."
 
 # common
 common.UI_mog_accent: "Kolor akcentu"
