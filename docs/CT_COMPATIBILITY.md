@@ -1,5 +1,16 @@
 # Compatibilidade com WoT Common Test
 
+## Estado atual — 0.1.8-beta.12, Common Test #996
+
+**Experimental, não publicado.** Alvo: WoT `2.4.2.0 Common Test #996`, revisão do cliente `2660091`, realm CT. Versão `0.1.8-beta.12`, canal `beta`, pacote `driftkings.unified`.
+
+- **Remove Fog** desligado por defeito para instalações novas. A ativação manual mantém-se. Preferências explícitas são preservadas; a migração de perfis antigos sem a chave só atua com o pacote próprio instalado para o cliente. Arranque, reload, troca de perfil e o master switch não removem o pacote. A desativação manual remove-o após o fecho do jogo.
+- **Limitação conhecida:** se o ficheiro do perfil desaparecer durante uma sessão, o cliente pode recriar a preferência com o default OFF após reinício, com o pacote ainda instalado. Ligar e desligar a opção remove-o.
+- **Referências de versão:** `2.4.2.5516` é o rótulo da referência de fontes (`reference.version`) e o `source_version` da biblioteca Flash; o compilador valida a referência de #996 pelo `.version_name` e pelo `manifest.json`. `2.4.2.5518` é o `version_name` do cliente instalado, lido apenas pelo jogo e não usado pela build.
+- **Compatibilidade:** testada apenas em CT #996. Não há validação em EU, NA ou ASIA para esta versão.
+
+## Histórico
+
 ## Fases 3F.2B–3F.2D — build experimental, validação CT e pré-consolidação — 2026-11-10
 
 **ARTIFACT PASS, CT INSTALL PASS e CT RUNTIME PASS — experimental, não publicável, sem consolidação Git.** A integração Native BattleInfo da Fase 3F.2A foi compilada com `--isolated-output --keep-source-version`, auditada, instalada no CT e validada em runtime. Nenhuma release foi autorizada; `VERSION` e `release.json` continuam em `0.1.8-beta.1`.
