@@ -6,12 +6,12 @@ import weakref
 from CurrentVehicle import g_currentVehicle
 from gui.shared.personality import ServicesLocator
 
-from driftkings.common.utils.compat import string_types
-from driftkings.gameface.lobby.common import card_payload, HangarController, install_card, publish_card
 from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
+from driftkings.common.utils.compat import string_types
 from driftkings.core import carousel as layout
 from driftkings.core.carousel_options import from_carousel
 from driftkings.core.hooks import override
+from driftkings.gameface.lobby.common import card_payload, HangarController, install_card, publish_card
 from driftkings.interface_catalog import gameface_spec
 from driftkings.settings.service import affects, settings_service
 
