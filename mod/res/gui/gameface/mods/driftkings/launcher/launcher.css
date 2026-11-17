@@ -7,15 +7,15 @@
     background-repeat: no-repeat; background-position: center; background-size: 24rem 24rem;
     transition: background-color 100ms ease, border-color 100ms ease;
 }
-.driftkings-launcher:hover:not(:disabled), .driftkings-launcher:active:not(:disabled) { background-image: none; }
-.driftkings-launcher:hover:not(:disabled) { background-color: rgba(231, 119, 28, .10); border-color: rgba(255, 192, 106, .45); }
-.driftkings-launcher:active:not(:disabled) { background-color: rgba(184, 76, 10, .20); border-color: rgba(231, 119, 28, .55); }
+.driftkings-launcher:hover, .driftkings-launcher:active { background-image: none; }
+.driftkings-launcher:hover { background-color: rgba(231, 119, 28, .10); border-color: rgba(255, 192, 106, .45); }
+.driftkings-launcher:active { background-color: rgba(184, 76, 10, .20); border-color: rgba(231, 119, 28, .55); }
 .driftkings-launcher__icon {
     width: 24rem; height: 24rem; pointer-events: none;
     opacity: 0; filter: brightness(1);
     transition: filter 100ms ease, opacity 100ms ease;
 }
-.driftkings-launcher:hover:not(:disabled) .driftkings-launcher__icon { opacity: 1; filter: brightness(1.22); }
-.driftkings-launcher:active:not(:disabled) .driftkings-launcher__icon { opacity: 1; filter: brightness(.78); }
+.driftkings-launcher:hover .driftkings-launcher__icon { opacity: 1; filter: brightness(1.22); }
+.driftkings-launcher:active .driftkings-launcher__icon { opacity: 1; filter: brightness(.78); }
 .driftkings-launcher:disabled { background-color: transparent; background-image: none; border-color: transparent; cursor: default; }
 .driftkings-launcher:disabled .driftkings-launcher__icon { filter: grayscale(1) brightness(.75); opacity: .65; }
