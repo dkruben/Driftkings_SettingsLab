@@ -2,10 +2,9 @@
 
 - Projeto: `dkruben/Driftkings_SettingsLab`
 - Branch: `develop`
-- Data: `2026-10-28`
+- Data da auditoria: `2026-10-28`
 - Base de comparação: `9ebc163661ab0e04d8be65dbc119b8184a3f3ddc`
-- Estado da entrega: alterações locais, sem commit nem push.
-- Nota de 2026-10-30: as alterações auditadas foram integradas no commit `202f476`; a linha anterior descreve apenas o momento da auditoria.
+- Estado atual (revisto em 2026-11-17): as alterações auditadas foram integradas no commit `202f476`. Este documento é um registo histórico datado; as linhas de estado de entrega e as pendências descritas em 2026-10-28 foram superadas. Para o estado atual, ver [STATUS](STATUS.md).
 
 ## A. Resumo executivo
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.8-beta.13",
+  "version": "0.1.7-beta.2",
   "channel": "beta",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
@@ -8,7 +8,7 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "Experimental Common Test build 0.1.8-beta.13 for WoT 2.4.2.0 Common Test #996 (client revision 2660091). Not a production EU/NA/ASIA release.",
+    "Beta 0.1.7-beta.2 in development. Not published.",
     "Remove fog is off by default for new installations. The option can still be turned on manually; the separate package is installed after the game is closed.",
     "Existing explicit Remove fog preferences are kept. A profile file without the removeFog entry, with the Driftkings package installed for the client, is migrated to true.",
     "Starting the game, opening the settings panel, reloading settings and switching profiles never remove the Remove fog package. The master switch never removes it.",

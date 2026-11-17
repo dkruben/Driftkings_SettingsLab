@@ -41,7 +41,7 @@ The `Atualizados/` directory also exists under the tools root, but was empty whe
 | CT source client | `v.2.4.2.0 Common Test #995`, realm `CT` | `wot-src-CT/sources/version.xml` |
 | Branch build game target | `2.4.2.0` | Build contract, `game.version` |
 | Configured game root | `D:/Games/World_of_Tanks_EU` | Local `build_data/toolchain.local.json`, `game_root` |
-| Installed CT client | `v.2.4.2.0 Common Test #995`, realm `CT` | `C:/Games/World_of_Tanks_CT/version.xml` |
+| Installed CT client | `v.2.4.2.0 Common Test #996`, realm `CT` | `C:/Games/World_of_Tanks_CT/version.xml` |
 | Installed EU client | `v.2.4.1.1 #993`, realm `EU` | Installed client's `version.xml` |
 | Installed NA client | `v.2.4.1.1 #992`, realm `NA` | Installed client's `version.xml` |
 | Branch supported realms | `CT` | Build contract, `game.supported_realms` |

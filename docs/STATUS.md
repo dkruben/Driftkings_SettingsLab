@@ -143,10 +143,10 @@ A stable publicada atual é `0.1.6` (confirmada no GitHub). As secções antigas
 
 ## Referência atual
 
-- Branch de desenvolvimento: `develop`, com a beta `0.1.7-beta.1` em preparação; `main` mantém a stable publicada `0.1.6`.
-- Versão stable publicada: `0.1.6` (latest). Beta publicada anterior: `0.1.6-beta.1`; os assets `0.1.7-beta.1` serão compilados do novo commit em `develop`. O código posterior a um tag não altera os assets já publicados.
-- Base desta preparação: `4cf49575` em `develop`. As integrações anteriores mencionadas nas secções datadas são histórico, não o HEAD atual.
-- Alvo do cliente: WoT `2.4.1.1`, Wargaming EU/NA/ASIA; contratos e ferramentas em `build_data/` e `build_tools/`.
+- Branch de desenvolvimento: `develop`. Versão de desenvolvimento atual em `build_data/release.json`: `0.1.7-beta.2`, não publicada. A versão final prevista é a stable `0.1.7`. O alvo de build em `build_data/build_config.json` (WoT `2.4.2.0` CT #996) ainda está por decidir. `main` mantém a stable publicada `0.1.6`.
+- Versão stable publicada: `0.1.6` (latest). Beta pública mais recente de produção: `0.1.7-beta.1`, conforme o [README](../README.md); confirmar nos releases antes de a referenciar como atual.
+- As secções datadas abaixo são histórico. Para o estado atual do código, usar `build_data/release.json`, `build_data/build_config.json` e o Git, não os commits ou bases citados nas secções antigas.
+- Alvos do cliente: produção WoT `2.4.1.1` (EU/NA/ASIA); build experimental CT `2.4.2.0` #996. Contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
 - A beta `0.1.6-beta.1` foi aprovada funcionalmente por Ruben Gameiro Lopes Gonçalves em 2026-11-05, com testes declarados de 2026-11-04 em EU, NA e ASIA. Os 18 bloqueantes estão PASS nas três regiões; 57 células PASS e 36 NOT TESTED no [registo oficial](releases/0.1.6-beta.1-validation.md). O painel e os perfis têm persistência confirmada; detalhes históricos sobre construção/aceitação visual do painel permanecem nas secções datadas abaixo. A aprovação funcional não é uma nova medição de desempenho.
 - As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS; as medições em jogo de 2026-11-03 estão na secção correspondente.
@@ -190,7 +190,7 @@ A beta aprovada permanece no commit `22a19317a19b0969351ed1514ec63d3d7f4831f2`, 
 | Exceções genéricas silenciosas | [Relatório](RELATORIO_EXCECOES.md) |
 | Eventos falsos nas estatísticas anónimas | [Proposta](RELATORIO_ANALYTICS.md) |
 
-Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`; os contratos ativos estão em `interface_catalog.py`. Os planos de migração concluídos e os estudos antigos foram retirados de `docs`. Os dados locais dos estudos foram preservados em `../Driftkings_SettingsLab_docs_backup_20261028/`; os relatórios versionados continuam recuperáveis no histórico Git. As pendências da otimização permanecem na auditoria final.
+Os adaptadores atuais usam `gameface/battle`, `gameface/lobby`, `flash/battle` e `flash/lobby`; os contratos ativos estão em `interface_catalog.py`. Os planos de migração concluídos e os estudos antigos foram retirados de `docs`. Os relatórios retirados continuam recuperáveis no histórico Git. A pasta de cópia local `../Driftkings_SettingsLab_docs_backup_20261028/` referida em revisões anteriores não existe no disco à data desta revisão. As pendências da otimização permanecem na auditoria final.
 
 ### Convenções da documentação
 

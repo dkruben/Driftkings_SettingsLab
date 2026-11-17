@@ -4,12 +4,13 @@
 
 | Version | Channel | Supported |
 | --- | --- | --- |
-| 0.1.7-beta.1 | Beta in preparation | Pending publication |
+| 0.1.7-beta.2 | Beta in development | Not published |
+| 0.1.7-beta.1 | Beta | Update to 0.1.7 stable when released |
 | 0.1.6 | Stable | Yes |
 | 0.1.6-beta.1 | Archived beta | Update to stable 0.1.6 |
 | Older releases | — | No; update first |
 
-Stable 0.1.6 targets World of Tanks 2.4.1.1 on Wargaming EU, NA and ASIA. The current experimental beta 0.1.8-beta.13 targets only the Common Test client #996 and is not published. The historical 0.1.6-beta.1 validation covers all three regions; it does not establish validation of 0.1.8-beta.13. Any published release package requires its own validation record before stable promotion.
+Stable 0.1.6 targets World of Tanks 2.4.1.1 on Wargaming EU, NA and ASIA. The beta in development, 0.1.7-beta.2, is not published. The published beta 0.1.7-beta.1 and the historical 0.1.6-beta.1 validation do not establish validation of 0.1.7-beta.2. Any published release package requires its own validation record before stable promotion.
 
 ## Reporting a vulnerability
 
