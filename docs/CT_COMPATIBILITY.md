@@ -1,8 +1,8 @@
 # Compatibilidade com WoT Common Test
 
-## Estado atual — 0.1.8-beta.12, Common Test #996
+## Estado atual — 0.1.8-beta.13, Common Test #996
 
-**Experimental, não publicado.** Alvo: WoT `2.4.2.0 Common Test #996`, revisão do cliente `2660091`, realm CT. Versão `0.1.8-beta.12`, canal `beta`, pacote `driftkings.unified`.
+**Experimental, não publicado.** Alvo: WoT `2.4.2.0 Common Test #996`, revisão do cliente `2660091`, realm CT. Versão `0.1.8-beta.13`, canal `beta`, pacote `driftkings.unified`.
 
 - **Remove Fog** desligado por defeito para instalações novas. A ativação manual mantém-se. Preferências explícitas são preservadas; a migração de perfis antigos sem a chave só atua com o pacote próprio instalado para o cliente. Arranque, reload, troca de perfil e o master switch não removem o pacote. A desativação manual remove-o após o fecho do jogo.
 - **Limitação conhecida:** se o ficheiro do perfil desaparecer durante uma sessão, o cliente pode recriar a preferência com o default OFF após reinício, com o pacote ainda instalado. Ligar e desligar a opção remove-o.
