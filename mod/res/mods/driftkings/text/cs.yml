@@ -89,7 +89,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash: Skryjte tečku"
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash: Zobrazit tečku"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: Skryjte Splash"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash: Zobrazit Splash"
-artillery_blast_radius.UI_artySplash_name: "ON Splash"
 artillery_blast_radius.UI_description: "Poloměr výbuchu dělostřelectva"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Tlačítko: zobrazit|skrýt tečku"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Zobrazí nebo skryje bod míření během bitvy."
@@ -113,9 +112,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Barva rámečku kolem vozidl
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Znaky mistrovství v bitvě"
-battle_marks_of_excellence.UI_message: "MŽP změna vizuálu %s"
 battle_marks_of_excellence.UI_setting_background_text: "Bitva: zobrazit pozadí"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Zobrazuje pozadí panelu. Neprůhlednost se nastavuje zvlášť."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Tlačítko: Obnovit nastavení"
@@ -219,8 +216,6 @@ battle_statistics.UI_setting_textLock_tooltip: "Zabraňuje přesouvání bitevn�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Vyzvedávání klanových odměn"
-clan_reward_collection.UI_setting_enabled_text: "Povoleno"
-clan_reward_collection.UI_setting_enabled_tooltip: "Povolit/zakázat mod."
 clan_reward_collection.UI_setting_purchaseProgression_text: "Automatické nákupy za Tour Coins"
 clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Vypnuto ve výchozím nastavení. Je-li zapnuto, další etapa progrese klanu se koupí automaticky, kdykoli zůstatek Tour Coins stačí na cenu. Utrácí Tour Coins bez potvrzení. Vypnutí nezastaví sběr bezplatných odměn."
 
@@ -267,16 +262,8 @@ common.UI_mog_unavailable: "Nejsou k dispozici spolehlivá data o znacích"
 common.UI_mog_vehicle: "Informace o vozidle"
 common.UI_mog_waiting: "Nedostatek zaznamenané historie"
 common.UI_mog_winrate: "Procento vítězství"
-common.UI_native_close: "Zavřít"
-common.UI_native_defaults: "Výchozí"
 common.UI_native_enabled: "Povolit mod"
 common.UI_native_enabled_tooltip: "Zapne nebo vypne tento mód. Když je vypnutý, hra se chová, jako by mód nebyl nainstalován."
-common.UI_native_error: "Nastavení nelze uložit"
-common.UI_native_off: "Vypnuto"
-common.UI_native_on: "Zapnuto"
-common.UI_native_press: "Stiskněte klávesu..."
-common.UI_native_save: "Uložit"
-common.UI_native_saved: "Nastavení uloženo"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} bitev (odhad)"
@@ -323,8 +310,6 @@ driftkings.UI_profile_select: "Profil pro začátek příští hry"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Oznámení o odhalení a asistenci"
-enemy_spotting_status.UI_macros_help: "K přizpůsobení oznámení použijte tato makra ve formátech zpráv:\n• {icons} - Zobrazuje ikony vozidel\n• {names} - Zobrazuje jména hráčů\n• {vehicles} - Zobrazuje názvy vozidel\n• {icons_names} - Zobrazuje ikony se jmény hráčů\n• {icons_vehicles} - Zobrazuje ikony s názvy vozidel\n• {full} - Zobrazuje úplné informace\n• {damage} - Zobrazuje výši poškození (pouze pro asistenční zprávy)"
-enemy_spotting_status.UI_macros_help_title: "Návod k použití maker"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Rádiový asistent:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Oznámení při získání poškození z asistence průzkumem. Makra: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Pomoc při omráčení:"
@@ -541,8 +526,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "Svislá poloha panelu v jednot
 # main
 main.UI_description: "Obecná nastavení"
 main.UI_setting_clock_enabled_text: "Zobrazení hodin"
-main.UI_setting_enabled_text: "Povoleno"
-main.UI_setting_enabled_tooltip: "Zapne nebo vypne obecná nastavení. Ostatní součásti módu se nemění."
 main.UI_tooltip: "Možnosti, které platí pro celý mód."
 main.UI_tooltip_clock_enabled: "Pole: Text / obrázek (Flash HTML)."
 # minimap_enhancements
@@ -668,9 +651,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Minimální posle
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Sekundy od poslední detekce"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Barva poslední pozice: četa"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Styl poslední pozice"
-minimap_enhancements.UI_setting_mapSize_color_text: "Rozměry mapy barva"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Zobrazit rozměry mapy"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "Rozměry mapy velikost písma"
 minimap_enhancements.UI_setting_mapSize_format_text: "Formát rozměrů mapy"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "Rozměry mapy horizontální posun"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "Rozměry mapy vertikální posun"
@@ -756,7 +737,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Barva posledních znám�
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "Barva posledních známých poloh členů čety."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Barva značek posledních známých poloh: tlumená týmová barva nebo šedá."
 minimap_enhancements.UI_tooltip_lostScale: "Velikost ikon na posledních známých polohách."
-minimap_enhancements.UI_tooltip_mapSize_color: "Barva textu rozměrů mapy."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Zobrazuje rozměry mapy vedle minimapy."
 minimap_enhancements.UI_tooltip_mapSize_format: "Text rozměrů mapy. Makra v metrech: {{width}}, {{height}} a {{cellsize}} (strana jednoho čtverce mřížky)."
 minimap_enhancements.UI_tooltip_marks: "Přidá na čáry značku vzdálenosti po nastaveném počtu metrů. 0 značky vypne."
@@ -822,8 +802,6 @@ repair_controls.UI_setting_useGoldKits_text: "Používat velké spotřební dopl
 repair_controls.UI_setting_useGoldKits_tooltip: "Použije velké opravné sady, lékárničky a hasicí přístroje, pokud jsou vybaveny."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "VYPNUTO"
-server_turret_sync.UI_battle_ON: "ON"
 server_turret_sync.UI_battle_activateMessage: "'Server Turret Extended': Aktivováno"
 server_turret_sync.UI_description: "Synchronizace věže se serverem"
 server_turret_sync.UI_setting_activateMessage_text: "Zobrazit aktivační zprávu"
@@ -967,7 +945,6 @@ target_distance.UI_setting_textColor_text: "Barva textu"
 target_distance.UI_setting_textColor_tooltip: "Barva textu vzdálenosti."
 target_distance.UI_setting_textSize_text: "Velikost textu"
 target_distance.UI_setting_textSize_tooltip: "Velikost písma textu vzdálenosti."
-target_distance.modDisplayName: "Značka vzdálenosti"
 
 # target_information
 target_information.UI_delay_format: " sek."

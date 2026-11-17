@@ -89,7 +89,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash：隐藏点"
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash：显示点"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE 飞溅：隐藏飞溅"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash：表演飞溅"
-artillery_blast_radius.UI_artySplash_name: "他飞溅"
 artillery_blast_radius.UI_description: "火炮爆炸半径"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "按钮：显示|隐藏点"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "在战斗中显示或隐藏瞄准点。"
@@ -113,9 +112,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "围绕被自动瞄准锁定�
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}，{c_damageToMark85}\n{c_damageToMark95}，{c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "战斗中的卓越标识"
-battle_marks_of_excellence.UI_message: "教育部更改视觉%s"
 battle_marks_of_excellence.UI_setting_background_text: "战斗：显示背景"
 battle_marks_of_excellence.UI_setting_background_tooltip: "显示面板背景。不透明度单独设置。"
 battle_marks_of_excellence.UI_setting_buttonReset_text: "按钮：重置设置"
@@ -219,8 +216,6 @@ battle_statistics.UI_setting_textLock_tooltip: "阻止用鼠标移动战斗面�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "领取军团奖励"
-clan_reward_collection.UI_setting_enabled_text: "启用"
-clan_reward_collection.UI_setting_enabled_tooltip: "启用/禁用该模组。"
 clan_reward_collection.UI_setting_purchaseProgression_text: "使用 Tour Coins 自动购买"
 clan_reward_collection.UI_setting_purchaseProgression_tooltip: "默认关闭。开启后，只要 Tour Coins 余额足够支付价格，就会自动购买下一个军团进度阶段。将不经确认消耗 Tour Coins。关闭此项不会停止收取免费奖励。"
 
@@ -267,16 +262,8 @@ common.UI_mog_unavailable: "没有可靠的标识数据"
 common.UI_mog_vehicle: "战车信息"
 common.UI_mog_waiting: "观测记录不足"
 common.UI_mog_winrate: "胜率"
-common.UI_native_close: "关闭"
-common.UI_native_defaults: "恢复默认设置"
 common.UI_native_enabled: "启用模组"
 common.UI_native_enabled_tooltip: "开启或关闭此模组。关闭时，游戏的表现就像未安装此模组一样。"
-common.UI_native_error: "无法保存设置。请查看 game.log。"
-common.UI_native_off: "关"
-common.UI_native_on: "开"
-common.UI_native_press: "按下按键（Esc 取消）"
-common.UI_native_save: "保存并应用"
-common.UI_native_saved: "设置已保存。"
 
 # crew_management
 crew_management.UI_crew_battles: "约{battles}场 (估计)"
@@ -323,8 +310,6 @@ driftkings.UI_profile_select: "下一场比赛开始的简介"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "发现与协助通知"
-enemy_spotting_status.UI_macros_help: "在消息格式中使用这些宏来自定义通知：\n• {icons} - 显示车辆图标\n• {names} - 显示玩家姓名\n• {vehicles} - 显示车辆名称\n• {icons_names} - 显示带有玩家姓名的图标\n• {icons_vehicles} - 显示带有车辆名称的图标\n• {full} - 显示完整信息\n• {damage} - 显示损坏金额（仅适用于辅助消息）"
-enemy_spotting_status.UI_macros_help_title: "宏使用指南"
 enemy_spotting_status.UI_setting_AssistRadio_text: "无线电协助："
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "获得侦察协助伤害时显示的通知。宏：{icons}、{names}、{vehicles}、{icons_names}、{icons_vehicles}、{full}、{damage}。"
 enemy_spotting_status.UI_setting_AssistStun_text: "眩晕辅助："
@@ -541,8 +526,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "面板的垂直位置（界面
 # main
 main.UI_description: "常规设置"
 main.UI_setting_clock_enabled_text: "时钟显示"
-main.UI_setting_enabled_text: "启用"
-main.UI_setting_enabled_tooltip: "开启或关闭常规设置。模组的其他组件不受影响。"
 main.UI_tooltip: "适用于整个模组的选项。"
 main.UI_tooltip_clock_enabled: "字段: 文字 / 图片 (Flash HTML)."
 # minimap_enhancements
@@ -668,9 +651,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "最后已知的�
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "自上次检测以来的秒数"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "最后位置颜色：排"
 minimap_enhancements.UI_setting_lostMarker_style_text: "最后位置样式"
-minimap_enhancements.UI_setting_mapSize_color_text: "地图尺寸颜色"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "显示地图尺寸"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "地图尺寸字体大小"
 minimap_enhancements.UI_setting_mapSize_format_text: "地图尺寸格式"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "地图尺寸水平偏移"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "地图尺寸垂直偏移"
@@ -756,7 +737,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "敌人最后已知位置
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "排成员最后已知位置的颜色。"
 minimap_enhancements.UI_tooltip_lostMarker_style: "最后已知位置标记的颜色：暗淡的队伍颜色或灰色。"
 minimap_enhancements.UI_tooltip_lostScale: "最后已知位置处图标的大小。"
-minimap_enhancements.UI_tooltip_mapSize_color: "地图尺寸文字的颜色。"
 minimap_enhancements.UI_tooltip_mapSize_enabled: "在小地图旁显示地图尺寸。"
 minimap_enhancements.UI_tooltip_mapSize_format: "地图尺寸的文本。以米为单位的宏：{{width}}、{{height}} 和 {{cellsize}}（网格中一格的边长）。"
 minimap_enhancements.UI_tooltip_marks: "在线条上每隔设定的米数添加距离标记。0 表示关闭标记。"
@@ -822,8 +802,6 @@ repair_controls.UI_setting_useGoldKits_text: "使用大型消耗品"
 repair_controls.UI_setting_useGoldKits_tooltip: "已装备时使用大型修理包、大型急救包和大型灭火器。"
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "离开"
-server_turret_sync.UI_battle_ON: "在"
 server_turret_sync.UI_battle_activateMessage: "“服务器炮塔扩展”：已激活"
 server_turret_sync.UI_description: "服务器炮塔同步"
 server_turret_sync.UI_setting_activateMessage_text: "显示激活消息"
@@ -967,7 +945,6 @@ target_distance.UI_setting_textColor_text: "文字颜色"
 target_distance.UI_setting_textColor_tooltip: "距离文字的颜色。"
 target_distance.UI_setting_textSize_text: "文字大小"
 target_distance.UI_setting_textSize_tooltip: "距离文字的字体大小。"
-target_distance.modDisplayName: "距离标记"
 
 # target_information
 target_information.UI_delay_format: "秒。"

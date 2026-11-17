@@ -89,7 +89,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Sıçrama: Noktayı Gizl
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Sıçrama: Noktayı Göster"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: Sıçramayı Gizle"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Sıçrama: Sıçramayı Göster"
-artillery_blast_radius.UI_artySplash_name: "O Sıçrama"
 artillery_blast_radius.UI_description: "Topçu patlama yarıçapı"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Düğme: göster|Noktayı gizle"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Savaş sırasında nişan noktasını gösterir veya gizler."
@@ -113,9 +112,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Otomatik nişanla kilitlenen
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Savaşta Üstünlük İşaretleri"
-battle_marks_of_excellence.UI_message: "MEB görsel değişikliği %s"
 battle_marks_of_excellence.UI_setting_background_text: "Savaş: arka planı göster"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Panel arka planını gösterir. Opaklık ayrıca ayarlanır."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Düğme: Ayarları Sıfırla"
@@ -219,8 +216,6 @@ battle_statistics.UI_setting_textLock_tooltip: "Savaş panelinin fareyle taşın
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Klan ödüllerini toplama"
-clan_reward_collection.UI_setting_enabled_text: "Etkin"
-clan_reward_collection.UI_setting_enabled_tooltip: "Modu etkinleştirin/devre dışı bırakın."
 clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coins ile otomatik satın alma"
 clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Varsayılan olarak kapalı. Açıkken, Tour Coins bakiyeniz fiyatı karşıladığında klan ilerleme sonraki aşaması otomatik satın alınır. Onay olmadan Tour Coins harcar. Kapatmak ücretsiz ödül toplamayı durdurmaz."
 
@@ -267,16 +262,8 @@ common.UI_mog_unavailable: "Güvenilir işaret verisi yok"
 common.UI_mog_vehicle: "Araç bilgileri"
 common.UI_mog_waiting: "Yeterli gözlem geçmişi yok"
 common.UI_mog_winrate: "Kazanma oranı"
-common.UI_native_close: "Kapat"
-common.UI_native_defaults: "Varsayılan"
 common.UI_native_enabled: "Modu etkinleştir"
 common.UI_native_enabled_tooltip: "Bu modu açar veya kapatır. Kapalıyken oyun, mod kurulu değilmiş gibi davranır."
-common.UI_native_error: "Ayarlar kaydedilemedi"
-common.UI_native_off: "Kapalı"
-common.UI_native_on: "Açık"
-common.UI_native_press: "Bir tuşa basın..."
-common.UI_native_save: "Kaydet"
-common.UI_native_saved: "Ayarlar kaydedildi"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} savaş (tahmin)"
@@ -323,8 +310,6 @@ driftkings.UI_profile_select: "Bir sonraki oyun başlangıcı için profil"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Tespit ve yardım bildirimleri"
-enemy_spotting_status.UI_macros_help: "Bildirimleri özelleştirmek için mesaj formatlarınızda bu makroları kullanın:\n• {icons} - Araç simgelerini gösterir\n• {names} - Oyuncu adlarını gösterir\n• {vehicles} - Araç adlarını gösterir\n• {icons_names} - Oyuncu adlarını içeren simgeleri gösterir\n• {icons_vehicles} - Araç adlarını içeren simgeleri gösterir\n• {full} - Tam bilgiyi gösterir\n• {damage} - Hasar miktarını gösterir (yalnızca yardım mesajları için)"
-enemy_spotting_status.UI_macros_help_title: "Makro Kullanım Kılavuzu"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Radyo yardımı:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Keşif yardım hasarı kazandığınızda gösterilen bildirim. Makrolar: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Sersemletme yardımı:"
@@ -541,8 +526,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "Panelin dikey konumu, arayüz 
 # main
 main.UI_description: "Genel ayarlar"
 main.UI_setting_clock_enabled_text: "Saat Göstergesi"
-main.UI_setting_enabled_text: "Etkin"
-main.UI_setting_enabled_tooltip: "Genel ayarları açar veya kapatır. Modun diğer bileşenleri etkilenmez."
 main.UI_tooltip: "Modun tamamına uygulanan seçenekler."
 main.UI_tooltip_clock_enabled: "Alan: Metin / resim (Flash HTML)."
 # minimap_enhancements
@@ -668,9 +651,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Minimum son bilin
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Son tespitten bu yana geçen saniyeler"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Son konum rengi: takım"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Son konum stili"
-minimap_enhancements.UI_setting_mapSize_color_text: "Harita boyutları rengi"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Harita boyutlarını göster"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "Harita boyutları yazı tipi boyutu"
 minimap_enhancements.UI_setting_mapSize_format_text: "Harita boyutları formatı"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "Harita boyutları yatay uzaklığı"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "Harita boyutlarının dikey uzaklığı"
@@ -756,7 +737,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Düşmanların bilinen s
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "Müfreze üyelerinin bilinen son konumlarının rengi."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Bilinen son konum işaretçilerinin rengi: donuk bir takım rengi veya gri."
 minimap_enhancements.UI_tooltip_lostScale: "Bilinen son konumlardaki simgelerin boyutu."
-minimap_enhancements.UI_tooltip_mapSize_color: "Harita boyutları metninin rengi."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Harita boyutlarını mini haritanın yanında gösterir."
 minimap_enhancements.UI_tooltip_mapSize_format: "Harita boyutları metni. Metre cinsinden makrolar: {{width}}, {{height}} ve {{cellsize}} (bir ızgara karesinin kenarı)."
 minimap_enhancements.UI_tooltip_marks: "Çizgilere belirlenen her metrede bir mesafe işareti ekler. 0 işaretleri kapatır."
@@ -822,8 +802,6 @@ repair_controls.UI_setting_useGoldKits_text: "Büyük sarf malzemelerini kullan"
 repair_controls.UI_setting_useGoldKits_tooltip: "Donatılmışsa büyük tamir kitlerini, ilk yardım kitlerini ve yangın söndürücüleri kullanır."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "KAPALI"
-server_turret_sync.UI_battle_ON: "AÇIK"
 server_turret_sync.UI_battle_activateMessage: "'Sunucu Taret Genişletilmiş': Etkinleştirildi"
 server_turret_sync.UI_description: "Sunucuyla kule eşitleme"
 server_turret_sync.UI_setting_activateMessage_text: "Etkinleştirme Mesajını Göster"
@@ -967,7 +945,6 @@ target_distance.UI_setting_textColor_text: "Metin Rengi"
 target_distance.UI_setting_textColor_tooltip: "Mesafe metninin rengi."
 target_distance.UI_setting_textSize_text: "Metin Boyutu"
 target_distance.UI_setting_textSize_tooltip: "Mesafe metninin yazı tipi boyutu."
-target_distance.modDisplayName: "Mesafe İşaretçisi"
 
 # target_information
 target_information.UI_delay_format: " sn."

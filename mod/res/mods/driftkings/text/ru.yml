@@ -89,7 +89,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash: скрыть т�
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash: Показать точку"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: скрыть всплеск"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash: Показать всплеск"
-artillery_blast_radius.UI_artySplash_name: "ОН Всплеск"
 artillery_blast_radius.UI_description: "Радиус взрыва артиллерии"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Кнопка: показать|скрыть точку"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Показывает или скрывает точку прицеливания во время боя."
@@ -113,9 +112,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Цвет рамки вокр
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>НЭН</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Отметки на стволе в бою"
-battle_marks_of_excellence.UI_message: "Визуальное изменение МО %s"
 battle_marks_of_excellence.UI_setting_background_text: "Битва: показать фон"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Показывает фон панели. Непрозрачность настраивается отдельно."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Кнопка: Сбросить настройки"
@@ -219,8 +216,6 @@ battle_statistics.UI_setting_textLock_tooltip: "Запрещает переме�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Получение клановых наград"
-clan_reward_collection.UI_setting_enabled_text: "Включено"
-clan_reward_collection.UI_setting_enabled_tooltip: "Включить/отключить мод."
 clan_reward_collection.UI_setting_purchaseProgression_text: "Автопокупки за Tour Coins"
 clan_reward_collection.UI_setting_purchaseProgression_tooltip: "По умолчанию выключено. Если включено, следующая ступень прогресса клана покупается автоматически, когда баланса Tour Coins хватает на её цену. Тратит Tour Coins без подтверждения. Выключение не останавливает сбор бесплатных наград."
 
@@ -267,16 +262,8 @@ common.UI_mog_unavailable: "Нет надёжных данных об отмет
 common.UI_mog_vehicle: "Информация о машине"
 common.UI_mog_waiting: "Недостаточно истории наблюдений"
 common.UI_mog_winrate: "Процент побед"
-common.UI_native_close: "Закрыть"
-common.UI_native_defaults: "По умолчанию"
 common.UI_native_enabled: "Включить мод"
 common.UI_native_enabled_tooltip: "Включает или выключает этот мод. Когда он выключен, игра работает так, будто мод не установлен."
-common.UI_native_error: "Не удалось сохранить"
-common.UI_native_off: "Выкл."
-common.UI_native_on: "Вкл."
-common.UI_native_press: "Нажмите клавишу..."
-common.UI_native_save: "Сохранить"
-common.UI_native_saved: "Настройки сохранены"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} боёв (оценка)"
@@ -323,8 +310,6 @@ driftkings.UI_profile_select: "Профиль для следующего ста
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Уведомления об обнаружении и содействии"
-enemy_spotting_status.UI_macros_help: "Используйте эти макросы в форматах сообщений для настройки уведомлений:\n• {icons} - Показывает значки транспортных средств\n• {names} - Показывает имена игроков\n• {vehicles} - Показывает названия транспортных средств\n• {icons_names} - Показывает значки с именами игроков\n• {icons_vehicles} - Показывает значки с названиями транспортных средств\n• {full} - Показывает полную информацию\n• {damage} - Показывает сумму урона (только для вспомогательных сообщений)"
-enemy_spotting_status.UI_macros_help_title: "Руководство по использованию макросов"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Радиопомощь:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Уведомление, когда вы получаете урон по разведке. Макросы: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Оглушение:"
@@ -541,8 +526,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "Положение панел�
 # main
 main.UI_description: "Общие настройки"
 main.UI_setting_clock_enabled_text: "Дисплей часов"
-main.UI_setting_enabled_text: "Включено"
-main.UI_setting_enabled_tooltip: "Включает или отключает общие настройки. Остальные компоненты мода не затрагиваются."
 main.UI_tooltip: "Параметры, применяемые ко всему моду."
 main.UI_tooltip_clock_enabled: "Поле: Текст / изображение (Flash HTML)."
 # minimap_enhancements
@@ -668,9 +651,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Минималь�
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Секунды с момента последнего обнаружения"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Цвет последней позиции: взвод"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Стиль последней позиции"
-minimap_enhancements.UI_setting_mapSize_color_text: "Цвет размеров карты"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Показать размеры карты"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "Размер шрифта карты"
 minimap_enhancements.UI_setting_mapSize_format_text: "Формат размеров карты"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "Смещение размеров карты по горизонтали"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "Вертикальное смещение размеров карты"
@@ -756,7 +737,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Цвет последн�
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "Цвет последних известных позиций членов взвода."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Цвет маркеров последних известных позиций: приглушённый цвет команды или серый."
 minimap_enhancements.UI_tooltip_lostScale: "Размер значков на последних известных позициях."
-minimap_enhancements.UI_tooltip_mapSize_color: "Цвет текста размеров карты."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Показывает размеры карты рядом с миникартой."
 minimap_enhancements.UI_tooltip_mapSize_format: "Текст размеров карты. Макросы в метрах: {{width}}, {{height}} и {{cellsize}} (сторона одного квадрата сетки)."
 minimap_enhancements.UI_tooltip_marks: "Добавляет на линии отметку расстояния через заданное число метров. 0 отключает отметки."
@@ -822,8 +802,6 @@ repair_controls.UI_setting_useGoldKits_text: "Использовать боль�
 repair_controls.UI_setting_useGoldKits_tooltip: "Использует большие ремкомплекты, аптечки и огнетушители, если они установлены."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "ВЫКЛ."
-server_turret_sync.UI_battle_ON: "ВКЛ."
 server_turret_sync.UI_battle_activateMessage: "«Расширенная серверная турель»: активировано."
 server_turret_sync.UI_description: "Синхронизация башни с сервером"
 server_turret_sync.UI_setting_activateMessage_text: "Показать сообщение активации"
@@ -967,7 +945,6 @@ target_distance.UI_setting_textColor_text: "Цвет текста"
 target_distance.UI_setting_textColor_tooltip: "Цвет текста расстояния."
 target_distance.UI_setting_textSize_text: "Размер текста"
 target_distance.UI_setting_textSize_tooltip: "Размер шрифта текста расстояния."
-target_distance.modDisplayName: "Маркер расстояния"
 
 # target_information
 target_information.UI_delay_format: " сек."

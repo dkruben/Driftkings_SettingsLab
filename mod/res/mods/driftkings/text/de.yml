@@ -89,7 +89,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash: Punkt ausblenden
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash: Punkt anzeigen"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: Splash ausblenden"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash: Splash anzeigen"
-artillery_blast_radius.UI_artySplash_name: "ER Splash"
 artillery_blast_radius.UI_description: "Explosionsradius der Artillerie"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Schaltfläche: Punkt ein-/ausblenden"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Blendet den Zielpunkt während des Gefechts ein oder aus."
@@ -113,9 +112,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Farbe des Rahmens um das von
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Erfolgsmarkierungen im Gefecht"
-battle_marks_of_excellence.UI_message: "MoE-Änderungsvisualisierung %s"
 battle_marks_of_excellence.UI_setting_background_text: "Kampf: Hintergrund anzeigen"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Zeigt den Hintergrund des Panels an. Die Deckkraft wird separat eingestellt."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Schaltfläche: Einstellungen zurücksetzen"
@@ -219,8 +216,6 @@ battle_statistics.UI_setting_textLock_tooltip: "Verhindert das Verschieben des G
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Clanbelohnungen einsammeln"
-clan_reward_collection.UI_setting_enabled_text: "Aktiviert"
-clan_reward_collection.UI_setting_enabled_tooltip: "Aktivieren/deaktivieren Sie den Mod."
 clan_reward_collection.UI_setting_purchaseProgression_text: "Automatische Käufe mit Tour Coins"
 clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Standardmäßig aus. Wenn aktiviert, wird die nächste Klan-Fortschrittsstufe automatisch gekauft, sobald das Tour-Coins-Guthaben den Preis deckt. Tour Coins werden ohne Bestätigung ausgegeben. Ausschalten stoppt das Sammeln kostenloser Belohnungen nicht."
 
@@ -267,16 +262,8 @@ common.UI_mog_unavailable: "Keine verlässlichen Markierungsdaten verfügbar"
 common.UI_mog_vehicle: "Fahrzeuginformationen"
 common.UI_mog_waiting: "Nicht genug beobachteter Verlauf"
 common.UI_mog_winrate: "Siegquote"
-common.UI_native_close: "Schließen"
-common.UI_native_defaults: "Standard"
 common.UI_native_enabled: "Mod aktivieren"
 common.UI_native_enabled_tooltip: "Schaltet diese Mod ein oder aus. Ist sie aus, verhält sich das Spiel so, als wäre die Mod nicht installiert."
-common.UI_native_error: "Speichern fehlgeschlagen"
-common.UI_native_off: "Aus"
-common.UI_native_on: "Ein"
-common.UI_native_press: "Taste drücken..."
-common.UI_native_save: "Speichern"
-common.UI_native_saved: "Einstellungen gespeichert"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} Gefechte (Schätzung)"
@@ -323,8 +310,6 @@ driftkings.UI_profile_select: "Profil für den nächsten Spielstart"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Aufklärungs- und Unterstützungsbenachrichtigungen"
-enemy_spotting_status.UI_macros_help: "Verwenden Sie diese Makros in Ihren Nachrichtenformaten, um Benachrichtigungen anzupassen:\n• {icons} - Zeigt Fahrzeugsymbole an\n• {names} - Zeigt Spielernamen an\n• {vehicles} - Zeigt Fahrzeugnamen an\n• {icons_names} - Zeigt Symbole mit Spielernamen an\n• {icons_vehicles} - Zeigt Symbole mit Fahrzeugnamen an\n• {full} - Zeigt vollständige Informationen an\n• {damage} - Zeigt die Schadenshöhe an (nur für Hilfsmeldungen)"
-enemy_spotting_status.UI_macros_help_title: "Leitfaden zur Verwendung von Makros"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Funkunterstützung:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Benachrichtigung, wenn Sie Aufklärungsschaden erhalten. Makros: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Betäubungsassistent:"
@@ -541,8 +526,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "Vertikale Position des Panels 
 # main
 main.UI_description: "Allgemeine Einstellungen"
 main.UI_setting_clock_enabled_text: "Uhranzeige"
-main.UI_setting_enabled_text: "Aktiviert"
-main.UI_setting_enabled_tooltip: "Aktiviert oder deaktiviert die allgemeinen Einstellungen. Die übrigen Komponenten des Mods bleiben unverändert."
 main.UI_tooltip: "Optionen, die für den gesamten Mod gelten."
 main.UI_tooltip_clock_enabled: "Feld: Text / Bild (Flash-HTML)."
 # minimap_enhancements
@@ -668,9 +651,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Minimale zuletzt 
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Sekunden seit der letzten Erkennung"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Farbe letzte Position: Zug"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Stil der letzten Position"
-minimap_enhancements.UI_setting_mapSize_color_text: "Farbe der Kartenabmessungen"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Kartenabmessungen anzeigen"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "Schriftgröße der Kartenabmessungen"
 minimap_enhancements.UI_setting_mapSize_format_text: "Format der Kartenabmessungen"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "Horizontaler Versatz der Kartenabmessungen"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "Vertikaler Versatz der Kartenabmessungen"
@@ -756,7 +737,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Farbe der letzten bekann
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "Farbe der letzten bekannten Positionen von Zugmitgliedern."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Farbe der Markierungen letzter bekannter Positionen: eine gedämpfte Teamfarbe oder Grau."
 minimap_enhancements.UI_tooltip_lostScale: "Größe der Symbole an letzten bekannten Positionen."
-minimap_enhancements.UI_tooltip_mapSize_color: "Farbe des Textes der Kartenmaße."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Zeigt die Kartenmaße neben der Minikarte an."
 minimap_enhancements.UI_tooltip_mapSize_format: "Text der Kartenmaße. Makros in Metern: {{width}}, {{height}} und {{cellsize}} (Seite eines Gitterquadrats)."
 minimap_enhancements.UI_tooltip_marks: "Setzt auf den Linien alle so viele Meter eine Entfernungsmarke. 0 schaltet die Marken ab."
@@ -822,8 +802,6 @@ repair_controls.UI_setting_useGoldKits_text: "Große Verbrauchsmaterialien verwe
 repair_controls.UI_setting_useGoldKits_tooltip: "Verwendet große Reparaturkästen, Verbandskästen und Feuerlöscher, wenn sie ausgerüstet sind."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "AUS"
-server_turret_sync.UI_battle_ON: "EIN"
 server_turret_sync.UI_battle_activateMessage: "„Server Turret Extended“: Aktiviert"
 server_turret_sync.UI_description: "Turmsynchronisierung mit dem Server"
 server_turret_sync.UI_setting_activateMessage_text: "Aktivierungsnachricht anzeigen"
@@ -967,7 +945,6 @@ target_distance.UI_setting_textColor_text: "Textfarbe"
 target_distance.UI_setting_textColor_tooltip: "Farbe des Entfernungstextes."
 target_distance.UI_setting_textSize_text: "Textgröße"
 target_distance.UI_setting_textSize_tooltip: "Schriftgröße des Entfernungstextes."
-target_distance.modDisplayName: "DistanzMarker"
 
 # target_information
 target_information.UI_delay_format: " Sek."
