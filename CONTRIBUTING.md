@@ -173,8 +173,7 @@ The npm manifests and local JavaScript dependencies live in `build_tools/javascr
 Run these before opening a pull request. They cover the main local checks; the complete sequence is defined in `.github/workflows/`:
 
 ```bash
-python -B tests/run_python.py --suite runtime
-python -B tests/run_python.py --suite build
+python -B tests/run_python.py --suite all
 python build_tools/validate_build_data.py
 python build_tools/validate_locales.py
 python build_tools/generate_defaults.py --check
@@ -186,6 +185,8 @@ npm --prefix build_tools/javascript ci --ignore-scripts
 npm --prefix build_tools/javascript run lint
 npm --prefix build_tools/javascript test
 ```
+
+The supported Python 3 test command is `python -B tests/run_python.py --suite all`. It runs the same runtime and build suites that `.github/workflows/python-package.yml` executes separately with `--suite runtime` and `--suite build`. Use the project runner: it configures the import paths and test discovery required by the fixtures. Direct `python -m pytest tests` is unsupported and failed during collection with 98 errors in the Windows Python 3.14 cleanup validation environment, including missing `support` imports; that count is environment-specific.
 
 `npm --prefix build_tools/javascript test` runs all current Gameface regression suites, including the settings window and ratings helpers.
 
