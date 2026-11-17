@@ -55,6 +55,16 @@ package driftkings.utils
                 path = path.substr("../maps/driftkings/".length);
                 root = "../maps/driftkings/";
             }
+            else if (path.indexOf("gui/aimingangles/") == 0)
+            {
+                path = path.substr("gui/aimingangles/".length);
+                root = "../aimingangles/";
+            }
+            else if (path.indexOf("../aimingangles/") == 0)
+            {
+                path = path.substr("../aimingangles/".length);
+                root = "../aimingangles/";
+            }
             else if (path.indexOf("mods/configs/driftkings/") == 0)
             {
                 path = path.substr("mods/configs/driftkings/".length);
