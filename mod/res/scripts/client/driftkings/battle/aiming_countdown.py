@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-"""Aiming countdown beside the crosshair, as a Gameface text in the native battle HUD.
-
+﻿# -*- coding: utf-8 -*-
+"""
+Aiming countdown beside the crosshair, as a Gameface text in the native battle HUD.
 Battle pages without that HUD (Halloween, Fort Rush) show no text."""
 from driftkings.common.utils import events
 from driftkings.core.battle_capabilities import battle_capabilities

@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-from driftkings._constants import GLOBAL, TEAM_PANELS
-from driftkings.interface_catalog import gameface_spec
-from driftkings.settings.service import settings_service
-
 """Native Gameface roster bridge for the classic TAB and compatible battle modes."""
 import json
 import math
@@ -11,6 +7,9 @@ import weakref
 from driftkings.core.diagnostics import diagnostics
 from driftkings.core.hooks import override
 from driftkings.logger import get_logger
+from driftkings._constants import GLOBAL, TEAM_PANELS
+from driftkings.interface_catalog import gameface_spec
+from driftkings.settings.service import settings_service
 
 
 class GamefaceLoading(object):

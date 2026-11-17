@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Window edit session: draft (view) -> applied (live mod values) -> saved (JSON).
+"""
+Window edit session: draft (view) -> applied (live mod values) -> saved (JSON).
 Apply publishes drafts to the mods, Save persists applied values, Cancel drops
 drafts since the last Apply, Discard also reverts applied values to the saved ones.
 """

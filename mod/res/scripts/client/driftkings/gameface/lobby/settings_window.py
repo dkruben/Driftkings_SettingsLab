@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Gameface presentation of Driftkings Mod Settings: integrated settings window.
-
+"""
+Gameface presentation of Driftkings Mod Settings: integrated settings window.
 The window logic lives in driftkings.settings.panel.presenter; this module only moves JSON
 between the Wulf view models and the presenter.
 """
@@ -393,4 +393,3 @@ class SettingsController(object):
 
 
 controller = SettingsController()
-

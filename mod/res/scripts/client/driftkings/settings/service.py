@@ -24,8 +24,8 @@ def changed_paths(before, after, prefix=()):
 
 
 class SettingsChanges(dict):
-    """Complete changed sections, with paths for selective consumers.
-
+    """
+    Complete changed sections, with paths for selective consumers.
     ``origin`` is None for user or programmatic applications and ``'reload'`` when the values were re-read from
     storage; consumers that trigger side effects must not act on reloads.
     """

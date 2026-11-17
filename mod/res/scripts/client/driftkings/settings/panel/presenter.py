@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""View-independent window logic: JSON schema/state for Gameface and action handling.
-
+"""
+View-independent window logic: JSON schema/state for Gameface and action handling.
 schema changes only when mods, controls or the language change; state changes on
 every edit, so the view can patch values without rebuilding the DOM.
 """
