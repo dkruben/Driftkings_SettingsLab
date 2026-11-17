@@ -99,8 +99,8 @@ Components can be enabled and configured individually. Availability depends on t
 | Service record ratings | Player/vehicle WN8 and configurable rating colours in native service-record screens. |
 | Hangar preferences | Header buttons, widgets, notifications and garage options. |
 | General settings and clock | Editable hangar clock fields with time/date text, background images, positioning and shadows. |
-| Account manager | Account-management interface with its own General settings page: a switch for the login-screen button and **Manage accounts** in the hangar. |
-| Clan reward collection | Automatic collection of eligible clan rewards when enabled. |
+| Account manager | Account-management interface with its own General settings page: a switch for the login-screen button and **Manage accounts** in the hangar. **Saved accounts and passwords are stored locally** in the `accounts.manager` file in your Windows profile (`Wargaming.net\WorldOfTanks\Driftkings`). Passwords are written with the same protection routine the game uses for its own login data. Nothing is saved unless you add an account yourself. If the same e-mail is saved for more than one server, the manager shows a notice; saving is not blocked. |
+| Clan reward collection | Automatic collection of eligible free clan rewards, **on by default** (the master switch). Separately, **automatic purchase of clan progression stages with Tour Coins is off by default**; if you turn it on, the next stage is bought without a confirmation whenever your Tour Coin balance covers its price. This option only spends Tour Coins: it never spends credits or gold. Turning it off does not stop free reward collection. |
 | Sound bank loader | Loads the mod's packaged sound banks. |
 
 Ratings and progress displays are estimates; they do not guarantee a battle result, server award or gun-mark increase. Vehicle-marker customization applies to supported regular modes; special modes retain native markers. XMQP is not included.
@@ -138,7 +138,7 @@ The integrated settings panel includes **profiles, themes, UI scale, translation
 
 Default configurations are based on the author's EU profile, except vehicle markers, which now follow the reference layout. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
 
-Use the **stable** update channel for stable releases. Select **Beta** only if you want prerelease updates. The updater authenticates the signed manifest, verifies the package size and SHA-256, and applies the update after restarting. See [release integrity and security](SECURITY.md).
+Use the **stable** update channel for stable releases. Select **Beta** only if you want prerelease updates. The updater authenticates the signed manifest, verifies the package size and SHA-256, and applies the update after restarting. Installation runs in a small Windows helper that waits for the game client to close before replacing files, so the update is never applied while the game is running. See [release integrity and security](SECURITY.md).
 
 For custom media, use `mods/configs/driftkings/images/` and `mods/configs/driftkings/sixthsense/`. The default custom Sixth Sense icon is `SixthSenseIcon.png`. Packaged `gui/maps/driftkings/...` image paths are also supported. Select the paths in settings; uninstall preserves your media folders.
 
