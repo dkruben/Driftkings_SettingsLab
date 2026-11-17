@@ -28,9 +28,9 @@ def labels():
     for name, key in (('title', 'accountManager'), ('add', 'add'), ('edit', 'edit'),
                       ('delete', 'delete'), ('enter', 'enter'), ('save', 'save'),
                       ('cancel', 'cancel'), ('server', 'server'), ('name', 'nick'),
+                      ('showPassword', 'showPassword'), ('autoEnter', 'autoEnter'),
                       ('confirmDelete', 'acceptDeleteAccount'), ('email', 'email'),
-                      ('empty', 'empty'), ('notice', 'accountProfilesNotice'),
-                      ('legacyNotice', 'legacyAccountsNotice'),
+                      ('password', 'password'), ('empty', 'empty'), ('keepPassword', 'keepPassword'),
                       ('loginOnly', 'loginOnly'), ('error', 'error'), ('manage', 'manageYourAccount')):
         value = translations.get('UI_setting_' + key, name)
         if isinstance(value, bytes):
@@ -100,7 +100,6 @@ class AccountsView(ViewImpl):
                    'tooltipDecorator': R.views.common.tooltip_window.tooltip_window.TooltipWindow()}
         if not self.launcher:
             payload['accounts'] = service.rows()
-            payload['legacy'] = service.legacy_present
             payload['servers'] = [{'id': index, 'label': host[1]} for index, host in enumerate(service.hosts())]
             if getattr(service.store, 'read_error', False):
                 payload['message'] = error_text(AccountError('errorRead', READ_ERROR))
@@ -131,16 +130,19 @@ class AccountsView(ViewImpl):
                 self.editing = {'id': '', 'title': '', 'email': '', 'cluster': 0}
             elif action == 'edit':
                 self.editing = service.edit(data['id'])
+            elif action == 'revealPassword' and self.editing and self.editing.get('id'):
+                account = service.find(self.editing['id'])
+                self.editing['password'] = service.unprotect(account['password'])
             elif action == 'cancel':
                 self.editing = None
             elif action == 'save':
-                # Only title, e-mail and server travel here. Any other field in the request is ignored.
-                service.save(data.get('id'), data.get('title', ''), data.get('email', ''), data.get('cluster', -1))
+                service.save(data.get('id'), data.get('title', ''), data.get('email', ''),
+                             data.get('password', ''), data.get('cluster', -1))
                 self.editing = None
             elif action == 'delete' and data.get('confirmed') is True:
                 service.delete(data['id'])
             elif action == 'enter':
-                self.controller.useAccount(data['id'])
+                self.controller.useAccount(data['id'], data.get('autoEnter') is True)
                 if self.live:
                     self.getParentWindow().destroy()
                 return

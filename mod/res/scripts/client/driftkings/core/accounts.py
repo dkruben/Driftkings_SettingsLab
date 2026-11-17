@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Account profile operations independent of the UI. Profiles never hold passwords or other secrets."""
+"""Account operations independent of the UI; passwords never enter view models."""
 import copy
+import uuid
 
-from driftkings.core.account_profiles import MAX_EMAIL, MAX_TITLE, new_identifier, valid_record
 from driftkings.logger import get_logger
 
 LOG = get_logger('Driftkings.AccountManager')
@@ -21,14 +21,10 @@ class AccountError(ValueError):
 
 
 class AccountService(object):
-    def __init__(self, store, hosts, realm=''):
-        self.store, self.hosts = store, hosts
+    def __init__(self, store, protect, unprotect, hosts, realm=''):
+        self.store, self.protect, self.unprotect, self.hosts = store, protect, unprotect, hosts
         # EU, NA and ASIA clients share the preferences folder, and therefore this file.
         self.realm = realm
-
-    @property
-    def legacy_present(self):
-        return bool(getattr(self.store, 'legacy_present', False))
 
     def find(self, account_id):
         for account in self.store.accounts:
@@ -93,7 +89,8 @@ class AccountService(object):
         account = self.find(account_id)
         hosts = self.hosts()
         index = -1 if self.foreign(account, hosts) else self._index(account, hosts)
-        return {'id': str(account['id']), 'title': account['title'], 'email': account['email'], 'cluster': index}
+        return {'id': str(account['id']), 'title': account['title'], 'email': self.unprotect(account['email']),
+                'cluster': index}
 
     def _commit(self, accounts):
         if getattr(self.store, 'read_error', False):
@@ -103,22 +100,22 @@ class AccountService(object):
         try:
             saved = self.store.write_accounts()
         except Exception as error:
-            # Type name only: the message or traceback could carry e-mail addresses.
-            LOG.warning('Could not save accounts (%s); no secrets are stored', type(error).__name__)
+            # Type name only: the message or traceback could carry e-mail addresses or passwords.
+            LOG.warning('Could not save accounts (%s); credentials are not logged', type(error).__name__)
             saved = False
         if not saved:
             self.store.accounts = previous
             raise AccountError('errorSave', 'Could not save accounts. The previous file was preserved.')
 
-    def save(self, account_id, title, email, cluster):
+    def save(self, account_id, title, email, password, cluster):
         title, email = title.strip(), email.strip()
-        if not title or not email or len(title) > MAX_TITLE or len(email) > MAX_EMAIL or '@' not in email:
-            raise AccountError('errorRequiredProfile', 'Fill in the name and email.')
+        if not title or not email or (not account_id and not password):
+            raise AccountError('errorRequired', 'Fill in the name, email and password.')
         hosts = self.hosts()
         cluster = int(cluster)
         accounts = copy.deepcopy(self.store.accounts)
         original = self.find(account_id) if account_id else None
-        account = copy.deepcopy(original) if original else {'id': new_identifier()}
+        account = copy.deepcopy(original) if original else {'id': uuid.uuid4().hex}
         if 0 <= cluster < len(hosts):
             account.update(cluster=cluster, server=hosts[cluster][0], serverName=hosts[cluster][1])
             if self.realm:
@@ -126,9 +123,9 @@ class AccountService(object):
         elif not (original and self.foreign(original, hosts)):
             raise AccountError('errorServer', 'Select an available server.')
         # Without a new selection, an account of another region keeps its server.
-        account.update(title=title, email=email)
-        if not valid_record(account):
-            raise AccountError('errorRequiredProfile', 'Fill in the name and email.')
+        account.update(title=title, email=self.protect(email))
+        if password:
+            account['password'] = self.protect(password)
         if original:
             accounts = [account if str(item['id']) == str(account_id) else item for item in accounts]
         else:
@@ -140,7 +137,6 @@ class AccountService(object):
         self._commit([copy.deepcopy(item) for item in self.store.accounts if str(item['id']) != str(account_id)])
 
     def credentials(self, account_id):
-        """E-mail, server and index for pre-filling the official login form. No password exists here."""
         account = self.find(account_id)
         index = self.cluster(account)
         if index < 0:
@@ -148,4 +144,4 @@ class AccountService(object):
                 raise AccountError('errorRegion', 'This account belongs to the {realm} region. Use the {realm} client.',
                                    realm=self.accountRealm(account))
             raise AccountError('errorEditServer', 'Edit this account and select an available server.')
-        return account['email'], self.hosts()[index][0], index
+        return self.unprotect(account['email']), self.unprotect(account['password']), self.hosts()[index][0], index

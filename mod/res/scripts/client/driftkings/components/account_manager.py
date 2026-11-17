@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Account profile persistence and native login lifecycle; presentation is Gameface.
-
-Profiles hold a title, an e-mail and a server. Passwords are never stored or loaded by this component;
-the player types them on the official World of Tanks login screen.
-"""
+"""Account persistence and native login lifecycle; presentation is Gameface."""
+import base64
+import json
 import os
 import weakref
+import zlib
 
 import BigWorld
 from external_strings_utils import unicode_from_utf8
@@ -15,7 +14,7 @@ from skeletons.gui.app_loader import GuiGlobalSpaceID
 
 from driftkings._constants import GLOBAL
 from driftkings.common.utils import events
-from driftkings.core.account_profiles import FILE_NAME, LEGACY_NAME, ProfileFile
+from driftkings.common.utils.filesystem import atomicWrite, recover_file
 from driftkings.core.accounts import AccountError, AccountService
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import on_event
@@ -35,13 +34,56 @@ def getPreferencesDir():
     return os.path.normpath(os.path.dirname(path))
 
 
-def profiles_path():
-    return os.path.join(getPreferencesDir(), 'driftkings', FILE_NAME)
+class UserAccounts(object):
+    # Define o ficheiro de contas e prepara o estado de leitura.
+    def __init__(self):
+        self.path = os.path.join(getPreferencesDir(), 'driftkings', 'accounts.manager')
+        self.accounts = []
+        self.read_error = False
+        if os.path.isfile(self.path) or os.path.isfile(self.path + '.previous'):
+            self.renew_accounts()
 
+    def renew_accounts(self):
+        try:
+            recover_file(self.path)
+            with open(self.path, 'rb') as stream:
+                raw = stream.read()
+            if not raw:
+                self.accounts = []
+                self.read_error = False
+                return
+            try:
+                decoded = zlib.decompress(base64.b64decode(BigWorld.wg_ucpdata(raw)))
+                accounts = json.loads(decoded.decode('utf-8'))
+            except Exception as error:
+                # Type name only: the file holds e-mail addresses and passwords.
+                LOG.debug('Protected accounts.manager unreadable (%s); reading it as plain JSON',
+                          type(error).__name__)
+                accounts = json.loads(raw.decode('utf-8-sig'))
+            if not isinstance(accounts, list) or any(not isinstance(item, dict) or
+                    not all(key in item for key in ('id', 'title', 'email', 'password', 'cluster'))
+                        for item in accounts):
+                raise ValueError('Invalid account records')
+            self.accounts = accounts
+            self.read_error = False
+        except Exception as error:
+            self.read_error = True
+            LOG.error('Could not read accounts.manager (%s); existing file preserved', type(error).__name__)
 
-def legacy_path():
-    # Only its existence is reported. The legacy file is never opened, read, copied or replaced.
-    return os.path.join(getPreferencesDir(), 'driftkings', LEGACY_NAME)
+    def write_accounts(self):
+        if self.read_error:
+            return False
+        try:
+            directory = os.path.dirname(self.path)
+            if not os.path.isdir(directory):
+                os.makedirs(directory)
+            payload = json.dumps(self.accounts).encode('utf-8')
+            data = BigWorld.wg_cpdata(base64.b64encode(zlib.compress(payload)))
+            atomicWrite(self.path, data)
+            return True
+        except Exception as error:
+            LOG.error('Could not save accounts.manager (%s); credentials are not logged', type(error).__name__)
+            return False
 
 
 class AccountsManagerController(object):
@@ -95,7 +137,7 @@ class AccountsManagerController(object):
             self.window = AccountsWindow(self)
             self.window.load()
 
-    # Abre a janela do gestor no hangar, a partir do painel, para editar os perfis guardados.
+    # Abre a janela do gestor no hangar, a partir do painel, para editar as contas guardadas.
     def openManager(self):
         if self.window is None and self.active and self.space == GuiGlobalSpaceID.LOBBY:
             from driftkings.gameface.lobby.account_manager import AccountsWindow
@@ -108,16 +150,18 @@ class AccountsManagerController(object):
     def launcherPosition(self):
         return launcher_position(self.login()) if self.canLogin() else None
 
-    def useAccount(self, account_id):
-        """Pre-fills e-mail and server on the official login form. The player types the password there."""
+    def useAccount(self, account_id, auto_enter):
         if not self.canLogin():
             raise AccountError('loginOnly', 'Select an account on the login screen.')
         login = self.login()
         if login.loginManager.isWgcSteam:
             raise AccountError('errorSteam', 'This client uses Steam. Select the account through Steam.')
-        email, server, index = service.credentials(account_id)
+        email, password, server, index = service.credentials(account_id)
         prepare_login(login, index)
-        fill_credentials(login, email, '')
+        if auto_enter:
+            login.onLogin(email, password, server, False)
+        else:
+            fill_credentials(login, email, password)
 
     # Cancela a abertura pendente e fecha as janelas do gestor.
     def closeViews(self):
@@ -137,8 +181,9 @@ service = None
 
 def init():
     global service
-    BigWorld.wh_data = ProfileFile(profiles_path(), legacy_path())
-    service = AccountService(BigWorld.wh_data, g_preDefinedHosts.shortList, CURRENT_REALM)
+    BigWorld.wh_data = UserAccounts()
+    service = AccountService(BigWorld.wh_data, BigWorld.wg_cpdata, BigWorld.wg_ucpdata, g_preDefinedHosts.shortList,
+                             CURRENT_REALM)
     controller.active = True
 
 

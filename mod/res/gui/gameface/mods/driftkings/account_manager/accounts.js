@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     var root = document.getElementById('accounts'), disposed = false, callbackId = null;
-    var pendingDelete = null, current = null, frame = null, dropdown = null;
+    var autoEnter = true, pendingDelete = null, current = null, frame = null, dropdown = null;
     var draft = null, formSave = null, tooltipVisible = false;
     function node(tag, text, className) {
         var element = document.createElement(tag);
@@ -29,6 +29,14 @@
             if (event.keyCode === 13 || event.keyCode === 32) { element.onclick(event); }
         };
         return element;
+    }
+    function checkbox(text, checked, change) {
+        var control = button('', function () { checked = !checked; update(); change(checked); }, 'check');
+        var mark = node('span', '', 'check-box');
+        control.appendChild(mark); control.appendChild(node('span', text, 'check-label'));
+        control.setAttribute('role', 'checkbox'); control.setAttribute('aria-label', text);
+        function update() { mark.className = 'check-box' + (checked ? ' checked' : ''); control.setAttribute('aria-checked', String(checked)); }
+        update(); return control;
     }
     function tooltip(show, title, description) {
         if (!current || tooltipVisible === show) { return; }
@@ -161,7 +169,17 @@
         }
         var title = field(labels.name, 'text', draft.title, 'title');
         var email = field(labels.email, 'text', draft.email, 'email');
-        form.appendChild(node('div', labels.notice, 'hint'));
+        var revealed = typeof account.password === 'string';
+        var password = field(labels.password, revealed ? 'text' : 'password', revealed ? account.password : '');
+        if (account.id) { password.placeholder = '********'; }
+        form.appendChild(checkbox(labels.showPassword, revealed, function (value) {
+            if (value && account.id && !password.value && !revealed) {
+                send('revealPassword');
+            } else {
+                password.type = value ? 'text' : 'password';
+            }
+        }));
+        if (account.id) { form.appendChild(node('div', labels.keepPassword, 'hint')); }
         var serverField = node('div', undefined, 'field');
         serverField.appendChild(node('div', labels.server, 'field-label'));
         serverField.appendChild(serverPicker(data.servers, draft.cluster, function (id) { draft.cluster = id; }));
@@ -169,22 +187,23 @@
         var actions = node('div', undefined, 'form-actions');
         formSave = function () {
             var valid = true;
-            [[title, !!title.value.trim()], [email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())]].forEach(function (item) {
+            [[title, !!title.value.trim()], [email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())],
+             [password, !!account.id || !!password.value]].forEach(function (item) {
                 item[0].className = 'text-input' + (item[1] ? '' : ' invalid');
                 if (!item[1]) { if (valid) { item[0].focus(); } valid = false; }
             });
             if (!valid) { return; }
             draft.title = title.value; draft.email = email.value;
-            send('save', {id: account.id, title: title.value, email: email.value, cluster: draft.cluster});
+            send('save', {id: account.id, title: title.value, email: email.value,
+                          password: password.value, cluster: draft.cluster});
+            password.value = '';
         };
         actions.appendChild(button(labels.save, formSave, 'primary'));
-        actions.appendChild(button(labels.cancel, function () { draft = null; send('cancel'); }));
+        actions.appendChild(button(labels.cancel, function () { password.value = ''; draft = null; send('cancel'); }));
         form.appendChild(actions); panel.appendChild(form);
     }
     function accountList(panel, data) {
         var labels = data.labels, list = node('div', undefined, 'list');
-        list.appendChild(node('div', labels.notice, 'hint'));
-        if (data.legacy) { list.appendChild(node('div', labels.legacyNotice, 'hint')); }
         if (!data.accounts.length) { list.appendChild(node('div', labels.empty, 'hint')); }
         data.accounts.forEach(function (account) {
             var row = node('div', undefined, 'row'), actions = node('div', undefined, 'account-actions');
@@ -194,7 +213,7 @@
             server.appendChild(node('div', undefined, 'server-icon'));
             server.appendChild(node('span', account.server)); info.appendChild(server); row.appendChild(info);
             var blocked = pendingDelete !== null;
-            actions.appendChild(iconButton(labels.enter, 'enter', function () { send('enter', {id: account.id}); },
+            actions.appendChild(iconButton(labels.enter, 'enter', function () { send('enter', {id: account.id, autoEnter: autoEnter}); },
                                           blocked || !data.canLogin || !account.available));
             actions.appendChild(iconButton(labels.edit, 'edit', function () { draft = null; send('edit', {id: account.id}); }, blocked));
             actions.appendChild(iconButton(labels.delete, 'delete', function () { pendingDelete = account.id; render(); }, blocked));
@@ -203,6 +222,7 @@
         list.onwheel = function (event) { list.scrollTop += event.deltaY; handled(event); };
         panel.appendChild(list);
         var footer = node('div', undefined, 'footer');
+        footer.appendChild(checkbox(labels.autoEnter, autoEnter, function (value) { autoEnter = value; }));
         var add = button('', function () { draft = null; send('add'); }, 'add-account', pendingDelete !== null);
         add.setAttribute('aria-label', labels.add);
         add.appendChild(node('div', undefined, 'action-icon icon-add'));
