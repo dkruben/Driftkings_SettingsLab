@@ -19,9 +19,9 @@
     var next = K.node('div', 'dk-mog__next', progress), nextLabel = K.node('span', '', next), gap = K.node('span', '', next);
     var footer = K.node('div', 'dk-mog__footer', root), current = K.node('span', '', footer);
     function render(data) {
-        var cfg = data.config || {}, valid = data.state === 'data', mini = cfg.miniMode !== false;
+        var cfg = data.config || {}, valid = data.state === 'data', partial = data.state === 'current', mini = cfg.miniMode !== false;
         var interactive = cfg.draggable === true && cfg.locked === false;
-        root.className = 'dk-mog dk-mog--compact' + (mini ? ' dk-mog--mini' : '') + (valid ? '' : ' dk-mog--empty') + (interactive ? ' dk-mog--unlocked' : '');
+        root.className = 'dk-mog dk-mog--compact' + (mini ? ' dk-mog--mini' : '') + (valid || partial ? '' : ' dk-mog--empty') + (interactive ? ' dk-mog--unlocked' : '');
         var accent = K.theme(root, cfg, true, mini ? 400 : 650);
         K.setLocale(cfg);
         K.style(root, 'zIndex', '10000');
@@ -32,10 +32,10 @@
         // Replays have no dossier: borrowed or base data is flagged so it is never read as the player's mark.
         var approximate = valid && data.approximate === true;
         K.text(context, approximate ? K.label(data, 'approximate', '') : K.label(data, 'battle', ''));
-        K.text(estimatedLabel, K.label(data, 'estimated', ''));
-        K.text(estimated, valid ? (approximate ? '~' : '') + K.percent(data.estimatedMark) : '\u2014'); K.style(estimated, 'color', accent);
+        K.text(estimatedLabel, K.label(data, partial ? 'current' : 'estimated', ''));
+        K.text(estimated, valid ? (approximate ? '~' : '') + K.percent(data.estimatedMark) : partial ? K.percent(data.currentMark) : '\u2014'); K.style(estimated, 'color', accent);
         K.show(starRow, cfg.showStars !== false); K.updateStars(stars, data.marksAchieved || 0);
-        K.show(unavailable, !valid); K.text(unavailable, data.message || K.label(data, 'unavailable', ''));
+        K.show(unavailable, !valid && !partial); K.text(unavailable, data.message || K.label(data, 'unavailable', ''));
         ['combined', 'target', 'needed'].forEach(function (key, i) { K.text(cards[i].label, K.label(data, key, '')); });
         K.text(cards[0].value, K.formatted(data.combinedDamage));
         K.text(cards[1].value, valid ? K.formatted(data.targetDamage) : '\u2014'); K.text(cards[2].value, valid ? K.formatted(data.damageNeeded) : '\u2014');
@@ -46,7 +46,7 @@
         K.style(scale.fill, 'backgroundImage', 'linear-gradient(0deg,' + accent + ',#fff1ab)');
         K.text(nextLabel, data.completed ? K.label(data, 'completed', '') : K.label(data, 'next', '') + ' ' + data.nextMilestone + '%');
         K.text(gap, data.completed ? '' : K.formatted(data.gap, 2) + ' ' + K.label(data, 'gapUnit', '') + ' ' + K.label(data, 'remaining', ''));
-        K.text(current, K.label(data, 'current', '') + ': ' + K.percent(data.currentMark));
+        K.text(current, K.label(data, 'current', '') + ': ' + K.percent(data.currentMark)); K.show(footer, !partial);
         K.text(trend, (data.trend || {}).text || '\u2014'); trend.className = 'dk-mog__trend dk-mog__trend--' + ((data.trend || {}).direction || 'unknown');
         K.show(trend, valid && cfg.showTrend !== false);
     }
