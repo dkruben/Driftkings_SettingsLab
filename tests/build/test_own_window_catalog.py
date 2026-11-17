@@ -100,8 +100,8 @@ class OwnWindowCatalogTests(unittest.TestCase):
         assets = [item for manifest in read_components(catalog.ROOT, config['components']['source'])
                   for asset in manifest['assets']
                   for item in expand_asset(catalog.ROOT, asset, config['assets']['exclude'])]
-        self.assertEqual(len(assets), 335)  # Independent packaging baseline, not a second manifest.
-        self.assertEqual(len({item['target'] for item in assets}), 335)
+        self.assertEqual(len(assets), 334)  # Independent packaging baseline, not a second manifest.
+        self.assertEqual(len({item['target'] for item in assets}), 334)
         self.assertEqual(catalog.validate(plan={'assets': assets})['native'], 20)
         with self.assertRaisesRegex(ValueError, 'Duplicate packaging target'):
             catalog.validate(plan={'assets': assets + assets[:1]})

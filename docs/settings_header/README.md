@@ -6,9 +6,9 @@ The header remains 80rem high. `app.js` builds the existing top container with a
 
 ## Assets
 
-- `assets/header_driftkings.png`: 2800×160 PNG, 222040 bytes; original industrial/orange artwork generated with the built-in image tool and prepared as an approved panoramic background.
-- `assets/driftkings_settingslab.png`: 820×274 transparent PNG, 162770 bytes; independent generated metallic wordmark/crown. The version is never part of either image.
-- Existing `assets/social/*.svg` files remain the canonical icons. The old header JPEG is preserved.
+- `assets/header_driftkings.png`: 2800×160 PNG, 21493 bytes; original industrial/orange artwork generated with the built-in image tool and prepared as an approved panoramic background.
+- `assets/driftkings_settingslab.png`: 820×274 transparent PNG, 42643 bytes; independent generated metallic wordmark/crown. The version is never part of either image.
+- Existing `assets/social/*.svg` files remain the canonical icons. The old header JPEG (`header_tank.jpeg`) was removed; nothing references it.
 
 The existing component manifest includes `settings_window/**`, so both PNGs are automatically selected. No new scripts, layout IDs or resource declarations are required.
 
