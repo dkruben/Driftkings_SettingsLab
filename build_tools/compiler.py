@@ -316,9 +316,9 @@ def check_client(root, config, tools):
     reference_root = Path(tools['reference_root'])
     name = (reference_root / '.version_name').read_text(encoding='utf-8-sig').strip()
     if name == config['reference']['version']:
-        # Preserve the exact historical reference contract only for its #995 target.
-        # This legacy label is not a public version or a #996 revision mapping.
-        require(build == '995', 'Legacy reference label cannot identify CT #' + build)
+        # The configured source label (2.4.2.5518) is bound to CT #996. Without a
+        # manifest, only the provenance files are checked; the label is not a public version.
+        require(build == '996', 'Reference label ' + name + ' is bound to CT #996, not #' + build)
         if not (reference_root / 'manifest.json').exists():
             for relative in CT_REFERENCE_FILES:
                 target = reference_root / 'sources/res/scripts/client' / relative

@@ -59,19 +59,35 @@ class ClientPreflightTests(unittest.TestCase):
         (self.source / 'report.json').write_text('{"game_version":{"build":995}}')
         self.assertEqual(self.check(), 'CT')
 
-    def test_preserves_995_modern_and_exact_legacy_contract(self):
+    def test_modern_995_identity_still_accepted(self):
         self.version(995, '2655094')
         self.manifest['game_version'].update(raw='v.2.4.2.0 Common Test #995', build=995, client_revision='2655094')
         self.save()
         (self.source / '.version_name').write_text('2.4.2.0 Common Test #995')
         self.assertEqual(self.check(), 'CT')
+
+    def test_configured_source_label_accepted_for_996_without_manifest(self):
         (self.source / 'manifest.json').unlink()
-        (self.source / '.version_name').write_text('2.4.2.5516')
+        (self.source / '.version_name').write_text('2.4.2.5518')
         self.assertEqual(self.check(), 'CT')
 
-    def test_legacy_label_does_not_hide_a_contradictory_manifest(self):
+    def test_configured_source_label_rejected_for_other_builds(self):
+        (self.source / 'manifest.json').unlink()
+        (self.source / '.version_name').write_text('2.4.2.5518')
         self.version(995, '2655094')
+        with self.assertRaisesRegex(ValueError, 'bound to CT #996'):
+            self.check()
+
+    def test_old_5516_label_no_longer_accepted(self):
+        (self.source / 'manifest.json').unlink()
         (self.source / '.version_name').write_text('2.4.2.5516')
+        with self.assertRaises(ValueError):
+            self.check()
+
+    def test_configured_label_does_not_hide_a_contradictory_manifest(self):
+        (self.source / '.version_name').write_text('2.4.2.5518')
+        self.manifest['game_version']['client_revision'] = 'wrong'
+        self.save()
         with self.assertRaisesRegex(ValueError, 'contradicts'):
             self.check()
 
@@ -89,8 +105,8 @@ class ClientPreflightTests(unittest.TestCase):
             self.check()
 
     def test_wrong_unknown_or_legacy_reference_cannot_claim_996(self):
-        for name in ('2.4.2.0 Common Test #995', '2.4.2', '2.4.2.5518',
-                     '2.4.2.5516', '2.4.2.0 Common Test #997'):
+        for name in ('2.4.2.0 Common Test #995', '2.4.2', '2.4.2.5516',
+                     '2.4.2.0 Common Test #997'):
             with self.subTest(name=name):
                 (self.source / '.version_name').write_text(name)
                 with self.assertRaises(ValueError):
