@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Dieses Konto gehört zur Region {realm}
 account_manager.UI_setting_errorRequired: "Geben Sie Name, E-Mail und Passwort ein."
 account_manager.UI_setting_errorSave: "Die Konten konnten nicht gespeichert werden. Die vorherige Datei wurde beibehalten."
 account_manager.UI_setting_errorServer: "Wählen Sie einen verfügbaren Server."
+account_manager.UI_setting_sharedEmail: "Diese E-Mail ist bereits für einen anderen Server gespeichert. Wargaming erlaubt ein Konto auf mehreren Servern; prüfe, ob es das richtige Konto ist."
 account_manager.UI_setting_errorSteam: "Dieser Client verwendet Steam. Wählen Sie das Konto über Steam."
 account_manager.UI_setting_keepPassword: "Leer lassen, um das gespeicherte Passwort zu behalten."
 account_manager.UI_setting_loginOnly: "Wählen Sie ein Konto auf dem Anmeldebildschirm."

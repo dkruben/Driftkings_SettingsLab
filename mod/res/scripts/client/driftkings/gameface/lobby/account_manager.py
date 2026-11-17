@@ -9,7 +9,7 @@ from gui.impl.gen import R
 from gui.impl.pub import ViewImpl
 from gui.impl.pub.window_impl import WindowImpl
 
-from driftkings.core.accounts import AccountError, READ_ERROR
+from driftkings.core.accounts import AccountError, NOTICE_SHARED_EMAIL, READ_ERROR
 from driftkings.gameface.core import resource_id
 from driftkings.interface_catalog import gameface_spec
 from driftkings.logger import get_logger
@@ -136,9 +136,11 @@ class AccountsView(ViewImpl):
             elif action == 'cancel':
                 self.editing = None
             elif action == 'save':
-                service.save(data.get('id'), data.get('title', ''), data.get('email', ''),
-                             data.get('password', ''), data.get('cluster', -1))
+                notice = service.save(data.get('id'), data.get('title', ''), data.get('email', ''),
+                                      data.get('password', ''), data.get('cluster', -1))
                 self.editing = None
+                if notice == NOTICE_SHARED_EMAIL[0]:
+                    self.message = error_text(AccountError(notice, NOTICE_SHARED_EMAIL[1]))
             elif action == 'delete' and data.get('confirmed') is True:
                 service.delete(data['id'])
             elif action == 'enter':

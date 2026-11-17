@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Bu hesap {realm} bölgesine ait. {realm
 account_manager.UI_setting_errorRequired: "Ad, e-posta ve şifreyi girin."
 account_manager.UI_setting_errorSave: "Hesaplar kaydedilemedi. Önceki dosya korundu."
 account_manager.UI_setting_errorServer: "Kullanılabilir bir sunucu seçin."
+account_manager.UI_setting_sharedEmail: "Bu e-posta başka bir sunucu için zaten kayıtlı. Wargaming aynı hesabın birden çok sunucuda kullanılmasına izin verir; doğru hesap olduğunu kontrol edin."
 account_manager.UI_setting_errorSteam: "Bu istemci Steam kullanıyor. Hesabı Steam üzerinden seçin."
 account_manager.UI_setting_keepPassword: "Kayıtlı şifreyi korumak için boş bırakın."
 account_manager.UI_setting_loginOnly: "Giriş ekranında bir hesap seçin."

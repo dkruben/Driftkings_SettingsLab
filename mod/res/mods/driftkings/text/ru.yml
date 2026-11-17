@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Этот аккаунт относит�
 account_manager.UI_setting_errorRequired: "Укажите имя, электронную почту и пароль."
 account_manager.UI_setting_errorSave: "Не удалось сохранить аккаунты. Предыдущий файл сохранён."
 account_manager.UI_setting_errorServer: "Выберите доступный сервер."
+account_manager.UI_setting_sharedEmail: "Этот e-mail уже сохранён для другого сервера. Wargaming допускает один аккаунт на нескольких серверах; проверьте, что это нужный аккаунт."
 account_manager.UI_setting_errorSteam: "Этот клиент использует Steam. Выберите аккаунт через Steam."
 account_manager.UI_setting_keepPassword: "Оставьте пустым, чтобы сохранить прежний пароль."
 account_manager.UI_setting_loginOnly: "Выберите аккаунт на экране входа."

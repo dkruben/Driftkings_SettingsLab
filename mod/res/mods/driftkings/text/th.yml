@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "บัญชีนี้เป็นข
 account_manager.UI_setting_errorRequired: "กรอกชื่อ อีเมล และรหัสผ่าน"
 account_manager.UI_setting_errorSave: "ไม่สามารถบันทึกบัญชีได้ ไฟล์ก่อนหน้ายังคงอยู่"
 account_manager.UI_setting_errorServer: "เลือกเซิร์ฟเวอร์ที่ใช้งานได้"
+account_manager.UI_setting_sharedEmail: "อีเมลนี้ถูกบันทึกไว้สำหรับเซิร์ฟเวอร์อื่นแล้ว Wargaming อนุญาตให้ใช้บัญชีเดียวกันในหลายเซิร์ฟเวอร์ โปรดตรวจสอบว่าเป็นบัญชีที่คุณต้องการ"
 account_manager.UI_setting_errorSteam: "ไคลเอนต์นี้ใช้ Steam โปรดเลือกบัญชีผ่าน Steam"
 account_manager.UI_setting_keepPassword: "เว้นว่างไว้เพื่อเก็บรหัสผ่านที่บันทึกไว้"
 account_manager.UI_setting_loginOnly: "เลือกบัญชีบนหน้าจอเข้าสู่ระบบ"

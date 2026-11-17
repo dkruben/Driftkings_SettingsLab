@@ -55,6 +55,21 @@ class AccountRegionTests(RuntimeTest):
         self.assertEqual(account['password'], 'secret')
         self.assertEqual(na.credentials(account_id)[2], NA[1][0])
 
+    def test_same_email_on_another_server_returns_notice_without_blocking(self):
+        store = Store()
+        accounts, eu = self.service(store, EU, 'EU')
+        self.assertIsNone(eu.save('', 'EU1', 'same@example.com', 'secret', 1))
+        self.assertEqual(eu.save('', 'EU2', 'Same@Example.com', 'secret', 2), accounts.NOTICE_SHARED_EMAIL[0])
+        self.assertEqual(len(store.accounts), 2)
+        self.assertEqual(eu.save('', 'EU1 again', 'same@example.com', 'secret', 1), accounts.NOTICE_SHARED_EMAIL[0])
+        self.assertEqual(len(store.accounts), 3)
+
+    def test_same_email_on_same_server_gives_no_notice(self):
+        store = Store()
+        accounts, eu = self.service(store, EU, 'EU')
+        self.assertIsNone(eu.save('', 'A', 'only@example.com', 'secret', 1))
+        self.assertIsNone(eu.save('', 'B', 'only@example.com', 'secret', 1))
+
     def test_failed_save_logs_only_the_error_type(self):
         records = self.capture_log('Driftkings.AccountManager')
 

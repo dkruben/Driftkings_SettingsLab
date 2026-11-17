@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Tento účet patří do regionu {realm}
 account_manager.UI_setting_errorRequired: "Vyplňte jméno, e-mail a heslo."
 account_manager.UI_setting_errorSave: "Účty se nepodařilo uložit. Předchozí soubor byl zachován."
 account_manager.UI_setting_errorServer: "Vyberte dostupný server."
+account_manager.UI_setting_sharedEmail: "Tento e-mail je už uložený pro jiný server. Wargaming umožňuje jeden účet na více serverech; zkontrolujte, zda je to správný účet."
 account_manager.UI_setting_errorSteam: "Tento klient používá Steam. Vyberte účet přes Steam."
 account_manager.UI_setting_keepPassword: "Ponechte prázdné pro zachování uloženého hesla."
 account_manager.UI_setting_loginOnly: "Vyberte účet na přihlašovací obrazovce."

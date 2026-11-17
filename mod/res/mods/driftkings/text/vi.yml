@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Tài khoản này thuộc khu vực {re
 account_manager.UI_setting_errorRequired: "Hãy nhập tên, e-mail và mật khẩu."
 account_manager.UI_setting_errorSave: "Không thể lưu tài khoản. Tệp trước đó vẫn được giữ nguyên."
 account_manager.UI_setting_errorServer: "Chọn một máy chủ khả dụng."
+account_manager.UI_setting_sharedEmail: "Email này đã được lưu cho một máy chủ khác. Wargaming cho phép cùng một tài khoản trên nhiều máy chủ; hãy kiểm tra xem đây có phải tài khoản bạn muốn không."
 account_manager.UI_setting_errorSteam: "Ứng dụng này dùng Steam. Hãy chọn tài khoản qua Steam."
 account_manager.UI_setting_keepPassword: "Để trống để giữ mật khẩu đã lưu."
 account_manager.UI_setting_loginOnly: "Chọn một tài khoản trên màn hình đăng nhập."

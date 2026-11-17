@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Ez a fiók a(z) {realm} régióhoz tart
 account_manager.UI_setting_errorRequired: "Add meg a nevet, az e-mail-címet és a jelszót."
 account_manager.UI_setting_errorSave: "A fiókok nem menthetők. Az előző fájl megmaradt."
 account_manager.UI_setting_errorServer: "Válassz egy elérhető szervert."
+account_manager.UI_setting_sharedEmail: "Ez az e-mail már másik szerverhez van mentve. A Wargaming ugyanazt a fiókot több szerveren is engedi; ellenőrizd, hogy ez a kívánt fiók-e."
 account_manager.UI_setting_errorSteam: "Ez a kliens Steamet használ. A fiókot a Steamen keresztül válaszd ki."
 account_manager.UI_setting_keepPassword: "Hagyd üresen a mentett jelszó megtartásához."
 account_manager.UI_setting_loginOnly: "Válassz fiókot a bejelentkezési képernyőn."

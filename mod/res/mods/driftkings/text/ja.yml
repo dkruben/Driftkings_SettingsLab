@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "このアカウントは{realm}リー�
 account_manager.UI_setting_errorRequired: "名前、電子メール、パスワードを入力してください。"
 account_manager.UI_setting_errorSave: "アカウントを保存できませんでした。以前のファイルは保持されています。"
 account_manager.UI_setting_errorServer: "利用可能なサーバーを選択してください。"
+account_manager.UI_setting_sharedEmail: "このメールアドレスは別のサーバー用に既に保存されています。Wargamingは同じアカウントを複数のサーバーで使うことを許可しています。目的のアカウントか確認してください。"
 account_manager.UI_setting_errorSteam: "このクライアントはSteamを使用しています。Steamからアカウントを選択してください。"
 account_manager.UI_setting_keepPassword: "保存したパスワードを保持するには、空白のままにします。"
 account_manager.UI_setting_loginOnly: "ログイン画面でアカウントを選択します。"

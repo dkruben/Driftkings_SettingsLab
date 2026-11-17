@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "此帳戶屬於 {realm} 區域。請使
 account_manager.UI_setting_errorRequired: "請填寫名稱、電子郵件和密碼。"
 account_manager.UI_setting_errorSave: "無法儲存帳戶。先前的檔案已保留。"
 account_manager.UI_setting_errorServer: "請選擇可用的伺服器。"
+account_manager.UI_setting_sharedEmail: "此電子郵件已為另一台伺服器儲存。Wargaming 允許同一帳號用於多台伺服器，請確認這是您要的帳號。"
 account_manager.UI_setting_errorSteam: "此用戶端使用 Steam。請透過 Steam 選擇帳戶。"
 account_manager.UI_setting_keepPassword: "留空以保留已儲存的密碼。"
 account_manager.UI_setting_loginOnly: "在登入畫面上選擇一個帳戶。"

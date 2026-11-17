@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "This account belongs to the {realm} reg
 account_manager.UI_setting_errorRequired: "Fill in the name, email and password."
 account_manager.UI_setting_errorSave: "Could not save accounts. The previous file was preserved."
 account_manager.UI_setting_errorServer: "Select an available server."
+account_manager.UI_setting_sharedEmail: "This e-mail is already saved for another server. Wargaming allows one account on several servers; check that this is the account you want."
 account_manager.UI_setting_errorSteam: "This client uses Steam. Select the account through Steam."
 account_manager.UI_setting_keepPassword: "Leave blank to keep the saved password."
 account_manager.UI_setting_loginOnly: "Select an account on the login screen."

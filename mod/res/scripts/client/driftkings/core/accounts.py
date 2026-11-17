@@ -11,6 +11,8 @@ LOG = get_logger('Driftkings.AccountManager')
 # server URL is identical in every region, so it cannot identify one.
 REALM_DOMAINS = (('worldoftanks.eu', 'EU'), ('worldoftanks.com', 'NA'), ('worldoftanks.asia', 'ASIA'))
 READ_ERROR = 'The accounts file could not be read. The original file was preserved.'
+# Not an error: the account is saved, and the player is told the same e-mail is on another server.
+NOTICE_SHARED_EMAIL = ('sharedEmail', 'This e-mail is already saved for another server. Wargaming allows one account on several servers; check that this is the account you want.')
 
 
 class AccountError(ValueError):
@@ -131,6 +133,24 @@ class AccountService(object):
         else:
             accounts.append(account)
         self._commit(accounts)
+        if self._shares_email(account, accounts):
+            return NOTICE_SHARED_EMAIL[0]
+        return None
+
+    def _shares_email(self, account, accounts):
+        """True when another saved account has the same e-mail on a different server."""
+        try:
+            email = self.unprotect(account['email']).strip().lower()
+            for item in accounts:
+                if str(item['id']) == str(account['id']):
+                    continue
+                if self.unprotect(item['email']).strip().lower() == email and \
+                        item.get('server') != account.get('server'):
+                    return True
+        except Exception as error:
+            # Type name only: the decrypted e-mail must not reach the log.
+            LOG.debug('Could not compare saved e-mails (%s)', type(error).__name__)
+        return False
 
     def delete(self, account_id):
         self.find(account_id)
