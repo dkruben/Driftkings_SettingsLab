@@ -28,7 +28,7 @@
                 button.setAttribute('data-test-id', 'driftkings-launcher');
                 var image = document.createElement('img');
                 image.className = 'driftkings-launcher__icon';
-                image.src = 'coui://gui/gameface/mods/driftkings/launcher/launcher_dk.svg'; image.alt = '';
+                image.src = 'coui://gui/gameface/mods/driftkings/launcher/assets/launcher_dk.svg'; image.alt = '';
                 button.appendChild(image); button.addEventListener('click', click);
             }
             button.title = title; button.setAttribute('aria-label', title);
