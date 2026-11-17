@@ -4,6 +4,23 @@
 
 **Não publicado.** Alvo configurado em `build_data/build_config.json`: WoT `2.4.2.0 Common Test #996`, revisão do cliente `2660091`, realm CT; a escolha deste alvo está por decidir. Versão `0.1.7-beta.2`, canal `beta`, pacote `driftkings.unified`.
 
+### Validação da build 0.1.7-beta.2 (2026-11-17)
+
+Build debug `0.1.7-beta.2`, SHA-256 do `driftkings.wotmod` `7b64e5e03038ccbd3fb9903e29df4ec9415010609e50c8f9469223fa485c44f9`, instalada em `mods/2.4.2.0 Common Test/` com backup do pacote anterior. Sessão de 09:43 a 09:52 registada em `C:/Games/World_of_Tanks_CT/game.log`.
+
+**Confirmado pelo log:**
+- Arranque `Driftkings 0.1.7-beta.2` em `v.2.4.2.0 Common Test #996`, realm CT, `Startup complete`.
+- Sem avisos nem erros do Driftkings durante a sessão.
+- Plugins nativos de marcas da garagem e de carrossel registados, sem injeção OpenWG pedida.
+- Batalha: painéis da barra de vida própria e dos marcadores visíveis e ocultos; minimapa permitido em `mode=random`.
+- Pacote `driftkings.removefog.wotmod` carregado no arranque.
+
+**Declarado pelo testador, sem evidência no log:** login, hangar, contas e estatísticas; barra de vida nas três molduras, alinhamento, HUD/TAB e consumíveis; carrossel; quartéis e tooltips; marcadores normal, ALT, vivos e destruídos; mira e câmara; painéis e mensagens; minimapa por modo; launcher do rodapé; relógio e marcas da garagem; ligar e desligar o Remove fog.
+
+**Não registado no log desta sessão, mas testado anteriormente pelo autor, que confirma o funcionamento:** ligar e desligar o Remove fog, o launcher do rodapé, o relógio da garagem e as molduras do painel de munições. Esta sessão só mostra eventos da barra flutuante, por isso as molduras não ficam confirmadas pelo log.
+
+**Erros no log sem origem Driftkings confirmada:** partículas do modelo BZ-75 não encontradas (`Ch62_turret_hit`); popover do Scaleform ao entrar no login; recursos SVG de ícones sociais no ecrã de definições.
+
 - **Remove Fog** desligado por defeito para instalações novas. A ativação manual mantém-se. Preferências explícitas são preservadas; a migração de perfis antigos sem a chave só atua com o pacote próprio instalado para o cliente. Arranque, reload, troca de perfil e o master switch não removem o pacote. A desativação manual remove-o após o fecho do jogo.
 - **Limitação conhecida:** se o ficheiro do perfil desaparecer durante uma sessão, o cliente pode recriar a preferência com o default OFF após reinício, com o pacote ainda instalado. Ligar e desligar a opção remove-o.
 - **Referências de versão:** `2.4.2.5516` é o rótulo da referência de fontes (`reference.version`) e o `source_version` da biblioteca Flash; o compilador valida a referência de #996 pelo `.version_name` e pelo `manifest.json`. `2.4.2.5518` é o `version_name` do cliente instalado, lido apenas pelo jogo e não usado pela build.
