@@ -35,7 +35,7 @@
         "mod/res/gui/gameface/mods/driftkings/main/clock.js": "dd7d3424ff8587ece62f07cf5712471b18c83068d7c5e0ffe387ef0d28e71d41",
         "mod/res/gui/gameface/mods/driftkings/main/clock_plugin.js": "f77c15cf735991a02982a13be65c253de71d65cdb20a281e29cd373a1afbe64f",
         "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js": "042a35d9ff65c67651fd242e4819d05311ff638204fe692a0c0de1da5edd9b93",
-        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "f8e984628cf3722b91474e1a5e9de22c631b5e05bb71f46550c26bc742465dbf",
         "mod/res/scripts/client/driftkings/lobby/hangar_marks_of_excellence.py": "2c7cfc24b9d0d4ba04b64c67d094f4844c4a2769cf1b6827e83f9dc6a2074c2d"
       },
       "sections": {
@@ -81,7 +81,7 @@
         "mod/res/scripts/client/driftkings/gameface/lobby/crew_details.py": "5796edc345fa9d57a179c6f28c2b0e33daed4e734a2e7c96281980c26e822808",
         "mod/res/scripts/client/driftkings/gameface/lobby/crew_progression.py": "d59bd2c2d242951ecccfab9180812661d88b6f10054412945b2a38cae5e8b74f",
         "mod/res/scripts/client/driftkings/gameface/lobby/hangar_marks_of_excellence.py": "b4301f6db46612ff3af383cb2f1105b05d0d8798fd68a03f74a62fab6dd25cb0",
-        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "f8e984628cf3722b91474e1a5e9de22c631b5e05bb71f46550c26bc742465dbf",
         "mod/res/scripts/client/driftkings/lobby/vehicle_carousel.py": "1b336a2493122aaa3eccf9adf83ec4f4bf0bb70a14badff6ab0cde85b136f094"
       },
       "sections": {
@@ -134,7 +134,7 @@
         "mod/res/scripts/client/driftkings/gameface/lobby/common.py": "bf6678ce22a72a3103da4fba9ba822f8e014ba45e17551bce13b47748fb632c5",
         "mod/res/scripts/client/driftkings/gameface/lobby/crew_details.py": "5796edc345fa9d57a179c6f28c2b0e33daed4e734a2e7c96281980c26e822808",
         "mod/res/scripts/client/driftkings/gameface/lobby/hangar_marks_of_excellence.py": "b4301f6db46612ff3af383cb2f1105b05d0d8798fd68a03f74a62fab6dd25cb0",
-        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+        "mod/res/scripts/client/driftkings/gameface/lobby/main.py": "f8e984628cf3722b91474e1a5e9de22c631b5e05bb71f46550c26bc742465dbf",
         "mod/res/scripts/client/driftkings/lobby/crew_management.py": "72e272ed983ab7e68a9a93c9150daa2ef8b227594ffa8b27ecf4a37266dad26a",
         "mod/res/scripts/client/driftkings/lobby/crew_progression.py": "f20f92f0fc6fd3f2c5c65224743ce6d1a0fdb4a317ddf9a8da20977123329388",
         "mod/res/scripts/client/driftkings/views/crew_progression_model.py": "480c80b359c1274519bd009a8855bcb04a3f0f05d0e49fb320f54cad4b141a72"
@@ -169,6 +169,18 @@
       "approved_sha256": "eeb665a604dbb51d0a16ce1a2980dadd4d6420d4a9f10a2ea232819d0d5e6986",
       "approved": "2026-11-13 F6-G5",
       "reason": "Phase 5 native launcher: click ignored while the button is disabled; icon source changed to launcher/assets/launcher_dk.svg. Two lines; no other change against the historical file."
+    },
+    "mod/res/scripts/client/driftkings/gameface/lobby/main.py": {
+      "baselines": [
+        "native_clock",
+        "native_crew",
+        "native_marks"
+      ],
+      "historical_commit": "57881e7b1b099191c4a286fbb842cf2954646c0b",
+      "historical_sha256": "a4dd68b5e70c5d73dbed46d49ab790377ceb8ce62ccf273100ad5f6286c5c78e",
+      "approved_sha256": "f8e984628cf3722b91474e1a5e9de22c631b5e05bb71f46550c26bc742465dbf",
+      "approved": "2026-11-18 Fase 1.5 HangarClock diagnostics",
+      "reason": "Temporary HangarClock lifecycle diagnostics, disabled by default (ENABLED = False in gameface/lobby/clock_diagnostics.py). Additions only: a diagnostic helper wrapper and one call per existing handler (ClockView load/finalize/refresh, get_children, _onShown/_onHidden, native plugin register/remove), plus an ENABLED-gated install_lifecycle call. No line of the historical file was removed or changed. Remove together with clock_diagnostics.py to restore the historical hash."
     }
   },
   "description": "Historical baselines for the native plugin migration tests. Each value was derived once from the named commit; tests compare against this file and never call git. Text hashes are SHA-256 of the UTF-8 bytes with CRLF normalised to LF. Catalog/config hashes are SHA-256 of canonical JSON (sorted keys, compact separators, ASCII). 'format_only_revisions' is a separate, current reference: for a protected file that changed in layout or import order only, it keeps the exact historical source (which must still hash to the baseline value), the exact hash of the revised file and the reason. Tests accept such a file only when its normalized syntax tree equals the historical one; baseline hashes are never rewritten.",

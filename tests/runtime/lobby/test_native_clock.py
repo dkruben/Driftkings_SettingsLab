@@ -105,7 +105,10 @@ class NativeClockTests(RuntimeTest):
         values = {'main': {'enabled': True, 'clock': {'enabled': True, 'formats': [{'format': '%H:%M'}]}},
                   'hangar': {'enabled': True, constants.HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET: False}}
         resolved = [42]
+        diagnostics_installed = []
         api = source('gameface/lobby/main.py', {
+            'driftkings.gameface.lobby': module(clock_diagnostics=module(
+                ENABLED=False, install_lifecycle=lambda cls: diagnostics_installed.append(cls))),
             'helpers': module(getClientLanguage=lambda: 'pt'),
             'importlib': module(import_module=lambda name: component if name.endswith('components.main') else hangar),
             'driftkings._constants': constants,
@@ -154,3 +157,5 @@ class NativeClockTests(RuntimeTest):
         self.assertFalse(plugins)
         self.assertTrue(any('Could not register' in record.getMessage() for record in records))
         self.assertFalse(self.injected)
+        # Diagnostics are off by default: no extra lifecycle hooks are installed.
+        self.assertFalse(diagnostics_installed)

@@ -7,6 +7,7 @@ from helpers import getClientLanguage
 
 from driftkings._constants import GLOBAL, HANGAR_PREFERENCES, MAIN
 from driftkings.core.hooks import override
+from driftkings.gameface.lobby import clock_diagnostics as diagnostics
 from driftkings.gameface.lobby.common import HangarController, publish_card
 from driftkings.interface_catalog import gameface_spec
 from driftkings.logger import get_logger
@@ -25,6 +26,44 @@ def _component():
 def _hangar():
     # The prestige widget switch still belongs to Hangar preferences.
     return import_module('driftkings.lobby.hangar_preferences')
+
+
+def _trace(function, *args, **kwargs):
+    # Temporary diagnostics: off by default, and isolated so they never interrupt the clock.
+    if diagnostics.ENABLED:
+        diagnostics.guarded(function)(*args, **kwargs)
+
+
+def _trace_attach(parent, resource_id):
+    diagnostics.emit('children.attached', hangar=diagnostics.identify(parent, 'RandomHangar'), resource=resource_id)
+
+
+def _trace_visibility(parent, shown):
+    label = diagnostics.identify(parent, 'RandomHangar')
+    if diagnostics.changed(label + '.visible', shown):
+        diagnostics.emit('hangar.visibility', hangar=label, shown=shown, controllerActive=_component().g_clockController.active)
+
+
+def _trace_view(view, event):
+    parent = view._hangarRef()
+    label = diagnostics.identify(view, 'ClockView')
+    if event == 'view.destroyed':
+        diagnostics.forget(label + '.payload')
+    diagnostics.emit(event, view=label,
+                     hangar=diagnostics.identify(parent, 'RandomHangar') if parent is not None else 'none')
+
+
+def _trace_state(view, visible, payload):
+    label = diagnostics.identify(view, 'ClockView')
+    summary = diagnostics.payload_summary(payload)
+    state = tuple(sorted(summary.items())) + (('controllerActive', _component().g_clockController.active),)
+    if diagnostics.changed(label + '.payload', state):
+        diagnostics.emit('view.payload', view=label, **dict(state))
+
+
+def _trace_plugin(presenter, event, alias):
+    diagnostics.emit(event, presenter=diagnostics.identify(presenter, 'UserMissionsPresenter'), slot=alias,
+                     executed='unobserved-from-python')
 
 
 def calendar_names():
@@ -99,9 +138,11 @@ def install_clock_gameface():
         def _onLoading(self, *args, **kwargs):
             super(ClockView, self)._onLoading(*args, **kwargs)
             self._clockActive = True
+            _trace(_trace_view, self, 'view.loaded')
             self.refresh()
 
         def _finalize(self):
+            _trace(_trace_view, self, 'view.destroyed')
             self._clockActive = False
             parent = self._hangarRef()
             if parent is not None and _component().g_clockController.views.get(parent) is self:
@@ -127,6 +168,7 @@ def install_clock_gameface():
                 hangar = settings_service.getComponentDict(_hangar().hangar_preferences_settings)
                 payload['config']['hidePrestige'] = bool(hangar[GLOBAL.ENABLED]
                                                          and not hangar[HANGAR_PREFERENCES.SHOW_HANGAR_PRESTIGE_WIDGET])
+                _trace(_trace_state, self, visible, payload)
                 publish_card(self, payload)
             except Exception:
                 LOG.exception('Could not update Gameface clock')
@@ -141,6 +183,7 @@ def install_clock_gameface():
                 LOG.error('Missing Gameface clock resource: ' + RESOURCE)
             else:
                 children[resource_id] = lambda: ClockView(parent, resource_id)
+                _trace(_trace_attach, parent, resource_id)
         except Exception:
             LOG.exception('Could not attach Gameface clock')
         return children
@@ -149,11 +192,13 @@ def install_clock_gameface():
     def on_shown(original, parent, *args, **kwargs):
         result = original(parent, *args, **kwargs)
         _component().g_clockController.setVisible(parent, True)
+        _trace(_trace_visibility, parent, True)
         return result
 
     @override(RandomHangar, '_onHidden')
     def on_hidden(original, parent, *args, **kwargs):
         _component().g_clockController.setVisible(parent, False)
+        _trace(_trace_visibility, parent, False)
         return original(parent, *args, **kwargs)
 
     @override(UserMissionsPresenter, '_onLoading')
@@ -173,9 +218,13 @@ def install_clock_gameface():
                 plugins.set(alias, descriptor)
             presenter._dkClockPluginAlias = alias
             LOG.info('Clock native plugin registered; OpenWG injection not requested')
+            _trace(_trace_plugin, presenter, 'plugin.registered', alias)
         except Exception:
             LOG.exception('Could not register native clock plugin')
         return result
+
+    if diagnostics.ENABLED:
+        diagnostics.install_lifecycle(RandomHangar)
 
     @override(UserMissionsPresenter, '_finalize')
     def native_plugin_finalize(original, presenter, *args, **kwargs):
@@ -188,6 +237,7 @@ def install_clock_gameface():
                     if descriptor is not None and descriptor.getUrl() == plugin_url:
                         plugins.remove(alias)
                 presenter._dkClockPluginAlias = None
+                _trace(_trace_plugin, presenter, 'plugin.removed', alias)
             except Exception:
                 LOG.exception('Could not detach native clock plugin')
         return original(presenter, *args, **kwargs)
