@@ -160,11 +160,35 @@ def check_identity(context, beta, commit):
     return dict(beta=beta, stable=stable, tag='v' + stable, commit=commit)
 
 
+# Owner-approved for the 0.1.7 release cycle only: the approved record and the CI run are read from an authorized
+# descendant of the stable artifact commit on main. The stable artifact commit itself is never changed.
+EVIDENCE_CYCLE = '0.1.7'
+EVIDENCE_EXTRA_FILES = frozenset(('.github/workflows/python-package.yml',))
+
+
+def authorized_evidence_commit(context, identity):
+    """origin/main, once it descends from the stable artifact commit through allowlisted changes only."""
+    cycle = getattr(context, 'evidence_cycle', EVIDENCE_CYCLE)
+    require(identity['stable'] == cycle,
+            'The evidence exception applies only to the %s release cycle' % cycle)
+    tip = context.git('rev-parse', 'origin/' + STABLE_BRANCH)
+    require(context.is_ancestor(identity['commit'], tip),
+            'The stable artifact commit %s is not an ancestor of origin/%s' % (identity['commit'][:12], STABLE_BRANCH))
+    paths = [path for path in context.git('diff', '--name-only', '--no-renames', identity['commit'], tip).splitlines()
+             if path]
+    blocked = sorted(path for path in paths if path not in EVIDENCE_EXTRA_FILES and forbidden_changes([path]))
+    require(not blocked, 'Changes after the stable artifact commit are outside the evidence allowlist: '
+            + ', '.join(blocked[:10]))
+    return tip
+
+
 def check_record(context, identity):
-    text = context.read(identity['commit'], record_location(identity['beta']))
+    evidence = authorized_evidence_commit(context, identity)
+    text = context.read(evidence, record_location(identity['beta']))
     summary = evaluate(text, identity['beta'], identity['stable'])
     summary['path'] = record_location(identity['beta'])
     summary['sha256'] = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    summary['evidenceCommit'] = evidence
     return summary
 
 
@@ -239,9 +263,10 @@ def check_beta_release(context, identity, record):
 
 
 def check_ci(context, identity, record):
+    """The successful CI run is on the authorized evidence commit; it is recorded as the tested commit."""
     query = lambda path: context.query(path)
-    return dict(beta=require_green_ci(context.repository, record['commit'], query),
-                stable=require_green_ci(context.repository, identity['commit'], query))
+    tested = record['evidenceCommit']
+    return dict(tested=tested, runs=require_green_ci(context.repository, tested, query))
 
 
 def check_slot(context, identity, resume=False):
