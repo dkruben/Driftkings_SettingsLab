@@ -100,10 +100,35 @@ class ProvenanceExceptionTests(unittest.TestCase):
     def test_the_allowlist_names_only_publication_and_validation_files(self):
         self.assertEqual(sorted(PROVENANCE_ALLOWLIST), sorted([
             'build_tools/publish_release.py', 'build_tools/validation_record.py',
-            'tests/build/test_prerelease_k2_exception.py', 'docs/releases/0.1.7-beta.2-validation.md']))
+            'tests/build/test_prerelease_k2_exception.py', 'docs/releases/0.1.7-beta.2-validation.md',
+            '.github/workflows/python-package.yml']))
         for path in PROVENANCE_ALLOWLIST:
             self.assertFalse(path.startswith(('mod/', 'res/', 'installer/')), path)
             self.assertFalse(path.endswith(('compiler.py', 'package_tools.py', 'build_config.json', 'release.json')), path)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+class OwnerWaiverTests(unittest.TestCase):
+    """The approved runtime waiver counts as a validated region only for its exact identities."""
+    def record(self):
+        return RECORD.read_text(encoding='utf-8')
+
+    def test_documented_owner_waiver_satisfies_the_runtime_requirement(self):
+        problems = problems_of(self.record(), '0.1.7-beta.2', prerelease_k2=True)
+        self.assertNotIn('At least one runtime-verified production realm is required', problems)
+
+    def test_waiver_without_the_candidate_sha_token_is_rejected(self):
+        text = self.record().replace('b00fbea2ed92f329ea626a3334fa4b55010eda4741fbe838302f4975428efa24 evidence=', 'evidence=')
+        problems = problems_of(text, '0.1.7-beta.2', prerelease_k2=True)
+        self.assertIn('Region NA evidence must include the candidate SHA-256 as a separate token', problems)
+
+    def test_waiver_is_never_reported_as_runtime_verified(self):
+        from build_tools.validation_record import OWNER_WAIVER, RUNTIME_VERIFIED
+        self.assertNotEqual(OWNER_WAIVER, RUNTIME_VERIFIED)
+        self.assertNotIn('| NA | RUNTIME VERIFIED |', self.record())
 
 
 if __name__ == '__main__':

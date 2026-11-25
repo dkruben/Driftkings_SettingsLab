@@ -30,6 +30,8 @@ PASS, FAIL, NOT_TESTED, NOT_APPLICABLE = 'PASS', 'FAIL', 'NOT TESTED', 'NOT APPL
 RESULTS = (PASS, FAIL, NOT_TESTED, NOT_APPLICABLE)
 VALIDATED, NOT_VALIDATED = 'VALIDATED', 'NOT VALIDATED'
 RUNTIME_VERIFIED, SOURCE_VERIFIED = 'RUNTIME VERIFIED', 'SOURCE VERIFIED'
+# Owner waiver of a runtime test for one exact candidate and release cycle. It is never RUNTIME VERIFIED.
+OWNER_WAIVER = 'OWNER WAIVER'
 APPROVED, PENDING, REJECTED = 'APPROVED', 'PENDING', 'REJECTED'
 SEVERITIES = ('BLOCKER', 'MAJOR', 'MINOR')
 ISSUE_STATES = ('OPEN', 'ACCEPTED', 'FIXED')
@@ -230,12 +232,12 @@ def evaluate(text, version, target=None, commit=None, prerelease_k2=False):
         regions[row[0]] = row
     require(set(regions) == set(expected_regions), 'Every region must be listed, even when not validated')
     production = expected_regions == PRODUCTION_REGIONS
-    decisions = (RUNTIME_VERIFIED, SOURCE_VERIFIED, 'EXPECTED COMPATIBLE', PENDING,
+    decisions = (RUNTIME_VERIFIED, SOURCE_VERIFIED, OWNER_WAIVER, 'EXPECTED COMPATIBLE', PENDING,
                  'INCOMPATIBLE', 'OUT OF SCOPE') if production else (VALIDATED, NOT_VALIDATED)
     for row in regions.values():
         require(row[1] in decisions, 'Invalid region decision: ' + row[1])
     runtime = RUNTIME_VERIFIED if production else VALIDATED
-    validated = [name for name in expected_regions if regions[name][1] == runtime]
+    validated = [name for name in expected_regions if regions[name][1] in (runtime, OWNER_WAIVER)]
     source_verified = [name for name in expected_regions if regions[name][1] == SOURCE_VERIFIED]
     if not validated:
         problems.append('At least one runtime-verified production realm is required' if production
@@ -287,7 +289,10 @@ def evaluate(text, version, target=None, commit=None, prerelease_k2=False):
                 if blocking == 'YES':
                     problems.append('Blocking check failed: %s (%s)' % (name, region))
         if blocking == 'YES' or catalogue.get(name):
+            # An owner-waived region is not re-tested: its in-game rows are waived with the runtime test.
             for region in validated:
+                if regions[region][1] == OWNER_WAIVER:
+                    continue
                 if results[region] == NOT_TESTED:
                     problems.append('Blocking check not tested in validated region %s: %s' % (region, name))
                 elif results[region] == NOT_APPLICABLE and is_placeholder(notes):

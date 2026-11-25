@@ -122,6 +122,7 @@ PROVENANCE_ALLOWLIST = frozenset((
     'build_tools/validation_record.py',
     'tests/build/test_prerelease_k2_exception.py',
     'docs/releases/0.1.7-beta.2-validation.md',
+    '.github/workflows/python-package.yml',
 ))
 
 
