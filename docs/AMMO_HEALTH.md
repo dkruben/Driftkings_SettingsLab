@@ -1,5 +1,7 @@
 # Vida integrada no painel de munições
 
+Validate the optional frames in the production candidate, including the native consumables layout and UI scales. [Production record](releases/0.1.7-beta.2-readiness.md).
+
 Implementação CT local de 2026-11-07, ainda sem aprovação visual em batalha.
 
 Em **Vida do veículo**, escolher um dos três novos estilos: **Painel de munições — Minimalista**, **Painel de munições — Clássica WoT** ou **Painel de munições — Driftkings**. Os cinco estilos anteriores e a escolha atual do perfil são preservados. Não é necessário repor configurações. Nos estilos integrados a posição é nativa: os valores X/Y do estilo flutuante são conservados, mas não deslocam o painel nativo.

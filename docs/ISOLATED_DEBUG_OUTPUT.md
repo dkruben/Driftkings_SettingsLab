@@ -1,5 +1,7 @@
 # Isolated debug output — Fase 3F.2B-FIX-A
 
+An isolated debug run for a production client uses the same reviewed source profile as a release build. CT remains useful for debug runs. [Candidate status](releases/0.1.7-beta.2-readiness.md).
+
 Atualizado em 2026-11-10. **ISOLATED OUTPUT SOURCE PASS**, limitado a origem e testes simulados; nenhuma build real executada e nenhum ARTIFACT PASS atribuído.
 
 ## CLI e utilização futura

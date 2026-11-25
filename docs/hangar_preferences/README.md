@@ -1,5 +1,7 @@
 # Hangar clock and preferences
 
+NA #999 native header HTML passed the exact patch contract. Candidate lifecycle still needs an in-game check. [Production record](../releases/0.1.7-beta.2-readiness.md).
+
 The clock is configured in **General settings**, stored in `mods/configs/driftkings/<profile>/main.json`. Hangar preferences still control hangar header buttons and widgets; they do not own the clock settings.
 
 ## Clock configuration

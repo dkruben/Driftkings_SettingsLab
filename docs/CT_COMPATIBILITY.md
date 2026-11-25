@@ -1,8 +1,12 @@
 # Compatibilidade com WoT Common Test
 
-## Estado atual — 0.1.7-beta.2, Common Test #996
+CT #995/#996 is a development input. Production build and installer approval require a production source profile. The commands and results below describe their recorded CT scope. [Production record](releases/0.1.7-beta.2-readiness.md).
 
-**Não publicado.** Alvo configurado em `build_data/build_config.json`: WoT `2.4.2.0 Common Test #996`, revisão do cliente `2660091`, realm CT; a escolha deste alvo está por decidir. Versão `0.1.7-beta.2`, canal `beta`, pacote `driftkings.unified`.
+> **Nota de arquitetura (2026-11-24).** Este documento é um registo histórico de evidência CT. Várias entradas abaixo descrevem OpenWG Gameface e ModsListAPI como dependências presentes; isso era verdade nas datas indicadas. A arquitetura atual é standalone: nenhum destes pacotes é declarado, distribuído ou importado pelo Driftkings 0.1.7. Para a arquitetura vigente, ver `CONTRIBUTING.md` e `docs/releases/0.1.7-beta.2-phase3-readiness.md`. Os SHA-256 e os resultados datados não são reescritos.
+
+## Referência de desenvolvimento — Common Test #996
+
+A referência CT #996 fica associada à revisão `2660091` e serve builds de desenvolvimento do pacote `driftkings.unified`. A candidata de produção `0.1.7-beta.2` tem o seu próprio registo.
 
 ### Validação da build 0.1.7-beta.2 (2026-11-17)
 

@@ -44,7 +44,8 @@ The `Atualizados/` directory also exists under the tools root, but was empty whe
 | Installed CT client | `v.2.4.2.0 Common Test #996`, realm `CT` | `C:/Games/World_of_Tanks_CT/version.xml` |
 | Installed EU client | `v.2.4.1.1 #993`, realm `EU` | Installed client's `version.xml` |
 | Installed NA client | `v.2.4.1.1 #992`, realm `NA` | Installed client's `version.xml` |
-| Branch supported realms | `CT` | Build contract, `game.supported_realms` |
+| Production runtime targets | `NA`, `EU`, `ASIA`, `CN` | `game.supported_realms`. Verified installer scope comes from the specific production profile |
+| Development source | `CT` | `game.development_realms`. Uses the pinned CT build and revision |
 | Branch source override | `WoT_Tools/wot-src-CT`, snapshot `2.4.2.5516` | Build contract `reference.version`; explicit `--reference-root` |
 | Reference policy | `read_only: true` | Build contract; this declares the intended access policy, not filesystem permissions |
 
@@ -74,13 +75,13 @@ Before changing a hook, find the original method and inspect its lifecycle, argu
 
 Start with `ModList/README.md`, then inspect `python/`, `resources/` and `as3/`. These paths were confirmed locally.
 
-The packaged dependency is `res/wotmods/me.poliroid.modslistapi_1.8.0.wotmod`. Its SHA-256 matches the value in the build contract. A method present in the reference checkout may still differ from the packaged implementation; a matching package hash does not establish source-checkout equivalence.
+Retired for 0.1.7-beta.2: ModsListAPI is no longer a dependency, is not packaged in `res/wotmods/` and is not required by the build contract. Use the native Driftkings footer launcher and Settings Panel instead. Historical note: a method present in the reference checkout may still differ from the packaged implementation; a matching package hash does not establish source-checkout equivalence.
 
 ### OpenWG Gameface
 
 Start with `GameFace/README.md`, `python/openwg_gameface.py`, `resources/`, `as3/` and `tests/`. These paths were confirmed locally.
 
-The packaged dependency is `res/wotmods/net.openwg.gameface_1.2.2.wotmod`. Its SHA-256 matches the build contract. Match the relevant source revision to that package before adopting an API.
+Retired for 0.1.7-beta.2: OpenWG Gameface is no longer a dependency and is not packaged. Driftkings uses native Gameface resources (`gui/gen_resources`, native documents and owned windows). Historical 0.1.6 notes below remain for reference only.
 
 The local README and Python implementation confirm that WG uses native `gui/gen_resources/*.json` registration from client 2.4.1. The older `on_ready`, `res_id_by_key`, `res_ids_by_mask` and `ModDynAccessor` APIs are deprecated placeholders on WG; `gf_mod_inject`, `ModInjectModel` and the JavaScript helpers remain supported by that reference implementation. Do not assume Lesta-specific paths or behavior apply to EU, NA or ASIA.
 

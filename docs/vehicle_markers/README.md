@@ -1,5 +1,7 @@
 # Integrated vehicle markers
 
+On NA #999 the native marker SWF differs from the CT #996 lock. A separate verified production lock is required. [Production record](../releases/0.1.7-beta.2-readiness.md).
+
 The Flash runtime lives in `driftkings/flash/battle/vehicle_markers`, with
 functional helpers in `driftkings/core/vehicle_markers`, and is owned by
 `battle.vehicle_markers`. It incorporates the independently tested VM_TEST 0.0.14

@@ -1,5 +1,7 @@
 # Driftkings SettingsLab — Plano diretor de reorganização
 
+Para o estado atual da candidata de produção e os checkpoints desta fase, ver o [registo v0.1.7-beta.2](../releases/0.1.7-beta.2-readiness.md). Os checkpoints datados abaixo mantêm os resultados e as versões originais.
+
 Data de criação: 2026-11-11, Europe/Lisbon. Tipo: plano técnico; não é autorização de execução.
 
 > Estado de leitura — 2026-11-15: as secções originais abaixo preservam o plano e

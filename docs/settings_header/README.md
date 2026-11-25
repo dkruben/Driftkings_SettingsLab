@@ -1,5 +1,7 @@
 # Settings window header
 
+Settings Panel and updater version come from the packaged `driftkings.VERSION`. The source candidate is `0.1.7-beta.2`. [Production record](../releases/0.1.7-beta.2-readiness.md).
+
 Implemented locally on `feature/settings-header`, based on `develop` at `832d3263`, after explicit approval of proposal 01. The separate CT worktree is preserved. This change does not alter the release version, Python integration, settings persistence or social URLs.
 
 The header remains 80rem high. `app.js` builds the existing top container with a centered independent logo, the dynamic registered core version at the upper left, and social buttons followed by the close button at the right. The compact layout reduces the logo width from 320rem to 220rem and keeps the version visible. No CSS Grid, masks, filters or external libraries are used.

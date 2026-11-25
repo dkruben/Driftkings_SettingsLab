@@ -1,5 +1,7 @@
 # Fonts and characters
 
+Run the artifact font tests on the new package with production Flash inputs before making compatibility claims. [Production record](../releases/0.1.7-beta.2-readiness.md).
+
 Moved from `docs/FONTES.md` and translated on 2026-10-30; the technical content is unchanged.
 
 ## Resolution

@@ -1,6 +1,6 @@
 # Driftkings Modpack
 
-> **Development version:** `0.1.7-beta.2`, not published. The build target configured in `build_data/build_config.json` is WoT `2.4.2.0 Common Test #996` (client revision `2660091`); this target is pending a decision. Earlier CT validation on #995, including local test build `0.1.8-beta.2` approved in game on 2026-11-06, is historical. Production 0.1.7-beta.1 and stable 0.1.6 remain separate. The CT branch also includes three optional health-bar styles docked above the native ammunition/consumables panel, pending in-game visual validation; see [the integrated health-bar guide](docs/AMMO_HEALTH.md). See [CT compatibility and build commands](docs/CT_COMPATIBILITY.md).
+> **Development candidate:** `0.1.7-beta.2` targets World of Tanks `2.4.2.0`. The proposed stable is `0.1.7`. Production validation for NA, EU, ASIA and CN is in progress. The download and installation sections describe the published releases. [Production readiness record](docs/releases/0.1.7-beta.2-readiness.md).
 
 > **CT launcher validation (2026-11-09):** the dedicated Driftkings footer launcher is functionally validated by the author on CT 2.4.2.0 without ModsListAPI, including click, hover, X/Esc, shortcut, return to hangar and no duplicates. OpenWG is still used and both dependency packages remain bundled; this is not a fully standalone distribution. Future client versions require revalidation. See [Phase 2 evidence and rollback](docs/NATIVE_FOOTER_LAUNCHER.md). Stable installation instructions below describe the published release.
 
@@ -72,7 +72,7 @@ Components can be enabled and configured individually. Availability depends on t
 | Spotted and assist notifications | Configurable messages, colours and sounds for detection and spotting, tracking or stun assistance. |
 | Sixth Sense | Custom icon, sound and alert timing. |
 | Battle damage log | Event filters and optional swapping of the native top/bottom logs. |
-| Battle preferences | Hints, notifications, fog and other native interface options. |
+| Battle preferences | Hints, notifications and other native interface options. |
 
 ### Camera, aiming & controls
 
@@ -148,20 +148,16 @@ Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX incl
 
 The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c:wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
 
-### Remove fog (optional, off by default)
+### Remove Fog (optional, off by default)
 
-The **Remove fog** option is **off by default**. A new installation does not create or install the separate `Driftkings.RemoveFog.wotmod` package.
+**Remove Fog** is an optional setting in the Settings Panel, under battle preferences. It is **off by default**. It builds a separate `Driftkings.RemoveFog.wotmod` from this installation's maps without fog, and it is installed or removed after the game is closed, so a restart is required. Turning the option off removes that package. The main `driftkings.wotmod` is never changed by this option.
 
-- **Enabling it** builds a separate package from the maps of your own installed client. The package is installed or removed only after you close the game, and the change takes effect after the client restarts.
-- **Disabling it** removes the package that Driftkings installed, again only after the game is closed. The main `driftkings.wotmod` is never changed by this option.
-- **Only changing the Remove fog option removes the package.** Turning the option off while the game is running removes the package after you close the game. The master switch never removes it: switching it off and on keeps the package, and it installs the package only when the option is on and the package is missing. Starting the game, opening the settings panel, reloading settings, switching profiles, a missing profile file or a missing `removeFog` entry never removes the package.
-- **The panel shows the preference the package follows.** After a reload, the Remove fog switch shows the preference Driftkings knows, even if the profile file was deleted or lost its entry during the session. Driftkings does not rewrite your file for this. The game client may recreate a missing file with the default value; that default is not applied to the package until the next launch, so a deleted file can show OFF after a restart while the package is still installed. Turn the option on and off again to choose the state explicitly.
-- **Existing settings are kept.** An explicit `true` or `false` in your profile is never overwritten. A profile file that exists but has no `removeFog` entry, and the Driftkings package installed for your client, is set to `true`, so the package is not removed unexpectedly.
-- **A new profile stays off.** A profile with no file is treated as new: it stays off and never removes the package.
-- **Profiles do not own the package.** The package belongs to the game client, not to a profile. Another profile's package is not evidence of your preference, and switching profiles does not remove it. Turning the option off in a profile removes the package for the whole client.
-- **A package left behind** by a removal that did not finish is not removed at startup. Turn the option on and then off again to remove it.
-- **Ambiguous cases are left alone.** If the profile cannot be read, or a package that is not Driftkings' own is present, nothing is changed and no install or removal is scheduled. Enable or disable the option yourself to apply a choice.
-- **Fair Play.** Removing fog changes what is visible in battle. Use it only if you accept that risk. Wargaming's Fair Play policy has not approved this feature, and this documentation is not a statement of approval.
+- Only an explicit change of the option in the Settings Panel enables or disables it. The choice is stored in `mods/configs/driftkings/cache/fog/choice.json` and persists across sessions.
+- A preference value left in an older profile is not treated as a choice. It never enables the option or reinstalls the package.
+- A `Driftkings.RemoveFog.wotmod` installed by an older release is never reinstalled. While the option is off, startup removes that package once, after the game closes; the game shows a restart notice. Before removal the helper keeps a recovery copy in `mods/configs/driftkings/cache/fog/recovery/`. Packages whose identity is not `driftkings.removefog` are never touched.
+- The package is identified only by its Driftkings identity (`driftkings.removefog`). Other mods and their resources are not touched.
+
+The feature's behaviour matches the approved 0.1.6 description, except that the default is now off (see the release notes).
 
 ### Optional anonymous statistics
 
@@ -171,10 +167,10 @@ Anonymous usage statistics are **off by default**. You can enable them in settin
 
 | Area | Support |
 | --- | --- |
-| Game | Wargaming World of Tanks **2.4.1.1** |
+| Game | Wargaming World of Tanks **2.4.2.0** (0.1.7-beta.2 candidate). Public stable 0.1.6 targets 2.4.1.1. |
 | Regions | **EU, NA and ASIA**; Mir Tankov/RU is outside the project's scope. |
 | Client runtime | Python 2.7, ActionScript 3 / Scaleform and ES5 JavaScript / Gameface. |
-| Dependencies | ModsListAPI by poliroid and OpenWG Gameface, included in the release distribution. |
+| Dependencies | None. Driftkings 0.1.7 is standalone: OpenWG Gameface and ModsListAPI are neither required nor shipped. Existing third-party installations of those libraries are left untouched. |
 
 **18 interface languages:** Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese.
 
@@ -205,6 +201,6 @@ Stable releases promoted through the current process are rebuilt and signed from
 
 Include the mod version, full game version, region, steps to reproduce and relevant `game.log` excerpts when reporting a problem. Remove personal information before sharing logs. For security reports, follow [SECURITY.md](SECURITY.md).
 
-Thanks to **poliroid** for ModsListAPI and the **OpenWG Gameface** project for the interface dependency.
+Thanks to **poliroid** for ModsListAPI and to the **OpenWG Gameface** project, which Driftkings used in earlier versions.
 
 Licensed under the [GNU General Public License v3.0](licence).

@@ -1,5 +1,143 @@
 # Estado do projeto e da documentação
 
+## Estado operacional — 2026-11-25 (Fase 5E: aquisição de entradas de build, CT, CI e changelog; sem commit, sem rebuild)
+
+- **Candidata congelada:** `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb`, verificada antes e depois de todos os testes. Não regenerada.
+- **Ferramenta de aquisição:** `build_tools/acquire_flash_inputs.py` (sem dependências externas). Lê o cliente só em modo leitura, extrai apenas os SWC do manifesto, verifica cada um pelo SHA-256 fixado, rejeita entradas em falta, incorretas ou inesperadas, usa cache em `build/` (ignorada pelo Git) e não descarrega nada. Testes: `tests/build/test_flash_acquisition.py` (27).
+- **NA 999 (execução real, leitura apenas):** os 8 SWC foram extraídos do cliente NA instalado e os 8 SHA-256 coincidem com o inventário congelado. O cliente não foi alterado. As regras `.gitignore` impedem que os binários sejam commitados.
+- **D1b (CT):** os 8 SWC CT rastreados e o manifesto CT foram preservados localmente com inventário e hashes. Não foram removidos. O cliente CT instalado não reproduz os bytes rastreados (diferenças de poucos bytes por biblioteca); a remoção fica bloqueada até haver origem, direitos e manifesto CT com pins de cliente. Histórico não reescrito.
+- **D2b (changelog):** das sete entradas, três estão verificadas, três estão parcialmente verificadas e uma tem uma afirmação não suportada (traçado da arma sem alteração desde beta.1; "opcional" sem evidência). O WGMods draft público foi corrigido. A correção de `release.json` fica para a Clean Release Build (K8), porque o ficheiro é entrada do build congelado.
+- **D4:** eliminação de `test_battle_cards.py` aceite com a cobertura nativa; K5 fechado para as lacunas identificadas. Não é validação de renderização no cliente; as verificações manuais estão listadas (plano §23.6).
+- **D6b:** o nome do responsável não aparece em documentação pública, exceto em dois registos históricos de aprovação de 0.1.6-beta.1, que não foram editados. Cópias e inventário preservados localmente.
+- **CI:** a validação pública não precisa de recursos proprietários (simulação com cópia sem binários NA, sem `node_modules` e sem `build/`: runtime 863 OK, build 365 OK). Nenhuma alteração de workflows ou de definições do repositório.
+- **Testes (2026-11-25):** runtime 863 OK em Python 2.7.18 e 3.14.3; build 365 OK (2 saltos); artefactos 7 OK (2 saltos); frontend 30 suites; teste real de aquisição OK.
+- **Avaliador formal:** 13 pontos (inalterados em número). K6 fechado para NA; K7 (CT) e K8 (changelog) abertos, não bloqueantes.
+- **Commits locais:** **CONDITIONAL GO** para autorização, na ordem C4 → C4a → C3 → C1 → C2 → C5 → C6 → C8, com as condições do plano §23.15. Nada foi preparado no índice nem commitado.
+- **Publicação:** NO-GO.
+
+## Estado operacional — 2026-11-25 (Fase 5D: decisões D1–D6 e testes nativos; sem commit, sem rebuild)
+
+- **Candidata congelada:** `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb`, verificada após todos os testes desta fase. Não regenerada.
+- **Testes nativos:** T-N1 (marcas, 17 testes), T-N2 (apresentação MainGun, 13 testes) e T-N3 (anexação pendente, anexação atrasada e visibilidade do HUD, 7 testes). Só testes; nenhum ficheiro funcional alterado. Três mutações controladas numa cópia temporária foram apanhadas pelos testes previstos.
+- **Remoção de `test_battle_cards.py`:** aceite condicionalmente; a cobertura nativa agora existe. A eliminação segue no commit C7, depois de revisão.
+- **D1 (SWC):** os 8 binários NA foram comparados com os pacotes `gui-part1..4.pkg` do cliente NA instalado (leitura apenas): 8/8 corresponderam aos hashes do manifesto. Não há licença que permita redistribuir recursos extraídos da Wargaming; a licença GPL-3.0 do projeto não os cobre. **Não serão commitados.** A proposta de aquisição a partir do cliente instalado, com hashes fixados, está no plano §21.1. Os 8 SWC CT já tracked desde 0.1.7-beta.1 têm o mesmo problema de direitos e exigem decisão própria.
+- **D2 (release.json):** a alteração é só o `changelog` (7 entradas da candidata); `version` continua `0.1.7-beta.2`. Não há tags nem registos de publicação.
+- **D3 (clock_diagnostics.py):** mantido como ferramenta de investigação. Excluído do WOTMOD pelo `build_config.json`, ausente do ZIP manual e do Setup, sem importações em runtime. Testes de exclusão adicionados.
+- **D5 (flatted.py):** `npm ci` a partir do `package-lock.json` tracked, num diretório temporário, recria `flatted.py` com o mesmo SHA-256 da entrada de build (`f784c254…e644`).
+- **D6 (nome do proprietário):** removido de `docs/STATUS.md`. Permanece em registos históricos de aprovação de 0.1.6-beta.1 (decisão do proprietário).
+- **Regressões (2026-11-25):** runtime 863 OK em Python 2.7.18 e 3.14.3; build 338 OK, 1 salto POSIX (inclui 8 testes de proveniência); artefactos 7 OK, 2 saltos com razão explícita; frontend 30 suites.
+- **Avaliador formal (2026-11-25):** 13 pontos abertos (ver plano §21.9): sem commit, sem CI, sem assinatura, regiões EU/ASIA/CN pendentes, K1–K4 abertos, decisão PENDING, sem aprovador nem data.
+- **Reprodutibilidade:** não demonstrada. Procedimentos de Reprodução e de Release Limpa preparados (plano §22), não executados.
+- **Publicação:** NO-GO. Commits locais: **NO-GO para execução agora** (ver plano §21.11).
+
+## Estado operacional — 2026-11-25 (Fase 5C: regional, rastreabilidade de testes, reprodutibilidade e preparação de commits; sem commit)
+
+- **Publicação:** NO-GO (beta e stable). Nada foi publicado, assinado, etiquetado, integrado nem enviado.
+- **Candidata congelada:** `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` (14 043 751 bytes). Não regenerada nesta fase.
+- **Arquitetura standalone:** sem dependência de runtime de OpenWG nem de ModsListAPI; 20 consumidores nativos e 0 OpenWG no pacote de marcas; `ui_dependencies` removido. As remoções de `res/wotmods` estão por commitar.
+- **Evidência de runtime (última execução, não repetida nesta fase):** `auto.runtime` 823 OK em Python 2.7.18 e 3.14.3; `auto.build` 328 OK, 1 salto POSIX; pacote da candidata 7 OK, 2 saltos com razão explícita. Validação NA com confirmação do proprietário e registo de log conforme o plano §16.
+- **Histórico v0.1.6:** upgrade manual isolado a partir do ZIP público verificado (digests e assinatura de produção): 27 verificações, 0 falhas. Não é um Setup e não é um cliente real.
+- **ZIP manual:** instalação limpa, reinstalação e corrupção: 27 verificações, 0 falhas, em ambientes sintéticos.
+- **Helper nativo Remove Fog:** `Driftkings.FogPackage.exe` da candidata executado contra pastas sintéticas com processo-pai de teste: H1–H4, 11 verificações, 0 falhas.
+- **Atualizador ponta a ponta em localhost: 13/13 OK** (S1–S13). Limitações: chave Ed25519 temporária injetada só em memória; transporte mapeado para `127.0.0.1`; jogo substituído por stub `PING.EXE`; assinatura de produção não usada; nenhum cliente real atualizado.
+- **Não testado (atualizador):** recuperação de transação de instalação interrompida; execução de rollback; atualização com assinatura de produção; instalação no cliente real do utilizador. As células regionais do atualizador **não** estão verificadas só pelo teste localhost.
+- **Bloqueio do instalador:** Windows Setup não executado em isolamento. Windows Sandbox desativado; sem perfil ou VM isolados sem alterar o sistema. Procedimento e `.wsb` preparados em `_validation\sandbox`, não ativados. Instalador: NO-GO.
+- **Reprodutibilidade do WOTMOD:** não demonstrada. A candidata foi construída a partir de árvore suja e o HEAD `6bcce1a7` não contém as entradas usadas (plano §20.3). Procedimento preparado para depois da autorização de commit.
+- **Matriz regional** (upstream `izeberg/wot-src`, verificada em 2026-11-25; plano §20.1):
+
+| Região | Cabeça da branch | Versão (mensagem do commit) | `.version_name` | Python vs NA | Flash-src vs NA | Estado |
+| --- | --- | --- | --- | --- | --- | --- |
+| NA | `11b56842` (2026-11-24) | 2.4.2.0 #999 | 2.4.2.5523 | — | — | Fonte verificada; runtime confirmado pelo proprietário para `641d…` |
+| ASIA | `8f3971ab` (2026-11-23) | 2.4.2.0 #998 | 2.4.2.5526 | Idêntico (só `_stubs/_warnings.py`) | Idêntico | Compatível esperado; sem `gui-part*.pkg` nem SWF compilados no upstream. **Não** SOURCE VERIFIED |
+| CN | `3d408644` (2026-11-24) | 2.4.2.0 #997 | 2.4.2.5525 | Idêntico (só `_stubs/_warnings.py`) | Idêntico | 139 recursos em `sources/res` diferem; `paths.xml` e `loc_version.xml` diferem. **Não** SOURCE VERIFIED |
+| EU | `447437a2` (2026-11-05) | 2.4.1.1 #993 | 2.4.1.5514 | 7 ficheiros `.py` diferem | 97 ficheiros Flash diferem | **2.4.2.0 não disponível**; comparação semântica impossível |
+| CT | `e2a5105e` (2026-11-12) | 2.4.2.0 Common Test #996 | 2.4.2.5518 | 1 (`_warnings`) | 1 | Só referência de desenvolvimento |
+
+- **Commits propostos:** 8 grupos e 105 entradas do estado de trabalho (67 modificadas, 3 eliminadas, 35 não rastreadas). Nada foi preparado no índice nem commitado. Recomendação e bloqueios no plano §20.5.
+- **Pendências:** decisão sobre `.swc` (13,7 MB) e sobre `flatted.py` ignorado pelo Git; eliminação de `tests/runtime/battle/test_battle_cards.py` com justificação corrigida (duas lacunas nativas, plano §20.2); decisão de commit e reconstrução limpa; assinatura de produção; aprovação do proprietário; EU 2.4.2.0; recursos compilados de ASIA e CN.
+
+## Estado operacional — 2026-11-25 (Fase 5B: incidente encerrado; instalador por executar)
+
+- **Incidente:** documentado (plano §18.1). Ficheiros do instalador restaurados e verificados; chave de desinstalação apagada não reconstituída (aceite pelo proprietário). Sem nova execução no cliente real.
+- **Instalador:** NO-GO. Sem ambiente isolado disponível sem alterar o sistema (Windows Sandbox desativado). Causa da mudança de destino: não demonstrada; a parte do Git Bash está demonstrada.
+- **Histórico:** v0.1.6 público descarregado e verificado (digests e assinatura de produção); upgrade manual isolado 27/27 (sintético por ZIP, não o Setup).
+- **Atualizador:** verificação de assinatura com chave temporária 5/5; end-to-end não executado.
+- **Artefactos:** inventário e preservação em `_artifact_preservation_641d013f_20261125_014023`. Setup de `565897cc` irrecuperável.
+- **Candidata congelada:** `641d013f…0ccc`, verificada no build e no NA. Publicação NO-GO.
+
+### Estado operacional — 2026-11-25 (Fase 5: validação isolada de distribuição)
+
+- **Incidente:** uma execução acidental do Setup (argumentos `/VERYSILENT` convertidos pelo Git Bash) atualizou no cliente NA real o `unins001.exe` e o `unins001.dat` do instalador e criou/apagou uma chave de desinstalação no registo (HKCU). Os ficheiros foram restaurados do checkpoint (hashes conferidos). A chave apagada não está registada e não se pode restaurar só com as evidências; decisão do proprietário. `driftkings.wotmod` com conteúdo idêntico.
+- **Validado em isolamento:** procedimento ZIP manual (27 verificações); helper Remove Fog nativo (11 verificações: owned, foreign, sem pacote, repetição); suites automáticas do atualizador e da assinatura.
+- **Não validado:** instalador Setup por execução (incidente), upgrade com binário 0.1.6 real, atualizador ponta a ponta, desinstalação.
+- **Formulário:** nove problemas do avaliador (§17.6); decisão PENDING.
+- **Veredito:** distribuição CONDITIONAL GO; instalador NO-GO até execução isolada; atualizador CONDITIONAL GO; publicação NO-GO.
+
+### Estado operacional — 2026-11-25 (validação pós-runtime da candidata 641d013f…)
+
+- **Sessão final verificada no log:** S4 (01:21:59–01:24:21, replay). Candidata carregada (`0.1.7-beta.2`, NA, `failures=[]`); OpenWG e ModsListAPI carregados sem erro; ReplaysManager sem o erro `modsListApi not installed`; sem Remove Fog ativo; sem `rn.box` nem erros SVG; saída normal.
+- **Confirmado só pelo proprietário (sem log desta candidata):** hangar, Marks of Excellence, tripulação, carrossel, primeira e segunda batalha, resultados de batalha, regresso ao hangar, persistência de configurações, launcher sem duplicações.
+- **Registo formal NA:** decisão PENDING (testes bloqueantes de instalação, atualizador, perfis e reinstalação não executados). Nove problemas do avaliador; ver plano §16.12.
+- **Evidência:** não se transfere de `12e2d26d…` nem `565897cc…`. Log da sessão em `_na_runtime_recovery_20261124_225319\logs\session-final-candidate-01-22.log`.
+- **Veredito:** CONDITIONAL GO para a próxima fase de preparação; publicação NO-GO; sem aprovação WG para esta candidata.
+
+## Estado operacional — 2026-11-25 (candidata 641d013f… instalada em NA; pronta para teste manual)
+
+- **Instalação:** `mods.4.2.0\driftkings.wotmod` = `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` (verificado). OpenWG, ModsListAPI e ReplaysManager mantidos. Remove Fog em quarentena (recovery). Checkpoint de instalação: `_na_install_checkpoint_20261125_011742`.
+- **Runtime:** nenhum resultado para esta candidata. Evidência Run A/B refere-se a `12e2d26d…2a20a`.
+- **Veredicto:** READY FOR OWNER MANUAL NA RUNTIME TEST — FINAL CANDIDATE. Jogo não lançado. Não recomendar ativação do Remove Fog em batalhas reais antes de confirmar o âmbito WG.
+
+## Estado operacional — 2026-11-25 (Remove Fog: validação final e candidata 641d013f…)
+
+- **Candidata atual:** `build/releases/beta/0.1.7-beta.2/driftkings.wotmod`, SHA-256 `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb`, 14.043.751 bytes, `ELIGIBLE_UNSIGNED`, não publicável. Candidatas anteriores preservadas (`12e2d26d…2a20a`, `565897cc…d44e1d`); nenhuma validação em jogo se transfere.
+- **Legado:** pacote `Driftkings.RemoveFog.wotmod` instalado por versões antigas é convergido para OFF (uma remoção após fechar o jogo, com cópia de recuperação em `cache/fog/recovery/`). Perfis antigos com `removeFog: true` não ativam a funcionalidade. O painel mostra o estado efetivo (`off-package-loaded` até reiniciar).
+- **Linha de base WG (v0.1.6, aprovada):** diferenças documentadas na secção 14.3 do plano de runtime (default ON→OFF; escolha explícita; convergência legada). Não há aprovação WG para a candidata nova. Regras WG atuais não verificadas: confirmar antes de recomendar ON em batalhas reais.
+- **Testes:** build 330 (1 salto POSIX), runtime 826 (Python 2.7 e 3.14), artefactos 7 (2 saltos históricos).
+- **Estado:** CONDITIONAL GO para validação manual de NA com a checklist 14.9. Nada instalado, lançado, assinado, commitado ou publicado.
+
+### Estado operacional anterior (Remove Fog restaurado)
+
+### Estado operacional — 2026-11-25 (Remove Fog restaurado como opcional, OFF por omissão)
+
+- **Candidata atual (nova):** `build/releases/beta/0.1.7-beta.2/driftkings.wotmod`, SHA-256 `565897ccf5b5533c49ee36f41dcb389ae6412fa8c6065be72cfe5f3769d44e1d`, 14.042.580 bytes, `ELIGIBLE_UNSIGNED`, não publicável. A candidata anterior `12e2d26d…2a20a` está preservada; a validação em jogo dela não se transfere.
+- **Remove Fog:** opcional, desligado por omissão. Ativação e desativação só por escolha explícita do utilizador, persistida em `mods/configs/driftkings/cache/fog/choice.json`. Valores antigos do perfil (incluindo o `true` de 0.1.6) não ativam. Não há reinstalação automática. Pacote legado instalado por versões antigas fica no lugar até o utilizador alterar a opção (limitação aberta).
+- **Decisões do proprietário pendentes:** default OFF (0.1.6 tinha ON); pacote legado no disco; conformidade com as regras da Wargaming ainda não verificada. Detalhes: [0.1.7-beta.2-na-runtime-plan.md](releases/0.1.7-beta.2-na-runtime-plan.md), secção 13.
+- **Testes após a restauração:** runtime 823 (Python 2.7 e 3.14), build 328 (1 salto POSIX), artefactos 7 (2 saltos históricos), frontend 30 suites.
+- **Estado:** CONDITIONAL GO para validação manual em jogo da nova candidata com a checklist da secção 13.8. Nada foi instalado, lançado, assinado, commitado ou publicado.
+
+### Estado operacional anterior (Run B)
+
+### Estado operacional — 2026-11-25 (Run B: instalação verificada; validação funcional não recebida)
+
+- **Run B (coexistência):** OpenWG Gameface e ModsListAPI repostos nas localizações originais (hashes verificados). Candidata `12e2d26d…2a20a` e replaysmanager inalterados. Remove Fog ausente. **Sem evidência de sessão e sem resultados funcionais do proprietário**: Run B não está validada. Nenhuma conclusão "standalone e coexistência verificadas" é emitida.
+- **Registo formal NA:** 9 problemas do avaliador (eram 13). Verificações automáticas registadas como PASS: runtime (811), build (320, 1 salto), frontend (30 suites), artifacts (7, 2 saltos). Pendentes: commit limpo, NA com testes bloqueantes por fazer, EU, ASIA/CN, assinatura de produção (não autorizada), aprovação do proprietário. Ver [0.1.7-beta.2-na-runtime-plan.md](releases/0.1.7-beta.2-na-runtime-plan.md), secção 12.
+- **Dívida técnica não bloqueante:** `launcher.css` usa `:disabled` (aviso do Gameface; regra do Driftkings).
+- **Regiões (`izeberg/wot-src`, 2026-11-25):** NA ficheiros pinados idênticos (10/10); ASIA 9/10 (diferença só em `version.xml`); CN 8/10; EU 2.4.1.1 PENDING para 2.4.2.0; CT desenvolvimento.
+
+### Estado operacional anterior — 2026-11-25 (Run A validada tecnicamente; Run B restaurada)
+
+- **Run A (NA #999, candidata `0.1.7-beta.2`, SHA-256 `12e2d26dd2e8f8f0dd600b1f1d395848a62d708da9c53e1ac030d85f96b2a20a`):** resultados do proprietário: hangar PASS, batalha PASS, replay PASS, operação standalone PASS. Análise técnica do `game.log` (4.204 linhas): sem regressão bloqueante; carregamento único por sessão; sem exceções de dependência; OpenWG, ModsListAPI e Remove Fog ausentes durante a sessão; Remove Fog não recriado; `rn.box` e erros SVG não reapareceram. Detalhes em [0.1.7-beta.2-na-runtime-plan.md](releases/0.1.7-beta.2-na-runtime-plan.md), secção 11.
+- **Registo formal NA:** decisão continua PENDING em [0.1.7-beta.2-validation.md](releases/0.1.7-beta.2-validation.md) até fecharem os testes bloqueantes (instalação, atualizador, perfis) e as referências de evidência.
+- **Run B:** OpenWG Gameface e ModsListAPI restaurados às localizações originais por cópia verificada; candidata e replaysmanager inalterados; Remove Fog não restaurado. Jogo não lançado.
+- **Regiões (upstream `izeberg/wot-src`, 2026-11-25):** NA `11b56842` (2.4.2.0 #999, snapshot 2.4.2.5523); ASIA `8f3971ab` (2.4.2.0 #998, 2.4.2.5526); CN `3d408644` (2.4.2.0 #997, 2.4.2.5525); EU `447437a2` (2.4.1.1 #993, 2.4.1.5514) — **PENDING**; CT `e2a5105e` (2.4.2.0 #996, desenvolvimento).
+
+### Estado operacional anterior — 2026-11-24 (fecho da Fase 3 e preparação da Fase 4)
+
+**Resumo atual, substitui o resumo abaixo para efeitos operacionais.**
+
+- **Versões:** stable pública `0.1.6`; beta pública `0.1.7-beta.1`; candidata local `0.1.7-beta.2`; stable alvo `0.1.7`; WoT `2.4.2.0`.
+- **Arquitetura:** standalone. Não há dependência obrigatória de OpenWG Gameface nem de ModsListAPI; `ui_dependencies` e os `.wotmod` correspondentes foram retirados da distribuição. Os recursos nativos do Gameface pertencem ao Driftkings. `core/mod_compatibility.py` apenas deteta bibliotecas de terceiros, sem as importar.
+- **Publicabilidade:** o compilador grava sempre `publishable: false`. Os estados explícitos (`NOT_ELIGIBLE`, `ELIGIBLE_UNSIGNED`, `SIGNED_UNVALIDATED`, `VALIDATED_NOT_APPROVED`, `PUBLISHABLE`) vêm de `build_tools/publication_state.py`. Uma assinatura não autoriza publicação.
+- **Candidata NA:** `build/releases/beta/0.1.7-beta.2/driftkings.wotmod`, reconstruída de forma reprodutível; SHA-256 completo em [registo de Fase 3](releases/0.1.7-beta.2-phase3-readiness.md). Não assinada, não publicável, não validada em jogo.
+- **Regiões:** NA com entradas de produção; EU PENDING para 2.4.2.0 (fonte pública ainda em 2.4.1.1, commit `447437a2`); ASIA e CN apenas com evidência de fonte. Nenhuma compatibilidade global está confirmada.
+- **Testes:** runtime 811 (Python 2.7.18 e 3.14.3); build 320 com 1 salto; artefactos com 2 saltos por referências históricas ausentes; Python 3.12 não disponível e não executado.
+- **Próximo passo:** validação manual NA com a checklist de [0.1.7-beta.2-phase3-readiness.md](releases/0.1.7-beta.2-phase3-readiness.md). Nada foi instalado nem executado nesta fase.
+
+### Resumo anterior (2026-11-24, manhã)
+
+
+A candidata `0.1.7-beta.2` para WoT `2.4.2.0` está em preparação local. A stable publicada é `0.1.6` e a beta publicada é `0.1.7-beta.1`. A promoção pretendida é `0.1.7`. O perfil de produção depende dos recursos e da validação registados abaixo. [Registo de preparação](releases/0.1.7-beta.2-readiness.md).
+
 ## Fases 3F.2B–3F.2D — build experimental, validação CT e pré-consolidação — 2026-11-10
 
 **ARTIFACT PASS, CT INSTALL PASS e CT RUNTIME PASS — experimental, não publicável, sem consolidação Git.** A integração Native BattleInfo da Fase 3F.2A foi compilada com `--isolated-output --keep-source-version`, auditada, instalada no CT e validada em runtime. Nenhuma release foi autorizada; `VERSION` e `release.json` continuam em `0.1.8-beta.1`.
@@ -148,7 +286,7 @@ A stable publicada atual é `0.1.6` (confirmada no GitHub). As secções antigas
 - As secções datadas abaixo são histórico. Para o estado atual do código, usar `build_data/release.json`, `build_data/build_config.json` e o Git, não os commits ou bases citados nas secções antigas.
 - Alvos do cliente: produção WoT `2.4.1.1` (EU/NA/ASIA); build experimental CT `2.4.2.0` #996. Contratos e ferramentas em `build_data/` e `build_tools/`.
 - As versões publicadas e os downloads estão no [README](../README.md). O histórico de publicação permanece nas releases e no Git.
-- A beta `0.1.6-beta.1` foi aprovada funcionalmente por Ruben Gameiro Lopes Gonçalves em 2026-11-05, com testes declarados de 2026-11-04 em EU, NA e ASIA. Os 18 bloqueantes estão PASS nas três regiões; 57 células PASS e 36 NOT TESTED no [registo oficial](releases/0.1.6-beta.1-validation.md). O painel e os perfis têm persistência confirmada; detalhes históricos sobre construção/aceitação visual do painel permanecem nas secções datadas abaixo. A aprovação funcional não é uma nova medição de desempenho.
+- A beta `0.1.6-beta.1` foi aprovada funcionalmente pelo responsável do projeto em 2026-11-05, com testes declarados de 2026-11-04 em EU, NA e ASIA. Os 18 bloqueantes estão PASS nas três regiões; 57 células PASS e 36 NOT TESTED no [registo oficial](releases/0.1.6-beta.1-validation.md). O painel e os perfis têm persistência confirmada; detalhes históricos sobre construção/aceitação visual do painel permanecem nas secções datadas abaixo. A aprovação funcional não é uma nova medição de desempenho.
 - As seis fases de otimização foram revistas e enviadas no commit `202f476`. A auditoria estática não demonstra ganhos quantitativos de FPS; as medições em jogo de 2026-11-03 estão na secção correspondente.
 
 ## Restrição do minimapa por modo — 2026-11-05

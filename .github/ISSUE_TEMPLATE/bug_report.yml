@@ -30,8 +30,15 @@ body:
         - EU
         - NA
         - ASIA
+        - CN
+        - CT (development)
     validations:
       required: true
+  - type: input
+    id: package-sha256
+    attributes:
+      label: Package SHA-256
+      description: SHA-256 of the installed driftkings.wotmod, if available.
   - type: textarea
     id: steps
     attributes:

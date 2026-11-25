@@ -22,7 +22,7 @@ This guide explains how the code is organised and how to make a change safely. S
 - `develop` is the development branch for beta versions. Requests referring to a beta mean work on `develop`.
 - `main` is the stable release branch. Stable releases reach it from `develop` through a pull request.
 - Before editing, check the current branch and switch to the branch for the requested channel. Keep the release version and channel in `build_data/release.json` consistent with the release being prepared.
-- Stable `0.1.6` and beta `0.1.7-beta.1` target WoT `2.4.1.1`; the next development beta is `0.1.7-beta.2`, and the planned final version is stable `0.1.7`; `0.1.4` and `0.1.3` remain archived. Archived beta `0.1.3-beta.2` and stable `0.1.2` target WoT `2.4.1.0`. The build target configured in `build_data/build_config.json` is WoT `2.4.2.0` Common Test #996 (client revision `2660091`) and needs the explicit CT overrides in [the CT guide](docs/CT_COMPATIBILITY.md); machine-local defaults still point to production EU. The configured target and the development version are pending a decision (see the status file). A new release needs a new version; do not move or rebuild an existing tag for a documentation-only change.
+- Stable `0.1.6` and experimental `0.1.7-beta.1` are published for WoT `2.4.1.1`. Candidate `0.1.7-beta.2` targets `2.4.2.0` and is intended for promotion to `0.1.7` after validation. [Production readiness record](docs/releases/0.1.7-beta.2-readiness.md).
 
 ## Repository layout
 
@@ -62,9 +62,8 @@ Inside the client package:
 
 ### Gameface presentation
 
-The CT Phase 3A PoC (installed and validated on CT #995 within the owner-confirmed final checklist; telemetry limits and scope documented) selects native plugin loading only for the hangar clock. The catalog excludes it from the OpenWG bootstrap while preserving the other 19 owners. Keep the legacy factories unchanged for those consumers; see [native clock evidence and rollback](docs/NATIVE_CLOCK_POC.md).
-
-On the CT branch, `settings_panel` owns the footer launcher in `gameface/lobby/launcher.py`. It delegates to the existing settings controller and uses the existing OpenWG/bootstrap loading chain. There is no active Driftkings ModsList registration. Both dependency packages remain distributed. The owner validated the launcher on CT without ModsListAPI; OpenWG remains required and future client versions need revalidation. See [the Phase 2 guide](docs/NATIVE_FOOTER_LAUNCHER.md) for native/DOM contracts, the author-confirmed CT test scope, remaining in-game checks and scoped rollback.
+Driftkings 0.1.7 is standalone. Its Gameface UI uses native integrations that Driftkings owns: native documents (`transport: native_document`) for the footer launcher, profile ratings, crew details, header options, tech tree and rating players; native user-missions plugins (`native_user_missions`) for the hangar clock, carousel statistics, crew progression and hangar marks; a native battle-results plugin (`native_battle_results`) for battle efficiency; and two owned windows (`own_window`) that host the nine battle HUD cards. `build_data/patches/production/*.na999.json` pins the NA #999 patches that make those integrations exact replacements. The catalog is `mod/res/scripts/client/driftkings/interface_catalog.py`; `build_tools/generate_ui_catalog.py` validates it. No feature is loaded through OpenWG Gameface or ModsListAPI, and neither package is declared, packaged or required.
+Passive third-party detection lives in `core/mod_compatibility.py`. It observes whether other installed mods are present and never imports or initialises them, so Driftkings keeps working beside those libraries and does not remove them. Keep it that way: do not add a runtime import of `openwg_gameface` or `gui.modsListApi`, and do not reintroduce `ui_dependencies`. Historical CT notes that mention OpenWG injection are dated records in `docs/CT_COMPATIBILITY.md` and `docs/STATUS.md`; they describe the past, not the current architecture.
 
 Keep Wulf ViewModels, views, native presenter hooks and resource resolution inside `gameface/`. Functional components retain calculations, data collection, state and settings, and invoke adapters through their existing lifecycle. Package imports stay passive; engine imports remain at the established runtime boundary. Preserve hook ownership through `core/hooks.py`, native resource IDs, payload contracts and the HTML/CSS/JS asset locations. Use `interface_catalog.py` for the active contracts and the [settings-panel report](docs/RELATORIO_PAINEL_CONFIGURACAO.md) for the configuration flow; confirm affected views in the client.
 
@@ -158,6 +157,14 @@ python build_tools/validate_build_data.py
 
 Keep custom text and macros configurable. Use the native UI scale for Gameface layouts; for the results information line, preserve native font sizing across resolution classes and support the configured spacing and separators.
 
+### Optional Remove Fog
+
+Remove Fog is restored as an **optional, default-OFF** feature. Its approved 0.1.6 behaviour is kept; the default changed from on to off (see the readiness report, section *Remove Fog restoration*).
+
+- Files: `mod/res/scripts/client/driftkings/core/fog_package.py` (controller and scheduler), `installer/source/fogpackage.cs` (native helper, built by `fog_package_helper` in `build_data/build_config.json`), the `removeFog` control in `settings/definitions/battle/battle_preferences.py`, its restart rule in `settings/settings_data.py`, the panel/restart wiring in `gameface/lobby/settings_window.py`, `components/sound_bank_loader.py` (restart confirmation) and the localized texts under `mod/res/mods/driftkings/text/`.
+- Intent: only an explicit user change of the option is recorded, in `mods/configs/driftkings/cache/fog/choice.json`. Profile values from earlier releases are not a choice. Automatic paths never install the package. Startup converges the installed state to the effective choice: with the option OFF and a Driftkings-owned package still in the loading path, the helper removes it once after the game closes, after keeping a recovery copy in `cache/fog/recovery/`. Reloads, profile loads, the master switch, installation and updates add no work. `effective_state()` reports `on`, `on-package-missing`, `off` or `off-package-loaded`, and the panel must agree with it.
+- Tests: `tests/runtime/core/test_fog_paths.py`, `test_fog_choice.py`, `tests/runtime/settings/test_fog_reload_integration.py` and `tests/build/test_optional_fog_contract.py`. Keep them when changing the feature.
+
 ## Adding a component
 
 1. Create the module under `battle/`, `lobby/` or `components/` with `init()` (and `fini()` if it holds state).
@@ -165,6 +172,36 @@ Keep custom text and macros configurable. Use the native UI scale for Gameface l
 3. Add its defaults JSON, settings definition, constants and translations.
 4. Register its entry point and assets in `build_data/components.json`, keep `component_list.py` aligned, and register any presentation in `interface_catalog.py`. Regenerate the UI catalogue if needed, then run `python build_tools/validate_build_data.py`. The manifest is compact: `kind` defaults to `feature`, `enabled` to `true`, and `config_files`/`assets` to empty lists. A string asset such as `"mod/res/gui/example/**"` is packaged at the same path without `mod/`; use an object with `source`, `target` and optional `generator` for anything else.
 5. Add tests for any pure logic.
+
+## Build profiles, regional evidence and publishability
+
+Four facts stay separate. Never infer one from another:
+
+| Concept | Where it lives | Meaning |
+| --- | --- | --- |
+| Build profile | `build-report.json` field `profile` | `production` (verified profile of a real client, NA #999 today) or `ct-development` (CT, development only). |
+| Eligible for signing | `eligible_for_signing` and `publication_state` | A successful release-mode production build. `sign_release.py` refuses anything else. |
+| Signed artifact | `release.json.sig` | The manifest verifies against a key in `TRUSTED_KEYS`. A signature alone never publishes. |
+| Runtime and regional evidence | Validation record (`validation_record.py evaluate`) | Each advertised realm is RUNTIME VERIFIED (production) or SOURCE VERIFIED, and every automated and in-game check passes. |
+| Release approval | Validation record decision `APPROVED` | Recorded by the owner, bound to the commit, package SHA-256 and version. |
+| Final publishability | `publication_state` = `PUBLISHABLE` | Every fact above holds. Only `build_tools/publication_state.py` derives it. |
+
+The compiler always writes `publishable: false`. Its state values are `NOT_ELIGIBLE`, `ELIGIBLE_UNSIGNED`, `SIGNED_UNVALIDATED`, `VALIDATED_NOT_APPROVED` and `PUBLISHABLE`. `publish_release.py --publish` requires `--approval <validation record>` that evaluates as APPROVED for the same version; without it the upload is refused. Stable releases still go through `promote_release.py`, which also checks the promotion gate.
+
+Regional compatibility is evidence-based. RUNTIME VERIFIED means an in-game test of the exact candidate SHA-256. SOURCE VERIFIED means the interfaces, resources and generated outputs were compared against that realm's source and installed client. EXPECTED COMPATIBLE and PENDING are not evidence of support. Current status is in `docs/releases/0.1.7-beta.2-phase3-readiness.md`.
+
+Build and check commands (Python 3 unless noted):
+
+```powershell
+python build_tools/validate_build_data.py
+python build_tools/compiler.py --mode debug --plan
+python build_tools/compiler.py --mode release --channel beta --game-root <NA client folder>   # eligible, unsigned
+python build_tools/build_installer.py --artifacts build/releases/beta/<version> --compile      # Setup, needs Inno Setup 6.7.1+
+python build_tools/sign_release.py build/releases/beta/<version> --key <offline-key>          # only for eligible builds
+python build_tools/publish_release.py build/releases/beta/<version> --approval <record.md>     # preview; --publish needs the approval
+```
+
+Tests for these gates: `tests/build/test_publication_state.py`, `test_release_signature.py`, `test_release_promotion.py` and `test_standalone_distribution.py`.
 
 ## Testing
 
@@ -240,7 +277,7 @@ python -B build_tools/compiler.py --mode debug --channel beta --version 0.1.7-be
 
 This writes a non-publishable test build under `build/debug/beta/0.1.7-beta.1/`; it does not prepare or publish that beta release.
 
-The build contract records only portable targets: game version, supported realms and reference version. Machine-specific locations live in the ignored `build_data/toolchain.local.json`, for example `{"game_root": "D:/Games/World_of_Tanks_NA", "reference_root": "E:/.../WoT_Tools/wot-src-EU"}`, or in `DK_GAME_ROOT`/`DK_REFERENCE_ROOT` and `--game-root`/`--reference-root`. The game installation is a read-only build input; any client of the target version whose `version.xml` realm is listed in `supported_realms` can be used, and the Gameface patches still require their exact source hashes. `python build_tools/validate_build_data.py --check-game` checks those patches against the configured client. Tool overrides are listed by `python build_tools/compiler.py --help`; discovery is implemented in `build_tools/toolchain.py`, including `DK_*` environment variables. The native marker lock must match the selected client. Builds are reproducible: with the same sources and `SOURCE_DATE_EPOCH` (by default the last commit time), every artifact is byte-identical. Discovery prefers a Visual Studio Roslyn `csc`, built with `/deterministic`; the .NET Framework 4 `csc` remains a fallback but embeds a timestamp and random module IDs. The battle SWF compile date is set to `SOURCE_DATE_EPOCH`. Debug artifacts are written to `build/debug/<channel>/<version>/`; use the build report and the compiler's reported destination rather than an old staging file. Compilation neither installs the mod nor publishes a release.
+The build contract records only portable targets: game version, supported realms and reference version. Machine-specific locations live in the ignored `build_data/toolchain.local.json`, for example `{"game_root": "D:/Games/World_of_Tanks_NA", "reference_root": "E:/.../WoT_Tools/wot-src-EU"}`, or in `DK_GAME_ROOT`/`DK_REFERENCE_ROOT` and `--game-root`/`--reference-root`. The game installation is a read-only build input; the compiler checks the selected source realm, build and revision against its pinned identity. Production requires a reviewed resource profile with exact reference, patch and SWF hashes and evidence for each installer realm. Use `--check-game` with the matching CT client for the development patch check. Production resource pins are checked by the compiler. Tool overrides are listed by `python build_tools/compiler.py --help`; discovery is implemented in `build_tools/toolchain.py`, including `DK_*` environment variables. The native marker lock must match the selected client. Builds are reproducible: with the same sources and `SOURCE_DATE_EPOCH` (by default the last commit time), every artifact is byte-identical. Discovery prefers a Visual Studio Roslyn `csc`, built with `/deterministic`; the .NET Framework 4 `csc` remains a fallback but embeds a timestamp and random module IDs. The battle SWF compile date is set to `SOURCE_DATE_EPOCH`. Debug artifacts are written to `build/debug/<channel>/<version>/`; use the build report and the compiler's reported destination rather than an old staging file. Compilation neither installs the mod nor publishes a release.
 
 For a local game test, close the target client, back up its current `mods/<game-version>/driftkings.wotmod`, then copy the newly built WOTMOD there. Verify the copied hash and check dependencies against `build_data/build_config.json`. Install defaults only when missing; do not overwrite personal profiles under `mods/configs/driftkings`. Do not remove unrelated mods. On a client previously using OpenWG Common for this project, quarantine its package and Common-owned caches/configs to a local backup; retain OpenWG Gameface and check whether other installed mods require Common before changing their dependencies.
 
@@ -262,7 +299,7 @@ Clients that predate this feature do not verify signatures; they must update onc
 2. Run `python build_tools/compiler.py --mode release --channel beta`. This compiles and verifies the package without installing or publishing it.
 3. Compile and attach the installer: `python build_tools/build_installer.py --artifacts build/releases/beta/<version> --compile --attach-to-release`. Inno Setup 6.7.1+ is required.
 4. Sign with `python build_tools/sign_release.py build/releases/beta/<version> --key <private-key-file>` and preview with `python build_tools/publish_release.py build/releases/beta/<version>`.
-5. After GitHub Actions passes for the built commit, add `--publish` to create a draft with the verified assets. Check the uploaded filenames, sizes and SHA-256 digests against the local inventory, then publish it as a prerelease. `--publish --live` publishes directly when that is the intended workflow.
+5. After GitHub Actions passes for the built commit, add `--publish --approval <validation record>` (the record must evaluate as APPROVED for this version) to create a draft with the verified assets. Check the uploaded filenames, sizes and SHA-256 digests against the local inventory, then publish it as a prerelease. `--publish --live` publishes directly when that is the intended workflow.
 6. Verify the public manifest/signature and tag commit. Keep the stable release as GitHub's latest stable release. Documentation edits after publication do not require replacing release assets.
 7. Create the validation record with `python build_tools/validation_record.py new <version> --commit <sha> --package-sha256 <sha256>` and fill it in while testing in the client.
 

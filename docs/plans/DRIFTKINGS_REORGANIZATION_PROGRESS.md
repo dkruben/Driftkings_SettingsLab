@@ -1,5 +1,7 @@
 # Driftkings SettingsLab — Progresso da reorganização
 
+Para o estado atual da candidata de produção e os checkpoints desta fase, ver o [registo v0.1.7-beta.2](../releases/0.1.7-beta.2-readiness.md). Os checkpoints datados abaixo mantêm os resultados e as versões originais.
+
 Criado em 2026-11-11, Europe/Lisbon. Referência normativa:
 [plano diretor](DRIFTKINGS_REORGANIZATION_MASTER_PLAN.md).
 
@@ -3573,8 +3575,8 @@ não auditoria de pacote compilado; nenhum build foi executado nem artefacto ins
 - Nenhuma regressão de Fases3/4 ou suite completa executada.
 
 Pré-visualização estática criada em área temporária isolada, sem artefactos no repo:
-C:/Users/Ruben/AppData/Local/Temp/driftkings-launcher-preview-3c8f7436/preview.html
-C:/Users/Ruben/AppData/Local/Temp/driftkings-launcher-preview-3c8f7436/preview.png
+C:/Users/<utilizador>/AppData/Local/Temp/driftkings-launcher-preview-3c8f7436/preview.html
+C:/Users/<utilizador>/AppData/Local/Temp/driftkings-launcher-preview-3c8f7436/preview.png
 Render Edge/Chromium headless local, inspecionado visualmente a 20/24/32px nos quatro
 estados. Os efeitos de estado são simulados com os mesmos valores CSS na grelha;
 a prova de pseudo-estados interativos em Gameface continua pendente. Não iniciado CT.

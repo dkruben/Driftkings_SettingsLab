@@ -1,5 +1,7 @@
 # Migração final dos consumidores OpenWG — fonte
 
+Production NA #999 passed file-level checks for the bundled exact and BattleInfo AST patches against actual installed game resources. The native vehicle-marker SWF differs from CT #996. [Resource evidence and runtime scope](releases/0.1.7-beta.2-readiness.md).
+
 Data: 2026-11-11. Cliente: CT 2.4.2.0 #995.
 
 > Nota de leitura — 2026-11-15: este corpo conserva o relatório histórico da
