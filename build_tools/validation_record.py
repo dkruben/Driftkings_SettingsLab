@@ -185,8 +185,22 @@ def is_placeholder(value):
     return not value or value == '-' or '<' in value or '>' in value
 
 
-def evaluate(text, version, target=None, commit=None):
-    """Return the approved summary of a record, or raise ValueError listing every reason it does not pass."""
+# Beta-only exception: a prerelease may be published before K2 (production-signed update test) because the
+# updater can only test a published release. It needs an OPEN K2 row carrying a documented owner authorization.
+PRERELEASE_K2_MARKER = 'Exceção de prerelease K2 autorizada pelo proprietário'
+
+
+def k2_prerelease_exception_documented(description):
+    """True only when the K2 row names the exception, its reason and the owner authorization."""
+    return PRERELEASE_K2_MARKER in description and 'Motivo:' in description and 'Data da autorização:' in description
+
+
+def evaluate(text, version, target=None, commit=None, prerelease_k2=False):
+    """Return the approved summary of a record, or raise ValueError listing every reason it does not pass.
+
+    prerelease_k2=True accepts an OPEN K2 row only with the documented prerelease exception (beta publication).
+    Stable promotion never passes it.
+    """
     tables = parse(text)
     problems = []
     identity = fields(tables['Identificação'], IDENTITY_FIELDS, 'Identificação')
@@ -291,7 +305,9 @@ def evaluate(text, version, target=None, commit=None):
         if is_placeholder(description):
             problems.append('Known issue %s has no description' % name)
         if severity == 'BLOCKER' and state != 'FIXED':
-            problems.append('Blocking issue is not fixed: ' + name)
+            excepted = prerelease_k2 and name == 'K2' and state == 'OPEN' and k2_prerelease_exception_documented(description)
+            if not excepted:
+                problems.append('Blocking issue is not fixed: ' + name)
     listed = {check for _, _, check in issues.values()}
     for name in failed:
         if name not in listed:

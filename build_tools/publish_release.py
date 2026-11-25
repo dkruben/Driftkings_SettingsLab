@@ -107,12 +107,20 @@ def absolute_paths(value):
 
 
 
-def publication_gate(report, approval):
+def require_prerelease_exception_channel(channel, requested):
+    """The K2 prerelease exception exists only for beta manifests; stable never uses it."""
+    require(not requested or channel == 'beta',
+            '--prerelease-k2-pending is only allowed for beta releases (channel %s)' % channel)
+
+
+def publication_gate(report, approval, prerelease_k2=False):
     """Explicit state of the build: a signature alone never returns PUBLISHABLE."""
     if approval is None:
         return publication_state.classify(report, signed=True, validation_ok=False, approved=False)
+    def evaluator(text, version):
+        return evaluate_record(text, version, prerelease_k2=prerelease_k2)
     validation_ok, approved, _ = publication_state.validation_facts(
-        approval.read_text(encoding='utf-8'), report['version'], evaluate_record)
+        approval.read_text(encoding='utf-8'), report['version'], evaluator)
     return publication_state.classify(report, signed=True, validation_ok=validation_ok, approved=approved)
 
 
@@ -176,16 +184,20 @@ def main():
     parser.add_argument('--publish', action='store_true', help='Create the GitHub release and upload assets')
     parser.add_argument('--live', action='store_true', help='Publish publicly; otherwise create a draft')
     parser.add_argument('--approval', type=Path, help='Validation record whose decision is APPROVED for this version')
+    parser.add_argument('--prerelease-k2-pending', action='store_true',
+                        help='Beta only: accept an OPEN K2 row that documents the prerelease exception (owner authorization)')
     args = parser.parse_args()
     try:
         command, files, report, manifest = prepare(args.folder)
+        require_prerelease_exception_channel(manifest['channel'], args.prerelease_k2_pending)
         if not args.live:
             command.append('--draft')
         if not args.publish:
             print(json.dumps(dict(command=command, assets=[str(p) for p in files], publication='preview only',
-                                  state=publication_gate(report, args.approval)), indent=2))
+                                  state=publication_gate(report, args.approval, args.prerelease_k2_pending)), indent=2))
             return
-        require(publication_gate(report, args.approval) == publication_state.PUBLISHABLE,
+        require_prerelease_exception_channel(manifest['channel'], args.prerelease_k2_pending)
+        require(publication_gate(report, args.approval, args.prerelease_k2_pending) == publication_state.PUBLISHABLE,
                 'Publication requires a signed build and an APPROVED validation record (--approval)')
         require(not report['git']['dirty'], 'Build was produced from uncommitted sources; commit and rebuild first')
         head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip()
