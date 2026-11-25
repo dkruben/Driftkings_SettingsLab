@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import zipfile
@@ -56,12 +57,45 @@ def short_marker_workspace(scope, short_root, protected=()):
         scope.release(work)
 
 
+def plan_marker_workspace(destination_parent, short_root):
+    """Where a non-isolated marker workspace goes: beside the output when its path fits the Windows budget,
+    otherwise a unique directory under the short root. Returns (mode, folder)."""
+    projected = Path(destination_parent) / ('vehicle-markers-' + 'x' * 8)
+    if not too_deep(projected):
+        return 'temporary', Path(destination_parent)
+    if short_root is None:
+        raise ValueError('Marker workspace too deep for safe Windows paths; configure DK_MARKER_WORKSPACE')
+    return 'short', Path(short_root)
+
+
+@contextmanager
+def owned_short_workspace(short_root):
+    """A unique directory created by this build under short_root. Only that directory is removed. On failure it
+    is kept for diagnosis and its path is printed, so no evidence is lost."""
+    short_root = Path(short_root)
+    if too_deep(short_root / ('vm-' + 'x' * 8)):
+        raise ValueError('Short marker root too deep for safe Windows paths: ' + str(short_root))
+    short_root.mkdir(parents=True, exist_ok=True)
+    work = Path(tempfile.mkdtemp(prefix='vm-', dir=str(short_root)))
+    try:
+        yield work
+    except BaseException:
+        print('Marker workspace kept for diagnosis: ' + str(work), flush=True)
+        raise
+    shutil.rmtree(str(work))
+
+
 @contextmanager
 def marker_workspace(destination, short_root=None, protected=()):
     scope = active_output()
     if scope is None:
-        with tempfile.TemporaryDirectory(prefix='vehicle-markers-', dir=str(destination.parent)) as directory:
-            yield Path(directory)
+        mode, folder = plan_marker_workspace(destination.parent, short_root)
+        if mode == 'temporary':
+            with tempfile.TemporaryDirectory(prefix='vehicle-markers-', dir=str(folder)) as directory:
+                yield Path(directory)
+        else:
+            with owned_short_workspace(folder) as work:
+                yield work
         return
     scope.check(destination)
     parent = scope.check(scope.path / 'workspace/tmp')

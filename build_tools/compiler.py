@@ -24,7 +24,7 @@ from build_tools.build_diagnostics import exception_record, record_failure
 from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
 from build_tools import publication_state
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
-from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
+from build_tools.toolchain import KEYS as TOOL_KEYS, discover, reference_snapshot_matches, require_tools
 from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, gameface_patch_for_build, read_gameface_resource, build_plan, source_client, production_profile, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
@@ -363,8 +363,9 @@ def check_production_reference(root, config, tools, identity):
     profile = production_profile(root, config, identity)
     reference = Path(tools['reference_root']).resolve()
     pin = config['reference']['production_clients'][identity['realm']]
-    require((reference / '.version_name').read_text(encoding='utf-8-sig').strip() == pin['snapshot'],
-            'Production reference snapshot mismatch')
+    require(reference_snapshot_matches(reference, pin['snapshot']),
+            'Production reference snapshot mismatch: %s expects %s (reference: %s)'
+            % (identity['realm'], pin['snapshot'], reference.name))
     require(source_client(reference / 'sources', config) == identity, 'Production reference identity mismatch')
     hashes = profile['reference_sha256']
     required = {'sources/version.xml', 'sources/paths.xml'}
@@ -517,6 +518,9 @@ def _build(args, stack):
         profile = production_profile(root, config, identity)
     require_tools(tools)
     realm = check_client(root, config, tools)
+    expected_realm = getattr(args, 'expect_realm', None)
+    require(expected_realm in (None, realm),
+            'Game installation realm %s differs from --expect-realm %s' % (realm, expected_realm))
     identity = source_client(tools['game_root'], config)
     profile = production_profile(root, config, identity) if realm != 'CT' else None
     runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
@@ -642,6 +646,8 @@ def argument_parser():
                         help='Override only packaged VERSION, for temporary compatibility/update tests')
     parser.add_argument('--channel', choices=('auto', 'stable', 'beta'), default='auto')
     parser.add_argument('--game-root', help='Read-only game installation override')
+    parser.add_argument('--expect-realm', choices=('NA', 'EU', 'ASIA', 'CN', 'CT'),
+                        help='Refuse to build unless the installed client has this realm')
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
     parser.add_argument('--plan', action='store_true',
                         help='Display version, outputs and tool discovery without building')
