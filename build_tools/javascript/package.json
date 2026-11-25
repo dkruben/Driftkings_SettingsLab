@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "acorn": "8.19.0",
-    "eslint": "10.13.0",
+    "eslint": "10.15.0",
     "react": "19.2.3",
     "react-test-renderer": "19.2.3"
   }
