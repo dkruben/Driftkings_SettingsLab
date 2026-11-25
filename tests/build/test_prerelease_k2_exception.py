@@ -13,6 +13,17 @@ GOOD = ('Exceção de prerelease K2 autorizada pelo proprietário. Motivo: updat
         'Data da autorização: 2026-11-25.')
 
 
+def open_k2_record(documented=True):
+    """The record as the beta exception sees it: K2 OPEN, with or without the documented exception."""
+    lines = []
+    for line in RECORD.read_text(encoding='utf-8').split(chr(10)):
+        if line.startswith('| K2 | BLOCKER |'):
+            description = GOOD if documented else 'Atualização pendente.'
+            line = '| K2 | BLOCKER | OPEN | updater.check, updater.apply | ' + description + ' |'
+        lines.append(line)
+    return chr(10).join(lines)
+
+
 def problems_of(text, version, **options):
     try:
         evaluate(text, version, **options)
@@ -29,24 +40,23 @@ class PrereleaseK2ExceptionTests(unittest.TestCase):
         self.assertFalse(k2_prerelease_exception_documented('Atualização ainda não executada.'))
 
     def test_only_the_prerelease_mode_accepts_the_documented_open_k2_row(self):
-        text = RECORD.read_text(encoding='utf-8')
+        text = open_k2_record(documented=True)
         # The record documents the exception, so only the prerelease mode may waive K2.
         self.assertIn(K2_PROBLEM, problems_of(text, '0.1.7-beta.2'))
         self.assertNotIn(K2_PROBLEM, problems_of(text, '0.1.7-beta.2', prerelease_k2=True))
 
     def test_undocumented_open_k2_is_never_waived(self):
-        text = RECORD.read_text(encoding='utf-8')
-        stripped = text.replace('Exceção de prerelease K2 autorizada pelo proprietário', 'Nota')
-        self.assertIn(K2_PROBLEM, problems_of(stripped, '0.1.7-beta.2', prerelease_k2=True))
+        text = open_k2_record(documented=False)
+        self.assertIn(K2_PROBLEM, problems_of(text, '0.1.7-beta.2', prerelease_k2=True))
 
     def test_fixed_k2_needs_no_exception_and_stays_checked_by_the_default_evaluator(self):
-        text = RECORD.read_text(encoding='utf-8')
+        text = open_k2_record(documented=True)
         fixed = text.replace('| K2 | BLOCKER | OPEN |', '| K2 | BLOCKER | FIXED |')
         self.assertNotIn(K2_PROBLEM, problems_of(fixed, '0.1.7-beta.2'))
 
     def test_stable_promotion_never_uses_the_exception(self):
         # The default evaluator (used by promote_release.py) must keep rejecting the open K2 row.
-        text = RECORD.read_text(encoding='utf-8')
+        text = open_k2_record(documented=True)
         self.assertIn(K2_PROBLEM, problems_of(text, '0.1.7-beta.2'))
         with self.assertRaisesRegex(ValueError, 'only allowed for beta'):
             require_prerelease_exception_channel('stable', True)
