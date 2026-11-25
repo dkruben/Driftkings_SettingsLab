@@ -383,6 +383,9 @@ def production_generators(root, config, profile, identity):
               'gameface_patch': 'patch_file', 'native_battleinfo_patch': 'patch_file'}
     required = {name for name, spec in generators.items() if spec['kind'] in fields}
     require(set(pinned) == required, 'Incomplete production resource pins')
+    # Shared pins name the realm and build they were reviewed for; the installed client must still
+    # match their bytes (source hash, native movie digest, Flash library digests), checked below.
+    pin = profile['pinned_identity']
     for name in required:
         spec = generators[name]
         kind = spec['kind']
@@ -390,7 +393,7 @@ def production_generators(root, config, profile, identity):
         manifest = read_json(input_path(root, path))
         if kind == 'flash':
             require(manifest['game_version'] == config['game']['version']
-                    and manifest['source_version'] == config['reference']['production_clients'][identity['realm']]['snapshot'],
+                    and manifest['source_version'] == pin['snapshot'],
                     'Production Flash library manifest mismatch')
             for library in manifest['libraries']:
                 binary = input_path(input_path(root, path).parent, library['name'])
@@ -398,13 +401,14 @@ def production_generators(root, config, profile, identity):
             spec['library_manifest'] = path
         elif kind == 'vehicle_markers':
             require(manifest['gameVersion'] == config['game']['version']
-                    and manifest['clientBuild'] == identity['build'] and manifest['realm'] == identity['realm']
-                    and manifest['clientRevision'] == identity['revision'],
+                    and manifest['clientBuild'] == pin['build'] and manifest['realm'] == pin['realm']
+                    and manifest['clientRevision'] == pin['revision'],
                     'Production vehicle markers lock mismatch')
             spec['locks'] = {identity['build']: path}
+            spec['lock_pins'] = {identity['build']: pin['build']}
         else:
             require(manifest['game_version'] == config['game']['version']
-                    and manifest['client_build'] == identity['build'] and manifest['realm'] == identity['realm']
+                    and manifest['client_build'] == pin['build'] and manifest['realm'] == pin['realm']
                     and manifest['resource'] == spec['resource'], 'Production Gameface patch target mismatch: ' + name)
             spec.pop('patch_files', None)
             spec['patch_file'] = path

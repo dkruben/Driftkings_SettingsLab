@@ -8,7 +8,7 @@ HELPER = 'QName(PackageNamespace(""), "DriftkingsVehicleMarkersFlash")'
 PROTECTED = 'ProtectedNamespace("net.wg.gui.battle.views.vehicleMarkers:VehicleMarker")'
 
 
-def marker_lock_for_build(locks, build):
+def marker_lock_for_build(locks, build, pins=None):
     """Return the native movie lock pinned for exactly this CT build; never another build's lock.
 
     ``locks`` maps a CT build to its parsed lock. The historical lock has no ``clientBuild``
@@ -17,7 +17,7 @@ def marker_lock_for_build(locks, build):
     if build not in locks:
         raise ValueError('No vehicle marker lock pinned for CT #%s' % build)
     lock = locks[build]
-    if lock.get('clientBuild', '995') != build:
+    if lock.get('clientBuild', '995') != (pins or {}).get(build, build):
         raise ValueError('Vehicle marker lock belongs to another CT build')
     return lock
 

@@ -133,7 +133,7 @@ def build(root, destination, spec, tools, game_root, library_manifest='flash_sou
     config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
     build_id = source_client(game_root, config)['build']
     locks = {key: json.loads((root / value).read_text(encoding='utf-8')) for key, value in spec['locks'].items()}
-    lock = marker_lock_for_build(locks, build_id)
+    lock = marker_lock_for_build(locks, build_id, spec.get('lock_pins'))
     with zipfile.ZipFile(Path(game_root) / 'res/packages' / lock['package']) as archive:
         native = verify_native_movie(archive.read(lock['resource']), lock)
     binary = Path(tools['rabcdasm_home'])

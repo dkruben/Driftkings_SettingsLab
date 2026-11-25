@@ -10,13 +10,16 @@
     "ct_builds": {"995": "2655094", "996": "2660091"},
     "production_clients": {
       "NA": {"build": "999", "revision": "2664941", "snapshot": "2.4.2.5523"},
+      "EU": {"build": "1000", "revision": "2664941", "snapshot": "2.4.2.5524"},
       "ASIA": {"build": "998", "revision": "2664941", "snapshot": "2.4.2.5526"},
       "CN": {"build": "997", "revision": "2664941", "snapshot": "2.4.2.5525"}
     },
     "production_profiles": {
       "NA": {
+        "pinned_identity": {"realm": "NA", "build": "999", "revision": "2664941", "snapshot": "2.4.2.5523"},
         "realm_evidence": {
-          "NA": "docs/releases/0.1.7-beta.2-na999-inputs.md"
+          "NA": "docs/releases/0.1.7-beta.2-na999-inputs.md",
+          "EU": "docs/releases/0.1.7-beta.2-eu1000-owner-waiver.md"
         },
         "reference_sha256": {
           "sources/version.xml": "227001d2e9270b54ecb7036a7d90c604326a9a63a747cf601b4e4a15c3e339c9",
@@ -47,6 +50,12 @@
           "battle_flash": "flash_source/shared/swc/manifest.na999.json",
           "panels_flash": "flash_source/shared/swc/manifest.na999.json",
           "vehicle_markers_flash": "flash_source/vehicle_markers/native-lock.na999.json"
+        }
+      },
+      "EU": {
+        "alias_of": "NA",
+        "reference_sha256_overrides": {
+          "sources/version.xml": "21e0f4a5c112b399e8dfee0abcc7b8687e93576b1878d00562419f2251578cc7"
         }
       }
     },

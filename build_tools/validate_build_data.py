@@ -83,13 +83,36 @@ def source_client(game_root, config):
     return dict(realm=realm, build=build, revision=revision)
 
 
+def resolved_production_profile(config, realm):
+    """Return the reviewed profile for a realm; an alias shares its target's pins and evidence.
+
+    An alias may only add realm-specific reference hashes. Shared pins are still enforced by byte
+    checks against the installed client (source hashes, native movie and Flash library digests).
+    """
+    profiles = config['reference']['production_profiles']
+    entry = profiles.get(realm)
+    if entry is None or 'alias_of' not in entry:
+        return entry
+    base = profiles.get(entry['alias_of'])
+    require(base is not None and 'alias_of' not in base and 'pinned_identity' in base,
+            'Production profile alias target is not a reviewed profile: ' + entry['alias_of'])
+    require(set(entry) <= {'alias_of', 'reference_sha256_overrides'},
+            'Production profile alias has unsupported fields for ' + realm)
+    overrides = entry.get('reference_sha256_overrides', {})
+    require(set(overrides) <= set(base['reference_sha256']) | {'sources/version.xml'},
+            'Production profile alias overrides an unknown reference file for ' + realm)
+    profile = dict(base)
+    profile['reference_sha256'] = dict(base['reference_sha256'], **overrides)
+    return profile
+
+
 def production_profile(root, config, identity):
     """Require reviewed, build-specific source/resource contracts and realm evidence."""
     realm = identity['realm']
     pin = config['reference']['production_clients'].get(realm)
     require(pin is not None and (identity['build'], identity['revision']) == (pin['build'], pin['revision']),
             'Production builds require a pinned production client')
-    profile = config['reference']['production_profiles'].get(realm)
+    profile = resolved_production_profile(config, realm)
     require(profile is not None, 'Production resources are not verified for %s #%s: '
             'need Gameface patches, native SWF lock, Flash library manifest and realm evidence'
             % (realm, identity['build']))

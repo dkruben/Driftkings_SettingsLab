@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from build_tools.validate_build_data import (ROOT, build_plan, production_profile,
-                                             production_realms, read_json, source_client)
+from build_tools.validate_build_data import (ROOT, build_plan, production_profile, production_realms,
+                                             read_json, resolved_production_profile, source_client)
 
 
 class ProductionReadinessTests(unittest.TestCase):
@@ -26,7 +26,8 @@ class ProductionReadinessTests(unittest.TestCase):
             self.assertEqual(identity, dict(realm=realm, build=build, revision='2664941'))
             with self.assertRaisesRegex(ValueError, 'version/build/revision mismatch'):
                 self.identify(realm, 'v.2.4.2.0 #' + build, '2660091')
-        with self.assertRaisesRegex(ValueError, 'No pinned production client'):
+        # The outdated EU client (2.4.1.1 #993) is refused by its version, not by a missing pin.
+        with self.assertRaisesRegex(ValueError, 'version/build/revision mismatch for EU'):
             self.identify('EU', 'v.2.4.1.1 #993', '2653317')
 
     def test_ct_can_be_identified_but_cannot_be_a_production_source(self):
@@ -47,6 +48,47 @@ class ProductionReadinessTests(unittest.TestCase):
         report['runtime_realms'].append('CN')
         with self.assertRaisesRegex(ValueError, 'realm evidence mismatch'):
             production_realms(self.root, self.config, report)
+
+    def test_eu_shares_the_reviewed_na_pins_and_refuses_other_builds(self):
+        identity = self.identify('EU', 'v.2.4.2.0 #1000', '2664941')
+        self.assertEqual(identity, dict(realm='EU', build='1000', revision='2664941'))
+        profile = production_profile(ROOT, self.config, identity)
+        self.assertEqual(profile['pinned_identity']['realm'], 'NA')
+        self.assertEqual(sorted(profile['realm_evidence']), ['EU', 'NA'])
+        self.assertEqual(profile['reference_sha256']['sources/version.xml'],
+                         '21e0f4a5c112b399e8dfee0abcc7b8687e93576b1878d00562419f2251578cc7')
+        na_profile = self.config['reference']['production_profiles']['NA']
+        self.assertNotEqual(na_profile['reference_sha256']['sources/version.xml'],
+                            profile['reference_sha256']['sources/version.xml'])
+        with self.assertRaisesRegex(ValueError, 'version/build/revision mismatch'):
+            self.identify('EU', 'v.2.4.2.0 #1000', '2660091')
+        # The outdated EU client (2.4.1.1 #993) is refused by its version, not by a missing pin.
+        with self.assertRaisesRegex(ValueError, 'version/build/revision mismatch for EU'):
+            self.identify('EU', 'v.2.4.1.1 #993', '2653317')
+
+    def test_asia_and_cn_stay_unverified_without_their_own_profiles(self):
+        for realm, build in [('ASIA', '998'), ('CN', '997')]:
+            identity = self.identify(realm, 'v.2.4.2.0 #' + build, '2664941')
+            with self.assertRaisesRegex(ValueError, 'Production resources are not verified'):
+                production_profile(ROOT, self.config, identity)
+
+    def test_alias_is_resolved_only_against_a_reviewed_profile(self):
+        profiles = self.config['reference']['production_profiles']
+        profiles['EU'] = {'alias_of': 'ASIA'}
+        with self.assertRaisesRegex(ValueError, 'not a reviewed profile'):
+            resolved_production_profile(self.config, 'EU')
+        profiles['EU'] = {'alias_of': 'NA', 'generators': {}}
+        with self.assertRaisesRegex(ValueError, 'unsupported fields'):
+            resolved_production_profile(self.config, 'EU')
+        profiles['EU'] = {'alias_of': 'NA', 'reference_sha256_overrides': {'sources/res/other.py': 'x' * 64}}
+        with self.assertRaisesRegex(ValueError, 'unknown reference file'):
+            resolved_production_profile(self.config, 'EU')
+
+    def test_russian_realms_are_never_supported(self):
+        for realm in ('RU', 'PT_RU', 'LESTA'):
+            self.assertNotIn(realm, self.config['game']['supported_realms'])
+            self.assertNotIn(realm, self.config['reference']['production_clients'])
+            self.assertIsNone(resolved_production_profile(self.config, realm))
 
     def test_plan_excludes_research_sources_and_packages_the_optional_fog_helper(self):
         plan = build_plan(ROOT)

@@ -1,5 +1,16 @@
 # Estado do projeto e da documentação
 
+## Estado operacional — 2026-11-25 (Fase 5G: perfil de produção partilhado NA/EU; candidata pronta para aprovação final)
+
+- **Candidata de referência:** `driftkings.wotmod` `2cc926821b343ab4aaf5033b830805762c8f3aabff1e21ac3b76864169c2ce6c` (14 039 188 bytes), igual à Clean Release Build (K4b). O ZIP, `Driftkings-defaults.zip`, `modpack.json`, `release.json`, `build-report.json` e `SHA256SUMS.txt` coincidem com as hashes registadas. A candidata `641d…0ccc` continua a ser a reprodução histórica (K4a); a cópia em `build/releases` deste repositório é essa candidata histórica e não foi alterada.
+- **Perfil de produção partilhado:** EU 2.4.2.0 #1000 passa a ser um alias do perfil NA reviewido (`build_data/build_config.json`). Os pins de NA não mudam. As verificações de bytes do cliente instalado (SHA-256 do código-fonte dos bundles Gameface, digest do movie nativo de marcadores de veículos e digests das bibliotecas Flash) continuam obrigatórias; um cliente EU cujos bytes não coincidam é recusado.
+- **Reprodução com o perfil partilhado:** build NA local num worktree isolado (`E:\Wot_Mods_\dkuniv`), com o mesmo toolchain, cliente, referência e epoch `1795579096`. Resultado: `2cc926…ce6c`, 14 039 188 bytes, `runtime_realms` = `['EU', 'NA']`. A arquitetura partilhada não altera o conteúdo empacotado.
+- **EU 2.4.2.0 #1000:** CONDITIONAL GO — OWNER WAIVER (`docs/releases/0.1.7-beta.2-eu1000-owner-waiver.md`). Sem verificação independente de recursos compilados nem de runtime. O cliente EU instalado ainda é 2.4.1.1 #993.
+- **ASIA e CN:** continuam sem perfil de produção; o build recusa-os com «Production resources are not verified». Continuam listados em `supported_realms` (ver decisão pendente abaixo).
+- **RU, PT_RU e LESTA:** excluídos de forma permanente; ausentes de `supported_realms`, de `production_clients` e de `production_profiles`. Testes em `tests/build/test_production_readiness.py`.
+- **Testes (2026-11-25):** build 393 OK (2 saltos) e runtime 863 OK, com `tests/run_python.py`.
+- **Publicação:** NO-GO. Nada foi commitado, enviado, etiquetado, assinado ou publicado. Aprovação final pendente do owner.
+
 ## Estado operacional — 2026-11-25 (Fase 5F: correções de build, política canónica de fins de linha, changelog K8 e reprodução histórica; sem publicação)
 
 - **Reprodução histórica demonstrada:** a candidata `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` foi reproduzida byte a byte a partir dos inputs históricos (epoch `1794965041`; 644 entradas idênticas). Relatório em `_validation\reproduction-20261125\REPRODUCTION-REPORT.md`.
