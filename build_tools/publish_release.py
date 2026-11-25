@@ -113,6 +113,30 @@ def require_prerelease_exception_channel(channel, requested):
             '--prerelease-k2-pending is only allowed for beta releases (channel %s)' % channel)
 
 
+# Limited provenance exception (owner-approved, beta prerelease only): the publication checkout may be a
+# descendant of the built commit, but only when every difference is one of these reviewed publication and
+# validation files. Anything that can change compilation, packaging, runtime behaviour, resources or
+# dependencies is outside this list and is rejected.
+PROVENANCE_ALLOWLIST = frozenset((
+    'build_tools/publish_release.py',
+    'build_tools/validation_record.py',
+    'tests/build/test_prerelease_k2_exception.py',
+    'docs/releases/0.1.7-beta.2-validation.md',
+))
+
+
+def require_publication_provenance(run_git, built, head, dirty):
+    """The built commit must be HEAD, or an ancestor of HEAD whose diff is only allowlisted files."""
+    require(not dirty, 'Checkout has uncommitted changes')
+    if head == built:
+        return
+    require(run_git('merge-base', '--is-ancestor', built, head).returncode == 0,
+            'The built commit %s is not an ancestor of the checkout' % built[:12])
+    changed = [path for path in run_git('diff', '--name-only', built, head).stdout.splitlines() if path]
+    blocked = sorted(path for path in changed if path not in PROVENANCE_ALLOWLIST)
+    require(not blocked, 'Changes after the built commit are outside the provenance allowlist: ' + ', '.join(blocked[:8]))
+
+
 def publication_gate(report, approval, prerelease_k2=False):
     """Explicit state of the build: a signature alone never returns PUBLISHABLE."""
     if approval is None:
@@ -202,7 +226,10 @@ def main():
         require(not report['git']['dirty'], 'Build was produced from uncommitted sources; commit and rebuild first')
         head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip()
         dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT).strip()
-        require(head == report['git']['commit'] and not dirty, 'Checkout differs from the built source revision')
+        if args.prerelease_k2_pending:
+            require_publication_provenance(lambda *git_args: subprocess.run(['git', *git_args], cwd=ROOT, capture_output=True, text=True), report['git']['commit'], head, bool(dirty))
+        else:
+            require(head == report['git']['commit'] and not dirty, 'Checkout differs from the built source revision')
         require(manifest['channel'] != 'stable',
                 'Stable releases are published through build_tools/promote_release.py, from an approved beta')
         repository = read_json(ROOT / 'build_data/release.json')['repository']
