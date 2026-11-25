@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from build_tools.publish_release import PROVENANCE_ALLOWLIST, require_prerelease_exception_channel, require_publication_provenance
-from build_tools.validation_record import (evaluate, k2_prerelease_exception_documented)
+from build_tools.validation_record import (OUT_OF_SCOPE, OUT_OF_SCOPE_REGIONS, evaluate, k2_prerelease_exception_documented)
 
 ROOT = Path(__file__).resolve().parents[2]
 RECORD = ROOT / 'docs/releases/0.1.7-beta.2-validation.md'
@@ -129,6 +129,45 @@ class OwnerWaiverTests(unittest.TestCase):
         from build_tools.validation_record import OWNER_WAIVER, RUNTIME_VERIFIED
         self.assertNotEqual(OWNER_WAIVER, RUNTIME_VERIFIED)
         self.assertNotIn('| NA | RUNTIME VERIFIED |', self.record())
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+class OutOfScopeTests(unittest.TestCase):
+    """OUT OF SCOPE is accepted only for ASIA and CN, and is never verified compatibility."""
+    def record(self):
+        return RECORD.read_text(encoding='utf-8')
+
+    def test_only_asia_and_cn_may_be_out_of_scope(self):
+        self.assertEqual(OUT_OF_SCOPE_REGIONS, frozenset(('ASIA', 'CN')))
+        self.assertEqual(OUT_OF_SCOPE, 'OUT OF SCOPE')
+
+    def test_recorded_asia_and_cn_rows_satisfy_the_distribution_rule(self):
+        problems = problems_of(self.record(), '0.1.7-beta.2', prerelease_k2=True)
+        self.assertNotIn('Each global distribution realm requires runtime or source evidence', problems)
+
+    def test_out_of_scope_for_na_or_eu_is_rejected(self):
+        for region in ('NA', 'EU'):
+            text = self.record()
+            lines = []
+            for line in text.split(chr(10)):
+                if line.startswith('| ' + region + ' | '):
+                    line = '| ' + region + ' | OUT OF SCOPE | - | 2026-11-25 | x | x |'
+                lines.append(line)
+            problems = problems_of(chr(10).join(lines), '0.1.7-beta.2', prerelease_k2=True)
+            self.assertIn('Each global distribution realm requires runtime or source evidence', problems, region)
+
+    def test_out_of_scope_is_not_counted_as_validated(self):
+        # Removing the NA owner waiver must still fail the runtime requirement even with ASIA and CN out of scope.
+        lines = []
+        for line in self.record().split(chr(10)):
+            if line.startswith('| NA | OWNER WAIVER |') or line.startswith('| EU | OWNER WAIVER |'):
+                line = line.split(' | ', 1)[0] + ' | PENDING | - | - | - | - |'
+            lines.append(line)
+        problems = problems_of(chr(10).join(lines), '0.1.7-beta.2', prerelease_k2=True)
+        self.assertIn('At least one runtime-verified production realm is required', problems)
 
 
 if __name__ == '__main__':

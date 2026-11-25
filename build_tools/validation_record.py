@@ -32,6 +32,9 @@ VALIDATED, NOT_VALIDATED = 'VALIDATED', 'NOT VALIDATED'
 RUNTIME_VERIFIED, SOURCE_VERIFIED = 'RUNTIME VERIFIED', 'SOURCE VERIFIED'
 # Owner waiver of a runtime test for one exact candidate and release cycle. It is never RUNTIME VERIFIED.
 OWNER_WAIVER = 'OWNER WAIVER'
+# Owner-approved scope: these regions are outside this release. OUT OF SCOPE is never verified compatibility.
+OUT_OF_SCOPE = 'OUT OF SCOPE'
+OUT_OF_SCOPE_REGIONS = frozenset(('ASIA', 'CN'))
 APPROVED, PENDING, REJECTED = 'APPROVED', 'PENDING', 'REJECTED'
 SEVERITIES = ('BLOCKER', 'MAJOR', 'MINOR')
 ISSUE_STATES = ('OPEN', 'ACCEPTED', 'FIXED')
@@ -242,7 +245,9 @@ def evaluate(text, version, target=None, commit=None, prerelease_k2=False):
     if not validated:
         problems.append('At least one runtime-verified production realm is required' if production
                         else 'No region is marked VALIDATED')
-    if production and set(validated + source_verified) != set(expected_regions):
+    accounted = set(validated + source_verified) | {
+        name for name in expected_regions if regions[name][1] == OUT_OF_SCOPE and name in OUT_OF_SCOPE_REGIONS}
+    if production and accounted != set(expected_regions):
         problems.append('Each global distribution realm requires runtime or source evidence')
     for name in validated + source_verified:
         if production:
