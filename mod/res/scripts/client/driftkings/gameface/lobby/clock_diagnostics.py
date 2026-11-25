@@ -74,7 +74,6 @@ def guarded(function):
         except Exception:
             _report_failure('callback failed')
             return None
-    wrapper.__name__ = getattr(function, '__name__', 'diagnostic')
     return wrapper
 
 
