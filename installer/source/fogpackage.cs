@@ -198,7 +198,19 @@ internal static class FogPackage
         Safe(target); Safe(ready); Safe(Path.Combine(root, "res", "packages"));
         Require(Directory.Exists(Path.GetDirectoryName(target)), "Client mod version directory missing");
         if (File.Exists(target)) Require(Owned(target), "Optional package belongs to another mod");
-        if (!enabled) { NoGame(root); if (File.Exists(target)) File.Delete(target); return; }
+        if (!enabled) {
+            NoGame(root);
+            if (File.Exists(target)) {
+                // Keep a recovery copy outside every mod-loading folder before the verified owned package is removed.
+                string recovery = Path.Combine(root, "mods", "configs", "driftkings", "cache", "fog", "recovery");
+                Directory.CreateDirectory(recovery);
+                string copy = Path.Combine(recovery, "Driftkings.RemoveFog-" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff") + ".wotmod");
+                File.Copy(target, copy, false);
+                Require(File.Exists(copy) && new FileInfo(copy).Length == new FileInfo(target).Length, "Recovery copy incomplete");
+                File.Delete(target);
+            }
+            return;
+        }
         string packages = Path.Combine(root, "res", "packages");
         if (!Current(ready, packages)) {
             if (File.Exists(ready)) File.Delete(ready);
