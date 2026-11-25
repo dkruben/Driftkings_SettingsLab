@@ -36,17 +36,15 @@ class PackagedFontTests(unittest.TestCase):
         self.archive = zipfile.ZipFile(os.environ['DK_TEST_WOTMOD'])
         self.addCleanup(self.archive.close)
 
-    def test_distribution_excludes_temporary_diagnostics_and_ships_only_the_optional_fog_helper(self):
-        # Remove Fog is optional and default OFF: its controller and native helper ship; the package it builds
-        # (Driftkings.RemoveFog.wotmod) is generated at runtime on explicit user choice and never shipped.
+    def test_distribution_excludes_temporary_diagnostics_and_every_remove_fog_part(self):
+        # Remove Fog is excluded from production: no controller, native helper, or generated package.
         names = self.archive.namelist()
         for name in names:
             lower = name.lower()
             self.assertFalse(lower.endswith('/clock_diagnostics.pyc'), name)
             self.assertNotIn('removefog.wotmod', lower)
-        fog = sorted(name for name in names if '/gui/driftkings/fog/' in name.lower())
-        self.assertEqual([name.rsplit('/', 1)[1] for name in fog], ['Driftkings.FogPackage.exe', 'helper.json'])
-        self.assertTrue(any(name.lower().endswith('/core/fog_package.pyc') for name in names))
+            self.assertNotIn('/gui/driftkings/fog/', lower, name)
+            self.assertFalse(lower.endswith('/core/fog_package.pyc'), name)
 
     def test_both_movies_preserve_every_declared_font_name(self):
         source = (ROOT / 'flash_source/shared/as3/driftkings/utils/fontlibrary.as').read_text(encoding='utf-8')

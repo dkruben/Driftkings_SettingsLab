@@ -21,7 +21,6 @@ Changes in this version:
 - Updated battle-marks presentation.
 - A notice when an e-mail address is already saved on another server, and explicit confirmation before Tour Coin purchases.
 - Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.
-- Remove Fog is available again as an optional Settings Panel option, off by default. It is enabled or disabled only by an explicit user choice, which is kept across sessions.
 
 Your personal settings in `mods/configs/driftkings` are kept on upgrade. The in-game updater verifies the signed manifest and package hash before it stages an update.
 
@@ -33,7 +32,7 @@ Supported game version: World of Tanks 2.4.2.0. Runtime coverage is described in
 
 <!-- MAX 1000 characters -->
 
-Close World of Tanks before installing. Run the Setup file or extract the ZIP into the game folder, keeping the `mods/2.4.2.0` structure. Keep your existing `mods/configs/driftkings` directory on upgrade; do not replace it with defaults. No other mod packages are required. Remove Fog is off by default. Enabling it in the Settings Panel installs a separate package after you close the game; disabling it removes that package. An older `Driftkings.RemoveFog.wotmod` is never reinstalled; with the option off, it is removed once after the game closes, with a recovery copy kept in the configuration folder.
+Close World of Tanks before installing. Run the Setup file or extract the ZIP into the game folder, keeping the `mods/2.4.2.0` structure. Keep your existing `mods/configs/driftkings` directory on upgrade; do not replace it with defaults. No other mod packages are required. If an older `Driftkings.RemoveFog.wotmod` is present in `mods/2.4.2.0`, delete it manually: this release does not remove it.
 
 ---
 
@@ -41,7 +40,7 @@ Close World of Tanks before installing. Run the Setup file or extract the ZIP in
 
 <!-- MAX 1000 characters -->
 
-Update of a mod already approved by Wargaming; the moderator corrections were implemented before this submission (owner-confirmed). This is not a first-time review and does not claim a new approval. Standalone migration: OpenWG Gameface and ModsListAPI are removed from the distribution and from the mandatory dependencies; the interface uses native Gameface resources packaged with the mod. Remove Fog is restored as an optional, default-OFF setting that changes only on an explicit user choice. Runtime validation status is listed in the release notes and may still be pending for some regions.
+Update of a mod already approved by Wargaming; the moderator corrections were implemented before this submission (owner-confirmed). This is not a first-time review and does not claim a new approval. Standalone migration: OpenWG Gameface and ModsListAPI are removed from the distribution and from the mandatory dependencies; the interface uses native Gameface resources packaged with the mod. Runtime validation status is listed in the release notes and may still be pending for some regions.
 
 ---
 
@@ -53,7 +52,6 @@ Update of a mod already approved by Wargaming; the moderator corrections were im
 - Updated battle-marks presentation.
 - Added a cross-server saved-email notice and explicit consent for Tour Coin purchases.
 - Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.
-- Remove Fog restored as an optional, default-OFF setting (explicit choice only; legacy values do not enable it).
 - Supported game version: World of Tanks 2.4.2.0.
 
 ---

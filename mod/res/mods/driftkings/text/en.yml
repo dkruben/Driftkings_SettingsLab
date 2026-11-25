@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Prevents moving the in-battle p
 
 # battle_preferences
 battle_preferences.UI_description: "Battle preferences"
-battle_preferences.UI_fog_error: "Could not apply fog removal. Check game.log and try again in Battle preferences."
-battle_preferences.UI_fog_restart_off: "Fog package removal scheduled. Close and reopen the game to restore fog."
-battle_preferences.UI_fog_restart_on: "Fog removal scheduled. Close and reopen the game to apply."
 battle_preferences.UI_setting_addEnemyName_text: "Add Enemy Name"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Adds the player's name next to the vehicle name in the damage log."
 battle_preferences.UI_setting_clipLoad_text: "Send reload status"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Mute Team Base Sound"
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Mutes the base capture sound."
 battle_preferences.UI_setting_postmortemTips_text: "Show Postmortem Tips"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Shows the tips panel at the bottom of the screen after your vehicle is destroyed. Turn it off to hide it."
-battle_preferences.UI_setting_removeFog_text: "Remove fog"
-battle_preferences.UI_setting_removeFog_tooltip: "Builds a separate package from this installation's maps without fog. It is installed or removed after you close the game, so a restart is required. Turning this mod off also removes the package."
 battle_preferences.UI_setting_showBattleHint_text: "Hide battle hints"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Hides the game's battle hints, such as the tips shown at the top of the screen."
 battle_preferences.UI_setting_showFriends_text: "Show Friends"

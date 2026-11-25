@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 
 # battle_preferences
 battle_preferences.UI_description: "戦闘設定"
-battle_preferences.UI_fog_error: "霧の除去を適用できませんでした。game.log を確認し、戦闘設定でもう一度お試しください。"
-battle_preferences.UI_fog_restart_off: "霧パッケージの削除を予約しました。霧を戻すにはゲームを終了して再起動してください。"
-battle_preferences.UI_fog_restart_on: "霧の除去を予約しました。適用するにはゲームを終了して再起動してください。"
 battle_preferences.UI_setting_addEnemyName_text: "敵の名前を追加"
 battle_preferences.UI_setting_addEnemyName_tooltip: "ダメージログで車両名の横にプレイヤー名を追加します。"
 battle_preferences.UI_setting_clipLoad_text: "装填状況を送信"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "チームベースの音�
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "陣地占領の音をミュートします。"
 battle_preferences.UI_setting_postmortemTips_text: "撃破後のヒントを表示"
 battle_preferences.UI_setting_postmortemTips_tooltip: "自分の車両が撃破された後、画面下部にヒントパネルを表示します。オフにすると非表示になります。"
-battle_preferences.UI_setting_removeFog_text: "霧を除去"
-battle_preferences.UI_setting_removeFog_tooltip: "このインストールのマップから霧のない別パッケージを作成します。ゲーム終了後にインストールまたは削除されるため、再起動が必要です。このModを無効にするとパッケージも削除されます。"
 battle_preferences.UI_setting_showBattleHint_text: "戦闘ヒントを非表示"
 battle_preferences.UI_setting_showBattleHint_tooltip: "画面上部に表示されるものなど、ゲームの戦闘ヒントを非表示にします。"
 battle_preferences.UI_setting_showFriends_text: "友達を表示"

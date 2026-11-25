@@ -157,13 +157,9 @@ python build_tools/validate_build_data.py
 
 Keep custom text and macros configurable. Use the native UI scale for Gameface layouts; for the results information line, preserve native font sizing across resolution classes and support the configured spacing and separators.
 
-### Optional Remove Fog
+### Remove Fog (removed from production)
 
-Remove Fog is restored as an **optional, default-OFF** feature. Its approved 0.1.6 behaviour is kept; the default changed from on to off (see the readiness report, section *Remove Fog restoration*).
-
-- Files: `mod/res/scripts/client/driftkings/core/fog_package.py` (controller and scheduler), `installer/source/fogpackage.cs` (native helper, built by `fog_package_helper` in `build_data/build_config.json`), the `removeFog` control in `settings/definitions/battle/battle_preferences.py`, its restart rule in `settings/settings_data.py`, the panel/restart wiring in `gameface/lobby/settings_window.py`, `components/sound_bank_loader.py` (restart confirmation) and the localized texts under `mod/res/mods/driftkings/text/`.
-- Intent: only an explicit user change of the option is recorded, in `mods/configs/driftkings/cache/fog/choice.json`. Profile values from earlier releases are not a choice. Automatic paths never install the package. Startup converges the installed state to the effective choice: with the option OFF and a Driftkings-owned package still in the loading path, the helper removes it once after the game closes, after keeping a recovery copy in `cache/fog/recovery/`. Reloads, profile loads, the master switch, installation and updates add no work. `effective_state()` reports `on`, `on-package-missing`, `off` or `off-package-loaded`, and the panel must agree with it.
-- Tests: `tests/runtime/core/test_fog_paths.py`, `test_fog_choice.py`, `tests/runtime/settings/test_fog_reload_integration.py` and `tests/build/test_optional_fog_contract.py`. Keep them when changing the feature.
+Remove Fog was removed from production in 0.1.7-beta.2 (owner approval, 2026-11-25). Its controller, native helper, setting, texts and packaging are absent. `tests/build/test_remove_fog_absent.py` guards that absence, and the 0.1.7-beta.2 candidate `2cc926...ce6c` is kept as historical evidence only.
 
 ## Adding a component
 

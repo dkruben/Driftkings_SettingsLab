@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Impedisce di spostare il pannel
 
 # battle_preferences
 battle_preferences.UI_description: "Opzioni di battaglia"
-battle_preferences.UI_fog_error: "Impossibile applicare la rimozione della nebbia. Controlla game.log e riprova in Opzioni di battaglia."
-battle_preferences.UI_fog_restart_off: "Rimozione del pacchetto nebbia programmata. Chiudi e riapri il gioco per ripristinare la nebbia."
-battle_preferences.UI_fog_restart_on: "Rimozione della nebbia programmata. Chiudi e riapri il gioco per applicarla."
 battle_preferences.UI_setting_addEnemyName_text: "Aggiungi il nome del nemico"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Aggiunge il nome del giocatore accanto al nome del veicolo nel registro dei danni."
 battle_preferences.UI_setting_clipLoad_text: "Invia stato di ricarica"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Disattiva il suono della 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Silenzia il suono della conquista della base."
 battle_preferences.UI_setting_postmortemTips_text: "Mostra suggerimenti dopo la distruzione"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Mostra il pannello dei suggerimenti in fondo allo schermo dopo la distruzione del tuo veicolo. Disattivalo per nasconderlo."
-battle_preferences.UI_setting_removeFog_text: "Rimuovi nebbia"
-battle_preferences.UI_setting_removeFog_tooltip: "Crea un pacchetto separato senza nebbia a partire dalle mappe di questa installazione. Viene installato o rimosso dopo la chiusura del gioco, quindi serve un riavvio. Disattivare questa mod rimuove anche il pacchetto."
 battle_preferences.UI_setting_showBattleHint_text: "Nascondi suggerimenti di battaglia"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Nasconde i suggerimenti di battaglia del gioco, come quelli mostrati in cima allo schermo."
 battle_preferences.UI_setting_showFriends_text: "Mostra Amici"

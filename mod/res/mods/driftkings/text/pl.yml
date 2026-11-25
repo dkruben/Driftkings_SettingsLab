@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Blokuje przesuwanie panelu bite
 
 # battle_preferences
 battle_preferences.UI_description: "Opcje bitwy"
-battle_preferences.UI_fog_error: "Nie udało się zastosować usuwania mgły. Sprawdź game.log i spróbuj ponownie w sekcji Opcje bitwy."
-battle_preferences.UI_fog_restart_off: "Zaplanowano usunięcie pakietu mgły. Zamknij i ponownie uruchom grę, aby przywrócić mgłę."
-battle_preferences.UI_fog_restart_on: "Zaplanowano usunięcie mgły. Zamknij i ponownie uruchom grę, aby je zastosować."
 battle_preferences.UI_setting_addEnemyName_text: "Dodaj nazwę wroga"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Dodaje nazwę gracza obok nazwy pojazdu w dzienniku obrażeń."
 battle_preferences.UI_setting_clipLoad_text: "Wyślij stan przeładowania"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Wycisz dźwięk bazy zesp
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Wycisza dźwięk przejmowania bazy."
 battle_preferences.UI_setting_postmortemTips_text: "Pokaż wskazówki po zniszczeniu"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Pokazuje panel podpowiedzi u dołu ekranu po zniszczeniu twojego pojazdu. Wyłącz, aby go ukryć."
-battle_preferences.UI_setting_removeFog_text: "Usuń mgłę"
-battle_preferences.UI_setting_removeFog_tooltip: "Tworzy osobną paczkę bez mgły z map tej instalacji. Jest instalowana lub usuwana po zamknięciu gry, dlatego potrzebny jest restart. Wyłączenie tego moda również usuwa paczkę."
 battle_preferences.UI_setting_showBattleHint_text: "Ukryj wskazówki bitewne"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Ukrywa podpowiedzi bitewne gry, na przykład te wyświetlane u góry ekranu."
 battle_preferences.UI_setting_showFriends_text: "Pokaż znajomym"

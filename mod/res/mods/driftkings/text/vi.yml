@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong 
 
 # battle_preferences
 battle_preferences.UI_description: "Tùy chọn chiến đấu"
-battle_preferences.UI_fog_error: "Không thể áp dụng xóa sương mù. Hãy kiểm tra game.log và thử lại trong Tùy chọn chiến đấu."
-battle_preferences.UI_fog_restart_off: "Đã lên lịch gỡ gói sương mù. Hãy đóng và mở lại trò chơi để khôi phục sương mù."
-battle_preferences.UI_fog_restart_on: "Đã lên lịch xóa sương mù. Hãy đóng và mở lại trò chơi để áp dụng."
 battle_preferences.UI_setting_addEnemyName_text: "Thêm tên kẻ thù"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Thêm tên người chơi bên cạnh tên xe trong nhật ký sát thương."
 battle_preferences.UI_setting_clipLoad_text: "Gửi trạng thái nạp đạn"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Tắt âm thanh cơ sở 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Tắt tiếng âm thanh chiếm căn cứ."
 battle_preferences.UI_setting_postmortemTips_text: "Hiển thị mẹo sau khi bị phá hủy"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Hiển thị bảng mẹo ở cuối màn hình sau khi xe của bạn bị phá hủy. Tắt để ẩn bảng."
-battle_preferences.UI_setting_removeFog_text: "Xóa sương mù"
-battle_preferences.UI_setting_removeFog_tooltip: "Tạo một gói riêng không có sương mù từ các bản đồ của bản cài đặt này. Gói được cài hoặc gỡ sau khi bạn đóng trò chơi, vì vậy cần khởi động lại. Tắt mod này cũng gỡ gói."
 battle_preferences.UI_setting_showBattleHint_text: "Ẩn gợi ý chiến đấu"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Ẩn các gợi ý trong trận của trò chơi, như những gợi ý hiện ở đầu màn hình."
 battle_preferences.UI_setting_showFriends_text: "Hiển thị bạn bè"

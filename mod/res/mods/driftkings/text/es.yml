@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Impide mover el panel de batall
 
 # battle_preferences
 battle_preferences.UI_description: "Opciones de batalla"
-battle_preferences.UI_fog_error: "No se pudo aplicar la eliminación de niebla. Revisa game.log e inténtalo de nuevo en Opciones de batalla."
-battle_preferences.UI_fog_restart_off: "Eliminación del paquete de niebla programada. Cierra y vuelve a abrir el juego para restaurar la niebla."
-battle_preferences.UI_fog_restart_on: "Eliminación de niebla programada. Cierra y vuelve a abrir el juego para aplicarla."
 battle_preferences.UI_setting_addEnemyName_text: "Agregar nombre del enemigo"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Añade el nombre del jugador junto al nombre del vehículo en el registro de daño."
 battle_preferences.UI_setting_clipLoad_text: "Enviar estado de recarga"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Silenciar el sonido base 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Silencia el sonido de captura de base."
 battle_preferences.UI_setting_postmortemTips_text: "Mostrar consejos tras la destrucción"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Muestra el panel de consejos en la parte inferior de la pantalla tras la destrucción de tu vehículo. Desactívalo para ocultarlo."
-battle_preferences.UI_setting_removeFog_text: "Eliminar niebla"
-battle_preferences.UI_setting_removeFog_tooltip: "Crea un paquete aparte, sin niebla, a partir de los mapas de esta instalación. Se instala o se elimina al cerrar el juego, por lo que hay que reiniciar. Desactivar este mod también elimina el paquete."
 battle_preferences.UI_setting_showBattleHint_text: "Ocultar consejos de batalla"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Oculta los consejos de batalla del juego, como los que aparecen en la parte superior de la pantalla."
 battle_preferences.UI_setting_showFriends_text: "Mostrar amigos"

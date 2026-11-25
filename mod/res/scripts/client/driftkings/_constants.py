@@ -103,7 +103,6 @@ class BATTLE_PERFORMANCE(object):
 
 class BATTLE_PREFERENCES(object):
     NAME = 'battle_preferences'
-    REMOVE_FOG = 'removeFog'
     CLIP_LOAD = 'clipLoad'
     DIRECTIVES_ONLY_FROM_STORAGE = 'directivesOnlyFromStorage'
     DISABLE_SOUND_COMMANDER = 'disableSoundCommander'

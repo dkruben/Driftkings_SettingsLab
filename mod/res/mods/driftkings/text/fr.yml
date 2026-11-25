@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Empêche de déplacer le pannea
 
 # battle_preferences
 battle_preferences.UI_description: "Options de bataille"
-battle_preferences.UI_fog_error: "Impossible d'appliquer la suppression du brouillard. Consultez game.log et réessayez dans Options de bataille."
-battle_preferences.UI_fog_restart_off: "Suppression du paquet de brouillard programmée. Fermez puis relancez le jeu pour rétablir le brouillard."
-battle_preferences.UI_fog_restart_on: "Suppression du brouillard programmée. Fermez puis relancez le jeu pour l'appliquer."
 battle_preferences.UI_setting_addEnemyName_text: "Ajouter le nom de l'ennemi"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Ajoute le nom du joueur à côté du nom du véhicule dans le journal des dégâts."
 battle_preferences.UI_setting_clipLoad_text: "Envoyer l’état du rechargement"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Couper le son de la base 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Coupe le son de capture de base."
 battle_preferences.UI_setting_postmortemTips_text: "Afficher les conseils après la destruction"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Affiche le panneau de conseils en bas de l'écran après la destruction de votre véhicule. Désactivez l'option pour le masquer."
-battle_preferences.UI_setting_removeFog_text: "Supprimer le brouillard"
-battle_preferences.UI_setting_removeFog_tooltip: "Crée un paquet séparé, sans brouillard, à partir des cartes de cette installation. Il est installé ou supprimé après la fermeture du jeu, un redémarrage est donc nécessaire. Désactiver ce mod supprime aussi le paquet."
 battle_preferences.UI_setting_showBattleHint_text: "Masquer les conseils de bataille"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Masque les conseils de bataille du jeu, comme ceux affichés en haut de l'écran."
 battle_preferences.UI_setting_showFriends_text: "Afficher les amis"

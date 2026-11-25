@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "阻止用鼠标移动战斗面�
 
 # battle_preferences
 battle_preferences.UI_description: "战斗设置"
-battle_preferences.UI_fog_error: "无法应用去雾。请检查 game.log，然后在战斗设置中重试。"
-battle_preferences.UI_fog_restart_off: "已计划移除雾效包。请关闭并重新打开游戏以恢复雾效。"
-battle_preferences.UI_fog_restart_on: "已计划去雾。请关闭并重新打开游戏以生效。"
 battle_preferences.UI_setting_addEnemyName_text: "添加敌人名称"
 battle_preferences.UI_setting_addEnemyName_tooltip: "在伤害记录中的车辆名称旁添加玩家名称。"
 battle_preferences.UI_setting_clipLoad_text: "发送装填状态"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "静音团队基地声音"
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "静音基地占领的声音。"
 battle_preferences.UI_setting_postmortemTips_text: "显示阵亡后的提示"
 battle_preferences.UI_setting_postmortemTips_tooltip: "你的车辆被击毁后，在屏幕底部显示提示面板。关闭即可隐藏。"
-battle_preferences.UI_setting_removeFog_text: "去除雾效"
-battle_preferences.UI_setting_removeFog_tooltip: "用此安装的地图生成一个无雾的独立包。它会在关闭游戏后安装或移除，因此需要重启。关闭此模组也会移除该包。"
 battle_preferences.UI_setting_showBattleHint_text: "隐藏战斗提示"
 battle_preferences.UI_setting_showBattleHint_tooltip: "隐藏游戏的战斗提示，例如显示在屏幕顶部的提示。"
 battle_preferences.UI_setting_showFriends_text: "显示好友"

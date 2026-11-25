@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "전투 패널을 마우스로 �
 
 # battle_preferences
 battle_preferences.UI_description: "전투 설정"
-battle_preferences.UI_fog_error: "안개 제거를 적용하지 못했습니다. game.log를 확인한 후 전투 설정에서 다시 시도하세요."
-battle_preferences.UI_fog_restart_off: "안개 패키지 제거가 예약되었습니다. 안개를 복원하려면 게임을 종료한 후 다시 실행하세요."
-battle_preferences.UI_fog_restart_on: "안개 제거가 예약되었습니다. 적용하려면 게임을 종료한 후 다시 실행하세요."
 battle_preferences.UI_setting_addEnemyName_text: "적 이름 추가"
 battle_preferences.UI_setting_addEnemyName_tooltip: "피해 기록에서 차량 이름 옆에 플레이어 이름을 추가합니다."
 battle_preferences.UI_setting_clipLoad_text: "재장전 상태 전송"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "팀 베이스 사운드 �
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "기지 점령 소리를 음소거합니다."
 battle_preferences.UI_setting_postmortemTips_text: "격파 후 팁 표시"
 battle_preferences.UI_setting_postmortemTips_tooltip: "차량이 격파된 뒤 화면 하단에 팁 패널을 표시합니다. 끄면 숨겨집니다."
-battle_preferences.UI_setting_removeFog_text: "안개 제거"
-battle_preferences.UI_setting_removeFog_tooltip: "이 설치본의 맵으로 안개 없는 별도 패키지를 만듭니다. 게임을 종료한 뒤 설치되거나 제거되므로 재시작이 필요합니다. 이 모드를 끄면 패키지도 제거됩니다."
 battle_preferences.UI_setting_showBattleHint_text: "전투 도움말 숨기기"
 battle_preferences.UI_setting_showBattleHint_tooltip: "화면 상단에 나타나는 힌트 등 게임의 전투 힌트를 숨깁니다."
 battle_preferences.UI_setting_showFriends_text: "친구 표시"

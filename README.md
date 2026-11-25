@@ -148,17 +148,6 @@ Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX incl
 
 The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c:wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
 
-### Remove Fog (optional, off by default)
-
-**Remove Fog** is an optional setting in the Settings Panel, under battle preferences. It is **off by default**. It builds a separate `Driftkings.RemoveFog.wotmod` from this installation's maps without fog, and it is installed or removed after the game is closed, so a restart is required. Turning the option off removes that package. The main `driftkings.wotmod` is never changed by this option.
-
-- Only an explicit change of the option in the Settings Panel enables or disables it. The choice is stored in `mods/configs/driftkings/cache/fog/choice.json` and persists across sessions.
-- A preference value left in an older profile is not treated as a choice. It never enables the option or reinstalls the package.
-- A `Driftkings.RemoveFog.wotmod` installed by an older release is never reinstalled. While the option is off, startup removes that package once, after the game closes; the game shows a restart notice. Before removal the helper keeps a recovery copy in `mods/configs/driftkings/cache/fog/recovery/`. Packages whose identity is not `driftkings.removefog` are never touched.
-- The package is identified only by its Driftkings identity (`driftkings.removefog`). Other mods and their resources are not touched.
-
-The feature's behaviour matches the approved 0.1.6 description, except that the default is now off (see the release notes).
-
 ### Optional anonymous statistics
 
 Anonymous usage statistics are **off by default**. You can enable them in settings. When enabled, the mod sends a random installation ID, mod/game versions, region, activity heartbeats and error-location metadata to Google Analytics. It does not send player names, account details, error messages or full filesystem paths. Disabling the option stops sending and deletes the installation ID. Replays are not counted.

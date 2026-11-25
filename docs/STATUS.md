@@ -1,5 +1,17 @@
 # Estado do projeto e da documentação
 
+## Estado operacional — 2026-11-25 (Fase 5H: bloqueantes finais; Remove Fog removido; candidata rc1; sem publicação)
+
+- **Remove Fog removido da produção** (aprovação do proprietário): sem controlador, helper nativo, configuração, textos, pacote nem entrada de changelog. Guarda: `tests/build/test_remove_fog_absent.py`. Um `Driftkings.RemoveFog.wotmod` de versões antigas não é removido automaticamente; o rascunho público pede remoção manual.
+- **Candidata rc1:** `driftkings.wotmod` `27e68def2e54897d2652e5ae17a2d0f3405888c0afd61c1a7fb5bcaa178f4f4a` (13 982 521 bytes), compilada em worktree isolado a partir de `6ac1d7e7` com alterações não commitadas (`dirty: true`), epoch do commit `1795585171`. Setup local `6dd29ef4…874f`. Artefactos e relatório em `_validationelease-candidate-rc1-20261125`. A candidata `2cc926…ce6c` mantém-se como evidência histórica; a waiver de runtime do NA não se transfere para a rc1.
+- **K1 fechado (âmbito aprovado):** o `Driftkings.UpdateInstaller.exe` distribuído foi executado em pastas descartáveis com um processo pai substituto: 8/8 cenários passam (sucesso, transação interrompida com recuperação, nova tentativa, pacote corrompido, ficheiro que não é pacote, cancelamento, ticket alterado, instalado alterado).
+- **K2 adiado:** assinatura de produção só após a candidata definitiva. Evidência de chave temporária preservada. A chave privada de produção não foi acedida.
+- **K3 pendente:** requisitos e ativação do Windows Sandbox descritos para o proprietário (`K3-OWNER-ENVIRONMENT-SETUP.md`); nada foi ativado nem elevado; Setup não executado.
+- **K7 aceitação condicional:** os oito SWC CT rastreados são preservados e continuam excluídos de todos os artefactos de distribuição; guarda `tests/build/test_ct_binaries_excluded.py`.
+- **D6b aplicado:** nome completo do responsável substituído pelo papel nos dois registos de 0.1.6-beta.1 (working tree, sem reescrita do histórico do Git).
+- **Testes (2026-11-25):** build 390 OK (2 saltos); runtime 787 OK; frontend 30 suites, exit 0.
+- **Publicação:** NO-GO. Nada commitado, etiquetado, assinado ou publicado. A candidata final deve ser gerada a partir do commit final.
+
 ## Estado operacional — 2026-11-25 (Fase 5G: perfil de produção partilhado NA/EU; candidata pronta para aprovação final)
 
 - **Candidata de referência:** `driftkings.wotmod` `2cc926821b343ab4aaf5033b830805762c8f3aabff1e21ac3b76864169c2ce6c` (14 039 188 bytes), igual à Clean Release Build (K4b). O ZIP, `Driftkings-defaults.zip`, `modpack.json`, `release.json`, `build-report.json` e `SHA256SUMS.txt` coincidem com as hashes registadas. A candidata `641d…0ccc` continua a ser a reprodução histórica (K4a); a cópia em `build/releases` deste repositório é essa candidata histórica e não foi alterada.

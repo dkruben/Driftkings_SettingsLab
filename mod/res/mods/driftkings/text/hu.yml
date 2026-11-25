@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Megakadályozza a csatapanel eg
 
 # battle_preferences
 battle_preferences.UI_description: "Csatabeállítások"
-battle_preferences.UI_fog_error: "A köd eltávolítását nem sikerült alkalmazni. Nézd meg a game.log fájlt, és próbáld újra itt: Csatabeállítások."
-battle_preferences.UI_fog_restart_off: "A ködcsomag eltávolítása ütemezve. Zárd be, majd indítsd újra a játékot a köd visszaállításához."
-battle_preferences.UI_fog_restart_on: "A köd eltávolítása ütemezve. Zárd be, majd indítsd újra a játékot az alkalmazáshoz."
 battle_preferences.UI_setting_addEnemyName_text: "Add hozzá az ellenség nevét"
 battle_preferences.UI_setting_addEnemyName_tooltip: "A sebzésnaplóban a jármű neve mellé kiírja a játékos nevét."
 battle_preferences.UI_setting_clipLoad_text: "Töltési állapot küldése"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Csapatbázis hang némít
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Elnémítja a bázisfoglalás hangját."
 battle_preferences.UI_setting_postmortemTips_text: "Tippek megjelenítése megsemmisülés után"
 battle_preferences.UI_setting_postmortemTips_tooltip: "A járműved megsemmisülése után megjeleníti a tippek panelt a képernyő alján. Kapcsold ki az elrejtéséhez."
-battle_preferences.UI_setting_removeFog_text: "Köd eltávolítása"
-battle_preferences.UI_setting_removeFog_tooltip: "A telepítés térképeiből külön, köd nélküli csomagot készít. A játék bezárása után települ vagy törlődik, ezért újraindítás szükséges. A mod kikapcsolása a csomagot is eltávolítja."
 battle_preferences.UI_setting_showBattleHint_text: "Csatatippek elrejtése"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Elrejti a játék csatatippjeit, például a képernyő tetején megjelenőket."
 battle_preferences.UI_setting_showFriends_text: "Mutasd a barátokat"

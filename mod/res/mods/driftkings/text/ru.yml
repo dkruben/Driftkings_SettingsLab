@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Запрещает переме
 
 # battle_preferences
 battle_preferences.UI_description: "Настройки боя"
-battle_preferences.UI_fog_error: "Не удалось применить удаление тумана. Проверьте game.log и повторите попытку в разделе «Настройки боя»."
-battle_preferences.UI_fog_restart_off: "Удаление пакета тумана запланировано. Закройте и снова запустите игру, чтобы вернуть туман."
-battle_preferences.UI_fog_restart_on: "Удаление тумана запланировано. Закройте и снова запустите игру, чтобы применить изменения."
 battle_preferences.UI_setting_addEnemyName_text: "Добавить имя врага"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Добавляет имя игрока рядом с названием машины в журнале урона."
 battle_preferences.UI_setting_clipLoad_text: "Отправлять состояние перезарядки"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Отключить зву
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Отключает звук захвата базы."
 battle_preferences.UI_setting_postmortemTips_text: "Показывать советы после уничтожения"
 battle_preferences.UI_setting_postmortemTips_tooltip: "После уничтожения вашей машины показывает панель подсказок внизу экрана. Отключите, чтобы скрыть её."
-battle_preferences.UI_setting_removeFog_text: "Убрать туман"
-battle_preferences.UI_setting_removeFog_tooltip: "Создаёт из карт этой установки отдельный пакет без тумана. Он устанавливается или удаляется после закрытия игры, поэтому нужен перезапуск. Отключение этого мода также удаляет пакет."
 battle_preferences.UI_setting_showBattleHint_text: "Скрыть боевые подсказки"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Скрывает боевые подсказки игры, например подсказки вверху экрана."
 battle_preferences.UI_setting_showFriends_text: "Показать друзей"

@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Impede mover o painel de batalh
 
 # battle_preferences
 battle_preferences.UI_description: "Opções de batalha"
-battle_preferences.UI_fog_error: "Não foi possível aplicar o removedor de nevoeiro. Consulte o game.log e tente novamente nas Opções de batalha."
-battle_preferences.UI_fog_restart_off: "Remoção do pacote de nevoeiro agendada. Feche e volte a abrir o jogo para restaurar o nevoeiro."
-battle_preferences.UI_fog_restart_on: "Removedor de nevoeiro agendado. Feche e volte a abrir o jogo para aplicar."
 battle_preferences.UI_setting_addEnemyName_text: "Adicionar nome do inimigo"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Acrescenta o nome do jogador ao lado do nome do veículo no registo de dano."
 battle_preferences.UI_setting_clipLoad_text: "Enviar estado da recarga"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Silenciar som da base da 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Silencia o som de captura de base."
 battle_preferences.UI_setting_postmortemTips_text: "Mostrar dicas após a destruição"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Mostra o painel de dicas na parte inferior do ecrã depois de o seu veículo ser destruído. Desligue para o ocultar."
-battle_preferences.UI_setting_removeFog_text: "Remover nevoeiro"
-battle_preferences.UI_setting_removeFog_tooltip: "Cria um pacote separado, sem nevoeiro, a partir dos mapas desta instalação. É instalado ou removido depois de fechar o jogo, por isso é preciso reiniciar. Desligar este mod também remove o pacote."
 battle_preferences.UI_setting_showBattleHint_text: "Ocultar dicas da batalha"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Oculta as dicas de batalha do jogo, como as que aparecem no topo do ecrã."
 battle_preferences.UI_setting_showFriends_text: "Mostrar amigos"

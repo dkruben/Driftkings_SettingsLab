@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Savaş panelinin fareyle taşı
 
 # battle_preferences
 battle_preferences.UI_description: "Savaş seçenekleri"
-battle_preferences.UI_fog_error: "Sis kaldırma uygulanamadı. game.log dosyasını kontrol edip Savaş seçenekleri bölümünde yeniden deneyin."
-battle_preferences.UI_fog_restart_off: "Sis paketinin kaldırılması planlandı. Sisi geri getirmek için oyunu kapatıp yeniden açın."
-battle_preferences.UI_fog_restart_on: "Sis kaldırma planlandı. Uygulamak için oyunu kapatıp yeniden açın."
 battle_preferences.UI_setting_addEnemyName_text: "Düşman Adını Ekle"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Hasar günlüğünde araç adının yanına oyuncunun adını ekler."
 battle_preferences.UI_setting_clipLoad_text: "Yükleme durumunu gönder"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Takım Üssü Sesini Kapa
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Üs ele geçirme sesini kapatır."
 battle_preferences.UI_setting_postmortemTips_text: "İmha sonrası ipuçlarını göster"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Aracınız yok edildikten sonra ekranın altındaki ipuçları panelini gösterir. Gizlemek için kapatın."
-battle_preferences.UI_setting_removeFog_text: "Sisi kaldır"
-battle_preferences.UI_setting_removeFog_tooltip: "Bu kurulumun haritalarından sissiz ayrı bir paket oluşturur. Oyunu kapattıktan sonra kurulur veya kaldırılır, bu yüzden yeniden başlatma gerekir. Bu modu kapatmak paketi de kaldırır."
 battle_preferences.UI_setting_showBattleHint_text: "Savaş ipuçlarını gizle"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Oyunun savaş ipuçlarını gizler, örneğin ekranın üstünde görünenleri."
 battle_preferences.UI_setting_showFriends_text: "Arkadaşları Göster"

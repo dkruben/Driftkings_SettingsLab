@@ -166,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Zabraňuje přesouvání bitevn
 
 # battle_preferences
 battle_preferences.UI_description: "Možnosti bitvy"
-battle_preferences.UI_fog_error: "Odstranění mlhy se nepodařilo použít. Zkontrolujte game.log a zkuste to znovu v sekci Možnosti bitvy."
-battle_preferences.UI_fog_restart_off: "Odebrání balíčku mlhy je naplánováno. Zavřete a znovu spusťte hru, aby se mlha obnovila."
-battle_preferences.UI_fog_restart_on: "Odstranění mlhy je naplánováno. Zavřete a znovu spusťte hru, aby se změna projevila."
 battle_preferences.UI_setting_addEnemyName_text: "Přidat jméno nepřítele"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Přidá do záznamu poškození jméno hráče vedle názvu vozidla."
 battle_preferences.UI_setting_clipLoad_text: "Odeslat stav nabíjení"
@@ -190,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Ztlumit týmový základn
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Ztlumí zvuk obsazování základny."
 battle_preferences.UI_setting_postmortemTips_text: "Zobrazit tipy po zničení"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Po zničení vašeho vozidla zobrazí panel tipů u spodního okraje obrazovky. Vypněte, chcete-li jej skrýt."
-battle_preferences.UI_setting_removeFog_text: "Odstranit mlhu"
-battle_preferences.UI_setting_removeFog_tooltip: "Vytvoří z map této instalace samostatný balíček bez mlhy. Instaluje se nebo odstraní po zavření hry, proto je nutný restart. Vypnutí tohoto módu balíček také odstraní."
 battle_preferences.UI_setting_showBattleHint_text: "Skrýt bitevní tipy"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Skryje bitevní tipy hry, například ty v horní části obrazovky."
 battle_preferences.UI_setting_showFriends_text: "Zobrazit přátele"

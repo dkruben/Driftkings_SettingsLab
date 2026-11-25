@@ -305,12 +305,6 @@ class SettingsController(object):
                 updater.revoke_restart()
                 logger.exception('Could not close WoT for coordinated update')
                 return False
-        from driftkings.core.fog_package import coordinated_restart
-        coordinated = coordinated_restart()
-        if coordinated is not None:
-            if coordinated:
-                self.close()
-            return coordinated
         self.close()
         BigWorld.savePreferences()
         import WGC
