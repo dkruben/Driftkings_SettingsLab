@@ -8,6 +8,11 @@
 - **Correções de build (G1):** B1 (descoberta de toolchain em raízes pouco profundas) e B2 (espaço de trabalho de marcadores acima do limite do Windows), com testes; `--expect-realm` e validação do snapshot de referência.
 - **K8 (G3):** changelog corrigido em `build_data/release.json` e no rascunho WGMods; versão `0.1.7-beta.2`. Entra num artefacto só no Clean Release Build.
 - **Procedimentos:** o modo release não aceita `--isolated-output`; o isolamento vem de um worktree separado (plano §24.7).
+- **Construção limpa (Clean Release Build, plano §24.9):** duas construções independentes a partir do mesmo commit `4795ba4579ef9fde18da643e13741fc8662023a4`, em worktrees separados, com epoch do commit `1795579096`, `git.dirty` falso e árvore limpa. WOTMOD `2cc926821b343ab4aaf5033b830805762c8f3aabff1e21ac3b76864169c2ce6c` (14 039 188 bytes), idêntico nas duas construções; 644 entradas idênticas; ZIP e metadados de distribuição idênticos.
+- **K4b demonstrado** para este commit, toolchain e epoch. A candidata congelada `641d…0ccc` mantém-se como reprodução histórica (K4a).
+- **Comparação com a candidata congelada:** 447 entradas diferentes, todas explicadas: 308 cabeçalhos `.pyc` (epoch), 2 SWF (apenas a data de compilação, 5 bytes descompactados), 137 ativos de texto (só fins de linha). Zero diferenças funcionais ou não explicadas.
+- **K8 fechado para o artefacto limpo** (changelog corrigido). A candidata congelada mantém os metadados originais.
+- **Lista de verificação manual** para o novo artefacto no plano §24.11. Nada foi instalado nem executado no jogo.
 - **Publicação:** NO-GO. Nada foi publicado, assinado, etiquetado ou enviado.
 
 ## Estado operacional — 2026-11-25 (Fase 5E: aquisição de entradas de build, CT, CI e changelog; sem commit, sem rebuild)
