@@ -89,3 +89,83 @@ class RecordAndCiTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+import hashlib
+import json
+import tempfile
+from pathlib import Path
+
+
+def _sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+class OfficialAttestationTests(unittest.TestCase):
+    """The official stable build evidence binds the signed folder; promote_release.py build is never claimed."""
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        self.folder = self.root / 'signed'
+        self.folder.mkdir()
+        self.release = dict(version='0.1.7', channel='stable', gameVersion='2.4.2.0')
+        self.files = {
+            'driftkings.wotmod': b'wotmod-bytes', 'Driftkings-0.1.7-WoT-2.4.2.0.zip': b'zip-bytes',
+            'Driftkings-defaults.zip': b'defaults', 'modpack.json': b'modpack', 'release.json': json.dumps(self.release).encode(),
+        }
+        for name, data in self.files.items():
+            (self.folder / name).write_bytes(data)
+        (self.folder / 'build-report.json').write_bytes(b'scrubbed report')
+        (self.folder / 'SHA256SUMS.txt').write_bytes(b'signed list')
+        (self.folder / 'release.json.sig').write_bytes(b'sig')
+        self.summary_dir = self.root / 'official'
+        self.summary_dir.mkdir()
+        self.summary = dict(build_rc=0, installer_rc=0, artifacts_suite_rc=0, git=dict(commit=STABLE, dirty=False),
+                            artifacts={name: dict(size=len(data), sha256=_sha(data)) for name, data in self.files.items()})
+        self.summary['artifacts']['build-report.json'] = dict(size=1, sha256='0' * 64)  # rewritten by signing: excluded
+        self.write_summary()
+        (self.summary_dir / 'installer-and-artifacts.log').write_text('Ran 7 tests\n\nOK (skipped=2)\n', encoding='utf-8')
+
+    def write_summary(self):
+        (self.summary_dir / 'summary.json').write_text(json.dumps(self.summary), encoding='utf-8')
+
+    def attest(self):
+        return promote.attest_official(self.folder, self.summary_dir / 'summary.json', '0.1.7-beta.2', STABLE)
+
+    def test_official_build_attests_the_signed_folder_and_is_accepted_as_build_evidence(self):
+        data = self.attest()
+        self.assertEqual(data['source'], 'official-stable-build')
+        self.assertIn('promote_release.py build was not run', data['note'])
+        promote.require_build_stamp(self.folder, STABLE)
+
+    def test_tampered_artifact_after_attestation_is_refused(self):
+        self.attest()
+        (self.folder / 'driftkings.wotmod').write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError, 'does not match|differs'):
+            promote.require_build_stamp(self.folder, STABLE)
+
+    def test_failed_official_suite_is_never_attested(self):
+        self.summary['artifacts_suite_rc'] = 1
+        self.write_summary()
+        with self.assertRaisesRegex(ValueError, 'exit code 0'):
+            self.attest()
+
+    def test_attestation_is_bound_to_the_original_artifact_commit(self):
+        self.summary['git']['commit'] = 'f' * 40
+        self.write_summary()
+        with self.assertRaisesRegex(ValueError, 'original clean artifact commit'):
+            self.attest()
+
+    def test_missing_build_evidence_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'did not come from'):
+            promote.require_build_stamp(self.folder, STABLE)
+
+    def test_attestation_from_another_source_or_commit_is_refused(self):
+        self.attest()
+        path = self.folder / promote.ATTESTATION
+        data = json.loads(path.read_text(encoding='utf-8'))
+        data['commit'] = 'a' * 40
+        path.write_text(json.dumps(data), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'does not match the folder: commit'):
+            promote.require_build_stamp(self.folder, STABLE)
