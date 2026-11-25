@@ -1,5 +1,15 @@
 # Estado do projeto e da documentação
 
+## Estado operacional — 2026-11-25 (Fase 5F: correções de build, política canónica de fins de linha, changelog K8 e reprodução histórica; sem publicação)
+
+- **Reprodução histórica demonstrada:** a candidata `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` foi reproduzida byte a byte a partir dos inputs históricos (epoch `1794965041`; 644 entradas idênticas). Relatório em `_validationeproduction-20261125\REPRODUCTION-REPORT.md`.
+- **K4 distinguido:** K4a (reprodução histórica) demonstrada; K4b (reprodutibilidade em checkout limpo) ainda não demonstrada.
+- **Política canónica de fins de linha (G2):** LF para todas as fontes textuais de produção, exceção CRLF só para `*.cmd`, binários marcados como `binary`. Nenhum blob renormalizado. Teste: `tests/build/test_input_policy.py`.
+- **Correções de build (G1):** B1 (descoberta de toolchain em raízes pouco profundas) e B2 (espaço de trabalho de marcadores acima do limite do Windows), com testes; `--expect-realm` e validação do snapshot de referência.
+- **K8 (G3):** changelog corrigido em `build_data/release.json` e no rascunho WGMods; versão `0.1.7-beta.2`. Entra num artefacto só no Clean Release Build.
+- **Procedimentos:** o modo release não aceita `--isolated-output`; o isolamento vem de um worktree separado (plano §24.7).
+- **Publicação:** NO-GO. Nada foi publicado, assinado, etiquetado ou enviado.
+
 ## Estado operacional — 2026-11-25 (Fase 5E: aquisição de entradas de build, CT, CI e changelog; sem commit, sem rebuild)
 
 - **Candidata congelada:** `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb`, verificada antes e depois de todos os testes. Não regenerada.
