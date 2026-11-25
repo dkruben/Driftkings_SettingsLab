@@ -7,6 +7,16 @@ from pathlib import Path
 import unittest
 import zipfile
 from build_tools.generate_ui_catalog import asset_target, read_catalog
+TEXT_SUFFIXES = ('.js', '.css', '.json', '.html', '.svg', '.xml', '.py', '.md', '.yml', '.as')
+
+
+def assert_same_source(testcase, packaged, source, name):
+    """Packaged text equals its source modulo line endings: canonical sources are LF (.gitattributes), while an
+    older CRLF working copy holds the same text. Binary assets must match byte for byte."""
+    if name.endswith(TEXT_SUFFIXES):
+        packaged, source = packaged.replace(b'\r\n', b'\n'), source.replace(b'\r\n', b'\n')
+    testcase.assertEqual(packaged, source, name)
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -45,7 +55,7 @@ class NativeCarouselPackageTests(unittest.TestCase):
             spec = face['DriftkingsCarouselStats']
             for url in [spec['plugin'], spec['layout']] + spec['scripts'] + spec['styles'] + ['coui://gui/gameface/mods/driftkings/shared/fonts.css']:
                 target = asset_target(url)
-                self.assertEqual(current.read(target), (ROOT / 'mod' / target).read_bytes(), target)
+                assert_same_source(self, current.read(target), (ROOT / 'mod' / target).read_bytes(), target)
             for name in old.namelist():
                 if any(token in name for token in ('/main/clock', '/hangar_marks_of_excellence/', '/mono/driftkings/hangar_marks/',
                     '/crew_progression/', '/crew_details/', '/launcher/', '/maps/driftkings/carroucel/')) or name in (

@@ -5,6 +5,16 @@ import unittest
 import zipfile
 
 from build_tools.generate_ui_catalog import asset_target, read_catalog
+TEXT_SUFFIXES = ('.js', '.css', '.json', '.html', '.svg', '.xml', '.py', '.md', '.yml', '.as')
+
+
+def assert_same_source(testcase, packaged, source, name):
+    """Packaged text equals its source modulo line endings: canonical sources are LF (.gitattributes), while an
+    older CRLF working copy holds the same text. Binary assets must match byte for byte."""
+    if name.endswith(TEXT_SUFFIXES):
+        packaged, source = packaged.replace(b'\r\n', b'\n'), source.replace(b'\r\n', b'\n')
+    testcase.assertEqual(packaged, source, name)
+
 
 ROOT = Path(__file__).resolve().parents[2]
 REFERENCE = ROOT / 'build/reference/fase3c-09b70a3b4a48194514393fa1f7cae1b7281a42434d1cbae9b78ce064cf4c9bec.wotmod'
@@ -21,7 +31,7 @@ class NativeCrewPackageTests(unittest.TestCase):
             self.assertEqual(spec['transport'], 'native_user_missions')
             for url in [spec['plugin'], spec['layout']] + spec['scripts']:
                 target = asset_target(url)
-                self.assertEqual(current.read(target), (ROOT / 'mod' / target).read_bytes())
+                assert_same_source(self, current.read(target), (ROOT / 'mod' / target).read_bytes(), target)
             for target in before.namelist():
                 if any(token in target for token in ('/main/clock', '/hangar_marks_of_excellence/',
                         '/mono/driftkings/hangar_marks/', '/crew_details/')) or target in (
