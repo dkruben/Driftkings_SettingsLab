@@ -15,12 +15,12 @@ Driftkings SettingsLab adds configurable interface options to World of Tanks: ha
 Version 0.1.7 is a standalone release. Its interface is built on native Gameface integrations inside Driftkings. The distribution no longer requires, and no longer ships, the external OpenWG Gameface and ModsListAPI packages. Existing third-party mods that use those libraries are not removed and keep working.
 
 Changes in this version:
-- Hangar footer launcher, with updated launcher and account icons.
+- Added a hangar footer launcher, with updated launcher and account icons.
 - Native Gameface integration for the hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency.
 - Battle HUD cards share one owned window per battle HUD.
-- Health frames above the native consumables panel, and updated battle-marks presentation.
+- Updated battle-marks presentation.
 - A notice when an e-mail address is already saved on another server, and explicit confirmation before Tour Coin purchases.
-- Updated minimap enhancements and launcher hover behaviour.
+- Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.
 - Remove Fog is available again as an optional Settings Panel option, off by default. It is enabled or disabled only by an explicit user choice, which is kept across sessions.
 
 Your personal settings in `mods/configs/driftkings` are kept on upgrade. The in-game updater verifies the signed manifest and package hash before it stages an update.
@@ -48,11 +48,11 @@ Update of a mod already approved by Wargaming; the moderator corrections were im
 ## 4. English changelog (0.1.6 to 0.1.7)
 
 - Standalone: no mandatory OpenWG Gameface or ModsListAPI package; native Gameface integrations for the hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency.
-- Hangar footer launcher, with updated launcher and account icons.
-- Battle HUD cards share one owned window per HUD; health frames above the consumables panel.
+- Added a hangar footer launcher, with updated launcher and account icons.
+- Battle HUD cards share one owned window per HUD.
 - Updated battle-marks presentation.
-- Cross-server saved-email notice and explicit consent for Tour Coin purchases.
-- Updated minimap enhancements and launcher hover behaviour.
+- Added a cross-server saved-email notice and explicit consent for Tour Coin purchases.
+- Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.
 - Remove Fog restored as an optional, default-OFF setting (explicit choice only; legacy values do not enable it).
 - Supported game version: World of Tanks 2.4.2.0.
 

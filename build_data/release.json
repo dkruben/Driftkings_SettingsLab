@@ -9,11 +9,11 @@
   "author": "driftkings",
   "changelog": [
     "Development candidate 0.1.7-beta.2 for World of Tanks 2.4.2.0. Production validation is in progress.",
-    "Added a hangar footer launcher and updated Settings Panel and account management artwork.",
+    "Added a hangar footer launcher, with updated launcher and account icons.",
     "Integrated native Gameface for hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency. Several battle HUD components share a native window.",
-    "Added optional health frames above the native consumables panel and updated marker, gun traverse and battle marks presentation.",
+    "Updated battle marks presentation.",
     "Added a cross-server saved-email notice and explicit consent for Tour Coin purchases.",
-    "Updated minimap mode restrictions and launcher hover behaviour.",
+    "Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.",
     "Remove Fog is available again as an optional Settings Panel option. It is OFF by default, is enabled or disabled only by an explicit user choice, and that choice is kept across sessions. Legacy removeFog values from earlier profiles are not treated as a choice and never enable it. The package is installed or removed after the game is closed; the main driftkings.wotmod is not changed by this option."
   ]
 }
