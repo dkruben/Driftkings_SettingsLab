@@ -121,3 +121,6 @@ htmlcov/
 # The battle movie is generated from flash_source; do not restore an old binary here.
 /mod/res/gui/flash/driftkingsbattle.swf
 /mod/res/gui/flash/driftkingspanels.swf
+
+# Flash libraries extracted from the installed NA client: rights not verified, never commit (see build_tools/acquire_flash_inputs.py)
+flash_source/shared/swc/na999-*.swc
