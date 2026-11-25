@@ -556,7 +556,7 @@ class PublishCommandTests(StableBuildCase):
 
     def publish(self, confirm='token', waive=False):
         confirm = self.token() if confirm == 'token' else confirm
-        arguments = types.SimpleNamespace(beta=BETA, confirm=confirm, waive_environment_review=waive)
+        arguments = types.SimpleNamespace(beta=BETA, confirm=confirm, waive_environment_review=waive, commit=None)
         promotion.run_publish(self.context, arguments)
 
     def provenance(self):
