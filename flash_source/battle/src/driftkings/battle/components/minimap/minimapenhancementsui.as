@@ -1,7 +1,7 @@
 package driftkings.battle.components.minimap
 {
     import driftkings.utils.colorutils;
-    import driftkings.battle.base.battledisplayable;
+    import driftkings.battle.base.BattleDisplayable;
     import flash.display.DisplayObject;
     import flash.display.DisplayObjectContainer;
     import flash.events.TimerEvent;
@@ -18,7 +18,7 @@ package driftkings.battle.components.minimap
      * Minimap coordinator: receives Python data, walks the native entries every
      * 250 ms and hands each one to the part that styles it.
      */
-    public class minimapenhancementsui extends battledisplayable
+    public class minimapenhancementsui extends BattleDisplayable
     {
         private var minimap:BaseMinimap;
         private var options:Object;

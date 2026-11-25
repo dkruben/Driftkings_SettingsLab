@@ -71,16 +71,21 @@ class RatingViews(object):
                 owner.refresh()
                 LOG.info('Roster v2 Flash ready')
             def reportState(self,state):
+                if owner.view is not self: return
                 LOG.info('Roster v2: %s',state)
             def hoverPanel(self,expanded):
+                if owner.view is not self: return
                 owner.hover(expanded)
             def reportWidths(self,left,right):
+                if owner.view is not self: return
                 owner.model.widths=(left,right)
             def reportScreens(self,panel,loading,tab):
+                if owner.view is not self: return
                 owner.visibleScreens=set(name for name,
                                          visible in (('panel',panel),('loading',loading),('tab',tab)) if visible)
                 owner.refresh()
             def reportPerformance(self,message):
+                if owner.view is not self: return
                 if settings_service.getComponentDict(owner.config)[TEAM_PANELS.PERFORMANCE].get('diagnostics',False): LOG.info('Performance Flash: %s',message)
             def _dispose(self):
                 if owner.view is self: owner.view=None
@@ -197,14 +202,6 @@ class RatingViews(object):
     def tabKind(self):
         adapter=self.modeAdapter()
         return adapter.tab if adapter is not None else None
-
-    def summary(self,values,data,enabled):
-        # Halloween TAB: a fixed allies table drawn beside the native one.
-        result=dict((key,values.get(key)) for key in ('r','c:r','winrate','c:winrate','battles','c:battles'))
-        result.update({'enabled':bool(enabled),'name':values['name'],'clan':values['clannb'],
-                       'vehicle':values['vehicle-short'],'alive':bool(values['alive']),'self':bool(values['player']),
-                       'stats':bool(values['stat-available']),'rating':data[TEAM_PANELS.RATING]})
-        return result
 
     def classicModes(self):
         # Halloween's HWPlayersPanel inherits the classic hooks without having its modes.
@@ -490,8 +487,6 @@ class RatingViews(object):
                     row[screen]=result
                     rebuilt=rebuilt or changed
                 else: row[screen]={'enabled':False}
-            if adapter is not None and adapter.tab=='halloween' and 'tab' in active:
-                row['summary']=self.summary(values,data,row['tab'].get('enabled',True))
             if rebuilt: self.resolvedRows+=1
             self.rowCache[ident]=(deepcopy(stamp),row)
             rows.append(row)
@@ -527,7 +522,6 @@ class RatingViews(object):
             self.logFailure('Roster'); rows=None
         if rows is not None and hasattr(self,'gameface'):
             try:
-                self.gameface.watch(self.tabKind())
                 self.gameface.update(enabled and self.supports('tab'),rows)
             except Exception:
                 self.logFailure('Gameface roster')

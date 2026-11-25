@@ -79,6 +79,10 @@
         var left = alignX === 'right' ? W - skin.width + x : alignX === 'center' ? (W - skin.width) / 2 + x : x;
         var top = alignY === 'bottom' ? H - skin.height + y : alignY === 'center' ? (H - skin.height) / 2 + y : y;
         px(bar, Math.max(0, Math.min(W - skin.width, left)), Math.max(0, Math.min(H - skin.height, top)));
+        if (style >= 5 && style <= 7) {
+            // Six-slot sample; live Flash uses the native basePanelWidth at any slot count.
+            px(bar, (W - skin.width) / 2, H - 58 - 34);
+        }
         return bar;
     }
     function marks(stage, v) {

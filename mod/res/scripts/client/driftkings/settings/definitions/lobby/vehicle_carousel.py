@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from driftkings._constants import GLOBAL, VEHICLE_CAROUSEL
 from driftkings.common.utils.colorratting import color_tables
 from driftkings.common.utils.compat import string_types

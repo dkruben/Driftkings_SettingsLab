@@ -372,6 +372,8 @@ def provenance(context, state, gate, folder, promoter):
         changedAfterBeta=state['changes'],
         validation=dict(path=record['path'], sha256=record['sha256'], approvedBy=record['approvedBy'],
                         approvedOn=record['approvedOn'], validatedRegions=record['validatedRegions'],
+                        **({'sourceVerifiedRegions': record['sourceVerifiedRegions']}
+                           if 'sourceVerifiedRegions' in record else {}),
                         notValidatedRegions=record['notValidatedRegions'], knownIssues=record['knownIssues']),
         ci=state['ci'],
         gate=gate,

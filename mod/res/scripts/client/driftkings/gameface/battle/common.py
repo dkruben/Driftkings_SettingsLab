@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Shared lifecycle for owned Gameface children of the native battle HUD."""
+"""Shared lifecycle for the owned Gameface battle cards hosted by the shared battle window."""
 import weakref
 
 from driftkings.gameface.payloads import publish_card
@@ -23,20 +23,26 @@ class BattleCardAdapter(object):
         self.hudVisible = True
         self.views = weakref.WeakKeyDictionary()
         self.installed = False
+        self._disposed = False
+        self._disposeFailures = []
 
     def install(self):
         if self.installed:
             return
-        from gui.impl.battle.random.hud import RandomHUDView
+        self._disposed = False
+        self._disposeFailures = []
         from gui.impl.pub.view_component import ViewComponent
         from gui.shared import EVENT_BUS_SCOPE, events
 
-        from driftkings.core.hooks import override
-        from driftkings.gameface.core import payload_model, resource_id
         from driftkings.interface_catalog import gameface_spec
         adapter = self
 
-        BattleCardModel = payload_model(adapter.feature, ('onSavePosition',))
+        # Every battle card is hosted by the shared owned window; the catalog must select it.
+        if gameface_spec(adapter.feature).get('transport') != 'own_window':
+            raise ValueError('Battle card has no owned window transport: ' + adapter.feature)
+        from driftkings.gameface.battle import own_window
+
+        BattleCardModel = own_window.payload_model(adapter.feature, ('onSavePosition',))
 
         class BattleCardView(ViewComponent):
             def __init__(self, resource):
@@ -88,30 +94,7 @@ class BattleCardAdapter(object):
                         adapter.views.pop(parent, None)
                 super(BattleCardView, self)._finalize()
 
-        def children(original, parent, *args, **kwargs):
-            native = original(parent, *args, **kwargs)
-            result = dict.fromkeys(native) if isinstance(native, tuple) else dict(native)
-            try:
-                resource = resource_id(gameface_spec(adapter.feature)['resource'])
-                if resource == -1:
-                    adapter.log.warning('%s battle resource is unavailable', adapter.title)
-                    return result
-                if resource in result:
-                    adapter.log.warning('%s battle resource already has an owner', adapter.title)
-                    return result
-                def create():
-                    child = BattleCardView(resource)
-                    adapter.views[parent] = child
-                    adapter.log.info('Gameface battle panel created')
-                    return child
-                result[resource] = create
-            except Exception:
-                adapter.log.exception('Could not attach %s Gameface battle panel', adapter.title)
-            return result
-
-        # The shared installer still declares this hook on behalf of its feature.
-        setattr(children, '__module__', self.__class__.__module__)
-        override(RandomHUDView, '_getChildComponents')(children)
+        own_window.install(adapter, BattleCardView)
         self.connectSignals()
         self.installed = True
         self.onInstalled()
@@ -129,15 +112,55 @@ class BattleCardAdapter(object):
         pass
 
     def dispose(self):
-        self.beforeDispose()
-        self.disconnectSignals()
-        resource = self.resourceID()
-        for parent, child in list(self.views.items()):
-            if parent.getChildView(resource) is child:
-                child.setEnabled(False)
-                child.destroy()
-        self.views.clear()
-        self.installed = False
+        if self._disposed:
+            return
+        self._disposed = True
+
+        def failed(phase, child=None):
+            # Retiring our references does not confirm that a failed resource was released.
+            self._disposeFailures.append(phase)
+            self.log.exception('%s cleanup failed at %s (child=%r); release not confirmed',
+                               self.title, phase, child)
+
+        try:
+            try:
+                self.beforeDispose()
+            except Exception:
+                failed('beforeDispose')
+            try:
+                self.disconnectSignals()
+            except Exception:
+                failed('disconnectSignals')
+            resource = None
+            try:
+                resource = self.resourceID()
+            except Exception:
+                failed('resourceID')
+            for parent, child in list(self.views.items()):
+                if resource is None or resource == -1:
+                    self._disposeFailures.append('child.ownership')
+                    self.log.warning('%s cannot verify child ownership; release not confirmed (child=%r)',
+                                     self.title, child)
+                    continue
+                try:
+                    current = parent.getChildView(resource)
+                except Exception:
+                    failed('child.ownership', child)
+                    continue
+                if current is not child:
+                    continue
+                try:
+                    child.setEnabled(False)
+                except Exception:
+                    failed('child.setEnabled', child)
+                try:
+                    child.destroy()
+                except Exception:
+                    failed('child.destroy', child)
+        finally:
+            self.views.clear()
+            self.installed = False
+            self.active = False
 
     def resourceID(self):
         from driftkings.gameface.core import resource_id

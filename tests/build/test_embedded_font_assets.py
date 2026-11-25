@@ -16,7 +16,7 @@ class EmbeddedFontAssetTests(unittest.TestCase):
         targets = {item['target'] for item in plan['assets']}
         for name in ('DriftkingsFont', 'VehicleType', 'DynamicDefault', 'DynamicOutline', 'ZurichCondMono'):
             self.assertIn('res/gui/fonts/driftkings/' + name + '.ttf', targets)
-        self.assertTrue(any('net.openwg.gameface_' in path for path in plan['dependencies']))
+        self.assertEqual(plan['dependencies'], [])  # standalone: no OpenWG Gameface package
         self.assertFalse(any('net.openwg.common_' in path for path in plan['dependencies']))
         self.assertFalse(any('openwg_packages/driftkings_fonts' in item['target']
                              for item in plan['assets'] + plan['python']))

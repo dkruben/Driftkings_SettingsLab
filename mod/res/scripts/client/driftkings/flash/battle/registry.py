@@ -3,6 +3,9 @@
 import weakref
 
 from driftkings.interface_catalog import FLASH_COMPONENTS, FLASH_LIBRARY
+from driftkings.logger import get_logger
+
+LOG = get_logger('Driftkings.Views')
 
 BATTLE_COMPONENTS = {}
 BATTLE_HANDLERS = weakref.WeakSet()
@@ -14,6 +17,7 @@ class BattleViews(object):
         self.visibility = visibility
         self.definitions = {}
         self.active = False
+        self._pendingStop = []
 
     def register(self, alias, view, config):
         spec = FLASH_COMPONENTS.get(alias)
@@ -26,6 +30,8 @@ class BattleViews(object):
         self.definitions[alias] = (view, config)
 
     def start(self):
+        if self._pendingStop:
+            raise RuntimeError('Battle view cleanup is pending; retry stop before start')
         if self.active:
             return
         if self.registration is None:
@@ -40,20 +46,29 @@ class BattleViews(object):
             self.registration.install(self.definitions)
             self.active = True
         except Exception:
-            try:
-                self.registration.uninstall()
-            finally:
-                if self.visibility is not None:
-                    self.visibility.stop()
+            # Partial installation uses the same recoverable teardown as stop.
+            self.active = True
+            self.stop()
             raise
 
     def stop(self):
-        if not self.active:
-            return
-        self.active = False
-        self.registration.uninstall()
-        if self.visibility is not None:
-            self.visibility.stop()
+        if self.active:
+            self.active = False
+            self._pendingStop = [self.registration.uninstall]
+            if self.visibility is not None:
+                self._pendingStop.append(self.visibility.stop)
+        error = None
+        for cleanup in tuple(self._pendingStop):
+            try:
+                cleanup()
+            except Exception as failure:
+                LOG.exception('Could not finish battle view cleanup: %s', cleanup)
+                if error is None:
+                    error = failure
+            else:
+                self._pendingStop.remove(cleanup)
+        if error is not None:
+            raise error
 
 
 class BattlePackageRegistration(object):
@@ -63,6 +78,7 @@ class BattlePackageRegistration(object):
     def __init__(self):
         self.addedPackages = []
         self.addedLibrary = False
+        self.pendingHandlers = set()
 
     def install(self, definitions):
         from constants import ARENA_GUI_TYPE
@@ -83,8 +99,21 @@ class BattlePackageRegistration(object):
 
     def uninstall(self):
         from gui.Scaleform.required_libraries_config import BATTLE_REQUIRED_LIBRARIES
-        for handler in tuple(BATTLE_HANDLERS):
-            handler.close()
+        error = None
+        handlers = list(BATTLE_HANDLERS)
+        handlers.extend(handler for handler in self.pendingHandlers if handler not in handlers)
+        for handler in handlers:
+            try:
+                handler.close()
+            except Exception as failure:
+                # Strong ownership survives removal from the client's weak set.
+                self.pendingHandlers.add(handler)
+                LOG.exception('Could not close battle view handler: %s', handler)
+                if error is None:
+                    error = failure
+            else:
+                self.pendingHandlers.discard(handler)
+                BATTLE_HANDLERS.discard(handler)
         for packages in self.addedPackages:
             if self.PACKAGE in packages:
                 packages.remove(self.PACKAGE)
@@ -93,3 +122,5 @@ class BattlePackageRegistration(object):
             BATTLE_REQUIRED_LIBRARIES.remove(self.SWF)
         self.addedLibrary = False
         BATTLE_COMPONENTS.clear()
+        if error is not None:
+            raise error

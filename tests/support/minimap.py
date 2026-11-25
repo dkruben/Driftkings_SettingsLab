@@ -110,6 +110,7 @@ class MinimapFixture(RuntimeTest):
             'driftkings.common.utils.wgutils': module(hasCompetingMarkers=lambda: False, getBattleTypes=lambda: ()),
             'driftkings.common.utils.game': module(checkKeys=lambda keys: False),
             'driftkings.core': module(minimap=policy),
+            'driftkings.core.battle_policy': module(battle_policy=module(decision=lambda feature: (True, 'allowed'))),
             'driftkings.core.callbacks': module(callback=lambda delay, function: self.callbacks.append(function) or len(self.callbacks),
                                                 cancelCallback=lambda handle: None),
             'driftkings.core.hooks': module(override=lambda *args: (lambda function: function)),

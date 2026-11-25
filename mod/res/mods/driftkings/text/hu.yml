@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Ez a fiók a(z) {realm} régióhoz tart
 account_manager.UI_setting_errorRequired: "Add meg a nevet, az e-mail-címet és a jelszót."
 account_manager.UI_setting_errorSave: "A fiókok nem menthetők. Az előző fájl megmaradt."
 account_manager.UI_setting_errorServer: "Válassz egy elérhető szervert."
+account_manager.UI_setting_sharedEmail: "Ez az e-mail már másik szerverhez van mentve. A Wargaming ugyanazt a fiókot több szerveren is engedi; ellenőrizd, hogy ez a kívánt fiók-e."
 account_manager.UI_setting_errorSteam: "Ez a kliens Steamet használ. A fiókot a Steamen keresztül válaszd ki."
 account_manager.UI_setting_keepPassword: "Hagyd üresen a mentett jelszó megtartásához."
 account_manager.UI_setting_loginOnly: "Válassz fiókot a bejelentkezési képernyőn."
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "Erősen robbanásveszélyes
 artillery_blast_radius.UI_artySplash_messageDotOn: "Erősen robbanásveszélyes robbanás: mutasd meg a középpontot"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "Erősen robbanásveszélyes robbanás: rejtse el a robbanási területet"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "Erősen robbanásveszélyes robbanás: mutasd meg a robbanási területet"
-artillery_blast_radius.UI_artySplash_name: "Nagy robbanásveszélyes sugár"
 artillery_blast_radius.UI_description: "Tüzérségi robbanási sugár"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Gomb: pont megjelenítése|elrejtése"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Megjeleníti vagy elrejti a célpontot a csata közben."
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Az automatikus célzással r
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Kiválóságjelek csatában"
-battle_marks_of_excellence.UI_message: "MoE változás vizuális %s"
 battle_marks_of_excellence.UI_setting_background_text: "Csata: a háttér megjelenítése"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Megjeleníti a panel hátterét. Az átlátszatlanság külön állítható."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Gomb: Beállítások visszaállítása"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Megakadályozza a csatapanel eg
 
 # battle_preferences
 battle_preferences.UI_description: "Csatabeállítások"
-battle_preferences.UI_fog_error: "A köd eltávolítását nem sikerült alkalmazni. Nézd meg a game.log fájlt, és próbáld újra itt: Csatabeállítások."
-battle_preferences.UI_fog_restart_off: "A ködcsomag eltávolítása ütemezve. Zárd be, majd indítsd újra a játékot a köd visszaállításához."
-battle_preferences.UI_fog_restart_on: "A köd eltávolítása ütemezve. Zárd be, majd indítsd újra a játékot az alkalmazáshoz."
 battle_preferences.UI_setting_addEnemyName_text: "Add hozzá az ellenség nevét"
 battle_preferences.UI_setting_addEnemyName_tooltip: "A sebzésnaplóban a jármű neve mellé kiírja a játékos nevét."
 battle_preferences.UI_setting_clipLoad_text: "Töltési állapot küldése"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Csapatbázis hang némít
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Elnémítja a bázisfoglalás hangját."
 battle_preferences.UI_setting_postmortemTips_text: "Tippek megjelenítése megsemmisülés után"
 battle_preferences.UI_setting_postmortemTips_tooltip: "A járműved megsemmisülése után megjeleníti a tippek panelt a képernyő alján. Kapcsold ki az elrejtéséhez."
-battle_preferences.UI_setting_removeFog_text: "Köd eltávolítása"
-battle_preferences.UI_setting_removeFog_tooltip: "A telepítés térképeiből külön, köd nélküli csomagot készít. A játék bezárása után települ vagy törlődik, ezért újraindítás szükséges. A mod kikapcsolása a csomagot is eltávolítja."
 battle_preferences.UI_setting_showBattleHint_text: "Csatatippek elrejtése"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Elrejti a játék csatatippjeit, például a képernyő tetején megjelenőket."
 battle_preferences.UI_setting_showFriends_text: "Mutasd a barátokat"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Megakadályozza a csatapanel eg�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Klánjutalmak begyűjtése"
-clan_reward_collection.UI_setting_enabled_text: "Engedélyezve"
-clan_reward_collection.UI_setting_enabled_tooltip: "A mod engedélyezése/letiltása."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatikus vásárlás Tour Coins-szal"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Alapértelmezetten ki. Bekapcsolva a klán következő fejlődési szintjét automatikusan megvásárolja, amint a Tour Coins egyenleg fedezi az árat. Megerősítés nélkül költ Tour Coins-t. A kikapcsolás nem állítja le az ingyenes jutalmak gyűjtését."
 
 # common
 common.UI_mog_accent: "Kiemelőszín"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "Nincsenek megbízható adatok a jelekről"
 common.UI_mog_vehicle: "Járműinformációk"
 common.UI_mog_waiting: "Nincs elég megfigyelt előzmény"
 common.UI_mog_winrate: "Győzelmi arány"
-common.UI_native_close: "Bezárás"
-common.UI_native_defaults: "Alapértékek"
 common.UI_native_enabled: "Mod engedélyezése"
 common.UI_native_enabled_tooltip: "Be- vagy kikapcsolja ezt a modot. Kikapcsolva a játék úgy működik, mintha a mod nem lenne telepítve."
-common.UI_native_error: "Sikertelen mentés"
-common.UI_native_off: "Ki"
-common.UI_native_on: "Be"
-common.UI_native_press: "Nyomjon meg egy gombot..."
-common.UI_native_save: "Mentés"
-common.UI_native_saved: "Beállítások mentve"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} csata (becslés)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "Profil a következő játékkezdéshez"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Felderítési és támogatási értesítések"
-enemy_spotting_status.UI_macros_help: "Használja ezeket a makrókat az üzenetformátumokban az értesítések testreszabásához:\n• {icons} - Megjeleníti a jármű ikonjait\n• {names} - Megmutatja a játékosok nevét\n• {vehicles} - Megmutatja a járművek nevét\n• {icons_names} - Ikonokat jelenít meg játékosnevekkel\n• {icons_vehicles} - Ikonokat jelenít meg járműnevekkel\n• {full} - Teljes információt jelenít meg\n• {damage} - Mutatja a kár összegét (csak segítő üzeneteknél)"
-enemy_spotting_status.UI_macros_help_title: "Makró használati útmutató"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Rádiós asszisztens:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Értesítés, amikor felderítési segítő sebzést szerzel. Makrók: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Kábító segítség:"
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "A panel függőleges helyzete 
 # main
 main.UI_description: "Általános beállítások"
 main.UI_setting_clock_enabled_text: "Óra kijelző"
-main.UI_setting_enabled_text: "Engedélyezve"
-main.UI_setting_enabled_tooltip: "Be- vagy kikapcsolja az általános beállításokat. A mod többi összetevője nem változik."
 main.UI_tooltip: "A teljes modra vonatkozó beállítások."
 main.UI_tooltip_clock_enabled: "Mező: Szöveg / kép (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Minimális utols�
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Másodpercek az utolsó észlelés óta"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Utolsó pozíció színe: szakasz"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Utolsó pozíció stílusa"
-minimap_enhancements.UI_setting_mapSize_color_text: "Térkép méretek színe"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Térkép méreteinek megjelenítése"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "A térkép méretei, betűméret"
 minimap_enhancements.UI_setting_mapSize_format_text: "Térkép méret formátum"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "A térkép méretei vízszintes eltolás"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "A térkép méretei függőleges eltolás"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Az ellenfelek utolsó is
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "A szakasztagok utolsó ismert pozícióinak színe."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Az utolsó ismert pozíciók jelölőinek színe: tompa csapatszín vagy szürke."
 minimap_enhancements.UI_tooltip_lostScale: "Az ikonok mérete az utolsó ismert pozíciókban."
-minimap_enhancements.UI_tooltip_mapSize_color: "A térképméretek szövegének színe."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Megjeleníti a térkép méreteit a minitérkép mellett."
 minimap_enhancements.UI_tooltip_mapSize_format: "A térképméretek szövege. Makrók méterben: {{width}}, {{height}} és {{cellsize}} (egy rácsnégyzet oldala)."
 minimap_enhancements.UI_tooltip_marks: "A vonalakon meghatározott méterenként távolságjelet tesz. 0 kikapcsolja a jeleket."
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "Nagy fogyócikkek használata"
 repair_controls.UI_setting_useGoldKits_tooltip: "A nagy javítókészleteket, elsősegélycsomagokat és tűzoltó készülékeket használja, ha fel vannak szerelve."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "KI"
-server_turret_sync.UI_battle_ON: "BE"
 server_turret_sync.UI_battle_activateMessage: "'Server Turret Extended': Aktiválva"
 server_turret_sync.UI_description: "Torony szinkronizálása a szerverrel"
 server_turret_sync.UI_setting_activateMessage_text: "Aktiválási üzenet megjelenítése"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "Szöveg színe"
 target_distance.UI_setting_textColor_tooltip: "A távolságszöveg színe."
 target_distance.UI_setting_textSize_text: "Szöveg mérete"
 target_distance.UI_setting_textSize_tooltip: "A távolságszöveg betűmérete."
-target_distance.modDisplayName: "Távolságjelző"
 
 # target_information
 target_information.UI_delay_format: " mp."
@@ -1836,3 +1811,9 @@ panel.hud.health: "Életerő"
 vehicle_health.UI_setting_style_tooltip: "Válaszd ki az életerősáv keretét."
 vehicle_health.UI_health_color_tooltip: "Dinamikus szín a fennmaradó életerő alapján."
 vehicle_health.UI_health_minimal: "Minimalista"
+
+vehicle_health.UI_health_ammo_minimal: "Lőszerpanel — Minimalista"
+
+vehicle_health.UI_health_ammo_classic: "Lőszerpanel — Klasszikus WoT"
+
+vehicle_health.UI_health_ammo_driftkings: "Lőszerpanel — Driftkings"

@@ -61,11 +61,16 @@ def milestone_model(percent, earned=0):
 
 
 def compact_model(vehicle_id, current, estimated, damage, assists, targets, earned=0, valid=True, approximate=False):
-    """All numeric values are supplied by the calculation engine, not JS."""
+    """All numeric values are supplied by the calculation engine, not JS.
+
+    State 'data': calibrated estimate. State 'current': the estimate is unknown or untrusted, but the dossier
+    percentage (the hangar value) is real, so it is still shown. State 'unavailable': no base value at all.
+    """
     current, estimated = finite(current), finite(estimated)
     valid = bool(valid and current is not None and estimated is not None)
+    state = 'data' if valid else 'current' if current is not None else 'unavailable'
     result = {
-        'state': 'data' if valid else 'unavailable', 'vehicleId': vehicle_id,
+        'state': state, 'vehicleId': vehicle_id,
         'currentMark': current, 'estimatedMark': estimated if valid else None,
         'marksAchieved': max(0, min(3, int(finite(earned, 0)))),
         'directDamage': finite(damage, 0), 'assistance': list(assists),

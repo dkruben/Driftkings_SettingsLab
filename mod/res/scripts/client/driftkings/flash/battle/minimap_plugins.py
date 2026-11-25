@@ -12,6 +12,7 @@ from driftkings._constants import GLOBAL, MINIMAP_ENHANCEMENTS
 from driftkings.common.utils.formatting import hexToDecimal
 from driftkings.common.utils.wgutils import getBattleTypes, hasCompetingMarkers
 from driftkings.core import minimap as policy
+from driftkings.core.battle_policy import battle_policy
 from driftkings.core.callbacks import callback, cancelCallback
 from driftkings.core.hooks import override
 from driftkings.logger import get_logger
@@ -493,7 +494,7 @@ def new_setupPlugins(func, self, arenaVisitor):
     args = func(self, arenaVisitor)
     try:
         allowedMode = arenaVisitor.gui.guiType in getBattleTypes()
-        if not hasCompetingMarkers() and allowedMode:
+        if not hasCompetingMarkers() and allowedMode and battle_policy.decision('minimap_enhancements')[0]:
             # Preserve mode-specific subclasses rather than replacing event logic.
             for key, custom, base in (('vehicles', ArenaVehiclesPlugin, plugins.ArenaVehiclesPlugin),
                                       ('personal', PersonalEntriesPlugin, plugins.PersonalEntriesPlugin)):

@@ -1,15 +1,18 @@
 # Security policy
 
+The planned stable is `0.1.7` for WoT `2.4.2.0`. Include the exact package SHA-256 and realm when reporting an issue with a candidate.
+
 ## Supported versions
 
 | Version | Channel | Supported |
 | --- | --- | --- |
-| 0.1.6 | Stable in preparation; not published | Pending publication |
-| 0.1.6-beta.1 | Beta | Yes |
-| 0.1.5 | Stable | Yes |
+| 0.1.7-beta.2 | Beta in development | Not published |
+| 0.1.7-beta.1 | Beta | Update to 0.1.7 stable when released |
+| 0.1.6 | Stable | Yes |
+| 0.1.6-beta.1 | Archived beta | Update to stable 0.1.6 |
 | Older releases | — | No; update first |
 
-The published supported versions and the planned stable 0.1.6 target World of Tanks 2.4.1.1 on the Wargaming EU, NA and ASIA clients. The source beta 0.1.6-beta.1 has an approved functional validation record for all three regions; stable 0.1.6 has not been built or published. Published stable 0.1.5 remains supported during preparation.
+Stable 0.1.6 targets World of Tanks 2.4.1.1 on Wargaming EU, NA and ASIA. The beta in development, 0.1.7-beta.2, is not published. The published beta 0.1.7-beta.1 and the historical 0.1.6-beta.1 validation do not establish validation of 0.1.7-beta.2. Any published release package requires its own validation record before stable promotion.
 
 ## Reporting a vulnerability
 

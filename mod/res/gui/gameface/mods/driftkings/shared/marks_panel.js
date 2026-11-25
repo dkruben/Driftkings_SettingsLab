@@ -81,7 +81,7 @@
                         var dx = (x - px) / 100 * area.clientWidth, dy = (y - py) / 100 * area.clientHeight;
                         style(segments[i - 1], 'left', px + '%'); style(segments[i - 1], 'top', py + '%');
                         style(segments[i - 1], 'width', Math.sqrt(dx * dx + dy * dy) + 'px');
-                        style(segments[i - 1], 'transform', 'rotate(' + Math.atan2(dy, dx) + 'rad)');
+                        style(segments[i - 1], 'transform', 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg)');
                     }
                 });
                 segments.forEach(function (line, i) { show(line, i < valid.length - 1); });
@@ -141,10 +141,30 @@
             }
         };
     }
-    function connect(feature, owner, root, render, position, savePosition) {
+    function connect(feature, owner, root, render, position, savePosition, lifecycle) {
         if (window[owner]) { window[owner].dispose(); }
+        lifecycle = lifecycle || {};
         var disposed = false, model = null, resourceId = null, callbackId = null;
         var lastPayload = null, pending = null, drag = null, shield = null, data = {};
+        var frame = null, frameGeneration = 0, bridge = {dispose: dispose};
+        function cancelPosition() {
+            frameGeneration++;
+            if (frame !== null) { cancelAnimationFrame(frame); frame = null; }
+        }
+        function place(config) {
+            cancelPosition();
+            position(root, config);
+            if (!lifecycle.afterLayout) { return; }
+            var generation = frameGeneration, currentModel = model, currentResource = resourceId;
+            var payload = model && model.payload;
+            frame = requestAnimationFrame(function () {
+                if (disposed || generation !== frameGeneration || window[owner] !== bridge) { return; }
+                frame = null;
+                var child = window.subViews && window.subViews.get(currentResource);
+                if (!child || child.model !== currentModel || currentModel.payload !== payload) { return; }
+                position(root, config);
+            });
+        }
         function capture(active) {
             // Battle views only receive input over hit-testable nodes. A full-screen layer keeps
             // mousemove/mouseup flowing once the cursor leaves the panel during a drag.
@@ -169,6 +189,7 @@
             }
         }
         function release() {
+            cancelPosition();
             if (callbackId !== null) { viewEnv.removeDataChangedCallback(callbackId, resourceId); }
             callbackId = null; model = null; resourceId = null; lastPayload = null;
         }
@@ -194,12 +215,12 @@
             if ((data.config || {}).locked || (data.config || {}).draggable === false) { cancel(); }
             var visible = !!(data.config || {}).visible;
             style(root, 'display', visible ? 'block' : 'none');
-            if (!visible) { cancel(); return; }
-            render(data); position(root, data.config || {});
+            if (!visible) { cancel(); cancelPosition(); return; }
+            render(data); place(data.config || {});
         }
         function schedule() { if (!disposed && pending === null) { pending = setTimeout(update, 0); } }
         function changed() { if (!model || model.payload !== lastPayload) { schedule(); } }
-        function resize() { if (!disposed && (data.config || {}).visible) { render(data, true); position(root, data.config || {}); } }
+        function resize() { if (!disposed && (data.config || {}).visible) { render(data, true); place(data.config || {}); } }
         function start(event) {
             if (!savePosition || event.button !== 0 || !model || !(data.config || {}).visible || (data.config || {}).locked || (data.config || {}).draggable === false) { return; }
             var rect = root.getBoundingClientRect(); drag = {x: event.clientX, y: event.clientY, left: rect.left, top: rect.top};
@@ -229,13 +250,16 @@
             document.removeEventListener('mousemove', move, true); document.removeEventListener('mouseup', end, true);
             root.removeEventListener('mousedown', stop); root.removeEventListener('click', stop);
             release(); if (root.parentNode) { root.parentNode.removeChild(root); }
-            if (window[owner] && window[owner].dispose === dispose) { delete window[owner]; }
+            if (lifecycle.dispose) { lifecycle.dispose(); }
+            if (window[owner] === bridge) { delete window[owner]; }
         }
-        window[owner] = {dispose: dispose};
+        window[owner] = bridge;
+        // Unload can precede engine readiness; retire the owner before a late .then runs.
+        window.addEventListener('unload', dispose);
         engine.whenReady.then(function () {
             if (disposed) { return; }
             engine.on('viewEnv.onDataChanged', changed); engine.on('subViews.onAdded', schedule); engine.on('subViews.onRemoved', schedule);
-            window.addEventListener('resize', resize); window.addEventListener('unload', dispose);
+            window.addEventListener('resize', resize);
             if (savePosition) {
                 root.addEventListener('mousedown', stop); root.addEventListener('click', stop);
                 document.addEventListener('mousedown', input, true);
@@ -243,7 +267,7 @@
             }
             schedule();
         });
-        return window[owner];
+        return bridge;
     }
     function unit() { return parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 1; }
     function position(root, cfg) {

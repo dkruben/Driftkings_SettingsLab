@@ -17,9 +17,7 @@
 
     function position(element, cfg) {
         K.position(element, cfg);
-        // Right after display:block the box can still measure empty; place it again once laid out.
-        requestAnimationFrame(function () { K.position(element, cfg); });
     }
 
-    K.connect('DriftkingsOwnHealth', '__dkOwnHealth', root, render, position, K.savedPosition);
+    K.connect('DriftkingsOwnHealth', '__dkOwnHealth', root, render, position, K.savedPosition, {afterLayout: true});
 }());

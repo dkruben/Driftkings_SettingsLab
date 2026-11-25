@@ -1,5 +1,5 @@
 package driftkings.battle.components.debug_panel {
-import driftkings.battle.base.battledisplayable;
+import driftkings.battle.base.BattleDisplayable;
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.text.TextField;
@@ -7,7 +7,7 @@ import flash.text.TextFieldAutoSize;
 import scaleform.gfx.TextFieldEx;
 
 // A separate DAAPI component; the native FPS/ping panel owns the clock field.
-public class debugpanelui extends battledisplayable {
+public class debugpanelui extends BattleDisplayable {
     private var clock:TextField = new TextField();
     private var clockEnabled:Boolean = false;
 

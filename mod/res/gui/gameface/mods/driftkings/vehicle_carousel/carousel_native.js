@@ -1,9 +1,16 @@
 (function (root, factory) {
     if (typeof module === 'object' && module.exports) { module.exports = factory(null); }
-    else { root.DKCarouselNative = factory(root); }
-}(this, function (root) {
+    else {
+        var generation = root.__dkCarouselLoad;
+        if (generation && (generation.cancelled || root.DKCarouselNative)) { return; }
+        var owner = factory(root);
+        owner.generation = generation;
+        root.DKCarouselNative = owner;
+        if (generation) { generation.native = owner; }
+    }
+}(typeof window === 'undefined' ? this : window, function (root) {
     'use strict';
-    var data = null, signature = '', sheet = null;
+    var data = null, signature = '', sheet = null, disposed = false;
     var nations = ['ussr', 'germany', 'usa', 'china', 'france', 'uk', 'japan', 'czech', 'sweden', 'poland', 'italy'];
     var types = ['lightTank', 'mediumTank', 'heavyTank', 'AT-SPG', 'SPG'];
     function config() { return data && data.config && data.config.visible ? data.config : null; }
@@ -91,6 +98,8 @@
         return out;
     }
     function setData(next) {
+        var generation = root && root.__dkCarouselLoad;
+        if (disposed || (root && root.DKCarouselNative !== owner) || (generation && generation.cancelled)) { return; }
         var nextSignature = JSON.stringify([next.config, next.sortValues]);
         if (nextSignature === signature)return;
         signature = nextSignature; data = next;
@@ -100,8 +109,15 @@
             root.dispatchEvent(new root.Event('dk-carousel-config'));
         }
     }
-    function dispose() { setData({}); if (sheet && sheet.parentNode)sheet.parentNode.removeChild(sheet); sheet = null; }
-    return {config: config, setData: setData, dispose: dispose, compare: compare, ordered: ordered, actionAllowed: actionAllowed,
+    function dispose() {
+        if (disposed) { return; }
+        disposed = true; data = null; signature = '';
+        var node = sheet; sheet = null;
+        try { if (node && node.parentNode) { node.parentNode.removeChild(node); } }
+        finally { if (root) { root.dispatchEvent(new root.Event('dk-carousel-config')); } }
+    }
+    var owner = {config: config, setData: setData, dispose: dispose, compare: compare, ordered: ordered, actionAllowed: actionAllowed,
             rowCount: rowCount, groupColumns: groupColumns,
             filterAllowed: filterAllowed, vehicleTypes: vehicleTypes, footprint: footprint, gap: gap, wheel: wheel, counts: counts, styles: styles};
+    return owner;
 }));

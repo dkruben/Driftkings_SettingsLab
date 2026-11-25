@@ -8,10 +8,10 @@ O painel **DriftkingsModSettings** centraliza a edição das definições regist
 
 ## 1. Abertura e contexto
 
-- Regista uma entrada Driftkings na API ModsList, quando esta integração está disponível.
+- Na branch CT, cria o launcher Driftkings do footer sem registo ativo na ModsList; mantém OpenWG e ambos os pacotes na distribuição. Ver [Fase 2](NATIVE_FOOTER_LAUNCHER.md), validada funcionalmente pelo autor no CT sem ModsListAPI, incluindo X/Esc, atalho e regresso ao hangar; outros modos, escalas e versões requerem revalidação.
 - Permite abertura pelo atalho configurável `openKey` e pela API `settings.open()`.
 - Mantém uma única janela; chamadas de abertura repetidas não criam cópias.
-- Abre no lobby autenticado e, em batalha/replay, quando o jogador tem uma arena válida. O registo da entrada ModsList no login não altera esta condição: o controller não abre a janela nesse contexto.
+- Abre no lobby autenticado e, em batalha/replay, quando o jogador tem uma arena válida. O launcher não adiciona acesso no login: o controller mantém a rejeição desse contexto.
 - O atalho, com a janela aberta, segue o fluxo de fecho e confirmação de alterações.
 - Ao mudar de contexto, fecha a janela e liberta listeners, callbacks de captura, previews e sessão de edição.
 
@@ -287,7 +287,7 @@ flowchart LR
 
 | Camada | Responsabilidade e funções principais |
 | --- | --- |
-| [settings/__init__.py](../mod/res/scripts/client/driftkings/settings/__init__.py) | Iniciar/parar o serviço, ligar ModsList, perfil do loader, controller e contextos. |
+| [settings/__init__.py](../mod/res/scripts/client/driftkings/settings/__init__.py) | Iniciar/parar o serviço, ligar o launcher do footer, perfil do loader, controller e contextos. |
 | [gameface/lobby/settings_window.py](../mod/res/scripts/client/driftkings/gameface/lobby/settings_window.py) | `open`, `close`, `canOpen`, `restart`, `onKey`, `push`, `onAction`, captura e lifecycle Wulf. |
 | [panel/presenter.py](../mod/res/scripts/client/driftkings/settings/panel/presenter.py) | `schema`, `state`, `theme`, `diagnostics`, `handle` e encaminhamento das ações. |
 | [panel/session.py](../mod/res/scripts/client/driftkings/settings/panel/session.py) | `set`, `values`, `reset`, `undo`, `cancel`, `apply`, `save`, `discard` e cálculo de dependências/alterações. |

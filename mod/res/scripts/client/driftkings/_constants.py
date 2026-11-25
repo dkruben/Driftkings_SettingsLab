@@ -103,7 +103,6 @@ class BATTLE_PERFORMANCE(object):
 
 class BATTLE_PREFERENCES(object):
     NAME = 'battle_preferences'
-    REMOVE_FOG = 'removeFog'
     CLIP_LOAD = 'clipLoad'
     DIRECTIVES_ONLY_FROM_STORAGE = 'directivesOnlyFromStorage'
     DISABLE_SOUND_COMMANDER = 'disableSoundCommander'
@@ -262,7 +261,8 @@ class VEHICLE_HEALTH(object):
     NAME = 'vehicle_health'
     AVG_COLOR = 'avgColor'
     STYLE = 'style'
-    STYLES = ('classic', 'bastion', 'vanguard', 'ion', 'minimal')
+    STYLES = ('classic', 'bastion', 'vanguard', 'ion', 'minimal',
+              'ammo_minimal', 'ammo_classic', 'ammo_driftkings')
 
 
 class TEAM_PANELS(object):
@@ -360,6 +360,8 @@ class ACCOUNT_MANAGER(object):
 
 class CLAN_REWARD_COLLECTION(object):
     NAME = 'clan_reward_collection'
+    # Automatic purchases with Tour Coins; only an explicit True authorises spending.
+    PURCHASE_PROGRESSION = 'purchaseProgression'
 
 
 class VEHICLE_CAROUSEL(object):
@@ -575,6 +577,7 @@ HANDLER_VALUES = {
 
 # Flash component aliases shared by registration and controllers.
 class BATTLE_ALIASES(object):
+    AMMO_HEALTH = 'DriftkingsAmmoHealth'
     DEBUG_PANEL = 'DriftkingsDebugPanel'
     TARGET_DISTANCE = 'DistanceMarkerView'
     SIXTH_SENSE_ALERT = 'SixthSenseView'

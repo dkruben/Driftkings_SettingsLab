@@ -10,6 +10,25 @@ KEYS = ('python27', 'hg', 'flex_home', 'mxmlc_jar', 'playerglobal', 'java', 'csc
         'game_root', 'reference_root')
 
 
+def ancestor_candidates(root, relative, depth=2):
+    """Default candidates made from the first `depth` ancestors of root.
+
+    A shallow root has fewer ancestors than requested; those candidates simply do not exist. This never raises,
+    so an explicit tool override is not blocked by candidates that cannot be formed.
+    """
+    ancestors = list(Path(root).parents)[:depth]
+    return [ancestor / relative for ancestor in ancestors]
+
+
+def reference_snapshot_matches(reference_root, snapshot):
+    """True when the reference folder declares exactly the pinned production snapshot in .version_name."""
+    try:
+        declared = (Path(reference_root) / '.version_name').read_text(encoding='utf-8-sig').strip()
+    except OSError:
+        return False
+    return declared == snapshot
+
+
 def discover(root, overrides):
     local = root / 'build_data/toolchain.local.json'
     settings = read_json(local) if local.exists() else {}
@@ -40,8 +59,7 @@ def discover(root, overrides):
     result['hg'] = choose('hg', [Path(os.environ.get('LOCALAPPDATA', '')) / 'Atlassian/SourceTree/hg_local/hg.exe'])
     if configured('hg') and not configured('python27'):
         result['python27'] = None
-    result['flex_home'] = choose('flex_home', [root.parent / 'Programas/Flex', root.parents[1] / 'Programas/Flex'],
-                                 True)
+    result['flex_home'] = choose('flex_home', ancestor_candidates(root, 'Programas/Flex'), True)
     sdk = Path(result['flex_home']) if result['flex_home'] else None
     result['mxmlc_jar'] = choose('mxmlc_jar', [sdk / 'lib/mxmlc.jar'] if sdk else [])
     adobe = Path(os.environ.get('ProgramFiles', 'C:/Program Files')) / 'Adobe'

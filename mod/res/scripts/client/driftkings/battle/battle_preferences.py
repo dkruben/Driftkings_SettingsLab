@@ -26,7 +26,6 @@ from driftkings._constants import BATTLE_ALIASES, BATTLE_PREFERENCES, GLOBAL
 from driftkings.common.utils.formatting import hexToDecimal
 from driftkings.common.utils.wgutils import isReplay
 from driftkings.core.callbacks import callback
-from driftkings.core.fog_package import FogPackageController
 from driftkings.core.hooks import override
 from driftkings.flash.battle.debug_panel import DebugPanelView
 from driftkings.flash.battle.preferences_hooks import install as install_flash_preferences
@@ -38,7 +37,6 @@ LOG = get_logger('driftkings.battle.battle_preferences')
 
 _cache = set()
 battle_preferences_settings = BattlePreferencesSettings()
-fog_package = FogPackageController(battle_preferences_settings)
 _itemsCache = None
 
 
@@ -221,10 +219,6 @@ def init():
     global _itemsCache
     if _itemsCache is not None:
         return
-    try:
-        fog_package.start()
-    except Exception as error:
-        LOG.info(('Fog package unavailable: {}').format(error))
     g_playerEvents.onGuiCacheSyncCompleted += __onGuiCacheSyncCompleted
     g_currentVehicle.onChanged += _onCurrentVehicleChanged
     _itemsCache = ServicesLocator.itemsCache
@@ -236,7 +230,6 @@ def fini():
     global _itemsCache
     if _itemsCache is None:
         return
-    fog_package.stop()
     g_playerEvents.onGuiCacheSyncCompleted -= __onGuiCacheSyncCompleted
     g_currentVehicle.onChanged -= _onCurrentVehicleChanged
     _itemsCache.onSyncCompleted -= _onCurrentVehicleChanged

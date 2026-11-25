@@ -102,6 +102,16 @@ class OwnHealthGamefaceTests(RuntimeTest):
             self.assertEqual(config, original[1])
             self.assertEqual(enabled, original[2])
 
+    def test_docked_choices_hide_the_floating_gameface_bar(self):
+        self.adapter.startBattle()
+        for style in (5, 6, 7):
+            self.settings['style'] = style
+            self.adapter.refresh()
+            self.assertFalse(self.published[-1][2])
+        self.settings['style'] = 0
+        self.adapter.refresh()
+        self.assertTrue(self.published[-1][2])
+
     def child(self, cursor=True, gui=True):
         return module(_cursorVisible=cursor, _guiVisible=gui)
 
@@ -133,23 +143,23 @@ class HealthStyleSettingsTests(RuntimeTest):
         values = {'enabled': True, 'x': 32, 'y': -60}
         result = self.definition.normalize_loaded(values)
         self.assertEqual(result, {'enabled': True, 'x': 32, 'y': -60, 'style': 0})
-        for value in (True, '1', -1, 5, None):
+        for value in (True, '1', -1, 8, None):
             self.assertEqual(self.definition.normalize_loaded({'style': value})['style'], 0)
 
-    def test_style_changes_accept_only_the_five_integer_choices(self):
-        for value in range(5):
+    def test_style_changes_accept_only_the_eight_integer_choices(self):
+        for value in range(8):
             self.assertEqual(self.definition.normalize_changes({'style': value}, {'style': value})['style'], value)
-        for value in (True, '1', -1, 5, 1.5, None):
+        for value in (True, '1', -1, 8, 1.5, None):
             with self.assertRaises(ValueError):
                 self.definition.normalize_changes({'style': value}, {'style': value})
 
     def test_named_style_and_colour_controls_use_stable_setting_keys(self):
         self.definition.i18n = dict(('UI_health_' + key, key) for key in
-                                   ('classic', 'bastion', 'vanguard', 'ion', 'minimal', 'saturation', 'brightness', 'color_tooltip'))
+                                   ('classic', 'bastion', 'vanguard', 'ion', 'minimal', 'ammo_minimal', 'ammo_classic', 'ammo_driftkings', 'saturation', 'brightness', 'color_tooltip'))
         columns = self.definition.getControlColumns()
         self.assertEqual(columns[0][0]['varName'], 'style')
         self.assertEqual([item['label'] for item in columns[0][0]['options']],
-                         ['classic', 'bastion', 'vanguard', 'ion', 'minimal'])
+                         ['classic', 'bastion', 'vanguard', 'ion', 'minimal', 'ammo_minimal', 'ammo_classic', 'ammo_driftkings'])
         self.assertEqual([item['path'] for item in columns[1]],
                          [['avgColor', 'saturation'], ['avgColor', 'brightness']])
 

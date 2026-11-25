@@ -2,12 +2,58 @@
    Python supplies every value; the card only follows the column's position and width. */
 (function () {
     'use strict';
-    var K = window.__dkMarksKit;
+    var K = window.__dkMarksKit, generation = window.__dkHangarMarksLoad || {};
+    if (generation.cancelled || window.__dkHangarMarks) { return; }
+    var stopped = false, status = 'initializing', cleanups = [], frame = null;
+    var model = null, resourceId = null, callbackId = null, pendingUpdate = null, previous = null;
+    var root = null, timer = null;
+    function attempt(action) { try { action(); } catch (error) { console.error('[Driftkings] Hangar marks cleanup: ' + error); if (typeof generation.report === 'function') { generation.report(error); } } }
+    function releaseModel() {
+        var callback = callbackId, id = resourceId;
+        callbackId = null; model = null; resourceId = null; previous = null;
+        if (callback !== null) { attempt(function () { viewEnv.removeDataChangedCallback(callback, id); }); }
+    }
+    function dispose() {
+        if (stopped) { return; }
+        stopped = true;
+        if (pendingUpdate !== null) { attempt(function () { clearTimeout(pendingUpdate); }); pendingUpdate = null; }
+        if (frame !== null) { attempt(function () { cancelAnimationFrame(frame); }); frame = null; }
+        if (timer !== null) { attempt(function () { clearInterval(timer); }); timer = null; }
+        cleanups.splice(0).reverse().forEach(attempt);
+        releaseModel();
+        attempt(function () { if (root && root.parentNode) { root.parentNode.removeChild(root); } });
+        if (window.__dkHangarMarks === owner) { delete window.__dkHangarMarks; }
+        if (status !== 'failed') { status = 'destroyed'; }
+    }
+    function failed(error) {
+        if (stopped) { return; }
+        status = 'failed'; console.error('[Driftkings] Hangar marks renderer failed: ' + error);
+        dispose();
+        if (typeof generation.fail === 'function') { generation.fail(error); }
+    }
+    function guard(action) {
+        return function () {
+            if (stopped || generation.cancelled) { return; }
+            try { return action.apply(null, arguments); } catch (error) { failed(error); }
+        };
+    }
+    function listen(target, name, action, capture) {
+        var callback = guard(action);
+        cleanups.push(function () { target.removeEventListener(name, callback, capture); });
+        target.addEventListener(name, callback, capture);
+    }
+    function listenEngine(name, action) {
+        var callback = guard(action);
+        cleanups.push(function () { engine.off(name, callback); }); engine.on(name, callback);
+    }
+    var owner = {dispose: dispose, generation: generation, getState: function () { return status; }};
+    window.__dkHangarMarks = owner;
+    try {
     // The column is a React widget laid out by its own animations, so the card sits under it
     // instead of inside it and is re-placed while visible.
     var COLUMN = '[class*="HangarScreen_userMissions_"]';
     var GAP = 8, FALLBACK_WIDTH = 319, FALLBACK_TOP = .45;
-    var root = K.node('div', 'dk-moe', document.body);
+    root = document.createElement('div'); root.className = 'dk-moe'; document.body.appendChild(root);
     var card = K.node('div', 'dk-moe-card', root);
     K.node('div', 'dk-moe-card__hover', card);
     var iconBox = K.node('div', 'dk-moe-card__icon', card), icon = K.node('img', '', iconBox);
@@ -42,7 +88,7 @@
     var averages = K.node('div', 'dk-moe-detail__statistics dk-moe-detail__statistics--averages', footer);
     var achievements = K.node('div', 'dk-moe-detail__statistics', footer);
 
-    var open = false, valid = false, last = {}, timer = null;
+    var open = false, valid = false, last = {};
 
     function setOpen(value) {
         open = !!value && valid;
@@ -52,7 +98,7 @@
         if (open) { render(last, true); }
         place();
         // The panel has no size until it has been laid out once.
-        if (open) { requestAnimationFrame(place); }
+        if (open && frame === null) { frame = requestAnimationFrame(guard(function () { frame = null; place(); })); }
     }
     function render(data, resized) {
         last = data;
@@ -162,7 +208,7 @@
     }
     function position() {
         place();
-        if (timer === null) { timer = setInterval(function () { if (root.style.display !== 'none') { place(); } }, 200); }
+        if (timer === null) { timer = setInterval(guard(function () { if (root.style.display !== 'none') { place(); } }), 200); }
     }
     function inside(target) {
         while (target) { if (target === root) { return true; } target = target.parentNode; }
@@ -177,18 +223,45 @@
     function outside(event) { if (open && !inside(event.target)) { setOpen(false); } }
     function key(event) { if (open && (event.keyCode === 27 || event.key === 'Escape')) { event.stopPropagation(); setOpen(false); } }
 
-    card.addEventListener('click', toggle);
-    close.addEventListener('click', closeClick);
-    detail.addEventListener('click', function (event) { event.stopPropagation(); });
-    document.addEventListener('mousedown', outside, true);
-    document.addEventListener('keydown', key, true);
+    listen(card, 'click', toggle);
+    listen(close, 'click', closeClick);
+    listen(detail, 'click', function (event) { event.stopPropagation(); });
+    listen(document, 'mousedown', outside, true);
+    listen(document, 'keydown', key, true);
     setOpen(false);
-    var kit = K.connect('DriftkingsMarksOnGunHangar', '__dkHangarMarks', root, render, position, null);
-    var dispose = kit.dispose;
-    kit.dispose = function () {
-        if (timer !== null) { clearInterval(timer); timer = null; }
-        document.removeEventListener('mousedown', outside, true);
-        document.removeEventListener('keydown', key, true);
-        dispose();
-    };
+    // Local read-only connection: callbacks and partial subscriptions belong to this generation.
+    // The shared kit remains unchanged for battle, clock and other OpenWG consumers.
+    function update() {
+        pendingUpdate = null;
+        var found = null, id = null;
+        if (window.subViews) {
+            var ids = window.subViews.ids();
+            for (var i = 0; i < ids.length; i++) {
+                var child = window.subViews.get(ids[i]);
+                if (child && child.model && child.model.DriftkingsUI && child.model.DriftkingsUI.name === 'DriftkingsMarksOnGunHangar') {
+                    found = child.model; id = ids[i]; break;
+                }
+            }
+        }
+        if (!found) { releaseModel(); K.show(root, false); return; }
+        if (found !== model || id !== resourceId) {
+            releaseModel(); model = found; resourceId = id;
+            callbackId = viewEnv.addDataChangedCallback('model', resourceId, true);
+        }
+        if (previous === model.payload) { return; }
+        var data = JSON.parse(model.payload || '{}');
+        K.style(root, 'display', (data.config || {}).visible ? 'block' : 'none');
+        if ((data.config || {}).visible) { render(data); position(); }
+        previous = model.payload;
+    }
+    function schedule() { if (pendingUpdate === null) { pendingUpdate = setTimeout(guard(update), 0); } }
+    var ready = engine.whenReady.then(guard(function () {
+        listenEngine('viewEnv.onDataChanged', schedule);
+        listenEngine('subViews.onAdded', schedule); listenEngine('subViews.onRemoved', schedule);
+        listen(window, 'resize', function () { if ((last.config || {}).visible) { render(last, true); position(); } });
+        listen(window, 'unload', dispose);
+        status = 'ready'; schedule();
+    }));
+    if (ready && typeof ready.catch === 'function') { ready.catch(failed); }
+    } catch (error) { failed(error); }
 }());

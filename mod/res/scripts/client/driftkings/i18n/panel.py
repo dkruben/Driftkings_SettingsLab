@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Interface catalogs; English is complete and the fallback for every key.
-
+"""
+Interface catalogs; English is complete and the fallback for every key.
 Add a text/<code>.yml resource and register it in driftkings.locale_support.
 Optional overrides: <config root>/locales/<code>.json (strings only).
 """

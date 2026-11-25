@@ -58,7 +58,8 @@ class OwnHealthAdapter(BattleCardAdapter):
         maximum, current = state['maximum'], state['current']
         percent = float(current) / maximum if maximum > 0 else 0.0
         enabled = bool(self.active and self.visible and self.hudVisible and settings[GLOBAL.ENABLED]
-                       and state['battle'] and state['alive'] and maximum > 0)
+                       and state['battle'] and state['alive'] and maximum > 0
+                       and settings.get(VEHICLE_HEALTH.STYLE, 0) < 5)
         payload = {'percent': percent, 'text': '%d / %d' % (current, maximum),
                    'style': settings.get(VEHICLE_HEALTH.STYLE, 0),
                    'color': percentToRgb(percent, **settings[VEHICLE_HEALTH.AVG_COLOR])}

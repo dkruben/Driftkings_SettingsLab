@@ -1,5 +1,7 @@
 # Validação e promoção de releases
 
+O modo release exige uma identidade de produção fixada e evidência por região. O instalador verifica as regiões do relatório contra o perfil. As builds CT servem para desenvolvimento. O ambiente `stable-release` exige revisores e permite autoaprovação na configuração atual. [Registo da candidata](0.1.7-beta.2-readiness.md).
+
 Como uma beta se torna stable, com a origem de cada stable identificável. Os comandos partem da raiz do repositório. As ferramentas são `build_tools/validation_record.py` e `build_tools/promote_release.py`; o guia de compilação e assinatura continua no [CONTRIBUTING](../../CONTRIBUTING.md).
 
 ## Princípios
@@ -33,7 +35,7 @@ A avaliação recusa um registo quando:
 - uma verificação automática falhou, não correu ou não tem evidência;
 - falta uma verificação do catálogo, ou o seu campo `Bloqueante` difere do catálogo.
 
-Uma região nunca vale como prova de outra. Uma região sem validação fica `NOT VALIDATED`, e isso é registado em `promotion.json`. A stable pode sair com uma só região validada, mas o changelog tem de dizer o que foi testado. O catálogo de verificações, e quais são bloqueantes, está em `validation_record.py`; apagar uma linha do registo não enfraquece a validação. Podem acrescentar-se linhas próprias.
+Uma região nunca vale como prova de outra. Uma região sem validação fica `NOT VALIDATED`, e isso é registado em `promotion.json`. O registo histórico admitia promoção com uma região validada. A candidata global `0.1.7-beta.2` exige validação em NA, EU, ASIA e CN. O changelog identifica o que foi testado. O catálogo de verificações, e quais são bloqueantes, está em `validation_record.py`; apagar uma linha do registo não enfraquece a validação. Podem acrescentar-se linhas próprias.
 
 ## Processo completo
 

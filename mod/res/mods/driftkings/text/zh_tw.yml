@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "此帳戶屬於 {realm} 區域。請使
 account_manager.UI_setting_errorRequired: "請填寫名稱、電子郵件和密碼。"
 account_manager.UI_setting_errorSave: "無法儲存帳戶。先前的檔案已保留。"
 account_manager.UI_setting_errorServer: "請選擇可用的伺服器。"
+account_manager.UI_setting_sharedEmail: "此電子郵件已為另一台伺服器儲存。Wargaming 允許同一帳號用於多台伺服器，請確認這是您要的帳號。"
 account_manager.UI_setting_errorSteam: "此用戶端使用 Steam。請透過 Steam 選擇帳戶。"
 account_manager.UI_setting_keepPassword: "留空以保留已儲存的密碼。"
 account_manager.UI_setting_loginOnly: "在登入畫面上選擇一個帳戶。"
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash：隱藏點"
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash：顯示點"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE 飛濺：隱藏飛濺"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash：表演飛濺"
-artillery_blast_radius.UI_artySplash_name: "他飛濺"
 artillery_blast_radius.UI_description: "自走砲爆炸半徑"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "按鈕：顯示|隱藏點"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "在戰鬥中顯示或隱藏瞄準點。"
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "圍繞被自動瞄準鎖定�
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}，{c_damageToMark85}\n{c_damageToMark95}，{c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "戰鬥中的卓越印記"
-battle_marks_of_excellence.UI_message: "教育部改變視覺 %s"
 battle_marks_of_excellence.UI_setting_background_text: "戰鬥：顯示背景"
 battle_marks_of_excellence.UI_setting_background_tooltip: "顯示面板背景。不透明度另行設定。"
 battle_marks_of_excellence.UI_setting_buttonReset_text: "按鈕：重置設定"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "防止用滑鼠移動戰鬥面�
 
 # battle_preferences
 battle_preferences.UI_description: "戰鬥設定"
-battle_preferences.UI_fog_error: "無法套用去霧。請檢查 game.log，然後在戰鬥設定中重試。"
-battle_preferences.UI_fog_restart_off: "已排定移除霧效套件。請關閉並重新開啟遊戲以恢復霧效。"
-battle_preferences.UI_fog_restart_on: "已排定去霧。請關閉並重新開啟遊戲以套用。"
 battle_preferences.UI_setting_addEnemyName_text: "添加敵人名稱"
 battle_preferences.UI_setting_addEnemyName_tooltip: "在傷害紀錄中的車輛名稱旁加入玩家名稱。"
 battle_preferences.UI_setting_clipLoad_text: "傳送裝填狀態"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "靜音團隊基地聲音"
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "將基地佔領的聲音靜音。"
 battle_preferences.UI_setting_postmortemTips_text: "顯示陣亡後的提示"
 battle_preferences.UI_setting_postmortemTips_tooltip: "你的車輛被擊毀後，在螢幕底部顯示提示面板。關閉即可隱藏。"
-battle_preferences.UI_setting_removeFog_text: "去除霧效"
-battle_preferences.UI_setting_removeFog_tooltip: "以此安裝的地圖建立一個無霧的獨立套件。它會在關閉遊戲後安裝或移除，因此需要重新啟動。關閉此模組也會移除該套件。"
 battle_preferences.UI_setting_showBattleHint_text: "隱藏戰鬥提示"
 battle_preferences.UI_setting_showBattleHint_tooltip: "隱藏遊戲的戰鬥提示，例如顯示在螢幕頂端的提示。"
 battle_preferences.UI_setting_showFriends_text: "顯示好友"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "防止用滑鼠移動戰鬥面�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "領取公會獎勵"
-clan_reward_collection.UI_setting_enabled_text: "啟用"
-clan_reward_collection.UI_setting_enabled_tooltip: "啟用/停用該模組。"
+clan_reward_collection.UI_setting_purchaseProgression_text: "使用 Tour Coins 自動購買"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "預設關閉。開啟後，只要 Tour Coins 餘額足以支付價格，就會自動購買下一個軍團進度階段。將不經確認消耗 Tour Coins。關閉此項不會停止領取免費獎勵。"
 
 # common
 common.UI_mog_accent: "強調色"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "沒有可靠的印記資料"
 common.UI_mog_vehicle: "車輛資訊"
 common.UI_mog_waiting: "觀測紀錄不足"
 common.UI_mog_winrate: "勝率"
-common.UI_native_close: "關閉"
-common.UI_native_defaults: "還原預設設定"
 common.UI_native_enabled: "啟用模組"
 common.UI_native_enabled_tooltip: "開啟或關閉此模組。關閉時，遊戲的表現就像未安裝此模組一樣。"
-common.UI_native_error: "無法儲存設定。請查看 game.log。"
-common.UI_native_off: "關"
-common.UI_native_on: "開"
-common.UI_native_press: "按下按鍵（Esc 取消）"
-common.UI_native_save: "儲存並套用"
-common.UI_native_saved: "設定已儲存。"
 
 # crew_management
 crew_management.UI_crew_battles: "約{battles}場 (估計)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "下一場比賽開始的簡介"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "發現與協助通知"
-enemy_spotting_status.UI_macros_help: "在消息格式中使用这些宏来自定义通知：\n• {icons} - 显示车辆图标\n• {names} - 显示玩家姓名\n• {vehicles} - 显示车辆名称\n• {icons_names} - 显示带有玩家姓名的图标\n• {icons_vehicles} -顯示帶有車輛名稱的圖示\n• {full} - 顯示完整資訊\n• {damage} - 顯示損壞金額（僅適用於輔助訊息）"
-enemy_spotting_status.UI_macros_help_title: "巨集使用指南"
 enemy_spotting_status.UI_setting_AssistRadio_text: "無線電協助："
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "獲得偵察協助傷害時顯示的通知。巨集：{icons}、{names}、{vehicles}、{icons_names}、{icons_vehicles}、{full}、{damage}。"
 enemy_spotting_status.UI_setting_AssistStun_text: "眩暈輔助："
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "面板的垂直位置（介面
 # main
 main.UI_description: "一般設定"
 main.UI_setting_clock_enabled_text: "時鐘顯示"
-main.UI_setting_enabled_text: "啟用"
-main.UI_setting_enabled_tooltip: "開啟或關閉一般設定。模組的其他元件不受影響。"
 main.UI_tooltip: "適用於整個模組的選項。"
 main.UI_tooltip_clock_enabled: "欄位: 文字 / 圖片 (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "最後已知的�
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "自上次檢測以來的秒數"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "最後位置顏色：排"
 minimap_enhancements.UI_setting_lostMarker_style_text: "最後位置樣式"
-minimap_enhancements.UI_setting_mapSize_color_text: "地圖尺寸顏色"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "顯示地圖尺寸"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "地圖尺寸字體大小"
 minimap_enhancements.UI_setting_mapSize_format_text: "地圖尺寸格式"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "地圖尺寸水平偏移"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "地圖尺寸垂直偏移"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "敵人最後已知位置
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "排成員最後已知位置的顏色。"
 minimap_enhancements.UI_tooltip_lostMarker_style: "最後已知位置標記的顏色：暗淡的隊伍顏色或灰色。"
 minimap_enhancements.UI_tooltip_lostScale: "最後已知位置處圖示的大小。"
-minimap_enhancements.UI_tooltip_mapSize_color: "地圖尺寸文字的顏色。"
 minimap_enhancements.UI_tooltip_mapSize_enabled: "在小地圖旁顯示地圖尺寸。"
 minimap_enhancements.UI_tooltip_mapSize_format: "地圖尺寸的文字。以公尺為單位的巨集：{{width}}、{{height}} 與 {{cellsize}}（網格中一格的邊長）。"
 minimap_enhancements.UI_tooltip_marks: "在線條上每隔設定的公尺數加入距離標記。0 表示關閉標記。"
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "使用大型消耗品"
 repair_controls.UI_setting_useGoldKits_tooltip: "已裝備時使用大型修理包、大型急救包與大型滅火器。"
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "離開"
-server_turret_sync.UI_battle_ON: "在"
 server_turret_sync.UI_battle_activateMessage: "「伺服器砲塔擴充」：已啟動"
 server_turret_sync.UI_description: "伺服器砲塔同步"
 server_turret_sync.UI_setting_activateMessage_text: "顯示啟動訊息"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "文字顏色"
 target_distance.UI_setting_textColor_tooltip: "距離文字的顏色。"
 target_distance.UI_setting_textSize_text: "文字大小"
 target_distance.UI_setting_textSize_tooltip: "距離文字的字型大小。"
-target_distance.modDisplayName: "距離標記"
 
 # target_information
 target_information.UI_delay_format: "秒。"
@@ -1836,3 +1811,9 @@ panel.hud.health: "生命值"
 vehicle_health.UI_setting_style_tooltip: "選擇血條邊框。"
 vehicle_health.UI_health_color_tooltip: "顏色隨剩餘生命值變化。"
 vehicle_health.UI_health_minimal: "極簡"
+
+vehicle_health.UI_health_ammo_minimal: "彈藥面板 — 極簡"
+
+vehicle_health.UI_health_ammo_classic: "彈藥面板 — WoT經典"
+
+vehicle_health.UI_health_ammo_driftkings: "彈藥面板 — Driftkings"

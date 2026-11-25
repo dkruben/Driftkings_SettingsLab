@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Wwise events only. Bank registration never loads or rewrites original banks."""
-
-
 class SoundError(ValueError):
     def __init__(self, key):
         ValueError.__init__(self, key)

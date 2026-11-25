@@ -1,0 +1,31 @@
+// Generated from driftkings/interface_catalog.py; regenerate with generate_ui_catalog.py --write.
+package driftkings.battle.factory
+{
+    import driftkings.battle.components.debug_panel.debugpanelui;
+    import driftkings.battle.components.distance_marker.distancemarkerui;
+    import driftkings.battle.components.minimap.minimapenhancementsui;
+    import driftkings.battle.components.overlay.overlayui;
+    import driftkings.battle.components.ratings.ratingscreens;
+    import driftkings.battle.components.sixth_sense.sixthsenseui;
+    import driftkings.battle.components.vehicle_health.ammohealthui;
+
+    public class ComponentCatalog
+    {
+        public static function classes(surface:String):Object
+        {
+        if (surface == "battle") return {
+                DistanceMarkerView:distancemarkerui,
+                DriftkingsAmmoHealth:ammohealthui,
+                DriftkingsDebugPanel:debugpanelui,
+                DriftkingsOverlay:overlayui,
+                DriftkingsRatingScreens:ratingscreens,
+                MinimapEnhancementsView:minimapenhancementsui,
+                SixthSenseView:sixthsenseui
+            };
+        if (surface == "ratings") return {
+                DriftkingsRatingScreens:ratingscreens
+            };
+            return {};
+        }
+    }
+}

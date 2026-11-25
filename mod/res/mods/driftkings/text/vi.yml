@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "Tài khoản này thuộc khu vực {re
 account_manager.UI_setting_errorRequired: "Hãy nhập tên, e-mail và mật khẩu."
 account_manager.UI_setting_errorSave: "Không thể lưu tài khoản. Tệp trước đó vẫn được giữ nguyên."
 account_manager.UI_setting_errorServer: "Chọn một máy chủ khả dụng."
+account_manager.UI_setting_sharedEmail: "Email này đã được lưu cho một máy chủ khác. Wargaming cho phép cùng một tài khoản trên nhiều máy chủ; hãy kiểm tra xem đây có phải tài khoản bạn muốn không."
 account_manager.UI_setting_errorSteam: "Ứng dụng này dùng Steam. Hãy chọn tài khoản qua Steam."
 account_manager.UI_setting_keepPassword: "Để trống để giữ mật khẩu đã lưu."
 account_manager.UI_setting_loginOnly: "Chọn một tài khoản trên màn hình đăng nhập."
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash: Ẩn dấu chấ
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash: Hiển thị dấu chấm"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: Ẩn Splash"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash: Hiển thị Splash"
-artillery_blast_radius.UI_artySplash_name: "Bán kính vụ nổ cao"
 artillery_blast_radius.UI_description: "Bán kính nổ của pháo tự hành"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Nút: hiển thị|ẩn Dấu chấm"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Hiện hoặc ẩn điểm ngắm trong trận."
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Màu khung vẽ quanh xe b�
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Dấu xuất sắc trong trận"
-battle_marks_of_excellence.UI_message: "MoE thay đổi hình ảnh %s"
 battle_marks_of_excellence.UI_setting_background_text: "Trận chiến: hiển thị nền"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Hiển thị nền bảng. Độ mờ đục được chỉnh riêng."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Nút: Đặt lại cài đặt"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong 
 
 # battle_preferences
 battle_preferences.UI_description: "Tùy chọn chiến đấu"
-battle_preferences.UI_fog_error: "Không thể áp dụng xóa sương mù. Hãy kiểm tra game.log và thử lại trong Tùy chọn chiến đấu."
-battle_preferences.UI_fog_restart_off: "Đã lên lịch gỡ gói sương mù. Hãy đóng và mở lại trò chơi để khôi phục sương mù."
-battle_preferences.UI_fog_restart_on: "Đã lên lịch xóa sương mù. Hãy đóng và mở lại trò chơi để áp dụng."
 battle_preferences.UI_setting_addEnemyName_text: "Thêm tên kẻ thù"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Thêm tên người chơi bên cạnh tên xe trong nhật ký sát thương."
 battle_preferences.UI_setting_clipLoad_text: "Gửi trạng thái nạp đạn"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Tắt âm thanh cơ sở 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Tắt tiếng âm thanh chiếm căn cứ."
 battle_preferences.UI_setting_postmortemTips_text: "Hiển thị mẹo sau khi bị phá hủy"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Hiển thị bảng mẹo ở cuối màn hình sau khi xe của bạn bị phá hủy. Tắt để ẩn bảng."
-battle_preferences.UI_setting_removeFog_text: "Xóa sương mù"
-battle_preferences.UI_setting_removeFog_tooltip: "Tạo một gói riêng không có sương mù từ các bản đồ của bản cài đặt này. Gói được cài hoặc gỡ sau khi bạn đóng trò chơi, vì vậy cần khởi động lại. Tắt mod này cũng gỡ gói."
 battle_preferences.UI_setting_showBattleHint_text: "Ẩn gợi ý chiến đấu"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Ẩn các gợi ý trong trận của trò chơi, như những gợi ý hiện ở đầu màn hình."
 battle_preferences.UI_setting_showFriends_text: "Hiển thị bạn bè"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong t
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Nhận phần thưởng bang hội"
-clan_reward_collection.UI_setting_enabled_text: "Đã bật"
-clan_reward_collection.UI_setting_enabled_tooltip: "Bật/tắt chế độ."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tự động mua bằng Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Tắt theo mặc định. Khi bật, bước tiến bộ tiếp theo của clan sẽ được mua tự động khi số dư Tour Coins đủ giá. Tiêu Tour Coins mà không cần xác nhận. Tắt tùy chọn này không dừng việc nhận thưởng miễn phí."
 
 # common
 common.UI_mog_accent: "Màu nhấn"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "Không có dữ liệu dấu đáng tin cậy"
 common.UI_mog_vehicle: "Thông tin xe"
 common.UI_mog_waiting: "Chưa đủ lịch sử ghi nhận"
 common.UI_mog_winrate: "Tỷ lệ thắng"
-common.UI_native_close: "Đóng"
-common.UI_native_defaults: "Khôi phục mặc định"
 common.UI_native_enabled: "Bật chế độ"
 common.UI_native_enabled_tooltip: "Bật hoặc tắt mod này. Khi tắt, trò chơi hoạt động như thể mod chưa được cài."
-common.UI_native_error: "Không thể lưu cài đặt. Xem game.log."
-common.UI_native_off: "TẮT"
-common.UI_native_on: "BẬT"
-common.UI_native_press: "Nhấn một phím (Esc để hủy)"
-common.UI_native_save: "Lưu và áp dụng"
-common.UI_native_saved: "Đã lưu cài đặt."
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} trận (ước tính)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "Hồ sơ cho trận đấu tiếp theo bắt đ�
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Thông báo phát hiện và hỗ trợ"
-enemy_spotting_status.UI_macros_help: "Sử dụng các macro này trong định dạng tin nhắn của bạn để tùy chỉnh thông báo:\n• {icons} - Hiển thị biểu tượng xe\n• {names} - Hiển thị tên người chơi\n• {vehicles} - Hiển thị tên xe\n• {icons_names} - Hiển thị biểu tượng có tên người chơi\n• {icons_vehicles} - Hiển thị biểu tượng với tên xe\n• {full} - Hiển thị thông tin đầy đủ\n• {damage} - Hiển thị số lượng thiệt hại (chỉ dành cho tin nhắn hỗ trợ)"
-enemy_spotting_status.UI_macros_help_title: "Hướng dẫn sử dụng macro"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Hỗ trợ vô tuyến:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Thông báo hiển thị khi bạn nhận sát thương hỗ trợ do phát hiện. Macro: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Hỗ trợ choáng:"
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "Vị trí dọc của bảng, 
 # main
 main.UI_description: "Cài đặt chung"
 main.UI_setting_clock_enabled_text: "Hiển thị đồng hồ"
-main.UI_setting_enabled_text: "Đã bật"
-main.UI_setting_enabled_tooltip: "Bật hoặc tắt cài đặt chung. Các thành phần khác của mod không bị ảnh hưởng."
 main.UI_tooltip: "Các tùy chọn áp dụng cho toàn bộ mod."
 main.UI_tooltip_clock_enabled: "Trường: Văn bản / hình ảnh (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Độ mờ tối 
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Số giây kể từ lần phát hiện cuối cùng"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Màu vị trí cuối: trung đội"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Kiểu vị trí cuối"
-minimap_enhancements.UI_setting_mapSize_color_text: "Màu kích thước bản đồ"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Hiển thị kích thước bản đồ"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "Kích thước phông chữ kích thước bản đồ"
 minimap_enhancements.UI_setting_mapSize_format_text: "Định dạng kích thước bản đồ"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "Kích thước bản đồ bù ngang"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "Độ lệch dọc của kích thước bản đồ"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Màu vị trí cuối c�
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "Màu vị trí cuối cùng được biết của thành viên trung đội."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Màu dấu vị trí cuối cùng được biết: màu đội nhạt hoặc xám."
 minimap_enhancements.UI_tooltip_lostScale: "Kích thước biểu tượng tại vị trí cuối cùng được biết."
-minimap_enhancements.UI_tooltip_mapSize_color: "Màu chữ kích thước bản đồ."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Hiển thị kích thước bản đồ bên cạnh bản đồ nhỏ."
 minimap_enhancements.UI_tooltip_mapSize_format: "Văn bản kích thước bản đồ. Macro tính bằng mét: {{width}}, {{height}} và {{cellsize}} (cạnh của một ô lưới)."
 minimap_enhancements.UI_tooltip_marks: "Thêm dấu khoảng cách trên các đường sau mỗi số mét đã đặt. 0 tắt các dấu."
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "Dùng vật phẩm tiêu hao cỡ 
 repair_controls.UI_setting_useGoldKits_tooltip: "Dùng bộ sửa chữa, bộ sơ cứu và bình chữa cháy lớn khi đã được trang bị."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "TẮT"
-server_turret_sync.UI_battle_ON: "TRÊN"
 server_turret_sync.UI_battle_activateMessage: "'Tháp máy chủ được mở rộng': Đã kích hoạt"
 server_turret_sync.UI_description: "Đồng bộ tháp pháo với máy chủ"
 server_turret_sync.UI_setting_activateMessage_text: "Hiển thị thông báo kích hoạt"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "Màu văn bản"
 target_distance.UI_setting_textColor_tooltip: "Màu chữ khoảng cách."
 target_distance.UI_setting_textSize_text: "Kích thước văn bản"
 target_distance.UI_setting_textSize_tooltip: "Cỡ chữ của chữ khoảng cách."
-target_distance.modDisplayName: "Điểm đánh dấu khoảng cách"
 
 # target_information
 target_information.UI_delay_format: "giây."
@@ -1836,3 +1811,9 @@ panel.hud.health: "Máu"
 vehicle_health.UI_setting_style_tooltip: "Chọn khung thanh máu."
 vehicle_health.UI_health_color_tooltip: "Màu thay đổi theo lượng máu còn lại."
 vehicle_health.UI_health_minimal: "Tối giản"
+
+vehicle_health.UI_health_ammo_minimal: "Bảng đạn — Tối giản"
+
+vehicle_health.UI_health_ammo_classic: "Bảng đạn — WoT cổ điển"
+
+vehicle_health.UI_health_ammo_driftkings: "Bảng đạn — Driftkings"

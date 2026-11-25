@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "999",
+  "feature": "DriftkingsCrewDetails",
+  "resource": "gui/gameface/_dist/production/lobby/crew/tooltips/TankmanTooltip/TankmanTooltip.html",
+  "source_sha256": "7c90e7cbf21c4b495454e199a323ef90fa7f829d45806a967a7c2cfc0534f91a",
+  "output_sha256": "3e31db9c7c71cc26eb9f00f8fed644726612332abb3da76564950a202ec4a0ab",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/crew_details/details.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/crew_details/details.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

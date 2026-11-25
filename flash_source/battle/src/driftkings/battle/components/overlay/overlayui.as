@@ -1,8 +1,8 @@
 package driftkings.battle.components.overlay {
-import driftkings.battle.base.battledisplayable;
+import driftkings.battle.base.BattleDisplayable;
 import flash.display.DisplayObjectContainer;
 
-public class overlayui extends battledisplayable {
+public class overlayui extends BattleDisplayable {
     public var onElementMoved:Function;
     private var nodes:Object = {};
 

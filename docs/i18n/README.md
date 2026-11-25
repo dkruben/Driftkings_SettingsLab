@@ -1,5 +1,7 @@
 # Regional languages
 
+The production CN source identifies its locale as `zh_cn`. Check translated labels and font coverage in the candidate on that client. [Production record](../releases/0.1.7-beta.2-readiness.md).
+
 The catalogs are UTF-8 `.yml` resources in `mod/res/mods/driftkings/text/<code>.yml`,
 packaged under `res/mods/driftkings/text/` and loaded through the game VFS. The
 format is described in [contribution guide](../../CONTRIBUTING.md#translation-resources).

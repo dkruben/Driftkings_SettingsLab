@@ -1,9 +1,43 @@
+# Canonical source format (runtime plan section 24).
+# Textual sources are stored and checked out with LF on every host, whatever core.autocrlf says.
 *.py text eol=lf
-*.cmd text eol=crlf
+*.as text eol=lf
+*.as3proj text eol=lf
+*.wproj text eol=lf
+*.wwu text eol=lf
+*.cfg text eol=lf
+*.cjs text eol=lf
+*.cs text eol=lf
+*.css text eol=lf
+*.editorconfig text eol=lf
+*.gitkeep text eol=lf
+*.html text eol=lf
+*.iss text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.model text eol=lf
+*.svg text eol=lf
+*.txt text eol=lf
+*.visual text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+licence text eol=lf
 build_data/** text eol=lf
 res/configs/** text eol=lf
-*.yml text eol=lf
-*.json text eol=lf
-*.js text eol=lf
-*.css text eol=lf
-*.md text eol=lf
+
+# Explicit CRLF exception: Windows command launchers. cmd.exe reads batch files by byte offset, and
+# label jumps in LF-only batch files are not reliable.
+*.cmd text eol=crlf
+
+# Binary resources: never converted, never diffed as text.
+*.bnk binary
+*.dds binary
+*.ico binary
+*.png binary
+*.primitives binary
+*.swc binary
+*.ttf binary
+*.wav binary

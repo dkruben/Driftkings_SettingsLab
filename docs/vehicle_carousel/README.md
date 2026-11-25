@@ -1,5 +1,7 @@
 # Vehicle carousel (Gameface)
 
+The pinned carousel bridge passed its source, anchor and output checks on NA #999. Candidate behaviour still needs an in-game check. [Production record](../releases/0.1.7-beta.2-readiness.md).
+
 Source folder: `mod/res/gui/gameface/mods/driftkings/vehicle_carousel/`.
 
 Configurable own-player random-battle statistics for the Wargaming 2.4.1.1 carousel.

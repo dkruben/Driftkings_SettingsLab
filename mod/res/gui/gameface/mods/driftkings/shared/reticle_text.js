@@ -58,8 +58,6 @@
         }
         function position(element, cfg) {
             place(element, cfg);
-            // A new text can still measure empty right after display:block.
-            requestAnimationFrame(function () { place(element, cfg); });
         }
         function saved(element, cfg) {
             var anchor = element.__dk || {x: .5, y: .5}, px = unit(), box = element.getBoundingClientRect();
@@ -69,12 +67,9 @@
         }
         document.addEventListener('mousedown', down, true);
         document.addEventListener('mouseup', up, true);
-        var kit = K.connect(feature, owner, root, render, position, saved), dispose = kit.dispose;
-        kit.dispose = function () {
+        return K.connect(feature, owner, root, render, position, saved, {afterLayout: true, dispose: function () {
             document.removeEventListener('mousedown', down, true);
             document.removeEventListener('mouseup', up, true);
-            dispose();
-        };
-        return kit;
+        }});
     };
 }());

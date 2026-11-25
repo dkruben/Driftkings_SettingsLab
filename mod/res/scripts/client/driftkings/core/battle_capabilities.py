@@ -201,33 +201,6 @@ class BattleCapabilities(object):
             LOG.info('mode=%s', mode)
         return mode
 
-    def supports_gameface_overlay(self, view=None, resource_key=None):
-        # Require an actual initialized Wulf battle view supplied by the caller,
-        # plus a resource resolved through the native WG R tree.
-        if not self.is_in_battle() or self.current_mode() in ('unknown', 'hangar') or view is None or not resource_key:
-            return False
-        gameface = self.modules.get('openwg_gameface')
-        if not callable(read(gameface, 'gf_mod_inject')):
-            return False
-        try:
-            from frameworks.wulf import View, ViewStatus
-            if (not isinstance(view, View) or read(view, 'viewStatus') != ViewStatus.LOADED
-                or read(view, 'proxy') is None):
-                return False
-            # Recognize a real client battle-view type in its inheritance chain,
-            # rather than treating arbitrary lobby/settings Wulf views as overlays.
-            if not any(read(cls, '__module__', '').startswith('gui.impl.battle.') for cls in type(view).__mro__):
-                return False
-            from gui.impl.gen import R
-            accessor = R
-            for part in resource_key.split('/'):
-                accessor = getattr(accessor, part)
-            resource = accessor()
-            return (isinstance(resource, (int, float)) and not isinstance(resource, bool) and resource > 0
-                    and resource == read(view, 'layoutID'))
-        except Exception:
-            return False
-
 
 battle_capabilities = BattleCapabilities()
 current_mode = battle_capabilities.current_mode
@@ -246,4 +219,3 @@ is_white_tiger = battle_capabilities.is_white_tiger
 is_special = battle_capabilities.is_special
 is_spg = battle_capabilities.is_spg
 is_in_battle = battle_capabilities.is_in_battle
-supports_gameface_overlay = battle_capabilities.supports_gameface_overlay

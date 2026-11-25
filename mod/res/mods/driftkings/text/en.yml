@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "This account belongs to the {realm} reg
 account_manager.UI_setting_errorRequired: "Fill in the name, email and password."
 account_manager.UI_setting_errorSave: "Could not save accounts. The previous file was preserved."
 account_manager.UI_setting_errorServer: "Select an available server."
+account_manager.UI_setting_sharedEmail: "This e-mail is already saved for another server. Wargaming allows one account on several servers; check that this is the account you want."
 account_manager.UI_setting_errorSteam: "This client uses Steam. Select the account through Steam."
 account_manager.UI_setting_keepPassword: "Leave blank to keep the saved password."
 account_manager.UI_setting_loginOnly: "Select an account on the login screen."
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash: Hide Dot"
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash: Show Dot"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: Hide Splash"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash: Show Splash"
-artillery_blast_radius.UI_artySplash_name: "HE Splash"
 artillery_blast_radius.UI_description: "Artillery blast radius"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "Button: show|hide Dot"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "Shows or hides the aiming dot during battle."
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "Color of the frame drawn aro
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "Marks of Excellence in battle"
-battle_marks_of_excellence.UI_message: "MoE change visual %s"
 battle_marks_of_excellence.UI_setting_background_text: "Show panel background"
 battle_marks_of_excellence.UI_setting_background_tooltip: "Shows the panel background. The opacity is set separately."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "Button: Reset Settings"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "Prevents moving the in-battle p
 
 # battle_preferences
 battle_preferences.UI_description: "Battle preferences"
-battle_preferences.UI_fog_error: "Could not apply fog removal. Check game.log and try again in Battle preferences."
-battle_preferences.UI_fog_restart_off: "Fog package removal scheduled. Close and reopen the game to restore fog."
-battle_preferences.UI_fog_restart_on: "Fog removal scheduled. Close and reopen the game to apply."
 battle_preferences.UI_setting_addEnemyName_text: "Add Enemy Name"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Adds the player's name next to the vehicle name in the damage log."
 battle_preferences.UI_setting_clipLoad_text: "Send reload status"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Mute Team Base Sound"
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Mutes the base capture sound."
 battle_preferences.UI_setting_postmortemTips_text: "Show Postmortem Tips"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Shows the tips panel at the bottom of the screen after your vehicle is destroyed. Turn it off to hide it."
-battle_preferences.UI_setting_removeFog_text: "Remove fog"
-battle_preferences.UI_setting_removeFog_tooltip: "Builds a separate package from this installation's maps without fog. It is installed or removed after you close the game, so a restart is required. Turning this mod off also removes the package."
 battle_preferences.UI_setting_showBattleHint_text: "Hide battle hints"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Hides the game's battle hints, such as the tips shown at the top of the screen."
 battle_preferences.UI_setting_showFriends_text: "Show Friends"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "Prevents moving the in-battle pa
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "Clan reward collection"
-clan_reward_collection.UI_setting_enabled_text: "Enabled"
-clan_reward_collection.UI_setting_enabled_tooltip: "Enable/disable the mod."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Automatic purchases with Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Off by default. When on, the next clan progression stage is bought automatically whenever your Tour Coin balance covers its price. This spends Tour Coins without a confirmation. Turning it off does not stop free reward collection."
 
 # common
 common.UI_mog_accent: "Accent color"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "No reliable marks data available"
 common.UI_mog_vehicle: "Vehicle information"
 common.UI_mog_waiting: "Not enough observed history"
 common.UI_mog_winrate: "Win rate"
-common.UI_native_close: "Close"
-common.UI_native_defaults: "Defaults"
 common.UI_native_enabled: "Enable mod"
 common.UI_native_enabled_tooltip: "Turns this mod on or off. When it is off, the game behaves as if the mod were not installed."
-common.UI_native_error: "Could not save settings"
-common.UI_native_off: "Off"
-common.UI_native_on: "On"
-common.UI_native_press: "Press a key..."
-common.UI_native_save: "Save"
-common.UI_native_saved: "Settings saved"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} battles (estimate)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "Profile for the next game start"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "Spotted and assist notifications"
-enemy_spotting_status.UI_macros_help: "Use these macros in your message formats to customize notifications:\n• {icons} - Shows vehicle icons\n• {names} - Shows player names\n• {vehicles} - Shows vehicle names\n• {icons_names} - Shows icons with player names\n• {icons_vehicles} - Shows icons with vehicle names\n• {full} - Shows complete information\n• {damage} - Shows damage amount (for assist messages only)"
-enemy_spotting_status.UI_macros_help_title: "Macro Usage Guide"
 enemy_spotting_status.UI_setting_AssistRadio_text: "Radio assist:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "Notification shown when you earn spotting assist damage. Macros: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "Stun assist:"
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "Vertical position of the panel
 # main
 main.UI_description: "General settings"
 main.UI_setting_clock_enabled_text: "Clock Display"
-main.UI_setting_enabled_text: "Enabled"
-main.UI_setting_enabled_tooltip: "Turns the general settings on or off. The other mod components are not affected."
 main.UI_tooltip: "Options that apply to the whole mod."
 main.UI_tooltip_clock_enabled: "Field: Text / image (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "Minimum last-know
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "Seconds since last detection"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "Last position color: squad"
 minimap_enhancements.UI_setting_lostMarker_style_text: "Last position style"
-minimap_enhancements.UI_setting_mapSize_color_text: "Map dimensions color"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "Show map dimensions"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "Map dimensions font size"
 minimap_enhancements.UI_setting_mapSize_format_text: "Map dimensions format"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "Map dimensions horizontal offset"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "Map dimensions vertical offset"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "Color of last known posi
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "Color of last known positions of platoon members."
 minimap_enhancements.UI_tooltip_lostMarker_style: "Color of last known position markers: a dull team color or grey."
 minimap_enhancements.UI_tooltip_lostScale: "Size of the icons at last known positions."
-minimap_enhancements.UI_tooltip_mapSize_color: "Color of the map dimensions text."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "Shows the map dimensions next to the minimap."
 minimap_enhancements.UI_tooltip_mapSize_format: "Text of the map dimensions. Macros in metres: {{width}}, {{height}} and {{cellsize}} (side of one grid square)."
 minimap_enhancements.UI_tooltip_marks: "Adds a distance mark on the lines every set number of metres. 0 turns the marks off."
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "Use large consumables"
 repair_controls.UI_setting_useGoldKits_tooltip: "Uses large repair kits, first aid kits and fire extinguishers when they are equipped."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "OFF"
-server_turret_sync.UI_battle_ON: "ON"
 server_turret_sync.UI_battle_activateMessage: "'Server Turret Extended': Activated"
 server_turret_sync.UI_description: "Server turret synchronization"
 server_turret_sync.UI_setting_activateMessage_text: "Show Activation Message"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "Text Color"
 target_distance.UI_setting_textColor_tooltip: "Color of the distance text."
 target_distance.UI_setting_textSize_text: "Text Size"
 target_distance.UI_setting_textSize_tooltip: "Font size of the distance text."
-target_distance.modDisplayName: "DistanceMarker"
 
 # target_information
 target_information.UI_delay_format: " sec."
@@ -1836,3 +1811,9 @@ panel.hud.health: "Health"
 vehicle_health.UI_setting_style_tooltip: "Choose the health bar frame."
 vehicle_health.UI_health_color_tooltip: "Dynamic colour based on remaining health."
 vehicle_health.UI_health_minimal: "Minimalist"
+
+vehicle_health.UI_health_ammo_minimal: "Ammo panel — Minimalist"
+
+vehicle_health.UI_health_ammo_classic: "Ammo panel — WoT Classic"
+
+vehicle_health.UI_health_ammo_driftkings: "Ammo panel — Driftkings"

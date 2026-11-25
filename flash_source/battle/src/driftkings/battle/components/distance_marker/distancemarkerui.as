@@ -2,13 +2,13 @@ package driftkings.battle.components.distance_marker
 {
 	import driftkings.battle.components.distance_marker.config;
 	import driftkings.battle.components.distance_marker.distancemarker;
-	import driftkings.battle.base.battledisplayable;
+	import driftkings.battle.base.BattleDisplayable;
 	import flash.geom.Matrix;
 	import driftkings.utils.screentransform;
 	import flash.events.Event;
 	import flash.utils.getTimer;
 
-	public class distancemarkerui extends battledisplayable 
+	public class distancemarkerui extends BattleDisplayable
 	{
 		private static const REFRESH_DISTANCE_INTERVAL_MS:int = 100;
 		private static const SORT_BY_DISTANCE_INTERVAL_MS:int = 500;

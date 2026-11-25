@@ -1,4 +1,5 @@
 import binascii
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -22,6 +23,9 @@ class ReleaseSignatureTests(unittest.TestCase):
         self.folder = Path(temp.name)
         (self.folder / 'release.json').write_bytes(b'{"version": "1.0.0"}\n')
         (self.folder / 'release.key').write_text(binascii.hexlify(SEED).decode('ascii'))
+        # Only a production release report is eligible for signing (publication_state.eligible_for_signing).
+        (self.folder / 'build-report.json').write_text(json.dumps(dict(
+            status='success', mode='release', profile='production', realm='NA', publishable=False)), encoding='utf-8')
         module = load_signature()
         self.signature = types.SimpleNamespace(
             SIGNATURE_ASSET=module.SIGNATURE_ASSET, verify_manifest=module.verify_manifest,

@@ -1,4 +1,5 @@
 {
   "claimRewards": true,
-  "enabled": true
+  "enabled": true,
+  "purchaseProgression": false
 }

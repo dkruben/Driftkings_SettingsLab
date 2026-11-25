@@ -24,10 +24,15 @@ def changed_paths(before, after, prefix=()):
 
 
 class SettingsChanges(dict):
-    """Complete changed sections, with paths for selective consumers."""
-    def __init__(self, values=(), paths=None):
+    """
+    Complete changed sections, with paths for selective consumers.
+    ``origin`` is None for user or programmatic applications and ``'reload'`` when the values were re-read from
+    storage; consumers that trigger side effects must not act on reloads.
+    """
+    def __init__(self, values=(), paths=None, origin=None):
         super(SettingsChanges, self).__init__(values)
         self.paths = frozenset((key,) for key in self) if paths is None else frozenset(paths)
+        self.origin = origin
 
 
 def affects(changes, *options):
@@ -224,7 +229,7 @@ class SettingsService(object):
         if changes:
             self._bind(config)
             self.onModSettingsChanged.emit(part_name(config.NAME),
-                SettingsChanges(changes, changed_paths(before, config.data)))
+                SettingsChanges(changes, changed_paths(before, config.data), origin='reload'))
         return changes
 
     def apply(self, config, values, persist=True):

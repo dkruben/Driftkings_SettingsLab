@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "999",
+  "feature": "DriftkingsMarksOnGunTechTree",
+  "resource": "gui/gameface/_dist/production/mono/tech_tree/main/main.html",
+  "source_sha256": "1502e1d7b5dddd26b8091c21164f8f0d1f7cde566183c42aae8aace96cf126b1",
+  "output_sha256": "c774e72fff071f6d7c290cec17404734af50eddf50ab2051d4dbbc40456d2b6e",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/marks_tokens.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/tech_tree_marks_of_excellence/marks.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "이 계정은 {realm} 지역 계정입�
 account_manager.UI_setting_errorRequired: "이름, 이메일, 비밀번호를 입력하세요."
 account_manager.UI_setting_errorSave: "계정을 저장할 수 없습니다. 이전 파일은 보존되었습니다."
 account_manager.UI_setting_errorServer: "사용 가능한 서버를 선택하세요."
+account_manager.UI_setting_sharedEmail: "이 이메일은 다른 서버용으로 이미 저장되어 있습니다. Wargaming은 한 계정을 여러 서버에서 사용하는 것을 허용합니다. 원하는 계정인지 확인하세요."
 account_manager.UI_setting_errorSteam: "이 클라이언트는 Steam을 사용합니다. Steam에서 계정을 선택하세요."
 account_manager.UI_setting_keepPassword: "저장된 비밀번호를 유지하려면 비워두세요."
 account_manager.UI_setting_loginOnly: "로그인 화면에서 계정을 선택하세요."
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE 스플래시: 도트 숨
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE 스플래시: 도트 표시"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE 스플래시: 스플래시 숨기기"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE 스플래시: 스플래시 표시"
-artillery_blast_radius.UI_artySplash_name: "HE 스플래시"
 artillery_blast_radius.UI_description: "자주포 폭발 반경"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "버튼: 도트 표시|숨기기"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "전투 중 조준점을 표시하거나 숨깁니다."
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "자동 조준으로 고정�
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "전투 중 화력의 증표"
-battle_marks_of_excellence.UI_message: "MoE 변경 시각 %s"
 battle_marks_of_excellence.UI_setting_background_text: "전투: 배경 표시"
 battle_marks_of_excellence.UI_setting_background_tooltip: "패널 배경을 표시합니다. 불투명도는 따로 설정합니다."
 battle_marks_of_excellence.UI_setting_buttonReset_text: "버튼: 설정 재설정"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "전투 패널을 마우스로 �
 
 # battle_preferences
 battle_preferences.UI_description: "전투 설정"
-battle_preferences.UI_fog_error: "안개 제거를 적용하지 못했습니다. game.log를 확인한 후 전투 설정에서 다시 시도하세요."
-battle_preferences.UI_fog_restart_off: "안개 패키지 제거가 예약되었습니다. 안개를 복원하려면 게임을 종료한 후 다시 실행하세요."
-battle_preferences.UI_fog_restart_on: "안개 제거가 예약되었습니다. 적용하려면 게임을 종료한 후 다시 실행하세요."
 battle_preferences.UI_setting_addEnemyName_text: "적 이름 추가"
 battle_preferences.UI_setting_addEnemyName_tooltip: "피해 기록에서 차량 이름 옆에 플레이어 이름을 추가합니다."
 battle_preferences.UI_setting_clipLoad_text: "재장전 상태 전송"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "팀 베이스 사운드 �
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "기지 점령 소리를 음소거합니다."
 battle_preferences.UI_setting_postmortemTips_text: "격파 후 팁 표시"
 battle_preferences.UI_setting_postmortemTips_tooltip: "차량이 격파된 뒤 화면 하단에 팁 패널을 표시합니다. 끄면 숨겨집니다."
-battle_preferences.UI_setting_removeFog_text: "안개 제거"
-battle_preferences.UI_setting_removeFog_tooltip: "이 설치본의 맵으로 안개 없는 별도 패키지를 만듭니다. 게임을 종료한 뒤 설치되거나 제거되므로 재시작이 필요합니다. 이 모드를 끄면 패키지도 제거됩니다."
 battle_preferences.UI_setting_showBattleHint_text: "전투 도움말 숨기기"
 battle_preferences.UI_setting_showBattleHint_tooltip: "화면 상단에 나타나는 힌트 등 게임의 전투 힌트를 숨깁니다."
 battle_preferences.UI_setting_showFriends_text: "친구 표시"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "전투 패널을 마우스로 �
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "클랜 보상 수령"
-clan_reward_collection.UI_setting_enabled_text: "활성화됨"
-clan_reward_collection.UI_setting_enabled_tooltip: "모드를 활성화/비활성화합니다."
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coins 자동 구매"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "기본값은 꺼짐입니다. 켜면 Tour Coins 잔액이 가격을 충족할 때마다 다음 클랜 진행 단계가 자동으로 구매됩니다. 확인 없이 Tour Coins를 사용합니다. 끄더라도 무료 보상 수집은 계속됩니다."
 
 # common
 common.UI_mog_accent: "강조 색상"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "신뢰할 수 있는 증표 데이터가 없습니�
 common.UI_mog_vehicle: "전차 정보"
 common.UI_mog_waiting: "관측 기록이 부족합니다"
 common.UI_mog_winrate: "승률"
-common.UI_native_close: "닫기"
-common.UI_native_defaults: "기본값 복원"
 common.UI_native_enabled: "모드 활성화"
 common.UI_native_enabled_tooltip: "이 모드를 켜거나 끕니다. 끄면 모드가 설치되지 않은 것처럼 게임이 동작합니다."
-common.UI_native_error: "설정을 저장하지 못했습니다. game.log를 확인하세요."
-common.UI_native_off: "꺼짐"
-common.UI_native_on: "켜짐"
-common.UI_native_press: "키를 누르세요 (Esc로 취소)"
-common.UI_native_save: "저장 및 적용"
-common.UI_native_saved: "설정이 저장되었습니다."
 
 # crew_management
 crew_management.UI_crew_battles: "약 {battles}회 전투 (예상)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "다음 게임 시작을 위한 프로필"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "발견 및 도움 알림"
-enemy_spotting_status.UI_macros_help: "알림을 사용자 정의하려면 메시지 형식에 다음 매크로를 사용하십시오.\n• {icons} - 차량 아이콘 표시\n• {names} - 플레이어 이름 표시\n• {vehicles} - 차량 이름 표시\n• {icons_names} - 플레이어 이름과 아이콘 표시\n• {icons_vehicles} - 차량과 아이콘 표시 names\n• {full} - 전체 정보 표시 \n• {damage} - 피해량 표시(지원 메시지에만 해당)"
-enemy_spotting_status.UI_macros_help_title: "매크로 활용 가이드"
 enemy_spotting_status.UI_setting_AssistRadio_text: "라디오 지원:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "정찰 지원 피해량을 얻었을 때의 알림입니다. 매크로: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}."
 enemy_spotting_status.UI_setting_AssistStun_text: "기절 지원:"
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "고정된 화면 가장자리�
 # main
 main.UI_description: "일반 설정"
 main.UI_setting_clock_enabled_text: "시계 표시"
-main.UI_setting_enabled_text: "활성화됨"
-main.UI_setting_enabled_tooltip: "일반 설정을 켜거나 끕니다. 모드의 다른 구성 요소에는 영향을 주지 않습니다."
 main.UI_tooltip: "모드 전체에 적용되는 옵션입니다."
 main.UI_tooltip_clock_enabled: "필드: 텍스트 / 이미지 (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "마지막으로 �
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "마지막 감지 이후 초"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "마지막 위치 색상: 소대"
 minimap_enhancements.UI_setting_lostMarker_style_text: "마지막 위치 스타일"
-minimap_enhancements.UI_setting_mapSize_color_text: "지도 차원 색상"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "지도 크기 표시"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "지도 차원 글꼴 크기"
 minimap_enhancements.UI_setting_mapSize_format_text: "지도 차원 형식"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "지도 크기 수평 오프셋"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "지도 크기 수직 오프셋"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "적의 마지막으로 �
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "소대원의 마지막으로 확인된 위치 색상입니다."
 minimap_enhancements.UI_tooltip_lostMarker_style: "마지막으로 확인된 위치 마커의 색상: 흐린 팀 색상 또는 회색."
 minimap_enhancements.UI_tooltip_lostScale: "마지막으로 확인된 위치의 아이콘 크기입니다."
-minimap_enhancements.UI_tooltip_mapSize_color: "맵 크기 텍스트의 색상입니다."
 minimap_enhancements.UI_tooltip_mapSize_enabled: "미니맵 옆에 맵 크기를 표시합니다."
 minimap_enhancements.UI_tooltip_mapSize_format: "맵 크기 텍스트입니다. 미터 단위 매크로: {{width}}, {{height}}, {{cellsize}}(격자 한 칸의 변)."
 minimap_enhancements.UI_tooltip_marks: "선 위에 설정한 미터마다 거리 표시를 넣습니다. 0이면 표시를 끕니다."
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "대형 소모품 사용"
 repair_controls.UI_setting_useGoldKits_tooltip: "장착되어 있으면 대형 수리 키트, 대형 구급 키트, 대형 소화기를 사용합니다."
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "끄다"
-server_turret_sync.UI_battle_ON: "에"
 server_turret_sync.UI_battle_activateMessage: "'서버 포탑 확장': 활성화됨"
 server_turret_sync.UI_description: "서버 포탑 동기화"
 server_turret_sync.UI_setting_activateMessage_text: "활성화 메시지 표시"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "텍스트 색상"
 target_distance.UI_setting_textColor_tooltip: "거리 텍스트의 색상입니다."
 target_distance.UI_setting_textSize_text: "텍스트 크기"
 target_distance.UI_setting_textSize_tooltip: "거리 텍스트의 글꼴 크기입니다."
-target_distance.modDisplayName: "거리마커"
 
 # target_information
 target_information.UI_delay_format: "비서."
@@ -1836,3 +1811,9 @@ panel.hud.health: "내구도"
 vehicle_health.UI_setting_style_tooltip: "내구도 막대의 테두리를 선택합니다."
 vehicle_health.UI_health_color_tooltip: "남은 내구도에 따라 색상이 변합니다."
 vehicle_health.UI_health_minimal: "미니멀"
+
+vehicle_health.UI_health_ammo_minimal: "탄약 패널 — 미니멀"
+
+vehicle_health.UI_health_ammo_classic: "탄약 패널 — WoT 클래식"
+
+vehicle_health.UI_health_ammo_driftkings: "탄약 패널 — Driftkings"

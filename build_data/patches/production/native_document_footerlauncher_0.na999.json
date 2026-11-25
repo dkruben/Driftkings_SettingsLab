@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "999",
+  "feature": "DriftkingsFooterLauncher",
+  "resource": "gui/gameface/_dist/production/mono/hangar/footer/footer.html",
+  "source_sha256": "4e6c4880be348c5af49ba82b02c75232b21890fc19b6c90519213513b9743608",
+  "output_sha256": "a1bcde141f0cfa7ee6fff542da8a084f830562040775e07eb400697631369c94",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/launcher/launcher.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/launcher/launcher.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

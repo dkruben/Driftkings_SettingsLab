@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "このアカウントは{realm}リー�
 account_manager.UI_setting_errorRequired: "名前、電子メール、パスワードを入力してください。"
 account_manager.UI_setting_errorSave: "アカウントを保存できませんでした。以前のファイルは保持されています。"
 account_manager.UI_setting_errorServer: "利用可能なサーバーを選択してください。"
+account_manager.UI_setting_sharedEmail: "このメールアドレスは別のサーバー用に既に保存されています。Wargamingは同じアカウントを複数のサーバーで使うことを許可しています。目的のアカウントか確認してください。"
 account_manager.UI_setting_errorSteam: "このクライアントはSteamを使用しています。Steamからアカウントを選択してください。"
 account_manager.UI_setting_keepPassword: "保存したパスワードを保持するには、空白のままにします。"
 account_manager.UI_setting_loginOnly: "ログイン画面でアカウントを選択します。"
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE スプラッシュ: ド�
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE スプラッシュ: ドットを表示"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE スプラッシュ: スプラッシュを隠す"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE スプラッシュ: ショー スプラッシュ"
-artillery_blast_radius.UI_artySplash_name: "HE スプラッシュ"
 artillery_blast_radius.UI_description: "自走砲の爆発範囲"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "ボタン: ドットを表示|非表示"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "戦闘中に照準点を表示・非表示にします。"
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "オートエイムでロッ�
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>NaN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}、{c_damageToMark85}\n{c_damageToMark95}、{c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "戦闘中の優等マーク"
-battle_marks_of_excellence.UI_message: "MoE変更ビジュアル%s"
 battle_marks_of_excellence.UI_setting_background_text: "バトル: 背景を表示"
 battle_marks_of_excellence.UI_setting_background_tooltip: "パネルの背景を表示します。不透明度は別に設定します。"
 battle_marks_of_excellence.UI_setting_buttonReset_text: "ボタン：設定をリセット"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 
 # battle_preferences
 battle_preferences.UI_description: "戦闘設定"
-battle_preferences.UI_fog_error: "霧の除去を適用できませんでした。game.log を確認し、戦闘設定でもう一度お試しください。"
-battle_preferences.UI_fog_restart_off: "霧パッケージの削除を予約しました。霧を戻すにはゲームを終了して再起動してください。"
-battle_preferences.UI_fog_restart_on: "霧の除去を予約しました。適用するにはゲームを終了して再起動してください。"
 battle_preferences.UI_setting_addEnemyName_text: "敵の名前を追加"
 battle_preferences.UI_setting_addEnemyName_tooltip: "ダメージログで車両名の横にプレイヤー名を追加します。"
 battle_preferences.UI_setting_clipLoad_text: "装填状況を送信"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "チームベースの音�
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "陣地占領の音をミュートします。"
 battle_preferences.UI_setting_postmortemTips_text: "撃破後のヒントを表示"
 battle_preferences.UI_setting_postmortemTips_tooltip: "自分の車両が撃破された後、画面下部にヒントパネルを表示します。オフにすると非表示になります。"
-battle_preferences.UI_setting_removeFog_text: "霧を除去"
-battle_preferences.UI_setting_removeFog_tooltip: "このインストールのマップから霧のない別パッケージを作成します。ゲーム終了後にインストールまたは削除されるため、再起動が必要です。このModを無効にするとパッケージも削除されます。"
 battle_preferences.UI_setting_showBattleHint_text: "戦闘ヒントを非表示"
 battle_preferences.UI_setting_showBattleHint_tooltip: "画面上部に表示されるものなど、ゲームの戦闘ヒントを非表示にします。"
 battle_preferences.UI_setting_showFriends_text: "友達を表示"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "クラン報酬の受け取り"
-clan_reward_collection.UI_setting_enabled_text: "有効"
-clan_reward_collection.UI_setting_enabled_tooltip: "MODを有効/無効にします。"
+clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coinsによる自動購入"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "既定ではオフです。オンにすると、Tour Coinsの残高が価格に足りるたびに、次のクラン進行段階が自動的に購入されます。確認なしでTour Coinsを使用します。オフにしても無料報酬の受け取りは止まりません。"
 
 # common
 common.UI_mog_accent: "アクセントカラー"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "信頼できるマークのデータがありませ�
 common.UI_mog_vehicle: "車輌情報"
 common.UI_mog_waiting: "観測履歴が不足しています"
 common.UI_mog_winrate: "勝率"
-common.UI_native_close: "閉じる"
-common.UI_native_defaults: "初期設定に戻す"
 common.UI_native_enabled: "MODを有効にする"
 common.UI_native_enabled_tooltip: "このModをオンまたはオフにします。オフのときは、Modがインストールされていないかのようにゲームが動作します。"
-common.UI_native_error: "設定を保存できませんでした。game.logを確認してください。"
-common.UI_native_off: "オフ"
-common.UI_native_on: "オン"
-common.UI_native_press: "キーを押してください（Escでキャンセル）"
-common.UI_native_save: "保存して適用"
-common.UI_native_saved: "設定を保存しました。"
 
 # crew_management
 crew_management.UI_crew_battles: "約{battles}戦 (推定)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "次回ゲーム開始時のプロフィール"
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "発見とアシストの通知"
-enemy_spotting_status.UI_macros_help: "メッセージ形式で次のマクロを使用して通知をカスタマイズします。\n• {icons} - 車両のアイコンを表示\n• {names} - プレイヤー名を表示\n• {vehicles} - 車両名を表示\n• {icons_names} - アイコンをプレイヤー名とともに表示\n• {icons_vehicles} - アイコンを車両とともに表示names\n• {full} - 完全な情報を表示します\n• {damage} - ダメージ量を表示します (アシストメッセージのみ)"
-enemy_spotting_status.UI_macros_help_title: "マクロの使い方ガイド"
 enemy_spotting_status.UI_setting_AssistRadio_text: "無線アシスト:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "偵察アシストダメージを獲得したときの通知。マクロ: {icons}、{names}、{vehicles}、{icons_names}、{icons_vehicles}、{full}、{damage}。"
 enemy_spotting_status.UI_setting_AssistStun_text: "気絶アシスト:"
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "固定されている画面端
 # main
 main.UI_description: "全般設定"
 main.UI_setting_clock_enabled_text: "時計表示"
-main.UI_setting_enabled_text: "有効"
-main.UI_setting_enabled_tooltip: "全般設定のオン／オフを切り替えます。MODの他のコンポーネントには影響しません。"
 main.UI_tooltip: "MOD全体に適用されるオプション。"
 main.UI_tooltip_clock_enabled: "フィールド: テキスト / 画像 (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "最後に判明�
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "最後の検出からの秒数"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "最後の位置の色: 小隊"
 minimap_enhancements.UI_setting_lostMarker_style_text: "最後の位置の表示方法"
-minimap_enhancements.UI_setting_mapSize_color_text: "マップの寸法の色"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "地図の寸法を表示"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "地図の寸法のフォントサイズ"
 minimap_enhancements.UI_setting_mapSize_format_text: "マップのディメンション形式"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "マップ寸法の水平オフセット"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "マップ寸法の垂直オフセット"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "敵が最後に確認さ
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "小隊メンバーが最後に確認された位置の色。"
 minimap_enhancements.UI_tooltip_lostMarker_style: "最後に確認された位置のマーカーの色: 落ち着いたチーム色または灰色。"
 minimap_enhancements.UI_tooltip_lostScale: "最後に確認された位置のアイコンのサイズ。"
-minimap_enhancements.UI_tooltip_mapSize_color: "マップの寸法テキストの色。"
 minimap_enhancements.UI_tooltip_mapSize_enabled: "ミニマップの横にマップの寸法を表示します。"
 minimap_enhancements.UI_tooltip_mapSize_format: "マップの寸法のテキスト。マクロ（メートル単位）: {{width}}、{{height}}、{{cellsize}}（グリッド1マスの一辺）。"
 minimap_enhancements.UI_tooltip_marks: "設定したメートルごとに線上へ距離の目盛りを付けます。0で目盛りを無効にします。"
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "大型消耗品を使用"
 repair_controls.UI_setting_useGoldKits_tooltip: "装備している場合、大型修理キット、大型救急キット、大型消火器を使います。"
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "オフ"
-server_turret_sync.UI_battle_ON: "の上"
 server_turret_sync.UI_battle_activateMessage: "「サーバータレット拡張」: 有効化"
 server_turret_sync.UI_description: "サーバーとの砲塔同期"
 server_turret_sync.UI_setting_activateMessage_text: "アクティベーションメッセージを表示"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "文字の色"
 target_distance.UI_setting_textColor_tooltip: "距離テキストの色。"
 target_distance.UI_setting_textSize_text: "文字サイズ"
 target_distance.UI_setting_textSize_tooltip: "距離テキストのフォントサイズ。"
-target_distance.modDisplayName: "距離マーカー"
 
 # target_information
 target_information.UI_delay_format: "秒"
@@ -1836,3 +1811,9 @@ panel.hud.health: "HP"
 vehicle_health.UI_setting_style_tooltip: "HPバーのフレームを選択します。"
 vehicle_health.UI_health_color_tooltip: "残りHPに応じて色が変化します。"
 vehicle_health.UI_health_minimal: "ミニマル"
+
+vehicle_health.UI_health_ammo_minimal: "弾薬パネル — ミニマル"
+
+vehicle_health.UI_health_ammo_classic: "弾薬パネル — WoTクラシック"
+
+vehicle_health.UI_health_ammo_driftkings: "弾薬パネル — Driftkings"

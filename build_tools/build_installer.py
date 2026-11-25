@@ -1,5 +1,6 @@
 """Generate an Inno Setup wizard that changes JSON choices, never its payload."""
 import argparse
+import zipfile
 import hashlib
 import json
 from pathlib import Path
@@ -13,8 +14,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from build_tools.generate_ui_catalog import installer_catalog
+from build_tools.publication_state import require_signable
 from build_tools.validate_locales import catalog
-from build_tools.validate_build_data import build_plan, read_json, require, supported_realms
+from build_tools.validate_build_data import build_plan, read_json, require, supported_realms, production_realms
 from build_tools.validate_installer_assets import validate as validate_assets
 from build_tools.modpack import verify as verify_modpack
 
@@ -240,15 +242,20 @@ def prepare_payload(root, artifacts, output):
             'Invalid installer build artifacts')
     inventory = verify_modpack(artifacts, manifest, read_json(artifacts / 'modpack.json'))
     config = read_json(root / 'build_data/build_config.json')
-    require(manifest['gameVersion'] == config['game']['version'] and report['realm'] in supported_realms(config),
+    require(manifest['gameVersion'] == config['game']['version'],
             'Installer artifacts target another client')
+    realms = production_realms(root, config, report)
     # Choices must correspond to the actual defaults already present in this build.
     defaults = root / config['defaults']['source_root']
     for path in defaults.rglob('*.json'):
         relative = path.relative_to(root).as_posix()
         require(report['inputs'].get(relative) == hashlib.sha256(path.read_bytes()).hexdigest(),
                 'Rebuild changed defaults before installer: ' + relative)
-    rows = ['[Files]']
+    with zipfile.ZipFile(artifacts / 'driftkings.wotmod') as archive:
+        helper = archive.read('res/gui/driftkings/updater/Driftkings.UpdateInstaller.exe')
+    migration = output / 'Driftkings.UpdateInstaller.exe'
+    migration.write_bytes(helper)
+    rows = ['[Files]', 'Source: ' + quoted(str(migration)) + '; Flags: dontcopy']
     conflicts = ['function ExistingDependenciesError: String;', 'begin', "  Result := '';", '  try']
     verification = ['procedure VerifyInstalledPayload;', 'begin']
     for entry in inventory.files:
@@ -278,7 +285,6 @@ def prepare_payload(root, artifacts, output):
     for line in manifest.get('changelog', []):
         notes += ['', '• ' + line]
     (output / 'changelog.generated.txt').write_bytes(('\r\n'.join(notes) + '\r\n').encode('utf-8-sig'))
-    realms = supported_realms(config)
     metadata = dict(RepoRoot=str(root.resolve()), BuildVersion=manifest['version'], GameVersion=manifest['gameVersion'],
                     GameRealm=report['realm'], SupportedRealms='|' + '|'.join(realms) + '|',
                     SupportedRealmsText=', '.join(realms), InstallerOutput=str((root / 'build/installer').resolve()))
@@ -292,8 +298,7 @@ def attach_installer(artifacts, installer):
     artifacts, installer = Path(artifacts).resolve(), Path(installer).resolve()
     report = read_json(artifacts / 'build-report.json')
     manifest = read_json(artifacts / 'release.json')
-    require(report.get('status') == 'success' and report.get('mode') == 'release' and report.get('publishable'),
-            'Installer attachment requires a completed release build')
+    require_signable(report)  # eligibility only; publication is decided by publish_release.py
     require(report['version'] == manifest['version'] and report['gameVersion'] == manifest['gameVersion'],
             'Installer release version mismatch')
     expected = 'Driftkings-%s-WoT-%s-Setup.exe' % (manifest['version'], manifest['gameVersion'])

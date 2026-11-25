@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Gameface presentation of Driftkings Mod Settings: integrated settings window.
-
+"""
+Gameface presentation of Driftkings Mod Settings: integrated settings window.
 The window logic lives in driftkings.settings.panel.presenter; this module only moves JSON
 between the Wulf view models and the presenter.
 """
@@ -305,12 +305,6 @@ class SettingsController(object):
                 updater.revoke_restart()
                 logger.exception('Could not close WoT for coordinated update')
                 return False
-        from driftkings.core.fog_package import coordinated_restart
-        coordinated = coordinated_restart()
-        if coordinated is not None:
-            if coordinated:
-                self.close()
-            return coordinated
         self.close()
         BigWorld.savePreferences()
         import WGC
@@ -393,4 +387,3 @@ class SettingsController(object):
 
 
 controller = SettingsController()
-

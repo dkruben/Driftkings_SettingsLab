@@ -72,3 +72,21 @@ class ReplayMarksTests(RuntimeTest):
         self.assertTrue(self.model.compact_model(1, 94.0, 94.1, 0, (0,), {}, 2, True, True)['approximate'])
         self.assertFalse(self.model.compact_model(1, 94.0, 94.1, 0, (0,), {}, 2, True)['approximate'])
         self.assertFalse(self.model.compact_model(1, None, None, 0, (0,), {}, 2, True, True)['approximate'])
+
+    def test_unknown_calibration_still_shows_the_dossier_mark(self):
+        # Hangar value is real even when the estimate is not trusted: state 'current', never hidden.
+        model = self.model.compact_model(1, 9.68, 9.9, 120.0, (0.0, 30.0, 0.0), {}, 0, False)
+        self.assertEqual(model['state'], 'current')
+        self.assertEqual(model['currentMark'], 9.68)
+        self.assertIsNone(model['estimatedMark'])
+        self.assertIsNone(model['targetDamage'])
+        self.assertEqual(model['trend']['direction'], 'unknown')
+        self.assertEqual(model['combinedDamage'], 150.0)
+
+    def test_estimate_state_requires_a_calibrated_estimate(self):
+        self.assertEqual(self.model.compact_model(1, 9.68, 9.9, 0, (0,), {}, 0, True)['state'], 'data')
+        self.assertEqual(self.model.compact_model(1, 9.68, None, 0, (0,), {}, 0, True)['state'], 'current')
+
+    def test_no_base_value_is_unavailable(self):
+        self.assertEqual(self.model.compact_model(1, None, 9.9, 0, (0,), {}, 0, True)['state'], 'unavailable')
+        self.assertEqual(self.model.compact_model(1, None, None, 0, (0,), {}, 0, False)['state'], 'unavailable')

@@ -8,7 +8,10 @@
         {name: 'bastion', file: 'bastion.png', width: 480, height: 110, canvas: [1536, 1024], crop: [352, 352], slot: [279, 469, 1090, 109]},
         {name: 'vanguard', file: 'vanguard.png', width: 480, height: 120, canvas: [1536, 1024], crop: [288, 384], slot: [253, 405, 1167, 174]},
         {name: 'ion', file: 'ion.png', width: 480, height: 94, canvas: [1536, 1024], crop: [370, 300.8], slot: [273, 461, 1074, 123]},
-        {name: 'minimal', file: null, width: 340, height: 24, canvas: [340, 24], crop: [0, 24], slot: [2, 2, 336, 20]}
+        {name: 'minimal', file: null, width: 340, height: 24, canvas: [340, 24], crop: [0, 24], slot: [2, 2, 336, 20]},
+        {name: 'ammo_minimal', file: null, width: 342, height: 26, canvas: [342, 26], crop: [0, 26], slot: [5, 5, 332, 16]},
+        {name: 'ammo_classic', file: null, width: 342, height: 26, canvas: [342, 26], crop: [0, 26], slot: [5, 5, 332, 16]},
+        {name: 'ammo_driftkings', file: null, width: 342, height: 26, canvas: [342, 26], crop: [0, 26], slot: [5, 5, 332, 16]}
     ];
     function preset(value) { return typeof value === 'number' && value === Math.floor(value) && STYLES[value] ? STYLES[value] : STYLES[0]; }
     function node(tag, name, parent) {

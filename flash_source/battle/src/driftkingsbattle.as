@@ -1,5 +1,5 @@
 package {
-import driftkings.battle.factory.componentfactory;
+import driftkings.battle.factory.ComponentFactory;
 import driftkings.utils.fontlibrary;
 import net.wg.gui.battle.views.BaseBattlePage;
 import net.wg.infrastructure.base.AbstractView;
@@ -8,11 +8,11 @@ import net.wg.infrastructure.base.AbstractView;
 public class driftkingsbattle extends AbstractView {
     private static function registerCreators():void {
         BaseBattlePage.prototype.as_DriftkingsCreate = function(aliases:Array):void {
-            componentfactory.create(this, aliases, "battle");
+            ComponentFactory.create(this, aliases, "battle");
             this.updateStage(App.appWidth, App.appHeight);
         };
         AbstractView.prototype.as_DriftkingsCreateRatings = function(aliases:Array):void {
-            componentfactory.create(this, aliases, "ratings");
+            ComponentFactory.create(this, aliases, "ratings");
         };
     }
 

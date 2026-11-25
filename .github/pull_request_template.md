@@ -7,7 +7,10 @@
 CONTRIBUTING.md asks every change to be verified in the target client. Say where it was tested:
 
 - **Client version:** <!-- e.g. 2.4.1.1 #989 -->
-- **Region:** <!-- EU / NA / ASIA -->
+- **Region:** <!-- NA / EU / ASIA / CN, or CT for development -->
+- **Package SHA-256:**
+- **Configuration migration and integrity:**
+- **Fair Play review, if applicable:**
 - **Mode:** <!-- e.g. random battle, replay, hangar, Halloween -->
 - **What was checked:**
 

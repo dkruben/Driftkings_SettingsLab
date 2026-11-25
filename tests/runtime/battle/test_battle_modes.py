@@ -70,6 +70,16 @@ class BattleModeTests(RuntimeTest):
         self.assertFalse(context.is_fort_rush())
         self.assertFalse(context.is_stronghold())
 
+    def test_minimap_only_runs_in_random_and_comp7(self):
+        policy = self.load('core.battle_policy').BattlePolicy(self.context())
+        allowed = ('REGULAR', 'EPIC_RANDOM', 'RANDOM_NP2', 'WINBACK', 'COMP7')
+        for name, value in NAMES.items():
+            self.bonus = value
+            expected = (True, 'allowed') if name in allowed else (False, 'requires_random_or_comp7')
+            self.assertEqual(policy.decision('minimap_enhancements'), expected, name)
+        self.bonus = 250
+        self.assertEqual(policy.decision('minimap_enhancements'), (False, 'requires_random_or_comp7'))
+
     def test_outside_battle_is_never_halloween(self):
         context = self.capabilities.BattleCapabilities(player=lambda: module(arena=None), session=lambda: None,
                                                        modules={'constants': module(ARENA_BONUS_TYPE=module(**NAMES))})

@@ -23,6 +23,7 @@ account_manager.UI_setting_errorRegion: "บัญชีนี้เป็นข
 account_manager.UI_setting_errorRequired: "กรอกชื่อ อีเมล และรหัสผ่าน"
 account_manager.UI_setting_errorSave: "ไม่สามารถบันทึกบัญชีได้ ไฟล์ก่อนหน้ายังคงอยู่"
 account_manager.UI_setting_errorServer: "เลือกเซิร์ฟเวอร์ที่ใช้งานได้"
+account_manager.UI_setting_sharedEmail: "อีเมลนี้ถูกบันทึกไว้สำหรับเซิร์ฟเวอร์อื่นแล้ว Wargaming อนุญาตให้ใช้บัญชีเดียวกันในหลายเซิร์ฟเวอร์ โปรดตรวจสอบว่าเป็นบัญชีที่คุณต้องการ"
 account_manager.UI_setting_errorSteam: "ไคลเอนต์นี้ใช้ Steam โปรดเลือกบัญชีผ่าน Steam"
 account_manager.UI_setting_keepPassword: "เว้นว่างไว้เพื่อเก็บรหัสผ่านที่บันทึกไว้"
 account_manager.UI_setting_loginOnly: "เลือกบัญชีบนหน้าจอเข้าสู่ระบบ"
@@ -86,7 +87,6 @@ artillery_blast_radius.UI_artySplash_messageDotOff: "HE Splash: ซ่อนจ�
 artillery_blast_radius.UI_artySplash_messageDotOn: "HE Splash: แสดงจุด"
 artillery_blast_radius.UI_artySplash_messageSplashOff: "HE Splash: ซ่อน Splash"
 artillery_blast_radius.UI_artySplash_messageSplashOn: "HE Splash: แสดงสแปลช"
-artillery_blast_radius.UI_artySplash_name: "เขาสาด"
 artillery_blast_radius.UI_description: "รัศมีระเบิดปืนใหญ่"
 artillery_blast_radius.UI_setting_buttonShowDot_text: "ปุ่ม: แสดง|ซ่อนจุด"
 artillery_blast_radius.UI_setting_buttonShowDot_tooltip: "แสดงหรือซ่อนจุดเล็งระหว่างการรบ"
@@ -110,9 +110,7 @@ autoaim_target_indicator.UI_setting_color_tooltip: "สีของกรอบ�
 
 # battle_marks_of_excellence
 battle_marks_of_excellence.NaN: "[<b>นาN</b>]"
-battle_marks_of_excellence.UI_HangarStatsEnd: "{c_damageToMark65}, {c_damageToMark85}\n{c_damageToMark95}, {c_damageToMark100}"
 battle_marks_of_excellence.UI_description: "เครื่องหมายความเป็นเลิศในการรบ"
-battle_marks_of_excellence.UI_message: "MoE เปลี่ยนภาพ %s"
 battle_marks_of_excellence.UI_setting_background_text: "การต่อสู้: แสดงพื้นหลัง"
 battle_marks_of_excellence.UI_setting_background_tooltip: "แสดงพื้นหลังของแผง ความทึบตั้งค่าแยกต่างหาก"
 battle_marks_of_excellence.UI_setting_buttonReset_text: "ปุ่ม: รีเซ็ตการตั้งค่า"
@@ -168,9 +166,6 @@ battle_performance.UI_setting_textLock_tooltip: "ป้องกันไม่�
 
 # battle_preferences
 battle_preferences.UI_description: "ตัวเลือกการรบ"
-battle_preferences.UI_fog_error: "ไม่สามารถใช้การลบหมอกได้ ตรวจสอบ game.log แล้วลองอีกครั้งในตัวเลือกการรบ"
-battle_preferences.UI_fog_restart_off: "กำหนดการลบแพ็กเกจหมอกแล้ว ปิดแล้วเปิดเกมใหม่เพื่อคืนค่าหมอก"
-battle_preferences.UI_fog_restart_on: "กำหนดการลบหมอกแล้ว ปิดแล้วเปิดเกมใหม่เพื่อใช้งาน"
 battle_preferences.UI_setting_addEnemyName_text: "เพิ่มชื่อศัตรู"
 battle_preferences.UI_setting_addEnemyName_tooltip: "เพิ่มชื่อผู้เล่นไว้ข้างชื่อยานในบันทึกความเสียหาย"
 battle_preferences.UI_setting_clipLoad_text: "ส่งสถานะการบรรจุ"
@@ -192,8 +187,6 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "ปิดเสียง�
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "ปิดเสียงการยึดฐาน"
 battle_preferences.UI_setting_postmortemTips_text: "แสดงคำแนะนำหลังถูกทำลาย"
 battle_preferences.UI_setting_postmortemTips_tooltip: "แสดงแผงเคล็ดลับที่ด้านล่างของจอหลังยานของคุณถูกทำลาย ปิดเพื่อซ่อน"
-battle_preferences.UI_setting_removeFog_text: "ลบหมอก"
-battle_preferences.UI_setting_removeFog_tooltip: "สร้างแพ็กเกจแยกที่ไม่มีหมอกจากแผนที่ของการติดตั้งนี้ แพ็กเกจจะติดตั้งหรือลบหลังจากปิดเกม จึงต้องรีสตาร์ต การปิดม็อดนี้จะลบแพ็กเกจด้วย"
 battle_preferences.UI_setting_showBattleHint_text: "ซ่อนคำแนะนำการรบ"
 battle_preferences.UI_setting_showBattleHint_tooltip: "ซ่อนคำแนะนำในการรบของเกม เช่น คำแนะนำที่แสดงด้านบนของจอ"
 battle_preferences.UI_setting_showFriends_text: "แสดงเพื่อน"
@@ -216,8 +209,8 @@ battle_statistics.UI_setting_textLock_tooltip: "ป้องกันไม่�
 
 # clan_reward_collection
 clan_reward_collection.UI_description: "รับรางวัลกองทัพ"
-clan_reward_collection.UI_setting_enabled_text: "เปิดใช้งานแล้ว"
-clan_reward_collection.UI_setting_enabled_tooltip: "เปิด/ปิดการใช้งานม็อด"
+clan_reward_collection.UI_setting_purchaseProgression_text: "ซื้ออัตโนมัติด้วย Tour Coins"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "ปิดไว้เป็นค่าเริ่มต้น เมื่อเปิด ขั้นความก้าวหน้าถัดไปของคลานจะถูกซื้ออัตโนมัติเมื่อยอด Tour Coins เพียงพอต่อราคา ใช้ Tour Coins โดยไม่ต้องยืนยัน การปิดไม่หยุดการเก็บรางวัลฟรี"
 
 # common
 common.UI_mog_accent: "สีเน้น"
@@ -262,16 +255,8 @@ common.UI_mog_unavailable: "ไม่มีข้อมูลเครื่อ�
 common.UI_mog_vehicle: "ข้อมูลพาหนะ"
 common.UI_mog_waiting: "ประวัติที่บันทึกยังไม่เพียงพอ"
 common.UI_mog_winrate: "อัตราชนะ"
-common.UI_native_close: "ปิด"
-common.UI_native_defaults: "คืนค่าเริ่มต้น"
 common.UI_native_enabled: "เปิดใช้งานม็อด"
 common.UI_native_enabled_tooltip: "เปิดหรือปิดม็อดนี้ เมื่อปิด เกมจะทำงานเหมือนไม่ได้ติดตั้งม็อด"
-common.UI_native_error: "บันทึกการตั้งค่าไม่ได้ โปรดดู game.log"
-common.UI_native_off: "ปิด"
-common.UI_native_on: "เปิด"
-common.UI_native_press: "กดปุ่ม (Esc เพื่อยกเลิก)"
-common.UI_native_save: "บันทึกและนำไปใช้"
-common.UI_native_saved: "บันทึกการตั้งค่าแล้ว"
 
 # crew_management
 crew_management.UI_crew_battles: "~{battles} การรบ (ประมาณ)"
@@ -318,8 +303,6 @@ driftkings.UI_profile_select: "โปรไฟล์สำหรับการ�
 
 # enemy_spotting_status
 enemy_spotting_status.UI_description: "การแจ้งเตือนการตรวจพบและการช่วยเหลือ"
-enemy_spotting_status.UI_macros_help: "ใช้มาโครเหล่านี้ในรูปแบบข้อความของคุณเพื่อปรับแต่งการแจ้งเตือน:\n• {icons} - แสดงไอคอนยานพาหนะ\n• {names} - แสดงชื่อผู้เล่น\n• {vehicles} - แสดงชื่อยานพาหนะ\n• {icons_names} - แสดงไอคอนพร้อมชื่อผู้เล่น\n• {icons_vehicles} - แสดง ไอคอนที่มีชื่อยานพาหนะ\n• {full} - แสดงข้อมูลทั้งหมด\n• {damage} - แสดงจำนวนความเสียหาย (สำหรับข้อความช่วยเหลือเท่านั้น)"
-enemy_spotting_status.UI_macros_help_title: "คู่มือการใช้งานมาโคร"
 enemy_spotting_status.UI_setting_AssistRadio_text: "วิทยุช่วย:"
 enemy_spotting_status.UI_setting_AssistRadio_tooltip: "การแจ้งเตือนเมื่อคุณได้รับความเสียหายจากการช่วยตรวจพบ มาโคร: {icons}, {names}, {vehicles}, {icons_names}, {icons_vehicles}, {full}, {damage}"
 enemy_spotting_status.UI_setting_AssistStun_text: "ช่วยทำให้มึนงง:"
@@ -536,8 +519,6 @@ high_caliber_progress.UI_tooltip_textPosition_y: "ตำแหน่งแนว
 # main
 main.UI_description: "การตั้งค่าทั่วไป"
 main.UI_setting_clock_enabled_text: "การแสดงนาฬิกา"
-main.UI_setting_enabled_text: "เปิดใช้งานแล้ว"
-main.UI_setting_enabled_tooltip: "เปิดหรือปิดการตั้งค่าทั่วไป ส่วนประกอบอื่นของม็อดจะไม่ได้รับผลกระทบ"
 main.UI_tooltip: "ตัวเลือกที่ใช้กับม็อดทั้งหมด"
 main.UI_tooltip_clock_enabled: "ช่อง: ข้อความ / รูปภาพ (Flash HTML)."
 # minimap_enhancements
@@ -663,9 +644,7 @@ minimap_enhancements.UI_setting_lostMarker_minimumAlpha_text: "ความท�
 minimap_enhancements.UI_setting_lostMarker_showSeconds_text: "วินาทีนับตั้งแต่การตรวจจับครั้งล่าสุด"
 minimap_enhancements.UI_setting_lostMarker_squadColor_text: "สีตำแหน่งล่าสุด: หมวด"
 minimap_enhancements.UI_setting_lostMarker_style_text: "รูปแบบตำแหน่งล่าสุด"
-minimap_enhancements.UI_setting_mapSize_color_text: "สีของขนาดแผนที่"
 minimap_enhancements.UI_setting_mapSize_enabled_text: "แสดงขนาดแผนที่"
-minimap_enhancements.UI_setting_mapSize_fontSize_text: "ขนาดตัวอักษรของขนาดแผนที่"
 minimap_enhancements.UI_setting_mapSize_format_text: "รูปแบบมิติของแผนที่"
 minimap_enhancements.UI_setting_mapSize_offsetX_text: "ขนาดแผนที่ออฟเซ็ตแนวนอน"
 minimap_enhancements.UI_setting_mapSize_offsetY_text: "ออฟเซ็ตแนวตั้งขนาดแผนที่"
@@ -751,7 +730,6 @@ minimap_enhancements.UI_tooltip_lostMarker_enemyColor: "สีของตำแ
 minimap_enhancements.UI_tooltip_lostMarker_squadColor: "สีของตำแหน่งที่ทราบล่าสุดของสมาชิกหมวด"
 minimap_enhancements.UI_tooltip_lostMarker_style: "สีของเครื่องหมายตำแหน่งที่ทราบล่าสุด: สีทีมที่หม่นหรือสีเทา"
 minimap_enhancements.UI_tooltip_lostScale: "ขนาดของไอคอนในตำแหน่งที่ทราบล่าสุด"
-minimap_enhancements.UI_tooltip_mapSize_color: "สีของข้อความขนาดแผนที่"
 minimap_enhancements.UI_tooltip_mapSize_enabled: "แสดงขนาดแผนที่ข้างมินิแมป"
 minimap_enhancements.UI_tooltip_mapSize_format: "ข้อความขนาดแผนที่ มาโครหน่วยเป็นเมตร: {{width}}, {{height}} และ {{cellsize}} (ด้านของช่องตารางหนึ่งช่อง)"
 minimap_enhancements.UI_tooltip_marks: "เพิ่มเครื่องหมายระยะทางบนเส้นทุกๆ จำนวนเมตรที่ตั้งไว้ 0 จะปิดเครื่องหมาย"
@@ -817,8 +795,6 @@ repair_controls.UI_setting_useGoldKits_text: "ใช้ยุทธปัจจ�
 repair_controls.UI_setting_useGoldKits_tooltip: "ใช้ชุดซ่อมขนาดใหญ่ ชุดปฐมพยาบาลขนาดใหญ่ และถังดับเพลิงขนาดใหญ่เมื่อติดตั้งไว้"
 
 # server_turret_sync
-server_turret_sync.UI_battle_OFF: "ปิด"
-server_turret_sync.UI_battle_ON: "บน"
 server_turret_sync.UI_battle_activateMessage: "'Server Turret Extended': เปิดใช้งานแล้ว"
 server_turret_sync.UI_description: "ซิงค์ป้อมปืนกับเซิร์ฟเวอร์"
 server_turret_sync.UI_setting_activateMessage_text: "แสดงข้อความเปิดใช้งาน"
@@ -962,7 +938,6 @@ target_distance.UI_setting_textColor_text: "สีข้อความ"
 target_distance.UI_setting_textColor_tooltip: "สีของข้อความระยะทาง"
 target_distance.UI_setting_textSize_text: "ขนาดข้อความ"
 target_distance.UI_setting_textSize_tooltip: "ขนาดฟอนต์ของข้อความระยะทาง"
-target_distance.modDisplayName: "DistanceMarker"
 
 # target_information
 target_information.UI_delay_format: "วินาที"
@@ -1836,3 +1811,9 @@ panel.hud.health: "ความทนทาน"
 vehicle_health.UI_setting_style_tooltip: "เลือกกรอบของแถบความทนทาน"
 vehicle_health.UI_health_color_tooltip: "สีเปลี่ยนตามความทนทานที่เหลือ"
 vehicle_health.UI_health_minimal: "มินิมอล"
+
+vehicle_health.UI_health_ammo_minimal: "แผงกระสุน — เรียบง่าย"
+
+vehicle_health.UI_health_ammo_classic: "แผงกระสุน — WoT คลาสสิก"
+
+vehicle_health.UI_health_ammo_driftkings: "แผงกระสุน — Driftkings"

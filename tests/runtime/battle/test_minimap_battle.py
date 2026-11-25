@@ -4,6 +4,31 @@ from support.minimap import MinimapFixture, Entry
 from support import module
 
 class MinimapVehiclesTests(MinimapFixture):
+    def test_unsupported_modes_keep_native_minimap_plugins(self):
+        native = self.api['plugins']
+        original = {'vehicles': native.ArenaVehiclesPlugin, 'personal': native.PersonalEntriesPlugin}
+        self.api['getBattleTypes'] = lambda: (1,)
+        self.api['battle_policy'].decision = lambda feature: (False, 'requires_random_or_comp7')
+        calls = []
+
+        def setup(component, visitor):
+            calls.append(visitor)
+            return dict(original)
+
+        visitor = module(gui=module(guiType=1))
+        result = self.api['new_setupPlugins'](setup, object(), visitor)
+        self.assertEqual(result, original)
+        self.assertEqual(calls, [visitor])
+
+    def test_supported_modes_install_custom_minimap_plugins(self):
+        native = self.api['plugins']
+        original = {'vehicles': native.ArenaVehiclesPlugin, 'personal': native.PersonalEntriesPlugin}
+        self.api['getBattleTypes'] = lambda: (1,)
+        result = self.api['new_setupPlugins'](lambda component, visitor: dict(original), object(),
+                                              module(gui=module(guiType=1)))
+        self.assertIs(result['vehicles'], self.api['ArenaVehiclesPlugin'])
+        self.assertIs(result['personal'], self.api['PersonalEntriesPlugin'])
+
     def test_view_radius_handles_missing_feedback_and_recovers(self):
         plugin = self.api['PersonalEntriesPlugin']()
         shared = module(feedback=None)
