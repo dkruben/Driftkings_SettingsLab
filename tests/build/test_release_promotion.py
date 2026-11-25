@@ -51,10 +51,14 @@ def ci_run(commit, conclusion='success', branch='develop', number=1):
                 html_url='https://ci/%s/%d' % (branch, number), head_repository=dict(full_name=REPOSITORY))
 
 
+EVIDENCE_TIP = 'e' * 40  # authorized descendant of the stable commit on main
+
+
 class FakeContext(object):
     """A consistent world in which the promotion is allowed; each test breaks one thing."""
     repository = REPOSITORY
     version_source = SOURCE
+    evidence_cycle = STABLE  # the synthetic release cycle of this fixture
 
     def __init__(self):
         stable_release = dict(RELEASE, version=STABLE, channel='stable', changelog=['Stable'])
@@ -64,9 +68,13 @@ class FakeContext(object):
                             'docs/releases/%s-validation.md' % BETA: approved()},
         }
         self.changed = ['build_data/release.json', SOURCE, 'README.md', 'docs/releases/%s-validation.md' % BETA]
-        self.ancestors = {(APPROVED, STABLE_COMMIT), (STABLE_COMMIT, 'origin/main')}
+        self.ancestors = {(APPROVED, STABLE_COMMIT), (STABLE_COMMIT, 'origin/main'), (STABLE_COMMIT, EVIDENCE_TIP),
+                          (APPROVED, EVIDENCE_TIP)}
         self.tags = {'v' + BETA: APPROVED}
         self.ci = {APPROVED: [ci_run(APPROVED)], STABLE_COMMIT: [ci_run(STABLE_COMMIT, branch='main')]}
+        self.ci[EVIDENCE_TIP] = [ci_run(EVIDENCE_TIP, branch='main')]
+        # The approved record lives on an authorized descendant on main (0.1.7 cycle), not on the stable commit.
+        self.files[EVIDENCE_TIP] = dict(self.files[STABLE_COMMIT])
         self.denied = None
         self.blobs = {}
         self.releases = [dict(id=1, tag_name='v1.2.2', draft=False, prerelease=False, assets=[])]
@@ -95,7 +103,11 @@ class FakeContext(object):
         self.releases.append(dict(id=2, tag_name='v' + BETA, draft=False, prerelease=True, assets=assets))
 
     def git(self, *args):
+        if args[0] == 'rev-parse':
+            return EVIDENCE_TIP
         if args[0] == 'diff':
+            if args[-2:] == (STABLE_COMMIT, EVIDENCE_TIP):
+                return 'docs/releases/%s-validation.md' % BETA
             return '\n'.join(self.changed)
         raise AssertionError(args)
 
@@ -261,12 +273,12 @@ class PreflightTests(PreflightCase):
         self.assertBlocked('beta', 'does not come from the recorded commit')
 
     def test_blocks_failed_or_missing_required_tests(self):
-        self.context.ci[APPROVED] = [ci_run(APPROVED, 'failure')]
+        # CI is evaluated on the authorized evidence commit (the tested commit), not on the stable artifact commit.
+        self.context.ci[EVIDENCE_TIP] = [ci_run(EVIDENCE_TIP, 'failure')]
         self.assertBlocked('ci', 'did not pass')
-        self.context.ci[APPROVED] = [ci_run(APPROVED)]
-        self.context.ci[STABLE_COMMIT] = [dict(ci_run(STABLE_COMMIT), status='in_progress', conclusion=None)]
+        self.context.ci[EVIDENCE_TIP] = [dict(ci_run(EVIDENCE_TIP), status='in_progress', conclusion=None)]
         self.assertBlocked('ci', 'did not pass')
-        self.context.ci[STABLE_COMMIT] = []
+        self.context.ci[EVIDENCE_TIP] = []
         self.assertBlocked('ci', 'No python-package.yml run')
 
     def test_blocks_an_existing_stable(self):
@@ -400,6 +412,10 @@ class PublisherGuardTests(unittest.TestCase):
 class StableBuildCase(PreflightCase):
     def setUp(self):
         super().setUp()
+        # Evidence provenance has its own tests (test_stable_evidence_provenance); here the stable gates are the subject.
+        patcher = patch.object(promotion, 'authorized_evidence_commit', return_value=EVIDENCE_TIP)
+        patcher.start()
+        self.addCleanup(patcher.stop)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.folder = Path(temporary.name)
@@ -540,7 +556,7 @@ class PublishCommandTests(StableBuildCase):
 
     def publish(self, confirm='token', waive=False):
         confirm = self.token() if confirm == 'token' else confirm
-        arguments = types.SimpleNamespace(beta=BETA, confirm=confirm, waive_environment_review=waive)
+        arguments = types.SimpleNamespace(beta=BETA, confirm=confirm, waive_environment_review=waive, commit=None)
         promotion.run_publish(self.context, arguments)
 
     def provenance(self):

@@ -140,12 +140,77 @@ def write_build_stamp(folder, commit):
                                           manifestSha256=sha(folder / 'release.json'), artifactSuite='passed'))
 
 
+ATTESTATION = '.official-build-attestation.json'
+OFFICIAL_SOURCE = 'official-stable-build'
+# Files the official build reported whose bytes signing rewrites (scrubbed build report and its checksum list).
+SIGNING_REWRITTEN = frozenset(('build-report.json', 'SHA256SUMS.txt'))
+
+
 def require_build_stamp(folder, commit):
     path = folder / BUILD_STAMP
-    require(path.is_file(), 'This folder did not come from `promote_release.py build`; run it first')
+    if not path.is_file() and (folder / ATTESTATION).is_file():
+        return require_official_attestation(folder, commit)
+    require(path.is_file(), 'This folder did not come from `promote_release.py build` or the official stable build; run it first')
     expected = dict(commit=commit, digest=artifacts_digest(folder), manifestSha256=sha(folder / 'release.json'),
                     artifactSuite='passed')
     require(read_json(path) == expected, 'The build changed after `promote_release.py build`; run it again')
+
+
+def official_build_facts(summary, folder, commit):
+    """Verify the official stable build report against the signed folder; raise ValueError on any mismatch."""
+    require(summary.get('build_rc') == 0 and summary.get('installer_rc') == 0 and summary.get('artifacts_suite_rc') == 0,
+            'The official build did not finish with exit code 0 at every step')
+    require(summary.get('git', {}).get('commit') == commit and summary['git'].get('dirty') is False,
+            'The official build report is not from the original clean artifact commit %s' % commit[:12])
+    artifacts = summary.get('artifacts') or {}
+    compared = []
+    for name, record in sorted(artifacts.items()):
+        if name in SIGNING_REWRITTEN:
+            continue
+        path = folder / name
+        require(path.is_file() and path.stat().st_size == record['size'] and sha(path) == record['sha256'],
+                'Signed artifact differs from the official build: ' + name)
+        compared.append(name)
+    require('driftkings.wotmod' in compared and 'release.json' in compared, 'Official build report lacks the core artifacts')
+    return compared
+
+
+def require_official_attestation(folder, commit):
+    """Accept only an attestation that binds the official build, the artifact commit, the digest and the manifest."""
+    attestation = read_json(folder / ATTESTATION)
+    release = read_json(folder / 'release.json')
+    expected = dict(schema=1, source=OFFICIAL_SOURCE, version=release['version'], channel=release['channel'],
+                    commit=commit, digest=artifacts_digest(folder), manifestSha256=sha(folder / 'release.json'),
+                    artifactSuite='passed')
+    for key, value in expected.items():
+        require(attestation.get(key) == value, 'Official build attestation does not match the folder: ' + key)
+    require(attestation.get('summarySha256') and attestation.get('artifacts'),
+            'Official build attestation is incomplete')
+    for name, digest in sorted(attestation['artifacts'].items()):
+        require((folder / name).is_file() and sha(folder / name) == digest,
+                'Signed artifact differs from the official build attestation: ' + name)
+    return attestation
+
+
+def attest_official(folder, summary_path, beta, commit):
+    """Write the attestation of an existing official stable build. Nothing is rebuilt or re-signed."""
+    stable = stable_target(beta)
+    release = read_json(folder / 'release.json')
+    require(release['version'] == stable and release['channel'] == 'stable',
+            'The folder is not the stable %s release' % stable)
+    require(re.match(r'\A[0-9a-f]{40}\Z', commit), 'The artifact commit must be a full SHA-1')
+    summary = read_json(summary_path)
+    compared = official_build_facts(summary, folder, commit)
+    log = summary_path.parent / 'installer-and-artifacts.log'
+    require(log.is_file() and re.search(r'(?m)^OK \(', log.read_text(encoding='utf-8', errors='replace')),
+            'The artifacts-suite log of the official build does not record OK')
+    data = dict(schema=1, source=OFFICIAL_SOURCE, version=stable, channel='stable', commit=commit,
+                digest=artifacts_digest(folder), manifestSha256=sha(folder / 'release.json'),
+                artifactSuite='passed', summarySha256=sha(summary_path), logSha256=sha(log),
+                artifacts={name: sha(folder / name) for name in compared}, signingRewritten=sorted(SIGNING_REWRITTEN),
+                note='Evidence from the official stable build; promote_release.py build was not run.')
+    write_json(folder / ATTESTATION, data)
+    return data
 
 
 def check_identity(context, beta, commit):
@@ -160,11 +225,35 @@ def check_identity(context, beta, commit):
     return dict(beta=beta, stable=stable, tag='v' + stable, commit=commit)
 
 
+# Owner-approved for the 0.1.7 release cycle only: the approved record and the CI run are read from an authorized
+# descendant of the stable artifact commit on main. The stable artifact commit itself is never changed.
+EVIDENCE_CYCLE = '0.1.7'
+EVIDENCE_EXTRA_FILES = frozenset(('.github/workflows/python-package.yml',))
+
+
+def authorized_evidence_commit(context, identity):
+    """origin/main, once it descends from the stable artifact commit through allowlisted changes only."""
+    cycle = getattr(context, 'evidence_cycle', EVIDENCE_CYCLE)
+    require(identity['stable'] == cycle,
+            'The evidence exception applies only to the %s release cycle' % cycle)
+    tip = context.git('rev-parse', 'origin/' + STABLE_BRANCH)
+    require(context.is_ancestor(identity['commit'], tip),
+            'The stable artifact commit %s is not an ancestor of origin/%s' % (identity['commit'][:12], STABLE_BRANCH))
+    paths = [path for path in context.git('diff', '--name-only', '--no-renames', identity['commit'], tip).splitlines()
+             if path]
+    blocked = sorted(path for path in paths if path not in EVIDENCE_EXTRA_FILES and forbidden_changes([path]))
+    require(not blocked, 'Changes after the stable artifact commit are outside the evidence allowlist: '
+            + ', '.join(blocked[:10]))
+    return tip
+
+
 def check_record(context, identity):
-    text = context.read(identity['commit'], record_location(identity['beta']))
+    evidence = authorized_evidence_commit(context, identity)
+    text = context.read(evidence, record_location(identity['beta']))
     summary = evaluate(text, identity['beta'], identity['stable'])
     summary['path'] = record_location(identity['beta'])
     summary['sha256'] = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    summary['evidenceCommit'] = evidence
     return summary
 
 
@@ -239,9 +328,10 @@ def check_beta_release(context, identity, record):
 
 
 def check_ci(context, identity, record):
+    """The successful CI run is on the authorized evidence commit; it is recorded as the tested commit."""
     query = lambda path: context.query(path)
-    return dict(beta=require_green_ci(context.repository, record['commit'], query),
-                stable=require_green_ci(context.repository, identity['commit'], query))
+    tested = record['evidenceCommit']
+    return dict(tested=tested, runs=require_green_ci(context.repository, tested, query))
 
 
 def check_slot(context, identity, resume=False):
@@ -442,9 +532,15 @@ def run_build(context, args):
           % (commit, artifacts_digest(folder)))
 
 
+def run_attest_official(context, args):
+    data = attest_official(args.folder, args.summary, args.beta, args.commit)
+    print('Attested the official %s build of %s in %s (promote_release.py build was not run).'
+          % (data['version'], data['commit'][:12], args.folder))
+
+
 def run_publish(context, args):
-    commit = context.git('rev-parse', 'HEAD')
-    require_clean_checkout(context, commit)
+    commit = args.commit or context.git('rev-parse', 'HEAD')
+    require(not context.git('status', '--porcelain'), 'The checkout has uncommitted changes')
     state = require_preflight(context, args.beta, commit, resume=True)
     identity = state['identity']
     folder = stable_folder(identity['stable'])
@@ -474,9 +570,14 @@ def run_publish(context, args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest='command', required=True)
-    for name, action in (('prepare', run_prepare), ('check', run_check), ('build', run_build), ('publish', run_publish)):
+    for name, action in (('prepare', run_prepare), ('check', run_check), ('build', run_build), ('publish', run_publish),
+                         ('attest-official', run_attest_official)):
         command = commands.add_parser(name)
         command.set_defaults(action=action)
+        if name == 'attest-official':
+            command.add_argument('--commit', required=True, help='Original stable artifact commit')
+            command.add_argument('--folder', required=True, type=Path, help='Signed stable folder')
+            command.add_argument('--summary', required=True, type=Path, help='summary.json of the official stable build')
         command.add_argument('--beta', required=True, help='Published beta being promoted, for example 1.2.3-beta.4')
         if name == 'check':
             command.add_argument('--commit', default='HEAD', help='Stable commit (default: HEAD)')
@@ -484,6 +585,7 @@ def main():
         if name == 'build':
             command.add_argument('--key', type=Path, default=ROOT / 'release-signing.key')
         if name == 'publish':
+            command.add_argument('--commit', help='Original stable artifact commit (the tool itself is always the current checkout)')
             command.add_argument('--confirm', help='<stable tag>@<artifacts digest>; without it nothing is uploaded')
             command.add_argument('--waive-environment-review', action='store_true',
                                  help='Accept the record alone; refused when the environment has required reviewers. '
