@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 from build_tools.isolated_output import active_output, tool_environment
-from build_tools.validate_build_data import ct_client_build
+from build_tools.validate_build_data import source_client
 from build_tools.vehicle_markers_patch import (inject_helper, marker_lock_for_build, patch_manager, patch_marker,
                                               swf_parts, verify_manager_contract, verify_marker_contract,
                                               verify_native_movie)
@@ -95,16 +95,16 @@ def marker_workspace(destination, short_root=None, protected=()):
 
 
 
-def build(root, destination, spec, tools, game_root):
+def build(root, destination, spec, tools, game_root, library_manifest='flash_source/shared/swc/manifest.json'):
     config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
-    build_id, _ = ct_client_build(game_root, config)
+    build_id = source_client(game_root, config)['build']
     locks = {key: json.loads((root / value).read_text(encoding='utf-8')) for key, value in spec['locks'].items()}
     lock = marker_lock_for_build(locks, build_id)
     with zipfile.ZipFile(Path(game_root) / 'res/packages' / lock['package']) as archive:
         native = verify_native_movie(archive.read(lock['resource']), lock)
     binary = Path(tools['rabcdasm_home'])
     sdk = Path(tools['flex_home'])
-    libraries = root / 'flash_source/shared/swc/manifest.json'
+    libraries = root / library_manifest
     external_libraries = []
     for item in json.loads(libraries.read_text(encoding='utf-8'))['libraries']:
         library = libraries.parent / item['name']

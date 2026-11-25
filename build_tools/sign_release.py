@@ -17,6 +17,9 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from build_tools.publication_state import require_signable  # noqa: E402
 MODULE = ROOT / 'mod/res/scripts/client/driftkings/core/updater/signature.py'
 LOCAL_REPORT_FIELDS = ('tools', 'logs')
 
@@ -54,6 +57,10 @@ def scrub_report(folder):
 
 def sign_folder(folder, key_file, module=None):
     module = module or load_signature()
+    report_path = Path(folder) / 'build-report.json'
+    if not report_path.is_file():
+        raise SystemExit('Missing build-report.json; only a production release build can be signed')
+    require_signable(json.loads(report_path.read_text(encoding='utf-8')))
     seed = read_seed(key_file)
     scrub_report(folder)
     raw = (Path(folder) / 'release.json').read_bytes()

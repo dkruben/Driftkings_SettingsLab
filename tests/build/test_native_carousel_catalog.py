@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
-from support.baselines import baseline, changed_catalog_entries, json_hash, protected_file, text_hash
+from support.baselines import phase2_prior_build_config, baseline, changed_catalog_entries, json_hash, protected_file, text_hash
 
 ROOT = catalog.ROOT
 # Content baseline recorded from commit 501aec36 (native crew progression plugin).
@@ -31,7 +31,7 @@ class NativeCarouselCatalogTests(unittest.TestCase):
         # All nine battle HUD cards moved to the own battle window (transport 'own_window').
         plan = build_plan(ROOT)
         self.assertIn(catalog.asset_target(data['DriftkingsCarouselStats']['plugin']), {a['target'] for a in plan['assets']})
-        self.assertEqual(len(plan['dependencies']), 2)
+        self.assertEqual(plan['dependencies'], [])  # standalone: no external UI packages
 
     def test_protected_sources_and_calculations_are_preserved(self):
         paths = ['mod/res/scripts/client/driftkings/lobby/vehicle_carousel.py',
@@ -54,6 +54,7 @@ class NativeCarouselCatalogTests(unittest.TestCase):
                 for key in list(current['generators']):
                     if key.startswith('native_document_'):
                         current['generators'].pop(key)
+                phase2_prior_build_config(current)
                 self.assertEqual(json_hash(current), BASE['build_config'])
                 continue
             self.assertIn(protected_file(BASE, path), ('historical', 'format_only'), path)

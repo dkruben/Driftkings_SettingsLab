@@ -67,6 +67,16 @@ class TemplateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Record decision is PENDING'):
             evaluate(text, BETA, STABLE)
 
+    def test_production_candidate_records_cn_and_requires_global_evidence(self):
+        text = render('0.1.7-beta.2', '0.1.7', COMMIT, '2.4.2.0', PACKAGE)
+        self.assertIn('| EU | NA | ASIA | CN | Notas |', text)
+        self.assertIn('CN', [row[0] for row in parse(text)['Regiões']])
+        with self.assertRaisesRegex(ValueError, 'At least one runtime-verified production realm'):
+            evaluate(text, '0.1.7-beta.2', '0.1.7')
+        old = render('0.1.7-beta.2', '0.1.7', COMMIT, '2.4.1.1', PACKAGE)
+        with self.assertRaisesRegex(ValueError, 'requires the production validation format'):
+            evaluate(old, '0.1.7-beta.2', '0.1.7')
+
     def test_committed_records_stay_readable_at_any_approval_state(self):
         paths = list((ROOT / 'docs/releases').glob('*-validation.md'))
         self.assertTrue(paths)

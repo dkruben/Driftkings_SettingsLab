@@ -22,9 +22,10 @@ if str(ROOT) not in sys.path:
 
 from build_tools.build_diagnostics import exception_record, record_failure
 from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
+from build_tools import publication_state
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
 from build_tools.toolchain import KEYS as TOOL_KEYS, discover, require_tools
-from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, ct_client_build, gameface_patch_for_build, read_gameface_resource, build_plan, client_realm, input_path, read_json, require
+from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, gameface_patch_for_build, read_gameface_resource, build_plan, source_client, production_profile, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
 
@@ -179,7 +180,8 @@ def generate(root, config, plan, tools, run, epoch):
             validate_swf(destination.read_bytes())
         elif spec['kind'] == 'vehicle_markers':
             from build_tools.vehicle_markers import build as build_vehicle_markers
-            build_vehicle_markers(root, destination, spec, tools, tools['game_root'])
+            build_vehicle_markers(root, destination, spec, tools, tools['game_root'],
+                                  library_manifest=config['generators']['battle_flash']['library_manifest'])
         elif spec['kind'] == 'gameface_patch':
             raw = None
             for package in spec['game_packages']:
@@ -188,7 +190,7 @@ def generate(root, config, plan, tools, run, epoch):
                         require(raw is None, 'Ambiguous Gameface resource')
                         raw = archive.read(spec['resource'])
             require(raw is not None, 'Gameface resource not found')
-            build, _ = ct_client_build(tools['game_root'], config)
+            build = source_client(tools['game_root'], config)['build']
             patch = gameface_patch_for_build(root, spec, build)
             destination.write_bytes(apply_patch_set(raw, patch))
         elif spec['kind'] == 'native_battleinfo_patch':
@@ -229,7 +231,7 @@ def git_state(root, readonly=False):
         return dict(commit=None, dirty=True, epoch=946684800)
 
 
-def source_inventory(root, plan):
+def source_inventory(root, plan, extra_paths=()):
     paths = {item['source'] for key in ('python', 'defaults') for item in plan[key]}
     paths.update(item['source'] for item in plan['assets'] if not item['generator'])
     paths.update(plan['dependencies'])
@@ -237,6 +239,7 @@ def source_inventory(root, plan):
                            ('flash_source', '.as'), ('flash_source/shared/swc', '.swc')):
         paths.update(p.relative_to(root).as_posix() for p in (root / folder).rglob('*' + suffix)
                      if p.name != 'toolchain.local.json')
+    paths.update(extra_paths)
     return {name: sha(input_path(root, name)) for name in sorted(paths)}
 
 
@@ -310,9 +313,11 @@ def check_client(root, config, tools):
     version_xml = ET.parse(Path(tools['game_root']) / 'version.xml')
     public = version_contract(root).normalize_game_version(version_xml.findtext('version'))
     require(public == config['game']['version'], 'Installed game version differs from build target')
-    realm = client_realm(version_xml.findtext('meta/realm'), config)
-    require(realm == 'CT', 'Reference identity requires the CT client')
-    build, revision = ct_client_build(tools['game_root'], config)
+    identity = source_client(tools['game_root'], config)
+    realm, build, revision = (identity[key] for key in ('realm', 'build', 'revision'))
+    if realm != 'CT':
+        check_production_reference(root, config, tools, identity)
+        return realm
     reference_root = Path(tools['reference_root'])
     name = (reference_root / '.version_name').read_text(encoding='utf-8-sig').strip()
     if name == config['reference']['version']:
@@ -353,6 +358,57 @@ def check_client(root, config, tools):
                 and recovered.get('sha256') == sha(target),
                 'CT reference integrity mismatch: ' + relative)
     return realm
+
+def check_production_reference(root, config, tools, identity):
+    profile = production_profile(root, config, identity)
+    reference = Path(tools['reference_root']).resolve()
+    pin = config['reference']['production_clients'][identity['realm']]
+    require((reference / '.version_name').read_text(encoding='utf-8-sig').strip() == pin['snapshot'],
+            'Production reference snapshot mismatch')
+    require(source_client(reference / 'sources', config) == identity, 'Production reference identity mismatch')
+    hashes = profile['reference_sha256']
+    required = {'sources/version.xml', 'sources/paths.xml'}
+    required.update('sources/res/scripts/client/' + path for path in CT_REFERENCE_FILES)
+    require(required <= set(hashes), 'Incomplete production source contract')
+    for relative, digest in hashes.items():
+        require(sha(input_path(reference, relative)) == digest, 'Production source hash mismatch: ' + relative)
+
+
+def production_generators(root, config, profile, identity):
+    """Use the normal generators with reviewed inputs for this production build."""
+    generators = config['generators']
+    pinned = profile['generators']
+    fields = {'flash': 'library_manifest', 'vehicle_markers': 'locks',
+              'gameface_patch': 'patch_file', 'native_battleinfo_patch': 'patch_file'}
+    required = {name for name, spec in generators.items() if spec['kind'] in fields}
+    require(set(pinned) == required, 'Incomplete production resource pins')
+    for name in required:
+        spec = generators[name]
+        kind = spec['kind']
+        path = pinned[name]
+        manifest = read_json(input_path(root, path))
+        if kind == 'flash':
+            require(manifest['game_version'] == config['game']['version']
+                    and manifest['source_version'] == config['reference']['production_clients'][identity['realm']]['snapshot'],
+                    'Production Flash library manifest mismatch')
+            for library in manifest['libraries']:
+                binary = input_path(input_path(root, path).parent, library['name'])
+                require(sha(binary).lower() == library['sha256'].lower(), 'Production Flash library hash mismatch')
+            spec['library_manifest'] = path
+        elif kind == 'vehicle_markers':
+            require(manifest['gameVersion'] == config['game']['version']
+                    and manifest['clientBuild'] == identity['build'] and manifest['realm'] == identity['realm']
+                    and manifest['clientRevision'] == identity['revision'],
+                    'Production vehicle markers lock mismatch')
+            spec['locks'] = {identity['build']: path}
+        else:
+            require(manifest['game_version'] == config['game']['version']
+                    and manifest['client_build'] == identity['build'] and manifest['realm'] == identity['realm']
+                    and manifest['resource'] == spec['resource'], 'Production Gameface patch target mismatch: ' + name)
+            spec.pop('patch_files', None)
+            spec['patch_file'] = path
+    return generators
+
 
 def python_overrides(root, config, release, version, components):
     """Generated sources compiled in place of their checked-in counterparts."""
@@ -456,8 +512,18 @@ def _build(args, stack):
             preview.update(output='build/experiments/<exclusive-run-id>/output', isolated_output=True)
         print(json.dumps(preview, indent=2))
         return destination
+    if args.mode == 'release':
+        identity = source_client(tools['game_root'], config)
+        profile = production_profile(root, config, identity)
     require_tools(tools)
     realm = check_client(root, config, tools)
+    identity = source_client(tools['game_root'], config)
+    profile = production_profile(root, config, identity) if realm != 'CT' else None
+    runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
+    production_inputs = []
+    if profile:
+        production_generators(root, config, profile, identity)
+        production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values())
     build_git = git_state(root, True) if isolated else None
     if not args.keep_source_version:
         sync_release_version(root, release, version, channel)
@@ -480,12 +546,12 @@ def _build(args, stack):
         run.mkdir(parents=True)
     report = dict(schema=1, status='running', version=version, source_version=source_version, channel=channel,
                   mode=args.mode, publishable=False, gameVersion=config['game']['version'],
-                  realm=realm, tools=tools, git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
+                  realm=realm, source_client=identity, runtime_realms=runtime_realms, tools=tools, git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
     started = time.monotonic()
     try:
         if isolated:
             write_json(scope.path / 'diagnostics' / 'state.json', dict(status='running', publishable=False))
-        inventory = source_inventory(root, plan)
+        inventory = source_inventory(root, plan, production_inputs)
         report['inputs'] = inventory
         components = sorted(c['entrypoint'] for c in plan['components'] if c['enabled'] and c['kind'] == 'feature')
         overrides = python_overrides(root, config, release, version, components)
@@ -530,13 +596,17 @@ def _build(args, stack):
                                                            game_version=config['game']['version'],
                                                            components=components,
                                                            defaults=expected_defaults, selector=selector), 'verify')
-        require(source_inventory(root, plan) == inventory,
+        require(source_inventory(root, plan, production_inputs) == inventory,
                 'Build inputs changed during compilation; previous output preserved')
-        report.update(status='success', publishable=bool(args.mode == 'release'),
+        # Publication is never granted by the compiler: signing, runtime evidence and approval are separate facts.
+        report.update(status='success', publishable=False,
+                      profile=publication_state.DEVELOPMENT_PROFILE if realm == 'CT' else publication_state.PRODUCTION_PROFILE,
                       counts=dict(components=len(components), python=len(plan['python']), assets=len(plan['assets']),
                                   entries=len(entries), defaults=len(defaults)),
                       generated={name: sha(path) for name, path in generated.items()},
                       seconds=round(time.monotonic() - started, 3))
+        report['eligible_for_signing'] = publication_state.eligible_for_signing(report)
+        report['publication_state'] = publication_state.classify(report)
         report['artifacts'] = {p.relative_to(candidate).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
                                for p in artifact_files(candidate)}
         write_json(candidate / 'build-report.json', report)

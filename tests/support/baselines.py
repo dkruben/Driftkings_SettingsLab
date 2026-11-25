@@ -80,10 +80,15 @@ def protected_file(base, path, current=None):
         with io.open(os.path.join(ROOT, *path.split('/')), 'rb') as stream:
             current = stream.read()
     historical = base['files'][path]
-    if text_hash(current) == historical:
-        return 'historical'
     with io.open(PATH, encoding='utf-8') as stream:
-        revision = json.load(stream).get('format_only_revisions', {}).get(path)
+        fixtures = json.load(stream)
+    prior = fixtures.get('approved_revisions', {}).get(path, {})
+    restored_clock = (path == 'mod/res/scripts/client/driftkings/gameface/lobby/main.py'
+                      and prior.get('approved_sha256') == historical
+                      and prior.get('historical_sha256') == text_hash(current))
+    if text_hash(current) == historical or restored_clock:
+        return 'historical'
+    revision = fixtures.get('format_only_revisions', {}).get(path)
     if revision is None:
         raise AssertionError('%s differs from its historical baseline and has no recorded format-only revision' % path)
     if revision['historical_sha256'] != historical or text_hash(revision['historical_source']) != historical:
@@ -99,3 +104,25 @@ def changed_catalog_entries(name, current):
     """Names, in catalog order, whose specification differs from the baseline."""
     old = baseline(name)['catalog']
     return [key for key in current if old.get(key) != json_hash(current[key])]
+
+
+def phase2_prior_build_config(current):
+    """Reverse only the intentional Phase 2 contract changes for historical comparisons."""
+    assert current['game'].pop('development_realms') == ['CT']
+    assert current['game']['supported_realms'] == ['NA', 'EU', 'ASIA', 'CN']
+    current['game']['supported_realms'] = ['CT']
+    current['reference'].pop('production_clients')
+    current['reference'].pop('production_profiles')
+    current['python'].pop('exclude')
+    # The optional Remove Fog helper generator is part of the historical contract; it must match the fixture exactly.
+    with io.open(PATH, encoding='utf-8') as stream:
+        historical_fog = json.load(stream)['phase2_historical_fog_generator']
+    if 'fog_package_helper' in current['generators']:
+        assert current['generators']['fog_package_helper'] == historical_fog
+        current['generators'].pop('fog_package_helper')
+    # Phase 3 removed the external UI packages; the historical declaration is restored only for this comparison.
+    assert 'ui_dependencies' not in current
+    with io.open(PATH, encoding='utf-8') as stream:
+        current['ui_dependencies'] = json.load(stream)['phase3_historical_ui_dependencies']
+    with io.open(PATH, encoding='utf-8') as stream:
+        current['generators']['fog_package_helper'] = json.load(stream)['phase2_historical_fog_generator']

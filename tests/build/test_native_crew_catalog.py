@@ -5,7 +5,7 @@ import unittest
 
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
-from support.baselines import PATH, baseline, changed_catalog_entries, json_hash, normalized_ast, protected_file, text_hash
+from support.baselines import phase2_prior_build_config, PATH, baseline, changed_catalog_entries, json_hash, normalized_ast, protected_file, text_hash
 
 # Content baseline recorded from commit fa8c6990 (native hangar marks plugin).
 BASE = baseline('native_marks')
@@ -60,6 +60,7 @@ class NativeCrewCatalogTests(unittest.TestCase):
                 for key in list(current['generators']):
                     if key.startswith('native_document_'):
                         current['generators'].pop(key)
+                phase2_prior_build_config(current)
                 self.assertEqual(json_hash(current), BASE['build_config'])
                 continue
             self.assertIn(protected_file(BASE, path), ('historical', 'format_only'), path)

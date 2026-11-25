@@ -134,9 +134,9 @@ package driftkings.battle.factory
 ''' % (imports, '\n'.join(methods))
     text = (root / BOOTSTRAP).read_text(encoding='utf-8')
     require(text.count(START) == text.count(END) == 1, 'Missing UI catalog generation markers')
-    definitions = {name: {key: spec[key] for key in ('owner', 'styles', 'scripts')}
-                   for name, spec in sorted(face.items())
-                   if spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'}
+    # OpenWG injection is retired: no feature is loaded through an external Gameface library.
+    require(all(spec.get('transport') != 'openwg' for spec in face.values()), 'OpenWG transport is retired')
+    definitions = {}
     generated = json.dumps(definitions, ensure_ascii=True, sort_keys=True, indent=4)
     block = START + '\n    var features = ' + generated.replace('\n', '\n    ') + ';\n'
     bootstrap = text[:text.index(START)] + block + text[text.index(END):]
@@ -251,9 +251,9 @@ def validate(root=ROOT, plan=None):
                     'Invalid/duplicate JS owner: ' + name)
             owners.add(spec['owner'])
             require(spec['scripts'], 'Injected feature has no scripts: ' + name)
-        transport = spec.get('transport', 'openwg')
-        require(transport in ('openwg', 'native_user_missions', 'native_battle_results', 'own_window', 'native_document'),
-                'Unknown transport: ' + name)
+        transport = spec.get('transport')
+        require(transport in ('native_user_missions', 'native_battle_results', 'own_window', 'native_document')
+                if spec['owner'] is not None else transport is None, 'Unknown transport: ' + name)
         if transport == 'native_document':
             require(name in NATIVE_DOCUMENT_FEATURES and bool(spec.get('documents')),
                     'Native document transport requires an approved context and documents: ' + name)
@@ -320,7 +320,7 @@ def validate(root=ROOT, plan=None):
             and sum(spec.get('transport') in ('native_user_missions', 'native_battle_results', 'own_window', 'native_document')
                     for spec in face.values()) == 20,
             'Gameface component/infrastructure classification differs from 20/0/2')
-    return {'flash': len(flash), 'gameface': len(face), 'injected': sum(spec['owner'] is not None and spec.get('transport', 'openwg') == 'openwg'
+    return {'flash': len(flash), 'gameface': len(face), 'injected': sum(spec['owner'] is not None and spec.get('transport') == 'openwg'
                                                                  for spec in face.values()),
             'native': sum(spec.get('transport') in ('native_user_missions', 'native_battle_results', 'own_window', 'native_document')
                           for spec in face.values())}

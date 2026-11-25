@@ -100,7 +100,9 @@ class OwnWindowCatalogTests(unittest.TestCase):
         assets = [item for manifest in read_components(catalog.ROOT, config['components']['source'])
                   for asset in manifest['assets']
                   for item in expand_asset(catalog.ROOT, asset, config['assets']['exclude'])]
-        self.assertEqual(len(assets), 335)  # Independent packaging baseline, not a second manifest.
+        # Independent packaging baseline. 335 = 333 + the optional Remove Fog helper (exe and helper.json), restored
+        # as an optional, default-OFF feature. Not a second manifest.
+        self.assertEqual(len(assets), 335)
         self.assertEqual(len({item['target'] for item in assets}), 335)
         self.assertEqual(catalog.validate(plan={'assets': assets})['native'], 20)
         with self.assertRaisesRegex(ValueError, 'Duplicate packaging target'):
@@ -186,7 +188,8 @@ class OwnWindowCatalogTests(unittest.TestCase):
         data = copy.deepcopy(catalog.read_catalog())
         del data['GAMEFACE'][FEATURE]['transport']
         with patch.object(catalog, 'read_catalog', return_value=data):
-            with self.assertRaisesRegex(ValueError, 'asset priority'):
+            # A feature with an owner must now declare its transport explicitly (no OpenWG default).
+            with self.assertRaisesRegex(ValueError, 'Unknown transport: ' + FEATURE):
                 catalog.validate()
         for name, change in ((FEATURE, lambda scripts: scripts[:-1]), (FEATURE, lambda scripts: scripts[::-1]),
                              (FEATURE, lambda scripts: scripts + scripts[:1]),

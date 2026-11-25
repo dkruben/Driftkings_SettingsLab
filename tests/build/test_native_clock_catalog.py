@@ -22,7 +22,7 @@ class NativeClockCatalogTests(unittest.TestCase):
         plan = build_plan(catalog.ROOT)
         targets = set(item['target'] for item in plan['assets'])
         self.assertIn('res/gui/gameface/mods/driftkings/main/clock_plugin.js', targets)
-        self.assertEqual(len(plan['dependencies']), 2)
+        self.assertEqual(plan['dependencies'], [])  # standalone: no external UI packages
 
     def test_native_transport_cannot_be_enabled_for_another_feature(self):
         data = copy.deepcopy(catalog.read_catalog())

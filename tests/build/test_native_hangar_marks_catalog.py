@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from build_tools import generate_ui_catalog as catalog
 from build_tools.validate_build_data import build_plan
-from support.baselines import baseline, file_hash, text_hash
+from support.baselines import protected_file, baseline, file_hash, text_hash
 
 # Content baseline recorded from commit 57881e7b (native hangar clock plugin).
 BASE = baseline('native_clock')
@@ -35,7 +35,7 @@ class NativeHangarMarksTests(unittest.TestCase):
         plan = build_plan(catalog.ROOT)
         self.assertIn(target, {item['target'] for item in plan['assets']})
         self.assertTrue((catalog.ROOT / 'mod' / target).is_file())
-        self.assertEqual(len(plan['dependencies']), 2)
+        self.assertEqual(plan['dependencies'], [])  # standalone: no external UI packages
         bad = copy.deepcopy(catalog.read_catalog())
         bad['GAMEFACE']['DriftkingsMarksOnGunHangar']['plugin'] = clock['plugin']
         with patch.object(catalog, 'read_catalog', return_value=bad):
@@ -51,7 +51,7 @@ class NativeHangarMarksTests(unittest.TestCase):
                  'mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.css',
                  'mod/res/scripts/client/driftkings/lobby/hangar_marks_of_excellence.py']
         for path in paths:
-            self.assertEqual(BASE['files'][path], file_hash(path), path)
+            self.assertEqual(protected_file(BASE, path), 'historical', path)
 
     def test_visual_renderer_body_is_preserved(self):
         path = 'mod/res/gui/gameface/mods/driftkings/hangar_marks_of_excellence/marks.js'

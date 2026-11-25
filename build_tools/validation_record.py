@@ -22,11 +22,14 @@ from build_tools.validate_build_data import read_json, require
 
 RECORD_FOLDER = 'docs/releases'
 MARKER = '<!-- dk-validation-record: 1 -->'
+PRODUCTION_MARKER = '<!-- dk-validation-record: 2 -->'
 MAX_RECORD = 256 * 1024
 REGIONS = ('EU', 'NA', 'ASIA')
+PRODUCTION_REGIONS = REGIONS + ('CN',)
 PASS, FAIL, NOT_TESTED, NOT_APPLICABLE = 'PASS', 'FAIL', 'NOT TESTED', 'NOT APPLICABLE'
 RESULTS = (PASS, FAIL, NOT_TESTED, NOT_APPLICABLE)
 VALIDATED, NOT_VALIDATED = 'VALIDATED', 'NOT VALIDATED'
+RUNTIME_VERIFIED, SOURCE_VERIFIED = 'RUNTIME VERIFIED', 'SOURCE VERIFIED'
 APPROVED, PENDING, REJECTED = 'APPROVED', 'PENDING', 'REJECTED'
 SEVERITIES = ('BLOCKER', 'MAJOR', 'MINOR')
 ISSUE_STATES = ('OPEN', 'ACCEPTED', 'FIXED')
@@ -95,6 +98,15 @@ def table(header, rows):
     return lines + ['| ' + ' | '.join(row) + ' |' for row in rows]
 
 
+def record_regions(game):
+    return PRODUCTION_REGIONS if game == '<versão-do-wot>' or re.fullmatch(r'\d+(?:\.\d+){3}', game) and (
+        tuple(int(part) for part in game.split('.')) >= (2, 4, 2, 0)) else REGIONS
+
+
+def in_game_header(regions):
+    return ('ID', 'Bloqueante', 'Verificação') + regions + ('Notas',)
+
+
 def render(version='<versão-beta>', target='<versão-stable>', commit='<commit-completo>', game='<versão-do-wot>',
            package='<sha256-do-driftkings.wotmod>'):
     """A blank record: every result starts NOT TESTED and the decision starts PENDING."""
@@ -102,17 +114,20 @@ def render(version='<versão-beta>', target='<versão-stable>', commit='<commit-
                 ('Versão do WoT', game), ('SHA-256 do pacote', package))
     decision = (('Decisão', PENDING), ('Aprovado por', '<nome>'), ('Data', '<AAAA-MM-DD>'),
                 ('Commit aprovado', '<commit-completo>'), ('Versão aprovada', '<versão-beta>'))
-    lines = ['# Registo de validação de ' + version, '', MARKER, '',
+    regions = record_regions(game)
+    marker = PRODUCTION_MARKER if regions == PRODUCTION_REGIONS else MARKER
+    lines = ['# Registo de validação de ' + version, '', marker, '',
              'Preenchido à mão por quem testou. Valores: `PASS`, `FAIL`, `NOT TESTED`, `NOT APPLICABLE`. '
              'Uma região nunca vale como prova de outra. Regras em [docs/releases/README.md](README.md).', '']
     lines += ['## Identificação', ''] + table(SECTIONS['Identificação'], identity)
     lines += ['', '## Regiões', '']
-    lines += table(SECTIONS['Regiões'], [(region, NOT_VALIDATED, '-', '-', '-', '-') for region in REGIONS])
+    lines += table(SECTIONS['Regiões'], [(region, PENDING if regions == PRODUCTION_REGIONS else NOT_VALIDATED, '-', '-', '-', '-')
+                                          for region in regions])
     lines += ['', '## Testes automáticos', '']
     lines += table(SECTIONS['Testes automáticos'], [(name, text, NOT_TESTED, '-') for name, text in AUTOMATED])
     lines += ['', '## Testes em jogo', '']
-    lines += table(SECTIONS['Testes em jogo'], [(name, 'YES' if blocking else 'NO', text) +
-                                                (NOT_TESTED,) * len(REGIONS) + ('-',)
+    lines += table(in_game_header(regions), [(name, 'YES' if blocking else 'NO', text) +
+                                                (NOT_TESTED,) * len(regions) + ('-',)
                                                 for name, blocking, text in IN_GAME])
     lines += ['', '## Problemas conhecidos', ''] + table(SECTIONS['Problemas conhecidos'], ())
     lines += ['', '## Aprovação final', ''] + table(SECTIONS['Aprovação final'], decision)
@@ -126,7 +141,8 @@ def split_row(line):
 def parse(text):
     """Tables of a record by section; layout errors raise ValueError instead of being guessed around."""
     require(isinstance(text, str) and len(text.encode('utf-8')) <= MAX_RECORD, 'Validation record is too large')
-    require(MARKER in text, 'Not a validation record (missing format marker)')
+    require((MARKER in text) != (PRODUCTION_MARKER in text), 'Not a validation record (missing or conflicting format marker)')
+    regions = PRODUCTION_REGIONS if PRODUCTION_MARKER in text else REGIONS
     text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
     found, current = {}, None
     for line in text.splitlines():
@@ -139,6 +155,8 @@ def parse(text):
             found[current].append(split_row(line))
     tables = {}
     for name, header in SECTIONS.items():
+        if name == 'Testes em jogo':
+            header = in_game_header(regions)
         require(name in found, 'Missing record section: ' + name)
         rows = found[name]
         require(len(rows) >= 2 and tuple(rows[0]) == header, 'Unexpected table header in section: ' + name)
@@ -187,17 +205,37 @@ def evaluate(text, version, target=None, commit=None):
     if is_placeholder(identity['Versão do WoT']):
         problems.append('Record has no World of Tanks version')
 
+    expected_regions = record_regions(identity['Versão do WoT'])
+    require((PRODUCTION_MARKER in text) == (expected_regions == PRODUCTION_REGIONS),
+            'Validation record format does not match the game version')
+    if version == '0.1.7-beta.2':
+        require(expected_regions == PRODUCTION_REGIONS, 'This candidate requires the production validation format')
     regions = {}
     for row in tables['Regiões']:
-        require(row[0] not in regions and row[0] in REGIONS, 'Unknown or duplicate region: ' + row[0])
+        require(row[0] not in regions and row[0] in expected_regions, 'Unknown or duplicate region: ' + row[0])
         regions[row[0]] = row
-    require(set(regions) == set(REGIONS), 'Every region must be listed, even when not validated')
+    require(set(regions) == set(expected_regions), 'Every region must be listed, even when not validated')
+    production = expected_regions == PRODUCTION_REGIONS
+    decisions = (RUNTIME_VERIFIED, SOURCE_VERIFIED, 'EXPECTED COMPATIBLE', PENDING,
+                 'INCOMPATIBLE', 'OUT OF SCOPE') if production else (VALIDATED, NOT_VALIDATED)
     for row in regions.values():
-        require(row[1] in (VALIDATED, NOT_VALIDATED), 'Invalid region decision: ' + row[1])
-    validated = [name for name in REGIONS if regions[name][1] == VALIDATED]
+        require(row[1] in decisions, 'Invalid region decision: ' + row[1])
+    runtime = RUNTIME_VERIFIED if production else VALIDATED
+    validated = [name for name in expected_regions if regions[name][1] == runtime]
+    source_verified = [name for name in expected_regions if regions[name][1] == SOURCE_VERIFIED]
     if not validated:
-        problems.append('No region is marked VALIDATED')
-    for name in validated:
+        problems.append('At least one runtime-verified production realm is required' if production
+                        else 'No region is marked VALIDATED')
+    if production and set(validated + source_verified) != set(expected_regions):
+        problems.append('Each global distribution realm requires runtime or source evidence')
+    for name in validated + source_verified:
+        if production:
+            evidence = regions[name][5]
+            digest = identity['SHA-256 do pacote']
+            if not re.fullmatch(r'[0-9a-f]{64}', digest) or digest not in evidence.split():
+                problems.append('Region %s evidence must include the candidate SHA-256 as a separate token' % name)
+            if not any(token.startswith('evidence=') and len(token) > 9 for token in evidence.split()):
+                problems.append('Region %s needs an evidence reference (evidence=<path-or-URL>)' % name)
         if not valid_date(regions[name][3]):
             problems.append('Region %s has no valid test date' % name)
         if any(is_placeholder(regions[name][index]) for index in (2, 4, 5)):
@@ -227,7 +265,7 @@ def evaluate(text, version, target=None, commit=None):
         require(blocking in ('YES', 'NO'), 'Invalid blocking flag for ' + name)
         if name in catalogue and (blocking == 'YES') != catalogue[name]:
             problems.append('Blocking flag of %s differs from the catalogue' % name)
-        results = dict(zip(REGIONS, row[3:3 + len(REGIONS)]))
+        results = dict(zip(expected_regions, row[3:3 + len(expected_regions)]))
         for region, result in results.items():
             require(result in RESULTS, 'Invalid result for %s/%s: %s' % (name, region, result))
             if result == FAIL:
@@ -283,7 +321,8 @@ def evaluate(text, version, target=None, commit=None):
     return dict(version=version, target=identity['Estável alvo'], commit=recorded, gameVersion=identity['Versão do WoT'],
                 packageSha256=identity['SHA-256 do pacote'], approvedBy=approval['Aprovado por'],
                 approvedOn=approval['Data'], validatedRegions=validated,
-                notValidatedRegions=[name for name in REGIONS if name not in validated],
+                notValidatedRegions=[name for name in expected_regions if name not in validated + source_verified],
+                **({'sourceVerifiedRegions': source_verified} if production else {}),
                 knownIssues=sorted(name for name, issue in issues.items() if issue[1] != 'FIXED'))
 
 

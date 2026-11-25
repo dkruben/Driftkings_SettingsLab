@@ -8,13 +8,12 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "Beta 0.1.7-beta.2 in development. Not published.",
-    "Remove fog is off by default for new installations. The option can still be turned on manually; the separate package is installed after the game is closed.",
-    "Existing explicit Remove fog preferences are kept. A profile file without the removeFog entry, with the Driftkings package installed for the client, is migrated to true.",
-    "Starting the game, opening the settings panel, reloading settings and switching profiles never remove the Remove fog package. The master switch never removes it.",
-    "Turning Remove fog off removes the Driftkings package after the game is closed. The main driftkings.wotmod is not changed by this option.",
-    "Known limitation: if a profile file disappears during a session, the client may recreate a default OFF preference after a restart while an installed Remove fog package remains. Turn the option on and then off again, and close the game, to remove it.",
-    "Earlier 0.1.8 beta changes: adapted hangar carousel and crew-tooltip patches, refreshed CT Flash libraries and native vehicle markers, fixed fog package destination for the declared Common Test mod folder.",
-    "Earlier 0.1.8 beta changes: integrated the approved settings header and Account Manager icon; added optional health-bar frames above the native ammunition and consumables panel (pending in-game validation)."
+    "Development candidate 0.1.7-beta.2 for World of Tanks 2.4.2.0. Production validation is in progress.",
+    "Added a hangar footer launcher and updated Settings Panel and account management artwork.",
+    "Integrated native Gameface for hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency. Several battle HUD components share a native window.",
+    "Added optional health frames above the native consumables panel and updated marker, gun traverse and battle marks presentation.",
+    "Added a cross-server saved-email notice and explicit consent for Tour Coin purchases.",
+    "Updated minimap mode restrictions and launcher hover behaviour.",
+    "Remove Fog is available again as an optional Settings Panel option. It is OFF by default, is enabled or disabled only by an explicit user choice, and that choice is kept across sessions. Legacy removeFog values from earlier profiles are not treated as a choice and never enable it. The package is installed or removed after the game is closed; the main driftkings.wotmod is not changed by this option."
   ]
 }

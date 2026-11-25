@@ -12,9 +12,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from build_tools.compiler import version_contract
+from build_tools import publication_state
+from build_tools.validation_record import evaluate as evaluate_record
 from build_tools.package_tools import sha
 from build_tools.modpack import verify as verify_modpack
-from build_tools.validate_build_data import input_path, read_json, relative_path, require
+from build_tools.validate_build_data import input_path, production_realms, read_json, relative_path, require
 
 
 CI_WORKFLOW = 'python-package.yml'
@@ -104,13 +106,24 @@ def absolute_paths(value):
     return [value] if isinstance(value, str) and re.search(r'(?<![A-Za-z])[A-Za-z]:[\\/]|\A[\\/]', value) else []
 
 
+
+def publication_gate(report, approval):
+    """Explicit state of the build: a signature alone never returns PUBLISHABLE."""
+    if approval is None:
+        return publication_state.classify(report, signed=True, validation_ok=False, approved=False)
+    validation_ok, approved, _ = publication_state.validation_facts(
+        approval.read_text(encoding='utf-8'), report['version'], evaluate_record)
+    return publication_state.classify(report, signed=True, validation_ok=validation_ok, approved=approved)
+
+
 def prepare(folder):
     folder = folder.resolve()
     report = read_json(folder / 'build-report.json')
     manifest = read_json(folder / 'release.json')
     release = read_json(ROOT / 'build_data/release.json')
-    require(report['status'] == 'success' and report['mode'] == 'release' and report['publishable'],
-            'Only completed publishable release builds can be uploaded; diagnostic builds are excluded')
+    require(publication_state.eligible_for_signing(report),
+            'Only signed-eligible production release builds can be uploaded; CT and diagnostic builds are excluded')
+    production_realms(ROOT, read_json(ROOT / 'build_data/build_config.json'), report)
     require(not absolute_paths(report), 'The build report carries local paths; run build_tools/sign_release.py')
     version = version_contract().Version(report['version'])
     channel = 'beta' if version.prerelease else 'stable'
@@ -162,15 +175,18 @@ def main():
     parser.add_argument('folder', type=Path, help='Version directory produced by a release build')
     parser.add_argument('--publish', action='store_true', help='Create the GitHub release and upload assets')
     parser.add_argument('--live', action='store_true', help='Publish publicly; otherwise create a draft')
+    parser.add_argument('--approval', type=Path, help='Validation record whose decision is APPROVED for this version')
     args = parser.parse_args()
     try:
         command, files, report, manifest = prepare(args.folder)
         if not args.live:
             command.append('--draft')
         if not args.publish:
-            print(json.dumps(dict(command=command, assets=[str(p) for p in files], publication='preview only'),
-                             indent=2))
+            print(json.dumps(dict(command=command, assets=[str(p) for p in files], publication='preview only',
+                                  state=publication_gate(report, args.approval)), indent=2))
             return
+        require(publication_gate(report, args.approval) == publication_state.PUBLISHABLE,
+                'Publication requires a signed build and an APPROVED validation record (--approval)')
         require(not report['git']['dirty'], 'Build was produced from uncommitted sources; commit and rebuild first')
         head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip()
         dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT).strip()

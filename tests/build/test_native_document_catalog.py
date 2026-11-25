@@ -88,5 +88,6 @@ class NativeDocumentsTests(unittest.TestCase):
         data = copy.deepcopy(catalog.read_catalog())
         data['GAMEFACE']['DriftkingsModSettings']['transport'] = 'native_document'
         with patch.object(catalog, 'read_catalog', return_value=data):
-            with self.assertRaisesRegex(ValueError, 'approved context'):
+            # Features without an owner carry no transport; a declared native transport is rejected.
+            with self.assertRaisesRegex(ValueError, 'Unknown transport: DriftkingsModSettings'):
                 catalog.validate()

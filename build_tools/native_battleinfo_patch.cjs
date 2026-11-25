@@ -10,7 +10,7 @@ function locate(source){const ast=acorn.parse(source,{ecmaVersion:'latest',sourc
  for(const value of Object.values(node))if(Array.isArray(value))value.forEach(walk);else if(value&&typeof value==='object')walk(value);
  }walk(ast);if(hits.length!==1)throw Error('BattleInfo anchor count: '+hits.length);return hits[0];}
 function transform(raw,manifest,{verifyOutput=true}={}){
- if(manifest.schema_version!==1||manifest.realm!=='CT'||manifest.client_build!=='995'||manifest.runtime_normalization!=='lf'||manifest.resource!=='gui/gameface/_dist/production/mono/post_battle/random/bundle.js')throw Error('Unsupported BattleInfo manifest');
+ if(manifest.schema_version!==1||!((manifest.realm==='CT'&&manifest.client_build==='995')||(manifest.realm==='NA'&&manifest.client_build==='999'))||manifest.runtime_normalization!=='lf'||manifest.resource!=='gui/gameface/_dist/production/mono/post_battle/random/bundle.js')throw Error('Unsupported BattleInfo manifest');
  const source=Buffer.isBuffer(raw)?raw.toString('utf8'):raw;
  if(source.includes(MARK)||source.includes('__dkBattleInfoZone'))throw Error('BattleInfo already applied or collision');
  if(sha(Buffer.from(source))!==manifest.source_sha256)throw Error('Unsupported BattleInfo source hash');

@@ -183,6 +183,18 @@
       "reason": "Temporary HangarClock lifecycle diagnostics, disabled by default (ENABLED = False in gameface/lobby/clock_diagnostics.py). Additions only: a diagnostic helper wrapper and one call per existing handler (ClockView load/finalize/refresh, get_children, _onShown/_onHidden, native plugin register/remove), plus an ENABLED-gated install_lifecycle call. No line of the historical file was removed or changed. Remove together with clock_diagnostics.py to restore the historical hash."
     }
   },
+  "phase2_historical_fog_generator": {
+    "kind": "csharp",
+    "source": "installer/source/fogpackage.cs",
+    "output": "build/native/fog/Driftkings.FogPackage.exe",
+    "metadata": "build/native/fog/helper.json",
+    "references": [
+      "System.IO.Compression.dll"
+    ],
+    "additional_sources": [
+      "installer/source/exitwork.cs"
+    ]
+  },
   "description": "Historical baselines for the native plugin migration tests. Each value was derived once from the named commit; tests compare against this file and never call git. Text hashes are SHA-256 of the UTF-8 bytes with CRLF normalised to LF. Catalog/config hashes are SHA-256 of canonical JSON (sorted keys, compact separators, ASCII). 'format_only_revisions' is a separate, current reference: for a protected file that changed in layout or import order only, it keeps the exact historical source (which must still hash to the baseline value), the exact hash of the revised file and the reason. Tests accept such a file only when its normalized syntax tree equals the historical one; baseline hashes are never rewritten.",
   "format_only_revisions": {
     "mod/res/scripts/client/driftkings/gameface/lobby/crew_progression.py": {
@@ -207,5 +219,18 @@
       "revised_sha256": "4fc0a5aa0a31044f26802db7193e6013cdd7ea916ec0ddda7bef66b6545a542e"
     }
   },
-  "schema": 1
+  "schema": 1,
+  "phase3_historical_ui_dependencies": {
+    "directory": "res/wotmods",
+    "files": [
+      {
+        "name": "me.poliroid.modslistapi_1.8.0.wotmod",
+        "sha256": "c6e4a1d9476b0195c3b4fab392cf5d68c00f1d02fd79e29bd7424ebda88b498c"
+      },
+      {
+        "name": "net.openwg.gameface_1.2.2.wotmod",
+        "sha256": "2bb65f28663e3ab34b5a1102a1bbd1f6e17a65e1f6a898a8645c4ab732b50184"
+      }
+    ]
+  }
 }

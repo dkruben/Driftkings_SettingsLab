@@ -2,13 +2,54 @@
   "schema_version": 1,
   "game": {
     "version": "2.4.2.0",
-    "supported_realms": [
-      "CT"
-    ]
+    "supported_realms": ["NA", "EU", "ASIA", "CN"],
+    "development_realms": ["CT"]
   },
   "reference": {
     "version": "2.4.2.5518",
     "ct_builds": {"995": "2655094", "996": "2660091"},
+    "production_clients": {
+      "NA": {"build": "999", "revision": "2664941", "snapshot": "2.4.2.5523"},
+      "ASIA": {"build": "998", "revision": "2664941", "snapshot": "2.4.2.5526"},
+      "CN": {"build": "997", "revision": "2664941", "snapshot": "2.4.2.5525"}
+    },
+    "production_profiles": {
+      "NA": {
+        "realm_evidence": {
+          "NA": "docs/releases/0.1.7-beta.2-na999-inputs.md"
+        },
+        "reference_sha256": {
+          "sources/version.xml": "227001d2e9270b54ecb7036a7d90c604326a9a63a747cf601b4e4a15c3e339c9",
+          "sources/paths.xml": "aaa4dde1e95a238461911ea937499372b79de97973b65e6657944e3368a9bf7b",
+          "sources/res/scripts/client/gui/impl/lobby/page/lobby_footer.py": "682b4b179e25fc5d4ec3721a9abc1df59967480dbd49644659f87abd64c25979",
+          "sources/res/scripts/client/frameworks/wulf/view/view.py": "d28b6c1d7854bcd1028d86f771581031804824afb63c7a35e5e251af99ac76d1",
+          "sources/res/scripts/client/gui/impl/pub/view_component.py": "84864a883568ff99920504f2d8d860fc6235219962b81005bfff69855c3efd91",
+          "sources/res/scripts/client/gui/impl/battle/random/hud.py": "fb3c3ac5bcb640b6ba829693da2aebb55b0799322537d97260c2f8cb12565c51",
+          "sources/res/scripts/client/gui/impl/lobby/hangar/random/random_hangar.py": "18858f9afe01d860fa496ced069e8e02a9a8474fbe882585094fbeaab67174af",
+          "sources/res/scripts/client/gui/impl/lobby/hangar/presenters/user_missions_presenter.py": "36cb59f013754d940f51ea43935fe8e2152fe2e1241ccab21bd52fe8e2581113",
+          "sources/res/scripts/client/gui/Scaleform/daapi/view/meta/PlayersPanelMeta.py": "12be6a0011934433900e4c687f5836c2bd578b2b5e4822050c68cb6a15440422",
+          "sources/res/scripts/client/gui/Scaleform/framework/package_layout.py": "d0826d8514107d723037006e65cc3d94835e9ee9722d51a405d358e9cd34e35a"
+        },
+        "generators": {
+          "carousel_bridge": "build_data/patches/production/carousel_bridge.na999.json",
+          "crew_barracks_bridge": "build_data/patches/production/crew_barracks_bridge.na999.json",
+          "crew_tooltip_bridge": "build_data/patches/production/crew_tooltip_bridge.na999.json",
+          "battleinfo_native": "build_data/patches/production/battleinfo_native.na999.json",
+          "native_document_footerlauncher_0": "build_data/patches/production/native_document_footerlauncher_0.na999.json",
+          "native_document_profileratings_0": "build_data/patches/production/native_document_profileratings_0.na999.json",
+          "native_document_crewdetails_0": "build_data/patches/production/native_document_crewdetails_0.na999.json",
+          "native_document_crewdetails_1": "build_data/patches/production/native_document_crewdetails_1.na999.json",
+          "native_document_crewdetails_2": "build_data/patches/production/native_document_crewdetails_2.na999.json",
+          "native_document_crewdetails_3": "build_data/patches/production/native_document_crewdetails_3.na999.json",
+          "native_document_hangarheaderoptions_0": "build_data/patches/production/native_document_hangarheaderoptions_0.na999.json",
+          "native_document_marksonguntechtree_0": "build_data/patches/production/native_document_marksonguntechtree_0.na999.json",
+          "native_document_ratingplayers_0": "build_data/patches/production/native_document_ratingplayers_0.na999.json",
+          "battle_flash": "flash_source/shared/swc/manifest.na999.json",
+          "panels_flash": "flash_source/shared/swc/manifest.na999.json",
+          "vehicle_markers_flash": "flash_source/vehicle_markers/native-lock.na999.json"
+        }
+      }
+    },
     "read_only": true
   },
   "package": {
@@ -28,6 +69,9 @@
     "archive_root": "res/scripts/client",
     "include": [
       "**/*.py"
+    ],
+    "exclude": [
+      "driftkings/gameface/lobby/clock_diagnostics.py"
     ],
     "entrypoint": "gui/mods/mod_driftkings.py",
     "component_list": "driftkings/component_list.py",
@@ -50,19 +94,6 @@
     ],
     "install_policy": "missing_only",
     "in_wotmod": false
-  },
-  "ui_dependencies": {
-    "directory": "res/wotmods",
-    "files": [
-      {
-        "name": "me.poliroid.modslistapi_1.8.0.wotmod",
-        "sha256": "c6e4a1d9476b0195c3b4fab392cf5d68c00f1d02fd79e29bd7424ebda88b498c"
-      },
-      {
-        "name": "net.openwg.gameface_1.2.2.wotmod",
-        "sha256": "2bb65f28663e3ab34b5a1102a1bbd1f6e17a65e1f6a898a8645c4ab732b50184"
-      }
-    ]
   },
   "generators": {
     "battle_flash": {
@@ -130,18 +161,6 @@
       "metadata": "build/native/windows-files/helper.json",
       "references": []
     },
-    "fog_package_helper": {
-      "kind": "csharp",
-      "source": "installer/source/fogpackage.cs",
-      "output": "build/native/fog/Driftkings.FogPackage.exe",
-      "metadata": "build/native/fog/helper.json",
-      "references": [
-        "System.IO.Compression.dll"
-      ],
-      "additional_sources": [
-        "installer/source/exitwork.cs"
-      ]
-    },
     "crew_barracks_bridge": {
       "kind": "gameface_patch",
       "resource": "gui/gameface/_dist/production/lobby/crew/BarracksView/BarracksView.js",
@@ -175,6 +194,18 @@
       "entrypoint": "flash_source/vehicle_markers/DriftkingsVehicleMarkersFlash.as",
       "locks": {"995": "flash_source/vehicle_markers/native-lock.json", "996": "flash_source/vehicle_markers/native-lock.ct996.json"},
       "output": "build/flash/driftkings_vehicle_markers.swf"
+    },
+    "fog_package_helper": {
+      "kind": "csharp",
+      "source": "installer/source/fogpackage.cs",
+      "output": "build/native/fog/Driftkings.FogPackage.exe",
+      "metadata": "build/native/fog/helper.json",
+      "references": [
+        "System.IO.Compression.dll"
+      ],
+      "additional_sources": [
+        "installer/source/exitwork.cs"
+      ]
     },
     "battleinfo_native": {
       "kind": "native_battleinfo_patch",

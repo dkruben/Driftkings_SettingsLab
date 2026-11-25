@@ -63,6 +63,56 @@ def client_realm(text, config):
     return realm
 
 
+def source_client(game_root, config):
+    """Identify an installed client against the pinned source identities."""
+    xml = ET.parse(Path(game_root) / 'version.xml')
+    realm = (xml.findtext('meta/realm') or '').strip().upper()
+    value = (xml.findtext('version') or '').strip()
+    revision = (xml.findtext('meta/client') or '').strip()
+    if realm in config['game'].get('development_realms', []):
+        build, revision = ct_client_build(game_root, config)
+        require(value == 'v.%s Common Test #%s' % (config['game']['version'], build),
+                'Installed game version differs from build target')
+    else:
+        realm = client_realm(realm, config)
+        pin = config['reference']['production_clients'].get(realm)
+        require(pin is not None, 'No pinned production client identity for ' + realm)
+        build = pin['build']
+        require(value == 'v.%s #%s' % (config['game']['version'], build) and revision == pin['revision'],
+                'Production client version/build/revision mismatch for ' + realm)
+    return dict(realm=realm, build=build, revision=revision)
+
+
+def production_profile(root, config, identity):
+    """Require reviewed, build-specific source/resource contracts and realm evidence."""
+    realm = identity['realm']
+    pin = config['reference']['production_clients'].get(realm)
+    require(pin is not None and (identity['build'], identity['revision']) == (pin['build'], pin['revision']),
+            'Production builds require a pinned production client')
+    profile = config['reference']['production_profiles'].get(realm)
+    require(profile is not None, 'Production resources are not verified for %s #%s: '
+            'need Gameface patches, native SWF lock, Flash library manifest and realm evidence'
+            % (realm, identity['build']))
+    evidence = profile['realm_evidence']
+    require(realm in evidence and set(evidence) <= set(supported_realms(config))
+            and set(evidence) <= set(config['reference']['production_clients']),
+            'Production profile contains unsupported or unpinned runtime realms')
+    for evidence_path in evidence.values():
+        require(input_path(root, evidence_path).is_file(), 'Missing production realm evidence: ' + evidence_path)
+    return profile
+
+
+def production_realms(root, config, report):
+    identity = report.get('source_client')
+    require(isinstance(identity, dict) and set(identity) == {'realm', 'build', 'revision'},
+            'Build report lacks a production source identity')
+    profile = production_profile(root, config, identity)
+    realms = sorted(profile['realm_evidence'])
+    require(report.get('realm') == identity['realm']
+            and report.get('runtime_realms') == realms, 'Build report realm evidence mismatch')
+    return realms
+
+
 def relative_path(value):
     require(isinstance(value, str) and value and '\\' not in value and ':' not in value,
             'Expected a relative POSIX path: %r' % value)
@@ -187,6 +237,8 @@ def require_battleinfo_toolchain(root, patch, which=shutil.which):
 
 def apply_battleinfo_patch(raw, patch, root=ROOT):
     require(patch['resource'] == 'gui/gameface/_dist/production/mono/post_battle/random/bundle.js', 'Invalid BattleInfo target')
+    if patch['realm'] != 'CT':
+        require(hashlib.sha256(raw).hexdigest() == patch['source_sha256'], 'BattleInfo source hash mismatch')
     node = require_battleinfo_toolchain(root, patch)
     job = json.dumps({'input': base64.b64encode(raw).decode('ascii'), 'manifest': patch}).encode('utf-8')
     from build_tools.isolated_output import active_output, tool_environment
@@ -233,6 +285,9 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
     python_files = set()
     for pattern in config['python']['include']:
         python_files.update(p for p in python_root.glob(pattern) if p.is_file())
+    exclusions = {input_path(python_root, value) for value in config['python'].get('exclude', [])}
+    require(exclusions <= python_files, 'Unknown Python source exclusion')
+    python_files -= exclusions
     for path in sorted(python_files):
         source = path.relative_to(python_root).as_posix()
         input_path(root, path.relative_to(root).as_posix())
@@ -307,18 +362,10 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
     require({p.relative_to(defaults_root).as_posix() for p in selected_defaults} == declared_configs | {'load.json'},
             'Default profile files and component declarations differ')
 
-    dependency_root = input_path(root, config['ui_dependencies']['directory'])
-    names = set()
-    for dependency in config['ui_dependencies']['files']:
-        name = dependency['name']
-        require('/' not in name and name.endswith('.wotmod') and name not in names, 'Invalid dependency name')
-        path = input_path(dependency_root, name)
-        require(path.is_file(), 'Missing UI dependency: %s' % name)
-        require(hashlib.sha256(path.read_bytes()).hexdigest() == dependency['sha256'],
-                'UI dependency hash mismatch: %s' % name)
-        names.add(name)
-        plan['dependencies'].append(path.relative_to(root).as_posix())
-    require({p.name for p in dependency_root.glob('*.wotmod')} == names, 'Unexpected UI dependencies')
+    # Standalone distribution: OpenWG Gameface and ModsListAPI are neither declared nor shipped.
+    require('ui_dependencies' not in config, 'External UI dependencies are not part of the standalone distribution')
+    obsolete = root / 'res/wotmods'
+    require(not obsolete.is_dir() or not any(obsolete.glob('*.wotmod')), 'Obsolete external UI packages present in res/wotmods')
 
     locales = read_json(root / 'build_data/locales.json')
     require(locales['schema_version'] == 1 and locales['game_version'] == config['game']['version'],
@@ -383,7 +430,7 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
             for build, relative in sorted((variants or {'995': spec['patch_file']}).items()):
                 patch = read_json(input_path(root, relative))
                 require(patch['schema_version'] == 1 and patch['game_version'] == config['game']['version']
-                        and patch['realm'] in config['game']['supported_realms'] and patch['resource'] == spec['resource']
+                        and patch['realm'] in config['game']['development_realms'] and patch['resource'] == spec['resource']
                         and patch['client_build'] == build,
                         'Gameface patch target mismatch for CT #' + build)
                 require(patch['operations'], 'Empty Gameface patch for CT #' + build)

@@ -27,8 +27,11 @@ class NativeMarksArtifactTests(unittest.TestCase):
             block = bootstrap.split('/* GENERATED CATALOG START */')[1].split('/* GENERATED CATALOG END */')[0]
             self.assertNotIn('DriftkingsHangarClock', block)
             self.assertNotIn('DriftkingsMarksOnGunHangar', block)
+            # The historical expectation of 15 OpenWG-injected consumers is obsolete after the native migration:
+            # the catalog declares no OpenWG transport and every owned feature is native or an owned window.
             legacy = [name for name, spec in face.items() if spec['owner'] is not None
-                      and spec.get('transport', 'openwg') == 'openwg']
-            self.assertEqual(len(legacy), 15)
-            for name in legacy:
-                self.assertIn(name, block)
+                      and spec.get('transport') == 'openwg']
+            self.assertEqual(legacy, [])
+            native = [name for name, spec in face.items() if spec.get('transport') in
+                      ('native_user_missions', 'native_battle_results', 'own_window', 'native_document')]
+            self.assertEqual(len(native), 20)

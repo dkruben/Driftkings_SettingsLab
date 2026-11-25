@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "999",
+  "feature": "DriftkingsRatingPlayers",
+  "resource": "gui/gameface/_dist/production/battle/battle_page/TabView/TabView.html",
+  "source_sha256": "e190b9621489c8ae9e63958ecdc76484bc0aab517254fec58673ab946bf21a66",
+  "output_sha256": "5cb1cf2ae2f07619d5079ba22ae348170690d2fdb16f56d536635fbcc0599b3b",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/shared/rating_text.js\"></script>\n<script defer src=\"coui://gui/gameface/mods/driftkings/panel_gameface/rating_rows.js\"></script>\n<script defer src=\"coui://gui/gameface/mods/driftkings/panel_gameface/ratings.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

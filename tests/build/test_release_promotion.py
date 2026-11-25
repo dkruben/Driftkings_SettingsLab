@@ -316,7 +316,9 @@ class PublisherGuardTests(unittest.TestCase):
         """The real main() up to the upload, with both GitHub guards observable."""
         report = dict(git=dict(commit=APPROVED, dirty=False))
         error = io.StringIO()
+        # The approval gate has its own tests (PublicationStateTests); these guards are about CI and upload order.
         with patch.object(publisher, 'prepare', return_value=(['gh'], [], report, dict(channel=channel, version=version))), \
+                patch.object(publisher, 'publication_gate', return_value='PUBLISHABLE'), \
                 patch.object(publisher.subprocess, 'check_output', side_effect=[APPROVED.encode(), b'']), \
                 patch.object(publisher, 'require_green_ci', self.green), \
                 patch.object(publisher, 'require_unpublished', self.unpublished), \
@@ -764,7 +766,7 @@ class ReportTests(unittest.TestCase):
         (self.folder / 'dependencies').mkdir()
         (self.folder / 'dependencies/dep.wotmod').write_bytes(b'dependency')
         (self.folder / 'release.json').write_bytes(b'{}')
-        self.report = dict(status='success', realm='EU', tools=dict(python27='C:\\Toolchain\\python.exe'),
+        self.report = dict(status='success', realm='EU', profile='production', mode='release', tools=dict(python27='C:\\Toolchain\\python.exe'),
                            logs='C:\\Users\\someone\\logs', git=dict(commit=APPROVED, dirty=False),
                            artifacts={'release.json': dict(size=2), 'dependencies/dep.wotmod': dict(size=10)})
         (self.folder / 'build-report.json').write_text(json.dumps(self.report), encoding='utf-8')
@@ -813,7 +815,7 @@ class ReportTests(unittest.TestCase):
         manifest = dict(version=STABLE, channel='stable', schema=2, gameVersion='2.4.1.1', sha256=digest(b'package'), size=7,
                         download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (REPOSITORY_NAME, STABLE))
         (self.folder / 'release.json').write_text(json.dumps(manifest), encoding='utf-8')
-        report = dict(status='success', mode='release', publishable=True, version=STABLE, channel='stable',
+        report = dict(status='success', mode='release', profile='production', publishable=False, version=STABLE, channel='stable',
                       artifacts={name: dict(size=(self.folder / name).stat().st_size,
                                             sha256=digest((self.folder / name).read_bytes())) for name in names},
                       verification=dict(modpack=dict(status='passed')), git=dict(commit=APPROVED))
@@ -828,7 +830,8 @@ class ReportTests(unittest.TestCase):
 
     def prepare(self):
         inventory = types.SimpleNamespace(distribution=dict(file='dist.zip'), files=[])
-        with patch.object(publisher, 'verify_modpack', return_value=inventory), \
+        with patch.object(publisher, 'production_realms', return_value=['NA']), \
+                patch.object(publisher, 'verify_modpack', return_value=inventory), \
                 patch.object(publisher, 'verify_signature', return_value='release.json'):
             return publisher.prepare(self.folder)
 

@@ -45,6 +45,10 @@ class GeneratorTests(unittest.TestCase):
         path = self.root / 'build_data/build_config.json'
         config = json.loads(path.read_text())
         config['game']['supported_realms'] = ['EU', 'NA', 'ASIA']
+        evidence = self.root / 'build_data/fixture-evidence.txt'
+        evidence.write_text('Installer test fixture')
+        config['reference']['production_profiles']['NA'] = {
+            'realm_evidence': {'NA': 'build_data/fixture-evidence.txt'}}
         path.write_text(json.dumps(config))
 
     def test_common_test_contract_rejects_production_realms(self):
@@ -61,7 +65,7 @@ class GeneratorTests(unittest.TestCase):
         folder.mkdir()
         manifest = {'version': '1.0.0-beta.1', 'gameVersion': '2.4.1.0'}
         (folder / 'release.json').write_text(json.dumps(manifest))
-        report = dict(status='success', mode='release', publishable=True, version=manifest['version'],
+        report = dict(status='success', mode='release', profile='production', publishable=False, version=manifest['version'],
                       gameVersion=manifest['gameVersion'], artifacts={'release.json': {}})
         (folder / 'build-report.json').write_text(json.dumps(report))
         installer = self.root / 'Driftkings-1.0.0-beta.1-WoT-2.4.1.0-Setup.exe'
@@ -180,7 +184,7 @@ class GeneratorTests(unittest.TestCase):
         script = (self.root / 'generated/components.generated.iss').read_text(encoding='utf-8-sig')
         line = next(line for line in script.splitlines() if 'Name: "hangar\\clan_reward_collection"' in line)
         self.assertNotIn('owner_choice', line)
-        path.write_text(json.dumps({'presets': [{'key': 'bad', 'labels': {'en': 'Bad', 'pt': 'InvÃ¡lido'}, 'disabled': ['unknown']}]}))
+        path.write_text(json.dumps({'presets': [{'key': 'bad', 'labels': {'en': 'Bad', 'pt': 'InvÃƒÂ¡lido'}, 'disabled': ['unknown']}]}))
         with self.assertRaisesRegex(ValueError, 'Unknown or duplicate disabled'):
             definitions(self.root)
 
@@ -206,6 +210,11 @@ class GeneratorTests(unittest.TestCase):
         with zipfile.ZipFile(distribution, 'w') as archive:
             for name in names:
                 data = name.encode('ascii')
+                if name == names[0]:
+                    package = io.BytesIO()
+                    with zipfile.ZipFile(package, 'w') as mod:
+                        mod.writestr('res/gui/driftkings/updater/Driftkings.UpdateInstaller.exe', b'MZ fixture')
+                    data = package.getvalue()
                 source = artifacts / ('' if name == names[0] else 'dependencies') / name
                 source.write_bytes(data)
                 archive.writestr('mods/' + game + '/' + name, data)
@@ -219,7 +228,8 @@ class GeneratorTests(unittest.TestCase):
         (artifacts / 'modpack.json').write_text(json.dumps(modpack))
         inputs = {path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                   for path in (self.root / 'res/configs/driftkings').rglob('*.json')}
-        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='EU', inputs=inputs)))
+        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='NA', source_client=dict(realm='NA', build='999', revision='2664941'),
+                                                             runtime_realms=['NA'], inputs=inputs)))
         out = self.root / 'generated'
         generate_components(self.root, out)
         prepare_payload(self.root, artifacts, out)
@@ -229,9 +239,18 @@ class GeneratorTests(unittest.TestCase):
                          ['Driftkings 1.0.0 - World of Tanks ' + game, '', '\u2022 First change.', '', '\u2022 Second change.', ''])
         script = payload.decode('utf-8-sig')
         metadata = (out / 'metadata.generated.iss').read_text(encoding='utf-8-sig')
-        self.assertIn('#define SupportedRealms "|EU|NA|ASIA|"', metadata)
-        self.assertIn('#define SupportedRealmsText "EU, NA, ASIA"', metadata)
-        self.assertEqual(script.count('Source:'), 3)
+        self.assertIn('#define SupportedRealms "|NA|"', metadata)
+        self.assertIn('#define SupportedRealmsText "NA"', metadata)
+        # Contract: three installed payload rows (driftkings.wotmod plus two dependencies) and one
+        # unconditional dontcopy row for the update-installer helper extracted from the verified package.
+        source_rows = [line for line in script.splitlines() if line.startswith('Source:')]
+        helper_rows = [line for line in source_rows if 'Flags: dontcopy' in line]
+        installed_rows = [line for line in source_rows if 'DestDir:' in line]
+        self.assertEqual(len(source_rows), 4)
+        self.assertEqual(len(helper_rows), 1)
+        self.assertIn('Driftkings.UpdateInstaller.exe', helper_rows[0])
+        self.assertEqual(len(installed_rows), 3)
+        self.assertFalse(any('UpdateInstaller' in line for line in installed_rows))
         self.assertNotIn('Components:', script)
         self.assertNotIn('Tasks:', script)
         self.assertIn('onlyifdoesntexist', script)
