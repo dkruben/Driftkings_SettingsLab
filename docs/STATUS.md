@@ -2,7 +2,7 @@
 
 ## Estado operacional — 2026-11-25 (Fase 5F: correções de build, política canónica de fins de linha, changelog K8 e reprodução histórica; sem publicação)
 
-- **Reprodução histórica demonstrada:** a candidata `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` foi reproduzida byte a byte a partir dos inputs históricos (epoch `1794965041`; 644 entradas idênticas). Relatório em `_validationeproduction-20261125\REPRODUCTION-REPORT.md`.
+- **Reprodução histórica demonstrada:** a candidata `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` foi reproduzida byte a byte a partir dos inputs históricos (epoch `1794965041`; 644 entradas idênticas). Relatório em `_validation\reproduction-20261125\REPRODUCTION-REPORT.md`.
 - **K4 distinguido:** K4a (reprodução histórica) demonstrada; K4b (reprodutibilidade em checkout limpo) ainda não demonstrada.
 - **Política canónica de fins de linha (G2):** LF para todas as fontes textuais de produção, exceção CRLF só para `*.cmd`, binários marcados como `binary`. Nenhum blob renormalizado. Teste: `tests/build/test_input_policy.py`.
 - **Correções de build (G1):** B1 (descoberta de toolchain em raízes pouco profundas) e B2 (espaço de trabalho de marcadores acima do limite do Windows), com testes; `--expect-realm` e validação do snapshot de referência.
@@ -93,7 +93,7 @@
 
 ## Estado operacional — 2026-11-25 (candidata 641d013f… instalada em NA; pronta para teste manual)
 
-- **Instalação:** `mods.4.2.0\driftkings.wotmod` = `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` (verificado). OpenWG, ModsListAPI e ReplaysManager mantidos. Remove Fog em quarentena (recovery). Checkpoint de instalação: `_na_install_checkpoint_20261125_011742`.
+- **Instalação:** `mods\2.4.2.0\driftkings.wotmod` = `641d013fb3cb2a64af04ba31530702829e53a971294be16bab0fbf7d94e0cccb` (verificado). OpenWG, ModsListAPI e ReplaysManager mantidos. Remove Fog em quarentena (recovery). Checkpoint de instalação: `_na_install_checkpoint_20261125_011742`.
 - **Runtime:** nenhum resultado para esta candidata. Evidência Run A/B refere-se a `12e2d26d…2a20a`.
 - **Veredicto:** READY FOR OWNER MANUAL NA RUNTIME TEST — FINAL CANDIDATE. Jogo não lançado. Não recomendar ativação do Remove Fog em batalhas reais antes de confirmar o âmbito WG.
 

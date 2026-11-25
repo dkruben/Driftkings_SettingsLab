@@ -47,7 +47,7 @@ class StandaloneDistributionTests(unittest.TestCase):
         text = (ROOT / OPTIONAL_OBSERVER).read_text(encoding='utf-8')
         self.assertIn("'OpenWGGameface'", text)
         self.assertIn('Never imports or initializes external mods', text)
-        self.assertIsNone(re.search(r'^\s*(from|import)\s+(openwg_gameface|gui\.modsListApi)', text, re.M))
+        self.assertIsNone(re.search(r'^\s*(from|import)\s+(openwg_gameface|gui\.modsListApi)\b', text, re.M))
 
     def test_gameface_payloads_resolve_to_native_transports_only(self):
         sys.modules.pop('driftkings.interface_catalog', None)
