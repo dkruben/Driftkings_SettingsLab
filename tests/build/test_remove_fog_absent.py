@@ -44,7 +44,11 @@ class RemoveFogAbsentTests(unittest.TestCase):
 
     def test_changelog_no_longer_mentions_remove_fog(self):
         changelog = json.loads(read('build_data/release.json'))['changelog']
-        self.assertFalse(any('fog' in item.lower() for item in changelog))
+        # Only the documented manual-removal note may name Remove Fog; no item may describe it as available.
+        for item in changelog:
+            if 'fog' in item.lower():
+                self.assertIn('not included in this release', item)
+                self.assertIn('delete it manually', item)
 
 
 if __name__ == '__main__':
