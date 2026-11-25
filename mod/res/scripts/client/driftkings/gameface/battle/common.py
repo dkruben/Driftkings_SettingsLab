@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Shared lifecycle for owned Gameface children of the native battle HUD."""
+"""Shared lifecycle for the owned Gameface battle cards hosted by the shared battle window."""
 import weakref
 
 from driftkings.gameface.payloads import publish_card
@@ -31,22 +31,18 @@ class BattleCardAdapter(object):
             return
         self._disposed = False
         self._disposeFailures = []
-        from gui.impl.battle.random.hud import RandomHUDView
         from gui.impl.pub.view_component import ViewComponent
         from gui.shared import EVENT_BUS_SCOPE, events
 
-        from driftkings.core.hooks import override
-        from driftkings.gameface.core import payload_model, resource_id
         from driftkings.interface_catalog import gameface_spec
         adapter = self
 
-        own_window = None
-        if gameface_spec(adapter.feature).get('transport') == 'own_window':
-            # Catalog selection: an owned window instead of an OpenWG child of the HUD.
-            from driftkings.gameface.battle import own_window
+        # Every battle card is hosted by the shared owned window; the catalog must select it.
+        if gameface_spec(adapter.feature).get('transport') != 'own_window':
+            raise ValueError('Battle card has no owned window transport: ' + adapter.feature)
+        from driftkings.gameface.battle import own_window
 
-        model_type = own_window.payload_model if own_window else payload_model
-        BattleCardModel = model_type(adapter.feature, ('onSavePosition',))
+        BattleCardModel = own_window.payload_model(adapter.feature, ('onSavePosition',))
 
         class BattleCardView(ViewComponent):
             def __init__(self, resource):
@@ -98,33 +94,7 @@ class BattleCardAdapter(object):
                         adapter.views.pop(parent, None)
                 super(BattleCardView, self)._finalize()
 
-        def children(original, parent, *args, **kwargs):
-            native = original(parent, *args, **kwargs)
-            result = dict.fromkeys(native) if isinstance(native, tuple) else dict(native)
-            try:
-                resource = resource_id(gameface_spec(adapter.feature)['resource'])
-                if resource == -1:
-                    adapter.log.warning('%s battle resource is unavailable', adapter.title)
-                    return result
-                if resource in result:
-                    adapter.log.warning('%s battle resource already has an owner', adapter.title)
-                    return result
-                def create():
-                    child = BattleCardView(resource)
-                    adapter.views[parent] = child
-                    adapter.log.info('Gameface battle panel created')
-                    return child
-                result[resource] = create
-            except Exception:
-                adapter.log.exception('Could not attach %s Gameface battle panel', adapter.title)
-            return result
-
-        if own_window:
-            own_window.install(adapter, BattleCardView)
-        else:
-            # The shared installer still declares this hook on behalf of its feature.
-            setattr(children, '__module__', self.__class__.__module__)
-            override(RandomHUDView, '_getChildComponents')(children)
+        own_window.install(adapter, BattleCardView)
         self.connectSignals()
         self.installed = True
         self.onInstalled()

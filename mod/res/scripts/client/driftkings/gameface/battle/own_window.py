@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-One owned fullscreen Gameface window for battle cards, without OpenWG injection.
-Selected per feature by 'transport': 'own_window' in the interface catalog; other battle cards stay
-OpenWG children of the native battle HUD and never import this module. Every selected card shares a
+One owned fullscreen Gameface window for battle cards, without external injection.
+Every battle card is selected per feature by 'transport': 'own_window' in the interface catalog. Every selected card shares a
 single window per native battle HUD. The window follows the lifecycle of RandomHUDView and uses the
 same flags and MARKER layer as the native HUD window; its neutral infrastructure document loads
 the assets of all selected features once, and each renderer finds its own card

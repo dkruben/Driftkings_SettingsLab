@@ -70,6 +70,7 @@ class FogPreferenceTests(RuntimeTest):
             'driftkings.settings.store': self.store})
         self.profile = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'default', 'battle_preferences.json')
         self.client_mods = os.path.join(self.root, 'mods', '2.4.2.0 Common Test')
+        self.cache = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'cache', 'fog')
         os.makedirs(os.path.dirname(self.profile))
         os.makedirs(self.client_mods)
         self.package = os.path.join(self.client_mods, 'Driftkings.RemoveFog.wotmod')
@@ -85,9 +86,13 @@ class FogPreferenceTests(RuntimeTest):
             raise ValueError('Expected a JSON object: ' + path)
         return value
 
-    def write_profile(self, values):
+    def write_profile(self, values, choice=True):
+        """Write a profile. An explicit boolean models a user choice made in this release (mirrored in choice.json).
+        choice=False models a value left by an earlier release, which is not a user choice."""
         with open(self.profile, 'wb') as stream:
             stream.write(json.dumps(values).encode('utf-8'))
+        if choice and type(values.get('removeFog')) is bool:
+            self.api['write_choice'](self.cache, values['removeFog'])
 
     def read_profile(self):
         return self._read_object(self.profile)
@@ -102,6 +107,7 @@ class FogPreferenceTests(RuntimeTest):
         controller.root = self.root
         controller.version = '2.4.2.0'
         controller.target = package or self.package
+        controller.cache = self.cache
         controller.scheduled = []
         controller.schedule = lambda desired: controller.scheduled.append(desired)
         return controller
@@ -139,19 +145,25 @@ class FogPreferenceTests(RuntimeTest):
         controller = self.controller({self.REMOVE: False, 'enabled': True})
         self.assertEqual(controller.prepare(self.profile), self.api['EXPLICIT'])
         controller.startup()
-        self.assertEqual(controller.scheduled, [])
+        # Effective OFF with a Driftkings-owned package: one convergence removal through the helper, never an install.
+        self.assertEqual(controller.scheduled, [False])
         self.assertTrue(os.path.isfile(self.package))
 
     # Legacy profiles
-    def test_legacy_profile_without_key_and_owned_package_is_migrated_to_true(self):
-        self.write_profile({'enabled': True, 'color': '#F930F8'})
+    def test_legacy_profile_without_key_and_owned_package_is_never_enabled_by_migration(self):
+        # Legacy state: no key and an owned package. Migration no longer writes true; the option stays OFF,
+        # the profile is not rewritten, and nothing is scheduled automatically.
+        self.write_profile({'enabled': True, 'color': '#F930F8'}, choice=False)
         self.write_package()
+        before = open(self.profile, 'rb').read()
         controller = self.controller({self.REMOVE: False, 'enabled': True, 'color': '#F930F8'})
         self.assertEqual(controller.prepare(self.profile), self.api['LEGACY_MIGRATE'])
-        self.assertIs(controller.config.data[self.REMOVE], True)
-        self.assertEqual(self.read_profile(), {'enabled': True, 'color': '#F930F8', self.REMOVE: True})
+        self.assertIs(controller.config.data[self.REMOVE], False)
+        self.assertEqual(open(self.profile, 'rb').read(), before)
         controller.changed(None, {})
-        self.assertEqual(controller.scheduled, [])
+        controller.startup()
+        # Effective OFF with a Driftkings-owned package: one convergence removal through the helper, never an install.
+        self.assertEqual(controller.scheduled, [False])
 
     def test_legacy_profile_without_key_and_without_package_stays_off(self):
         self.write_profile({'enabled': True})
@@ -190,11 +202,11 @@ class FogPreferenceTests(RuntimeTest):
 
     # Migration safety
     def test_migration_is_idempotent_without_marker_file(self):
-        self.write_profile({'enabled': True})
+        self.write_profile({'enabled': True}, choice=False)
         self.write_package()
         self.api['migrate_preference'](self.profile, self.package)
         first = open(self.profile, 'rb').read()
-        self.assertEqual(self.api['migrate_preference'](self.profile, self.package), self.api['EXPLICIT'])
+        self.assertEqual(self.api['migrate_preference'](self.profile, self.package), self.api['LEGACY_MIGRATE'])
         self.assertEqual(open(self.profile, 'rb').read(), first)
         siblings = sorted(os.listdir(os.path.dirname(self.profile)))
         self.assertEqual(siblings, ['battle_preferences.json'])
@@ -306,6 +318,7 @@ class FogStartupTests(RuntimeTest):
         os.makedirs(self.profile_dir)
         os.makedirs(self.client_mods)
         self.package = os.path.join(self.client_mods, 'Driftkings.RemoveFog.wotmod')
+        self.cache = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'cache', 'fog')
         self.api = source('core/fog_package.py', {
             'driftkings.core.updater.installer': module(read_resource=None),
             'driftkings.settings.service': module(settings_service=None),
@@ -318,6 +331,12 @@ class FogStartupTests(RuntimeTest):
         """Mirror settings/loader.py: a missing profile file receives the defaults before fog code runs."""
         if not os.path.isfile(self.profile):
             _JsonStore(self.profile).write(defaults)
+
+    def write_profile(self, values, choice=True):
+        with open(self.profile, 'wb') as stream:
+            stream.write(json.dumps(values).encode('utf-8'))
+        if choice and type(values.get('removeFog')) is bool:
+            self.api['write_choice'](self.cache, values['removeFog'])
 
     def write_package(self, mod_id='driftkings.removefog', path=None):
         target = path or self.package
@@ -332,6 +351,7 @@ class FogStartupTests(RuntimeTest):
         controller.root = self.root
         controller.version = '2.4.2.0'
         controller.target = self.package
+        controller.cache = self.cache
         controller.scheduled = []
         controller.schedule = lambda desired: controller.scheduled.append(desired)
         return controller
@@ -376,6 +396,7 @@ class FogStartupTests(RuntimeTest):
             'driftkings.settings.store': module(read_object=FogPreferenceTests._read_object,
                                                 SettingsStore=_JsonStore)})
         _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        api['write_choice'](os.path.join(self.root, 'mods', 'configs', 'driftkings', 'cache', 'fog'), True)
         controller = api['FogPackageController'](_Config({self.REMOVE: False, 'enabled': True}))
         original_prepare = controller.prepare
         original_startup = controller.startup
@@ -400,7 +421,7 @@ class FogStartupTests(RuntimeTest):
         self.write_package()
         self.materialize({self.REMOVE: False, 'enabled': True})
         controller = self.launch({self.REMOVE: False, 'enabled': True})
-        self.assertEqual(controller.scheduled, [])
+        self.assertEqual(controller.scheduled, [False])  # OFF convergence only; no install
         self.assertTrue(os.path.isfile(self.package))
         self.assertEqual(FogPreferenceTests._read_object(self.profile), {self.REMOVE: False, 'enabled': True})
 
@@ -410,9 +431,10 @@ class FogStartupTests(RuntimeTest):
         self.assertEqual(controller.prepare(self.profile), self.api['DEFAULT_OFF'])
         self.assertFalse(os.path.exists(self.profile))
         controller.startup()
-        self.assertEqual(controller.scheduled, [])
+        # Effective OFF with a Driftkings-owned package: one convergence removal through the helper, never an install.
+        self.assertEqual(controller.scheduled, [False])
 
-    def test_alternating_profiles_never_remove_the_shared_package(self):
+    def test_alternating_profiles_follow_the_single_recorded_choice(self):
         # Profile "default" has a materialized false; profile "other" has an explicit true. The package is shared.
         other_dir = os.path.join(self.root, 'mods', 'configs', 'driftkings', 'other')
         os.makedirs(other_dir)
@@ -421,22 +443,24 @@ class FogStartupTests(RuntimeTest):
         self.write_package()
         self.materialize({self.REMOVE: False, 'enabled': True})
         first = self.launch({self.REMOVE: False, 'enabled': True})
-        self.assertEqual(first.scheduled, [])
+        self.assertEqual(first.scheduled, [False])  # the single effective choice is OFF
         second = self.controller({self.REMOVE: True, 'enabled': True})
         second.prepare(other_profile)
         second.startup()
-        self.assertEqual(second.scheduled, [])
+        self.assertEqual(second.scheduled, [False])  # other profile's value is not a choice
         self.assertTrue(os.path.isfile(self.package))
         self.assertIs(FogPreferenceTests._read_object(other_profile)[self.REMOVE], True)
 
     def test_explicit_true_is_preserved_and_installs_when_missing(self):
         _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        self.api['write_choice'](self.cache, True)
         controller = self.launch({self.REMOVE: True, 'enabled': True})
         self.assertEqual(controller.scheduled, [True])
         self.assertIs(FogPreferenceTests._read_object(self.profile)[self.REMOVE], True)
 
     def test_explicit_true_with_package_present_schedules_nothing(self):
         _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        self.api['write_choice'](self.cache, True)
         self.write_package()
         controller = self.launch({self.REMOVE: True, 'enabled': True})
         self.assertEqual(controller.scheduled, [])
@@ -445,11 +469,13 @@ class FogStartupTests(RuntimeTest):
         _JsonStore(self.profile).write({self.REMOVE: False, 'enabled': True})
         self.write_package()
         controller = self.launch({self.REMOVE: False, 'enabled': True})
-        self.assertEqual(controller.scheduled, [])
+        # Explicit OFF with a Driftkings-owned package converges to removal once at launch.
+        self.assertEqual(controller.scheduled, [False])
         self.assertTrue(os.path.isfile(self.package))
 
     def test_manual_true_to_false_schedules_removal_after_close(self):
         _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        self.api['write_choice'](self.cache, True)
         self.write_package()
         controller = self.launch({self.REMOVE: True, 'enabled': True})
         controller.config.data[self.REMOVE] = False
@@ -461,7 +487,8 @@ class FogStartupTests(RuntimeTest):
         self.materialize({self.REMOVE: False, 'enabled': True})
         self.write_package()
         controller = self.launch({self.REMOVE: False, 'enabled': True})
-        self.assertEqual(controller.scheduled, [])
+        # The launch convergence removes an owned package; it is not a manual disable and never installs.
+        self.assertEqual(controller.scheduled, [False])
 
     def test_automatic_calls_with_a_false_result_never_schedule(self):
         self.write_package()
@@ -476,6 +503,7 @@ class FogStartupTests(RuntimeTest):
         other_package = os.path.join(other_root, 'mods', '2.4.2.0', 'Driftkings.RemoveFog.wotmod')
         self.write_package(path=other_package)
         _JsonStore(self.profile).write({self.REMOVE: True, 'enabled': True})
+        self.api['write_choice'](self.cache, True)
         controller = self.launch({self.REMOVE: True, 'enabled': True})
         self.assertEqual(controller.scheduled, [True])
         self.assertTrue(os.path.isfile(other_package))

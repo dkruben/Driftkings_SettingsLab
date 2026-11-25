@@ -10,7 +10,7 @@ def init():
     if _core is not None:
         return
     from realm import CURRENT_REALM
-    if CURRENT_REALM not in ('EU', 'NA', 'ASIA', 'CT'):
+    if CURRENT_REALM not in ('EU', 'NA', 'ASIA', 'CN', 'CT'):
         logging.getLogger('Driftkings.Loader').warning('Unsupported client realm: %s; Driftkings disabled',
                                                        CURRENT_REALM)
         return
@@ -20,9 +20,14 @@ def init():
     try:
         core.start()
     except Exception:
-        core.stop()
-        _core = None
-        logging.getLogger('Driftkings.Loader').exception('Driftkings startup failed')
+        logger = logging.getLogger('Driftkings.Loader')
+        logger.exception('Driftkings startup failed')
+        try:
+            core.stop()
+        except Exception:
+            logger.exception('Driftkings cleanup after failed startup failed')
+        finally:
+            _core = None
 
 
 def fini():

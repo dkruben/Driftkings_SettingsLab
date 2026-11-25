@@ -61,6 +61,7 @@ class RemoveFogIntegrationTests(RuntimeTest):
         os.makedirs(os.path.join(self.client, 'mods', '2.4.2.0'))
         self.configs = os.path.join(self.client, 'mods', 'configs', 'driftkings')
         os.makedirs(os.path.join(self.configs, 'default'))
+        self.choice_cache = os.path.join(self.configs, 'cache', 'fog')
         self.package = os.path.join(self.client, 'mods', '2.4.2.0', 'Driftkings.RemoveFog.wotmod')
         self.new_runtime()
 
@@ -81,11 +82,14 @@ class RemoveFogIntegrationTests(RuntimeTest):
         return os.path.join(self.configs, name, 'battle_preferences.json')
 
     def write_profile(self, values, name='default'):
+        """An explicit boolean written here models a user choice (mirrored in choice.json, as the controller persists it)."""
         path = self.profile_file(name)
         if not os.path.isdir(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
         with open(path, 'wb') as stream:
             stream.write(json.dumps(values).encode('utf-8'))
+        if type(values.get(FOG)) is bool:
+            self.fog['write_choice'](self.choice_cache, values[FOG])
 
     def read_profile(self, name='default'):
         with open(self.profile_file(name), 'rb') as stream:
@@ -108,6 +112,7 @@ class RemoveFogIntegrationTests(RuntimeTest):
         controller.root = self.client
         controller.version = '2.4.2.0'
         controller.target = self.package
+        controller.cache = self.choice_cache
         controller.scheduled = []
         controller.schedule = lambda desired: controller.scheduled.append(desired)
         controller.prepare(self.loader.path(SECTION))
@@ -167,7 +172,7 @@ class RemoveFogIntegrationTests(RuntimeTest):
         self.write_package()
         self.launch()
         self.reload_section()
-        self.assertEqual(self.controller.scheduled, [])
+        self.assertEqual(self.controller.scheduled, [False])  # launch convergence only; reloads add nothing
         self.assertTrue(os.path.isfile(self.package))
 
     def test_opening_the_panel_without_interaction_schedules_nothing(self):
@@ -222,8 +227,9 @@ class RemoveFogIntegrationTests(RuntimeTest):
         self.loader.select('other')
         self.new_runtime()
         self.launch()
-        self.assertEqual(self.controller.scheduled, [])
-        self.assertTrue(os.path.isfile(self.package))
+        # The recorded choice is per installation and is OFF: the launch converges the package to removal once.
+        self.assertEqual(self.controller.scheduled, [False])
+        self.assertEqual(self.controller.intent_value, False)
 
     # 9: hold
     def test_ambiguous_state_holds_signals_and_writes(self):
@@ -293,7 +299,7 @@ class RemoveFogIntegrationTests(RuntimeTest):
         self.write_package()
         self.launch()
         self.service.apply(self.section, {MASTER: True})
-        self.assertEqual(self.controller.scheduled, [])
+        self.assertEqual(self.controller.scheduled, [False])  # the launch convergence only; the master switch adds nothing
         self.assertTrue(os.path.isfile(self.package))
 
     def test_master_off_on_cycle_with_true_keeps_the_package(self):
@@ -344,7 +350,7 @@ class RemoveFogIntegrationTests(RuntimeTest):
         self.write_profile({MASTER: True})
         self.reload_section()
         self.assertIs(self.section.data[FOG], False)
-        self.assertEqual(self.controller.scheduled, [])
+        self.assertEqual(self.controller.scheduled, [False])  # launch convergence only; the reload adds nothing
 
     def test_held_state_does_not_invent_a_value_for_the_panel(self):
         self.write_profile({MASTER: True})

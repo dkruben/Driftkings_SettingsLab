@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Owned UI lifecycle connected to the Gameface dependency required by ModList."""
+"""Owned UI lifecycle for the native Gameface documents and windows of Driftkings."""
 from frameworks.wulf import ViewModel
 from gui.impl.gen import R
 
@@ -37,37 +37,13 @@ class AssetsModel(ViewModel):
         self._addStringProperty('name', self._name)
 
 
-def attach_assets(model, name):
-    from openwg_gameface import gf_mod_inject
-
-    spec = gameface_spec(name)
-    if spec['owner'] is None:
-        raise ValueError('Standalone layouts load their own assets: ' + name)
-    model._addViewModelProperty('DriftkingsUI', AssetsModel(name))
-    # Ordered assets and disposal ownership come from the generated catalog.
-    gf_mod_inject(model, name + 'Bridge', scripts=[BOOTSTRAP])
-
-
 def payload_model(feature, commands=()):
-    """ViewModel class with a JSON 'payload' string, the named commands and the feature's assets."""
-    if gameface_spec(feature).get('transport') == 'native_document':
-        return native_payload_model(feature, commands)
-
-    class PayloadModel(ViewModel):
-        def __init__(self):
-            super(PayloadModel, self).__init__(properties=3, commands=len(commands))
-
-        def _initialize(self):
-            super(PayloadModel, self)._initialize()
-            self._addStringProperty('payload', '{}')
-            for command in commands:
-                setattr(self, command, self._addCommand(command))
-            attach_assets(self, feature)
-    return PayloadModel
+    """ViewModel class with a JSON 'payload' string and the feature's assets, without external injection."""
+    return native_payload_model(feature, commands)
 
 
 def native_payload_model(feature, commands=()):
-    """Publish metadata/data and optional Wulf commands without OpenWG injection."""
+    """Publish metadata/data and optional Wulf commands through the native Gameface plugin."""
     if gameface_spec(feature).get('transport') not in ('native_user_missions', 'native_battle_results', 'native_document'):
         raise ValueError('Feature has no native plugin transport: ' + feature)
 

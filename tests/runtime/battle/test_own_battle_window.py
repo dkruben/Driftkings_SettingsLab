@@ -203,17 +203,14 @@ class OwnBattleWindowTests(RuntimeTest):
         self.assertEqual(self.Window.created, [])
         self.assertFalse(self.own['_windows'])
 
-    def test_other_battle_cards_keep_the_openwg_child(self):
+    def test_non_owned_window_cards_are_rejected_without_any_injection(self):
+        # The OpenWG child hook is retired: a battle card without the own_window transport fails explicitly.
         for feature in (OTHER, 'test'):
             self.Window.created[:] = []
-            del self.injections[:]
             self.session()
-            adapter = self.adapter(feature)
-            self.assertEqual(sorted(self.hooks), ['_getChildComponents'])
-            self.assertFalse(hasattr(adapter, 'ownWindows'))
-            factories = self.hooks['_getChildComponents'][0](lambda parent: {}, self.Hud())
-            factories[50]()
-            self.assertEqual(len(self.injections), 1)  # OpenWG injection still requested
+            with self.assertRaises(ValueError):
+                self.adapter(feature)
+            self.assertEqual(self.injections, [])
             self.assertEqual(self.Window.created, [])
 
     def test_real_catalog_selects_all_nine_hud_cards(self):
@@ -359,34 +356,6 @@ class OwnBattleWindowTests(RuntimeTest):
         first._savePosition({'x': 1, 'y': 2})
         self.assertEqual(health.positions, [{'x': 10, 'y': 20}])
         self.assertEqual(strength.positions, [{'x': 1, 'y': 2}])
-
-    def test_payloads_match_the_hud_child(self):
-        def run(feature):
-            self.Window.created[:] = []
-            self.session()
-            adapter = self.adapter(feature)
-            adapter.data = {'text': 'same', 'style': {'size': 16}}
-            if feature in OWN:
-                self.load_hud()
-                child = self.Window.created[0].content.children[self.resources[feature]]
-            else:
-                parent = self.Hud()
-                child = self.hooks['_getChildComponents'][0](lambda view: {}, parent)[50]()
-                parent.getChildView = lambda resource: child
-            child._onLoaded()
-            child._showCursor(None)
-            child._visibility(module(ctx={'visible': False}))
-            child._visibility(module(ctx={'visible': True}))
-            adapter.setBattleHudVisible(False)
-            adapter.setBattleHudVisible(True)
-            child._hideCursor(None)
-            child._savePosition({'x': 10, 'y': 20})
-            self.assertEqual(len(child._getEvents()), 1)
-            return self.sent(child), adapter.positions
-        native = run(OTHER)
-        self.assertTrue(native[0])
-        for feature in OWN:
-            self.assertEqual(run(feature), native)
 
     def test_window_does_not_depend_on_the_host_feature_being_installed(self):
         adapters = [self.adapter(feature) for feature in OWN if feature != FEATURE]

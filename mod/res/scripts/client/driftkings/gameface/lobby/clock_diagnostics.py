@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """Temporary HangarClock lifecycle diagnostics.
 
-Disabled by default (ENABLED = False). When disabled nothing is installed and nothing is logged.
+Research-only source. The production clock does not import it and the build excludes it.
 When enabled it only logs lifecycle events and state changes, never per second, and it never
-interrupts the clock: every diagnostic callback is isolated. Remove this module and its calls in
-gameface/lobby/main.py to retire the instrumentation.
+interrupts the clock: every diagnostic callback is isolated.
 """
 import time
 import weakref
@@ -97,11 +96,11 @@ def mode_name():
 def install_lifecycle(RandomHangar):
     """Install the diagnostic overrides. Called only when ENABLED is True.
 
-    main.py already observes _getChildComponents, _onShown, _onHidden and the ClockView lifecycle.
-    This adds only RandomHangar._onLoading/_finalize, which own the PrebattleEvent.SWITCHED
+    The RandomHangar._onLoading/_finalize overrides own the PrebattleEvent.SWITCHED
     listener and make hangar creation and destruction visible.
     """
     from gui.shared import EVENT_BUS_SCOPE, events, g_eventBus
+
     from driftkings.core.hooks import override
 
     listeners = weakref.WeakKeyDictionary()

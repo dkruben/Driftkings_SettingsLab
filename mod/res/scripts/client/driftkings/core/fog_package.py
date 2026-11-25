@@ -23,7 +23,40 @@ DEFAULT_OFF = 'default_off'
 EXPLICIT = 'explicit'
 LEGACY_MIGRATE = 'legacy_migrate'
 AMBIGUOUS = 'ambiguous'
+# The user's explicit choice, written only by a change of the option in the Settings Panel. Profile values written by
+# earlier releases (the 0.1.6 default was true) are not user choices and never enable the package.
+CHOICE_FILE = 'choice.json'
 _controller = None
+
+
+def read_choice(cache):
+    """True or False for an explicit user choice; None when the user has never chosen (default OFF)."""
+    path = os.path.join(cache, CHOICE_FILE)
+    if not os.path.isfile(path):
+        return None
+    try:
+        with open(path, 'rb') as stream:
+            value = json.loads(stream.read(4096).decode('utf-8'))
+    except (IOError, OSError, ValueError):
+        LOG.warning('Remove Fog choice unreadable; treated as not chosen')
+        return None
+    chosen = value.get(BATTLE_PREFERENCES.REMOVE_FOG) if isinstance(value, dict) else None
+    return chosen if type(chosen) is bool else None
+
+
+def write_choice(cache, value):
+    """Persist an explicit choice atomically; the file is the only record that the user chose."""
+    if not os.path.isdir(cache):
+        os.makedirs(cache)
+    path = os.path.join(cache, CHOICE_FILE)
+    temporary = path + '.tmp'
+    with open(temporary, 'wb') as stream:
+        stream.write(json.dumps({BATTLE_PREFERENCES.REMOVE_FOG: bool(value), 'source': 'user'}).encode('utf-8'))
+        stream.flush()
+        os.fsync(stream.fileno())
+    if os.path.exists(path):
+        os.remove(path)
+    os.rename(temporary, path)
 
 
 def package_evidence(path):
@@ -69,14 +102,10 @@ def classify_preference(profile_file, package):
 
 
 def migrate_preference(profile_file, package):
-    """Persist removeFog=true for a legacy profile with no key and an owned package; idempotent, no marker file."""
+    """Classify the legacy state only. Nothing is written: a legacy profile never enables the package by itself."""
     state = classify_preference(profile_file, package)
     if state == LEGACY_MIGRATE:
-        from driftkings.settings.store import read_object, SettingsStore
-        values = read_object(profile_file) if os.path.isfile(profile_file) else {}
-        values[BATTLE_PREFERENCES.REMOVE_FOG] = True
-        SettingsStore(profile_file).write(values)
-        LOG.info('Legacy Remove Fog preference migrated to true (owned package present)')
+        LOG.info('Legacy Remove Fog preference is not a user choice; the option stays OFF')
     return state
 
 
@@ -192,25 +221,39 @@ class FogPackageController(object):
         self.previous_result()
         self.startup()
 
+    def effective_state(self):
+        """What is really installed, for the panel: 'on', 'on-package-missing', 'off' or 'off-package-loaded'."""
+        present = bool(self.target) and package_evidence(self.target) == 'owned'
+        if self.current_intent() is True:
+            return 'on' if present else 'on-package-missing'
+        return 'off-package-loaded' if present else 'off'
+
     def startup(self):
-        """Automatic work at launch: install or refresh only for an on preference; never remove."""
+        """Automatic work at launch: install or refresh only for an explicit on choice; never remove."""
         if self.hold:
             return
         if self.current_intent() is not True:
+            # Effective state must match the setting: OFF (default, legacy or chosen) with a Driftkings-owned package
+            # still in the loading path is converged once through the helper. The helper verifies the owner identity,
+            # keeps a recovery copy and removes nothing else; the player is told a restart is needed.
+            if package_evidence(self.target) == 'owned':
+                try:
+                    self.schedule(False)
+                except Exception:
+                    LOG.exception('Remove Fog package could not be scheduled for removal')
+                    self.notice = 'UI_fog_error'
+                    self.notify()
             return
         self.changed(None, {})
 
     def prepare(self, profile_file):
-        """Resolve the persisted preference before any automatic decision; ambiguity schedules nothing."""
-        from driftkings.settings.store import read_object
+        """Resolve the intent before any automatic decision. Default OFF; only an explicit user choice enables it."""
         try:
             state = migrate_preference(profile_file, self.target)
-            if state == DEFAULT_OFF:
-                self.intent_value = False
-            elif state in (EXPLICIT, LEGACY_MIGRATE):
-                value = bool(read_object(profile_file)[BATTLE_PREFERENCES.REMOVE_FOG])
-                self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = value
-                self.intent_value = value
+            chosen = read_choice(self.cache)
+            value = chosen if chosen is not None else False
+            self.config.data[BATTLE_PREFERENCES.REMOVE_FOG] = value
+            self.intent_value = value
         except Exception:
             state = AMBIGUOUS
             LOG.exception('Remove Fog preference could not be resolved safely')
@@ -299,6 +342,7 @@ class FogPackageController(object):
                 return
             self.intent_value = value
             self.hold = False
+            write_choice(self.cache, value)
         intent = self.current_intent()
         if intent is None:
             LOG.warning('Remove Fog preference unknown; no fog operation is scheduled')
