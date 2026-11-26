@@ -53,7 +53,7 @@ Close World of Tanks before you install or update.
 1. Download `Driftkings-0.1.7-WoT-2.4.2.0-Setup.exe` from the release page and run it.
 2. Choose your language and confirm the game folder (the one that contains `version.xml`).
 3. Pick **Recommended**, **Complete** or **Custom** and choose the components to enable.
-4. Start the game and open **Driftkings settings** from the mods list.
+4. Start the game and open **Driftkings settings** from the launcher in the hangar footer.
 
 The installer keeps your existing settings when you reinstall. To choose the components again, select **Reset to defaults and choose the components again** on the folder page; your current settings are backed up first.
 
@@ -62,7 +62,7 @@ The installer keeps your existing settings when you reinstall. To choose the com
 1. Download `Driftkings-0.1.7-WoT-2.4.2.0.zip`.
 2. Extract its `mods` folder into the game folder and merge it with the existing one.
 3. For a new installation only, also download `Driftkings-defaults.zip` from the same release and extract it into the game folder. Do not do this when updating; your settings live in `mods/configs/driftkings`.
-4. Start the game and open **Driftkings settings** from the mods list.
+4. Start the game and open **Driftkings settings** from the launcher in the hangar footer.
 
 ### Updating
 

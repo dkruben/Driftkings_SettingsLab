@@ -230,6 +230,18 @@ New explicit confirmation from Wargaming moderation, supplied by the project own
 - Non-English moderation texts were written by the project and need native review.
 - Standard WGMods moderation review is required before public distribution of any version containing Remove Fog. The official WGMods listing URL has not been supplied and must not be invented.
 
+#### Phase 8 conclusions (functional regression inventory, owner decisions)
+
+- **No additional unintended functional losses were identified** between v0.1.6, v0.1.7 and develop. The component registry (35 entries in `component_list.py`) and the settings definitions are unchanged apart from the Remove Fog restoration and the Tour Coin consent switch (default OFF).
+- **Remove Fog has been recovered and validated.** The owner completed the manual runtime validation; see the Remove Fog section above.
+- **Halloween TAB removal was intentional and owner-approved.** The Halloween TAB ally rating colours were removed because Halloween is a seasonal game mode. It is not restored, and its Fair Play status is not being investigated.
+- **Seasonal features do not require permanent maintenance.** Seasonal game modes are addressed only when relevant to an active event and explicitly requested by the owner.
+- **Architecture:** the native Gameface architecture is preserved. OpenWG and ModsListAPI are not restored. Battle cards are hosted in the owned window, and the settings open from the hangar footer launcher.
+- **Documentation correction:** the README's "open Driftkings settings from the mods list" instruction was obsolete and now points to the hangar footer launcher.
+- **Deferred to the upcoming visual correction phase:** battle card placement relative to the native HUD, and the appearance of the settings header image (`header_tank.jpeg`, removed in v0.1.7).
+- **Phase 8 is complete.** No runtime code, compilation, automated test or push was performed in this phase.
+
+
 #### Pending security review
 
 - **Account manager plaintext fallback (review required, not changed in Phase 7).** `components/account_manager.py` reads `accounts.manager` as plain JSON when the protected decode fails (`renew_accounts`), so a file that is not protected is accepted and its passwords are used. Writes are always protected. Decide whether the fallback is needed and whether to refuse it, before public distribution.
