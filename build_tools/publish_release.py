@@ -232,7 +232,7 @@ def main():
         else:
             require(head == report['git']['commit'] and not dirty, 'Checkout differs from the built source revision')
         require(manifest['channel'] != 'stable',
-                'Stable releases are published through build_tools/promote_release.py, from an approved beta')
+                'Stable releases are published through build_tools/promote_release.py (direct stable or approved beta route)')
         repository = read_json(ROOT / 'build_data/release.json')['repository']
         require_green_ci(repository, head)
         require_unpublished(repository, 'v' + manifest['version'])
