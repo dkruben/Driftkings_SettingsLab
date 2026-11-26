@@ -218,6 +218,18 @@
       "locks": {"995": "flash_source/vehicle_markers/native-lock.json", "996": "flash_source/vehicle_markers/native-lock.ct996.json"},
       "output": "build/flash/driftkings_vehicle_markers.swf"
     },
+    "fog_package_helper": {
+      "kind": "csharp",
+      "source": "installer/source/fogpackage.cs",
+      "output": "build/native/fog/Driftkings.FogPackage.exe",
+      "metadata": "build/native/fog/helper.json",
+      "references": [
+        "System.IO.Compression.dll"
+      ],
+      "additional_sources": [
+        "installer/source/exitwork.cs"
+      ]
+    },
     "battleinfo_native": {
       "kind": "native_battleinfo_patch",
       "implementation": "ast_battleinfo",

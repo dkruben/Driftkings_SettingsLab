@@ -90,13 +90,13 @@ class ProductionReadinessTests(unittest.TestCase):
             self.assertNotIn(realm, self.config['reference']['production_clients'])
             self.assertIsNone(resolved_production_profile(self.config, realm))
 
-    def test_plan_excludes_research_sources_and_packages_no_remove_fog_helper(self):
+    def test_plan_excludes_research_sources_and_packages_the_optional_fog_helper(self):
         plan = build_plan(ROOT)
         targets = {file['target'].lower() for group in ('python', 'assets')
                    for file in plan[group]}
         self.assertTrue(any(target.endswith('/gameface/lobby/main.pyc') for target in targets))
         for target in targets:
             self.assertNotIn('clock_diagnostics.pyc', target)
-        # Remove Fog is excluded from production: neither its controller nor its helper is packaged.
-        self.assertFalse(any(target.endswith('/core/fog_package.pyc') for target in targets))
-        self.assertFalse(any('/gui/driftkings/fog/' in target for target in targets))
+        # Remove Fog is an optional, default-OFF feature: its controller and helper are packaged, never enabled.
+        self.assertTrue(any(target.endswith('/core/fog_package.pyc') for target in targets))
+        self.assertTrue(any(target.endswith('/gui/driftkings/fog/driftkings.fogpackage.exe') for target in targets))

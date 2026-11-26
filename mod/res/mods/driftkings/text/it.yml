@@ -29,7 +29,7 @@ account_manager.UI_setting_keepPassword: "Lascia vuoto per mantenere la password
 account_manager.UI_setting_loginOnly: "Seleziona un account nella schermata di accesso."
 account_manager.UI_setting_manageYourAccount: "Gestisci il tuo account"
 account_manager.UI_setting_openManager: "Gestisci account"
-account_manager.UI_setting_openManagerInfo: "Aggiungi, modifica o elimina gli account salvati. L'accesso a un account avviene sempre dalla schermata di login."
+account_manager.UI_setting_openManagerInfo: "Aggiungi, modifica o elimina gli account salvati. Le e-mail e le password degli account sono memorizzate solo su questo computer, in un file protetto dalla protezione delle credenziali del client di gioco. Non è una garanzia di crittografia. L'accesso avviene sempre dalla schermata di login."
 account_manager.UI_setting_nick: "Nick:"
 account_manager.UI_setting_password: "Password"
 account_manager.UI_setting_save: "Salva"
@@ -166,6 +166,9 @@ battle_performance.UI_setting_textLock_tooltip: "Impedisce di spostare il pannel
 
 # battle_preferences
 battle_preferences.UI_description: "Opzioni di battaglia"
+battle_preferences.UI_fog_error: "Impossibile applicare la rimozione della nebbia. Controlla game.log e riprova in Opzioni di battaglia."
+battle_preferences.UI_fog_restart_off: "Rimozione del pacchetto nebbia programmata. Chiudi e riapri il gioco per ripristinare la nebbia."
+battle_preferences.UI_fog_restart_on: "Rimozione della nebbia programmata. Chiudi e riapri il gioco per applicarla."
 battle_preferences.UI_setting_addEnemyName_text: "Aggiungi il nome del nemico"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Aggiunge il nome del giocatore accanto al nome del veicolo nel registro dei danni."
 battle_preferences.UI_setting_clipLoad_text: "Invia stato di ricarica"
@@ -187,6 +190,8 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Disattiva il suono della 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Silenzia il suono della conquista della base."
 battle_preferences.UI_setting_postmortemTips_text: "Mostra suggerimenti dopo la distruzione"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Mostra il pannello dei suggerimenti in fondo allo schermo dopo la distruzione del tuo veicolo. Disattivalo per nasconderlo."
+battle_preferences.UI_setting_removeFog_text: "Rimuovi nebbia"
+battle_preferences.UI_setting_removeFog_tooltip: "Disattivato per impostazione predefinita e modificabile solo da te. Se attivo, dopo la chiusura del gioco Driftkings crea sul tuo computer un pacchetto separato dai dati delle mappe di questa installazione e lo installa per il successivo avvio. La mod principale di Driftkings non viene modificata. Chiudi e riapri il gioco per applicare una modifica. Per disattivarlo, spegni questa opzione: il pacchetto viene rimosso dopo la chiusura del gioco. Ripristinare le impostazioni predefinite lo disattiva. Disattivare questa mod rimuove anche il pacchetto."
 battle_preferences.UI_setting_showBattleHint_text: "Nascondi suggerimenti di battaglia"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Nasconde i suggerimenti di battaglia del gioco, come quelli mostrati in cima allo schermo."
 battle_preferences.UI_setting_showFriends_text: "Mostra Amici"
@@ -210,7 +215,7 @@ battle_statistics.UI_setting_textLock_tooltip: "Impedisce di spostare il pannell
 # clan_reward_collection
 clan_reward_collection.UI_description: "Raccolta delle ricompense del clan"
 clan_reward_collection.UI_setting_purchaseProgression_text: "Acquisti automatici con Tour Coins"
-clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Disattivato per impostazione predefinita. Se attivo, la fase successiva di progressione del clan viene acquistata automaticamente quando il saldo di Tour Coins copre il prezzo. Spende Tour Coins senza conferma. Disattivarlo non interrompe la raccolta delle ricompense gratuite."
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Disattivato per impostazione predefinita. Sblocco facoltativo della progressione Tour of Duty: se attivo, la fase successiva della progressione del clan viene acquistata automaticamente con Tour Coins (monete Tour of Duty) appena il saldo copre il prezzo, senza conferma. Non spende mai crediti né oro. La raccolta gratuita delle ricompense è separata e non è influenzata da questa opzione; disattivarla non la ferma."
 
 # common
 common.UI_mog_accent: "Colore di risalto"
@@ -1298,7 +1303,7 @@ panel.updates.ERROR: "Impossibile completare l'operazione."
 panel.updates.IDLE: "DriftKings è aggiornato."
 panel.updates.INSTALLING: "Preparazione di un'installazione sicura..."
 panel.updates.READY: "Aggiornamento pronto per l'installazione."
-panel.updates.RESTART_REQUIRED: "Aggiornamento preparato. Verrà applicato dopo la chiusura di World of Tanks."
+panel.updates.RESTART_REQUIRED: "Aggiornamento preparato. Un'utilità di Windows lo applica dopo la chiusura del client di World of Tanks."
 panel.updates.VERIFYING: "Verifica aggiornamento..."
 panel.updates.autoCheck: "Controlla automaticamente gli aggiornamenti"
 panel.updates.availableNotice: "È disponibile un aggiornamento di DriftKings: {version}. Apri Impostazioni per rivederlo."

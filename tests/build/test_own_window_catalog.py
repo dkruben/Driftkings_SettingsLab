@@ -100,9 +100,10 @@ class OwnWindowCatalogTests(unittest.TestCase):
         assets = [item for manifest in read_components(catalog.ROOT, config['components']['source'])
                   for asset in manifest['assets']
                   for item in expand_asset(catalog.ROOT, asset, config['assets']['exclude'])]
-        # Independent packaging baseline. 333 items: the optional Remove Fog helper was removed from production.
-        self.assertEqual(len(assets), 333)
-        self.assertEqual(len({item['target'] for item in assets}), 333)
+        # Independent packaging baseline. 335 = 333 + the optional Remove Fog helper (exe and helper.json), restored
+        # as an optional, default-OFF feature. Not a second manifest.
+        self.assertEqual(len(assets), 335)
+        self.assertEqual(len({item['target'] for item in assets}), 335)
         self.assertEqual(catalog.validate(plan={'assets': assets})['native'], 20)
         with self.assertRaisesRegex(ValueError, 'Duplicate packaging target'):
             catalog.validate(plan={'assets': assets + assets[:1]})

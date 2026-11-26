@@ -29,7 +29,7 @@ account_manager.UI_setting_keepPassword: "Kayıtlı şifreyi korumak için boş 
 account_manager.UI_setting_loginOnly: "Giriş ekranında bir hesap seçin."
 account_manager.UI_setting_manageYourAccount: "Hesabınızı Yönetin"
 account_manager.UI_setting_openManager: "Hesapları yönet"
-account_manager.UI_setting_openManagerInfo: "Kayıtlı hesapları ekleyin, düzenleyin veya silin. Bir hesapla giriş yapmak yine giriş ekranından yapılır."
+account_manager.UI_setting_openManagerInfo: "Kayıtlı hesapları ekleyin, düzenleyin veya silin. Hesapların e-posta adresleri ve parolaları yalnızca bu bilgisayarda, oyun istemcisinin kimlik bilgisi koruması ile korunan bir dosyada saklanır. Bu bir şifreleme garantisi değildir. Bir hesapla giriş yapmak yine giriş ekranından yapılır."
 account_manager.UI_setting_nick: "Nick:"
 account_manager.UI_setting_password: "Şifre"
 account_manager.UI_setting_save: "Kaydet"
@@ -166,6 +166,9 @@ battle_performance.UI_setting_textLock_tooltip: "Savaş panelinin fareyle taşı
 
 # battle_preferences
 battle_preferences.UI_description: "Savaş seçenekleri"
+battle_preferences.UI_fog_error: "Sis kaldırma uygulanamadı. game.log dosyasını kontrol edip Savaş seçenekleri bölümünde yeniden deneyin."
+battle_preferences.UI_fog_restart_off: "Sis paketinin kaldırılması planlandı. Sisi geri getirmek için oyunu kapatıp yeniden açın."
+battle_preferences.UI_fog_restart_on: "Sis kaldırma planlandı. Uygulamak için oyunu kapatıp yeniden açın."
 battle_preferences.UI_setting_addEnemyName_text: "Düşman Adını Ekle"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Hasar günlüğünde araç adının yanına oyuncunun adını ekler."
 battle_preferences.UI_setting_clipLoad_text: "Yükleme durumunu gönder"
@@ -187,6 +190,8 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Takım Üssü Sesini Kapa
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Üs ele geçirme sesini kapatır."
 battle_preferences.UI_setting_postmortemTips_text: "İmha sonrası ipuçlarını göster"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Aracınız yok edildikten sonra ekranın altındaki ipuçları panelini gösterir. Gizlemek için kapatın."
+battle_preferences.UI_setting_removeFog_text: "Sisi kaldır"
+battle_preferences.UI_setting_removeFog_tooltip: "Varsayılan olarak kapalıdır ve yalnızca siz değiştirebilirsiniz. Açıkken, oyun kapandıktan sonra Driftkings bu kurulumun harita verilerinden bilgisayarınızda ayrı bir paket oluşturur ve bir sonraki başlatmada kurar. Driftkings ana modu değiştirilmez. Bir değişikliği uygulamak için oyunu kapatıp yeniden açın. Devre dışı bırakmak için bu seçeneği kapatın: paket oyun kapandıktan sonra kaldırılır. Ayarları varsayılanlara sıfırlamak bunu kapatır. Bu modu kapatmak paketi de kaldırır."
 battle_preferences.UI_setting_showBattleHint_text: "Savaş ipuçlarını gizle"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Oyunun savaş ipuçlarını gizler, örneğin ekranın üstünde görünenleri."
 battle_preferences.UI_setting_showFriends_text: "Arkadaşları Göster"
@@ -210,7 +215,7 @@ battle_statistics.UI_setting_textLock_tooltip: "Savaş panelinin fareyle taşın
 # clan_reward_collection
 clan_reward_collection.UI_description: "Klan ödüllerini toplama"
 clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coins ile otomatik satın alma"
-clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Varsayılan olarak kapalı. Açıkken, Tour Coins bakiyeniz fiyatı karşıladığında klan ilerleme sonraki aşaması otomatik satın alınır. Onay olmadan Tour Coins harcar. Kapatmak ücretsiz ödül toplamayı durdurmaz."
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Varsayılan olarak kapalı. İsteğe bağlı Tour of Duty ilerleme açma: açıkken, Tour Coins (Tour of Duty jetonları) bakiyeniz fiyatı karşıladığında klan ilerlemesinin sonraki aşaması onay istenmeden otomatik satın alınır. Asla kredi veya altın harcamaz. Ücretsiz ödül toplama ayrıdır ve bu seçenekten etkilenmez; bu seçeneği kapatmak ücretsiz toplamayı durdurmaz."
 
 # common
 common.UI_mog_accent: "Vurgu rengi"
@@ -1298,7 +1303,7 @@ panel.updates.ERROR: "İşlem tamamlanamadı."
 panel.updates.IDLE: "DriftKings güncel."
 panel.updates.INSTALLING: "Güvenli bir kurulum hazırlanıyor..."
 panel.updates.READY: "Güncelleme kuruluma hazır."
-panel.updates.RESTART_REQUIRED: "Güncelleme hazırlandı. World of Tanks kapandıktan sonra uygulanacaktır."
+panel.updates.RESTART_REQUIRED: "Güncelleme hazırlandı. World of Tanks istemcisi kapandıktan sonra bir Windows yardımcısı tarafından uygulanır."
 panel.updates.VERIFYING: "Güncelleme doğrulanıyor..."
 panel.updates.autoCheck: "Güncellemeleri otomatik olarak kontrol et"
 panel.updates.availableNotice: "DriftKings güncellemesi mevcut: {version}. İncelemek için Ayarlar'ı açın."

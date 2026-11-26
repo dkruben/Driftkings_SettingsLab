@@ -65,7 +65,7 @@ Run only the suites that a change affects. Focused tests for a single component 
 
 ## Removed features
 
-Remove Fog is not part of the current code base. Its previous implementation is not restored until the owner approves it and Wargaming's current Fair Play rules have been reviewed.
+Remove Fog is an optional, default-OFF feature: `core/fog_package.py` (controller), `installer/source/fogpackage.cs` (native helper, built by `fog_package_helper`), its setting, texts and tests (`tests/runtime/core/test_fog_*.py`, `tests/runtime/settings/test_fog_reload_integration.py`, `tests/build/test_optional_fog_contract.py`). Its atmospheric leaves are not yet established as independent of gameplay visibility, so the feature generates nothing until they are; do not add a leaf without that evidence. Public distribution requires Fair Play confirmation first.
 
 ## Security
 

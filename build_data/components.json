@@ -82,6 +82,18 @@
       "entrypoint": "battle.battle_preferences",
       "config_files": [
         "default/battle_preferences.json"
+      ],
+      "assets": [
+        {
+          "source": "build/native/fog/Driftkings.FogPackage.exe",
+          "target": "res/gui/driftkings/fog/Driftkings.FogPackage.exe",
+          "generator": "fog_package_helper"
+        },
+        {
+          "source": "build/native/fog/helper.json",
+          "target": "res/gui/driftkings/fog/helper.json",
+          "generator": "fog_package_helper"
+        }
       ]
     },
     "battle_statistics": {

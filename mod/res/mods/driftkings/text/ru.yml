@@ -29,7 +29,7 @@ account_manager.UI_setting_keepPassword: "Оставьте пустым, что�
 account_manager.UI_setting_loginOnly: "Выберите аккаунт на экране входа."
 account_manager.UI_setting_manageYourAccount: "Управление аккаунтом"
 account_manager.UI_setting_openManager: "Управление аккаунтами"
-account_manager.UI_setting_openManagerInfo: "Добавляйте, изменяйте или удаляйте сохранённые аккаунты. Вход в аккаунт по-прежнему выполняется на экране входа."
+account_manager.UI_setting_openManagerInfo: "Добавляйте, изменяйте или удаляйте сохранённые аккаунты. Адреса электронной почты и пароли аккаунтов хранятся только на этом компьютере, в файле, защищённом средствами защиты учётных данных игрового клиента. Это не гарантия шифрования. Вход в аккаунт по-прежнему выполняется на экране входа."
 account_manager.UI_setting_nick: "Ник:"
 account_manager.UI_setting_password: "Пароль"
 account_manager.UI_setting_save: "Сохранить"
@@ -166,6 +166,9 @@ battle_performance.UI_setting_textLock_tooltip: "Запрещает переме
 
 # battle_preferences
 battle_preferences.UI_description: "Настройки боя"
+battle_preferences.UI_fog_error: "Не удалось применить удаление тумана. Проверьте game.log и повторите попытку в разделе «Настройки боя»."
+battle_preferences.UI_fog_restart_off: "Удаление пакета тумана запланировано. Закройте и снова запустите игру, чтобы вернуть туман."
+battle_preferences.UI_fog_restart_on: "Удаление тумана запланировано. Закройте и снова запустите игру, чтобы применить изменения."
 battle_preferences.UI_setting_addEnemyName_text: "Добавить имя врага"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Добавляет имя игрока рядом с названием машины в журнале урона."
 battle_preferences.UI_setting_clipLoad_text: "Отправлять состояние перезарядки"
@@ -187,6 +190,8 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Отключить зву
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Отключает звук захвата базы."
 battle_preferences.UI_setting_postmortemTips_text: "Показывать советы после уничтожения"
 battle_preferences.UI_setting_postmortemTips_tooltip: "После уничтожения вашей машины показывает панель подсказок внизу экрана. Отключите, чтобы скрыть её."
+battle_preferences.UI_setting_removeFog_text: "Убрать туман"
+battle_preferences.UI_setting_removeFog_tooltip: "По умолчанию выключено, менять его может только игрок. Если включено, после закрытия игры Driftkings создаёт на вашем компьютере отдельный пакет из данных карт этой установки и устанавливает его при следующем запуске. Основной мод Driftkings не меняется. Чтобы применить изменение, закройте и снова откройте игру. Чтобы отключить, выключите эту опцию: пакет будет удалён после закрытия игры. Сброс настроек к значениям по умолчанию выключает её. Выключение этого мода также удаляет пакет."
 battle_preferences.UI_setting_showBattleHint_text: "Скрыть боевые подсказки"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Скрывает боевые подсказки игры, например подсказки вверху экрана."
 battle_preferences.UI_setting_showFriends_text: "Показать друзей"
@@ -210,7 +215,7 @@ battle_statistics.UI_setting_textLock_tooltip: "Запрещает переме�
 # clan_reward_collection
 clan_reward_collection.UI_description: "Получение клановых наград"
 clan_reward_collection.UI_setting_purchaseProgression_text: "Автопокупки за Tour Coins"
-clan_reward_collection.UI_setting_purchaseProgression_tooltip: "По умолчанию выключено. Если включено, следующая ступень прогресса клана покупается автоматически, когда баланса Tour Coins хватает на её цену. Тратит Tour Coins без подтверждения. Выключение не останавливает сбор бесплатных наград."
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "По умолчанию выключено. Необязательное открытие прогресса Tour of Duty: если включено, следующая ступень прогресса клана автоматически покупается за Tour Coins (монеты Tour of Duty), как только баланса хватает на её цену, без подтверждения. Кредиты и золото никогда не тратятся. Сбор бесплатных наград отдельный и этой опцией не затрагивается; её выключение его не останавливает."
 
 # common
 common.UI_mog_accent: "Акцентный цвет"
@@ -1298,7 +1303,7 @@ panel.updates.ERROR: "Не удалось завершить операцию."
 panel.updates.IDLE: "DriftKings обновлен."
 panel.updates.INSTALLING: "Подготовка безопасной установки..."
 panel.updates.READY: "Обновление готово к установке."
-panel.updates.RESTART_REQUIRED: "Обновление подготовлено. Он будет применен после закрытия World of Tanks."
+panel.updates.RESTART_REQUIRED: "Обновление подготовлено. Его применит служебная программа Windows после закрытия клиента World of Tanks."
 panel.updates.VERIFYING: "Проверка обновления..."
 panel.updates.autoCheck: "Автоматическая проверка обновлений"
 panel.updates.availableNotice: "Доступно обновление DriftKings: {version}. Откройте «Настройки», чтобы просмотреть его."

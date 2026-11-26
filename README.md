@@ -78,6 +78,13 @@ Custom images and sounds go in `mods/configs/driftkings/images/` and `mods/confi
 
 Anonymous usage statistics are **off by default**. When you turn them on, the mod sends a random installation ID, the mod and game versions, the region and the error types to Google Analytics. It never sends player names, account details or error messages. Turning the option off stops sending and deletes the installation ID.
 
+### Optional behaviour explained
+
+- **Clan reward collection.** Free reward collection is separate from *Automatic purchases with Tour Coins*. That option is **off by default**. When you turn it on, Driftkings spends Tour of Duty coins (Tour Coins) without a confirmation to unlock the next clan progression stage whenever your balance covers its price. It never spends credits or gold.
+- **Account manager.** Account e-mails and passwords are stored only on this computer, in a file protected with the game client's credential protection. This is not a guarantee of encryption. Signing in is still done on the login screen.
+- **Anonymous statistics.** Optional and off by default (see above).
+- **Updates.** A Windows helper applies a prepared update after the World of Tanks client exits.
+
 ## Languages
 
 In-game text is available in 18 languages: Chinese (Simplified and Traditional), Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian and Vietnamese. English is the fallback. Translation corrections are welcome on [Discord](https://discord.gg/k2Stjv5fS5).

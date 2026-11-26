@@ -29,7 +29,7 @@ account_manager.UI_setting_keepPassword: "保存したパスワードを保持�
 account_manager.UI_setting_loginOnly: "ログイン画面でアカウントを選択します。"
 account_manager.UI_setting_manageYourAccount: "アカウントを管理する"
 account_manager.UI_setting_openManager: "アカウントを管理"
-account_manager.UI_setting_openManagerInfo: "保存したアカウントを追加、編集、削除します。アカウントへのログインは引き続きログイン画面で行います。"
+account_manager.UI_setting_openManagerInfo: "保存したアカウントを追加、編集、削除します。アカウントのメールアドレスとパスワードは、このコンピューターにのみ、ゲームクライアントの資格情報保護で守られたファイルとして保存されます。暗号化を保証するものではありません。アカウントへのログインは引き続きログイン画面で行います。"
 account_manager.UI_setting_nick: "ニック:"
 account_manager.UI_setting_password: "パスワード"
 account_manager.UI_setting_save: "保存"
@@ -166,6 +166,9 @@ battle_performance.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 
 # battle_preferences
 battle_preferences.UI_description: "戦闘設定"
+battle_preferences.UI_fog_error: "霧の除去を適用できませんでした。game.log を確認し、戦闘設定でもう一度お試しください。"
+battle_preferences.UI_fog_restart_off: "霧パッケージの削除を予約しました。霧を戻すにはゲームを終了して再起動してください。"
+battle_preferences.UI_fog_restart_on: "霧の除去を予約しました。適用するにはゲームを終了して再起動してください。"
 battle_preferences.UI_setting_addEnemyName_text: "敵の名前を追加"
 battle_preferences.UI_setting_addEnemyName_tooltip: "ダメージログで車両名の横にプレイヤー名を追加します。"
 battle_preferences.UI_setting_clipLoad_text: "装填状況を送信"
@@ -187,6 +190,8 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "チームベースの音�
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "陣地占領の音をミュートします。"
 battle_preferences.UI_setting_postmortemTips_text: "撃破後のヒントを表示"
 battle_preferences.UI_setting_postmortemTips_tooltip: "自分の車両が撃破された後、画面下部にヒントパネルを表示します。オフにすると非表示になります。"
+battle_preferences.UI_setting_removeFog_text: "霧を除去"
+battle_preferences.UI_setting_removeFog_tooltip: "既定ではオフで、変更できるのはあなただけです。オンにすると、ゲーム終了後にこのインストールのマップデータから別のパッケージをお使いのコンピューター上に作成し、次回起動時にインストールします。Driftkings 本体は変更されません。変更を適用するには、ゲームを終了してから再起動してください。無効にするには、この設定をオフにします。ゲームを終了するとパッケージは削除されます。設定を既定値に戻すとオフになります。このモッドをオフにすると、パッケージも削除されます。"
 battle_preferences.UI_setting_showBattleHint_text: "戦闘ヒントを非表示"
 battle_preferences.UI_setting_showBattleHint_tooltip: "画面上部に表示されるものなど、ゲームの戦闘ヒントを非表示にします。"
 battle_preferences.UI_setting_showFriends_text: "友達を表示"
@@ -210,7 +215,7 @@ battle_statistics.UI_setting_textLock_tooltip: "戦闘パネルをマウスで�
 # clan_reward_collection
 clan_reward_collection.UI_description: "クラン報酬の受け取り"
 clan_reward_collection.UI_setting_purchaseProgression_text: "Tour Coinsによる自動購入"
-clan_reward_collection.UI_setting_purchaseProgression_tooltip: "既定ではオフです。オンにすると、Tour Coinsの残高が価格に足りるたびに、次のクラン進行段階が自動的に購入されます。確認なしでTour Coinsを使用します。オフにしても無料報酬の受け取りは止まりません。"
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "既定ではオフです。任意の Tour of Duty 進行解放：オンにすると、Tour Coins（Tour of Duty コイン）の残高が価格に足りるたびに、次のクラン進行段階が確認なしで自動購入されます。クレジットやゴールドは一切使用しません。無料の報酬受け取りは別の機能で、この設定の影響を受けません。この設定をオフにしても無料の受け取りは止まりません。"
 
 # common
 common.UI_mog_accent: "アクセントカラー"
@@ -1298,7 +1303,7 @@ panel.updates.ERROR: "操作を完了できませんでした。"
 panel.updates.IDLE: "DriftKings は最新です。"
 panel.updates.INSTALLING: "安全な設置を準備しています..."
 panel.updates.READY: "アップデートをインストールする準備ができました。"
-panel.updates.RESTART_REQUIRED: "アップデートが準備されました。 World of Tanks の終了後に適用されます。"
+panel.updates.RESTART_REQUIRED: "アップデートの準備ができました。World of Tanks クライアントの終了後に Windows ヘルパーが適用します。"
 panel.updates.VERIFYING: "更新を確認しています..."
 panel.updates.autoCheck: "アップデートを自動的にチェックする"
 panel.updates.availableNotice: "DriftKings アップデートが利用可能です: {version}。設定を開いて確認してください。"

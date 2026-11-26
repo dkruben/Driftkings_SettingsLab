@@ -688,3 +688,27 @@ begin
   WriteMediaReadme('SixthSense', 'Custom Sixth Sense icon: SixthSenseIcon.png. Select it in the Driftkings settings panel. This folder is never removed by the uninstaller.');
   WriteMediaReadme('images', 'Custom overlay images: use mods/configs/driftkings/images/<filename>.png in the settings panel. This folder is never removed by the uninstaller.');
 end;
+
+// Uninstall: remove the auxiliary Remove Fog package only when this installation recorded it and its digest is unchanged.
+procedure RemoveOwnedFogPackage();
+var
+  Entries: TArrayOfString;
+  App, Record, Target: String;
+begin
+  App := RemoveBackslashUnlessRoot(ExpandConstant('{app}'));
+  Record := App + '\mods\configs\driftkings\cache\fog\owned.txt';
+  if not FileExists(Record) then Exit;
+  if not LoadStringsFromFile(Record, Entries) then Exit;
+  if GetArrayLength(Entries) < 2 then Exit;
+  Target := Trim(Entries[0]);
+  if (Pos(App + '\mods\', Target) <> 1) or (ExtractFileName(Target) <> 'Driftkings.RemoveFog.wotmod') then Exit;
+  if not FileExists(Target) then Exit;
+  if not SameText(GetSHA256OfFile(Target), Trim(Entries[1])) then Exit;
+  DeleteFile(Target);
+  DeleteFile(Record);
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then RemoveOwnedFogPackage();
+end;

@@ -115,7 +115,9 @@ class BanksLoaderController(object):
             if result.result == DButtons.PURCHASE:
                 LOG.info('client restart confirmed.')
                 BigWorld.savePreferences()
-                BigWorld.restartGame()
+                from driftkings.core.fog_package import coordinated_restart
+                if coordinated_restart() is None:
+                    BigWorld.restartGame()
             elif result.result == DButtons.RESEARCH:
                 LOG.info('client shut down.')
                 BigWorld.savePreferences()

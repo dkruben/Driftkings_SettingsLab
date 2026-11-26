@@ -165,17 +165,86 @@ These are recorded so that future work does not treat them as intended design:
 - The EU reference snapshot in `toolchain.local.json` is the wrong version (see section 5).
 - `validate_build_data.py` and `vehicle_markers_patch.py` keep a `995` fallback for the historical native lock that has no `clientBuild` field. This is a legacy contract, kept on purpose.
 
-## 10. Pending work
+## 10. Pending work and component status
+
+### Remove Fog
+
+**Status:** functionally restored and accepted for the development candidate `0.1.8-beta.1`. The behaviour is the one reviewed in v0.1.6. Remove Fog is not part of the public 0.1.7 release and must not be advertised until a version that contains it is publicly released.
+
+**Accepted development candidate:** version `0.1.8-beta.1`, target `ct996` (historical build evidence, not a production-realm requirement), mode `dev`, WOTMOD `build/runs/20261126T041020Z-e956d6e1/output/driftkings.wotmod`, SHA-256 `613447ace5747052559ddb7c74da48f23c344ffa163b0bd207de9970b1a8abd5`.
+
+**Validation evidence (two kinds, kept separate):**
+
+- *Owner-reported runtime validation (manual, in game):* the owner reports that all 12 manual points passed: fresh profile defaults OFF; no auxiliary package before explicit activation; manual activation works; package generation and installation after client exit work; the expected historical graphical effect is restored; the player preference persists; manual deactivation works; owned auxiliary package removal works; original fog behaviour is restored; reset restores OFF; the Portuguese settings descriptions were verified; and no related `game.log` errors were reported. These are the owner's observations; the repository holds no game logs or screenshots of them.
+- *Automated test evidence (this repository):* runtime `core` group 222 pass; runtime `settings` group 113 pass; build contracts (fog contract, production readiness, own-window catalogue, installer destination and discovery, CT binaries) 55 pass. The helper binary carries the six historical leaf names, and its SHA-256 matches `helper.json`. These tests check structure and contracts; they do not measure in-game behaviour.
+
+#### Owner correspondence (verbatim)
+
+Original WGMods moderation feedback, supplied by the project owner:
+
+> Please expand the listing and settings explanations to cover these behaviors clearly:
+>
+> * Fog removal is enabled in the supplied defaults and generates a separate Driftkings.RemoveFog.wotmod after the client exits. Explain how users disable it.
+> * Clan reward collection also automatically unlocks progression stages using Tour of Duty coins and is enabled by default. Distinguish this from free reward collection and from credits/gold. Automatic Tour of Duty coin spending is accepted; please explain that behavior clearly.
+> * Explain that the account manager stores protected credentials locally, that analytics is optional, and that the updater uses Windows helpers to install after client exit. Keep this information visible before users enable or use the corresponding features.
+>
+> The bundled executables were statically decompiled and inspected. No source-code upload is requested.
+
+New explicit confirmation from Wargaming moderation, supplied by the project owner:
+
+> Hello,
+>
+> Thank you for reaching out to confirm before implementing the change.
+>
+> Yes, restoring the optional Remove Fog feature with the exact same behavior reviewed in v0.1.6 remains acceptable under our current Fair Play policy, provided it remains disabled by default and requires explicit opt-in from the player.
+>
+> Please note that your upcoming update will still undergo our standard moderation review upon submission to ensure no unintended gameplay advantages have been introduced.
+>
+> Best regards
+
+#### What the confirmation covers
+
+- **Covered:** restoration of the exact historical behaviour reviewed in v0.1.6, provided the feature is disabled by default and requires explicit player opt-in.
+- **Not covered:** expanded functionality, any new resource modification, and any exemption of the upcoming release from standard moderation review.
+- **Mandatory conditions:** OFF by default; explicit player opt-in; no automatic activation on first installation, through installation profiles, or through ambiguous legacy configurations; previously recorded explicit player choices are preserved; reset to defaults restores OFF; disabling removes the owned auxiliary package after client exit; the restart requirement is shown to the player.
+- **Standard moderation review still required** for the upcoming release submission.
+
+#### Historical reference (verified in the repository)
+
+- Tag `v0.1.6` (commit `cfa1ed4b`) contains the reviewed implementation. The published `driftkings.wotmod` (`bc392604…`) contains `core/fog_package.py` and `res/gui/driftkings/fog/Driftkings.FogPackage.exe` (`dd11d7c9…`). The published defaults set `removeFog` to `true`; that default was changed to OFF by `1e194db1`, which the confirmation requires.
+- Exact transformation (`installer/source/fogpackage.cs`): boolean leaves `Fog/enable`, `VolumetricFog/enabled`, `VolumetricFog/enableGameplay` are replaced by an empty payload; density leaves `Fog/deferred/density`, `Fog/simplifiedDeferred/density`, `Fog/forward/density` are replaced by four zero bytes. These six leaves are the whole transformation. The same rewrite logic is in the `v0.1.6` helper and in the recovery reference `6ac1d7e7`. A test (`tests/build/test_optional_fog_contract.py`) asserts the lists.
+- Local engine-side evidence (`WoT_Tools/wot-src-EU`, read-only): the leaves are data in `res/spaces/*/environments/*/environment.xml`. `VolumetricFog/enableGameplay` is `false` in 97 of 98 environment files and `true` in one. No client script reads these keys. The gameplay meaning of each leaf is therefore not established by local evidence; the moderation confirmation is what authorises the historical behaviour.
+
+#### Implemented behaviour
+
+- The Settings panel shows the Remove Fog control. It is OFF by default (`battle_preferences.json`, `default_values.py`).
+- Turning it on writes an explicit choice to `mods/configs/driftkings/cache/fog/choice.json`. Legacy profile values never enable it; ambiguous states hold automatic action.
+- The helper builds `Driftkings.RemoveFog.wotmod` locally from the game's map packages while the client runs, and installs it only after the client exits. A restart is requested only with the player's consent (`coordinated_restart`).
+- Turning it off, or resetting to defaults, removes the owned package after client exit. A recovery copy is kept under `cache/fog/recovery/`.
+- Ownership: the package is accepted only if its `meta.xml` id is `driftkings.removefog`. The helper records the installed path and SHA-256 in `cache/fog/owned.txt`.
+- Uninstall (Inno Setup `CurUninstallStepChanged`, not compiled): removes only the recorded package, only inside `{app}\mods\`, only if the file name is `Driftkings.RemoveFog.wotmod` and its SHA-256 matches the record. Recovery copies and the cache folder are left in place.
+
+#### Remaining limitations
+
+- The Setup executable and the installer cleanup are not compiled or executed. The uninstall cleanup is covered by a static contract test only.
+- Non-English moderation texts were written by the project and need native review.
+- Standard WGMods moderation review is required before public distribution of any version containing Remove Fog. The official WGMods listing URL has not been supplied and must not be invented.
+
+#### Pending security review
+
+- **Account manager plaintext fallback (review required, not changed in Phase 7).** `components/account_manager.py` reads `accounts.manager` as plain JSON when the protected decode fails (`renew_accounts`), so a file that is not protected is accepted and its passwords are used. Writes are always protected. Decide whether the fallback is needed and whether to refuse it, before public distribution.
+
+### Other pending work
 
 - Corrected installer compilation and isolated executable validation.
-- Full updater execution and rollback validation in an isolated client copy.
-- Real promotion-gate validation, when the owner authorises a dispatch.
-- Restoration of the live NA client, once the owner authorises it.
-- Owner decision on the remaining legacy directories that hold unique material: `build/debug/beta/0.1.7-beta.2` (unreferenced WOTMOD `f1735c37…`), `build/previous/` (WOTMOD `7b64e5e0…`, documented in `CT_COMPATIBILITY.md`), `build/installer/` (0.1.7-beta.2 Setup `a490ab1a…`) and `build/experiments/` (isolated experiments; some fog-related strings).
-- Recovery of the previous Remove Fog implementation (not implemented; preserved under `build/candidates/`). Requirements: Remove Fog is disabled by default; activation is an explicit player choice; installation and configuration reset never activate it; current Wargaming Fair Play requirements are verified before any public distribution.
-- Correction of existing visual defects, using focused and impact-proportional validation.
-- Compilation and isolated-Windows validation of the corrected installer before the next official release.
-- Complete updater and rollback validation before claiming those checks passed.
+- Isolated install and uninstall validation, and full updater and rollback validation in an isolated client copy.
+- Real promotion-gate validation, only when the owner authorises a dispatch.
+- Restoration of the live NA client, only when the owner authorises it.
+- Owner decision on legacy directories with unique material: `build/debug/beta/0.1.7-beta.2` (unreferenced WOTMOD `f1735c37…`), `build/previous/` (WOTMOD `7b64e5e0…`, see `CT_COMPATIBILITY.md`), `build/installer/` (0.1.7-beta.2 Setup `a490ab1a…`), `build/experiments/`.
+- Correction of existing visual defects, with focused and impact-proportional validation.
+- Account-manager plaintext fallback security review (see its section above).
+- Native review of the translated moderation descriptions in all 18 catalogues.
+- Standard WGMods moderation review before public distribution, and the official WGMods listing URL (not supplied).
 
 ## 11. Safety rules for AI assistants
 

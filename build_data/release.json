@@ -13,7 +13,6 @@
     "Integrated native Gameface for hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency. Several battle HUD components share a native window.",
     "Updated battle marks presentation.",
     "Added a cross-server saved-email notice and explicit consent for Tour Coin purchases.",
-    "Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.",
-    "Remove Fog is not included in this release. If an older Driftkings.RemoveFog.wotmod remains in mods/2.4.2.0, delete it manually while the game is closed."
+    "Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1."
   ]
 }

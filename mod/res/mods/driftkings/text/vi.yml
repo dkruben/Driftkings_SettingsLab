@@ -29,7 +29,7 @@ account_manager.UI_setting_keepPassword: "Để trống để giữ mật khẩu
 account_manager.UI_setting_loginOnly: "Chọn một tài khoản trên màn hình đăng nhập."
 account_manager.UI_setting_manageYourAccount: "Quản lý tài khoản của bạn"
 account_manager.UI_setting_openManager: "Quản lý tài khoản"
-account_manager.UI_setting_openManagerInfo: "Thêm, sửa hoặc xóa các tài khoản đã lưu. Việc đăng nhập bằng tài khoản vẫn được thực hiện ở màn hình đăng nhập."
+account_manager.UI_setting_openManagerInfo: "Thêm, sửa hoặc xóa các tài khoản đã lưu. Email và mật khẩu của tài khoản chỉ được lưu trên máy tính này, trong tệp được bảo vệ bằng cơ chế bảo vệ thông tin xác thực của máy khách trò chơi. Đây không phải là cam kết mã hóa. Việc đăng nhập bằng tài khoản vẫn được thực hiện ở màn hình đăng nhập."
 account_manager.UI_setting_nick: "Nick:"
 account_manager.UI_setting_password: "Mật khẩu"
 account_manager.UI_setting_save: "Cứu"
@@ -166,6 +166,9 @@ battle_performance.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong 
 
 # battle_preferences
 battle_preferences.UI_description: "Tùy chọn chiến đấu"
+battle_preferences.UI_fog_error: "Không thể áp dụng xóa sương mù. Hãy kiểm tra game.log và thử lại trong Tùy chọn chiến đấu."
+battle_preferences.UI_fog_restart_off: "Đã lên lịch gỡ gói sương mù. Hãy đóng và mở lại trò chơi để khôi phục sương mù."
+battle_preferences.UI_fog_restart_on: "Đã lên lịch xóa sương mù. Hãy đóng và mở lại trò chơi để áp dụng."
 battle_preferences.UI_setting_addEnemyName_text: "Thêm tên kẻ thù"
 battle_preferences.UI_setting_addEnemyName_tooltip: "Thêm tên người chơi bên cạnh tên xe trong nhật ký sát thương."
 battle_preferences.UI_setting_clipLoad_text: "Gửi trạng thái nạp đạn"
@@ -187,6 +190,8 @@ battle_preferences.UI_setting_muteTeamBaseSound_text: "Tắt âm thanh cơ sở 
 battle_preferences.UI_setting_muteTeamBaseSound_tooltip: "Tắt tiếng âm thanh chiếm căn cứ."
 battle_preferences.UI_setting_postmortemTips_text: "Hiển thị mẹo sau khi bị phá hủy"
 battle_preferences.UI_setting_postmortemTips_tooltip: "Hiển thị bảng mẹo ở cuối màn hình sau khi xe của bạn bị phá hủy. Tắt để ẩn bảng."
+battle_preferences.UI_setting_removeFog_text: "Xóa sương mù"
+battle_preferences.UI_setting_removeFog_tooltip: "Tắt theo mặc định và chỉ bạn mới thay đổi được. Khi bật, sau khi đóng game, Driftkings tạo một gói riêng trên máy tính của bạn từ dữ liệu bản đồ của bản cài đặt này và cài đặt cho lần khởi động tiếp theo. Mod chính của Driftkings không bị thay đổi. Đóng rồi mở lại game để áp dụng thay đổi. Để tắt, hãy tắt tùy chọn này: gói sẽ bị xóa sau khi đóng game. Đặt lại cài đặt về mặc định sẽ tắt tùy chọn này. Tắt mod này cũng xóa gói."
 battle_preferences.UI_setting_showBattleHint_text: "Ẩn gợi ý chiến đấu"
 battle_preferences.UI_setting_showBattleHint_tooltip: "Ẩn các gợi ý trong trận của trò chơi, như những gợi ý hiện ở đầu màn hình."
 battle_preferences.UI_setting_showFriends_text: "Hiển thị bạn bè"
@@ -210,7 +215,7 @@ battle_statistics.UI_setting_textLock_tooltip: "Ngăn di chuyển bảng trong t
 # clan_reward_collection
 clan_reward_collection.UI_description: "Nhận phần thưởng bang hội"
 clan_reward_collection.UI_setting_purchaseProgression_text: "Tự động mua bằng Tour Coins"
-clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Tắt theo mặc định. Khi bật, bước tiến bộ tiếp theo của clan sẽ được mua tự động khi số dư Tour Coins đủ giá. Tiêu Tour Coins mà không cần xác nhận. Tắt tùy chọn này không dừng việc nhận thưởng miễn phí."
+clan_reward_collection.UI_setting_purchaseProgression_tooltip: "Tắt theo mặc định. Tùy chọn mở khóa tiến trình Tour of Duty: khi bật, bước tiến bộ tiếp theo của clan sẽ được mua tự động bằng Tour Coins (xu Tour of Duty) khi số dư đủ giá, không cần xác nhận. Không bao giờ tiêu credit hoặc vàng. Việc nhận phần thưởng miễn phí là riêng biệt và không bị ảnh hưởng bởi tùy chọn này; tắt tùy chọn này không dừng việc nhận thưởng miễn phí."
 
 # common
 common.UI_mog_accent: "Màu nhấn"
@@ -1298,7 +1303,7 @@ panel.updates.ERROR: "Không thể hoàn thành thao tác."
 panel.updates.IDLE: "DriftKings được cập nhật."
 panel.updates.INSTALLING: "Chuẩn bị lắp đặt an toàn..."
 panel.updates.READY: "Bản cập nhật sẵn sàng để cài đặt."
-panel.updates.RESTART_REQUIRED: "Đã chuẩn bị cập nhật. Nó sẽ được áp dụng sau khi World of Tanks đóng cửa."
+panel.updates.RESTART_REQUIRED: "Đã chuẩn bị cập nhật. Một tiện ích của Windows sẽ áp dụng sau khi máy khách World of Tanks đóng."
 panel.updates.VERIFYING: "Đang xác minh cập nhật..."
 panel.updates.autoCheck: "Kiểm tra cập nhật tự động"
 panel.updates.availableNotice: "Đã có bản cập nhật DriftKings: {version}. Mở Cài đặt để xem lại."
