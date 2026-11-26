@@ -161,7 +161,10 @@ class DirectCommandTests(StableBuildCase):
     def setUp(self):
         super().setUp()
         self.context = DirectContext()
-        self.context.gate['workflow_runs'][0]['display_title'] = promotion.gate_title(STABLE, STABLE_COMMIT, self.digest)
+        record = promotion.record_digest(direct_record(package='d' * 64))
+        self.full_digest = promotion.artifacts_digest_full(self.folder)
+        self.context.gate['workflow_runs'][0]['display_title'] = promotion.direct_gate_title(
+            STABLE, STABLE_COMMIT, self.full_digest, record)
         promotion.write_build_stamp(self.folder, STABLE_COMMIT)
 
     def arguments(self, record_path, **options):

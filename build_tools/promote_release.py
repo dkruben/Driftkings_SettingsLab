@@ -130,8 +130,29 @@ def artifacts_digest(folder):
 
 
 def gate_title(beta, commit, digest):
-    """Must match run-name in .github/workflows/promotion-gate.yml."""
+    """Beta route. Must match run-name in .github/workflows/promotion-gate.yml."""
     return 'Promotion %s @ %s # %s' % (beta, commit, digest)
+
+
+# The workflow_dispatch payload is limited by GitHub; a record above this size cannot be dispatched as an input.
+MAX_GATE_RECORD = 60000
+
+
+def record_digest(text):
+    """Complete SHA-256 identity of a validation record. Trailing newlines are not part of the identity:
+    shells and the gate may add or strip one. The approval title carries this full digest."""
+    return hashlib.sha256((text.rstrip('\n') + '\n').encode('utf-8')).hexdigest()
+
+
+def artifacts_digest_full(folder):
+    """Complete SHA-256 of the candidate inventory (SHA256SUMS.txt, which covers every artifact and the report)."""
+    return sha(folder / 'SHA256SUMS.txt')
+
+
+def direct_gate_title(stable, commit, digest, record):
+    """Direct route: the approval is bound to the version, the artifact commit, the complete candidate inventory digest
+    and the complete record digest. Must match the run-name of .github/workflows/promotion-gate.yml for route direct."""
+    return 'Promotion direct %s @ %s # %s %s' % (stable, commit, digest, record)
 
 
 def write_build_stamp(folder, commit):
@@ -398,8 +419,10 @@ def direct_identity(context, stable, commit):
 
 def read_record_file(path):
     require(path is not None and Path(path).is_file(), 'The direct route needs --record <validation record file>')
-    require(Path(path).stat().st_size <= MAX_RECORD, 'Validation record is too large')
-    return Path(path).read_text(encoding='utf-8')
+    text = Path(path).read_text(encoding='utf-8')
+    require(len(text.encode('utf-8')) <= MAX_GATE_RECORD,
+            'The validation record is larger than the %d-byte gate input limit' % MAX_GATE_RECORD)
+    return text
 
 
 def check_direct_record(text, identity):
@@ -479,12 +502,16 @@ def environment_protected(context):
     return any(rule['type'] == 'required_reviewers' for rule in (environment or {}).get('protection_rules', []))
 
 
-def find_gate(context, beta, commit, digest, waive):
-    """The green gate run of this exact build and who approved it in the GitHub environment."""
+def find_gate(context, beta, commit, digest, waive, title=None, direct=False):
+    """The green gate run of this exact build and who approved it in the GitHub environment.
+
+    The run title names the route, version, artifact commit and digests, so an approval of anything else never matches.
+    The direct route has no waiver: it needs an approved environment run.
+    """
     data = context.query('repos/%s/actions/workflows/%s/runs?event=workflow_dispatch&status=success&per_page=100'
                          % (context.repository, GATE_WORKFLOW), True)
     runs = [run for run in (data or {}).get('workflow_runs', [])
-            if run['display_title'] == gate_title(beta, commit, digest) and run['head_branch'] == STABLE_BRANCH]
+            if run['display_title'] == (title or gate_title(beta, commit, digest)) and run['head_branch'] == STABLE_BRANCH]
     reviewers = []
     if runs:
         run = max(runs, key=lambda item: item['run_number'])
@@ -495,6 +522,7 @@ def find_gate(context, beta, commit, digest, waive):
             if reviewers:
                 return dict(run=run['html_url'], approvedBy=reviewers, status='approved')
     missing = 'No approved %s run for this commit and artifacts digest %s; dispatch it with request_approval'
+    require(not direct or not waive, 'The direct stable route needs an approved environment run; it has no waiver')
     require(waive, missing % (GATE_WORKFLOW, digest))
     require(not environment_protected(context),
             '%s has required reviewers, so it cannot be waived. ' % GATE_ENVIRONMENT + missing % (GATE_WORKFLOW, digest))
@@ -587,8 +615,16 @@ def run_prepare(context, args):
 
 
 def run_check(context, args):
-    require(args.digest is None or re.match(r'\A[0-9a-f]{16}\Z', args.digest), 'Invalid artifacts digest')
+    direct = bool(getattr(args, 'stable', None))
+    # Abbreviated digests are for lookup and display only; the direct route compares complete digests.
+    width = 64 if direct else 16
+    require(args.digest is None or re.match(r'\A[0-9a-f]{%d}\Z' % width, args.digest),
+            'Invalid artifacts digest: expected %d lowercase hex digits' % width)
     commit = context.git('rev-parse', '--verify', args.commit + '^{commit}')
+    if getattr(args, 'record_digest', None):
+        require(re.match(r'\A[0-9a-f]{64}\Z', args.record_digest), 'The record digest must be a complete SHA-256')
+        require(record_digest(read_record_file(args.record)) == args.record_digest,
+                'The validation record does not match the dispatched record digest')
     require_route_preflight(context, args, commit)
     print('Promotion of %s from %s is allowed; nothing was changed.' % (route_label(args), commit[:12]))
 
@@ -604,6 +640,9 @@ def run_build(context, args):
     print('Built, signed and verified %s; nothing was uploaded.' % folder)
     print('Commit %s, artifacts digest %s; request the approval with these exact values.'
           % (commit, artifacts_digest(folder)))
+    if getattr(args, 'stable', None):
+        print('Dispatch route=direct version=%s stable_commit=%s artifacts_digest=%s record_digest=<complete sha256 of the record>'
+              % (args.stable, commit, artifacts_digest_full(folder)))
 
 
 def run_attest_official(context, args):
@@ -623,7 +662,13 @@ def run_publish(context, args):
         require_target_identity(report, args.target)
     require_build_stamp(folder, commit)
     digest = artifacts_digest(folder)
-    gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review)
+    if getattr(args, 'stable', None):
+        title = direct_gate_title(identity['stable'], commit, artifacts_digest_full(folder),
+                                  record_digest(read_record_file(args.record)))
+        gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review, title=title,
+                         direct=True)
+    else:
+        gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review)
     write_json(folder / PROVENANCE, provenance(context, state, gate, folder, context.viewer()))
     files = files + [folder / PROVENANCE]
     token = '%s@%s' % (identity['tag'], digest)
@@ -674,6 +719,7 @@ def main():
         if name == 'check':
             command.add_argument('--commit', default='HEAD', help='Stable commit (default: HEAD)')
             command.add_argument('--digest', help='Artifacts digest printed by build, checked for format only')
+            command.add_argument('--record-digest', help='Direct route: complete SHA-256 of the record dispatched with it')
         if name == 'build':
             command.add_argument('--key', type=Path, default=ROOT / 'release-signing.key')
             command.add_argument('--target', required=True, help='Configured build target, for example na999')

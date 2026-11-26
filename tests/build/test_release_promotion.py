@@ -980,8 +980,9 @@ class GateWorkflowTests(unittest.TestCase):
     def test_run_name_and_job_match_what_publication_looks_for(self):
         # Without the quotes YAML reads " # ..." as a comment and the digest never reaches the title.
         line = next(item for item in self.text.splitlines() if item.startswith('run-name:'))
-        self.assertEqual(line, 'run-name: "Promotion ${{ inputs.beta_version }} @ ${{ inputs.stable_commit }} # '
-                               '${{ inputs.artifacts_digest }}"')
+        self.assertEqual(line, 'run-name: "Promotion ${{ inputs.route == \'direct\' && \'direct \' || \'\' }}'
+                               '${{ inputs.version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}'
+                               '${{ inputs.route == \'direct\' && \' \' || \'\' }}${{ inputs.record_digest }}"')
         self.assertEqual(promotion.gate_title('B', 'C', 'D'), 'Promotion B @ C # D')
         self.assertIn('name: ' + promotion.GATE_JOB, self.text)
 
