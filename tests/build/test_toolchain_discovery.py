@@ -4,12 +4,14 @@
 Shallow repository paths must not fail because a default candidate cannot be formed, explicit overrides must
 keep working, and missing defaults must resolve to None without an exception.
 """
+import json
 import os
 import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -78,6 +80,66 @@ class DiscoverTests(unittest.TestCase):
         overrides = dict((k, v) for k, v in self.files.items() if k not in ('flex_home', 'mxmlc_jar'))
         result = toolchain.discover(repo, overrides)
         self.assertEqual(os.path.normcase(result['flex_home']), os.path.normcase(str(flex.resolve())))
+
+
+class TargetSectionTests(unittest.TestCase):
+    """Per-target paths: CLI override > DK_* environment > target section > local default > discovery."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix='target-section-'))
+        self.addCleanup(shutil.rmtree, str(self.tmp), True)
+        environment = patch.dict(os.environ)
+        environment.start()
+        self.addCleanup(environment.stop)
+        os.environ.pop('DK_GAME_ROOT', None)
+        self.root = self.tmp / 'repo'
+        (self.root / 'build_data').mkdir(parents=True)
+        self.base = {}
+        for key, name in (('python27', 'python.exe'), ('hg', 'hg.exe'), ('mxmlc_jar', 'mxmlc.jar'),
+                          ('playerglobal', 'playerglobal.swc'), ('java', 'java.exe'), ('csc', 'csc.exe')):
+            path = self.tmp / name
+            path.write_bytes(b'x')
+            self.base[key] = str(path)
+        for key in ('flex_home', 'rabcdasm_home', 'game_default', 'reference_default', 'game_na', 'reference_na',
+                    'game_env'):
+            (self.tmp / key).mkdir()
+        self.dirs = {key: str((self.tmp / key).resolve()) for key in
+                     ('game_default', 'reference_default', 'game_na', 'reference_na', 'game_env')}
+        self.write({'game_root': self.dirs['game_default'], 'reference_root': self.dirs['reference_default'],
+                    'targets': {'na999': {'game_root': self.dirs['game_na'],
+                                          'reference_root': self.dirs['reference_na']}}})
+        self.base['flex_home'] = str(self.tmp / 'flex_home')
+        self.base['rabcdasm_home'] = str(self.tmp / 'rabcdasm_home')
+
+    def write(self, settings):
+        (self.root / 'build_data/toolchain.local.json').write_text(json.dumps(settings), encoding='utf-8')
+
+    def resolved(self, result, key):
+        return os.path.normcase(result[key])
+
+    def test_target_section_supplies_its_paths(self):
+        result = toolchain.discover(self.root, dict(self.base, target='na999'))
+        self.assertEqual(self.resolved(result, 'game_root'), os.path.normcase(self.dirs['game_na']))
+        self.assertEqual(self.resolved(result, 'reference_root'), os.path.normcase(self.dirs['reference_na']))
+
+    def test_local_default_applies_without_target_or_for_other_targets(self):
+        for overrides in (dict(self.base), dict(self.base, target='ct996')):
+            result = toolchain.discover(self.root, overrides)
+            self.assertEqual(self.resolved(result, 'game_root'), os.path.normcase(self.dirs['game_default']))
+
+    def test_cli_override_beats_target_section(self):
+        result = toolchain.discover(self.root, dict(self.base, target='na999', game_root=self.dirs['game_env']))
+        self.assertEqual(self.resolved(result, 'game_root'), os.path.normcase(self.dirs['game_env']))
+
+    def test_environment_beats_target_section(self):
+        with patch.dict(os.environ, {'DK_GAME_ROOT': self.dirs['game_env']}):
+            result = toolchain.discover(self.root, dict(self.base, target='na999'))
+        self.assertEqual(self.resolved(result, 'game_root'), os.path.normcase(self.dirs['game_env']))
+
+    def test_unknown_target_field_is_rejected(self):
+        self.write({'targets': {'na999': {'python27': 'x'}}})
+        with self.assertRaisesRegex(ValueError, 'Unknown local toolchain field for target na999'):
+            toolchain.discover(self.root, dict(self.base, target='na999'))
 
 
 class ReferenceSnapshotTests(unittest.TestCase):

@@ -29,13 +29,25 @@ def reference_snapshot_matches(reference_root, snapshot):
     return declared == snapshot
 
 
+TARGET_KEYS = ('game_root', 'reference_root')
+
+
 def discover(root, overrides):
+    """Resolve tools: CLI override, DK_* environment, target section of toolchain.local.json, local default, discovery."""
     local = root / 'build_data/toolchain.local.json'
     settings = read_json(local) if local.exists() else {}
-    require(not set(settings) - set(KEYS), 'Unknown local toolchain field')
+    require(not set(settings) - set(KEYS) - {'targets'}, 'Unknown local toolchain field')
+    sections = settings.get('targets', {})
+    require(isinstance(sections, dict), 'Local toolchain targets must be a mapping')
+    for name, section in sections.items():
+        require(isinstance(section, dict) and not set(section) - set(TARGET_KEYS),
+                'Unknown local toolchain field for target ' + name)
+    target = overrides.get('target')
+    section = sections.get(target, {}) if target else {}
 
     def configured(key):
-        return overrides.get(key) or os.environ.get('DK_' + key.upper()) or settings.get(key)
+        return (overrides.get(key) or os.environ.get('DK_' + key.upper()) or section.get(key)
+                or settings.get(key))
 
     def choose(key, candidates, directory=False):
         explicit = configured(key)

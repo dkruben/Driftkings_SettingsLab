@@ -5,8 +5,15 @@
     "supported_realms": ["NA", "EU", "ASIA", "CN"],
     "development_realms": ["CT"]
   },
+  "targets": {
+    "na999": {"realm": "NA", "build": "999"},
+    "eu1000": {"realm": "EU", "build": "1000"},
+    "ct995": {"realm": "CT", "build": "995"},
+    "ct996": {"realm": "CT", "build": "996"}
+  },
   "reference": {
     "version": "2.4.2.5518",
+    "legacy_ct_build": "996",
     "ct_builds": {"995": "2655094", "996": "2660091"},
     "production_clients": {
       "NA": {"build": "999", "revision": "2664941", "snapshot": "2.4.2.5523"},
@@ -54,6 +61,16 @@
       },
       "EU": {
         "alias_of": "NA",
+        "reference_python_lf": [
+          "sources/res/scripts/client/gui/impl/lobby/page/lobby_footer.py",
+          "sources/res/scripts/client/frameworks/wulf/view/view.py",
+          "sources/res/scripts/client/gui/impl/pub/view_component.py",
+          "sources/res/scripts/client/gui/impl/battle/random/hud.py",
+          "sources/res/scripts/client/gui/impl/lobby/hangar/random/random_hangar.py",
+          "sources/res/scripts/client/gui/impl/lobby/hangar/presenters/user_missions_presenter.py",
+          "sources/res/scripts/client/gui/Scaleform/daapi/view/meta/PlayersPanelMeta.py",
+          "sources/res/scripts/client/gui/Scaleform/framework/package_layout.py"
+        ],
         "reference_sha256_overrides": {
           "sources/version.xml": "21e0f4a5c112b399e8dfee0abcc7b8687e93576b1878d00562419f2251578cc7"
         }

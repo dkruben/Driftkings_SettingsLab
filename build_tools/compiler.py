@@ -3,6 +3,7 @@ import argparse
 from contextlib import ExitStack
 import ast
 from datetime import datetime, timezone
+import hashlib
 import importlib.util
 import json
 import os
@@ -13,8 +14,10 @@ import subprocess
 import sys
 import time
 import uuid
-import xml.etree.ElementTree as ET
 import zipfile
+
+if __name__ == '__main__':
+    sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -24,7 +27,7 @@ from build_tools.build_diagnostics import exception_record, record_failure
 from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
 from build_tools import publication_state
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
-from build_tools.toolchain import KEYS as TOOL_KEYS, discover, reference_snapshot_matches, require_tools
+from build_tools.toolchain import KEYS as TOOL_KEYS, discover, reference_snapshot_matches, require_game_root, require_tools
 from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, gameface_patch_for_build, read_gameface_resource, build_plan, source_client, production_profile, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
@@ -147,7 +150,7 @@ def supports_deterministic_csharp(csc):
     return b'-deterministic' in result.stdout
 
 
-def generate(root, config, plan, tools, run, epoch):
+def generate(root, config, plan, tools, run, epoch, identity):
     outputs = {}
     deterministic_csharp = None
     needed = {a['generator'] for a in plan['assets'] if a['generator']}
@@ -180,7 +183,7 @@ def generate(root, config, plan, tools, run, epoch):
             validate_swf(destination.read_bytes())
         elif spec['kind'] == 'vehicle_markers':
             from build_tools.vehicle_markers import build as build_vehicle_markers
-            build_vehicle_markers(root, destination, spec, tools, tools['game_root'],
+            build_vehicle_markers(root, destination, spec, tools, tools['game_root'], identity['build'],
                                   library_manifest=config['generators']['battle_flash']['library_manifest'])
         elif spec['kind'] == 'gameface_patch':
             raw = None
@@ -190,8 +193,7 @@ def generate(root, config, plan, tools, run, epoch):
                         require(raw is None, 'Ambiguous Gameface resource')
                         raw = archive.read(spec['resource'])
             require(raw is not None, 'Gameface resource not found')
-            build = source_client(tools['game_root'], config)['build']
-            patch = gameface_patch_for_build(root, spec, build)
+            patch = gameface_patch_for_build(root, spec, identity['build'])
             destination.write_bytes(apply_patch_set(raw, patch))
         elif spec['kind'] == 'native_battleinfo_patch':
             raw = read_gameface_resource(tools['game_root'], spec['game_packages'], spec['resource'])
@@ -309,27 +311,29 @@ CT_REFERENCE_FILES = (
 
 
 def check_client(root, config, tools):
-    """Check CT identity and required reference files; never generate build outputs."""
-    version_xml = ET.parse(Path(tools['game_root']) / 'version.xml')
-    public = version_contract(root).normalize_game_version(version_xml.findtext('version'))
-    require(public == config['game']['version'], 'Installed game version differs from build target')
-    identity = source_client(tools['game_root'], config)
+    """Validate client and reference inputs for callers that only need the realm."""
+    identity = source_client(require_game_root(tools), config)
+    check_reference(root, config, tools, identity)
+    return identity['realm']
+
+
+def check_ct_reference(config, tools, identity):
+    public = config['game']['version']
     realm, build, revision = (identity[key] for key in ('realm', 'build', 'revision'))
-    if realm != 'CT':
-        check_production_reference(root, config, tools, identity)
-        return realm
     reference_root = Path(tools['reference_root'])
     name = (reference_root / '.version_name').read_text(encoding='utf-8-sig').strip()
     if name == config['reference']['version']:
-        # The configured source label (2.4.2.5518) is bound to CT #996. Without a
+        # The configured legacy source label is bound to one CT build. Without a
         # manifest, only the provenance files are checked; the label is not a public version.
-        require(build == '996', 'Reference label ' + name + ' is bound to CT #996, not #' + build)
+        legacy_build = config['reference']['legacy_ct_build']
+        require(build == legacy_build, 'Reference label %s is bound to CT #%s, not #%s'
+                % (name, legacy_build, build))
         if not (reference_root / 'manifest.json').exists():
             for relative in CT_REFERENCE_FILES:
                 target = reference_root / 'sources/res/scripts/client' / relative
                 require(target.is_file() and target.resolve().is_relative_to(reference_root.resolve()),
                         'Missing or escaped legacy reference contract: ' + relative)
-            return realm
+            return
     else:
         expected = public + ' Common Test #' + build
         require(name == expected, 'Reference source version/build mismatch')
@@ -357,10 +361,9 @@ def check_client(root, config, tools):
                 and recovered.get('input_sha256') == entry['sha256']
                 and recovered.get('sha256') == sha(target),
                 'CT reference integrity mismatch: ' + relative)
-    return realm
 
-def check_production_reference(root, config, tools, identity):
-    profile = production_profile(root, config, identity)
+
+def check_production_reference(config, tools, identity, profile):
     reference = Path(tools['reference_root']).resolve()
     pin = config['reference']['production_clients'][identity['realm']]
     require(reference_snapshot_matches(reference, pin['snapshot']),
@@ -369,10 +372,108 @@ def check_production_reference(root, config, tools, identity):
     require(source_client(reference / 'sources', config) == identity, 'Production reference identity mismatch')
     hashes = profile['reference_sha256']
     required = {'sources/version.xml', 'sources/paths.xml'}
-    required.update('sources/res/scripts/client/' + path for path in CT_REFERENCE_FILES)
-    require(required <= set(hashes), 'Incomplete production source contract')
+    reviewed_python = {'sources/res/scripts/client/' + path for path in CT_REFERENCE_FILES}
+    require((required | reviewed_python) <= set(hashes), 'Incomplete production source contract')
+    normalize = set(profile.get('reference_python_lf', ()))
+    require(normalize <= reviewed_python, 'Newline normalization is limited to reviewed Python references')
+    observed = {}
     for relative, digest in hashes.items():
-        require(sha(input_path(reference, relative)) == digest, 'Production source hash mismatch: ' + relative)
+        raw = input_path(reference, relative).read_bytes()
+        raw_digest = hashlib.sha256(raw).hexdigest()
+        record = {'raw_sha256': raw_digest}
+        actual = raw_digest
+        if relative in normalize:
+            canonical = raw.replace(b'\r\n', b'\n')
+            require(b'\r' not in canonical, 'Bare CR in reviewed Python reference: ' + relative)
+            actual = hashlib.sha256(canonical).hexdigest()
+            record['canonical_sha256'] = actual
+        require(actual == digest, 'Production source hash mismatch: ' + relative)
+        observed[relative] = record
+    return observed
+
+
+def check_reference(root, config, tools, identity):
+    require(tools.get('reference_root'), 'Reference snapshot missing; configure --reference-root')
+    if identity['realm'] in config['game']['development_realms']:
+        check_ct_reference(config, tools, identity)
+        return None, {}
+    profile = production_profile(root, config, identity)
+    return profile, check_production_reference(config, tools, identity, profile)
+
+
+def validate_targets(config):
+    """Each configured target must name a supported realm and the client build pinned for that realm."""
+    game = config['game']
+    reference = config['reference']
+    for name, target in config.get('targets', {}).items():
+        realm, build = target['realm'], target['build']
+        if realm in game['development_realms']:
+            require(build in reference['ct_builds'], 'Target %s has no reviewed CT build' % name)
+        else:
+            require(realm in game['supported_realms'] and reference['production_clients'][realm]['build'] == build,
+                    'Target %s does not match the pinned %s client build' % (name, realm))
+
+
+def resource_pins(config, build):
+    """Resource inputs selected for this client build; variants keyed by build are narrowed to this build."""
+    keys = ('library_manifest', 'locks', 'patch_file', 'patch_files')
+    pins = {}
+    for name, spec in sorted(config.get('generators', {}).items()):
+        selected = {}
+        for key in keys:
+            if key not in spec:
+                continue
+            value = spec[key]
+            if key in ('locks', 'patch_files') and isinstance(value, dict):
+                value = value.get(build)
+            if value is not None:
+                selected[key] = value
+        if selected:
+            pins[name] = selected
+    return pins
+
+
+def plan_findings(version, source_version, runtime_realms, target):
+    """Read-only compatibility and preflight notes for --plan."""
+    findings = ['tracked version metadata is not modified by compilation or planning']
+    if version != source_version:
+        findings.append('package-only version override %s; tracked source remains %s' % (version, source_version))
+    if target['reference_hashes']:
+        findings.append('production reference verified: %d reviewed entries' % len(target['reference_hashes']))
+    else:
+        findings.append('development reference verified: CT contract, no production pins')
+    if len(runtime_realms) > 1:
+        findings.append('shared production resource profile for runtime realms: %s' % ', '.join(runtime_realms))
+    return findings
+
+
+def resolve_target(root, config, tools, requested, mode, expect_realm=None):
+    """Select one client identity, then verify its reference and production pins."""
+    targets = config.get('targets', {})
+    validate_targets(config)
+    require(requested is None or requested in targets, 'Unknown build target: %s' % requested)
+    require(mode != 'dev' or requested is not None, '--mode dev requires --target')
+    development_realms = config['game']['development_realms']
+    if requested is not None:
+        require(mode != 'release' or targets[requested]['realm'] not in development_realms,
+                'CT targets cannot be used in release mode')
+    identity = source_client(require_game_root(tools), config)
+    realm = identity['realm']
+    if requested is not None:
+        expected = targets[requested]
+        require(all(identity[key] == expected[key] for key in ('realm', 'build')),
+                'Installed client does not match target %s (expected %s #%s, found %s #%s)'
+                % (requested, expected['realm'], expected['build'], realm, identity['build']))
+    require(expect_realm in (None, realm), 'Game installation realm %s differs from --expect-realm %s'
+            % (realm, expect_realm))
+    require(mode != 'release' or realm not in development_realms, 'CT targets cannot be used in release mode')
+    profile, observed = check_reference(root, config, tools, identity)
+    if profile:
+        production_generators(root, config, profile, identity)
+    name = requested or next((name for name, target in targets.items()
+                              if (target['realm'], target['build']) == (realm, identity['build'])), None)
+    snapshot = None if realm in development_realms else config['reference']['production_clients'][realm]['snapshot']
+    return dict(name=name, identity=identity, profile=profile, reference_hashes=observed, snapshot=snapshot)
 
 
 def production_generators(root, config, profile, identity):
@@ -479,7 +580,7 @@ def artifact_files(candidate):
 def validate_isolated_args(args, channel=None):
     if not getattr(args, 'isolated_output', False):
         return
-    require(args.mode == 'debug', '--isolated-output requires --mode debug; publication is forbidden')
+    require(args.mode in ('dev', 'debug'), '--isolated-output requires development mode; publication is forbidden')
     require(args.keep_source_version, '--isolated-output requires --keep-source-version')
     require(args.channel != 'stable' and channel != 'stable', '--isolated-output requires an experimental prerelease')
 
@@ -487,7 +588,7 @@ def validate_isolated_args(args, channel=None):
 def build(args):
     validate_isolated_args(args)
     previous_bytecode = sys.dont_write_bytecode
-    if getattr(args, 'isolated_output', False):
+    if args.plan or getattr(args, 'isolated_output', False):
         sys.dont_write_bytecode = True
     try:
         with ExitStack() as stack:
@@ -502,40 +603,36 @@ def _build(args, stack):
     release = read_json(root / 'build_data/release.json')
     check_release_identity(root, release)
     version, channel, source_version = select_version(root, release, args.version, args.channel)
+    if args.mode == 'release':
+        # Legacy publication callers may still pass --version as an assertion.
+        require(version == release['version'], 'Version overrides are only allowed in development mode')
+        require(source_version == version, 'Tracked release.json and source VERSION disagree')
     validate_isolated_args(args, channel)
     isolated = getattr(args, "isolated_output", False)
     tools = discover(root, vars(args))
+    target = resolve_target(root, config, tools, args.target, args.mode, args.expect_realm)
+    identity, profile = target['identity'], target['profile']
+    realm = identity['realm']
+    runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
     plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
     destination = output_path(root,
                               config['package']['release_root' if args.mode == 'release'
                                                 else 'debug_root'] + '/' + channel + '/' + version)
     if args.plan:
-        preview = dict(version=version, source_version=source_version, channel=channel, mode=args.mode,
-                       output=str(destination), tools=tools, python=len(plan['python']),
-                       assets=len(plan['assets']), defaults=len(plan['defaults']))
+        preview = dict(mode=args.mode, target=target['name'], version=version, source_version=source_version,
+                       channel=channel, read_only=True, output=str(destination), tools=tools,
+                       game_root=tools.get('game_root'), reference_root=tools.get('reference_root'),
+                       source_client=identity, runtime_realms=runtime_realms, pins=resource_pins(config, identity['build']), reference_snapshot=target.get('snapshot'),
+                       python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults']),
+                       reference_hashes=target['reference_hashes'],
+                       findings=plan_findings(version, source_version, runtime_realms, target))
         if isolated:
             preview.update(output='build/experiments/<exclusive-run-id>/output', isolated_output=True)
         print(json.dumps(preview, indent=2))
         return destination
-    if args.mode == 'release':
-        identity = source_client(tools['game_root'], config)
-        profile = production_profile(root, config, identity)
     require_tools(tools)
-    realm = check_client(root, config, tools)
-    expected_realm = getattr(args, 'expect_realm', None)
-    require(expected_realm in (None, realm),
-            'Game installation realm %s differs from --expect-realm %s' % (realm, expected_realm))
-    identity = source_client(tools['game_root'], config)
-    profile = production_profile(root, config, identity) if realm != 'CT' else None
-    runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
-    production_inputs = []
-    if profile:
-        production_generators(root, config, profile, identity)
-        production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values())
+    production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values()) if profile else []
     build_git = git_state(root, True) if isolated else None
-    if not args.keep_source_version:
-        sync_release_version(root, release, version, channel)
-        source_version = version
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
     if isolated:
         # Validate all configuration-derived output names BEFORE reserving anything.
@@ -554,7 +651,9 @@ def _build(args, stack):
         run.mkdir(parents=True)
     report = dict(schema=1, status='running', version=version, source_version=source_version, channel=channel,
                   mode=args.mode, publishable=False, gameVersion=config['game']['version'],
-                  realm=realm, source_client=identity, runtime_realms=runtime_realms, tools=tools, git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
+                  target=target['name'], realm=realm, source_client=identity, runtime_realms=runtime_realms,
+                  reference_hashes=target['reference_hashes'], tools=tools,
+                  git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
     started = time.monotonic()
     try:
         if isolated:
@@ -574,7 +673,7 @@ def _build(args, stack):
                                            files=[dict(source=str(root / i['source']), target=i['target'])
                                                   for i in plan['python']],
                                                     output=str(compiled), overrides=overrides, epoch=epoch), 'python')
-        generated = generate(root, config, plan, tools, run, epoch)
+        generated = generate(root, config, plan, tools, run, epoch, identity)
         if isolated:
             scope.phase, scope.component = 'package', None
         entries = package_entries(root, release, plan, compiled, generated, version)
@@ -644,17 +743,18 @@ def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--isolated-output', action='store_true',
                         help='Debug prerelease only; requires --keep-source-version; keep ALL outputs in a fresh experiment')
-    parser.add_argument('--mode', choices=('debug', 'release'), default='debug')
-    parser.add_argument('--version', help='Override JSON version and synchronize release.json and source VERSION')
+    parser.add_argument('--mode', choices=('dev', 'debug', 'release'), default='debug')
+    parser.add_argument('--target', help='Build target ID from build_data/build_config.json')
+    parser.add_argument('--version', help='Override packaged development version; in release mode, assert the committed version')
     parser.add_argument('--keep-source-version', action='store_true',
-                        help='Override only packaged VERSION, for temporary compatibility/update tests')
+                        help='Legacy compatibility flag; compilation always leaves tracked version files unchanged')
     parser.add_argument('--channel', choices=('auto', 'stable', 'beta'), default='auto')
     parser.add_argument('--game-root', help='Read-only game installation override')
     parser.add_argument('--expect-realm', choices=('NA', 'EU', 'ASIA', 'CN', 'CT'),
                         help='Refuse to build unless the installed client has this realm')
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
     parser.add_argument('--plan', action='store_true',
-                        help='Display version, outputs and tool discovery without building')
+                        help='Verify target references and display version, outputs and tools without writing')
     for key in TOOL_KEYS:
         if key != 'game_root':
             parser.add_argument('--' + key.replace('_', '-'), dest=key)

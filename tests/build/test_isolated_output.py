@@ -203,9 +203,13 @@ class IsolatedOutputTests(unittest.TestCase):
                       'game':{'version':'2.4.2.0'}, 'python':{'archive_root':'res/scripts/client'},
                       'generators':{}}
             plan = {k:[] for k in ('components','python','assets','defaults','dependencies')}
-            args = c.argument_parser().parse_args(['--keep-source-version', '--mode', mode, '--channel', channel] +
-                                                  (['--isolated-output'] if isolated else []))
-            release = {'package_id':'fixture','repository':'fixture','changelog':[]}
+            args = c.argument_parser().parse_args(['--mode', mode, '--channel', channel] +
+                                                  (['--isolated-output', '--keep-source-version'] if isolated else []))
+            version = '0.1.8-beta.4' if channel == 'beta' else '0.1.8'
+            release = {'package_id':'fixture','repository':'fixture','changelog':[], 'version':version}
+            identity = dict(realm='NA' if mode == 'release' else 'CT', build='fixture', revision='fixture')
+            resolved = dict(name='fixture', identity=identity, reference_hashes={}, profile=(
+                dict(realm_evidence={'NA':'fixture'}, generators={}) if mode == 'release' else None))
             writes=[]
             def stage(name, path):
                 path = Path(path)
@@ -219,7 +223,8 @@ class IsolatedOutputTests(unittest.TestCase):
             def worker(tools, run, job, name):
                 stage('compile' if name == 'python' else 'verify', run / (name+'.fixture'))
                 return {}
-            def generate(r, conf, pl, tools, run, epoch):
+            def generate(r, conf, pl, tools, run, epoch, selected):
+                self.assertIs(selected, identity)
                 stage('generate', run/'generated/asset.fixture')
                 stage('patch', run/'generated/patch.fixture')
                 return {}
@@ -234,15 +239,10 @@ class IsolatedOutputTests(unittest.TestCase):
             with ExitStack() as stack:
                 stack.enter_context(patch.object(Path, 'stat', fixture_stat))
                 for name,value in {'ROOT':root,'read_json':lambda p:config if p.name=='build_config.json' else release,
-                    'check_release_identity':lambda *a:None, 'select_version':lambda *a:('0.1.8-beta.4' if channel=='beta' else '0.1.8',channel,'source'),
+                    'check_release_identity':lambda *a:None, 'select_version':lambda *a:(version,channel,version),
                     'discover':lambda *a:{'game_root':'readonly'}, 'build_plan':lambda *a,**k:plan,
                     'require_tools':lambda *a:None,
-                    'check_client':lambda *a:'NA' if mode=='release' else 'CT',
-                    'source_client':lambda *a:{'realm':'NA' if mode=='release' else 'CT',
-                                                'build':'999' if mode=='release' else '996',
-                                                'revision':'2664941' if mode=='release' else '2660091'},
-                    'production_profile':lambda *a:{'realm_evidence':{'NA':'fixture'},'generators':{}},
-                    'production_generators':lambda *a:None,
+                    'sync_release_version':lambda *a:self.fail('Compilation must not synchronize tracked versions'),
                     'git_state':lambda *a:{'epoch':946684800},'source_inventory':lambda *a:{},
                     'python_overrides':lambda *a:{},'run_worker':worker,'generate':generate,
                     'package_entries':lambda *a:{},'zip_entries':package,'verify_package':lambda *a:None,
@@ -255,6 +255,7 @@ class IsolatedOutputTests(unittest.TestCase):
                         raise OSError('injected diagnostic')
                     original_write_json(path, value)
                 stack.enter_context(patch.object(c, 'write_json', json_writer))
+                resolve = stack.enter_context(patch.object(c, 'resolve_target', return_value=resolved))
                 publish = stack.enter_context(patch.object(c,'publish_local'))
                 if failure:
                     with self.assertRaisesRegex(OSError,'injected'):
@@ -266,6 +267,7 @@ class IsolatedOutputTests(unittest.TestCase):
                     else:
                         self.assertEqual(output,root/config['package']['debug_root' if mode=='debug' else 'release_root']/channel/('0.1.8-beta.4' if channel=='beta' else '0.1.8'))
                 self.assertEqual(publish.call_count,0 if isolated else 1)
+                resolve.assert_called_once()
             self.assertTrue(writes)
             self.assertFalse(list(root.rglob('*.wotmod')))
             for path,raw in protected.items():

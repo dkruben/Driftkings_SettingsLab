@@ -70,7 +70,7 @@ def source_client(game_root, config):
     value = (xml.findtext('version') or '').strip()
     revision = (xml.findtext('meta/client') or '').strip()
     if realm in config['game'].get('development_realms', []):
-        build, revision = ct_client_build(game_root, config)
+        build, revision = ct_identity(xml, config)
         require(value == 'v.%s Common Test #%s' % (config['game']['version'], build),
                 'Installed game version differs from build target')
     else:
@@ -96,13 +96,14 @@ def resolved_production_profile(config, realm):
     base = profiles.get(entry['alias_of'])
     require(base is not None and 'alias_of' not in base and 'pinned_identity' in base,
             'Production profile alias target is not a reviewed profile: ' + entry['alias_of'])
-    require(set(entry) <= {'alias_of', 'reference_sha256_overrides'},
+    require(set(entry) <= {'alias_of', 'reference_sha256_overrides', 'reference_python_lf'},
             'Production profile alias has unsupported fields for ' + realm)
     overrides = entry.get('reference_sha256_overrides', {})
     require(set(overrides) <= set(base['reference_sha256']) | {'sources/version.xml'},
             'Production profile alias overrides an unknown reference file for ' + realm)
     profile = dict(base)
     profile['reference_sha256'] = dict(base['reference_sha256'], **overrides)
+    profile['reference_python_lf'] = entry.get('reference_python_lf', ())
     return profile
 
 
@@ -194,7 +195,10 @@ def apply_patch_set(raw, patch):
 
 def ct_client_build(game_root, config):
     """Return (build, revision) of an installed CT client; unknown builds or revisions are refused."""
-    version = ET.parse(Path(game_root) / 'version.xml')
+    return ct_identity(ET.parse(Path(game_root) / 'version.xml'), config)
+
+
+def ct_identity(version, config):
     match = re.fullmatch(r'v\.(\d+\.\d+\.\d+\.\d+) Common Test #(\d+)', (version.findtext('version') or '').strip())
     require(match is not None, 'Unknown installed CT build identifier')
     build = match.group(2)

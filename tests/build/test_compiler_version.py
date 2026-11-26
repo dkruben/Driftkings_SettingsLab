@@ -50,3 +50,70 @@ class SourceVersionTests(unittest.TestCase):
             stamp = source.stat().st_mtime_ns
             sync_source_version(root, {'version_source': 'version.py'}, '0.1.2-beta.6')
             self.assertEqual(source.stat().st_mtime_ns, stamp)
+
+
+class CompilerModeTests(unittest.TestCase):
+    def test_dev_plan_is_read_only_and_uses_a_package_only_override(self):
+        import contextlib
+        import io
+        import json
+        from build_tools import compiler
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'build_data').mkdir()
+            source = root / 'version.py'
+            source.write_bytes(b"VERSION = '0.1.7'\r\n")
+            manifest = root / 'build_data/release.json'
+            manifest.write_text(json.dumps(dict(version_source='version.py', version='0.1.7', channel='stable')))
+            (root / 'build_data/build_config.json').write_text(json.dumps(dict(
+                package=dict(release_root='build/releases', debug_root='build/debug'))))
+            before = {p: p.read_bytes() for p in root.rglob('*') if p.is_file()}
+            plan = {'python': [], 'assets': [], 'defaults': []}
+            target = dict(name='ct996', identity=dict(realm='CT', build='996'), profile=None, reference_hashes={})
+            with (patch.object(compiler, 'ROOT', root),
+                  patch.object(compiler, 'check_release_identity'),
+                  patch.object(compiler, 'version_contract', return_value=version_contract()),
+                  patch.object(compiler, 'discover', return_value={'game_root': 'fixture'}),
+                  patch.object(compiler, 'resolve_target', return_value=target) as resolve,
+                  patch.object(compiler, 'build_plan', return_value=plan),
+                  patch.object(compiler, 'run_worker') as worker,
+                  contextlib.redirect_stdout(io.StringIO()) as output):
+                args = compiler.argument_parser().parse_args(
+                    ['--mode', 'dev', '--target', 'ct996', '--version', '0.1.8-beta.1', '--plan'])
+                compiler.build(args)
+                resolve.assert_called_once()
+                worker.assert_not_called()
+            preview = json.loads(output.getvalue())
+            self.assertEqual(preview['target'], 'ct996')
+            self.assertEqual(preview['version'], '0.1.8-beta.1')
+            self.assertEqual(preview['source_version'], '0.1.7')
+            self.assertFalse((root / 'build').exists())
+            self.assertEqual({p: p.read_bytes() for p in root.rglob('*') if p.is_file()}, before)
+
+            config = dict(python=dict(source_root='.', archive_root='res/scripts/client',
+                                      component_list='component_list.py'))
+            with patch.object(compiler, 'render_defaults', return_value='defaults'):
+                overrides = compiler.python_overrides(root, config, json.loads(manifest.read_text()),
+                                                       preview['version'], [])
+            self.assertIn("VERSION = '0.1.8-beta.1'", overrides['res/scripts/client/version.pyc'])
+            self.assertEqual(source.read_bytes(), before[source])
+            self.assertEqual(manifest.read_bytes(), before[manifest])
+
+    def test_release_rejects_overrides_and_inconsistent_metadata_before_tool_discovery(self):
+        from build_tools import compiler
+
+        for requested, source, error in (
+                ('0.1.8', '0.1.7', 'only allowed in development'),
+                (None, '0.1.6', 'source VERSION disagree')):
+            with (self.subTest(requested=requested, source=source),
+                  patch.object(compiler, 'read_json', return_value={'version': '0.1.7'}),
+                  patch.object(compiler, 'check_release_identity'),
+                  patch.object(compiler, 'select_version', return_value=(requested or '0.1.7', 'stable', source)),
+                  patch.object(compiler, 'discover') as discover):
+                flags = ['--mode', 'release', '--plan']
+                if requested:
+                    flags += ['--version', requested]
+                with self.assertRaisesRegex(ValueError, error):
+                    compiler.build(compiler.argument_parser().parse_args(flags))
+                discover.assert_not_called()

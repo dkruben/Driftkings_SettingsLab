@@ -9,7 +9,6 @@ import tempfile
 import zipfile
 from pathlib import Path
 from build_tools.isolated_output import active_output, tool_environment
-from build_tools.validate_build_data import source_client
 from build_tools.vehicle_markers_patch import (inject_helper, marker_lock_for_build, patch_manager, patch_marker,
                                               swf_parts, verify_manager_contract, verify_marker_contract,
                                               verify_native_movie)
@@ -129,9 +128,8 @@ def marker_workspace(destination, short_root=None, protected=()):
 
 
 
-def build(root, destination, spec, tools, game_root, library_manifest='flash_source/shared/swc/manifest.json'):
-    config = json.loads((root / 'build_data/build_config.json').read_text(encoding='utf-8'))
-    build_id = source_client(game_root, config)['build']
+def build(root, destination, spec, tools, game_root, build_id,
+          library_manifest='flash_source/shared/swc/manifest.json'):
     locks = {key: json.loads((root / value).read_text(encoding='utf-8')) for key, value in spec['locks'].items()}
     lock = marker_lock_for_build(locks, build_id, spec.get('lock_pins'))
     with zipfile.ZipFile(Path(game_root) / 'res/packages' / lock['package']) as archive:
