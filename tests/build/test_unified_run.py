@@ -21,8 +21,6 @@ class PublicationTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name)
         (self.root / 'build').mkdir()
-        self.config = dict(package=dict(output='build/unified/driftkings.wotmod'),
-                           python=dict(archive_root='res/scripts/client', staging_root='build/staging/res/scripts/client'))
         self.run = self.root / 'build/runs/run-1'
         self.output = self.run / 'output'
         self.output.mkdir(parents=True)
@@ -30,32 +28,32 @@ class PublicationTests(unittest.TestCase):
         write(self.output / 'release.json', b'{"schema": 2}')
         write(self.run / 'evidence/build-report.json', b'{"status": "success"}')
 
-    def publish(self, destination, release):
-        c.publish_local(self.root, self.output, destination, self.config, {}, self.run / 'workspace/compiled',
-                        dict(python=[]), release=release)
+    def publish(self, destination):
+        return c.publish_release(self.root, self.output, destination)
 
-    def test_run_output_is_mirrored_and_never_moved(self):
-        destination = self.root / 'build/debug/beta/0.1.8-beta.1'
-        self.publish(destination, release=False)
+    def test_release_is_copied_from_the_run_and_the_run_is_kept(self):
+        destination = self.root / 'build/releases/stable/0.1.8'
+        self.assertEqual(self.publish(destination), destination)
+        self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), b'package-a')
         self.assertEqual((self.output / 'driftkings.wotmod').read_bytes(), b'package-a')
-        self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), b'package-a')
-        self.assertEqual((self.root / 'build/unified/driftkings.wotmod').read_bytes(), b'package-a')
 
-    def test_development_replacement_keeps_previous_directory(self):
-        destination = self.root / 'build/debug/beta/0.1.8-beta.1'
-        write(destination / 'driftkings.wotmod', b'older')
-        self.publish(destination, release=False)
-        self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), b'package-a')
-        self.assertTrue(list((self.root / 'build/previous').glob('0.1.8-beta.1-*/driftkings.wotmod')))
+    def test_no_legacy_mirrors_are_written(self):
+        self.publish(self.root / 'build/releases/stable/0.1.8')
+        for legacy in ('build/debug', 'build/unified', 'build/staging', 'build/previous', 'build/flash',
+                       'build/gameface', 'build/native', 'build/experiments'):
+            self.assertFalse((self.root / legacy).exists(), legacy)
+
+    def test_destination_outside_releases_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'must stay inside build/releases'):
+            self.publish(self.root / 'build/debug/beta/0.1.8-beta.1')
 
     def test_frozen_release_with_different_bytes_is_refused(self):
         destination = self.root / 'build/releases/stable/0.1.7'
         write(destination / 'driftkings.wotmod', b'published')
         write(destination / 'release.json', b'{"schema": 2}')
         with self.assertRaisesRegex(ValueError, 'Frozen release 0.1.7 already exists'):
-            self.publish(destination, release=True)
+            self.publish(destination)
         self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), b'published')
-        self.assertFalse((self.root / 'build/unified/driftkings.wotmod').exists())
 
     def test_frozen_release_with_extra_attested_files_is_refused(self):
         destination = self.root / 'build/releases/stable/0.1.7'
@@ -63,17 +61,18 @@ class PublicationTests(unittest.TestCase):
         write(destination / 'release.json', b'{"schema": 2}')
         write(destination / '.official-build-attestation.json', b'{"attested": true}')
         with self.assertRaisesRegex(ValueError, 'Frozen release 0.1.7 already exists'):
-            self.publish(destination, release=True)
+            self.publish(destination)
         self.assertEqual((destination / '.official-build-attestation.json').read_bytes(), b'{"attested": true}')
 
-    def test_identical_frozen_release_is_reused_despite_new_report(self):
+    def test_identical_frozen_release_is_reused_without_replacing_its_report(self):
         destination = self.root / 'build/releases/stable/0.1.8'
         write(destination / 'driftkings.wotmod', b'package-a')
         write(destination / 'release.json', b'{"schema": 2}')
         write(destination / 'build-report.json', b'older report')
-        self.publish(destination, release=True)
+        write(destination / 'SHA256SUMS.txt', b'older sums')
+        self.publish(destination)
         self.assertEqual((destination / 'build-report.json').read_bytes(), b'older report')
-        self.assertEqual((self.root / 'build/unified/driftkings.wotmod').read_bytes(), b'package-a')
+        self.assertEqual((destination / 'SHA256SUMS.txt').read_bytes(), b'older sums')
 
 
 class DistributionTests(unittest.TestCase):

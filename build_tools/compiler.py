@@ -272,35 +272,24 @@ def same_release_bytes(candidate, destination):
     return files(candidate) == files(destination)
 
 
-def publish_local(root, candidate, destination, config, generated, compiled, plan, release):
-    """Mirror the verified run output into the legacy locations; the run output itself is never moved."""
-    build = (root / 'build').resolve()
-    require(candidate.resolve().is_relative_to(build) and destination.resolve().is_relative_to(build),
-            'Unsafe artifact promotion paths')
-    if release and destination.exists():
+def publish_release(root, candidate, destination):
+    """Copy a verified release run into the canonical build/releases folder; existing release bytes are never replaced."""
+    releases = (root / 'build/releases').resolve()
+    require(destination.resolve().is_relative_to(releases) and destination.resolve() != releases,
+            'Release destination must stay inside build/releases')
+    if destination.exists():
         require(same_release_bytes(candidate, destination),
                 'Frozen release %s already exists with different bytes; choose a new version' % destination.name)
-    else:
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        staged = destination.with_name('.' + destination.name + '.' + uuid.uuid4().hex + '.tmp')
-        shutil.copytree(candidate, staged)
-        previous = None
-        if destination.exists():
-            previous = output_path(root, 'build/previous/' + destination.name + '-' + uuid.uuid4().hex)
-            previous.parent.mkdir(parents=True, exist_ok=True)
-            replace_directory(destination, previous)
-        try:
-            replace_directory(staged, destination)
-        except OSError:
-            if previous is not None:
-                replace_directory(previous, destination)
-            raise
-    atomic_copy(candidate / 'driftkings.wotmod', output_path(root, config['package']['output']))
-    for name, source in generated.items():
-        atomic_copy(source, output_path(root, name))
-    for item in plan['python']:
-        name = item['target'][len(config['python']['archive_root']) + 1:]
-        atomic_copy(compiled / item['target'], output_path(root, config['python']['staging_root'] + '/' + name))
+        return destination
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staged = destination.with_name('.' + destination.name + '.' + uuid.uuid4().hex + '.tmp')
+    shutil.copytree(candidate, staged)
+    try:
+        replace_directory(staged, destination)
+    except OSError:
+        shutil.rmtree(staged, ignore_errors=True)
+        raise
+    return destination
 
 
 def write_checksums(candidate):
@@ -653,7 +642,6 @@ def _build(args, stack):
         require(version == release['version'], 'Version overrides are only allowed in development mode')
         require(source_version == version, 'Tracked release.json and source VERSION disagree')
     validate_isolated_args(args, channel)
-    isolated = getattr(args, "isolated_output", False)
     development = args.mode != 'release'
     tools = discover(root, vars(args))
     target = resolve_target(root, config, tools, args.target, args.mode, args.expect_realm)
@@ -661,63 +649,51 @@ def _build(args, stack):
     realm = identity['realm']
     runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
     plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
-    legacy = output_path(root, config['package']['release_root' if args.mode == 'release' else 'debug_root']
-                         + '/' + channel + '/' + version)
+    # Only frozen release candidates have a canonical location; development output stays in its run.
+    canonical = None if development else output_path(root, config['package']['release_root'] + '/' + channel + '/' + version)
     if args.plan:
         preview = dict(mode=args.mode, target=target['name'], version=version, source_version=source_version,
-                       channel=channel, read_only=True, output=str(legacy), tools=tools,
+                       channel=channel, read_only=True, tools=tools,
+                       output=str(canonical) if canonical else 'build/runs/<run-id>/output',
                        game_root=tools.get('game_root'), reference_root=tools.get('reference_root'),
                        source_client=identity, runtime_realms=runtime_realms,
                        pins=resource_pins(config, identity['build']), reference_snapshot=target.get('snapshot'),
                        python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults']),
                        reference_hashes=target['reference_hashes'],
                        findings=plan_findings(version, source_version, runtime_realms, target))
-        if isolated:
-            preview.update(output='build/experiments/<exclusive-run-id>/output', isolated_output=True)
         print(json.dumps(preview, indent=2))
-        return legacy
+        return canonical
     require_tools(tools)
     production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values()) if profile else []
-    build_git = git_state(root, True) if isolated else None
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
-    if isolated:
-        # Validate all configuration-derived output names BEFORE reserving anything.
-        for spec in config['generators'].values():
-            output_path(root, spec['output'])
-            if 'metadata' in spec:
-                output_path(root, spec['metadata'])
-        read_changelog(release, args.changelog)
-        epoch = int(os.environ.get('SOURCE_DATE_EPOCH', build_git['epoch']))
-        require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
-        scope = stack.enter_context(IsolatedOutput(root, stamp))
-        work, out, record = scope.path / 'workspace', scope.path / 'output', scope.path / 'manifests'
-        logs = work / 'logs'
-    else:
-        # One run-owned layout: workspace (intermediates), output (verified artifacts), evidence (reports, logs).
-        run = output_path(root, 'build/runs/' + stamp)
-        work, out, record = run / 'workspace', run / 'output', run / 'evidence'
-        logs = record / 'logs'
-        for folder in (work, out, record):
-            folder.mkdir(parents=True)
+    # Validate all configuration-derived output names BEFORE reserving anything.
+    for spec in config['generators'].values():
+        output_path(root, spec['output'])
+        if 'metadata' in spec:
+            output_path(root, spec['metadata'])
+    read_changelog(release, args.changelog)
+    build_git = git_state(root, True)
+    epoch = int(os.environ.get('SOURCE_DATE_EPOCH', build_git['epoch']))
+    require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
+    # One run-owned layout for every build: workspace (intermediates), output (artifacts), evidence (reports, logs).
+    scope = stack.enter_context(IsolatedOutput(root, stamp))
+    work, out, record = scope.path / 'workspace', scope.path / 'output', scope.path / 'evidence'
+    logs = record / 'logs'
     report = dict(schema=1, status='running', run_id=stamp, mode=args.mode, version=version,
                   source_version=source_version, channel=channel, publishable=False,
                   gameVersion=config['game']['version'], target=target['name'], realm=realm,
                   source_client=identity, runtime_realms=runtime_realms,
-                  reference_hashes=target['reference_hashes'], tools=tools,
-                  git=build_git if isolated else git_state(root), workspace=str(work), output=str(out),
-                  evidence=str(record), logs=str(logs), wotmod=str(out / 'driftkings.wotmod'))
+                  reference_hashes=target['reference_hashes'], tools=tools, git=build_git,
+                  workspace=str(work), output=str(out), evidence=str(record), logs=str(logs),
+                  wotmod=str(out / 'driftkings.wotmod'), canonical=str(canonical) if canonical else None)
     started = time.monotonic()
     try:
-        if isolated:
-            write_json(scope.path / 'diagnostics' / 'state.json', dict(status='running', publishable=False))
+        write_json(record / 'state.json', dict(status='running', publishable=False))
         inventory = source_inventory(root, plan, production_inputs)
         report['inputs'] = inventory
         components = sorted(c['entrypoint'] for c in plan['components'] if c['enabled'] and c['kind'] == 'feature')
         overrides = python_overrides(root, config, release, version, components)
-        epoch = int(os.environ.get('SOURCE_DATE_EPOCH', report['git']['epoch']))
-        require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
-        if isolated:
-            scope.phase, scope.component = 'compile', 'python27'
+        scope.phase, scope.component = 'compile', 'python27'
         compiled = work / 'compiled'
         print('Compiling Python 2.7: %d modules (%s, %s)' % (len(plan['python']), version, channel), flush=True)
         report['python'] = run_worker(tools, work, logs,
@@ -726,8 +702,7 @@ def _build(args, stack):
                                                   for i in plan['python']],
                                            output=str(compiled), overrides=overrides, epoch=epoch), 'python')
         generated = generate(root, config, plan, tools, work, logs, epoch, identity)
-        if isolated:
-            scope.phase, scope.component = 'package', None
+        scope.phase, scope.component = 'package', None
         entries = package_entries(root, release, plan, compiled, generated, version)
         package = out / 'driftkings.wotmod'
         zip_entries(package, entries)
@@ -749,8 +724,7 @@ def _build(args, stack):
             release_manifest.update(schema=2, modpack=modpack)
             write_json(out / 'release.json', release_manifest)
             verification.update(manifest=str(out / 'release.json'), modpack=str(out / 'modpack.json'))
-        if isolated:
-            scope.phase, scope.component = 'verify', 'python27'
+        scope.phase, scope.component = 'verify', 'python27'
         report['verification'] = run_worker(tools, work, logs, verification, 'verify')
         report['distribution'] = None if development else verify_distribution(out, package, release_manifest, version)
         require(source_inventory(root, plan, production_inputs) == inventory,
@@ -773,31 +747,27 @@ def _build(args, stack):
             write_json(out / 'build-report.json', report)
             write_checksums(out)
             verify_checksums(out)
-        if isolated:
-            write_json(scope.path / 'diagnostics' / 'state.json', dict(status='complete', publishable=False))
-        else:
-            publish_local(root, out, legacy, config, generated, compiled, plan, release=not development)
+            # The single promotion: a verified run is copied to the canonical release folder, never moved.
+            with scope.suspended():
+                publish_release(root, out, canonical)
+        write_json(record / 'state.json', dict(status='complete', publishable=False))
         print('Build complete: run=%s target=%s mode=%s' % (stamp, target['name'], args.mode), flush=True)
         print('  WOTMOD:   ' + str(out / 'driftkings.wotmod'), flush=True)
         print('  output:   ' + str(out), flush=True)
         print('  evidence: ' + str(record), flush=True)
-        if not isolated:
-            print('  mirror:   ' + str(legacy), flush=True)
-        return out if isolated else legacy
+        if canonical:
+            print('  release:  ' + str(canonical), flush=True)
+        return canonical if canonical else out
     except Exception as error:
-        if isolated:
-            report['seconds'] = round(time.monotonic() - started, 3)
-            record_failure(scope, report, error, write_json)
-        else:
-            report.update(status='failed', error=str(error), seconds=round(time.monotonic() - started, 3))
-            write_json(record / 'build-report.json', report)
+        report['seconds'] = round(time.monotonic() - started, 3)
+        record_failure(scope, report, error, write_json)
         raise
 
 
 def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--isolated-output', action='store_true',
-                        help='Debug prerelease only; requires --keep-source-version; keep ALL outputs in a fresh experiment')
+                        help='Legacy flag: every build already uses the run layout; keeps the prerelease restrictions')
     parser.add_argument('--mode', choices=('dev', 'debug', 'release'), default='debug')
     parser.add_argument('--target', help='Build target ID from build_data/build_config.json')
     parser.add_argument('--version', help='Override packaged development version; in release mode, assert the committed version')

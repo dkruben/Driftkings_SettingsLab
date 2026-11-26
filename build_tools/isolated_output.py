@@ -1,4 +1,5 @@
-"""Owned debug workspace and scoped write guard; no compiler or package logic."""
+"""Owned run workspace and scoped write guard; no compiler or package logic."""
+from contextlib import contextmanager
 import contextvars
 import ctypes
 import os
@@ -106,7 +107,7 @@ class IsolatedOutput:
         self.run_id = run_id or uuid.uuid4().hex
         if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,95}', self.run_id):
             raise ValueError('Invalid isolated run ID')
-        self.path = self.root / 'build' / 'experiments' / self.run_id
+        self.path = self.root / 'build' / 'runs' / self.run_id
         self.identity = None
         self.handles = {}
         self.external = None
@@ -137,7 +138,7 @@ class IsolatedOutput:
             if not self.root.is_dir():
                 raise ValueError('Repository root must exist')
             self._pin(self.root)
-            for parent in (self.root / 'build', self.root / 'build/experiments'):
+            for parent in (self.root / 'build', self.root / 'build/runs'):
                 try:
                     parent.mkdir()
                 except FileExistsError:
@@ -148,7 +149,7 @@ class IsolatedOutput:
             self._pin(self.path)
             info = self.path.stat()
             self.identity = (info.st_dev, info.st_ino)
-            for name in ('workspace', 'output', 'manifests', 'diagnostics'):
+            for name in ('workspace', 'output', 'evidence'):
                 (self.path / name).mkdir()
             return self
         except BaseException:
@@ -244,6 +245,15 @@ class IsolatedOutput:
             for handle in reversed(list(self.handles.values())):
                 close(handle)
             self.handles.clear()
+
+    @contextmanager
+    def suspended(self):
+        """Allow one named promotion outside the run folder; the guard is restored on exit."""
+        token = _ACTIVE.set(None)
+        try:
+            yield
+        finally:
+            _ACTIVE.reset(token)
 
     def __enter__(self):
         return self.reserve().activate()

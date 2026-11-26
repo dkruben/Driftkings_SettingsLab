@@ -107,10 +107,10 @@ def record_failure(scope, report, error, writer):
     report.update(status='failed', error=record['exception']['message'], failure=record)
     failures = []
     tasks = [
-        (scope.path / 'diagnostics/error.json', lambda: record),
-        (scope.path / 'workspace/build-report.json', lambda: report),
-        (scope.path / 'diagnostics/state.json', lambda: dict(status='failed', failure=record)),
-        (scope.path / 'diagnostics/inventory.json', lambda: inventory_tree(scope.path)),
+        (scope.path / 'evidence/error.json', lambda: record),
+        (scope.path / 'evidence/build-report.json', lambda: report),
+        (scope.path / 'evidence/state.json', lambda: dict(status='failed', failure=record)),
+        (scope.path / 'evidence/inventory.json', lambda: inventory_tree(scope.path)),
     ]
     for path, value in tasks:
         try:

@@ -44,11 +44,11 @@ class IsolatedOutputTests(unittest.TestCase):
                     scope.path.rmdir()
             with self.assertRaises(FileExistsError):
                 IsolatedOutput(root, 'one').reserve()
-            (root / 'build/experiments/file').write_bytes(b'preexisting')
+            (root / 'build/runs/file').write_bytes(b'preexisting')
             with self.assertRaises(FileExistsError):
                 IsolatedOutput(root, 'file').reserve()
-            self.assertEqual((root / 'build/experiments/file').read_bytes(), b'preexisting')
-            self.assertEqual((root / 'build/experiments/one/output/own.fixture').read_bytes(), b'own')
+            self.assertEqual((root / 'build/runs/file').read_bytes(), b'preexisting')
+            self.assertEqual((root / 'build/runs/one/output/own.fixture').read_bytes(), b'own')
 
     def test_permission_and_creation_failures(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -61,7 +61,7 @@ class IsolatedOutputTests(unittest.TestCase):
                     return original(path, *a, **kw)
                 with patch.object(Path, 'mkdir', fail), self.assertRaises(OSError):
                     IsolatedOutput(root, 'denied').reserve()
-                self.assertFalse((root / 'build/experiments/denied').exists())
+                self.assertFalse((root / 'build/runs/denied').exists())
 
     def test_junction_rejected(self):
         if os.name != 'nt':
@@ -69,7 +69,7 @@ class IsolatedOutputTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); target = root / 'protected'; target.mkdir()
             (root / 'build').mkdir()
-            junction = root / 'build/experiments'
+            junction = root / 'build/runs'
             result = subprocess.run(['cmd', '/c', 'mklink', '/J', str(junction), str(target)], capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             try:
@@ -82,7 +82,7 @@ class IsolatedOutputTests(unittest.TestCase):
     def test_symlink_rejected_without_admin_requirement(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); target = root / 'protected'; target.mkdir(); (root / 'build').mkdir()
-            link = root / 'build/experiments'
+            link = root / 'build/runs'
             try:
                 link.symlink_to(target, target_is_directory=True)
             except OSError:
@@ -109,7 +109,7 @@ class IsolatedOutputTests(unittest.TestCase):
                 env = tool_environment({'EXAMPLE': 'preserved'})
                 self.assertEqual(env['EXAMPLE'], 'preserved')
                 self.assertTrue(Path(env['TEMP']).is_relative_to(scope.path))
-                log = scope.path / 'diagnostics/tool.log'
+                log = scope.path / 'evidence/tool.log'
                 with patch.object(c.subprocess, 'run') as execute:
                     execute.return_value.returncode = 0
                     c.run_tool(['fake-compiler'], log)
@@ -142,7 +142,7 @@ class IsolatedOutputTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     external.write_bytes(b'bad')
                 with self.assertRaises(ValueError):
-                    c.run_tool(['fake'], scope.path / 'diagnostics/log', cwd=root)
+                    c.run_tool(['fake'], scope.path / 'evidence/log', cwd=root)
                 original = scope.identity
                 scope.identity = (-1,-1)
                 with self.assertRaises(ValueError):
@@ -214,7 +214,7 @@ class IsolatedOutputTests(unittest.TestCase):
             def stage(name, path):
                 path = Path(path)
                 if isolated:
-                    self.assertTrue(path.is_relative_to(root / 'build/experiments'), path)
+                    self.assertTrue(path.is_relative_to(root / 'build/runs'), path)
                 writes.append((name,str(path)))
                 path.parent.mkdir(parents=True, exist_ok=True)
                 if failure == name:
@@ -258,18 +258,20 @@ class IsolatedOutputTests(unittest.TestCase):
                     original_write_json(path, value)
                 stack.enter_context(patch.object(c, 'write_json', json_writer))
                 resolve = stack.enter_context(patch.object(c, 'resolve_target', return_value=resolved))
-                publish = stack.enter_context(patch.object(c,'publish_local'))
+                publish = stack.enter_context(patch.object(c,'publish_release'))
                 if failure:
                     with self.assertRaisesRegex(OSError,'injected'):
                         c.build(args)
                 else:
                     output=c.build(args)
                     if isolated:
-                        self.assertTrue(output.is_relative_to(root/'build/experiments'))
+                        self.assertTrue(output.is_relative_to(root/'build/runs'))
+                    elif mode == 'release':
+                        self.assertEqual(output,root/config['package']['release_root']/channel/('0.1.8-beta.4' if channel=='beta' else '0.1.8'))
                     else:
-                        self.assertEqual(output,root/config['package']['debug_root' if mode=='debug' else 'release_root']/channel/('0.1.8-beta.4' if channel=='beta' else '0.1.8'))
-                # Legacy mirrors are written only after a successful run; a failed run publishes nothing.
-                self.assertEqual(publish.call_count, 1 if (not isolated and not failure) else 0)
+                        self.assertTrue(output.is_relative_to(root/'build/runs'))
+                # Only a successful release promotes into build/releases; development never publishes.
+                self.assertEqual(publish.call_count, 1 if (mode == 'release' and not failure) else 0)
                 if not isolated and not failure:
                     run = next((root / 'build/runs').iterdir())
                     self.assertEqual(sorted(p.name for p in run.iterdir()), ['evidence', 'output', 'workspace'])
@@ -277,11 +279,10 @@ class IsolatedOutputTests(unittest.TestCase):
                     if mode == 'debug':
                         # Development builds: WOTMOD and its evidence only, never distribution or release metadata.
                         self.assertEqual(artifacts, {'driftkings.fixture'})
-                        self.assertFalse(publish.call_args.kwargs['release'])
                     else:
                         self.assertTrue({'distribution.fixture', 'build-report.json'} <= artifacts)
-                        self.assertTrue(publish.call_args.kwargs['release'])
                     self.assertTrue((run / 'evidence' / 'build-report.json').is_file())
+                    self.assertTrue((run / 'evidence' / 'state.json').is_file())
                     self.assertTrue((run / 'workspace' / 'python.fixture').is_file())
                 if not isolated and failure:
                     run = next((root / 'build/runs').iterdir())
@@ -292,7 +293,7 @@ class IsolatedOutputTests(unittest.TestCase):
             for path,raw in protected.items():
                 self.assertEqual(path.read_bytes(),raw,path)
             if isolated:
-                states=list((root/'build/experiments').glob('*/diagnostics/state.json'))
+                states=list((root/'build/runs').glob('*/evidence/state.json'))
                 self.assertEqual(len(states),1)
                 self.assertEqual(json.loads(states[0].read_text())['status'],'failed' if failure else 'complete')
 
