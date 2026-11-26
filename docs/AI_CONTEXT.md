@@ -161,7 +161,7 @@ Status: **PASS**, **PARTIAL**, **NOT TESTED**, **NOT APPLICABLE**.
 These are recorded so that future work does not treat them as intended design:
 
 - `build_config.json` declares `production_profiles.EU.alias_of = NA`. The EU reference profile therefore depends on NA's reviewed pins. It should be a peer profile.
-- Corrected: ASIA and CN are project-scope realms. `validation_record.py` lets one release record mark them OUT OF SCOPE for that release only; EU and NA can never be marked out of scope.
+- Scope is candidate-specific: any production realm (EU, NA, ASIA, CN) may be marked OUT OF SCOPE by one release record, with owner approval, for that release only. Every region must still be accounted for, and an out-of-scope region is never verified compatibility. No realm has permanent priority.
 - The EU reference snapshot in `toolchain.local.json` is the wrong version (see section 5).
 - `validate_build_data.py` and `vehicle_markers_patch.py` keep a `995` fallback for the historical native lock that has no `clientBuild` field. This is a legacy contract, kept on purpose.
 
@@ -172,7 +172,10 @@ These are recorded so that future work does not treat them as intended design:
 - Real promotion-gate validation, when the owner authorises a dispatch.
 - Restoration of the live NA client, once the owner authorises it.
 - Owner decision on the remaining legacy directories that hold unique material: `build/debug/beta/0.1.7-beta.2` (unreferenced WOTMOD `f1735c37…`), `build/previous/` (WOTMOD `7b64e5e0…`, documented in `CT_COMPATIBILITY.md`), `build/installer/` (0.1.7-beta.2 Setup `a490ab1a…`) and `build/experiments/` (isolated experiments; some fog-related strings).
-- Recovery of the previous Remove Fog implementation. **Not implemented.** It needs a current Wargaming Fair Play review before any distribution.
+- Recovery of the previous Remove Fog implementation (not implemented; preserved under `build/candidates/`). Requirements: Remove Fog is disabled by default; activation is an explicit player choice; installation and configuration reset never activate it; current Wargaming Fair Play requirements are verified before any public distribution.
+- Correction of existing visual defects, using focused and impact-proportional validation.
+- Compilation and isolated-Windows validation of the corrected installer before the next official release.
+- Complete updater and rollback validation before claiming those checks passed.
 
 ## 11. Safety rules for AI assistants
 

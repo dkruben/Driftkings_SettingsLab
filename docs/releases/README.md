@@ -17,7 +17,7 @@ A validation record is a plain-text file with fixed rules. It records what a per
 
 - Beta records live at `docs/releases/<beta-version>-validation.md`. Create one with `python build_tools/validation_record.py new <beta> --commit <sha> --package-sha256 <sha>` and check it with `validation_record.py check <beta>`. The [template](validation-template.md) shows the structure.
 - Direct stable records are supplied to the gate as a file (`--record`) and bind to the stable version, the artifact commit and the package digest.
-- A region can be marked `OUT OF SCOPE` in one release only, with owner approval. That marker is not a project-wide exclusion, and it is never verified compatibility. A record cannot mark EU or NA out of scope.
+- Any production realm (EU, NA, ASIA or CN) can be marked `OUT OF SCOPE` by one release record, with owner approval, for that release only. Every region must still be accounted for, and an out-of-scope region is never claimed as verified. No realm has permanent priority.
 
 The evaluation refuses a record when the decision is not `APPROVED`, the approver or date is missing, the commit or version does not match, a blocking check is not passed, a `BLOCKER` issue is open, or an automatic check has no evidence.
 
