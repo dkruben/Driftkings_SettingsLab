@@ -80,10 +80,8 @@
   },
   "package": {
     "name": "driftkings.wotmod",
-    "output": "build/unified/driftkings.wotmod",
     "compression": "stored",
-    "release_root": "build/releases",
-    "debug_root": "build/debug"
+    "release_root": "build/releases"
   },
   "components": {
     "source": "build_data/components.json"
@@ -91,7 +89,6 @@
   "python": {
     "version": "2.7",
     "source_root": "mod/res/scripts/client",
-    "staging_root": "build/staging/res/scripts/client",
     "archive_root": "res/scripts/client",
     "include": [
       "**/*.py"

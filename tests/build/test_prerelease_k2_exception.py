@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
 
 class OutOfScopeTests(unittest.TestCase):
-    """OUT OF SCOPE is accepted only for ASIA and CN, and is never verified compatibility."""
+    """A release record may mark ASIA or CN OUT OF SCOPE for that release only; never EU or NA, and never verified."""
     def record(self):
         return RECORD.read_text(encoding='utf-8')
 

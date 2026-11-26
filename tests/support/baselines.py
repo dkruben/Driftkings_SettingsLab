@@ -125,6 +125,10 @@ def phase2_prior_build_config(current):
     # Phase 4.3.1 adds exactly this reviewed target table and legacy CT label binding; any other change still fails.
     assert current.pop('targets') == PHASE431_TARGETS
     assert current['reference'].pop('legacy_ct_build') == '996'
+    # Retired physical output paths (Phase 6.3) are restored with their historical values for this comparison only.
+    current['package']['output'] = 'build/unified/driftkings.wotmod'
+    current['package']['debug_root'] = 'build/debug'
+    current['python']['staging_root'] = 'build/staging/res/scripts/client'
     current['python'].pop('exclude')
     # The optional Remove Fog helper generator is part of the historical contract; it must match the fixture exactly.
     with io.open(PATH, encoding='utf-8') as stream:

@@ -1,19 +1,25 @@
-"""Promote an approved beta to a stable release, rebuilt from source and signed anew.
+"""Publish a stable release, rebuilt from source and signed anew.
 
-  python build_tools/promote_release.py prepare --beta <beta>      # edit release.json and VERSION; no commit
-  python build_tools/promote_release.py check --beta <beta>        # read-only gate
-  python build_tools/promote_release.py build --beta <beta>        # compile, sign and verify locally
-  python build_tools/promote_release.py publish --beta <beta>      # preview: nothing is uploaded
-  python build_tools/promote_release.py publish --beta <beta> --confirm v<stable>@<artifacts digest>
+Two routes; a beta is optional:
 
-A stable differs from its beta by a commit that only changes metadata, so the approved beta commit and
-the stable commit are compared rather than assumed equal. Compilation needs the game client and the
-signing key is offline, so only `check` runs on GitHub; publication stays local, which also keeps the
-Discord workflow firing (events from GITHUB_TOKEN do not start other workflows). Traceability is the
-promotion.json release asset: the updater rejects unknown fields, so it must not enter release.json.
+  Direct stable (no beta required)
+    python build_tools/promote_release.py prepare --stable <X.Y.Z>
+    python build_tools/promote_release.py build --stable <X.Y.Z> --target <target>
+    python build_tools/promote_release.py check --stable <X.Y.Z> --record <file> --commit <sha> --digest <full>
+    python build_tools/promote_release.py publish --stable <X.Y.Z> --record <file> --target <target>
 
-Approval names the stable commit and the digest of SHA256SUMS.txt, which covers every artifact and the
-manifest, so the build comes first and any rebuild needs a new approval.
+  Beta-backed stable (optional)
+    python build_tools/promote_release.py check --beta <beta> --commit <sha> --digest <digest>
+    python build_tools/promote_release.py build --beta <beta> --target <target>
+    python build_tools/promote_release.py publish --beta <beta> --confirm v<stable>@<artifacts digest>
+
+`build` produces the signed candidate in the run output, stamps it and promotes it into build/releases.
+`publish` without --confirm only previews; nothing is uploaded until the approval and the confirmation match.
+
+Approvals bind complete SHA-256 digests of the inventory and of the validation record. The protected
+stable-release environment and its required reviewers are always required; the direct route has no waiver.
+Compilation needs the game client and the signing key is offline, so publication stays local. Traceability
+is the promotion.json release asset: the updater rejects unknown fields, so it must not enter release.json.
 """
 import argparse
 import base64

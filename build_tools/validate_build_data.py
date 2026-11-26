@@ -293,8 +293,6 @@ def build_plan(root=ROOT, check_generated=False, check_game=False, check_compone
     require(config['package']['compression'] == 'stored', 'WOTMOD must use ZIP_STORED')
     require(config['defaults']['install_policy'] == 'missing_only' and config['defaults']['in_wotmod'] is False,
             'Defaults must be installed separately without overwriting user settings')
-    input_path(root, config['package']['output'])
-    input_path(root, config['python']['staging_root'])
     relative_path(config['python']['archive_root'])
     relative_path(config['defaults']['install_root'])
     python_root = input_path(root, config['python']['source_root'])
