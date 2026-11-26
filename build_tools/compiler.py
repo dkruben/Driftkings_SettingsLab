@@ -750,7 +750,8 @@ def _build(args, stack):
             # The single promotion: a verified run is copied to the canonical release folder, never moved.
             with scope.suspended():
                 publish_release(root, out, canonical)
-        write_json(record / 'state.json', dict(status='complete', publishable=False))
+        write_json(record / 'state.json', dict(status='complete', publishable=False,
+                                               completed=datetime.now(timezone.utc).isoformat()))
         print('Build complete: run=%s target=%s mode=%s' % (stamp, target['name'], args.mode), flush=True)
         print('  WOTMOD:   ' + str(out / 'driftkings.wotmod'), flush=True)
         print('  output:   ' + str(out), flush=True)
@@ -780,6 +781,9 @@ def argument_parser():
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
     parser.add_argument('--plan', action='store_true',
                         help='Verify target references and display version, outputs and tools without writing')
+    parser.add_argument('--retain-runs', action='store_true',
+                        help='Preview build/runs retention; performs no build. Add --apply to delete eligible runs')
+    parser.add_argument('--apply', action='store_true', help='With --retain-runs: delete the eligible paths')
     for key in TOOL_KEYS:
         if key != 'game_root':
             parser.add_argument('--' + key.replace('_', '-'), dest=key)
@@ -789,6 +793,15 @@ def argument_parser():
 def main():
     parser = argument_parser()
     args = parser.parse_args()
+    if args.apply and not args.retain_runs:
+        parser.error('--apply requires --retain-runs')
+    if args.retain_runs:
+        from build_tools.run_retention import run_retention
+        try:
+            run_retention(ROOT, apply=args.apply)
+        except (ValueError, OSError, KeyError) as error:
+            parser.exit(1, 'Retention failed: %s\n' % error)
+        return
     try:
         build(args)
     except (ValueError, OSError, KeyError, TypeError, StopIteration, subprocess.SubprocessError,
