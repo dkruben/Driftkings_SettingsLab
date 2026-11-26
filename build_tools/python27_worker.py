@@ -59,17 +59,20 @@ def process(job_path):
         package.__path__ = [origin + '/driftkings/core/updater']
         sys.modules[package.__name__] = package
         from driftkings.core.updater.versioning import Version
-        from driftkings.core.updater.manifest import Manifest
         from driftkings.core.marks_calculator import ceil_damage
-        with open(job['manifest'], 'rb') as stream:
-            manifest = Manifest.parse(stream.read())
-        if (manifest.version.text != job['version'] or manifest.channel != job['channel'] or
-                not manifest.compatible(job['game_version'])):
-            raise ValueError('Release metadata is incompatible with the packaged updater')
         if not Version(job['version']).allowed(job['channel']) or ceil_damage(1.1) != 2:
             raise ValueError('Packaged version/calculator contract failed')
         result = dict(python=sys.version, verified=count, version=driftkings.VERSION,
-                      components=len(COMPONENTS), updaterManifest='valid')
+                      components=len(COMPONENTS), updaterManifest='not-included')
+        if 'manifest' in job:
+            # Distribution-only: release metadata is checked against the packaged updater.
+            from driftkings.core.updater.manifest import Manifest
+            with open(job['manifest'], 'rb') as stream:
+                manifest = Manifest.parse(stream.read())
+            if (manifest.version.text != job['version'] or manifest.channel != job['channel'] or
+                    not manifest.compatible(job['game_version'])):
+                raise ValueError('Release metadata is incompatible with the packaged updater')
+            result['updaterManifest'] = 'valid'
         if 'modpack' in job:
             from driftkings.core.updater.inventory import Inventory
             with open(job['modpack'], 'rb') as stream:

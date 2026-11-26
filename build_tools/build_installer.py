@@ -316,6 +316,14 @@ def attach_installer(artifacts, installer):
     return target
 
 
+def release_directory(path):
+    """Accept a completed release directory, or a run directory whose output/ holds the release."""
+    path = Path(path).resolve()
+    if (path / 'output' / 'release.json').is_file():
+        return path / 'output'
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifacts', type=Path, help='Completed compiler output directory (debug or release)')
@@ -329,6 +337,8 @@ def main():
         parser.error('--attach-to-release requires --compile')
     if args.compile and not args.artifacts:
         parser.error('--compile requires --artifacts')
+    if args.artifacts:
+        args.artifacts = release_directory(args.artifacts)
     try:
         plan = build_plan(ROOT)
         media = validate_assets(ROOT, plan['assets'])

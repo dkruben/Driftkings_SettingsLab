@@ -119,9 +119,9 @@ def run_tool(command, log, env=None, timeout=240, cwd=None):
         raise ValueError('Build tool failed (%s); see %s\n%s' % (result.returncode, log, tail))
 
 
-def run_worker(tools, run, job, name):
-    job_path = run / (name + '-job.json')
-    result = run / (name + '-result.json')
+def run_worker(tools, work, logs, job, name):
+    job_path = work / (name + '-job.json')
+    result = work / (name + '-result.json')
     job['result'] = str(result)
     write_json(job_path, job)
     worker = ROOT / 'build_tools/python27_worker.py'
@@ -132,7 +132,7 @@ def run_worker(tools, run, job, name):
     else:
         env['DK_COMPILE_JOB'] = str(job_path)
         command = [tools['hg'], '--config', 'extensions.dkcompiler=' + str(worker), 'dkcompile']
-    run_tool(command, run / 'logs' / (name + '.log'), env)
+    run_tool(command, logs / (name + '.log'), env)
     require(result.is_file(), 'Python 2.7 worker did not produce a result')
     return read_json(result)
 
@@ -150,7 +150,7 @@ def supports_deterministic_csharp(csc):
     return b'-deterministic' in result.stdout
 
 
-def generate(root, config, plan, tools, run, epoch, identity):
+def generate(root, config, plan, tools, work, logs, epoch, identity):
     outputs = {}
     deterministic_csharp = None
     needed = {a['generator'] for a in plan['assets'] if a['generator']}
@@ -160,7 +160,7 @@ def generate(root, config, plan, tools, run, epoch, identity):
         if scope:
             scope.phase, scope.component = 'generate', name
         output_path(root, spec['output'])
-        destination = run / 'generated' / spec['output']
+        destination = work / 'generated' / spec['output']
         destination.parent.mkdir(parents=True, exist_ok=True)
         print('Generating: ' + name, flush=True)
         if spec['kind'] == 'flash':
@@ -178,7 +178,7 @@ def generate(root, config, plan, tools, run, epoch, identity):
                         '-default-size=%s,%s' % (spec['width'], spec['height']),
                         '-default-frame-rate=' + str(spec['fps']),
                         '-output=' + str(destination), str(input_path(root, spec['entrypoint']))]
-            run_tool(command, run / 'logs' / (name + '.log'))
+            run_tool(command, logs / (name + '.log'))
             destination.write_bytes(normalize_swf_compile_date(destination.read_bytes(), epoch))
             validate_swf(destination.read_bytes())
         elif spec['kind'] == 'vehicle_markers':
@@ -209,11 +209,11 @@ def generate(root, config, plan, tools, run, epoch, identity):
             command += ['/reference:' + reference for reference in spec['references']]
             command.append(str(input_path(root, spec['source'])))
             command += [str(input_path(root, source)) for source in spec.get('additional_sources', [])]
-            run_tool(command, run / 'logs' / (name + '.log'))
+            run_tool(command, logs / (name + '.log'))
             binary = destination.read_bytes()
             require(binary.startswith(b'MZ') and len(binary) <= 256 * 1024, 'Invalid native helper: ' + name)
             output_path(root, spec['metadata'])
-            meta = run / 'generated' / spec['metadata']
+            meta = work / 'generated' / spec['metadata']
             write_json(meta, dict(schema=1, size=len(binary), sha256=sha(destination)))
             outputs[spec['metadata']] = meta
         else:
@@ -264,29 +264,74 @@ def replace_directory(source, destination):
             time.sleep(min(2.0, 0.25 * (2 ** attempt)))
 
 
-def publish_local(root, candidate, destination, config, generated, compiled, plan):
-    """Promote only verified outputs; preserve the previous version directory."""
-    require(candidate.resolve().is_relative_to((root / 'build').resolve()) and
-            destination.resolve().is_relative_to((root / 'build').resolve()) and
-            candidate.parent.resolve() == destination.parent.resolve(), 'Unsafe artifact promotion paths')
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    previous = None
-    if destination.exists():
-        previous = output_path(root, 'build/previous/' + destination.name + '-' + uuid.uuid4().hex)
-        previous.parent.mkdir(parents=True, exist_ok=True)
-        replace_directory(destination, previous)
-    try:
-        replace_directory(candidate, destination)
-    except OSError:
-        if previous is not None:
-            replace_directory(previous, destination)
-        raise
-    atomic_copy(destination / 'driftkings.wotmod', output_path(root, config['package']['output']))
+def same_release_bytes(candidate, destination):
+    """A frozen release directory may be reused only when every release file is byte-identical."""
+    def files(folder):
+        return {p.relative_to(folder).as_posix(): sha(p) for p in artifact_files(folder)
+                if p.name not in ('build-report.json', 'SHA256SUMS.txt')}
+    return files(candidate) == files(destination)
+
+
+def publish_local(root, candidate, destination, config, generated, compiled, plan, release):
+    """Mirror the verified run output into the legacy locations; the run output itself is never moved."""
+    build = (root / 'build').resolve()
+    require(candidate.resolve().is_relative_to(build) and destination.resolve().is_relative_to(build),
+            'Unsafe artifact promotion paths')
+    if release and destination.exists():
+        require(same_release_bytes(candidate, destination),
+                'Frozen release %s already exists with different bytes; choose a new version' % destination.name)
+    else:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        staged = destination.with_name('.' + destination.name + '.' + uuid.uuid4().hex + '.tmp')
+        shutil.copytree(candidate, staged)
+        previous = None
+        if destination.exists():
+            previous = output_path(root, 'build/previous/' + destination.name + '-' + uuid.uuid4().hex)
+            previous.parent.mkdir(parents=True, exist_ok=True)
+            replace_directory(destination, previous)
+        try:
+            replace_directory(staged, destination)
+        except OSError:
+            if previous is not None:
+                replace_directory(previous, destination)
+            raise
+    atomic_copy(candidate / 'driftkings.wotmod', output_path(root, config['package']['output']))
     for name, source in generated.items():
         atomic_copy(source, output_path(root, name))
     for item in plan['python']:
         name = item['target'][len(config['python']['archive_root']) + 1:]
         atomic_copy(compiled / item['target'], output_path(root, config['python']['staging_root'] + '/' + name))
+
+
+def write_checksums(candidate):
+    sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix())
+                     for p in artifact_files(candidate)) + '\n'
+    (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
+
+
+def verify_checksums(candidate):
+    listed = {}
+    for line in (candidate / 'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
+        digest, name = line.split('  ', 1)
+        listed[name] = digest
+    actual = {p.relative_to(candidate).as_posix() for p in artifact_files(candidate)
+              if p.name != 'SHA256SUMS.txt'}
+    require(set(listed) == actual, 'Checksum inventory mismatch')
+    for name, digest in listed.items():
+        require(sha(candidate / name) == digest, 'Checksum mismatch: ' + name)
+
+
+def verify_distribution(candidate, package, manifest, version):
+    """Distribution checks beyond the WOTMOD: manifest identity and distribution ZIP inventory."""
+    require(manifest['file'] == 'driftkings.wotmod' and manifest['sha256'] == sha(package)
+            and manifest['size'] == package.stat().st_size, 'Release manifest does not describe the verified WOTMOD')
+    game = manifest['gameVersion']
+    member = 'mods/%s/driftkings.wotmod' % game
+    with zipfile.ZipFile(candidate / ('Driftkings-%s-WoT-%s.zip' % (version, game))) as archive:
+        names = set(archive.namelist())
+        require({member, 'Driftkings-defaults.zip', 'INSTALL.txt'} <= names, 'Distribution ZIP inventory is incomplete')
+        require(archive.read(member) == package.read_bytes(), 'Distribution WOTMOD differs from the verified package')
+    return dict(status='passed', entries=len(names))
 
 
 def check_release_identity(root, release):
@@ -609,27 +654,28 @@ def _build(args, stack):
         require(source_version == version, 'Tracked release.json and source VERSION disagree')
     validate_isolated_args(args, channel)
     isolated = getattr(args, "isolated_output", False)
+    development = args.mode != 'release'
     tools = discover(root, vars(args))
     target = resolve_target(root, config, tools, args.target, args.mode, args.expect_realm)
     identity, profile = target['identity'], target['profile']
     realm = identity['realm']
     runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
     plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
-    destination = output_path(root,
-                              config['package']['release_root' if args.mode == 'release'
-                                                else 'debug_root'] + '/' + channel + '/' + version)
+    legacy = output_path(root, config['package']['release_root' if args.mode == 'release' else 'debug_root']
+                         + '/' + channel + '/' + version)
     if args.plan:
         preview = dict(mode=args.mode, target=target['name'], version=version, source_version=source_version,
-                       channel=channel, read_only=True, output=str(destination), tools=tools,
+                       channel=channel, read_only=True, output=str(legacy), tools=tools,
                        game_root=tools.get('game_root'), reference_root=tools.get('reference_root'),
-                       source_client=identity, runtime_realms=runtime_realms, pins=resource_pins(config, identity['build']), reference_snapshot=target.get('snapshot'),
+                       source_client=identity, runtime_realms=runtime_realms,
+                       pins=resource_pins(config, identity['build']), reference_snapshot=target.get('snapshot'),
                        python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults']),
                        reference_hashes=target['reference_hashes'],
                        findings=plan_findings(version, source_version, runtime_realms, target))
         if isolated:
             preview.update(output='build/experiments/<exclusive-run-id>/output', isolated_output=True)
         print(json.dumps(preview, indent=2))
-        return destination
+        return legacy
     require_tools(tools)
     production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values()) if profile else []
     build_git = git_state(root, True) if isolated else None
@@ -644,16 +690,22 @@ def _build(args, stack):
         epoch = int(os.environ.get('SOURCE_DATE_EPOCH', build_git['epoch']))
         require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
         scope = stack.enter_context(IsolatedOutput(root, stamp))
-        run = scope.path / 'workspace'
-        destination = scope.path / 'output'
+        work, out, record = scope.path / 'workspace', scope.path / 'output', scope.path / 'manifests'
+        logs = work / 'logs'
     else:
+        # One run-owned layout: workspace (intermediates), output (verified artifacts), evidence (reports, logs).
         run = output_path(root, 'build/runs/' + stamp)
-        run.mkdir(parents=True)
-    report = dict(schema=1, status='running', version=version, source_version=source_version, channel=channel,
-                  mode=args.mode, publishable=False, gameVersion=config['game']['version'],
-                  target=target['name'], realm=realm, source_client=identity, runtime_realms=runtime_realms,
+        work, out, record = run / 'workspace', run / 'output', run / 'evidence'
+        logs = record / 'logs'
+        for folder in (work, out, record):
+            folder.mkdir(parents=True)
+    report = dict(schema=1, status='running', run_id=stamp, mode=args.mode, version=version,
+                  source_version=source_version, channel=channel, publishable=False,
+                  gameVersion=config['game']['version'], target=target['name'], realm=realm,
+                  source_client=identity, runtime_realms=runtime_realms,
                   reference_hashes=target['reference_hashes'], tools=tools,
-                  git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
+                  git=build_git if isolated else git_state(root), workspace=str(work), output=str(out),
+                  evidence=str(record), logs=str(logs), wotmod=str(out / 'driftkings.wotmod'))
     started = time.monotonic()
     try:
         if isolated:
@@ -666,76 +718,79 @@ def _build(args, stack):
         require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
         if isolated:
             scope.phase, scope.component = 'compile', 'python27'
-        compiled = run / 'compiled'
+        compiled = work / 'compiled'
         print('Compiling Python 2.7: %d modules (%s, %s)' % (len(plan['python']), version, channel), flush=True)
-        report['python'] = run_worker(tools, run,
+        report['python'] = run_worker(tools, work, logs,
                                       dict(action='compile',
                                            files=[dict(source=str(root / i['source']), target=i['target'])
                                                   for i in plan['python']],
-                                                    output=str(compiled), overrides=overrides, epoch=epoch), 'python')
-        generated = generate(root, config, plan, tools, run, epoch, identity)
+                                           output=str(compiled), overrides=overrides, epoch=epoch), 'python')
+        generated = generate(root, config, plan, tools, work, logs, epoch, identity)
         if isolated:
             scope.phase, scope.component = 'package', None
         entries = package_entries(root, release, plan, compiled, generated, version)
-        candidate = destination if isolated else destination.parent / ('.' + version + '-' + stamp)
-        if not isolated:
-            candidate.mkdir(parents=True)
-        package = candidate / 'driftkings.wotmod'
+        package = out / 'driftkings.wotmod'
         zip_entries(package, entries)
         verify_package(package, entries, version, release['package_id'])
-        release_manifest = dict(schema=1, version=version, channel=channel, gameVersion=config['game']['version'],
-                                file='driftkings.wotmod', size=package.stat().st_size, sha256=sha(package),
-                                download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (release['repository'], version),
-                                changelog=read_changelog(release, args.changelog))
-        defaults = write_distribution(root, config, plan, candidate, package, version, channel)
-        modpack = create_modpack(candidate, version, channel, config['game']['version'], defaults)
-        write_json(candidate / 'modpack.json', modpack)
-        release_manifest.update(schema=2, modpack=modpack)
-        write_json(candidate / 'release.json', release_manifest)
         expected_defaults, selector, _ = assemble_defaults(root)
+        verification = dict(action='verify', package=str(package), version=version, channel=channel,
+                            game_version=config['game']['version'], components=components,
+                            defaults=expected_defaults, selector=selector)
+        release_manifest = None
+        if not development:
+            # Distribution artifacts exist only for release builds; WOTMOD verification never reads them.
+            release_manifest = dict(schema=1, version=version, channel=channel, gameVersion=config['game']['version'],
+                                    file='driftkings.wotmod', size=package.stat().st_size, sha256=sha(package),
+                                    download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (release['repository'], version),
+                                    changelog=read_changelog(release, args.changelog))
+            defaults = write_distribution(root, config, plan, out, package, version, channel)
+            modpack = create_modpack(out, version, channel, config['game']['version'], defaults)
+            write_json(out / 'modpack.json', modpack)
+            release_manifest.update(schema=2, modpack=modpack)
+            write_json(out / 'release.json', release_manifest)
+            verification.update(manifest=str(out / 'release.json'), modpack=str(out / 'modpack.json'))
         if isolated:
             scope.phase, scope.component = 'verify', 'python27'
-        report['verification'] = run_worker(tools, run,
-                                            dict(action='verify', package=str(package),
-                                                 manifest=str(candidate / 'release.json'),
-                                                           modpack=str(candidate / 'modpack.json'),
-                                                           version=version, channel=channel,
-                                                           game_version=config['game']['version'],
-                                                           components=components,
-                                                           defaults=expected_defaults, selector=selector), 'verify')
+        report['verification'] = run_worker(tools, work, logs, verification, 'verify')
+        report['distribution'] = None if development else verify_distribution(out, package, release_manifest, version)
         require(source_inventory(root, plan, production_inputs) == inventory,
                 'Build inputs changed during compilation; previous output preserved')
         # Publication is never granted by the compiler: signing, runtime evidence and approval are separate facts.
         report.update(status='success', publishable=False,
                       profile=publication_state.DEVELOPMENT_PROFILE if realm == 'CT' else publication_state.PRODUCTION_PROFILE,
+                      verification_result='passed',
                       counts=dict(components=len(components), python=len(plan['python']), assets=len(plan['assets']),
-                                  entries=len(entries), defaults=len(defaults)),
+                                  entries=len(entries), defaults=len(plan['defaults'])),
                       generated={name: sha(path) for name, path in generated.items()},
                       seconds=round(time.monotonic() - started, 3))
         report['eligible_for_signing'] = publication_state.eligible_for_signing(report)
         report['publication_state'] = publication_state.classify(report)
-        report['artifacts'] = {p.relative_to(candidate).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
-                               for p in artifact_files(candidate)}
-        write_json(candidate / 'build-report.json', report)
-        sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix())
-                         for p in artifact_files(candidate)) + '\n'
-        (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
-        if isolated:
-            write_json(scope.path / 'manifests' / 'build-report.json', report)
-        else:
-            publish_local(root, candidate, destination, config, generated, compiled, plan)
-        write_json(run / 'build-report.json', report)
+        report['artifacts'] = {p.relative_to(out).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
+                               for p in artifact_files(out)}
+        write_json(record / 'build-report.json', report)
+        if not development:
+            # Release directories keep their report beside the artifacts for existing consumers.
+            write_json(out / 'build-report.json', report)
+            write_checksums(out)
+            verify_checksums(out)
         if isolated:
             write_json(scope.path / 'diagnostics' / 'state.json', dict(status='complete', publishable=False))
-        print('Build complete: ' + str(destination), flush=True)
-        return destination
+        else:
+            publish_local(root, out, legacy, config, generated, compiled, plan, release=not development)
+        print('Build complete: run=%s target=%s mode=%s' % (stamp, target['name'], args.mode), flush=True)
+        print('  WOTMOD:   ' + str(out / 'driftkings.wotmod'), flush=True)
+        print('  output:   ' + str(out), flush=True)
+        print('  evidence: ' + str(record), flush=True)
+        if not isolated:
+            print('  mirror:   ' + str(legacy), flush=True)
+        return out if isolated else legacy
     except Exception as error:
         if isolated:
             report['seconds'] = round(time.monotonic() - started, 3)
             record_failure(scope, report, error, write_json)
         else:
             report.update(status='failed', error=str(error), seconds=round(time.monotonic() - started, 3))
-            write_json(run / 'build-report.json', report)
+            write_json(record / 'build-report.json', report)
         raise
 
 

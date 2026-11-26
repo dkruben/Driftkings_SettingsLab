@@ -220,13 +220,13 @@ class IsolatedOutputTests(unittest.TestCase):
                 if failure == name:
                     raise OSError('injected '+name)
                 path.write_bytes(b'fixture')
-            def worker(tools, run, job, name):
-                stage('compile' if name == 'python' else 'verify', run / (name+'.fixture'))
+            def worker(tools, work, logs, job, name):
+                stage('compile' if name == 'python' else 'verify', work / (name+'.fixture'))
                 return {}
-            def generate(r, conf, pl, tools, run, epoch, selected):
+            def generate(r, conf, pl, tools, work, logs, epoch, selected):
                 self.assertIs(selected, identity)
-                stage('generate', run/'generated/asset.fixture')
-                stage('patch', run/'generated/patch.fixture')
+                stage('generate', work/'generated/asset.fixture')
+                stage('patch', work/'generated/patch.fixture')
                 return {}
             def package(path, entries, *a):
                 # Deliberately DO NOT create path (.wotmod). Exercise writer destinations with a .fixture.
@@ -247,6 +247,8 @@ class IsolatedOutputTests(unittest.TestCase):
                     'python_overrides':lambda *a:{},'run_worker':worker,'generate':generate,
                     'package_entries':lambda *a:{},'zip_entries':package,'verify_package':lambda *a:None,
                     'sha':lambda *a:'fixture-hash', 'write_distribution':distribution,
+                    'verify_distribution':lambda *a:{'status':'passed'}, 'write_checksums':lambda *a:None,
+                    'verify_checksums':lambda *a:None,
                     'assemble_defaults':lambda *a:({},None,{}), 'create_modpack':lambda *a:{},'artifact_files':lambda *a:[]}.items():
                     stack.enter_context(patch.object(c,name,value))
                 original_write_json = c.write_json
@@ -266,7 +268,24 @@ class IsolatedOutputTests(unittest.TestCase):
                         self.assertTrue(output.is_relative_to(root/'build/experiments'))
                     else:
                         self.assertEqual(output,root/config['package']['debug_root' if mode=='debug' else 'release_root']/channel/('0.1.8-beta.4' if channel=='beta' else '0.1.8'))
-                self.assertEqual(publish.call_count,0 if isolated else 1)
+                # Legacy mirrors are written only after a successful run; a failed run publishes nothing.
+                self.assertEqual(publish.call_count, 1 if (not isolated and not failure) else 0)
+                if not isolated and not failure:
+                    run = next((root / 'build/runs').iterdir())
+                    self.assertEqual(sorted(p.name for p in run.iterdir()), ['evidence', 'output', 'workspace'])
+                    artifacts = {p.name for p in (run / 'output').iterdir()}
+                    if mode == 'debug':
+                        # Development builds: WOTMOD and its evidence only, never distribution or release metadata.
+                        self.assertEqual(artifacts, {'driftkings.fixture'})
+                        self.assertFalse(publish.call_args.kwargs['release'])
+                    else:
+                        self.assertTrue({'distribution.fixture', 'build-report.json'} <= artifacts)
+                        self.assertTrue(publish.call_args.kwargs['release'])
+                    self.assertTrue((run / 'evidence' / 'build-report.json').is_file())
+                    self.assertTrue((run / 'workspace' / 'python.fixture').is_file())
+                if not isolated and failure:
+                    run = next((root / 'build/runs').iterdir())
+                    self.assertEqual(json.loads((run / 'evidence' / 'build-report.json').read_text())['status'], 'failed')
                 resolve.assert_called_once()
             self.assertTrue(writes)
             self.assertFalse(list(root.rglob('*.wotmod')))
@@ -278,7 +297,7 @@ class IsolatedOutputTests(unittest.TestCase):
                 self.assertEqual(json.loads(states[0].read_text())['status'],'failed' if failure else 'complete')
 
     def test_instrumented_full_flow_and_failures(self):
-        for failure in (None,'compile','generate','patch','package','copy','verify','diagnostic'):
+        for failure in (None,'compile','generate','patch','package','verify','diagnostic'):
             with self.subTest(failure=failure):
                 self.simulate(failure)
 
@@ -286,6 +305,7 @@ class IsolatedOutputTests(unittest.TestCase):
         for mode,channel in (('debug','beta'),('debug','stable'),('release','beta'),('release','stable')):
             with self.subTest(mode=mode,channel=channel):
                 self.simulate(isolated=False,mode=mode,channel=channel)
+        self.simulate(failure='verify', isolated=False, mode='debug', channel='beta')
 
 
 @contextmanager
