@@ -74,7 +74,7 @@ class GeneratorTests(unittest.TestCase):
         report = json.loads((folder / 'build-report.json').read_text())
         self.assertEqual(report['artifacts'][installer.name]['sha256'], hashlib.sha256(attached.read_bytes()).hexdigest())
         sums = (folder / 'SHA256SUMS.txt').read_text().splitlines()
-        self.assertEqual(len(sums), 3)
+        self.assertEqual(len(sums), 4)  # release.json, the Setup, its WGMods archive and build-report.json
         for line in sums:
             checksum, name = line.split('  ', 1)
             self.assertEqual(checksum, hashlib.sha256((folder / name).read_bytes()).hexdigest())

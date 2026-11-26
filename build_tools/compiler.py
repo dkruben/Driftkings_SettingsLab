@@ -5,6 +5,7 @@ import ast
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -270,6 +271,32 @@ def same_release_bytes(candidate, destination):
         return {p.relative_to(folder).as_posix(): sha(p) for p in artifact_files(folder)
                 if p.name not in ('build-report.json', 'SHA256SUMS.txt')}
     return files(candidate) == files(destination)
+
+
+def promote_run(root, run):
+    """Final promotion of a frozen release run into the canonical build/releases folder.
+
+    Only a run whose output is FROZEN (stamped and signed) is copied; nothing is rebuilt, and an existing release
+    with other bytes is refused by publish_release.
+    """
+    from build_tools.publication_state import CANDIDATE_FROZEN, candidate_state
+    root = Path(root).resolve()
+    run = Path(run).resolve()
+    require(run.parent == (root / 'build/runs').resolve(), 'Promotion takes a run directory under build/runs')
+    record = read_json(run / 'evidence/build-report.json')
+    require(record.get('mode') == 'release' and record.get('status') == 'success',
+            'Only a successful release run can be promoted')
+    output = run / 'output'
+    require(candidate_state(output) == CANDIDATE_FROZEN,
+            'Only a stamped and signed candidate can be promoted; sign and stamp the run output first')
+    verify_checksums(output)
+    config = read_json(root / 'build_data/build_config.json')
+    canonical = output_path(root, config['package']['release_root'] + '/' + record['channel'] + '/' + record['version'])
+    promoted = publish_release(root, output, canonical)
+    # The run and the canonical candidate must not diverge: both hold the same complete inventory.
+    require(sha(promoted / 'SHA256SUMS.txt') == sha(output / 'SHA256SUMS.txt'),
+            'The promoted candidate does not match the run output')
+    return promoted
 
 
 def publish_release(root, candidate, destination):
@@ -588,9 +615,12 @@ def write_distribution(root, config, plan, candidate, package, version, channel)
     """Write the defaults archive, dependency copies and manual-installation ZIP; return the defaults."""
     game_version = config['game']['version']
     defaults = {item['target']: (root / item['source']).read_bytes() for item in plan['defaults']}
-    zip_entries(candidate / 'Driftkings-defaults.zip', defaults, zipfile.ZIP_DEFLATED)
+    # The defaults archive is required inside the distribution (the updater inventory reads it there); it is not
+    # a standalone release asset, so it is built in memory and never written beside the candidate.
+    buffer = io.BytesIO()
+    zip_entries(buffer, defaults, zipfile.ZIP_DEFLATED)
     distribution = {'mods/' + game_version + '/driftkings.wotmod': package.read_bytes(),
-                    'Driftkings-defaults.zip': (candidate / 'Driftkings-defaults.zip').read_bytes()}
+                    'Driftkings-defaults.zip': buffer.getvalue()}
     for name in plan['dependencies']:
         path = root / name
         target = candidate / 'dependencies' / path.name
@@ -599,7 +629,7 @@ def write_distribution(root, config, plan, candidate, package, version, channel)
         distribution['mods/' + game_version + '/' + path.name] = path.read_bytes()
     instructions = ('Driftkings %s (%s), World of Tanks %s\n\n'
                     'Extract the mods directory into the game directory.\n'
-                    'First installation: extract Driftkings-defaults.zip only when no Driftkings settings exist.\n'
+                    'First installation: extract the Driftkings-defaults.zip inside this archive only when no Driftkings settings exist.\n'
                     'Updates: keep your existing mods/configs/driftkings settings.\n'
                     'No game files were installed by this build.\n') % (version, channel, game_version)
     distribution['INSTALL.txt'] = instructions.encode('utf-8')
@@ -743,13 +773,11 @@ def _build(args, stack):
                                for p in artifact_files(out)}
         write_json(record / 'build-report.json', report)
         if not development:
-            # Release directories keep their report beside the artifacts for existing consumers.
+            # The run output is the working release distribution. It stays staging until it is signed and stamped;
+            # promote_run copies it, once, into build/releases.
             write_json(out / 'build-report.json', report)
             write_checksums(out)
             verify_checksums(out)
-            # The single promotion: a verified run is copied to the canonical release folder, never moved.
-            with scope.suspended():
-                publish_release(root, out, canonical)
         write_json(record / 'state.json', dict(status='complete', publishable=False,
                                                completed=datetime.now(timezone.utc).isoformat()))
         print('Build complete: run=%s target=%s mode=%s' % (stamp, target['name'], args.mode), flush=True)
@@ -757,8 +785,8 @@ def _build(args, stack):
         print('  output:   ' + str(out), flush=True)
         print('  evidence: ' + str(record), flush=True)
         if canonical:
-            print('  release:  ' + str(canonical), flush=True)
-        return canonical if canonical else out
+            print('  staging:  release output is not frozen; sign, stamp, then --promote-run', flush=True)
+        return out
     except Exception as error:
         report['seconds'] = round(time.monotonic() - started, 3)
         record_failure(scope, report, error, write_json)
@@ -784,6 +812,8 @@ def argument_parser():
     parser.add_argument('--retain-runs', action='store_true',
                         help='Preview build/runs retention; performs no build. Add --apply to delete eligible runs')
     parser.add_argument('--apply', action='store_true', help='With --retain-runs: delete the eligible paths')
+    parser.add_argument('--promote-run', type=Path,
+                        help='Promote a stamped and signed release run into build/releases; performs no build')
     for key in TOOL_KEYS:
         if key != 'game_root':
             parser.add_argument('--' + key.replace('_', '-'), dest=key)
@@ -795,6 +825,12 @@ def main():
     args = parser.parse_args()
     if args.apply and not args.retain_runs:
         parser.error('--apply requires --retain-runs')
+    if args.promote_run:
+        try:
+            print('Promoted: ' + str(promote_run(ROOT, args.promote_run)))
+        except (ValueError, OSError, KeyError) as error:
+            parser.exit(1, 'Promotion stopped: %s\n' % error)
+        return
     if args.retain_runs:
         from build_tools.run_retention import run_retention
         try:

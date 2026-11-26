@@ -162,6 +162,10 @@ class FakeContext(object):
     def viewer(self):
         return 'maintainer'
 
+    def promote(self, folder, stable):
+        self.promoted = getattr(self, 'promoted', []) + [folder]
+        return folder
+
 
 class PreflightCase(unittest.TestCase):
     def setUp(self):
@@ -429,7 +433,7 @@ class StableBuildCase(PreflightCase):
         self.manifest = dict(version=STABLE, channel='stable', sha256='d' * 64, changelog=['Stable'])
         self.command = ['gh', 'release', 'create', 'v' + STABLE]
         self.digest = promotion.artifacts_digest(self.folder)
-        self.context.gate['workflow_runs'][0]['display_title'] = promotion.gate_title(BETA, STABLE_COMMIT, self.digest)
+        self.context.gate['workflow_runs'][0]['display_title'] = promotion.gate_title(BETA, STABLE_COMMIT, promotion.artifacts_digest_full(self.folder))
         for name, value in (('prepare', self.prepared), ('stable_folder', lambda stable: self.folder)):
             patcher = patch.object(promotion, name, value)
             patcher.start()
@@ -926,7 +930,8 @@ class GitHubCommandTests(unittest.TestCase):
 
             def run(command, **options):
                 commands.append(' '.join(str(part) for part in command))
-                return subprocess.CompletedProcess(command, 1 if command[0] == 'git' else 0)
+                stdout = '  output:   /runs/r/output\n' if 'compiler.py' in ' '.join(map(str, command)) else None
+                return subprocess.CompletedProcess(command, 1 if command[0] == 'git' else 0, stdout=stdout)
 
             with patch.object(promotion.subprocess, 'run', side_effect=run), \
                     patch.object(promotion, 'sign_folder') as sign:

@@ -72,3 +72,32 @@ def require_publishable(report, signed, validation_ok, approved):
     state = classify(report, signed, validation_ok, approved)
     require(state == PUBLISHABLE, 'Publication blocked: state is %s' % state)
     return state
+
+
+# Candidate lifecycle. Two states only matter for mutation:
+#   STAGING: the working release distribution in a run output. Its inventory may be rebuilt or extended (an installer
+#            is attached here). A SHA256SUMS.txt on disk does NOT freeze it.
+#   FROZEN:  the candidate was stamped by `promote_release.py build` and/or signed (`release.json.sig`). Its bytes are
+#            immutable; no installer, report or checksum may change, and only the explicit promotion copies it.
+# INCOMPLETE means the staging inventory does not exist yet.
+CANDIDATE_INCOMPLETE = 'INCOMPLETE'
+CANDIDATE_STAGING = 'STAGING'
+CANDIDATE_FROZEN = 'FROZEN'
+FREEZE_MARKERS = ('release.json.sig', '.promotion-build.json', '.official-build-attestation.json')
+
+
+def candidate_state(folder):
+    from pathlib import Path
+    folder = Path(folder)
+    if any((folder / name).is_file() for name in FREEZE_MARKERS):
+        return CANDIDATE_FROZEN
+    if (folder / 'release.json').is_file() and (folder / 'SHA256SUMS.txt').is_file():
+        return CANDIDATE_STAGING
+    return CANDIDATE_INCOMPLETE
+
+
+def require_mutable(folder):
+    state = candidate_state(folder)
+    require(state != CANDIDATE_FROZEN,
+            'The candidate is frozen (stamped or signed) and cannot change; attach installers while it is staging')
+    return state

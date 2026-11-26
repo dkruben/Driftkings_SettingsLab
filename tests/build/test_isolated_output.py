@@ -267,11 +267,11 @@ class IsolatedOutputTests(unittest.TestCase):
                     if isolated:
                         self.assertTrue(output.is_relative_to(root/'build/runs'))
                     elif mode == 'release':
-                        self.assertEqual(output,root/config['package']['release_root']/channel/('0.1.8-beta.4' if channel=='beta' else '0.1.8'))
+                        self.assertTrue(output.is_relative_to(root/'build/runs'))
                     else:
                         self.assertTrue(output.is_relative_to(root/'build/runs'))
                 # Only a successful release promotes into build/releases; development never publishes.
-                self.assertEqual(publish.call_count, 1 if (mode == 'release' and not failure) else 0)
+                self.assertEqual(publish.call_count, 0)  # the run output stages; promotion is a separate, explicit step
                 if not isolated and not failure:
                     run = next((root / 'build/runs').iterdir())
                     self.assertEqual(sorted(p.name for p in run.iterdir()), ['evidence', 'output', 'workspace'])

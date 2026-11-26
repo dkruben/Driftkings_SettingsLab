@@ -43,6 +43,9 @@ STABLE_BRANCH = 'main'
 GATE_WORKFLOW = 'promotion-gate.yml'
 GATE_JOB = 'Environment approval'
 GATE_ENVIRONMENT = 'stable-release'
+# Beta approvals created before complete digests were required keep their abbreviated titles, and only these
+# historical versions may still be matched that way. Every new approval binds the complete SHA-256.
+LEGACY_BETA_VERSIONS = frozenset(('0.1.7-beta.2',))
 PROVENANCE = 'promotion.json'
 BUILD_STAMP = '.promotion-build.json'
 RELEASE_DATA = 'build_data/release.json'
@@ -93,15 +96,26 @@ class Context(object):
         require(subprocess.run(['git', 'ls-files', '--error-unmatch', str(key)], cwd=ROOT,
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0,
                 'The signing key is tracked by git; stop and rotate it')
-        subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--mode', 'release',
-                        '--target', target, '--version', stable, '--channel', 'stable'], cwd=ROOT, check=True)
-        folder = stable_folder(stable)
+        # The run output is the working distribution: it gets the installer and Setup ZIP, is signed, and only then
+        # is stamped and promoted. Nothing is written to build/releases here.
+        built = subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--mode', 'release',
+                                '--target', target, '--version', stable, '--channel', 'stable'],
+                               cwd=ROOT, check=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
+        match = re.search(r'(?m)^  output:\s+(.+)$', built)
+        require(match is not None, 'The compiler did not report its run output')
+        folder = Path(match.group(1).strip())
         subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/build_installer.py'), '--artifacts', str(folder),
                         '--compile', '--attach-to-release'], cwd=ROOT, check=True)
         sign_folder(folder, key)
         subprocess.run([sys.executable, '-B', str(ROOT / 'tests/run_python.py'), '--suite', 'artifacts',
                         '--wotmod', str(folder / 'driftkings.wotmod')], cwd=ROOT, check=True)
         return folder
+
+    def promote(self, folder, stable):
+        """Copy the frozen run output into build/releases; the compiler refuses unless it is stamped and signed."""
+        subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--promote-run',
+                        str(folder.parent)], cwd=ROOT, check=True)
+        return stable_folder(stable)
 
     def create_draft(self, command, files, manifest):
         create_release(command + ['--draft'], files, manifest)
@@ -510,8 +524,11 @@ def find_gate(context, beta, commit, digest, waive, title=None, direct=False):
     """
     data = context.query('repos/%s/actions/workflows/%s/runs?event=workflow_dispatch&status=success&per_page=100'
                          % (context.repository, GATE_WORKFLOW), True)
+    titles = {title or gate_title(beta, commit, digest)}
+    if not direct and beta in LEGACY_BETA_VERSIONS:
+        titles.add(gate_title(beta, commit, digest))
     runs = [run for run in (data or {}).get('workflow_runs', [])
-            if run['display_title'] == (title or gate_title(beta, commit, digest)) and run['head_branch'] == STABLE_BRANCH]
+            if run['display_title'] in titles and run['head_branch'] == STABLE_BRANCH]
     reviewers = []
     if runs:
         run = max(runs, key=lambda item: item['run_number'])
@@ -618,6 +635,8 @@ def run_check(context, args):
     direct = bool(getattr(args, 'stable', None))
     # Abbreviated digests are for lookup and display only; the direct route compares complete digests.
     width = 64 if direct else 16
+    if not direct and args.beta not in LEGACY_BETA_VERSIONS:
+        width = 64
     require(args.digest is None or re.match(r'\A[0-9a-f]{%d}\Z' % width, args.digest),
             'Invalid artifacts digest: expected %d lowercase hex digits' % width)
     commit = context.git('rev-parse', '--verify', args.commit + '^{commit}')
@@ -637,7 +656,8 @@ def run_build(context, args):
     require_clean_checkout(context, commit)
     verify_stable_folder(context, folder, state)
     write_build_stamp(folder, commit)
-    print('Built, signed and verified %s; nothing was uploaded.' % folder)
+    promoted = context.promote(folder, state['identity']['stable'])
+    print('Built, signed and verified in the run %s; promoted to %s. Nothing was uploaded.' % (folder.parent, promoted))
     print('Commit %s, artifacts digest %s; request the approval with these exact values.'
           % (commit, artifacts_digest(folder)))
     if getattr(args, 'stable', None):
@@ -668,7 +688,8 @@ def run_publish(context, args):
         gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review, title=title,
                          direct=True)
     else:
-        gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review)
+        title = gate_title(args.beta, commit, artifacts_digest_full(folder))
+        gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review, title=title)
     write_json(folder / PROVENANCE, provenance(context, state, gate, folder, context.viewer()))
     files = files + [folder / PROVENANCE]
     token = '%s@%s' % (identity['tag'], digest)

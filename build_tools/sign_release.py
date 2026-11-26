@@ -21,7 +21,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from build_tools.publication_state import require_signable  # noqa: E402
 MODULE = ROOT / 'mod/res/scripts/client/driftkings/core/updater/signature.py'
-LOCAL_REPORT_FIELDS = ('tools', 'logs')
+# Machine-specific fields written by the compiler (paths on the build host). Without scrubbing them the published
+# report would carry local paths and the publisher would refuse it.
+LOCAL_REPORT_FIELDS = ('tools', 'logs', 'workspace', 'output', 'evidence', 'wotmod', 'canonical')
+INVENTORY_SIGNATURE = 'SHA256SUMS.txt.sig'
 
 
 def load_signature():
@@ -70,6 +73,14 @@ def sign_folder(folder, key_file, module=None):
         raise SystemExit('Self-check failed; signature not written')
     output = Path(folder) / module.SIGNATURE_ASSET
     output.write_bytes(base64.b64encode(signature) + b'\n')
+    # Detached inventory signature: covers the checksum list, which lists every artifact except the signature files,
+    # so no signature covers itself and nothing is circular.
+    if (Path(folder) / 'SHA256SUMS.txt').is_file():
+        inventory = (Path(folder) / 'SHA256SUMS.txt').read_bytes()
+        inventory_signature = module.sign(seed, inventory)
+        if not module.verify(public, inventory, inventory_signature):
+            raise SystemExit('Self-check failed; inventory signature not written')
+        (Path(folder) / INVENTORY_SIGNATURE).write_bytes(base64.b64encode(inventory_signature) + b'\n')
     return output, binascii.hexlify(public).decode('ascii')
 
 
