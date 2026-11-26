@@ -208,3 +208,61 @@ class AccountSettingsPageTests(RuntimeTest):
         self.assertEqual(right, [])
         page.onButtonPress(None, None)
         self.assertEqual(opened, [True])
+
+
+class AccountStorageSecurityTests(RuntimeTest):
+    """Synthetic credentials only. The fake protection function is a marker, not encryption."""
+
+    def setUp(self):
+        super(AccountStorageSecurityTests, self).setUp()
+        self.directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.directory)
+        self.path = os.path.join(self.directory, 'driftkings', 'accounts.manager')
+
+    def protected_api(self, marker):
+        api = component(self, self.directory)
+        api['BigWorld'].wg_cpdata = lambda value: b'PROTECTED:' + marker + b':' + value
+        api['BigWorld'].wg_ucpdata = lambda value: value.split(b':', 2)[2]
+        return api
+
+    def test_saved_file_is_written_through_the_protection_function_only(self):
+        api = self.protected_api(b'T')
+        store = api['UserAccounts']()
+        store.accounts = [dict(id='one', title='Synthetic', email='synthetic@example.test',
+                               password='synthetic-secret', cluster=0)]
+        self.assertTrue(store.write_accounts())
+        with open(self.path, 'rb') as stream:
+            on_disk = stream.read()
+        self.assertTrue(on_disk.startswith(b'PROTECTED:T:'))
+        for secret in (b'synthetic@example.test', b'synthetic-secret'):
+            self.assertNotIn(secret, on_disk)
+
+    def test_plain_json_fallback_is_read_but_never_rewritten_as_plaintext(self):
+        api = component(self, self.directory)
+        def refuse(raw):
+            raise ValueError('synthetic decode failure')
+        api['BigWorld'].wg_ucpdata = refuse
+        api['BigWorld'].wg_cpdata = lambda value: b'PROTECTED:' + value
+        os.makedirs(os.path.dirname(self.path))
+        with open(self.path, 'wb') as stream:
+            stream.write(json.dumps([dict(id='one', title='Synthetic', email='synthetic@example.test',
+                                          password='synthetic-secret', cluster=0)]).encode('utf-8'))
+        store = api['UserAccounts']()
+        self.assertFalse(store.read_error)
+        self.assertTrue(store.write_accounts())
+        with open(self.path, 'rb') as stream:
+            on_disk = stream.read()
+        self.assertTrue(on_disk.startswith(b'PROTECTED:'))
+        self.assertNotIn(b'synthetic-secret', on_disk)
+
+    def test_delete_removes_the_record_and_leaves_no_backup_file(self):
+        api = self.protected_api(b'D')
+        store = api['UserAccounts']()
+        store.accounts = [dict(id='one', title='A', email='a@example.test', password='pw-a', cluster=0),
+                          dict(id='two', title='B', email='b@example.test', password='pw-b', cluster=0)]
+        self.assertTrue(store.write_accounts())
+        service = api['AccountService'](store, lambda value: value, lambda value: value,
+                                        lambda: [('auto', 'Automatic', 0, None)], '')
+        service.delete('one')
+        self.assertEqual([item['id'] for item in api['UserAccounts']().accounts], ['two'])
+        self.assertFalse(os.path.exists(self.path + '.previous'))

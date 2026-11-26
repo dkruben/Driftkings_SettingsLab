@@ -242,9 +242,52 @@ New explicit confirmation from Wargaming moderation, supplied by the project own
 - **Phase 8 is complete.** No runtime code, compilation, automated test or push was performed in this phase.
 
 
-#### Pending security review
+#### Account Manager security review (Phase 9, complete, owner-accepted, 2026-11-26)
 
-- **Account manager plaintext fallback (review required, not changed in Phase 7).** `components/account_manager.py` reads `accounts.manager` as plain JSON when the protected decode fails (`renew_accounts`), so a file that is not protected is accepted and its passwords are used. Writes are always protected. Decide whether the fallback is needed and whether to refuse it, before public distribution.
+Method: code reading of `components/account_manager.py`, `core/accounts.py`, `gameface/lobby/account_manager.py`, `common/utils/filesystem.py`, the existing lobby tests, and the decompiled client's own use of `BigWorld.wg_cpdata` (`WoT_Tools/wot-src-EU`: `gui/login/Preferences.py`, `helpers/local_cache.py`). No real account file, password or credential was accessed; tests use synthetic values only.
+
+**Verified storage behaviour**
+
+- The file `accounts.manager` is `wg_cpdata(base64(zlib(JSON)))`. Each record's `email` and `password` are additionally passed through `wg_cpdata` individually (`core/accounts.py`, `save`). Writes therefore never produce a plaintext account file.
+- Reading: `wg_ucpdata` is tried first. If it fails, the file is parsed as plain JSON, and only the exception type name is logged (debug level). If that also fails, `read_error` is set and every write is blocked, so the existing file is preserved.
+- The fallback affects reading only. No code path writes plaintext. Writes are guarded by `read_error` and roll back the in-memory list if the file write fails.
+- Strength of `wg_cpdata`: the engine's implementation is not in the local references. The game uses the same call for its own login preferences (`cryptLoginInfo`) and cache files, which indicates a protection layer, not an authenticated encryption scheme. Its strength and key scope are **unverified**. The UI text therefore says "protected with the game client's credential protection. This is not a guarantee of encryption."
+- Logs: no code logs an e-mail or password. Exception messages in the Gameface handler are replaced with a generic label, and the `LOG.exception` traceback names the failing step only (`gameface/lobby/account_manager.py`).
+- Analytics: the analytics modules do not reference the account store or its fields.
+- Gameface: the password leaves the store only on an explicit "reveal" request, and is then carried in that window's view-model payload until cancel, save or close. The payload stays in the client process.
+- Migration: no conversion of existing files is performed. Records are read as stored and rewritten, protected, on the next successful save. A failed read never overwrites the file.
+- Deletion: a delete rewrites the file without the record through `atomicWrite`. `replace_file` removes the `.previous` backup after a successful replace, so no backup of the deleted record remains. This does not guarantee physical erasure on the disk.
+
+**Findings and severity**
+
+| # | Finding | Severity | Practical impact |
+|---|---|---|---|
+| 1 | Protection strength of `wg_cpdata` unverified | Medium (unknown) | If the layer is weak, a local user with access to the preferences folder could recover the stored passwords. The wording makes no encryption claim. |
+| 2 | Plain-JSON fallback accepted silently at read time | Low | Only a file that was never written by the protected path reaches this branch. Its records are used as stored, and the next save protects them. No plaintext is written by Driftkings. |
+| 3 | Revealed password stays in the window payload until cancel, save or close | Low | In-process only; requested by the player. |
+| 4 | Deletion does not guarantee physical erasure | Low | Standard filesystem behaviour. |
+
+No finding shows a plaintext write, a credential in logs, or a transmission of credentials to analytics or a third party.
+
+**Corrections**
+
+- No runtime code was changed. None of the findings requires a correction that is small and clearly justified. Removing the fallback would make any legacy file unreadable, and the repository does not show whether such files exist.
+- Tests added (`tests/runtime/lobby/test_account_manager.py`, class `AccountStorageSecurityTests`): protected writes go only through the protection function; a plain-JSON read is not rewritten as plaintext; deletion removes only the chosen record and leaves no backup.
+
+**Owner decisions needed (not implemented)**
+
+- Whether to migrate a fallback-read file to the protected format immediately, and whether to tell the player when that happens. This needs new text in 18 catalogues and a startup write.
+- Whether to tell the player when protected storage is unavailable at read time, not only at save time.
+
+**Owner decisions (accepted 2026-11-26):** preserve the current Account Manager implementation; preserve the native `BigWorld.wg_cpdata` protection; preserve the legacy JSON read fallback; no automatic migration on startup; no Windows DPAPI; no additional executables or dependencies; no redesign of credential storage. No claim of verified cryptographic strength is made.
+
+**Verified in this review:** the legacy JSON fallback is read-only, and nothing is written in plaintext. No plaintext write path was identified. No credential is logged or transmitted to analytics. Failures are safe: a read failure blocks writes and preserves the original file, and a save failure rolls back the in-memory records. Focused lobby runtime suite: 125 tests passed, including the three synthetic-credential contracts added in this phase.
+
+**Remaining limitations (not confirmed vulnerabilities):**
+
+- The protection strength of `wg_cpdata` has not been verified in the engine; this is the main residual risk.
+- The fallback has no documented origin in this repository, so its legacy use is unknown.
+- Physical erasure on delete is not guaranteed.
 
 ### Other pending work
 
@@ -254,7 +297,7 @@ New explicit confirmation from Wargaming moderation, supplied by the project own
 - Restoration of the live NA client, only when the owner authorises it.
 - Owner decision on legacy directories with unique material: `build/debug/beta/0.1.7-beta.2` (unreferenced WOTMOD `f1735c37…`), `build/previous/` (WOTMOD `7b64e5e0…`, see `CT_COMPATIBILITY.md`), `build/installer/` (0.1.7-beta.2 Setup `a490ab1a…`), `build/experiments/`.
 - Correction of existing visual defects, with focused and impact-proportional validation.
-- Account-manager plaintext fallback security review (see its section above).
+- Account Manager: no further work is planned. The native `wg_cpdata` protection strength remains an unverified limitation (see the Phase 9 review above).
 - Native review of the translated moderation descriptions in all 18 catalogues.
 - Standard WGMods moderation review before public distribution, and the official WGMods listing URL (not supplied).
 
