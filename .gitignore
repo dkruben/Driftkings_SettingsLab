@@ -124,3 +124,4 @@ htmlcov/
 
 # Flash libraries extracted from the installed NA client: rights not verified, never commit (see build_tools/acquire_flash_inputs.py)
 flash_source/shared/swc/na999-*.swc
+flash_source/shared/swc/na1010-*.swc

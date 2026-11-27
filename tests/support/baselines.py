@@ -115,6 +115,13 @@ PHASE431_TARGETS = {
 }
 
 
+# Reviewed NA #1010 update (0.1.8-beta.6, owner-authorized): the NA target is renamed from na999 to na1010;
+# the other targets are unchanged. PHASE431_TARGETS above remains the historical Phase 4.3.1 record.
+CURRENT_TARGETS = {"na1010": {"realm": "NA", "build": "1010"},
+                   "eu1000": {"realm": "EU", "build": "1000"},
+                   "ct995": {"realm": "CT", "build": "995"},
+                   "ct996": {"realm": "CT", "build": "996"}}
+
 def phase2_prior_build_config(current):
     """Reverse only the intentional Phase 2 contract changes for historical comparisons."""
     assert current['game'].pop('development_realms') == ['CT']
@@ -123,7 +130,7 @@ def phase2_prior_build_config(current):
     current['reference'].pop('production_clients')
     current['reference'].pop('production_profiles')
     # Phase 4.3.1 adds exactly this reviewed target table and legacy CT label binding; any other change still fails.
-    assert current.pop('targets') == PHASE431_TARGETS
+    assert current.pop('targets') == CURRENT_TARGETS
     assert current['reference'].pop('legacy_ct_build') == '996'
     # Retired physical output paths (Phase 6.3) are restored with their historical values for this comparison only.
     current['package']['output'] = 'build/unified/driftkings.wotmod'

@@ -168,7 +168,7 @@ class DirectCommandTests(StableBuildCase):
         promotion.write_build_stamp(self.folder, STABLE_COMMIT)
 
     def arguments(self, record_path, **options):
-        values = dict(beta=None, stable=STABLE, record=record_path, target='na999', key=Path('offline.key'),
+        values = dict(beta=None, stable=STABLE, record=record_path, target='na1010', key=Path('offline.key'),
                       commit=None, confirm=None, waive_environment_review=False)
         values.update(options)
         return types.SimpleNamespace(**values)
@@ -187,7 +187,7 @@ class DirectCommandTests(StableBuildCase):
         record = self.write_record(direct_record(package='d' * 64))
         with patch.object(promotion, 'print_results'), patch('builtins.print'):
             promotion.run_build(self.context, self.arguments(record))
-        compile_action.assert_called_once_with(STABLE, Path('offline.key'), 'na999')
+        compile_action.assert_called_once_with(STABLE, Path('offline.key'), 'na1010')
         self.assertFalse([path for path in self.context.queried if 'beta' in path.lower()])
 
     def test_publication_without_approval_is_refused(self):
@@ -213,20 +213,20 @@ class DirectCommandTests(StableBuildCase):
 
     def test_a_publish_target_must_match_the_report_client(self):
         self.report['source_client'] = dict(realm='EU', build='1000', revision='2664941')
-        with self.assertRaisesRegex(ValueError, 'another client than na999'):
-            promotion.require_target_identity(self.report, 'na999')
-        promotion.require_target_identity(dict(self.report, source_client=dict(realm='NA', build='999',
-                                                                              revision='2664941')), 'na999')
+        with self.assertRaisesRegex(ValueError, 'another client than na1010'):
+            promotion.require_target_identity(self.report, 'na1010')
+        promotion.require_target_identity(dict(self.report, source_client=dict(realm='NA', build='1010',
+                                                                              revision='2671446')), 'na1010')
 
     def test_historical_reports_without_a_target_still_pass(self):
-        promotion.require_target_identity(self.report, 'na999')
+        promotion.require_target_identity(self.report, 'na1010')
 
     def test_initial_build_needs_no_record_and_no_candidate_digest(self):
         self.context.compile = Mock(return_value=self.folder)
         self.context.git = lambda *args: STABLE_COMMIT if args[0] == 'rev-parse' else ''
         with patch.object(promotion, 'print_results'), patch('builtins.print'):
             promotion.run_build(self.context, self.arguments(None))
-        self.context.compile.assert_called_once_with(STABLE, Path('offline.key'), 'na999')
+        self.context.compile.assert_called_once_with(STABLE, Path('offline.key'), 'na1010')
 
     def test_publication_requires_the_record_and_binds_it_to_the_built_digest(self):
         self.context.git = lambda *args: STABLE_COMMIT if args[0] == 'rev-parse' else ''

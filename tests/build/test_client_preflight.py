@@ -200,7 +200,7 @@ class ClientPreflightTests(unittest.TestCase):
 
         validate_targets(self.config)
         drifted = json.loads(json.dumps(self.config))
-        drifted['targets']['na999']['build'] = '998'
+        drifted['targets']['na1010']['build'] = '998'
         with self.assertRaisesRegex(ValueError, 'does not match the pinned NA client build'):
             validate_targets(drifted)
 

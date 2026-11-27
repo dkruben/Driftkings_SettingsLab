@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "1010",
+  "feature": "DriftkingsProfileRatings",
+  "resource": "gui/gameface/_dist/production/lobby/achievements/AchievementsMainView/AchievementsMainView.html",
+  "source_sha256": "5ea072321acd0a615f789c35122b89c401eedc94d559b9e2814471a21209a870",
+  "output_sha256": "bb1d93f64d58eddd0215f0168f1751b9d4f6ba55bd857526cd150c1a5b38bc29",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/profile_ratings/ratings.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

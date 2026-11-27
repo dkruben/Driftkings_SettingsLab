@@ -6,7 +6,7 @@
     "development_realms": ["CT"]
   },
   "targets": {
-    "na999": {"realm": "NA", "build": "999"},
+    "na1010": {"realm": "NA", "build": "1010"},
     "eu1000": {"realm": "EU", "build": "1000"},
     "ct995": {"realm": "CT", "build": "995"},
     "ct996": {"realm": "CT", "build": "996"}
@@ -16,20 +16,62 @@
     "legacy_ct_build": "996",
     "ct_builds": {"995": "2655094", "996": "2660091"},
     "production_clients": {
-      "NA": {"build": "999", "revision": "2664941", "snapshot": "2.4.2.5523"},
+      "NA": {"build": "1010", "revision": "2671446", "snapshot": "2.4.2.5537"},
       "EU": {"build": "1000", "revision": "2664941", "snapshot": "2.4.2.5524"},
       "ASIA": {"build": "998", "revision": "2664941", "snapshot": "2.4.2.5526"},
       "CN": {"build": "997", "revision": "2664941", "snapshot": "2.4.2.5525"}
     },
     "production_profiles": {
       "NA": {
-        "pinned_identity": {"realm": "NA", "build": "999", "revision": "2664941", "snapshot": "2.4.2.5523"},
+        "pinned_identity": {"realm": "NA", "build": "1010", "revision": "2671446", "snapshot": "2.4.2.5537"},
+        "realm_evidence": {
+          "NA": "docs/releases/0.1.8-beta.6-na1010-inputs.md",
+          "EU": "docs/releases/0.1.7-beta.2-eu1000-owner-waiver.md"
+        },
+        "reference_sha256": {
+          "sources/version.xml": "39f35278a0f7b793e3c6d3114bcebd3d5f53bcb274f6e8b8cd8edc3d32f2ffc7",
+          "sources/paths.xml": "aaa4dde1e95a238461911ea937499372b79de97973b65e6657944e3368a9bf7b",
+          "sources/res/scripts/client/gui/impl/lobby/page/lobby_footer.py": "682b4b179e25fc5d4ec3721a9abc1df59967480dbd49644659f87abd64c25979",
+          "sources/res/scripts/client/frameworks/wulf/view/view.py": "d28b6c1d7854bcd1028d86f771581031804824afb63c7a35e5e251af99ac76d1",
+          "sources/res/scripts/client/gui/impl/pub/view_component.py": "84864a883568ff99920504f2d8d860fc6235219962b81005bfff69855c3efd91",
+          "sources/res/scripts/client/gui/impl/battle/random/hud.py": "fb3c3ac5bcb640b6ba829693da2aebb55b0799322537d97260c2f8cb12565c51",
+          "sources/res/scripts/client/gui/impl/lobby/hangar/random/random_hangar.py": "18858f9afe01d860fa496ced069e8e02a9a8474fbe882585094fbeaab67174af",
+          "sources/res/scripts/client/gui/impl/lobby/hangar/presenters/user_missions_presenter.py": "36cb59f013754d940f51ea43935fe8e2152fe2e1241ccab21bd52fe8e2581113",
+          "sources/res/scripts/client/gui/Scaleform/daapi/view/meta/PlayersPanelMeta.py": "12be6a0011934433900e4c687f5836c2bd578b2b5e4822050c68cb6a15440422",
+          "sources/res/scripts/client/gui/Scaleform/framework/package_layout.py": "d0826d8514107d723037006e65cc3d94835e9ee9722d51a405d358e9cd34e35a"
+        },
+        "generators": {
+          "carousel_bridge": "build_data/patches/production/carousel_bridge.na1010.json",
+          "crew_barracks_bridge": "build_data/patches/production/crew_barracks_bridge.na1010.json",
+          "crew_tooltip_bridge": "build_data/patches/production/crew_tooltip_bridge.na1010.json",
+          "battleinfo_native": "build_data/patches/production/battleinfo_native.na1010.json",
+          "native_document_footerlauncher_0": "build_data/patches/production/native_document_footerlauncher_0.na1010.json",
+          "native_document_profileratings_0": "build_data/patches/production/native_document_profileratings_0.na1010.json",
+          "native_document_crewdetails_0": "build_data/patches/production/native_document_crewdetails_0.na1010.json",
+          "native_document_crewdetails_1": "build_data/patches/production/native_document_crewdetails_1.na1010.json",
+          "native_document_crewdetails_2": "build_data/patches/production/native_document_crewdetails_2.na1010.json",
+          "native_document_crewdetails_3": "build_data/patches/production/native_document_crewdetails_3.na1010.json",
+          "native_document_hangarheaderoptions_0": "build_data/patches/production/native_document_hangarheaderoptions_0.na1010.json",
+          "native_document_marksonguntechtree_0": "build_data/patches/production/native_document_marksonguntechtree_0.na1010.json",
+          "native_document_ratingplayers_0": "build_data/patches/production/native_document_ratingplayers_0.na1010.json",
+          "battle_flash": "flash_source/shared/swc/manifest.na1010.json",
+          "panels_flash": "flash_source/shared/swc/manifest.na1010.json",
+          "vehicle_markers_flash": "flash_source/vehicle_markers/native-lock.na1010.json"
+        }
+      },
+      "EU": {
+        "pinned_identity": {
+          "realm": "NA",
+          "build": "999",
+          "revision": "2664941",
+          "snapshot": "2.4.2.5523"
+        },
         "realm_evidence": {
           "NA": "docs/releases/0.1.7-beta.2-na999-inputs.md",
           "EU": "docs/releases/0.1.7-beta.2-eu1000-owner-waiver.md"
         },
         "reference_sha256": {
-          "sources/version.xml": "227001d2e9270b54ecb7036a7d90c604326a9a63a747cf601b4e4a15c3e339c9",
+          "sources/version.xml": "21e0f4a5c112b399e8dfee0abcc7b8687e93576b1878d00562419f2251578cc7",
           "sources/paths.xml": "aaa4dde1e95a238461911ea937499372b79de97973b65e6657944e3368a9bf7b",
           "sources/res/scripts/client/gui/impl/lobby/page/lobby_footer.py": "682b4b179e25fc5d4ec3721a9abc1df59967480dbd49644659f87abd64c25979",
           "sources/res/scripts/client/frameworks/wulf/view/view.py": "d28b6c1d7854bcd1028d86f771581031804824afb63c7a35e5e251af99ac76d1",
@@ -57,10 +99,7 @@
           "battle_flash": "flash_source/shared/swc/manifest.na999.json",
           "panels_flash": "flash_source/shared/swc/manifest.na999.json",
           "vehicle_markers_flash": "flash_source/vehicle_markers/native-lock.na999.json"
-        }
-      },
-      "EU": {
-        "alias_of": "NA",
+        },
         "reference_python_lf": [
           "sources/res/scripts/client/gui/impl/lobby/page/lobby_footer.py",
           "sources/res/scripts/client/frameworks/wulf/view/view.py",
@@ -70,10 +109,7 @@
           "sources/res/scripts/client/gui/impl/lobby/hangar/presenters/user_missions_presenter.py",
           "sources/res/scripts/client/gui/Scaleform/daapi/view/meta/PlayersPanelMeta.py",
           "sources/res/scripts/client/gui/Scaleform/framework/package_layout.py"
-        ],
-        "reference_sha256_overrides": {
-          "sources/version.xml": "21e0f4a5c112b399e8dfee0abcc7b8687e93576b1878d00562419f2251578cc7"
-        }
+        ]
       }
     },
     "read_only": true

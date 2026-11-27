@@ -21,9 +21,10 @@ class ProductionReadinessTests(unittest.TestCase):
         return source_client(self.root, self.config)
 
     def test_identity_distinguishes_client_builds_and_revisions(self):
-        for realm, build in [('NA', '999'), ('ASIA', '998'), ('CN', '997')]:
-            identity = self.identify(realm, 'v.2.4.2.0 #' + build, '2664941')
-            self.assertEqual(identity, dict(realm=realm, build=build, revision='2664941'))
+        for realm, build in [('NA', '1010'), ('ASIA', '998'), ('CN', '997')]:
+            revision = '2671446' if realm == 'NA' else '2664941'
+            identity = self.identify(realm, 'v.2.4.2.0 #' + build, revision)
+            self.assertEqual(identity, dict(realm=realm, build=build, revision=revision))
             with self.assertRaisesRegex(ValueError, 'version/build/revision mismatch'):
                 self.identify(realm, 'v.2.4.2.0 #' + build, '2660091')
         # The outdated EU client (2.4.1.1 #993) is refused by its version, not by a missing pin.
@@ -36,7 +37,7 @@ class ProductionReadinessTests(unittest.TestCase):
             production_profile(self.root, self.config, identity)
 
     def test_unreviewed_profile_is_blocked_and_realms_use_profile_evidence(self):
-        identity = self.identify('NA', 'v.2.4.2.0 #999', '2664941')
+        identity = self.identify('NA', 'v.2.4.2.0 #1010', '2671446')
         self.config['reference']['production_profiles'].pop('NA')
         with self.assertRaisesRegex(ValueError, 'Production resources are not verified'):
             production_profile(self.root, self.config, identity)
@@ -68,7 +69,8 @@ class ProductionReadinessTests(unittest.TestCase):
 
     def test_asia_and_cn_stay_unverified_without_their_own_profiles(self):
         for realm, build in [('ASIA', '998'), ('CN', '997')]:
-            identity = self.identify(realm, 'v.2.4.2.0 #' + build, '2664941')
+            revision = '2671446' if realm == 'NA' else '2664941'
+            identity = self.identify(realm, 'v.2.4.2.0 #' + build, revision)
             with self.assertRaisesRegex(ValueError, 'Production resources are not verified'):
                 production_profile(ROOT, self.config, identity)
 

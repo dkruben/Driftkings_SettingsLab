@@ -228,7 +228,7 @@ class GeneratorTests(unittest.TestCase):
         (artifacts / 'modpack.json').write_text(json.dumps(modpack))
         inputs = {path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                   for path in (self.root / 'res/configs/driftkings').rglob('*.json')}
-        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='NA', source_client=dict(realm='NA', build='999', revision='2664941'),
+        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='NA', source_client=dict(realm='NA', build='1010', revision='2671446'),
                                                              runtime_realms=['NA'], inputs=inputs)))
         out = self.root / 'generated'
         generate_components(self.root, out)

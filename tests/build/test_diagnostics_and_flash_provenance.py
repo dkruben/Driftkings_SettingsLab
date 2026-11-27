@@ -74,18 +74,21 @@ class FlashProvenanceManifestTests(unittest.TestCase):
             self.assertIs(item['equals_ct'], False, item['name'])
 
     def test_no_unrelated_binary_is_in_the_swc_folder(self):
-        # Two families live here: the NA 2.4.2.0 libraries (na999-*, this manifest) and the CT libraries
-        # already tracked since 0.1.7-beta.1 (listed by the CT manifest). Anything else is unrelated.
-        listed = set(item['name'] for item in self.manifest['libraries'])
+        # Families live here: the NA 2.4.2.0 libraries of build 999 (na999-*) and build 1010 (na1010-*), and the
+        # CT libraries already tracked since 0.1.7-beta.1 (listed by the CT manifest). Anything else is unrelated.
         ct = set(item['name'] for item in read_json(SWC_DIR / 'manifest.json')['libraries'])
         present = set(path.name for path in SWC_DIR.iterdir() if path.is_file())
-        na = set(name for name in present if name.startswith('na999-'))
-        expected_na = set(listed)  # manifest names already carry the na999- prefix
-        self.assertEqual(sorted(na - expected_na), [], 'unlisted NA files')
-        # The NA binaries are not tracked (D1). A clean checkout has none of them; a partial set is an error.
-        if na:
-            self.assertEqual(sorted(expected_na - na), [], 'partial NA library set')
-        self.assertEqual(sorted(present - na - ct - {'manifest.json', 'manifest.na999.json'}), [],
+        families = {'na999-': set(item['name'] for item in self.manifest['libraries']),
+                    'na1010-': set(item['name'] for item in read_json(SWC_DIR / 'manifest.na1010.json')['libraries'])}
+        na = set()
+        for prefix, expected_na in families.items():
+            family = set(name for name in present if name.startswith(prefix))
+            na |= family
+            self.assertEqual(sorted(family - expected_na), [], 'unlisted NA files: ' + prefix)
+            # The NA binaries are not tracked (D1). A clean checkout has none of them; a partial set is an error.
+            if family:
+                self.assertEqual(sorted(expected_na - family), [], 'partial NA library set: ' + prefix)
+        self.assertEqual(sorted(present - na - ct - {'manifest.json', 'manifest.na999.json', 'manifest.na1010.json'}), [],
                          'unrelated files in the SWC folder')
 
     def test_native_lock_matches_the_manifest_build(self):
