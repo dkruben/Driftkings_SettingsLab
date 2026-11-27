@@ -12,7 +12,7 @@ package driftkings.battle.components.ratings
         private var nextTextID:uint=0;
         // fit: shrink the text (down to MIN_FIT) instead of cutting it when it is wider than the column.
         private static const MIN_FIT:Number=0.65;
-        public function drawText(source:TextField,html:String,x:Number,width:Number,border:Boolean,fit:Boolean=false):void
+        public function drawText(source:TextField,html:String,x:Number,width:Number,border:Boolean,fit:Boolean=false,align:String=null):void
         {
             var parent:DisplayObjectContainer=source.parent;
             if (!parent) return;
@@ -31,7 +31,10 @@ package driftkings.battle.components.ratings
             if (holder.parent!==parent) parent.addChild(holder);
             // Keep the native text and its layout untouched. Client auto-sizing
             // must never measure our longer statistics string on the next draw.
-            field.defaultTextFormat=source.getTextFormat();
+            var format:TextFormat=source.getTextFormat();
+            // Optional alignment: the loading nick hugs the vehicle text on the inner side. Native alignment otherwise.
+            if (align) format.align=align;
+            field.defaultTextFormat=format;
             field.embedFonts=false;
             field.antiAliasType=source.antiAliasType;
             field.multiline=source.multiline; field.wordWrap=source.wordWrap;

@@ -92,7 +92,7 @@ package driftkings.battle.components.ratings
                 // loading screen has closed and no rows are currently requested.
                 reportVisibleScreens();
                 if (payload.rows.length) drawViews();
-                else { panels.restore(); state.restore(); }
+                else { panels.restore(); state.restore(); tables.restoreBackground(); }
             }
             catch(error:Error)
             {

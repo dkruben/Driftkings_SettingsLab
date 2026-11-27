@@ -324,6 +324,34 @@ No finding shows a plaintext write, a credential in logs, or a transmission of c
 
 **Diagnostic:** a temporary in-panel overlay (`FONT_DIAGNOSTIC`) existed only in `0.1.8-beta.4`. Do not reintroduce it in production code; add a separate temporary diagnostic only for a new, specific investigation.
 
+### Battle loading table layout (Phase 10.2: complete with documented limitations)
+
+**Status:** closed with documented limitations, after owner runtime validation of the final development candidate `0.1.8-beta.15`, target `na1010` (NA #1010, client revision `2671446`, reference snapshot `2.4.2.5537`). WOTMOD `build/runs/20261127T215612Z-762d2a26/output/driftkings.wotmod`, SHA-256 `1b0b5803603cdd5b6504121b03e49fbbb1a99a3e4031ba5d4a2bdbb1c02a1d55`. No visual or functional change is authorised within this phase.
+
+**Evidence kinds (kept separate):**
+
+- *Static source contracts:* `tests/runtime/battle/test_loading_layout.py` checks that the renderer source keeps the agreed structure (occupied-bounds placement, shared cursor, named header bindings, background host, TAB isolation, state-only writes). They do not execute ActionScript.
+- *Arithmetic-model tests:* the same file replays selected column and band arithmetic with plain numbers. They confirm arithmetic, not rendering.
+- *Compilation:* `battle_flash` compiled without errors for `0.1.8-beta.15`.
+- *Automated regression suites (this repository, `0.1.8-beta.15`):* runtime 923 passed; build 574 passed and 2 skipped; artifact suite passed with its 2 existing skips; configuration validator exit 0.
+- *Owner-reported runtime validation (manual, NA #1010, in game):* normal beta.15 loading without visual regressions: PASS. Independent extra fields: PASS. Intentional overlay extra fields: PASS. Disabled configurable native elements: PASS. Native interface restoration: PASS. TAB statistic form: PASS. 1920×1080: WAIVED BY OWNER, NOT VERIFIED. Frontline: WAIVED BY OWNER, NOT VERIFIED. Reported failures: 0. Waivers apply to this phase only and do not replace future release validation.
+
+**Dynamic column architecture.** `flash_source/battle/src/driftkings/battle/components/ratings/tablerenderer.as` lays out each side as one cursor walk outward from the shared contour anchor. Present columns (prestige, class, vehicle text, nick, badges, squads) take their shared width plus one gap; disabled columns take no space. Widths come from the effective configuration and formatted content, and are cached with the widths. Every native element is placed by its occupied bounds, not its origin, so mirrored native components are handled. All writes go through `nativestate` (`setValue`, `base`, `restore`), so no offset accumulates. Asynchronous rating statistics use a high-water reservation estimated from the configured format; the estimate is never displayed.
+
+**Extra fields.** A field lying fully inside the contour span is an *intentional overlay*: it keeps its configured position and reserves nothing. A field outside the contour reserves a horizontal band only if it vertically intersects at least one row of its side; the table then expands outward. A field partly over the contour edge is *ambiguous*: it keeps its configured position, is counted in diagnostics as a conflict during development, and is reserved only if it intersects a row. No field is moved, no configuration is rewritten, and no setting was added. Validated by owner runtime (independent and overlay: PASS).
+
+**Native header bindings.** Team headers (`team1Text` ally, `team2Text` enemy) are found by a bounded search of the owner's ancestors. Header icons are bound by explicit name: ally `leftSquad` and `leftTank`; enemy `rightSquad` and `rightTank`. They move with their header by the same delta, from base positions. A missing name is skipped and nothing else is moved. The enemy binding was confirmed by the 21:47 runtime log (`rightTank` and `rightSquad` moved with the enemy header). The ally icon movement was not confirmed by a logged sibling listing, so it is not independently verified.
+
+**Adaptive background.** Two gradient Shapes (one per side) are inserted directly above the native table background in its parent, so they sit below the headers and icons and above the native artwork. Core opacity 65%, outer fade 24 px outside the occupied content, inner fade limited to half the centre gap. The background follows the exterior edge (including independent extra fields) and covers the header row. Redraws happen only when the geometry key changes. The colour is not sampled from native artwork.
+
+**Viewport fallback.** Overflow is measured against the stage limits. If the normal gutter overflows a side, that side is recomputed with a 2 px gutter; the result is deterministic and reversible. No font shrinking, no truncation, and no statistic is hidden. Oversized arbitrary configurations are not guaranteed to fit every viewport; overflow is reported in `layoutOverflow`.
+
+**Native restoration.** `ratingscreens.as` calls `state.restore()` and `tables.restoreBackground()` when the loading view has no rows. Background Shapes are removed from their parent, and cached header and icon references are dropped at the same point.
+
+**Accepted cosmetic limitations.** The native own-player highlight (`selfBgAlly{N}`) keeps its original 325 px width and is not extended to the expanded row; the sprite cannot be widened safely without scaling its artwork. The background colour is not sampled from Wargaming artwork. Header tank icons follow their header; this layout was accepted without separate review.
+
+**Diagnostics removed.** The temporary `loadinggeometry.as` diagnostic, its header-sibling and row-child probes, its test file and its diagnostic-only assertions were removed after runtime evidence was collected. No diagnostic code or string remains in the battle source or the artifact.
+
 ### Other pending work
 
 - Corrected installer compilation and isolated executable validation.
