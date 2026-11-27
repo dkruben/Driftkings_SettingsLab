@@ -7,7 +7,7 @@ import shutil
 import sys
 import tempfile
 
-from support import CLIENT, RuntimeTest, module
+from support import CLIENT, ROOT, RuntimeTest, module
 
 
 class LocaleResourceTests(RuntimeTest):
@@ -137,3 +137,125 @@ class LocaleResourceTests(RuntimeTest):
         self.assertEqual(self.panel.load('pt', root)[1]['title'], u'O meu painel')
         with open(component_path, 'rb') as stream:
             self.assertEqual(stream.read(), component_bytes)
+
+
+class InterfaceLanguageSelectorTests(RuntimeTest):
+    """Synthetic setup only: the real settings API with the bundled catalogues; no game client."""
+
+    def setUp(self):
+        super(InterfaceLanguageSelectorTests, self).setUp()
+        sys.modules['driftkings.settings'] = module(__path__=[os.path.join(CLIENT, 'settings')])
+        self.directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.directory, True)
+        self.locale_support = self.load('locale_support')
+        self.core_page = self.load('settings.panel.core_page')
+        self.panel = self.load('i18n.panel')
+        self.api = self.load('settings.panel.api').SettingsAPI(self.directory)
+        self.api.client_language = 'pt'
+        self.api.start('pt')
+
+    def language_control(self):
+        return [control for control in self.api.mod(self.core_page.CORE_ID)._mod.controls if control.id == 'language'][0]
+
+    def test_language_list_has_no_empty_entries_and_only_supported_locales(self):
+        options = self.core_page.language_options()
+        self.assertEqual(options[0][0], 'auto')
+        for value, label in options:
+            self.assertTrue(label, value)
+        codes = [value for value, _ in options[1:]]
+        self.assertEqual(codes, list(self.locale_support.CODES))
+        self.assertEqual(len(set(codes)), len(codes))
+
+    def test_locale_without_a_loadable_catalogue_is_removed_from_the_list(self):
+        original = self.panel.usable
+        self.addCleanup(setattr, self.panel, 'usable', original)
+        self.panel.usable = lambda code: code != 'th'
+        values = [value for value, _ in self.core_page.language_options()]
+        self.assertNotIn('th', values)
+        self.assertIn('ja', values)
+
+    def test_invalid_empty_or_unknown_locale_is_rejected_before_it_is_saved(self):
+        control = self.language_control()
+        for value in ('xx', '', 'not-a-locale', None):
+            with self.assertRaises(ValueError):
+                control.validate(value)
+        self.assertEqual(control.validate('ja'), 'ja')
+
+    def test_unknown_or_empty_locale_falls_back_to_game_language_and_keeps_text(self):
+        for preference in ('xx', ''):
+            self.api.set_language(preference)
+            self.assertEqual(self.api.language, 'pt')
+            self.assertEqual(self.api.strings['core.language'], 'Idioma da interface')
+            self.assertEqual(len(self.api.strings), len(self.panel.load('en')[1]))
+
+    def test_failed_catalogue_load_falls_back_to_english_and_keeps_text(self):
+        original = self.panel.load
+        def fail_for_japanese(language, override_root=None):
+            if language == 'ja':
+                raise IOError('synthetic missing catalogue')
+            return original(language, override_root)
+        self.panel.load = fail_for_japanese
+        self.addCleanup(setattr, self.panel, 'load', original)
+        self.api.set_language('ja')
+        self.assertEqual(self.api.language, 'en')
+        self.assertEqual(self.api.strings['core.language'], 'Interface language')
+        self.assertTrue(all(self.api.strings.values()))
+
+    def test_applying_a_valid_locale_keeps_every_text_available(self):
+        self.api.set_language('ja')
+        self.assertEqual(self.api.language, 'ja')
+        self.assertEqual(len(self.api.strings), len(self.panel.load('en')[1]))
+        self.assertTrue(all(value for value in self.api.strings.values()))
+
+
+class SettingsFontFallbackTests(RuntimeTest):
+    """Static contracts for explicit multilingual font registration in the settings panel (no runtime font APIs)."""
+    VERIFIED_FILES = ('Warhelios-Regular.ttf', 'Warhelios-Bold.ttf', 'WarheliosJA-Medium.ttf', 'WarheliosJA-Bold.ttf',
+                      'WarheliosKO-Medium.ttf', 'WarheliosKO-Bold.ttf', 'WarheliosZHCN-Medium.ttf',
+                      'WarheliosZHCN-Bold.ttf', 'WarheliosZHTW-Medium.ttf', 'WarheliosZHTW-Bold.ttf')
+    FAMILIES = ('DKWarhelios', 'DKWarheliosJA', 'DKWarheliosKO', 'DKWarheliosZHCN', 'DKWarheliosZHTW')
+
+    def read(self, relative):
+        path = os.path.join(ROOT, 'mod', 'res', 'gui', 'gameface', 'mods', 'driftkings', *relative.split('/'))
+        with open(path, 'rb') as stream:
+            return stream.read().decode('utf-8')
+
+    def test_every_native_font_file_is_registered_under_a_distinct_family(self):
+        css = self.read('settings_window/css/panel.css')
+        for name in self.VERIFIED_FILES:
+            self.assertIn("coui://gui/gameface/fonts/%s'" % name, css, name)
+        for family in self.FAMILIES:
+            self.assertIn("font-family: '%s'" % family, css, family)
+        self.assertNotIn("font-family: Warhelios;", css)
+
+    def test_each_language_option_is_assigned_its_script_family(self):
+        core = self.read('settings_window/js/core.js')
+        for code, family in (('ja', 'DKWarheliosJA'), ('ko', 'DKWarheliosKO'), ('zh_cn', 'DKWarheliosZHCN'),
+                             ('zh_tw', 'DKWarheliosZHTW')):
+            self.assertIn("%s: '%s'" % (code, family), core)
+        controls = self.read('settings_window/js/controls.js')
+        self.assertIn("if (def.id === 'language') { item.style.fontFamily = DK.languageFamily(", controls)
+        self.assertIn("if (def.id === 'language') { label.style.fontFamily = DK.languageFamily(", controls)
+
+    def test_whole_panel_text_selects_the_script_family_from_the_interface_language(self):
+        css = self.read('settings_window/css/panel.css')
+        for code, family in (('ja', 'DKWarheliosJA'), ('ko', 'DKWarheliosKO'), ('zh_cn', 'DKWarheliosZHCN'),
+                             ('zh_tw', 'DKWarheliosZHTW')):
+            self.assertIn("html[lang=%s] body, html[lang=%s] button, html[lang=%s] input, html[lang=%s] textarea { "
+                          "font-family: '%s'; }" % (code, code, code, code, family), css)
+        self.assertNotIn('var(--dk-font', css)
+        app = self.read('settings_window/js/app.js')
+        self.assertIn("setAttribute('lang', schema.language);", app)
+
+    def test_font_diagnostic_overlay_is_removed_from_production_panel(self):
+        app = self.read('settings_window/js/app.js')
+        self.assertNotIn('FONT_DIAGNOSTIC', app)
+        self.assertNotIn('renderFontDiagnostic', app)
+        self.assertNotIn('dk-font-diagnostic', app)
+
+    def test_traditional_catalogue_has_no_simplified_only_forms_that_the_font_cannot_draw(self):
+        text = os.path.join(ROOT, 'mod', 'res', 'mods', 'driftkings', 'text', 'zh_tw.yml')
+        with open(text, 'rb') as stream:
+            content = stream.read().decode('utf-8')
+        for simplified in ('关闭', '游戏', '安装', '检查', '设置', '语言', '这个', '客户端', '编辑'):
+            self.assertNotIn(simplified, content, simplified)

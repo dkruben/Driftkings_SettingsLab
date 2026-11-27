@@ -121,6 +121,7 @@
             var list = h('div.dk-options'), current = null;
             def.options.forEach(function (option, index) {
                 var item = h('button.dk-option' + (option.value === c.value ? '.is-selected' : ''), {title: option.label}, null, list);
+                if (def.id === 'language') { item.style.fontFamily = DK.languageFamily(option.value === 'auto' ? DK.uiLanguage : option.value); }
                 if (images && images[index]) { h('img.dk-option-image', {src: images[index]}, null, item); }
                 h('span', {text: option.label}, null, item);
                 item.addEventListener('click', function (event) { DK.stop(event); choose(option.value); });
@@ -147,6 +148,7 @@
         });
         c.render = function () {
             label.textContent = optionLabel(def, c.value);
+            if (def.id === 'language') { label.style.fontFamily = DK.languageFamily(c.value === 'auto' ? DK.uiLanguage : c.value); }
             if (preview) {
                 DK.clear(preview);
                 if (def.preview.kind === 'healthBar' && window.__dkHealthBar) {

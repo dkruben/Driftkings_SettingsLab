@@ -169,6 +169,9 @@
         disposePage(); DK.modal.closeAll(); DK.layer.closeMenu(true);
         schema = next;
         DK.setCatalog(schema.labels, schema.language);
+        // Native Gameface selects the per-script Warhelios variants (ja, ko, zh_cn, zh_tw, th, vi) by the document language.
+        document.documentElement.setAttribute('lang', schema.language);
+        DK.uiLanguage = schema.language;
         DK.calendar = schema.calendar || {};
         mods = {}; order = []; index = {};
         ui.brand.title = String(t('title', 'Driftkings Settings Lab'));

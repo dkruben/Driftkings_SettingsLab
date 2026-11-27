@@ -289,6 +289,41 @@ No finding shows a plaintext write, a credential in logs, or a transmission of c
 - The fallback has no documented origin in this repository, so its legacy use is unknown.
 - Physical erasure on delete is not guaranteed.
 
+### Settings panel multilingual font rendering (Phase 10.1)
+
+**Status:** resolved for the reported symptom. The owner reported 10 of 10 manual visual validation points passed on development candidate `0.1.8-beta.4`, target `ct996`, mode `dev`, WOTMOD `build/runs/20261126T051702Z-e07b53bf/output/driftkings.wotmod`, SHA-256 `718160359d5558d011f2e924397d49294b8db6daf55df8f5e46ac9a73e0c36f1`. Thai passed visual validation with no additional Thai font.
+
+**Original issue:** in the settings panel, language options were invisible and some interface text was missing for Japanese, Korean, Simplified and Traditional Chinese, and Thai.
+
+**Failed approaches (do not repeat without a specific technical reason):**
+
+- Adding Windows system fonts (Tahoma, Leelawadee UI, Microsoft YaHei and similar) to the font stack. No effect.
+- Selecting the font only by setting the document language and removing the local Warhelios `@font-face` rules. No effect.
+
+**Working solution:**
+
+- The five native Wargaming font files are registered explicitly under distinct DK-prefixed families in `mod/res/gui/gameface/mods/driftkings/settings_window/css/panel.css`:
+  - `DKWarhelios`: `coui://gui/gameface/fonts/Warhelios-Regular.ttf` (400) and `Warhelios-Bold.ttf` (700).
+  - `DKWarheliosJA`: `WarheliosJA-Medium.ttf` (400) and `WarheliosJA-Bold.ttf` (700).
+  - `DKWarheliosKO`: `WarheliosKO-Medium.ttf` and `WarheliosKO-Bold.ttf`.
+  - `DKWarheliosZHCN`: `WarheliosZHCN-Medium.ttf` and `WarheliosZHCN-Bold.ttf`.
+  - `DKWarheliosZHTW`: `WarheliosZHTW-Medium.ttf` and `WarheliosZHTW-Bold.ttf`.
+- The files come from `res/packages/gui-part1.pkg` to `gui-part4.pkg` under `gui/gameface/fonts/`. Read-only inspection established their presence; do not bundle any external font.
+- Whole-panel text is selected by `html[lang=ja|ko|zh_cn|zh_tw]` rules in `panel.css`. `app.js` sets the document `lang` attribute from the schema language.
+- Each language dropdown option, and the selected value, is given its own language's family by `DK.languageFamily` in `core.js`, through `controls.js`. This works independently of the document language.
+- Thai has no Thai-specific native font. Base `DKWarhelios` is used for Thai and was accepted by the owner.
+- `zh_tw.yml` had simplified-only characters in nine values, which the Traditional font cannot draw. They were replaced with Traditional forms. Keys are unchanged. This was a character-map correction, not a full terminology review.
+
+**Evidence, kept separate:**
+
+- *Owner-reported runtime observation (manual, in game, on `0.1.8-beta.4`):* 10 of 10 validation points passed.
+- *Source contracts (automated):* static tests in `tests/runtime/settings/test_locale_resources.py` (`SettingsFontFallbackTests`) check the registered files, families, language mapping and absence of the diagnostic overlay. Locale validation tests cover catalogue fallback and language selection. Frontend settings suites pass and ESLint is clean on the changed scripts.
+- *Cleaned source after diagnostic removal:* the temporary `FONT_DIAGNOSTIC` overlay was removed after validation. The cleaned source has **not** been compiled into a WOTMOD and manually validated as a new artifact. Record this distinction.
+- *Unverified internal engine behaviour:* how the Gameface engine maps `html[lang=…]` to the native variants was not established. The mechanism is accepted on runtime evidence only.
+- *Not verified:* exhaustive glyph coverage of every catalogue string, and native translation review of the 18 catalogues.
+
+**Diagnostic:** a temporary in-panel overlay (`FONT_DIAGNOSTIC`) existed only in `0.1.8-beta.4`. Do not reintroduce it in production code; add a separate temporary diagnostic only for a new, specific investigation.
+
 ### Other pending work
 
 - Corrected installer compilation and isolated executable validation.
