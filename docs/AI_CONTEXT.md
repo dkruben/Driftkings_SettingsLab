@@ -352,6 +352,24 @@ No finding shows a plaintext write, a credential in logs, or a transmission of c
 
 **Diagnostics removed.** The temporary `loadinggeometry.as` diagnostic, its header-sibling and row-child probes, its test file and its diagnostic-only assertions were removed after runtime evidence was collected. No diagnostic code or string remains in the battle source or the artifact.
 
+### Crew Management: native Barracks progression (Phase 10.3.1)
+
+**Status:** owner visual validation PASS on NA #1010 for the final candidate `0.1.8-beta.19`, WOTMOD `build/runs/20261127T232938Z-8ac57c01/output/driftkings.wotmod`, SHA-256 `50aba250e70c7a7611b104bdd27a55af27ce560cd55e8487926d5f46d0aac655`. Owner-confirmed: XP cyan, estimated battles green, neutral separator, insufficient-history indicator, "Choose a perk" green, both values on one line, portrait unobstructed, native card dimensions preserved, values consistent with the crew tooltip, no overlap with hover actions. Functional checks not confirmed by the owner: individual configuration toggles, restoration when disabled, search, filters, sorting, card reuse and scrolling. Languages other than the tested one and other realms are not verified.
+
+**Native integration.** The progression is written into the native Barracks card's information container (`Content_base_*`, the container that renders the `additionalContent` position after the skills row). The former absolute overlay (`top:86rem`, 65% black background) is removed. The card keeps its 300×247rem size, its 122rem portrait and its grid. The script (`mod/res/gui/gameface/mods/driftkings/crew_details/details.js`) finds the card through the native `data-dk-barracks-*` attributes added by the NA #1010 Barracks bridge patch.
+
+**Single-line semantic presentation.** Each visible value is one segment, using the existing semantic classes: XP `#00FFFF`, estimated battles `#28F09C`, separator and unavailable indicator `#8C8C7E`, ready and complete `#28F09C`. A missing estimate is a neutral dash, never zero. The full wording stays in the native tooltip. Segments are built with `createElement` and `textContent` only; no `innerHTML`.
+
+**Final rendering approach.** A horizontal flex row (`display:flex; flex-direction:row; flex-wrap:nowrap; white-space:pre`) with independent non-shrinking flex children, the pattern of the existing vehicle carousel fields. The container width is fixed at 200rem; `text-overflow` is not used because it does not apply to a flex container. The box keeps `pointer-events:none`.
+
+**Preserved calculations.** XP and estimated-battle calculations, the progression payload (`lines`, `kinds`), configuration keys and defaults, localization, and the NA #1010 bridge manifest are unchanged. The protected calculation sources (`crew_progression_model.py`, `crew_details.py`, `core/crew_progression.py`, `lobby/crew_progression.py`) are byte-identical to the committed baseline. Any future change to them needs the recorded owner revision flow in `tests/support/baselines.py`.
+
+**Historical reference.** Spoter Crew Extended v6.04 was used as a visual and behavioural reference only (semantic colours; the native skill-cost API). No Spoter code, hooks, dependencies or premium adjustments were imported.
+
+**Lesson (beta.17 and beta.18).** Synthetic DOM tests check the script's logic and the stylesheet text only. They do not establish Gameface layout compatibility. Beta.17 (spans in a block line) and beta.18 (explicit inline spans) passed the synthetic tests and failed in game: only the first value was visible. Only the owner's in-game validation established the flex correction. Future layout changes need runtime validation before they are described as working.
+
+**Known documentation note.** A comment inside `details.js` still describes the line as "inline segments". The rendering is the flex row above. The comment was kept unchanged so the validated artifact remains identical to the source.
+
 ### Other pending work
 
 - Corrected installer compilation and isolated executable validation.

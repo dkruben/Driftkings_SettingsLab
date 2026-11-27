@@ -2,7 +2,11 @@
 .dk-crew-details__title { margin-bottom:2rem; color:#e8c55a; }
 .dk-crew-details__line { white-space:normal; overflow-wrap:break-word; word-wrap:break-word; }
 .dk-crew-details--tooltip { margin:8rem 20rem 12rem; }
-.dk-crew-details--barracks { position:absolute; top:86rem; right:8rem; width:150rem; margin:0; padding:4rem 6rem; border:0; background:rgba(0,0,0,.65); font-size:12rem; line-height:16rem; }
+/* Barracks: one compact line inside the native information block, after the skills row. In normal flow, no background. */
+.dk-crew-details--barracks { display:block; position:static; width:200rem; max-width:200rem; height:16rem; margin:0; padding:0; border:0; background:none; font-size:12rem; line-height:16rem; overflow:hidden; }
+.dk-crew-details--barracks .dk-crew-details__line { display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; color:#e9e2bf; white-space:pre; overflow:hidden; }
+/* Each segment is an independent flex item, the pattern already used by the vehicle carousel fields: no shrinking, no wrapping. */
+.dk-crew-details--barracks .dk-crew-details__line > span { display:flex; flex:0 0 auto; align-items:center; white-space:pre; }
 
 .dk-crew-details__line--xp { color:#00ffff; }
 .dk-crew-details__line--battles, .dk-crew-details__line--ready, .dk-crew-details__line--complete { color:#28f09c; }
