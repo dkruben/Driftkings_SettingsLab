@@ -63,7 +63,8 @@ ALLOWED_PREFIXES = ('docs/', 'tests/', '.github/ISSUE_TEMPLATE/')
 ALLOWED_FILES = frozenset(('README.md', 'CONTRIBUTING.md', 'SECURITY.md', RELEASE_DATA,
                            '.github/workflows/promotion-gate.yml', 'build_tools/promote_release.py',
                            'build_tools/publish_release.py', 'build_tools/sign_release.py',
-                           'build_tools/update_release.py', 'build_tools/validation_record.py'))
+                           'build_tools/update_release.py', 'build_tools/validation_record.py',
+                           'build_tools/sign_candidate.py', '.gitignore'))
 
 
 class Context(object):
@@ -99,10 +100,10 @@ class Context(object):
                                     cwd=ROOT, stdout=stream, stderr=subprocess.PIPE)
         require(result.returncode == 0, 'Could not download release asset ' + asset['name'])
 
-    def compile_candidate(self, stable, target):
-        """Compile the stable WOTMOD and attach the installer. Reads no signing material."""
+    def compile_candidate(self, version, target, channel='stable'):
+        """Compile the WOTMOD and attach the installer. Reads no signing material."""
         built = subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--mode', 'release',
-                                '--target', target, '--version', stable, '--channel', 'stable'],
+                                '--target', target, '--version', version, '--channel', channel],
                                cwd=ROOT, check=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
         match = re.search(r'(?m)^  output:\s+(.+)$', built)
         require(match is not None, 'The compiler did not report its run output')
@@ -115,9 +116,9 @@ class Context(object):
         subprocess.run([sys.executable, '-B', str(ROOT / 'tests/run_python.py'), '--suite', 'artifacts',
                         '--wotmod', str(folder / 'driftkings.wotmod')], cwd=ROOT, check=True)
 
-    def compile_unsigned(self, stable, target):
+    def compile_unsigned(self, version, target, channel='stable'):
         """Unsigned route: compile, attach the installer and run the artifact suite. Stops before any signature."""
-        folder = self.compile_candidate(stable, target)
+        folder = self.compile_candidate(version, target, channel)
         self.run_artifact_suite(folder)
         return folder
 
@@ -132,11 +133,11 @@ class Context(object):
         self.run_artifact_suite(folder)
         return folder
 
-    def promote(self, folder, stable):
+    def promote(self, folder, version):
         """Copy the frozen run output into build/releases; the compiler refuses unless it is stamped and signed."""
         subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--promote-run',
                         str(folder.parent)], cwd=ROOT, check=True)
-        return stable_folder(stable)
+        return release_folder(version)
 
     def create_draft(self, command, files, manifest):
         create_release(command + ['--draft'], files, manifest)
@@ -153,6 +154,13 @@ class Context(object):
 def stable_folder(stable):
     config = read_json(ROOT / 'build_data/build_config.json')
     return ROOT / config['package']['release_root'] / 'stable' / stable
+
+
+def release_folder(version):
+    """Canonical promoted folder of a candidate, under its own channel: beta or stable."""
+    channel = 'beta' if version_contract().Version(version).prerelease else 'stable'
+    config = read_json(ROOT / 'build_data/build_config.json')
+    return ROOT / config['package']['release_root'] / channel / version
 
 
 def record_location(beta):
@@ -209,15 +217,15 @@ UNSIGNED_INVENTORY = 'unsigned-SHA256SUMS.txt'
 UNSIGNED_SIGNATURES = ('release.json.sig', INVENTORY_SIGNATURE)
 
 
-def write_unsigned_evidence(folder, stable, target, commit):
+def write_unsigned_evidence(folder, version, target, commit, channel='stable'):
     """Record the unsigned candidate after its artifact suite passed; the compilation and suite results come from the run."""
     report = read_json(folder / 'build-report.json')
-    require(report.get('status') == 'success' and report.get('mode') == 'release' and report.get('version') == stable
-            and report.get('channel') == 'stable' and report.get('git', {}).get('commit') == commit
+    require(report.get('status') == 'success' and report.get('mode') == 'release' and report.get('version') == version
+            and report.get('channel') == channel and report.get('git', {}).get('commit') == commit
             and report['git'].get('dirty') is False, 'The unsigned build report does not match the stable commit')
     evidence = folder.parent / 'evidence'
     write_json(evidence / UNSIGNED_EVIDENCE, dict(
-        schema=1, stage='unsigned', version=stable, channel='stable', target=target, commit=commit,
+        schema=1, stage='unsigned', version=version, channel=channel, target=target, commit=commit,
         artifactSuite='passed', wotmodSha256=sha(folder / 'driftkings.wotmod'),
         inventorySha256=sha(folder / 'SHA256SUMS.txt')))
     shutil.copy2(folder / 'SHA256SUMS.txt', evidence / UNSIGNED_INVENTORY)
@@ -240,7 +248,7 @@ def finalize_candidate(context, folder, identity, target, signature=None):
     signatures must verify against the trusted production keys. The stamp is written only after all of that passes.
     """
     signature = signature or signature_module()
-    stable, commit = identity['stable'], identity['commit']
+    version, channel, commit = identity['version'], identity['channel'], identity['commit']
     folder = Path(folder).resolve()
     run = folder.parent
     require(folder.name == 'output' and run.parent == (Path(context.root) / 'build/runs').resolve(),
@@ -251,8 +259,8 @@ def finalize_candidate(context, folder, identity, target, signature=None):
     meta = read_json(evidence / UNSIGNED_EVIDENCE)
     require(meta.get('stage') == 'unsigned' and meta.get('artifactSuite') == 'passed',
             'The unsigned build did not pass its artifact suite')
-    require(meta.get('version') == stable and meta.get('channel') == 'stable' and meta.get('target') == target,
-            'The candidate is not %s/stable for target %s' % (stable, target))
+    require(meta.get('version') == version and meta.get('channel') == channel and meta.get('target') == target,
+            'The candidate is not %s/%s for target %s' % (version, channel, target))
     require(meta.get('commit') == commit, 'The candidate was built from another commit than %s' % commit[:12])
     require(sha(evidence / UNSIGNED_INVENTORY) == meta.get('inventorySha256'), 'Unsigned inventory evidence was modified')
     evidence_report = read_json(evidence / 'build-report.json')
@@ -292,8 +300,9 @@ def finalize_candidate(context, folder, identity, target, signature=None):
             'The signed checksum inventory does not match the candidate files')
     # Release metadata and both signatures, against the trusted production keys only.
     release = read_json(folder / 'release.json')
-    require(release.get('version') == stable and release.get('channel') == 'stable'
-            and release.get('gameVersion') == report.get('gameVersion'), 'Release metadata is not %s/stable' % stable)
+    require(release.get('version') == version and release.get('channel') == channel
+            and release.get('gameVersion') == report.get('gameVersion'),
+            'Release metadata is not %s/%s' % (version, channel))
     require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty; no signed candidate can be accepted')
     try:
         signature.verify_manifest((folder / 'release.json').read_bytes(),
@@ -303,7 +312,7 @@ def finalize_candidate(context, folder, identity, target, signature=None):
     except ValueError as error:
         raise ValueError('Signature is not valid for a trusted production key: %s' % error)
     write_build_stamp(folder, commit)
-    return context.promote(folder, stable)
+    return context.promote(folder, version)
 
 
 def require_build_stamp(folder, commit):
@@ -382,7 +391,7 @@ def check_identity(context, beta, commit):
             'release.json at %s is %s/%s, not %s/stable' % (commit[:12], release['version'], release['channel'], stable))
     source = context.read(commit, context.version_source)
     require(override_version(source, stable) == source, 'Runtime VERSION differs from ' + stable)
-    return dict(beta=beta, stable=stable, tag='v' + stable, commit=commit)
+    return dict(beta=beta, stable=stable, version=stable, channel='stable', tag='v' + stable, commit=commit)
 
 
 # Owner-approved for the 0.1.7 release cycle only: the approved record and the CI run are read from an authorized
@@ -553,7 +562,23 @@ def direct_identity(context, stable, commit):
             'release.json at %s is %s/%s, not %s/stable' % (commit[:12], release['version'], release['channel'], stable))
     source = context.read(commit, context.version_source)
     require(override_version(source, stable) == source, 'Runtime VERSION differs from ' + stable)
-    return dict(beta=None, stable=stable, tag='v' + stable, commit=commit, route='direct')
+    return dict(beta=None, stable=stable, version=stable, channel='stable', tag='v' + stable, commit=commit,
+                route='direct')
+
+
+def unsigned_beta_identity(context, beta, commit):
+    """Unsigned beta candidate: the committed release data must already describe this beta on the beta channel."""
+    require(re.match(r'\A[0-9a-f]{40}\Z', commit), 'The beta commit must be a full SHA-1')
+    parsed = version_contract().Version(beta)
+    require(parsed.prerelease and parsed.prerelease[0] == 'beta' and not parsed.metadata and parsed.text == beta,
+            'The unsigned beta route builds a beta version such as 1.2.3-beta.4, not ' + beta)
+    release = json.loads(context.read(commit, RELEASE_DATA))
+    require(release['version'] == beta and release['channel'] == 'beta',
+            'release.json at %s is %s/%s, not %s/beta' % (commit[:12], release['version'], release['channel'], beta))
+    source = context.read(commit, context.version_source)
+    require(override_version(source, beta) == source, 'Runtime VERSION differs from ' + beta)
+    return dict(beta=beta, stable=None, version=beta, channel='beta', tag='v' + beta, commit=commit,
+                route='unsigned-beta')
 
 
 def read_record_file(path):
@@ -777,14 +802,23 @@ def run_build(context, args):
     commit = context.git('rev-parse', 'HEAD')
     require_clean_checkout(context, commit)
     if getattr(args, 'unsigned', False):
-        require(getattr(args, 'stable', None) and args.key is None,
-                '--unsigned takes the direct stable route and no signing key; sign the folder offline with sign_release.py')
+        require(args.key is None,
+                '--unsigned takes no signing key; sign the folder offline with sign_candidate.py or sign_release.py')
+        if getattr(args, 'beta', None):
+            identity = unsigned_beta_identity(context, args.beta, commit)
+            folder = context.compile_unsigned(identity['version'], args.target, channel='beta')
+            write_unsigned_evidence(folder, identity['version'], args.target, commit, channel='beta')
+            require_clean_checkout(context, commit)
+            print('Unsigned beta candidate %s ready in %s; its artifact suite passed. Nothing was signed or promoted.'
+                  % (identity['version'], folder))
+            return folder
+        require(getattr(args, 'stable', None), '--unsigned takes the direct stable route or the beta route')
         state = require_route_preflight(context, args, commit, record=False)
         folder = context.compile_unsigned(state['identity']['stable'], args.target)
         write_unsigned_evidence(folder, state['identity']['stable'], args.target, commit)
         require_clean_checkout(context, commit)
         print('Unsigned candidate ready in %s; its artifact suite passed. Nothing was signed or promoted.' % folder)
-        print('Owner: sign the folder offline with build_tools/sign_release.py, then run promote_release.py finalize.')
+        print('Owner: sign the folder offline with build_tools/sign_candidate.py, then finalize.')
         return folder
     state = require_route_preflight(context, args, commit, record=False)
     key = args.key or ROOT / 'release-signing.key'
@@ -801,13 +835,37 @@ def run_build(context, args):
               % (args.stable, commit, artifacts_digest_full(folder)))
 
 
+def artifact_identity(context, identify, artifact, head):
+    """Identity of a candidate built at `artifact`, finalized from the checkout at `head`.
+
+    Equal commits give the ordinary identity. A later checkout is accepted only when the artifact commit is its
+    ancestor and every path that differs between them is outside the package (signing tooling, documentation, tests).
+    Anything else, including build inputs, compiler and installer changes, refuses the finalization.
+    """
+    require(re.match(r'\A[0-9a-f]{40}\Z', artifact), 'The artifact commit must be a full SHA-1')
+    if artifact == head:
+        return identify(context, artifact)
+    require(context.is_ancestor(artifact, head),
+            'The artifact commit %s is not an ancestor of the checkout %s' % (artifact[:12], head[:12]))
+    paths = [path for path in context.git('diff', '--name-only', '--no-renames', artifact, head).splitlines() if path]
+    blocked = forbidden_changes(paths)
+    require(not blocked, 'Changes after the artifact commit reach the package: ' + ', '.join(blocked[:10]))
+    return identify(context, artifact)
+
+
 def run_finalize(context, args):
-    commit = context.git('rev-parse', 'HEAD')
-    require_clean_checkout(context, commit)
-    identity = direct_identity(context, args.stable, commit)
+    head = context.git('rev-parse', 'HEAD')
+    require_clean_checkout(context, head)
+    artifact = args.commit or head
+    if getattr(args, 'beta', None):
+        identity = artifact_identity(context, lambda ctx, commit: unsigned_beta_identity(ctx, args.beta, commit),
+                                     artifact, head)
+    else:
+        identity = artifact_identity(context, lambda ctx, commit: direct_identity(ctx, args.stable, commit),
+                                     artifact, head)
     promoted = finalize_candidate(context, args.folder, identity, args.target)
-    print('Finalized %s from %s and promoted it to %s. Nothing was signed, compiled or uploaded.'
-          % (args.stable, commit[:12], promoted))
+    print('Finalized %s/%s from %s and promoted it to %s. Nothing was signed, compiled or uploaded.'
+          % (identity['version'], identity['channel'], commit[:12], promoted))
     print('Next: promote_release.py check, then publish (preview first) with the approved validation record.')
 
 
@@ -873,7 +931,11 @@ def main():
         command = commands.add_parser(name)
         command.set_defaults(action=action)
         if name == 'finalize':
-            command.add_argument('--stable', required=True, help='Direct route: the committed stable version, for example 0.1.8')
+            route = command.add_mutually_exclusive_group(required=True)
+            route.add_argument('--stable', help='Direct stable route, for example 0.1.8')
+            route.add_argument('--beta', help='Unsigned beta route, for example 0.1.8-beta.25')
+            command.add_argument('--commit', help='Artifact source commit (default: the checkout). The checkout may be a '
+                                                  'descendant that changes only signing tooling, documentation and tests')
             command.add_argument('--target', required=True, help='Configured build target, for example na1010')
             command.add_argument('--folder', required=True, type=Path,
                                  help='Owner-signed run output: build/runs/<run>/output')
