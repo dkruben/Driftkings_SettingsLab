@@ -20,9 +20,9 @@ from gui.shared.gui_items.Vehicle import getVehicleClassTag
 from gui.shared.personality import ServicesLocator
 from helpers import dependency
 from messenger import g_settings
+from realm import CURRENT_REALM
 from skeletons.gui.battle_session import IBattleSessionProvider
 
-from realm import CURRENT_REALM
 from driftkings._constants import GLOBAL, TEAM_PANELS, WN8_EXPECTED_FIELDS
 from driftkings.common.utils.colorratting import getStatisticColor
 from driftkings.core.callbacks import callback, cancelCallback
