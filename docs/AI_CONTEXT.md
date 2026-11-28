@@ -370,6 +370,32 @@ No finding shows a plaintext write, a credential in logs, or a transmission of c
 
 **Known documentation note.** A comment inside `details.js` still describes the line as "inline segments". The rendering is the flex row above. The comment was kept unchanged so the validated artifact remains identical to the source.
 
+### SettingsLab final preview simplification (Phase 10.3.2, owner-accepted)
+
+**Status:** owner approved development candidate `0.1.8-beta.22` on NA #1010. The final SettingsLab design is accepted and no further visual changes are planned. The owner's individual runtime results are not recorded here. WOTMOD `build/runs/20261128T010304Z-933b1943/output/driftkings.wotmod`, SHA-256 `db7d1754bee11c3e883b4eef2a9295270e5181d9ffbc612c2ec9f41fb7f9615c`.
+
+**Owner decision.** Only the Minimap and Vehicle Markers keep a standalone Live Preview. The HUD, carousel and hangar standalone previews, their controls, placeholders and informational messages are removed (`settings_window/js/hud.js` and `test_live_preview.js` deleted; `carousel.js` reduced to the macro evaluator).
+
+**Retained inline previews.** Rich-text formatting, macro and Battle Performance/Results formatting, Vehicle Health style thumbnails (one fixed 79% demonstration sample, `HEALTH_SAMPLE` in `controls.js`) and carousel inline field examples. `richtext.js` was not redesigned.
+
+**Horizontal formatting correction.** Each logical line is a flex row (`display:flex; flex-direction:row; flex-wrap:nowrap; white-space:pre`) with non-shrinking inline segments, so mixed-colour values such as WN8/EFF/DIFF stay on one line. Explicit breaks (`<br>`, `<br/>`, newline characters) are kept.
+
+**Sample macros.** `{wnx}`, `{xwn8}` and `{c:wnx}` resolve in the sample preview (covered by `test_rich_text_preview.js`); unsupported macros are marked, not silently dropped.
+
+**Development warning.** The construction banner (`panel.constructionNotice`), its element, its reserved space and its CSS are removed.
+
+**Localization.** Obsolete preview and banner keys (`panel.constructionNotice`, `panel.hud.*`, `panel.live.disabled|nonVisual|alt`) are removed from all 18 catalogues. Catalogue parity passes with zero untranslated keys (`build_tools/validate_locales.py`).
+
+**Narrowly approved native catalogue revision.** Removing `hud.js` changes the settings-window script list, so the `DriftkingsModSettings` entry differs from the native baselines of `native_crew`, `native_carousel` and `native_marks`. The owner authorised exactly this entry. `tests/fixtures/native_baselines.json` records `approved_catalog_revisions` with the historical hash `8b39688a…` and the approved hash `394ec57b…`. `changed_catalog_entries` in `tests/support/baselines.py` skips an entry only when both hashes match exactly. Historical hashes are never replaced, and there is no wildcard or automatic approval. `tests/build/test_own_window_catalog.py` now expects 334 packaged assets instead of 335, because `hud.js` is no longer packaged. Negative checks on temporary fixtures confirmed that the exact approved revision passes and that a different current hash, a mismatched historical hash, an altered baseline and an unrelated modified entry are all reported.
+
+**Sizes (tracked files against `df8427a1`).** 34 files: 147 lines added, 933 removed. The new rich-text regression test `tests/frontend/settings/test_rich_text_preview.js` adds 78 lines. Localization accounts for 162 removed lines (9 per catalogue).
+
+**Validation.** Frontend 32 suites passed; ESLint 0 warnings; localization parity passed with 0 untranslated; build suite 574 tests passed with 2 pre-existing skips; artifacts suite 9 tests passed with 2 pre-existing skips.
+
+**Synthetic versus Gameface validation.** The frontend suites use a synthetic DOM (`tests/support/frontend/dom_fixture.js`, Node `vm`). They check structure, logic and stylesheet text. They do not establish Gameface layout. The horizontal-row correction and the removal of the banner were validated only by the owner's in-game testing of candidate beta.22.
+
+**Remaining limitations.** The Python presenter still emits a `carouselPreview` payload (`settings/panel/presenter.py`) and a runtime test covers it. The JavaScript no longer reads it. Removing it would change Python sources and require a rebuild, so it is retained. The 1920×1080 and Frontline checks stay owner-waived from Phase 10.2.
+
 ### Other pending work
 
 - Corrected installer compilation and isolated executable validation.

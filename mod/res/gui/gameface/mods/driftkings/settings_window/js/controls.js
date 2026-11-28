@@ -4,6 +4,8 @@
 (function () {
     'use strict';
     var DK = window.DK, h = DK.h, t = DK.t;
+    // Demonstration sample for the Vehicle Health style thumbnails (79% of the sample vehicle's HP).
+    var HEALTH_SAMPLE = 79;
     var VALUE_TYPES = ['switch', 'checkbox', 'dropdown', 'slider', 'number', 'text', 'password', 'color', 'hotkey', 'multiselect', 'textarea', 'file', 'directory'];
 
     /* Row ------------------------------------------------------------------ */
@@ -154,7 +156,10 @@
                 if (def.preview.kind === 'healthBar' && window.__dkHealthBar) {
                     var skin = window.__dkHealthBar.preset(c.value), health = h('div.dk-health', null, null, preview);
                     preview.style.height = (skin.height + 12) + 'rem';
-                    window.__dkHealthBar.create(health).render({style: c.value, percent: 0.75, color: '#80D639', text: '1238 / 1650'});
+                    // The same sample as the live viewport: the percentage, the current HP and the maximum HP agree.
+                    var maxHp = DK.sample.player.maxHp, currentHp = Math.round(maxHp * HEALTH_SAMPLE / 100);
+                    window.__dkHealthBar.create(health).render({style: c.value, percent: HEALTH_SAMPLE / 100, color: '#80D639',
+                        text: currentHp + ' / ' + maxHp});
                     var scale = Math.min(1, 400 / skin.width);
                     health.style.transformOrigin = '0 0'; health.style.transform = 'scale(' + scale + ')';
                     preview.style.height = (skin.height * scale + 12) + 'rem';

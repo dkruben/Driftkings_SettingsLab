@@ -141,6 +141,29 @@
       }
     }
   },
+  "approved_catalog_revisions": {
+    "native_crew": {
+      "DriftkingsModSettings": {
+        "historical_sha256": "8b39688afd28fe3e2dd1d9f713fa980844d9545ca2c177c454c15e93cc721168",
+        "approved_sha256": "394ec57b879cffd20112c74135b9e63303ce2c38cb0c79efd04f11edcfebc337",
+        "reason": "Phase 10.3.2 (owner-authorized): the standalone HUD preview script hud.js was removed, so the settings-window script list changed"
+      }
+    },
+    "native_carousel": {
+      "DriftkingsModSettings": {
+        "historical_sha256": "8b39688afd28fe3e2dd1d9f713fa980844d9545ca2c177c454c15e93cc721168",
+        "approved_sha256": "394ec57b879cffd20112c74135b9e63303ce2c38cb0c79efd04f11edcfebc337",
+        "reason": "Phase 10.3.2 (owner-authorized): same settings-window script list change as native_crew"
+      }
+    },
+    "native_marks": {
+      "DriftkingsModSettings": {
+        "historical_sha256": "8b39688afd28fe3e2dd1d9f713fa980844d9545ca2c177c454c15e93cc721168",
+        "approved_sha256": "394ec57b879cffd20112c74135b9e63303ce2c38cb0c79efd04f11edcfebc337",
+        "reason": "Phase 10.3.2 (owner-authorized): same settings-window script list change as native_crew"
+      }
+    }
+  },
   "approved_revisions": {
     "mod/res/gui/gameface/mods/driftkings/shared/marks_panel.js": {
       "baselines": [

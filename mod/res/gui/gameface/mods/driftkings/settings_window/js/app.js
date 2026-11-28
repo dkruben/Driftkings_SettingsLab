@@ -114,7 +114,6 @@
         });
         ui.close = h('button.dk-close', {text: '×', onclick: function (event) { DK.stop(event); send('close'); }}, null, topControls);
 
-        ui.construction = h('div.dk-construction', {role: 'note'}, null, ui.window);
         var body = h('div.dk-body', null, null, ui.window);
         var sideHost = h('div.dk-side', null, null, body);
         ui.nav = h('div.dk-nav', null, null, sideHost);
@@ -175,7 +174,6 @@
         DK.calendar = schema.calendar || {};
         mods = {}; order = []; index = {};
         ui.brand.title = String(t('title', 'Driftkings Settings Lab'));
-        ui.construction.textContent = t('constructionNotice');
         ui.close.title = t('close') + ' (Esc)';
         ui.themeReset.textContent = t('resetTheme');
         ui.undo.textContent = t('undo'); ui.undo.title = t('undoHint', '') + ' (Ctrl+Z)';
@@ -294,8 +292,8 @@
         DK.show(ui.themeReset, modId === CORE);
         DK.toggle(ui.window, 'has-wide-page', false);
         DK.toggle(ui.window, 'has-live', false);
-        var live = mod && (DK.minimapPreview.supports(mod) ? DK.minimapPreview : DK.hudPreview.supports(mod) ? DK.hudPreview
-            : DK.carouselPreview.supports(mod) ? DK.carouselPreview : null);
+        // The standalone live preview is kept for the minimap only; other modules show their settings alone.
+        var live = mod && DK.minimapPreview.supports(mod) ? DK.minimapPreview : null;
         if (live) {
             page.live = live.create(ui.liveHost, mod);
             DK.toggle(ui.window, 'has-live', true);
@@ -646,7 +644,7 @@
                 changed: DK.contains(state.changed[item.id] || [], item.key), value: values[item.key], values: values});
             item.control.set(values[item.key]);
         });
-        if (page.live) { page.live.update(values, state.values, state.carouselPreview); }
+        if (page.live) { page.live.update(values, state.values); }
         renderNav();
         renderHead();
         renderTabs();

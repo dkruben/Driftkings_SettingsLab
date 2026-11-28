@@ -101,9 +101,25 @@ def protected_file(base, path, current=None):
 
 
 def changed_catalog_entries(name, current):
-    """Names, in catalog order, whose specification differs from the baseline."""
+    """Names, in catalog order, whose specification differs from the baseline.
+
+    An entry is not reported only when its historical hash equals the baseline and
+    its current canonical hash equals the reviewed revision recorded in
+    approved_catalog_revisions. Historical hashes are never replaced.
+    """
     old = baseline(name)['catalog']
-    return [key for key in current if old.get(key) != json_hash(current[key])]
+    with io.open(PATH, encoding='utf-8') as stream:
+        approved = json.load(stream).get('approved_catalog_revisions', {}).get(name, {})
+    changed = []
+    for key in current:
+        now = json_hash(current[key])
+        if old.get(key) == now:
+            continue
+        revision = approved.get(key)
+        if revision and old.get(key) == revision['historical_sha256'] and now == revision['approved_sha256']:
+            continue
+        changed.append(key)
+    return changed
 
 
 # Reviewed Phase 4.3.1 target identities; the historical contract tests compare against this exact table.

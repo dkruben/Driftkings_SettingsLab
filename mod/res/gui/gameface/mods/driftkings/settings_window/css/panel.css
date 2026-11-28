@@ -72,7 +72,6 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
     background: transparent; color: #DCDEDC; font-size: 26rem; line-height: 36rem; }
 .dk-close:hover, .dk-close:focus { background: transparent; }
 
-.dk-construction { flex-shrink: 0; padding: 7rem 24rem; border-bottom: 1rem solid #5b4825; background: rgba(217, 130, 25, 0.10); color: #f2c14e; font-size: 12rem; line-height: 17rem; }
 .dk-body { display: flex; flex: 1 1 auto; min-height: 0; }
 
 /* Sidebar ------------------------------------------------------------------ */
@@ -464,79 +463,18 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 
 /* Formatted text preview (js/richtext.js) ------------------------------------------------------------------ */
 .dk-rich { width: 100%; margin-top: 8rem; padding: 10rem 12rem; border-radius: 6rem; background: #0b0c0d; border: 1rem solid #3a3731; color: #ffffff; font-size: 14rem; line-height: 1.25; overflow: hidden; }
-.dk-rich-line { white-space: pre-wrap; }
+/* Rows are horizontal flex lines that never wrap; segments are independent flex items (the Barracks and carousel
+   pattern). Breaks come only from explicit line/paragraph markup, so the box height follows its content. */
+.dk-rich-line { display: flex; flex-direction: column; align-items: stretch; }
+.dk-rich-row { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; white-space: pre; }
+.dk-rich-seg { display: flex; flex: 0 0 auto; align-items: center; white-space: pre; }
 .dk-selected-preview { width: 100%; margin-top: 10rem; padding: 6rem 12rem; background: #15171a; }
 .dk-selected-preview > img { display: flex; max-width: 180rem; max-height: 100rem; margin-right: 24rem; }
 .dk-rich-img { display: flex; vertical-align: middle; }
 .dk-rich-img img { display: block; max-width: 160rem; max-height: 60rem; }
 .dk-rich-img.is-missing { padding: 1rem 6rem; border: 1rem solid #5b5649; border-radius: 4rem; color: #8c8677; font-size: 11rem; }
 
-/* Position on screen (js/hud.js): a 1920x1080 stage scaled into the column ------------------------------------ */
-.dk-hud-frame { position: relative; width: 344rem; height: 194rem; overflow: hidden; border: 1rem solid #4a463e; border-radius: 6rem; background: #0a0b0c; }
-.dk-window.is-compact .dk-hud-frame { width: 254rem; height: 143rem; }
-.dk-hud-stage { position: absolute; left: 0; top: 0; width: 1920rem; height: 1080rem; transform: scale(0.17917); transform-origin: 0 0; }
-.dk-window.is-compact .dk-hud-stage { transform: scale(0.13229); }
-.dk-hud-scene { position: absolute; z-index: 0; left: 0; top: 0; width: 1920rem; height: 1080rem; background: linear-gradient(to bottom, #5d7182 0%, #8b9a8a 44%, #5b6346 46%, #3f4632 100%); }
-.dk-hud-scene.is-hangar { background: linear-gradient(to bottom, #1f2124 0%, #34352f 55%, #22231f 100%); }
-.dk-hud-aim { position: absolute; z-index: 1; width: 92rem; height: 92rem; border: 4rem solid rgba(240, 240, 240, 0.85); border-radius: 46rem; }
-.dk-hud-aim-dot { position: absolute; left: 40rem; top: 40rem; width: 4rem; height: 4rem; background: #ffffff; }
-.dk-hud-text { position: absolute; width: 500rem; min-height: 24rem; white-space: nowrap; }
-.dk-hud-text.has-shadow, .dk-hud-panel, .dk-hud-box { text-shadow: 0 0 4rem #000000; }
-/* Health uses the same renderer, frames and slot geometry as the battle HUD. */
-.dk-hud-health { position: absolute; }
-.dk-health-preview-controls { display: flex; flex-wrap: wrap; align-items: center; padding: 10rem 0; }
-.dk-health-preview-controls input { width: 48rem; min-width: 48rem; flex: 0 0 48rem; margin-right: 8rem; }
-.dk-health-preview-controls .dk-segment { min-width: 36rem; padding: 0 4rem; flex: 0 0 auto; }
-.dk-health-preview-value { margin-right: 8rem; color: #cfcfcf; font-size: 12rem; }
 
-.dk-hud-health-track { overflow: hidden; background: #1a1c1e; }
-.dk-hud-health-fill { width: 79%; height: 100%; background: #80d639; }
-.dk-hud-health-text { display: flex; align-items: center; justify-content: center; font-size: 15rem; font-weight: 700; color: #f4f8f0; text-shadow: 0 0 3rem #000000; }
-.dk-hud-panel { position: absolute; padding: 8rem 12rem; border-radius: 4rem; color: #ffffff; line-height: 1.3; }
-.dk-hud-panel-title { font-weight: 700; }
-.dk-hud-panel-sub { opacity: 0.8; }
-.dk-hud-progress { height: 6rem; margin: 5rem 0; background: rgba(255, 255, 255, 0.2); }
-.dk-hud-progress-fill { height: 100%; }
-.dk-hud-hc { border: 1rem solid rgba(218, 170, 88, 0.65); }
-.dk-hud-hc-head { display: flex; align-items: center; }
-.dk-hud-hc-medal { width: 32rem; height: 32rem; margin-right: 10rem; flex-shrink: 0; }
-.dk-hud-hc-value { font-size: 25rem; font-weight: 700; color: #f2f0eb; }
-.dk-hud-hc-foot { display: flex; align-items: center; }
-.dk-hud-hc-foot .dk-hud-progress { flex: 1 1 auto; margin-right: 8rem; }
-.dk-hud-marker { position: absolute; width: 80rem; text-align: center; }
-.dk-hud-marker-bar { height: 10rem; border: 2rem solid #000000; background: #f0413b; }
-.dk-hud-marker-name { margin-top: 2rem; font-size: 15rem; color: #ffffff; text-shadow: 0 0 3rem #000000; }
-.dk-hud-group { position: absolute; left: 0; top: 0; width: 1920rem; height: 1080rem; }
-.dk-hud-box { position: absolute; display: flex; flex-direction: column; white-space: nowrap; }
-.dk-hud-off { position: absolute; left: 0; right: 0; top: 500rem; text-align: center; font-size: 60rem; color: #ffffff; text-shadow: 0 0 8rem #000000; }
-.dk-hud-frame .is-current { z-index: 3; outline: 6rem solid #d98219; outline-offset: 8rem; }
-.dk-hud-frame .is-other { z-index: 2; opacity: 0.35; }
-
-/* Carousel preview (js/carousel.js) -------------------------------------------------------------------------- */
-.dk-car-frame { position: relative; width: 344rem; overflow: hidden; border: 1rem solid #4a463e; border-radius: 6rem; background: #15171a; }
-.dk-window.is-compact .dk-car-frame { width: 254rem; }
-.dk-car-strip { position: absolute; left: 0; top: 0; display: flex; padding: 8rem; transform-origin: 0 0; }
-.dk-car-column { display: flex; flex-direction: column; }
-.dk-car-card { position: relative; flex-shrink: 0; overflow: hidden; color: #ffffff; font-size: 13rem; }
-.dk-car-flag { opacity: 0.9; }
-.dk-car-tank { position: absolute; }
-.dk-car-tank-hull { position: absolute; left: 18%; right: 8%; bottom: 22%; height: 26%; border-radius: 3rem; background: #6c6a5e; }
-.dk-car-tank-turret { position: absolute; left: 38%; width: 30%; bottom: 46%; height: 20%; border-radius: 4rem 4rem 0 0; background: #7b7a6c; }
-.dk-car-tank-gun { position: absolute; left: 4%; width: 36%; bottom: 55%; height: 5%; background: #5c5b50; }
-.dk-car-type { font-size: 13rem; color: #e8e4da; }
-.dk-car-level { font-size: 14rem; font-weight: 700; color: #f2e3b5; }
-.dk-car-name { font-size: 15rem; color: #e8e4da; white-space: nowrap; text-shadow: 0 0 3rem #000000; }
-.dk-car-name.is-premium { color: #ffa759; }
-.dk-car-xp { padding: 3rem 4rem; background: url('coui://gui/maps/icons/hangar/carousel/cards/corners/multiplier.png') left top / contain no-repeat; color: #eeede9; font-size: 13rem; font-weight: 700; text-shadow: 0 1rem 3rem #000000; }
-.dk-car-progression { font-size: 12rem; color: #c8c8b5; text-shadow: 0 1rem 3rem #000000; }
-.dk-car-favorite { color: #f2c14e; font-size: 14rem; }
-.dk-car-info { font-size: 13rem; color: #ffd24a; text-shadow: 0 0 3rem #000000; white-space: nowrap; }
-.dk-car-field { position: absolute; display: flex; align-items: center; white-space: nowrap; line-height: 1.1; }
-.dk-car-img { display: block; }
-.dk-car-badge { display: flex; align-items: center; justify-content: center; width: 16rem; height: 16rem; border-radius: 3rem; background: #6a5a2c; color: #f2e3b5; font-size: 10rem; font-weight: 700; }
-.dk-car-border { position: absolute; left: 0; top: 0; right: 0; bottom: 0; border: 2rem solid #f2c14e; z-index: 20; }
-.dk-car-off { position: relative; top: 0; padding: 30rem 0; font-size: 18rem; }
-.dk-car-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
 
 /* Rounded sliders --------------------------------------------------------------------------------------------- */
 .dk-slider-track:before, .dk-slider-fill { border-radius: 2rem; }
@@ -560,16 +498,6 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-mk-slider .dk-unit { margin-left: 4rem; font-size: 11rem; }
 .dk-mk-slider .dk-row-reset, .dk-mk-slider .dk-row-text:before { display: none; }
 
-/* Client images in the carousel preview -------------------------------------------------------------------------- */
-.dk-car-flag { background-size: 100% 100%; background-repeat: no-repeat; }
-.dk-car-tank-img { display: block; width: 100%; height: 100%; }
-.dk-car-type-img { display: block; width: 18rem; height: 18rem; }
-.dk-car-level-img { display: block; height: 16rem; }
-.dk-car-favorite-img { display: block; width: 16rem; height: 16rem; }
-
-/* Client images in the screen preview ---------------------------------------------------------------------------- */
-.dk-hud-scene { background-size: cover; background-position: center; background-repeat: no-repeat; }
-.dk-hud-hangar-tank { position: absolute; left: 510rem; top: 330rem; width: 900rem; opacity: 0.9; }
 
 /* Reference actions must stay inside the property column, including at 140% UI scale. */
 .dk-mk-input > .dk-field { flex: 1 1 0; min-width: 0; }
@@ -586,6 +514,5 @@ button:focus, input:focus, textarea:focus, [tabindex]:focus { outline: 1rem soli
 .dk-tri.is-right { border-width: 5rem 0 5rem 7rem; border-left-color: #7a7466; }
 .dk-star { display: flex; width: 14rem; height: 14rem; margin-right: 2rem; vertical-align: middle; background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star_empty.svg'); background-size: 100% 100%; background-repeat: no-repeat; }
 .dk-star.is-earned { background-image: url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg'); }
-.dk-car-badge.is-star { background: url('coui://gui/gameface/mods/driftkings/shared/assets/star.svg') center / 100% 100% no-repeat; }
 .dk-mk-icon.is-hoverMarker:before { content: ""; position: absolute; left: 4rem; top: 6rem; width: 0; height: 0; border-style: solid; border-color: transparent; border-width: 12rem 7rem 0 7rem; border-top-color: #ffffff; }
 .dk-mk-icon.is-vehicleStatusMarker:before { content: ""; position: absolute; left: 5rem; top: 5rem; width: 12rem; height: 12rem; border-radius: 6rem; background: #ffffff; }

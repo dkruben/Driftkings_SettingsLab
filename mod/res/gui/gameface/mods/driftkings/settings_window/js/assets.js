@@ -51,8 +51,6 @@
     DK.asset = asset;
     DK.assets = {
         mapTopDown: 'gui/maps/icons/map/05_prohorovka.png',          // Prokhorovka, 1000 m
-        battleScene: 'gui/maps/icons/map/stats/05_prohorovka.png',
-        hangarTank: 'gui/maps/shop/vehicles/600x450/A12_T32.png',
         favorite: 'gui/maps/icons/library/favorite_small.png',
         flag: function (nation) { return 'gui/maps/icons/hangar/carousel/cards/flags/x400x300/' + nation + '.png'; },
         tank: function (id) { return 'gui/maps/icons/vehicle/420x307/' + id + '.png'; },
