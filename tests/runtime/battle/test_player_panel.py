@@ -44,6 +44,7 @@ class StatisticsRequestTests(RuntimeTest):
         self.scheduled = []
         api = source('core/player_ratings.py', {
             'urllib2': module(), 'Queue': queue,
+            'realm': module(CURRENT_REALM='NA'),
             'gui.battle_control.arena_info.interfaces': module(IArenaVehiclesController=object),
             'gui.battle_control.arena_info.settings': module(ARENA_LISTENER_SCOPE=module(VEHICLES=2)),
             'gui.battle_control.battle_constants': module(BATTLE_CTRL_ID=module(MOD=19)),
@@ -95,6 +96,17 @@ class StatisticsRequestTests(RuntimeTest):
         self.stats._attempts['1001'] -= self.api['RETRY_SECONDS'] + 1
         self.stats.loadStats()
         self.assertEqual(len(self.requests), 2)
+
+    def test_cn_client_starts_no_statistics_workers_or_retries(self):
+        self.api['CURRENT_REALM'] = 'CN'
+        self.stats.loadStats()
+        self.assertEqual(self.requests, [])
+        self.assertEqual(self.stats._workers, 0)
+        self.assertIsNone(self.stats._retry)
+        self.assertEqual(self.scheduled, [])
+        self.api['CURRENT_REALM'] = 'NA'
+        self.stats.loadStats()
+        self.assertEqual(self.requests, [['1001']])
 
     def test_answered_accounts_are_not_fetched_again_without_the_cache(self):
         self.stats.loadStats()

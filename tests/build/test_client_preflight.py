@@ -213,7 +213,7 @@ class ProductionReferenceTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.source = Path(temp.name)
         self.config = json.loads((ROOT / 'build_data/build_config.json').read_text())
-        self.identity = dict(realm='EU', build='1000', revision='2664941')
+        self.identity = dict(realm='NA', build='1010', revision='2671446')
         self.profile = production_profile(ROOT, self.config, self.identity)
         self.python_path = self.profile['reference_python_lf'][0]
         for relative in self.profile['reference_sha256']:
@@ -221,13 +221,13 @@ class ProductionReferenceTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             raw = b'\xef\xbb\xbf# exact reference\nVALUE = 1\n'
             if relative == 'sources/version.xml':
-                raw = (b'<root><version>v.2.4.2.0 #1000</version><meta><realm>EU</realm>'
-                       b'<client>2664941</client></meta></root>\n')
+                raw = (b'<root><version>v.2.4.2.0 #1010</version><meta><realm>NA</realm>'
+                       b'<client>2671446</client></meta></root>\n')
             elif relative == 'sources/paths.xml':
                 raw = b'<paths/>\n'
             target.write_bytes(raw)
             self.profile['reference_sha256'][relative] = hashlib.sha256(raw).hexdigest()
-        (self.source / '.version_name').write_text('2.4.2.5524')
+        (self.source / '.version_name').write_text('2.4.2.5537')
 
     def verify(self):
         from build_tools.compiler import check_production_reference
@@ -281,7 +281,7 @@ class ProductionReferenceTests(unittest.TestCase):
         raw = b'PK\x00\x01\r\n'
         binary.write_bytes(raw)
         (self.source / 'flash.json').write_text(json.dumps(dict(
-            game_version='2.4.2.0', source_version='2.4.2.5523',
+            game_version='2.4.2.0', source_version='2.4.2.5537',
             libraries=[dict(name='test.swc', sha256=hashlib.sha256(raw).hexdigest())])))
         self.config['generators'] = {'flash': {'kind': 'flash'}}
         self.profile['generators'] = {'flash': 'flash.json'}

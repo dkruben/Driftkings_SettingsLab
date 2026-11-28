@@ -103,7 +103,7 @@ def resolved_production_profile(config, realm):
             'Production profile alias overrides an unknown reference file for ' + realm)
     profile = dict(base)
     profile['reference_sha256'] = dict(base['reference_sha256'], **overrides)
-    profile['reference_python_lf'] = entry.get('reference_python_lf', ())
+    profile['reference_python_lf'] = entry.get('reference_python_lf', base.get('reference_python_lf', ()))
     return profile
 
 
@@ -118,7 +118,8 @@ def production_profile(root, config, identity):
             'need Gameface patches, native SWF lock, Flash library manifest and realm evidence'
             % (realm, identity['build']))
     evidence = profile['realm_evidence']
-    require(realm in evidence and set(evidence) <= set(supported_realms(config))
+    require(realm in evidence, 'Owner realm evidence is missing for %s #%s' % (realm, identity['build']))
+    require(set(evidence) <= set(supported_realms(config))
             and set(evidence) <= set(config['reference']['production_clients']),
             'Production profile contains unsupported or unpinned runtime realms')
     for evidence_path in evidence.values():

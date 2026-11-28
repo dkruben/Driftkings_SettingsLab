@@ -134,7 +134,7 @@ PHASE431_TARGETS = {
 # Reviewed NA #1010 update (0.1.8-beta.6, owner-authorized): the NA target is renamed from na999 to na1010;
 # the other targets are unchanged. PHASE431_TARGETS above remains the historical Phase 4.3.1 record.
 CURRENT_TARGETS = {"na1010": {"realm": "NA", "build": "1010"},
-                   "eu1000": {"realm": "EU", "build": "1000"},
+                   "eu1007": {"realm": "EU", "build": "1007"},
                    "ct995": {"realm": "CT", "build": "995"},
                    "ct996": {"realm": "CT", "build": "996"}}
 
