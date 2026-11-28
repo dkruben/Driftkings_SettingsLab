@@ -34,6 +34,8 @@ class HighCaliberTests(RuntimeTest):
         self.project = self.load('core.high_caliber').project
         with open(os.path.join(ROOT, 'res/configs/driftkings/default/high_caliber_progress.json'), 'rb') as stream:
             self.settings = json.load(stream)
+        # Behaviour tests run with the module enabled; the shipped default is off (Phase 11.6).
+        self.settings['enabled'] = True
         self.allowed = True
         self.applied = []
         self.player = module(arena=module(guiType=1, onVehicleAdded=Signal(), onVehicleUpdated=Signal()),

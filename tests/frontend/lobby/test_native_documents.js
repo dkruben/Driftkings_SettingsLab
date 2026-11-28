@@ -11,14 +11,15 @@ patches.forEach(file => {
     const window = new Node('window'), document = new Node('document'), engine = new Node('engine');
     document.body = new Node('body'); document.head = new Node('head'); document.createElement = tag => new Node(tag);
     const host = new Node('div'), premium = new Node('div'), plus = new Node('div'), menu = new Node('div');
-    const card = new Node('div'), label = new Node('span');
+    const card = new Node('div'), label = new Node('span'), info = new Node('div');
+    info.className = 'Content_base_bfd91';
     host.className = 'Footer_section_test'; host.appendChild(menu); card.appendChild(label);
     card.setAttribute('data-test-id', '123-content'); card.setAttribute('data-dk-barracks-id', '123');
     document.body.appendChild(host); document.body.appendChild(premium); document.body.appendChild(plus); document.body.appendChild(card);
     const cards = Array.from({length: 6}, () => new Node('div')), amounts = cards.map(() => new Node('div'));
     cards.forEach((node, index) => { node.querySelector = () => amounts[index]; });
     const statistics = {querySelectorAll: () => cards, querySelector: () => null};
-    card.querySelector = selector => selector.includes('VehicleNode_name_') ? label : Node.prototype.querySelector.call(card, selector);
+    card.querySelector = selector => selector.includes('VehicleNode_name_') ? label : selector === '[class^="Content_base_"]' ? info : Node.prototype.querySelector.call(card, selector);
     document.querySelector = selector => {
         if (selector.includes('data-test-id="menu"')) { return menu; }
         if (selector.includes('data-test-id="premium"')) { return premium; }
@@ -68,7 +69,14 @@ patches.forEach(file => {
     } else if (feature === 'DriftkingsProfileRatings') {
         assert.strictEqual(amounts[0].style.color, '#123456');
     } else if (feature === 'DriftkingsCrewDetails') {
-        assert.ok(document.body.querySelector('.dk-crew-details'), file + ' mounts in its original surface');
+        if (file.includes('crewdetails_0')) {
+            // Barracks: one line inside the native information block; the card root carries no overlay.
+            assert.strictEqual(info.children.length, 1, file + ' mounts one line in the information block');
+            assert.strictEqual(info.children[0].children[0].textContent, 'XP 500');
+            assert.ok(!card.children.some(child => child.className.indexOf('dk-crew-details') >= 0), file + ' has no card-root overlay');
+        } else {
+            assert.ok(document.body.querySelector('.dk-crew-details'), file + ' mounts in its original surface');
+        }
     } else {
         assert.strictEqual(card.querySelector('.dk-tech-marks__percent').textContent, '88.00%');
         assert.strictEqual(label.style.color, '#12AB34');

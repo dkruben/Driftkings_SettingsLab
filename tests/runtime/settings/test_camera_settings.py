@@ -13,6 +13,8 @@ class CameraSettingsTests(RuntimeTest):
         self.policy = self.load('core.camera_settings')
         with open(os.path.join(ROOT, 'res/configs/driftkings/default/third_person_zoom.json'), 'rb') as stream:
             self.values = json.load(stream)
+        # These are behaviour tests of the enabled module; the shipped default is off (Phase 11.6).
+        self.values['enabled'] = True
         self.api = source('battle/third_person_zoom.py', {
             'AvatarInputHandler.DynamicCameras.ArcadeCamera': module(ArcadeCamera=object),
             'AvatarInputHandler.DynamicCameras.StrategicCamera': module(StrategicCamera=object),

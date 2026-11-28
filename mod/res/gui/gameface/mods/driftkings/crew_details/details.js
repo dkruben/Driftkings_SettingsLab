@@ -29,6 +29,24 @@
             if (mounted[k].parentNode === host) { host.removeChild(mounted[k]); mounted.splice(k, 1); }
         }
         var box = document.createElement('div'); box.className = 'dk-crew-details dk-crew-details--' + data.surface;
+        if (data.surface === 'barracks') {
+            // Native card integration: one line of inline segments. Each segment reuses the existing semantic class;
+            // separators are neutral and appear only between visible segments. Text is set with textContent only.
+            var single = document.createElement('div'); single.className = 'dk-crew-details__line';
+            (data.segments || []).forEach(function (segment, index) {
+                if (index > 0) {
+                    var separator = document.createElement('span');
+                    separator.className = 'dk-crew-details__line--unavailable';
+                    separator.textContent = SEPARATOR; single.appendChild(separator);
+                }
+                var part = document.createElement('span');
+                part.className = segment.kind ? 'dk-crew-details__line--' + segment.kind : '';
+                part.textContent = segment.text; single.appendChild(part);
+            });
+            box.appendChild(single);
+            host.appendChild(box); mounted.push(box);
+            return;
+        }
         if (data.title) {
             var title = document.createElement('div'); title.className = 'dk-crew-details__title';
             title.textContent = data.title; box.appendChild(title);
@@ -42,6 +60,17 @@
             line.textContent = value; box.appendChild(line);
         });
         host.appendChild(box); mounted.push(box);
+    }
+    // Barracks: one segment per visible value, from the native-localized lines and their kinds. Only a missing estimate
+    // becomes a neutral dash (never zero); a single-value state keeps its own localized text and semantic kind.
+    var SEPARATOR = ' · ', KINDS = /^(xp|battles|ready|complete|unavailable)$/;
+    function barracksSegments(row) {
+        var lines = row.lines || [], kinds = row.kinds || [];
+        return lines.map(function (value, index) {
+            var kind = KINDS.test(kinds[index] || '') ? kinds[index] : '';
+            if (lines.length > 1 && kind === 'unavailable') { return {text: '—', kind: 'unavailable'}; }
+            return {text: String(value), kind: kind};
+        });
     }
     function render() {
         pending = null;
@@ -65,12 +94,16 @@
             var data = binding.data, selector = data.surface === 'barracks' ? '[data-dk-barracks-id]' : targets[data.surface];
             if (!(data.config || {}).visible || !selector) { return; }
             if (data.surface === 'barracks') {
+                // The information block is the native container that renders additionalContent after the skills row.
+                // A card without that block gets nothing: no overlay is ever drawn over the portrait.
                 var cards = document.querySelectorAll('[data-dk-barracks-kind="tankman"][data-dk-barracks-id]');
                 var rows = {};
                 (data.rows || []).forEach(function (row) { rows[String(row.id)] = row; });
                 Array.prototype.forEach.call(cards, function (card) {
                     var row = rows[card.getAttribute('data-dk-barracks-id')];
-                    if (row) { mount(card, {surface: 'barracks', lines: row.lines, kinds: row.kinds}); }
+                    var info = card.querySelector('[class^="Content_base_"]');
+                    var segments = row ? barracksSegments(row) : [];
+                    if (segments.length && info) { mount(info, {surface: 'barracks', segments: segments}); }
                 });
                 return;
             }

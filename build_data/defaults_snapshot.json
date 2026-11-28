@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "default/account_manager.json",
-      "sha256": "aa014142a0168313a765dd1211c4c605eb3f15107ab0e1a27ec472170a5fbeca"
+      "sha256": "4a30c9be3f878a9b2ecf59f5e0ada934c9d7e390f09c232597a46d5b4e929a50"
     },
     {
       "path": "default/aiming_countdown.json",
@@ -19,7 +19,7 @@
     {
       "path": "default/artillery_blast_radius.json",
       "source_sha256": "9b8e680b9bb8d28c4c1cf42e6a3e8ae2de612b2f9f447fb6bd347ce332e9e833",
-      "sha256": "e42110d536cc504be141e3b2b1828a79d028e68e66e64e87c44d928ce12592ff"
+      "sha256": "089a17e08f60d6484356990f7ec1d09f5af4beeb6e8909b1bb1779e9cb9d55c9"
     },
     {
       "path": "default/autoaim_target_indicator.json",
@@ -29,91 +29,86 @@
     {
       "path": "default/battle_marks_of_excellence.json",
       "source_sha256": "36fab7807469e846f1aa2887a1ba8b94d41facf22e23763087c056dc2123c2a0",
-      "sha256": "cb0effc1bd89356fc72c07c5855255d3853bac6069ba60c64a3c3ffb9c490dc3"
+      "sha256": "35a19976f8a1fd4e5d01a0de9bd2fa46a529b85b552db071caf2b6a712eb91e1"
     },
     {
       "path": "default/battle_performance.json",
       "source_sha256": "79ab8b919f68e0255cfb6c94ae856ab8da6c6b789a2738f638391c4a433719ed",
-      "sha256": "c5e03a7d9c689fde4a5fbb21f022a9030ab2fa0e06b33970046e2566a5c90f0e"
+      "sha256": "6ad051a4079f40ac861fa72808c851e5b48a7fc86f6cfd9d8a4a6da4a2bfe03b"
     },
     {
       "path": "default/battle_preferences.json",
       "source_sha256": "353c0981c97751352ac897a1b18599ae23fb8e54aada1a4b350fd678cf58bd01",
-      "sha256": "905360aa1dea445c889c9369f69e34d45f7b9f94ef54934e2d3cf67ce207b0e5"
+      "sha256": "b211224bff78437eec48d9d5d771d25afaef4ad2f29df3dc4e779b745af6ccb0"
     },
     {
       "path": "default/battle_statistics.json",
       "source_sha256": "268523f342e68f311248ff5cd6bc4836979865b83acb31b2ba0d7aea79fa46c3",
-      "sha256": "da517b297a4c40776ffd4ffea499ca4030edbd4c4cffb46c92ba7d1abb4eba56"
+      "sha256": "c66acadd4552ebe4a57a2a6d0a3ddd5784feb572433d938dee9885bb17800f71"
     },
     {
       "path": "default/clan_reward_collection.json",
       "source_sha256": "6c2a8b1e10f4f2e99d69f52ef11035cc10cd27599f32761cb4dd2105917e2992",
-      "sha256": "6bf28f144e18bdbfd52934eb91a320b33310222ff9d85c4ce88555f709d989f7"
+      "sha256": "380af4b5e292a2e39c3ef77f78adeafea76722607741024d680568324dec8abc"
     },
     {
       "path": "default/crew_management.json",
       "source_sha256": "2149599b4bf058e9e2a1d3839517873a5be464ab7b9332fbbc8f7c4bd8176479",
-      "sha256": "049a7a7d319f359c95a14bc27f135d1f12a1403f8f58ce5d2890129cc236bc96"
+      "sha256": "3e215564bac5c7e3ba3192870264027e279978b8b61fc573def9af380f7121c5"
     },
     {
       "path": "default/enemy_spotting_status.json",
       "source_sha256": "3708b3c0ae0cde0e0b479b5c69206dcbe4b0b6609f3c5ee2a00c0cc5a89ec3a9",
-      "sha256": "66a4dfce267766bd39f44e43f8eaaf69ed9e9c0ccd6790c47522d88dcbae0f6b"
+      "sha256": "145f4207cb08f2679527db7202d981e68faebf4a7bb5a434afcdafe9ace4c437"
     },
     {
       "path": "default/game_log_manager.json",
       "source_sha256": "eab0df134ddb0fcc90ed35d329a51a5c24e3915d45e1b8c082be9b3ea1df1dae",
-      "sha256": "25209095a33941009b1c92a7750ab737a5dfeb9030f0b3cfe2633e287a306ceb"
+      "sha256": "cbd450ce5a1d4f5701bc528e199e8e7c6490a239b37cbdc707c18c1193e00f6c"
     },
     {
       "path": "default/gun_traverse_limits.json",
       "source_sha256": "9e69ff3269bc43ade06ac86bc7f6fe599ea162b69333aa9b155cbf092f5f9be5",
-      "sha256": "d16819e4a6b6aea5eff3aba4eea973e42c2f5063becd906616fdfbfde672a79b"
+      "sha256": "f1e26f3c5096d53070c2c72e3126f6209e2e23f77dbc319d63771e9fe76034e0"
     },
     {
       "path": "default/hangar_marks_of_excellence.json",
       "source_sha256": "9adecf9063cb8036d592739f95ffcb1b5ce10d30d72b653d1c4227abab2533e5",
-      "sha256": "54653acd4c33276df0dd4ff67c08a6b50e7e5f022dfe4aad494775fcdfb0ea7d"
+      "sha256": "eccf122f203b6e5cc7e0fcac591c52f1c39b080d75687a2cc91df5ab04fd49ed"
     },
     {
       "path": "default/hangar_preferences.json",
       "source_sha256": "7a514224cf02cc639df62cb8cfd3dc0c345155d2e3fe998d7a6268f4088ebe56",
-      "sha256": "674d636d392932ade054ead7998fefcb5cff99cf6321bc5eb9b2f441e1485219"
+      "sha256": "eba66c023b1257c1b8ceae70f5cc4c1b2c55538aa013b8dd356ff3082c8f1e57"
     },
     {
       "path": "default/high_caliber_progress.json",
       "source_sha256": "8462bfbb8c2b5846c725b6da68225540eb5a6a9c386e1f762d65e16866e841db",
-      "sha256": "16b4de3f3bc7310ab982945ac69e2d492a1cdf4263b46e84c6bcc72711088e96"
+      "sha256": "6c48e33b78968cb83ab0de040e2d2fcc7bb9446fc107684d2cd99c52fac3eb94"
     },
     {
       "path": "default/main.json",
-      "sha256": "29f9e6551c8209c9c471ae43d42cccc7db556929c0260249df3674e4260301b2"
-    },
-    {
-      "path": "default/minimap_enhancements.json",
-      "source_sha256": "dfaa52eb85cb1a534dec7230085819638293ffd3220ac3ed81a87ac6869acb41",
-      "sha256": "8fabd1df3e86383934827bae4bc0bf27709295a1e7fa1003e556f29e3f6edf22"
+      "sha256": "d906af3cbd3d9f97fc240b98a1ac92a6f710e789037873dee449741d3fe2bf81"
     },
     {
       "path": "default/minimap_enhancements/minimap.json",
       "source_sha256": "de64e128582a012f20414e5aab72e09f8462db98ad1a2c17b0aabb2448d0dd33",
-      "sha256": "9dfb324a9aa56c12b10348e1440c70aec1a69ab5bf65d3e5f10469ba9ea76ec3"
+      "sha256": "ea1ee90ea2c37abd859d665810511109b29a4e21f18f437b11814c932f3c5240"
     },
     {
       "path": "default/minimap_enhancements/minimap_circles.json",
       "source_sha256": "2002ae27b75ae49c22721020ce5a625dec4f402d4c784ff7d012d74c378a7587",
-      "sha256": "e848c11d20f9149f767a0fd281cf6c10d3f1c0ba3312f47337e7f9e354585469"
+      "sha256": "b1880016c39fb4a922a631d4ba10c571785378894ef924ddfdd8d91453104fc8"
     },
     {
       "path": "default/minimap_enhancements/minimap_labels.json",
       "source_sha256": "e602742ef21babeed44ce4031d3b261e43131d67b6a055787b7def0f2f6ce3d7",
-      "sha256": "5dad121b6c82012a0a91acefebb9316b4e7591164416b89d2dfbddccd0b782a9"
+      "sha256": "8e3a68ef7abb7baeca820e4ec04067540960845b79889bc4f0cd558bc66c3a06"
     },
     {
       "path": "default/minimap_enhancements/minimap_lines.json",
       "source_sha256": "59d1ff8edd5a5b497c1d0a4888e7446f953f6fe2745e4480e0f93f07685c76f6",
-      "sha256": "3a8f439f7fa1ab347bb00b49feb17d6f9b79b16ccd6412d1e554df296ea5cc90"
+      "sha256": "4660c8c118164e8cba4ddca8291ba14d475d7e24da4c43724404704fa750078c"
     },
     {
       "path": "default/penetration_indicator.json",
@@ -122,17 +117,17 @@
     },
     {
       "path": "default/profile_ratings.json",
-      "sha256": "6563351549a976aaeeea6fbb98cad3020d593bcc63ed3a8bdd228aa30c71b55a"
+      "sha256": "e98b35604e5cfb61e2e8ec3c346ece0d2d9e8b7fb9b4a41b9265fc497152e05a"
     },
     {
       "path": "default/repair_controls.json",
       "source_sha256": "18da0797d2745eb22042c63fbdb21d97a25e998cac6471554bb4d8acedc57413",
-      "sha256": "61d0ae149e41d6aef9f11e41ead310e835186b00f25ebaa48e952504f5bea9c6"
+      "sha256": "3170c4d47f072a2d9c2f55866ce35c98190fbc5ff88b87aee78a78099fbc24ca"
     },
     {
       "path": "default/server_turret_sync.json",
       "source_sha256": "7d6daedede815ca6c63943681308c06e397c78ac98154e6d44ed640a93e68b68",
-      "sha256": "318bba90b22d09ae4125f388c848be2ca2d2f78fe3b31c9ac02f2f7fc773a889"
+      "sha256": "2e48b1f030c26d11521297f51335dc92fd18859e95c30e27decab574fcf75c05"
     },
     {
       "path": "default/shell_flight_time.json",
@@ -142,12 +137,12 @@
     {
       "path": "default/sixth_sense_alert.json",
       "source_sha256": "463d8bbbc411dd90fb39397db58ced158c4e83a8f2567c0853b954fa438dadf2",
-      "sha256": "1aa4e2d5fe16f25b1d85668da76a079fe8357a439d5844aba27582f8182af46c"
+      "sha256": "53f97fb1e9c165a8d5d8dfc4240874bd54b3a8f6000e9748f1e38735aa7608f0"
     },
     {
       "path": "default/sniper_camera.json",
       "source_sha256": "15dceed77850de5eecf0f5e378fc8033fd6f083d98048e6aedb056bcf56c9cf6",
-      "sha256": "e42ceac15e96ed8906f13b0120fb5cb99045a76b1c1e8349c98392df41c916ce"
+      "sha256": "c59af817f13dc4fb3035c17965ce8e34b64985f5294ab3d17a456473e7776951"
     },
     {
       "path": "default/sound_bank_loader.json",
@@ -157,22 +152,22 @@
     {
       "path": "default/target_distance.json",
       "source_sha256": "bbcf88a12d49bbb9d130217aabbcee279494002b8216a69d73c72d9f7bef2f28",
-      "sha256": "adb5d3e958e339d0fa568c982c03cd5d5e08df167124357043466e0dee4e17d2"
+      "sha256": "c8128b434103bff72840211c0806824637dda90dd17dd75c31e624f7781fbf6c"
     },
     {
       "path": "default/target_information.json",
       "source_sha256": "8500d6ab505834f30933ad88a6da9f6f5c019d22c1e2f564828375e25fe09799",
-      "sha256": "5d8b622f985103e6741a86c24d19c0f977c6177aebcf687bdb3cb5bd603a9a37"
+      "sha256": "b0deab3ffdfc02f8bdaae792e14a56f0cf4b1d1b8f5f01028ec7d164d3e2ce68"
     },
     {
       "path": "default/team_panels/battleloading.json",
       "source_sha256": "679d099a47730a88f8c074acc73404c5f05cf5a95c06ad9a4e1237251981f828",
-      "sha256": "7f066c5f3b2cec0068a96fcf31dc827d5af26fde3b921f280ec1f42e7c0ac5e7"
+      "sha256": "bc635f0e14a5329c8f92f4c7085a2aebff7baced37a6b9b911a9a1dedfcea834"
     },
     {
       "path": "default/team_panels/general.json",
       "source_sha256": "4282256bab3117b02fe294346bb815b28de275790df644d5b43075624258bf98",
-      "sha256": "7b0422c3206b76ec58f658cb5d4e2f6aec61157f177c32483405fb398f55bbe5"
+      "sha256": "4f1be66310d01cb41a597d3e2284eaf90e007adfc97e401738a4b107cf245d11"
     },
     {
       "path": "default/team_panels/panellarge.json",
@@ -212,22 +207,22 @@
     {
       "path": "default/tech_tree_marks_of_excellence.json",
       "source_sha256": "f0d5bb995ed0c772be8a2d346cc81d1282ef14c22dc5f11048dbf711b9a07f15",
-      "sha256": "3d223d1e28cf296152a1d124cc753256d73a4db119727314d635de2bc19cfa1b"
+      "sha256": "f513f95feb7a0c599d8c889e3fc5a7d6c776ff650a0dbe1171bf51bb95dbf59b"
     },
     {
       "path": "default/third_person_zoom.json",
       "source_sha256": "3d44b8311a6f1ae900c385038f7968abb0d4a0c8089e891d9a8ecaebe433ac33",
-      "sha256": "ff180c0e0cdba8b7a76d188d1a55eda60833cab208fb55577c2a8dd80da5d465"
+      "sha256": "d50934b5753f244c48e2af8a83538e4609f6c2bc0bccca2e86d472a1040d7f73"
     },
     {
       "path": "default/vehicle_carousel/carousel.json",
       "source_sha256": "9dfc7fcdf780b1a26a395eecedbf829a6002db20c8fbd76e82e04a39fd25f695",
-      "sha256": "edc13bc3660d6c27ddd8c2dcab0e3402f4eed71cd3ebb3db09c9ef547158cd57"
+      "sha256": "200a80bbf903ea0b5aaa589494d51f27e321ade024339b2001a3806e5fa304b6"
     },
     {
       "path": "default/vehicle_carousel/carouselnormal.json",
       "source_sha256": "86d8fccfbfc61ed70d22c4426b287223f38a533e84c72da93b9bb581306c3f13",
-      "sha256": "dd714a0c247c9efa999b7461b8658dcb92051b90a16e873b4ddab1c354898536"
+      "sha256": "f5b7065dee3bd9fac872029adce1f147e7468b709b0ceb596e3503e09a1ec56a"
     },
     {
       "path": "default/vehicle_carousel/carouselsmall.json",
@@ -237,7 +232,7 @@
     {
       "path": "default/vehicle_health.json",
       "source_sha256": "645517d8333109cfabb14e2a73405d77affe459611bb55a2ebddfbe323de3e22",
-      "sha256": "e4209a7f9bf109f3e02b283330ef9dd02331f1251a58cfec8fa6433920d37786"
+      "sha256": "4a39febd8f73a583464ea9f3b6aaf29bb7a096b7136cce1c67405263018dee0d"
     },
     {
       "path": "default/vehicle_markers/markers.json",
@@ -249,7 +244,7 @@
     },
     {
       "path": "default/vehicle_markers/markersAliveNormal.json",
-      "sha256": "e48fe93e27f3d6927dc2e313ae3b20260e1b20082344a37db755bed70cadf806"
+      "sha256": "96f5a0fe9bb2cf17a1d868a625e9c835665e09826e4da398c15182962397ef84"
     },
     {
       "path": "default/vehicle_markers/markersDeadExtended.json",

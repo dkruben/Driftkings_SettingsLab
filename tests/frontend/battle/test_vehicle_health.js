@@ -56,40 +56,5 @@ assert.strictEqual(bridge.node.querySelector('.dk-health__fill').style.width,'40
 assert.strictEqual(bridge.node.firstChild.style.cursor,'move');
 bridge.render({style:1,percent:.1,text:'240 / 2400',config:{draggable:false,locked:false}});
 assert.strictEqual(bridge.node.style.pointerEvents,'none');
-// Preview reads live draft values and only changes sample HP locally.
-const previewHost=document.createElement('div'), id=DK.minimapPreview.fieldId;
-const preview=DK.hudPreview.create(previewHost,{id:'legacy.OwnHealth'});
-const values={[id('style')]:0,[id('enabled')]:true};
-preview.update(values);
-assert.strictEqual(previewHost.querySelector('.dk-health__frame').src.endsWith('/assets/frame.png'),true);
-preview.preview(id('style'),2);
-assert.strictEqual(previewHost.querySelector('.is-current').getAttribute('data-health-style'),'vanguard');
-preview.preview(id('style'),4);
-assert.strictEqual(previewHost.querySelector('.is-current').getAttribute('data-health-style'),'minimal');
-assert.strictEqual(previewHost.querySelector('.is-current').style.width,'340rem');
-assert.strictEqual(previewHost.querySelector('.dk-health__image').style.display,'none');
-preview.preview(id('style'),2);
-const range=previewHost.querySelector('input'), sent=env.sent.length;
-range.value=10;range.fire('input');
-assert.strictEqual(previewHost.querySelector('.dk-health__fill').style.width,'10%');
-const text=previewHost.querySelector('.dk-health__text').textContent;
-assert(/^\d+ \/ \d+$/.test(text));
-const color=previewHost.querySelector('.dk-health__fill').style.backgroundColor;
-preview.preview(id('avgColor.saturation'),0);
-assert.notStrictEqual(previewHost.querySelector('.dk-health__fill').style.backgroundColor,color);
-range.value=0;range.fire('input');
-assert.strictEqual(previewHost.querySelector('.dk-health__fill').style.width,'0%');
-assert.strictEqual(env.sent.length,sent,'sample HP never saves configuration');
-preview.preview(id('x'),99999);
-assert.strictEqual(previewHost.querySelector('.is-current').style.left,'1440rem');
-for (const style of [5,6,7]) {
-    preview.preview(id('style'),style);
-    const docked=previewHost.querySelector('.is-current');
-    assert.strictEqual(docked.style.left,'789rem');
-    assert.strictEqual(docked.style.top,'988rem');
-}
-preview.preview(id('enabled'),false);
-assert.strictEqual(previewHost.querySelector('.is-current'),null);
-preview.dispose();assert.strictEqual(previewHost.children.length,0);
 DK.app.dispose();
-console.log('Health bar: five floating and three docked styles, HP samples and live colour passed');
+console.log('Health bar: five floating and three docked styles passed');

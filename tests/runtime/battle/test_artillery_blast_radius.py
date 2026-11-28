@@ -26,6 +26,8 @@ class ArtilleryBlastRadiusTests(RuntimeTest):
     def setUp(self):
         super(ArtilleryBlastRadiusTests, self).setUp()
         self.data = dict(DEFAULTS)
+        # Behaviour tests run with the module enabled; the shipped default is off (Phase 11.6).
+        self.data['enabled'] = True
         self.keys, self.messages = set(), []
         self.mode, self.kind, self.tag, self.marker = 'strategic', 'HIGH_EXPLOSIVE', 'SPG', [(1, 2, 3)]
         area = lambda: module(setup=lambda *args: None, enableAccurateCollision=lambda value: None,

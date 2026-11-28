@@ -162,6 +162,10 @@ class FakeContext(object):
     def viewer(self):
         return 'maintainer'
 
+    def promote(self, folder, stable):
+        self.promoted = getattr(self, 'promoted', []) + [folder]
+        return folder
+
 
 class PreflightCase(unittest.TestCase):
     def setUp(self):
@@ -429,7 +433,7 @@ class StableBuildCase(PreflightCase):
         self.manifest = dict(version=STABLE, channel='stable', sha256='d' * 64, changelog=['Stable'])
         self.command = ['gh', 'release', 'create', 'v' + STABLE]
         self.digest = promotion.artifacts_digest(self.folder)
-        self.context.gate['workflow_runs'][0]['display_title'] = promotion.gate_title(BETA, STABLE_COMMIT, self.digest)
+        self.context.gate['workflow_runs'][0]['display_title'] = promotion.gate_title(BETA, STABLE_COMMIT, promotion.artifacts_digest_full(self.folder))
         for name, value in (('prepare', self.prepared), ('stable_folder', lambda stable: self.folder)):
             patcher = patch.object(promotion, name, value)
             patcher.start()
@@ -502,10 +506,10 @@ class StableBuildTests(StableBuildCase):
 
 class BuildCommandTests(StableBuildCase):
     def arguments(self):
-        return types.SimpleNamespace(beta=BETA, key=Path('offline.key'))
+        return types.SimpleNamespace(beta=BETA, stable=None, record=None, target='na999', key=Path('offline.key'))
 
     def test_a_finished_build_leaves_a_stamp_that_publication_accepts(self):
-        self.prepare_checkout(lambda stable, key: self.folder)
+        self.prepare_checkout(lambda stable, key, target: self.folder)
         with patch.object(promotion, 'print_results'), patch('builtins.print') as output:
             promotion.run_build(self.context, self.arguments())
         promotion.require_build_stamp(self.folder, STABLE_COMMIT)
@@ -521,7 +525,7 @@ class BuildCommandTests(StableBuildCase):
         self.context.compile = compile_action
 
     def test_compilation_failure_stops_before_verification(self):
-        self.prepare_checkout(lambda stable, key: (_ for _ in ()).throw(subprocess.CalledProcessError(1, 'compiler')))
+        self.prepare_checkout(lambda stable, key, target: (_ for _ in ()).throw(subprocess.CalledProcessError(1, 'compiler')))
         with patch.object(promotion, 'print_results'), patch.object(promotion, 'verify_stable_folder') as verify:
             with self.assertRaises(subprocess.CalledProcessError):
                 promotion.run_build(self.context, self.arguments())
@@ -530,14 +534,14 @@ class BuildCommandTests(StableBuildCase):
 
     def test_a_blocked_preflight_never_compiles(self):
         self.context.ci[STABLE_COMMIT] = [ci_run(STABLE_COMMIT, 'failure', branch='main')]
-        self.prepare_checkout(lambda stable, key: self.fail('compiled'))
+        self.prepare_checkout(lambda stable, key, target: self.fail('compiled'))
         with patch.object(promotion, 'print_results'):
             with self.assertRaisesRegex(ValueError, 'Promotion blocked'):
                 promotion.run_build(self.context, self.arguments())
 
     def test_a_dirty_checkout_never_compiles(self):
         self.context.git = lambda *args: STABLE_COMMIT if args[0] == 'rev-parse' else ' M file'
-        self.context.compile = lambda stable, key: self.fail('compiled')
+        self.context.compile = lambda stable, key, target: self.fail('compiled')
         with self.assertRaisesRegex(ValueError, 'uncommitted changes'):
             promotion.run_build(self.context, self.arguments())
 
@@ -556,7 +560,8 @@ class PublishCommandTests(StableBuildCase):
 
     def publish(self, confirm='token', waive=False):
         confirm = self.token() if confirm == 'token' else confirm
-        arguments = types.SimpleNamespace(beta=BETA, confirm=confirm, waive_environment_review=waive, commit=None)
+        arguments = types.SimpleNamespace(beta=BETA, stable=None, record=None, target=None, confirm=confirm,
+                                             waive_environment_review=waive, commit=None)
         promotion.run_publish(self.context, arguments)
 
     def provenance(self):
@@ -893,12 +898,12 @@ class GitHubCommandTests(unittest.TestCase):
             key = Path(temporary) / 'offline.key'
             with patch.object(promotion.subprocess, 'run') as run:
                 with self.assertRaisesRegex(ValueError, 'key is missing'):
-                    self.context.compile(STABLE, key)
+                    self.context.compile(STABLE, key, 'na999')
                 run.assert_not_called()
                 key.write_text('00' * 32)
                 run.return_value = subprocess.CompletedProcess([], 0)
                 with self.assertRaisesRegex(ValueError, 'tracked by git'):
-                    self.context.compile(STABLE, key)
+                    self.context.compile(STABLE, key, 'na999')
                 self.assertEqual(run.call_count, 1)
 
     def test_a_failed_build_step_stops_before_signing(self):
@@ -914,7 +919,7 @@ class GitHubCommandTests(unittest.TestCase):
             with patch.object(promotion.subprocess, 'run', side_effect=run), \
                     patch.object(promotion, 'sign_folder') as sign:
                 with self.assertRaises(subprocess.CalledProcessError):
-                    self.context.compile(STABLE, key)
+                    self.context.compile(STABLE, key, 'na999')
             sign.assert_not_called()
 
     def test_the_key_is_only_a_path_for_the_signer(self):
@@ -925,11 +930,12 @@ class GitHubCommandTests(unittest.TestCase):
 
             def run(command, **options):
                 commands.append(' '.join(str(part) for part in command))
-                return subprocess.CompletedProcess(command, 1 if command[0] == 'git' else 0)
+                stdout = '  output:   /runs/r/output\n' if 'compiler.py' in ' '.join(map(str, command)) else None
+                return subprocess.CompletedProcess(command, 1 if command[0] == 'git' else 0, stdout=stdout)
 
             with patch.object(promotion.subprocess, 'run', side_effect=run), \
                     patch.object(promotion, 'sign_folder') as sign:
-                self.context.compile(STABLE, key)
+                self.context.compile(STABLE, key, 'na999')
             sign.assert_called_once()
             self.assertNotIn('ab' * 32, ' '.join(commands))
             self.assertEqual(len([item for item in commands if str(key) in item]), 1)
@@ -979,8 +985,9 @@ class GateWorkflowTests(unittest.TestCase):
     def test_run_name_and_job_match_what_publication_looks_for(self):
         # Without the quotes YAML reads " # ..." as a comment and the digest never reaches the title.
         line = next(item for item in self.text.splitlines() if item.startswith('run-name:'))
-        self.assertEqual(line, 'run-name: "Promotion ${{ inputs.beta_version }} @ ${{ inputs.stable_commit }} # '
-                               '${{ inputs.artifacts_digest }}"')
+        self.assertEqual(line, 'run-name: "Promotion ${{ inputs.route == \'direct\' && \'direct \' || \'\' }}'
+                               '${{ inputs.version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}'
+                               '${{ inputs.route == \'direct\' && \' \' || \'\' }}${{ inputs.record_digest }}"')
         self.assertEqual(promotion.gate_title('B', 'C', 'D'), 'Promotion B @ C # D')
         self.assertIn('name: ' + promotion.GATE_JOB, self.text)
 

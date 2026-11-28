@@ -1,24 +1,45 @@
 name: Promotion gate
 
-# Read-only: checks one beta-to-stable promotion and optionally records an environment approval.
+# Read-only: checks one stable promotion and optionally records an environment approval.
+# route direct: a stable that was never a beta; the validation record travels as the `record` input and is
+#               checked against its digest and the artifact commit.
+# route beta:   the optional beta-backed stable, checked against the published beta as before.
 # Builds and signatures stay local (they need the game client and the offline key), and so does
 # publication, because a release published with GITHUB_TOKEN would not start the Discord workflow.
-run-name: "Promotion ${{ inputs.beta_version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}"
+run-name: "Promotion ${{ inputs.route == 'direct' && 'direct ' || '' }}${{ inputs.version }} @ ${{ inputs.stable_commit }} # ${{ inputs.artifacts_digest }}${{ inputs.route == 'direct' && ' ' || '' }}${{ inputs.record_digest }}"
 
 on:
   workflow_dispatch:
     inputs:
-      beta_version:
-        description: Published beta being promoted, for example 1.2.3-beta.4
+      route:
+        description: Publication route
+        required: true
+        default: direct
+        type: choice
+        options:
+          - direct
+          - beta
+      version:
+        description: Stable version for route direct (for example 1.2.3); published beta for route beta (for example 1.2.3-beta.4)
         required: true
         type: string
       stable_commit:
-        description: Full SHA-1 of the stable commit on main
+        description: Full SHA-1 of the artifact commit on main
         required: true
         type: string
       artifacts_digest:
-        description: Artifacts digest printed by promote_release.py build
+        description: Artifacts digest printed by promote_release.py build; complete SHA-256 for route direct, 16 hex digits for route beta
         required: true
+        type: string
+      record_digest:
+        description: Route direct only; complete SHA-256 of the validation record (empty for route beta)
+        required: false
+        default: ''
+        type: string
+      record:
+        description: Route direct only; the validation record text (empty for route beta)
+        required: false
+        default: ''
         type: string
       request_approval:
         description: After the checks pass, wait for approval in the stable-release environment
@@ -52,10 +73,24 @@ jobs:
       - name: Check the promotion
         env:
           GH_TOKEN: ${{ github.token }}
-          BETA_VERSION: ${{ inputs.beta_version }}
+          ROUTE: ${{ inputs.route }}
+          VERSION: ${{ inputs.version }}
           STABLE_COMMIT: ${{ inputs.stable_commit }}
           ARTIFACTS_DIGEST: ${{ inputs.artifacts_digest }}
-        run: python -B build_tools/promote_release.py check --beta "$BETA_VERSION" --commit "$STABLE_COMMIT" --digest "$ARTIFACTS_DIGEST"
+          RECORD_DIGEST: ${{ inputs.record_digest }}
+          RECORD: ${{ inputs.record }}
+        run: |
+          set -euo pipefail
+          if [ "$ROUTE" = "direct" ]; then
+            test -n "$RECORD" || { echo "route direct needs the validation record"; exit 1; }
+            printf '%s' "$RECORD" > "$RUNNER_TEMP/validation-record.md"
+            python -B build_tools/promote_release.py check --stable "$VERSION" \
+              --record "$RUNNER_TEMP/validation-record.md" --record-digest "$RECORD_DIGEST" \
+              --commit "$STABLE_COMMIT" --digest "$ARTIFACTS_DIGEST"
+          else
+            python -B build_tools/promote_release.py check --beta "$VERSION" \
+              --commit "$STABLE_COMMIT" --digest "$ARTIFACTS_DIGEST"
+          fi
 
   approve:
     name: Environment approval

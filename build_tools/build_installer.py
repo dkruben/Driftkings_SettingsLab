@@ -14,7 +14,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from build_tools.generate_ui_catalog import installer_catalog
-from build_tools.publication_state import require_signable
+from build_tools.package_tools import sha, write_json, zip_entries
+from build_tools.validate_build_data import relative_path
+from build_tools.publication_state import require_mutable, require_signable
 from build_tools.validate_locales import catalog
 from build_tools.validate_build_data import build_plan, read_json, require, supported_realms, production_realms
 from build_tools.validate_installer_assets import validate as validate_assets
@@ -130,8 +132,10 @@ def case_function(name, values, kind='String'):
 
 
 def generate_components(root=ROOT, output=None):
+    """Write the installer input into an explicit folder, normally a run workspace; there is no global default."""
     root = Path(root)
-    output = Path(output) if output else root / 'build/installer_input'
+    require(output is not None, 'The installer input needs an explicit output folder, such as a run workspace')
+    output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     components, options, presets = definitions(root)
     wizard = installer_messages(root)
@@ -234,8 +238,44 @@ end;
     return components, options, presets
 
 
-def prepare_payload(root, artifacts, output):
+RUN_ID = re.compile(r'\d{8}T\d{6}Z-[0-9a-f]{8}')
+
+
+def run_directory(artifacts, root=ROOT, explicit=None):
+    """The compiler run that produced these artifacts: the explicit one, or the run the build report names.
+    The run's WOTMOD must be byte-identical to the candidate's, so the installer never wraps another build."""
     artifacts = Path(artifacts).resolve()
+    if explicit is not None:
+        run = Path(explicit).resolve()
+    else:
+        run_id = read_json(artifacts / 'build-report.json').get('run_id')
+        require(isinstance(run_id, str) and RUN_ID.fullmatch(run_id),
+                'The build report names no compiler run; pass --run <run directory> explicitly')
+        run = Path(root).resolve() / 'build/runs' / run_id
+    runs = (Path(root).resolve() / 'build/runs')
+    require(run.is_dir() and run.parent == runs, 'The installer run must be a directory directly under build/runs')
+    require(read_json(run / 'evidence/build-report.json').get('run_id') == run.name,
+            'Run metadata does not match its directory')
+    manifest = read_json(artifacts / 'release.json')
+    require(sha(run / 'output/driftkings.wotmod') == manifest['sha256'],
+            'The run WOTMOD is not the candidate package; the installer must wrap the same bytes')
+    return run
+
+
+def installer_workspace(run):
+    """Intermediates, Inno Setup output, compilation log and verification evidence of one run; nothing global."""
+    run = Path(run)
+    layout = dict(input=run / 'workspace/installer/input', output=run / 'workspace/installer/output',
+                  logs=run / 'evidence/installer/logs', evidence=run / 'evidence/installer')
+    for folder in layout.values():
+        folder.mkdir(parents=True, exist_ok=True)
+    return layout
+
+
+def prepare_payload(root, artifacts, output, setup_output=None):
+    artifacts = Path(artifacts).resolve()
+    require(not artifacts.is_dir() or (artifacts / 'release.json').is_file(),
+            'Development packages have no distribution and cannot be installed; build a release')
     manifest = read_json(artifacts / 'release.json')
     report = read_json(artifacts / 'build-report.json')
     require(report['status'] == 'success' and manifest['version'] == report['version'],
@@ -287,15 +327,42 @@ def prepare_payload(root, artifacts, output):
     (output / 'changelog.generated.txt').write_bytes(('\r\n'.join(notes) + '\r\n').encode('utf-8-sig'))
     metadata = dict(RepoRoot=str(root.resolve()), BuildVersion=manifest['version'], GameVersion=manifest['gameVersion'],
                     GameRealm=report['realm'], SupportedRealms='|' + '|'.join(realms) + '|',
-                    SupportedRealmsText=', '.join(realms), InstallerOutput=str((root / 'build/installer').resolve()))
+                    SupportedRealmsText=', '.join(realms),
+                    InstallerOutput=str(Path(setup_output or output / 'setup').resolve()))
     (output / 'metadata.generated.iss').write_text('\n'.join('#define ' + key + ' ' + quoted(value) for key,
                                                              value in metadata.items()) + '\n', encoding='utf-8-sig')
 
 
+def setup_archive_name(manifest):
+    return 'Driftkings-%s-WoT-%s-Setup.zip' % (manifest['version'], manifest['gameVersion'])
+
+
+def build_setup_archive(setup, archive):
+    """The WGMods archive: the final Setup executable and nothing else, with deterministic metadata."""
+    setup = Path(setup)
+    zip_entries(archive, {setup.name: setup.read_bytes()}, zipfile.ZIP_DEFLATED)
+    return archive
+
+
+def verify_setup_archive(archive, setup):
+    """The archive holds exactly one entry, the same executable byte for byte, under a safe name."""
+    setup = Path(setup)
+    with zipfile.ZipFile(archive) as bundle:
+        names = bundle.namelist()
+        require(names == [setup.name], 'The Setup archive must contain exactly the Setup executable: %r' % names)
+        relative_path(names[0])
+        infos = bundle.infolist()
+        require(infos[0].file_size == setup.stat().st_size, 'Setup archive entry size differs from the executable')
+        extracted = bundle.read(names[0])
+    require(hashlib.sha256(extracted).hexdigest() == sha(setup),
+            'The executable inside the Setup archive is not the standalone executable')
+    return sha(setup)
+
+
 def attach_installer(artifacts, installer):
-    """Add a compiled setup to the verified release inventory and checksums."""
-    from build_tools.package_tools import sha, write_json
+    """Add the compiled setup and its WGMods archive to the staging inventory, before the candidate is frozen."""
     artifacts, installer = Path(artifacts).resolve(), Path(installer).resolve()
+    require_mutable(artifacts)
     report = read_json(artifacts / 'build-report.json')
     manifest = read_json(artifacts / 'release.json')
     require_signable(report)  # eligibility only; publication is decided by publish_release.py
@@ -308,7 +375,12 @@ def attach_installer(artifacts, installer):
     target = artifacts / expected
     if installer != target:
         shutil.copy2(installer, target)
+    archive = artifacts / setup_archive_name(manifest)
+    build_setup_archive(target, archive)
+    verify_setup_archive(archive, target)
     report['artifacts'][expected] = dict(size=target.stat().st_size, sha256=sha(target))
+    report['artifacts'][archive.name] = dict(size=archive.stat().st_size, sha256=sha(archive))
+    report['setupArchive'] = archive.name
     write_json(artifacts / 'build-report.json', report)
     names = sorted(set(report['artifacts']) | {'build-report.json'})
     (artifacts / 'SHA256SUMS.txt').write_bytes((''.join('%s  %s\n' % (sha(artifacts / name), name)
@@ -316,38 +388,69 @@ def attach_installer(artifacts, installer):
     return target
 
 
+def compile_installer(root, workspace, iscc=None):
+    """Run Inno Setup with its log in the run evidence; exactly one setup must come out of the run workspace."""
+    compiler = iscc or shutil.which('ISCC.exe') or 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
+    log = workspace['logs'] / 'iscc.log'
+    with log.open('wb') as stream:
+        result = subprocess.run([compiler, '/DInputDir=' + str(workspace['input']),
+                                 str(Path(root) / 'installer/setup/driftkings.iss')],
+                                stdout=stream, stderr=subprocess.STDOUT)
+    require(result.returncode == 0, 'Inno Setup failed; see ' + str(log))
+    setups = sorted(workspace['output'].glob('*.exe'))
+    require(len(setups) == 1, 'Inno Setup must produce exactly one installer in the run workspace')
+    return setups[0]
+
+
+def record_installer_evidence(workspace, setup, artifacts, run):
+    """Verification evidence of the compiled setup: its identity, the candidate it wraps and the run it came from."""
+    manifest = read_json(Path(artifacts) / 'release.json')
+    data = dict(schema=1, setup=setup.name, sha256=sha(setup), size=setup.stat().st_size, run_id=Path(run).name,
+                candidateWotmodSha256=manifest['sha256'], candidateVersion=manifest['version'], frozen=False)
+    write_json(workspace['evidence'] / 'verification.json', data)
+    return data
+
+
+def release_directory(path):
+    """Accept a completed release directory, or a run directory whose output/ holds the release."""
+    path = Path(path).resolve()
+    if (path / 'output' / 'release.json').is_file():
+        return path / 'output'
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--artifacts', type=Path, help='Completed compiler output directory (debug or release)')
+    parser.add_argument('--artifacts', required=True, type=Path,
+                        help='Release directory (a run output or a candidate folder); defines the installer')
+    parser.add_argument('--run', type=Path,
+                        help='Compiler run that owns the installer workspace (default: the run named by the build report)')
     parser.add_argument('--compile', action='store_true',
-                        help='Compile locally with Inno Setup 6.7.1+; never install or publish')
+                        help='Compile locally with Inno Setup 6.7.1+ into the run workspace; never install or publish')
     parser.add_argument('--iscc', help='Inno compiler path')
     parser.add_argument('--attach-to-release', action='store_true',
-                        help='Include the compiled installer in the release inventory and checksums')
+                        help='Include the compiled installer in the candidate inventory and checksums; refused once frozen')
     args = parser.parse_args()
     if args.attach_to_release and not args.compile:
         parser.error('--attach-to-release requires --compile')
-    if args.compile and not args.artifacts:
-        parser.error('--compile requires --artifacts')
+    artifacts = release_directory(args.artifacts)
     try:
         plan = build_plan(ROOT)
         media = validate_assets(ROOT, plan['assets'])
         for warning in media['warnings']:
             print('WARNING: ' + warning)
-        output = ROOT / 'build/installer_input'
-        components, options, presets = generate_components(ROOT, output)
-        if args.artifacts:
-            prepare_payload(ROOT, args.artifacts, output)
-        if args.compile:
-            compiler = args.iscc or shutil.which('ISCC.exe') or 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
-            subprocess.run([compiler, '/DInputDir=' + str(output), str(ROOT / 'installer/setup/driftkings.iss')],
-                           check=True)
-            if args.attach_to_release:
-                manifest = read_json(args.artifacts / 'release.json')
-                name = 'Driftkings-%s-WoT-%s-Setup.exe' % (manifest['version'], manifest['gameVersion'])
-                print('Release installer: ' + str(attach_installer(args.artifacts, ROOT / 'build/installer' / name)))
+        run = run_directory(artifacts, ROOT, args.run)
+        workspace = installer_workspace(run)
+        components, options, presets = generate_components(ROOT, workspace['input'])
+        prepare_payload(ROOT, artifacts, workspace['input'], setup_output=workspace['output'])
         print('Installer input: %d components, %d options, %d presets; %s' % (len(components), len(options),
-                                                                              len(presets), output))
+                                                                              len(presets), workspace['input']))
+        if args.compile:
+            setup = compile_installer(ROOT, workspace, args.iscc)
+            evidence = record_installer_evidence(workspace, setup, artifacts, run)
+            print('Installer built in the run workspace: %s (sha256 %s)' % (setup, evidence['sha256']))
+            if args.attach_to_release:
+                print('Release installer: ' + str(attach_installer(artifacts, setup)))
     except (ValueError, OSError, subprocess.SubprocessError) as error:
         parser.exit(1, 'Installer build failed: ' + str(error) + '\n')
 

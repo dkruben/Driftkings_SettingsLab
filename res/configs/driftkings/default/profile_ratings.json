@@ -5,7 +5,7 @@
   "vehicleColors": true,
   "showPlayerWN8": true,
   "showVehicleWN8": true,
-  "showUnavailableWN8": true,
+  "showUnavailableWN8": false,
   "colorScale": 0,
   "colorSurvival": true,
   "colorReceivedDamage": true,

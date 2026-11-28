@@ -1,19 +1,25 @@
-"""Promote an approved beta to a stable release, rebuilt from source and signed anew.
+"""Publish a stable release, rebuilt from source and signed anew.
 
-  python build_tools/promote_release.py prepare --beta <beta>      # edit release.json and VERSION; no commit
-  python build_tools/promote_release.py check --beta <beta>        # read-only gate
-  python build_tools/promote_release.py build --beta <beta>        # compile, sign and verify locally
-  python build_tools/promote_release.py publish --beta <beta>      # preview: nothing is uploaded
-  python build_tools/promote_release.py publish --beta <beta> --confirm v<stable>@<artifacts digest>
+Two routes; a beta is optional:
 
-A stable differs from its beta by a commit that only changes metadata, so the approved beta commit and
-the stable commit are compared rather than assumed equal. Compilation needs the game client and the
-signing key is offline, so only `check` runs on GitHub; publication stays local, which also keeps the
-Discord workflow firing (events from GITHUB_TOKEN do not start other workflows). Traceability is the
-promotion.json release asset: the updater rejects unknown fields, so it must not enter release.json.
+  Direct stable (no beta required)
+    python build_tools/promote_release.py prepare --stable <X.Y.Z>
+    python build_tools/promote_release.py build --stable <X.Y.Z> --target <target>
+    python build_tools/promote_release.py check --stable <X.Y.Z> --record <file> --commit <sha> --digest <full>
+    python build_tools/promote_release.py publish --stable <X.Y.Z> --record <file> --target <target>
 
-Approval names the stable commit and the digest of SHA256SUMS.txt, which covers every artifact and the
-manifest, so the build comes first and any rebuild needs a new approval.
+  Beta-backed stable (optional)
+    python build_tools/promote_release.py check --beta <beta> --commit <sha> --digest <digest>
+    python build_tools/promote_release.py build --beta <beta> --target <target>
+    python build_tools/promote_release.py publish --beta <beta> --confirm v<stable>@<artifacts digest>
+
+`build` produces the signed candidate in the run output, stamps it and promotes it into build/releases.
+`publish` without --confirm only previews; nothing is uploaded until the approval and the confirmation match.
+
+Approvals bind complete SHA-256 digests of the inventory and of the validation record. The protected
+stable-release environment and its required reviewers are always required; the direct route has no waiver.
+Compilation needs the game client and the signing key is offline, so publication stays local. Traceability
+is the promotion.json release asset: the updater rejects unknown fields, so it must not enter release.json.
 """
 import argparse
 import base64
@@ -22,6 +28,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -30,19 +37,23 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from build_tools.compiler import override_version, sync_release_version, version_contract
+from build_tools.compiler import artifact_files, override_version, sync_release_version, version_contract
 from build_tools.package_tools import sha, write_json
 from build_tools.publish_release import (create_release, github_json, prepare, releases_for_tag, require_green_ci,
                                          signature_module)
-from build_tools.sign_release import sign_folder
+from build_tools.publication_state import eligible_for_signing
+from build_tools.sign_release import INVENTORY_SIGNATURE, LOCAL_REPORT_FIELDS, sign_folder
 from build_tools.update_release import tag_commit
 from build_tools.validate_build_data import read_json, require
-from build_tools.validation_record import RECORD_FOLDER, evaluate, stable_target
+from build_tools.validation_record import MAX_RECORD, RECORD_FOLDER, evaluate, stable_target
 
 STABLE_BRANCH = 'main'
 GATE_WORKFLOW = 'promotion-gate.yml'
 GATE_JOB = 'Environment approval'
 GATE_ENVIRONMENT = 'stable-release'
+# Beta approvals created before complete digests were required keep their abbreviated titles, and only these
+# historical versions may still be matched that way. Every new approval binds the complete SHA-256.
+LEGACY_BETA_VERSIONS = frozenset(('0.1.7-beta.2',))
 PROVENANCE = 'promotion.json'
 BUILD_STAMP = '.promotion-build.json'
 RELEASE_DATA = 'build_data/release.json'
@@ -52,7 +63,8 @@ ALLOWED_PREFIXES = ('docs/', 'tests/', '.github/ISSUE_TEMPLATE/')
 ALLOWED_FILES = frozenset(('README.md', 'CONTRIBUTING.md', 'SECURITY.md', RELEASE_DATA,
                            '.github/workflows/promotion-gate.yml', 'build_tools/promote_release.py',
                            'build_tools/publish_release.py', 'build_tools/sign_release.py',
-                           'build_tools/update_release.py', 'build_tools/validation_record.py'))
+                           'build_tools/update_release.py', 'build_tools/validation_record.py',
+                           'build_tools/sign_candidate.py', '.gitignore'))
 
 
 class Context(object):
@@ -88,20 +100,44 @@ class Context(object):
                                     cwd=ROOT, stdout=stream, stderr=subprocess.PIPE)
         require(result.returncode == 0, 'Could not download release asset ' + asset['name'])
 
-    def compile(self, stable, key):
+    def compile_candidate(self, version, target, channel='stable'):
+        """Compile the WOTMOD and attach the installer. Reads no signing material."""
+        built = subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--mode', 'release',
+                                '--target', target, '--version', version, '--channel', channel],
+                               cwd=ROOT, check=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
+        match = re.search(r'(?m)^  output:\s+(.+)$', built)
+        require(match is not None, 'The compiler did not report its run output')
+        folder = Path(match.group(1).strip())
+        subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/build_installer.py'), '--artifacts', str(folder),
+                        '--compile', '--attach-to-release'], cwd=ROOT, check=True)
+        return folder
+
+    def run_artifact_suite(self, folder):
+        subprocess.run([sys.executable, '-B', str(ROOT / 'tests/run_python.py'), '--suite', 'artifacts',
+                        '--wotmod', str(folder / 'driftkings.wotmod')], cwd=ROOT, check=True)
+
+    def compile_unsigned(self, version, target, channel='stable'):
+        """Unsigned route: compile, attach the installer and run the artifact suite. Stops before any signature."""
+        folder = self.compile_candidate(version, target, channel)
+        self.run_artifact_suite(folder)
+        return folder
+
+    def compile(self, stable, key, target):
+        """Legacy combined route: it needs the private seed on this host. Prefer compile_unsigned and finalize."""
         require(key.is_file(), 'Local release signing key is missing')
         require(subprocess.run(['git', 'ls-files', '--error-unmatch', str(key)], cwd=ROOT,
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0,
                 'The signing key is tracked by git; stop and rotate it')
-        subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--mode', 'release',
-                        '--version', stable, '--channel', 'stable'], cwd=ROOT, check=True)
-        folder = stable_folder(stable)
-        subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/build_installer.py'), '--artifacts', str(folder),
-                        '--compile', '--attach-to-release'], cwd=ROOT, check=True)
+        folder = self.compile_candidate(stable, target)
         sign_folder(folder, key)
-        subprocess.run([sys.executable, '-B', str(ROOT / 'tests/run_python.py'), '--suite', 'artifacts',
-                        '--wotmod', str(folder / 'driftkings.wotmod')], cwd=ROOT, check=True)
+        self.run_artifact_suite(folder)
         return folder
+
+    def promote(self, folder, version):
+        """Copy the frozen run output into build/releases; the compiler refuses unless it is stamped and signed."""
+        subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--promote-run',
+                        str(folder.parent)], cwd=ROOT, check=True)
+        return release_folder(version)
 
     def create_draft(self, command, files, manifest):
         create_release(command + ['--draft'], files, manifest)
@@ -120,6 +156,13 @@ def stable_folder(stable):
     return ROOT / config['package']['release_root'] / 'stable' / stable
 
 
+def release_folder(version):
+    """Canonical promoted folder of a candidate, under its own channel: beta or stable."""
+    channel = 'beta' if version_contract().Version(version).prerelease else 'stable'
+    config = read_json(ROOT / 'build_data/build_config.json')
+    return ROOT / config['package']['release_root'] / channel / version
+
+
 def record_location(beta):
     return '%s/%s-validation.md' % (RECORD_FOLDER, beta)
 
@@ -130,8 +173,29 @@ def artifacts_digest(folder):
 
 
 def gate_title(beta, commit, digest):
-    """Must match run-name in .github/workflows/promotion-gate.yml."""
+    """Beta route. Must match run-name in .github/workflows/promotion-gate.yml."""
     return 'Promotion %s @ %s # %s' % (beta, commit, digest)
+
+
+# The workflow_dispatch payload is limited by GitHub; a record above this size cannot be dispatched as an input.
+MAX_GATE_RECORD = 60000
+
+
+def record_digest(text):
+    """Complete SHA-256 identity of a validation record. Trailing newlines are not part of the identity:
+    shells and the gate may add or strip one. The approval title carries this full digest."""
+    return hashlib.sha256((text.rstrip('\n') + '\n').encode('utf-8')).hexdigest()
+
+
+def artifacts_digest_full(folder):
+    """Complete SHA-256 of the candidate inventory (SHA256SUMS.txt, which covers every artifact and the report)."""
+    return sha(folder / 'SHA256SUMS.txt')
+
+
+def direct_gate_title(stable, commit, digest, record):
+    """Direct route: the approval is bound to the version, the artifact commit, the complete candidate inventory digest
+    and the complete record digest. Must match the run-name of .github/workflows/promotion-gate.yml for route direct."""
+    return 'Promotion direct %s @ %s # %s %s' % (stable, commit, digest, record)
 
 
 def write_build_stamp(folder, commit):
@@ -144,6 +208,111 @@ ATTESTATION = '.official-build-attestation.json'
 OFFICIAL_SOURCE = 'official-stable-build'
 # Files the official build reported whose bytes signing rewrites (scrubbed build report and its checksum list).
 SIGNING_REWRITTEN = frozenset(('build-report.json', 'SHA256SUMS.txt'))
+
+
+# Unsigned route evidence. It is written beside the run's build report in build/runs/<run>/evidence, never in the
+# candidate, so the owner-signed folder carries only the release files and their signatures.
+UNSIGNED_EVIDENCE = 'unsigned-candidate.json'
+UNSIGNED_INVENTORY = 'unsigned-SHA256SUMS.txt'
+UNSIGNED_SIGNATURES = ('release.json.sig', INVENTORY_SIGNATURE)
+
+
+def write_unsigned_evidence(folder, version, target, commit, channel='stable'):
+    """Record the unsigned candidate after its artifact suite passed; the compilation and suite results come from the run."""
+    report = read_json(folder / 'build-report.json')
+    require(report.get('status') == 'success' and report.get('mode') == 'release' and report.get('version') == version
+            and report.get('channel') == channel and report.get('git', {}).get('commit') == commit
+            and report['git'].get('dirty') is False, 'The unsigned build report does not match the stable commit')
+    evidence = folder.parent / 'evidence'
+    write_json(evidence / UNSIGNED_EVIDENCE, dict(
+        schema=1, stage='unsigned', version=version, channel=channel, target=target, commit=commit,
+        artifactSuite='passed', wotmodSha256=sha(folder / 'driftkings.wotmod'),
+        inventorySha256=sha(folder / 'SHA256SUMS.txt')))
+    shutil.copy2(folder / 'SHA256SUMS.txt', evidence / UNSIGNED_INVENTORY)
+
+
+def parse_inventory(text):
+    entries = {}
+    for line in text.splitlines():
+        digest, name = line.split('  ', 1)
+        require(name not in entries, 'Duplicate inventory entry: ' + name)
+        entries[name] = digest
+    return entries
+
+
+def finalize_candidate(context, folder, identity, target, signature=None):
+    """Verify an owner-signed run output against its unsigned build evidence, then stamp it and promote it.
+
+    Nothing is compiled or signed here. Every file must be accounted for, every immutable artifact must match the
+    unsigned inventory, the report may differ only by the scrubbing signing performs and the installer entries, and both
+    signatures must verify against the trusted production keys. The stamp is written only after all of that passes.
+    """
+    signature = signature or signature_module()
+    version, channel, commit = identity['version'], identity['channel'], identity['commit']
+    folder = Path(folder).resolve()
+    run = folder.parent
+    require(folder.name == 'output' and run.parent == (Path(context.root) / 'build/runs').resolve(),
+            'Finalization takes the run output folder under build/runs')
+    evidence = run / 'evidence'
+    for name in (UNSIGNED_EVIDENCE, UNSIGNED_INVENTORY, 'build-report.json'):
+        require((evidence / name).is_file(), 'Incomplete build evidence: missing ' + name)
+    meta = read_json(evidence / UNSIGNED_EVIDENCE)
+    require(meta.get('stage') == 'unsigned' and meta.get('artifactSuite') == 'passed',
+            'The unsigned build did not pass its artifact suite')
+    require(meta.get('version') == version and meta.get('channel') == channel and meta.get('target') == target,
+            'The candidate is not %s/%s for target %s' % (version, channel, target))
+    require(meta.get('commit') == commit, 'The candidate was built from another commit than %s' % commit[:12])
+    require(sha(evidence / UNSIGNED_INVENTORY) == meta.get('inventorySha256'), 'Unsigned inventory evidence was modified')
+    evidence_report = read_json(evidence / 'build-report.json')
+    require(evidence_report.get('status') == 'success' and evidence_report.get('mode') == 'release',
+            'The build evidence is not a successful release build')
+    require(not (folder / BUILD_STAMP).exists() and not (folder / ATTESTATION).exists(),
+            'The candidate is already stamped; it cannot be finalized twice')
+    unsigned = parse_inventory((evidence / UNSIGNED_INVENTORY).read_text(encoding='utf-8'))
+    # Every file is accounted for: the unsigned inventory, the two signatures and the rewritten inventory.
+    expected = set(unsigned) | set(UNSIGNED_SIGNATURES) | {'SHA256SUMS.txt'}
+    present = {path.relative_to(folder).as_posix() for path in artifact_files(folder)}
+    require(not expected - present, 'Missing artifacts: ' + ', '.join(sorted(expected - present)))
+    require(not present - expected, 'Unexpected files in the candidate: ' + ', '.join(sorted(present - expected)))
+    # Immutable artifacts keep the bytes they had when the unsigned build passed its suite.
+    for name, digest in sorted(unsigned.items()):
+        if name not in SIGNING_REWRITTEN:
+            require(sha(folder / name) == digest, 'Artifact differs from the unsigned build: ' + name)
+    require(sha(folder / 'driftkings.wotmod') == meta['wotmodSha256'], 'The WOTMOD differs from the suite-tested build')
+    # The report may differ from the build evidence only by the scrubbing signing performs and the installer entries.
+    report = read_json(folder / 'build-report.json')
+    require(not any(field in report for field in LOCAL_REPORT_FIELDS),
+            'The signed report still carries local build fields')
+    compared = set(evidence_report) - set(LOCAL_REPORT_FIELDS) - {'artifacts', 'setupArchive'}
+    require(set(report) - set(LOCAL_REPORT_FIELDS) - {'artifacts', 'setupArchive'} == compared,
+            'Signed report has keys the build evidence does not hold')
+    for key in compared:
+        require(report.get(key) == evidence_report[key], 'Signed report differs from the build evidence: ' + key)
+    require(set(report['artifacts']) == set(unsigned) - set(SIGNING_REWRITTEN),
+            'Report artifact list differs from the unsigned inventory')
+    for name, record in report['artifacts'].items():
+        require(record['sha256'] == unsigned[name] and record['size'] == (folder / name).stat().st_size,
+                'Report entry differs from the unsigned build: ' + name)
+    require(eligible_for_signing(report), 'Only a successful production release build can be finalized')
+    inventory = (folder / 'SHA256SUMS.txt').read_text(encoding='utf-8')
+    require(inventory == ''.join('%s  %s\n' % (sha(folder / name), name)
+                                 for name in sorted(set(report['artifacts']) | {'build-report.json'})),
+            'The signed checksum inventory does not match the candidate files')
+    # Release metadata and both signatures, against the trusted production keys only.
+    release = read_json(folder / 'release.json')
+    require(release.get('version') == version and release.get('channel') == channel
+            and release.get('gameVersion') == report.get('gameVersion'),
+            'Release metadata is not %s/%s' % (version, channel))
+    require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty; no signed candidate can be accepted')
+    try:
+        signature.verify_manifest((folder / 'release.json').read_bytes(),
+                                  (folder / signature.SIGNATURE_ASSET).read_bytes(), signature.TRUSTED_KEYS)
+        signature.verify_manifest(inventory.encode('utf-8'), (folder / INVENTORY_SIGNATURE).read_bytes(),
+                                  signature.TRUSTED_KEYS)
+    except ValueError as error:
+        raise ValueError('Signature is not valid for a trusted production key: %s' % error)
+    write_build_stamp(folder, commit)
+    return context.promote(folder, version)
 
 
 def require_build_stamp(folder, commit):
@@ -222,7 +391,7 @@ def check_identity(context, beta, commit):
             'release.json at %s is %s/%s, not %s/stable' % (commit[:12], release['version'], release['channel'], stable))
     source = context.read(commit, context.version_source)
     require(override_version(source, stable) == source, 'Runtime VERSION differs from ' + stable)
-    return dict(beta=beta, stable=stable, tag='v' + stable, commit=commit)
+    return dict(beta=beta, stable=stable, version=stable, channel='stable', tag='v' + stable, commit=commit)
 
 
 # Owner-approved for the 0.1.7 release cycle only: the approved record and the CI run are read from an authorized
@@ -351,18 +520,9 @@ def check_slot(context, identity, resume=False):
     return found[0] if found else True
 
 
-def preflight(context, beta, commit, resume=False):
+def run_checks(state, checks):
     """Run every check; each result is PASS, FAIL or NOT RUN when something it needs failed first."""
-    state, results = {}, []
-    checks = (
-        ('identity', (), lambda: check_identity(context, beta, commit)),
-        ('record', ('identity',), lambda: check_record(context, state['identity'])),
-        ('history', ('identity', 'record'), lambda: check_history(context, state['identity'], state['record'])),
-        ('changes', ('identity', 'record'), lambda: check_changes(context, state['identity'], state['record'])),
-        ('beta', ('identity', 'record'), lambda: check_beta_release(context, state['identity'], state['record'])),
-        ('ci', ('identity', 'record'), lambda: check_ci(context, state['identity'], state['record'])),
-        ('slot', ('identity',), lambda: check_slot(context, state['identity'], resume)),
-    )
+    results = []
     for name, needs, action in checks:
         if not all(item in state for item in needs):
             results.append((name, 'NOT RUN', 'requires ' + ', '.join(needs)))
@@ -372,7 +532,84 @@ def preflight(context, beta, commit, resume=False):
             results.append((name, 'PASS', ''))
         except (ValueError, KeyError, TypeError, OSError, AttributeError, subprocess.SubprocessError) as error:
             results.append((name, 'FAIL', str(error)))
-    return state, results
+    return results
+
+
+def preflight(context, beta, commit, resume=False):
+    """Beta route: every check that needs the approved beta; see preflight_direct for the stable-only route."""
+    state = {}
+    checks = (
+        ('identity', (), lambda: check_identity(context, beta, commit)),
+        ('record', ('identity',), lambda: check_record(context, state['identity'])),
+        ('history', ('identity', 'record'), lambda: check_history(context, state['identity'], state['record'])),
+        ('changes', ('identity', 'record'), lambda: check_changes(context, state['identity'], state['record'])),
+        ('beta', ('identity', 'record'), lambda: check_beta_release(context, state['identity'], state['record'])),
+        ('ci', ('identity', 'record'), lambda: check_ci(context, state['identity'], state['record'])),
+        ('slot', ('identity',), lambda: check_slot(context, state['identity'], resume)),
+    )
+    return state, run_checks(state, checks)
+
+
+# Direct stable route: no beta exists, so nothing here asks GitHub for one. The record is an explicit file bound
+# to the artifact commit and to the candidate package digest, and CI must be green on the artifact commit itself.
+def direct_identity(context, stable, commit):
+    require(re.match(r'\A[0-9a-f]{40}\Z', commit), 'The stable commit must be a full SHA-1')
+    parsed = version_contract().Version(stable)
+    require(not parsed.prerelease and not parsed.metadata and '%d.%d.%d' % parsed.release == stable,
+            'The direct route promotes a stable version such as 1.2.3, not ' + stable)
+    release = json.loads(context.read(commit, RELEASE_DATA))
+    require(release['version'] == stable and release['channel'] == 'stable',
+            'release.json at %s is %s/%s, not %s/stable' % (commit[:12], release['version'], release['channel'], stable))
+    source = context.read(commit, context.version_source)
+    require(override_version(source, stable) == source, 'Runtime VERSION differs from ' + stable)
+    return dict(beta=None, stable=stable, version=stable, channel='stable', tag='v' + stable, commit=commit,
+                route='direct')
+
+
+def unsigned_beta_identity(context, beta, commit):
+    """Unsigned beta candidate: the committed release data must already describe this beta on the beta channel."""
+    require(re.match(r'\A[0-9a-f]{40}\Z', commit), 'The beta commit must be a full SHA-1')
+    parsed = version_contract().Version(beta)
+    require(parsed.prerelease and parsed.prerelease[0] == 'beta' and not parsed.metadata and parsed.text == beta,
+            'The unsigned beta route builds a beta version such as 1.2.3-beta.4, not ' + beta)
+    release = json.loads(context.read(commit, RELEASE_DATA))
+    require(release['version'] == beta and release['channel'] == 'beta',
+            'release.json at %s is %s/%s, not %s/beta' % (commit[:12], release['version'], release['channel'], beta))
+    source = context.read(commit, context.version_source)
+    require(override_version(source, beta) == source, 'Runtime VERSION differs from ' + beta)
+    return dict(beta=beta, stable=None, version=beta, channel='beta', tag='v' + beta, commit=commit,
+                route='unsigned-beta')
+
+
+def read_record_file(path):
+    require(path is not None and Path(path).is_file(), 'The direct route needs --record <validation record file>')
+    text = Path(path).read_text(encoding='utf-8')
+    require(len(text.encode('utf-8')) <= MAX_GATE_RECORD,
+            'The validation record is larger than the %d-byte gate input limit' % MAX_GATE_RECORD)
+    return text
+
+
+def check_direct_record(text, identity):
+    summary = evaluate(text, identity['stable'], identity['stable'], commit=identity['commit'])
+    summary['path'] = 'explicit record'
+    summary['sha256'] = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    summary['evidenceCommit'] = identity['commit']
+    return summary
+
+
+def preflight_direct(context, stable, commit, text=None, resume=False):
+    """Direct route checks. The record is checked only when given: the initial unsigned build needs none, because
+    the record binds the candidate digest, which exists only after the build."""
+    state = {}
+    checks = [
+        ('identity', (), lambda: direct_identity(context, stable, commit)),
+        ('ci', ('identity',), lambda: dict(tested=commit, runs=require_green_ci(
+            context.repository, commit, lambda path: context.query(path)))),
+        ('slot', ('identity',), lambda: check_slot(context, state['identity'], resume)),
+    ]
+    if text is not None:
+        checks.insert(1, ('record', ('identity',), lambda: check_direct_record(text, state['identity'])))
+    return state, run_checks(state, checks)
 
 
 def print_results(results):
@@ -401,17 +638,25 @@ def compare_inputs(before, after, version_source):
 
 def verify_stable_folder(context, folder, state):
     """Integrity, signature and identity of a local stable build, using the publisher's own checks."""
-    identity, beta = state['identity'], state['beta']
+    identity = state['identity']
     command, files, report, manifest = prepare(folder)
     require(report['version'] == identity['stable'] and report['channel'] == 'stable' and
             manifest['channel'] == 'stable', 'The build is not the expected stable')
     require('--prerelease' not in command, 'A stable cannot be published as a prerelease')
     require(report['git']['commit'] == identity['commit'] and not report['git']['dirty'],
             'The build does not come from the stable commit')
-    require(report['gameVersion'] == beta['gameVersion'], 'Stable and beta target different game versions')
-    require(manifest['sha256'] != beta['packageSha256'], 'The stable package is the beta package; it must be rebuilt')
     require(not any('beta' in path.name.lower() for path in files), 'A stable asset carries a beta name')
-    compare_inputs(beta['inputs'], report['inputs'], context.version_source)
+    if identity.get('route') == 'direct':
+        record = state.get('record')  # the binding is checked at publication, when the record exists
+        if record is not None:
+            require(manifest['sha256'] == record['packageSha256'],
+                    'The candidate package is not the package the validation record approved')
+            require(report['gameVersion'] == record['gameVersion'], 'Record and build target different game versions')
+    else:
+        beta = state['beta']
+        require(report['gameVersion'] == beta['gameVersion'], 'Stable and beta target different game versions')
+        require(manifest['sha256'] != beta['packageSha256'], 'The stable package is the beta package; it must be rebuilt')
+        compare_inputs(beta['inputs'], report['inputs'], context.version_source)
     return command, files, report, manifest
 
 
@@ -421,12 +666,19 @@ def environment_protected(context):
     return any(rule['type'] == 'required_reviewers' for rule in (environment or {}).get('protection_rules', []))
 
 
-def find_gate(context, beta, commit, digest, waive):
-    """The green gate run of this exact build and who approved it in the GitHub environment."""
+def find_gate(context, beta, commit, digest, waive, title=None, direct=False):
+    """The green gate run of this exact build and who approved it in the GitHub environment.
+
+    The run title names the route, version, artifact commit and digests, so an approval of anything else never matches.
+    The direct route has no waiver: it needs an approved environment run.
+    """
     data = context.query('repos/%s/actions/workflows/%s/runs?event=workflow_dispatch&status=success&per_page=100'
                          % (context.repository, GATE_WORKFLOW), True)
+    titles = {title or gate_title(beta, commit, digest)}
+    if not direct and beta in LEGACY_BETA_VERSIONS:
+        titles.add(gate_title(beta, commit, digest))
     runs = [run for run in (data or {}).get('workflow_runs', [])
-            if run['display_title'] == gate_title(beta, commit, digest) and run['head_branch'] == STABLE_BRANCH]
+            if run['display_title'] in titles and run['head_branch'] == STABLE_BRANCH]
     reviewers = []
     if runs:
         run = max(runs, key=lambda item: item['run_number'])
@@ -437,6 +689,7 @@ def find_gate(context, beta, commit, digest, waive):
             if reviewers:
                 return dict(run=run['html_url'], approvedBy=reviewers, status='approved')
     missing = 'No approved %s run for this commit and artifacts digest %s; dispatch it with request_approval'
+    require(not direct or not waive, 'The direct stable route needs an approved environment run; it has no waiver')
     require(waive, missing % (GATE_WORKFLOW, digest))
     require(not environment_protected(context),
             '%s has required reviewers, so it cannot be waived. ' % GATE_ENVIRONMENT + missing % (GATE_WORKFLOW, digest))
@@ -444,7 +697,7 @@ def find_gate(context, beta, commit, digest, waive):
 
 
 def provenance(context, state, gate, folder, promoter):
-    identity, record, beta = state['identity'], state['record'], state['beta']
+    identity, record, beta = state['identity'], state['record'], state.get('beta')
     signature = signature_module()
     raw, encoded = (folder / 'release.json').read_bytes(), (folder / signature.SIGNATURE_ASSET).read_bytes()
     decoded = base64.b64decode(encoded.strip())
@@ -457,9 +710,10 @@ def provenance(context, state, gate, folder, promoter):
                     checksumsSha256=sha(folder / 'SHA256SUMS.txt'), signatureSha256=sha(folder / signature.SIGNATURE_ASSET),
                     signingKey=next(key for key in signature.TRUSTED_KEYS
                                     if signature.verify(binascii.unhexlify(key), raw, decoded))),
-        beta=dict(version=identity['beta'], tag='v' + identity['beta'], commit=record['commit'],
-                  manifestSha256=beta['manifestSha256'], packageSha256=beta['packageSha256']),
-        changedAfterBeta=state['changes'],
+        beta=None if identity.get('route') == 'direct' else dict(
+            version=identity['beta'], tag='v' + identity['beta'], commit=record['commit'],
+            manifestSha256=beta['manifestSha256'], packageSha256=beta['packageSha256']),
+        changedAfterBeta=state.get('changes'),
         validation=dict(path=record['path'], sha256=record['sha256'], approvedBy=record['approvedBy'],
                         approvedOn=record['approvedOn'], validatedRegions=record['validatedRegions'],
                         **({'sourceVerifiedRegions': record['sourceVerifiedRegions']}
@@ -504,8 +758,23 @@ def require_published(context, release, identity, files):
             require(sha(target) == sha(path), 'Published asset differs: ' + path.name)
 
 
+def route_label(args):
+    """The name the gate and the messages use: the beta for the beta route, the stable for the direct route."""
+    return args.stable if getattr(args, 'stable', None) else args.beta
+
+
+def require_route_preflight(context, args, commit, resume=False, record=True):
+    if getattr(args, 'stable', None):
+        text = read_record_file(args.record) if record else None
+        state, results = preflight_direct(context, args.stable, commit, text, resume)
+        print_results(results)
+        require(all(result == 'PASS' for _, result, _ in results), 'Promotion blocked')
+        return state
+    return require_preflight(context, args.beta, commit, resume)
+
+
 def run_prepare(context, args):
-    stable = stable_target(args.beta)
+    stable = args.stable or stable_target(args.beta)
     require(not context.git('status', '--porcelain'), 'Commit or set aside local changes first')
     sync_release_version(ROOT, read_json(ROOT / RELEASE_DATA), stable, 'stable')
     print('release.json and VERSION now say %s/stable; nothing was committed.' % stable)
@@ -513,23 +782,91 @@ def run_prepare(context, args):
 
 
 def run_check(context, args):
-    require(args.digest is None or re.match(r'\A[0-9a-f]{16}\Z', args.digest), 'Invalid artifacts digest')
+    direct = bool(getattr(args, 'stable', None))
+    # Abbreviated digests are for lookup and display only; the direct route compares complete digests.
+    width = 64 if direct else 16
+    if not direct and args.beta not in LEGACY_BETA_VERSIONS:
+        width = 64
+    require(args.digest is None or re.match(r'\A[0-9a-f]{%d}\Z' % width, args.digest),
+            'Invalid artifacts digest: expected %d lowercase hex digits' % width)
     commit = context.git('rev-parse', '--verify', args.commit + '^{commit}')
-    require_preflight(context, args.beta, commit)
-    print('Promotion of %s from %s is allowed; nothing was changed.' % (args.beta, commit[:12]))
+    if getattr(args, 'record_digest', None):
+        require(re.match(r'\A[0-9a-f]{64}\Z', args.record_digest), 'The record digest must be a complete SHA-256')
+        require(record_digest(read_record_file(args.record)) == args.record_digest,
+                'The validation record does not match the dispatched record digest')
+    require_route_preflight(context, args, commit)
+    print('Promotion of %s from %s is allowed; nothing was changed.' % (route_label(args), commit[:12]))
 
 
 def run_build(context, args):
     commit = context.git('rev-parse', 'HEAD')
     require_clean_checkout(context, commit)
-    state = require_preflight(context, args.beta, commit)
-    folder = context.compile(state['identity']['stable'], args.key)
+    if getattr(args, 'unsigned', False):
+        require(args.key is None,
+                '--unsigned takes no signing key; sign the folder offline with sign_candidate.py or sign_release.py')
+        if getattr(args, 'beta', None):
+            identity = unsigned_beta_identity(context, args.beta, commit)
+            folder = context.compile_unsigned(identity['version'], args.target, channel='beta')
+            write_unsigned_evidence(folder, identity['version'], args.target, commit, channel='beta')
+            require_clean_checkout(context, commit)
+            print('Unsigned beta candidate %s ready in %s; its artifact suite passed. Nothing was signed or promoted.'
+                  % (identity['version'], folder))
+            return folder
+        require(getattr(args, 'stable', None), '--unsigned takes the direct stable route or the beta route')
+        state = require_route_preflight(context, args, commit, record=False)
+        folder = context.compile_unsigned(state['identity']['stable'], args.target)
+        write_unsigned_evidence(folder, state['identity']['stable'], args.target, commit)
+        require_clean_checkout(context, commit)
+        print('Unsigned candidate ready in %s; its artifact suite passed. Nothing was signed or promoted.' % folder)
+        print('Owner: sign the folder offline with build_tools/sign_candidate.py, then finalize.')
+        return folder
+    state = require_route_preflight(context, args, commit, record=False)
+    key = args.key or ROOT / 'release-signing.key'
+    folder = context.compile(state['identity']['stable'], key, args.target)
     require_clean_checkout(context, commit)
     verify_stable_folder(context, folder, state)
     write_build_stamp(folder, commit)
-    print('Built, signed and verified %s; nothing was uploaded.' % folder)
+    promoted = context.promote(folder, state['identity']['stable'])
+    print('Built, signed and verified in the run %s; promoted to %s. Nothing was uploaded.' % (folder.parent, promoted))
     print('Commit %s, artifacts digest %s; request the approval with these exact values.'
           % (commit, artifacts_digest(folder)))
+    if getattr(args, 'stable', None):
+        print('Dispatch route=direct version=%s stable_commit=%s artifacts_digest=%s record_digest=<complete sha256 of the record>'
+              % (args.stable, commit, artifacts_digest_full(folder)))
+
+
+def artifact_identity(context, identify, artifact, head):
+    """Identity of a candidate built at `artifact`, finalized from the checkout at `head`.
+
+    Equal commits give the ordinary identity. A later checkout is accepted only when the artifact commit is its
+    ancestor and every path that differs between them is outside the package (signing tooling, documentation, tests).
+    Anything else, including build inputs, compiler and installer changes, refuses the finalization.
+    """
+    require(re.match(r'\A[0-9a-f]{40}\Z', artifact), 'The artifact commit must be a full SHA-1')
+    if artifact == head:
+        return identify(context, artifact)
+    require(context.is_ancestor(artifact, head),
+            'The artifact commit %s is not an ancestor of the checkout %s' % (artifact[:12], head[:12]))
+    paths = [path for path in context.git('diff', '--name-only', '--no-renames', artifact, head).splitlines() if path]
+    blocked = forbidden_changes(paths)
+    require(not blocked, 'Changes after the artifact commit reach the package: ' + ', '.join(blocked[:10]))
+    return identify(context, artifact)
+
+
+def run_finalize(context, args):
+    head = context.git('rev-parse', 'HEAD')
+    require_clean_checkout(context, head)
+    artifact = args.commit or head
+    if getattr(args, 'beta', None):
+        identity = artifact_identity(context, lambda ctx, commit: unsigned_beta_identity(ctx, args.beta, commit),
+                                     artifact, head)
+    else:
+        identity = artifact_identity(context, lambda ctx, commit: direct_identity(ctx, args.stable, commit),
+                                     artifact, head)
+    promoted = finalize_candidate(context, args.folder, identity, args.target)
+    print('Finalized %s/%s from %s and promoted it to %s. Nothing was signed, compiled or uploaded.'
+          % (identity['version'], identity['channel'], artifact[:12], promoted))
+    print('Next: promote_release.py check, then publish (preview first) with the approved validation record.')
 
 
 def run_attest_official(context, args):
@@ -541,13 +878,22 @@ def run_attest_official(context, args):
 def run_publish(context, args):
     commit = args.commit or context.git('rev-parse', 'HEAD')
     require(not context.git('status', '--porcelain'), 'The checkout has uncommitted changes')
-    state = require_preflight(context, args.beta, commit, resume=True)
+    state = require_route_preflight(context, args, commit, resume=True)
     identity = state['identity']
     folder = stable_folder(identity['stable'])
     command, files, report, manifest = verify_stable_folder(context, folder, state)
+    if args.target:
+        require_target_identity(report, args.target)
     require_build_stamp(folder, commit)
     digest = artifacts_digest(folder)
-    gate = find_gate(context, args.beta, commit, digest, args.waive_environment_review)
+    if getattr(args, 'stable', None):
+        title = direct_gate_title(identity['stable'], commit, artifacts_digest_full(folder),
+                                  record_digest(read_record_file(args.record)))
+        gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review, title=title,
+                         direct=True)
+    else:
+        title = gate_title(args.beta, commit, artifacts_digest_full(folder))
+        gate = find_gate(context, route_label(args), commit, digest, args.waive_environment_review, title=title)
     write_json(folder / PROVENANCE, provenance(context, state, gate, folder, context.viewer()))
     files = files + [folder / PROVENANCE]
     token = '%s@%s' % (identity['tag'], digest)
@@ -564,28 +910,60 @@ def run_publish(context, args):
     verify_remote_assets(context, release, files)
     context.publish_draft(release)
     require_published(context, release, identity, files)
-    print('Published %s from %s; origin in %s.' % (identity['tag'], commit[:12], args.beta))
+    print('Published %s from %s; route %s.' % (identity['tag'], commit[:12], route_label(args)))
+
+
+def require_target_identity(report, target):
+    """A build report must describe the configured target; historical reports without a target field still pass."""
+    config = read_json(ROOT / 'build_data/build_config.json')
+    require(target in config.get('targets', {}), 'Unknown build target: ' + target)
+    if 'source_client' in report:
+        expected = config['targets'][target]
+        require((report['source_client'].get('realm'), report['source_client'].get('build')) ==
+                (expected['realm'], expected['build']), 'The build was made for another client than ' + target)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest='command', required=True)
     for name, action in (('prepare', run_prepare), ('check', run_check), ('build', run_build), ('publish', run_publish),
-                         ('attest-official', run_attest_official)):
+                         ('attest-official', run_attest_official), ('finalize', run_finalize)):
         command = commands.add_parser(name)
         command.set_defaults(action=action)
+        if name == 'finalize':
+            route = command.add_mutually_exclusive_group(required=True)
+            route.add_argument('--stable', help='Direct stable route, for example 0.1.8')
+            route.add_argument('--beta', help='Unsigned beta route, for example 0.1.8-beta.25')
+            command.add_argument('--commit', help='Artifact source commit (default: the checkout). The checkout may be a '
+                                                  'descendant that changes only signing tooling, documentation and tests')
+            command.add_argument('--target', required=True, help='Configured build target, for example na1010')
+            command.add_argument('--folder', required=True, type=Path,
+                                 help='Owner-signed run output: build/runs/<run>/output')
+            continue
         if name == 'attest-official':
             command.add_argument('--commit', required=True, help='Original stable artifact commit')
             command.add_argument('--folder', required=True, type=Path, help='Signed stable folder')
             command.add_argument('--summary', required=True, type=Path, help='summary.json of the official stable build')
-        command.add_argument('--beta', required=True, help='Published beta being promoted, for example 1.2.3-beta.4')
+            command.add_argument('--beta', required=True, help='Published beta being promoted, for example 1.2.3-beta.4')
+            continue
+        route = command.add_mutually_exclusive_group(required=True)
+        route.add_argument('--beta', help='Beta route: the published beta being promoted, for example 1.2.3-beta.4')
+        route.add_argument('--stable', help='Direct route: the committed stable version, for example 1.2.3')
+        command.add_argument('--record', type=Path,
+                             help='Direct route: validation record file for the stable version and artifact commit')
         if name == 'check':
             command.add_argument('--commit', default='HEAD', help='Stable commit (default: HEAD)')
             command.add_argument('--digest', help='Artifacts digest printed by build, checked for format only')
+            command.add_argument('--record-digest', help='Direct route: complete SHA-256 of the record dispatched with it')
         if name == 'build':
-            command.add_argument('--key', type=Path, default=ROOT / 'release-signing.key')
+            command.add_argument('--key', type=Path, default=None,
+                                 help='Legacy combined route only; default release-signing.key. Refused with --unsigned')
+            command.add_argument('--unsigned', action='store_true',
+                                 help='Compile, attach the installer and run the artifact suite; no signing material')
+            command.add_argument('--target', required=True, help='Configured build target, for example na1010')
         if name == 'publish':
             command.add_argument('--commit', help='Original stable artifact commit (the tool itself is always the current checkout)')
+            command.add_argument('--target', help='Configured build target the candidate must describe')
             command.add_argument('--confirm', help='<stable tag>@<artifacts digest>; without it nothing is uploaded')
             command.add_argument('--waive-environment-review', action='store_true',
                                  help='Accept the record alone; refused when the environment has required reviewers. '

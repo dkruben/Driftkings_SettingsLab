@@ -114,5 +114,9 @@
     DK.inside = inside; DK.stop = stop; DK.focus = focus; DK.wheel = wheel;
     DK.copy = copy; DK.same = same; DK.contains = contains; DK.isArray = isArray; DK.clamp = clamp; DK.snap = snap;
     DK.hex = hex; DK.rgb = rgb; DK.rgba = rgba; DK.mix = mix; DK.pyJson = pyJson;
+    // Explicit native font per interface language: CJK scripts need their own Warhelios variant; the rest use base.
+    var LANGUAGE_FAMILY = {ja: 'DKWarheliosJA', ko: 'DKWarheliosKO', zh_cn: 'DKWarheliosZHCN', zh_tw: 'DKWarheliosZHTW'};
+    function languageFamily(code) { return LANGUAGE_FAMILY[String(code || '').toLowerCase().replace('-', '_')] || 'DKWarhelios'; }
+    DK.languageFamily = languageFamily;
     DK.t = t; DK.tf = tf; DK.setCatalog = setCatalog; DK.catalog = function () { return catalog; };
 }());

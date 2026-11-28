@@ -97,6 +97,20 @@ def verify_signature(folder, signature):
     return signature.SIGNATURE_ASSET
 
 
+def verify_inventory_signature(folder, signature):
+    """The detached signature of SHA256SUMS.txt, the complete inventory; it must cover no signature file."""
+    from build_tools.sign_release import INVENTORY_SIGNATURE
+    require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty in signature.py; releases cannot be published unsigned')
+    inventory = (folder / 'SHA256SUMS.txt').read_bytes()
+    require(b'release.json.sig' not in inventory and INVENTORY_SIGNATURE.encode() not in inventory,
+            'The inventory must not cover signature files')
+    try:
+        signature.verify_manifest(inventory, (folder / INVENTORY_SIGNATURE).read_bytes(), signature.TRUSTED_KEYS)
+    except ValueError as error:
+        raise ValueError('Inventory signature is not valid for a trusted key: %s' % error)
+    return INVENTORY_SIGNATURE
+
+
 def absolute_paths(value):
     """Keys and values of a report that look like a path on the build machine."""
     if isinstance(value, dict):
@@ -173,10 +187,24 @@ def prepare(folder):
     inventory = verify_modpack(folder, manifest, read_json(folder / 'modpack.json'))
     require(report.get('verification', {}).get('modpack', {}).get('status') == 'passed',
             'Missing packaged Python 2.7 modpack verification')
-    required = {'driftkings.wotmod', 'release.json', 'modpack.json', 'Driftkings-defaults.zip',
+    required = {'driftkings.wotmod', 'release.json', 'modpack.json',
                 inventory.distribution['file'], 'Driftkings-%s-WoT-%s-Setup.exe' % (version.text, manifest['gameVersion'])}
+    # Historical candidates shipped a standalone defaults archive; the current contract carries it only inside the
+    # distribution, so a candidate with a WGMods archive must not list one.
+    if 'setupArchive' not in report:
+        required.add('Driftkings-defaults.zip')
+    else:
+        require('Driftkings-defaults.zip' not in report['artifacts'], 'Standalone defaults archive is no longer published')
     required.update('dependencies/' + Path(item['path']).name for item in inventory.files
                     if item['kind'] == 'dependency')
+    # Candidates that carry a WGMods archive must hold exactly the Setup executable they claim, byte for byte.
+    # Historical releases without the field keep their previous contract.
+    if 'setupArchive' in report:
+        from build_tools.build_installer import setup_archive_name, verify_setup_archive
+        require(report['setupArchive'] == setup_archive_name(manifest), 'Setup archive name does not match the release')
+        verify_setup_archive(folder / report['setupArchive'], folder / ('Driftkings-%s-WoT-%s-Setup.exe' % (
+            version.text, manifest['gameVersion'])))
+        required.add(report['setupArchive'])
     require(required.issubset(report['artifacts']), 'Incomplete release artifacts')
     for item in inventory.files:
         if item['kind'] == 'dependency':
@@ -194,6 +222,8 @@ def prepare(folder):
     require(covered == set(report['artifacts']) | {'build-report.json'}, 'Incomplete checksum inventory')
     names = set(report['artifacts']) | {'build-report.json', 'SHA256SUMS.txt'}
     names.add(verify_signature(folder, signature_module()))
+    if 'setupArchive' in report:
+        names.add(verify_inventory_signature(folder, signature_module()))
     files = [folder / name for name in sorted(names)]
     require(len({path.name.lower() for path in files}) == len(files), 'Release assets have duplicate filenames')
     command = ['gh', 'release', 'create', 'v' + version.text, '--repo', release['repository'],
@@ -232,7 +262,7 @@ def main():
         else:
             require(head == report['git']['commit'] and not dirty, 'Checkout differs from the built source revision')
         require(manifest['channel'] != 'stable',
-                'Stable releases are published through build_tools/promote_release.py, from an approved beta')
+                'Stable releases are published through build_tools/promote_release.py (direct stable or approved beta route)')
         repository = read_json(ROOT / 'build_data/release.json')['repository']
         require_green_ci(repository, head)
         require_unpublished(repository, 'v' + manifest['version'])

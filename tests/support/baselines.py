@@ -101,10 +101,42 @@ def protected_file(base, path, current=None):
 
 
 def changed_catalog_entries(name, current):
-    """Names, in catalog order, whose specification differs from the baseline."""
-    old = baseline(name)['catalog']
-    return [key for key in current if old.get(key) != json_hash(current[key])]
+    """Names, in catalog order, whose specification differs from the baseline.
 
+    An entry is not reported only when its historical hash equals the baseline and
+    its current canonical hash equals the reviewed revision recorded in
+    approved_catalog_revisions. Historical hashes are never replaced.
+    """
+    old = baseline(name)['catalog']
+    with io.open(PATH, encoding='utf-8') as stream:
+        approved = json.load(stream).get('approved_catalog_revisions', {}).get(name, {})
+    changed = []
+    for key in current:
+        now = json_hash(current[key])
+        if old.get(key) == now:
+            continue
+        revision = approved.get(key)
+        if revision and old.get(key) == revision['historical_sha256'] and now == revision['approved_sha256']:
+            continue
+        changed.append(key)
+    return changed
+
+
+# Reviewed Phase 4.3.1 target identities; the historical contract tests compare against this exact table.
+PHASE431_TARGETS = {
+    "na999": {"realm": "NA", "build": "999"},
+    "eu1000": {"realm": "EU", "build": "1000"},
+    "ct995": {"realm": "CT", "build": "995"},
+    "ct996": {"realm": "CT", "build": "996"},
+}
+
+
+# Reviewed NA #1010 update (0.1.8-beta.6, owner-authorized): the NA target is renamed from na999 to na1010;
+# the other targets are unchanged. PHASE431_TARGETS above remains the historical Phase 4.3.1 record.
+CURRENT_TARGETS = {"na1010": {"realm": "NA", "build": "1010"},
+                   "eu1007": {"realm": "EU", "build": "1007"},
+                   "ct995": {"realm": "CT", "build": "995"},
+                   "ct996": {"realm": "CT", "build": "996"}}
 
 def phase2_prior_build_config(current):
     """Reverse only the intentional Phase 2 contract changes for historical comparisons."""
@@ -113,6 +145,13 @@ def phase2_prior_build_config(current):
     current['game']['supported_realms'] = ['CT']
     current['reference'].pop('production_clients')
     current['reference'].pop('production_profiles')
+    # Phase 4.3.1 adds exactly this reviewed target table and legacy CT label binding; any other change still fails.
+    assert current.pop('targets') == CURRENT_TARGETS
+    assert current['reference'].pop('legacy_ct_build') == '996'
+    # Retired physical output paths (Phase 6.3) are restored with their historical values for this comparison only.
+    current['package']['output'] = 'build/unified/driftkings.wotmod'
+    current['package']['debug_root'] = 'build/debug'
+    current['python']['staging_root'] = 'build/staging/res/scripts/client'
     current['python'].pop('exclude')
     # The optional Remove Fog helper generator is part of the historical contract; it must match the fixture exactly.
     with io.open(PATH, encoding='utf-8') as stream:

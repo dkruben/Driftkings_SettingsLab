@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "1010",
+  "resource": "gui/gameface/_dist/production/mono/hangar/tooltips/bundle.js",
+  "source_sha256": "d4ebef3be136dac60c31a504de15abb866143e61afb9f4fe3e274791213d857f",
+  "output_sha256": "1d7914a159426ad0e0d1f35562d51b5cde5b55132c15c1ad95c2180a610f9596",
+  "operations": [
+    {
+      "find": "import\"../chunks/global.js\";",
+      "replace": "import{Gt as dkOptional}from\"../chunks/lib.js\";import\"../chunks/global.js\";",
+      "count": 1
+    },
+    {
+      "find": "ie=ae(n(p({tankman:u})))",
+      "replace": "ie=ae(n(p({tankman:u,dkCrewProgression:dkOptional(p({lines:t(x()),kinds:t(x())}))})))",
+      "count": 1
+    },
+    {
+      "find": "(0,me.jsx)(ue,{})]})})})}),ks=",
+      "replace": "(0,me.jsx)(ue,{}),(()=>{const dk=ie().dkCrewProgression;if(!dk||!dk.lines)return null;return(0,me.jsx)(\"div\",{style:{marginTop:\"12rem\",paddingTop:\"10rem\",borderTop:\"1rem solid rgba(255,255,255,.12)\",fontSize:\"14rem\",lineHeight:\"18rem\"},children:dk.lines.map((line,index)=>(0,me.jsx)(\"div\",{style:{color:({xp:\"#00FFFF\",battles:\"#28F09C\",ready:\"#28F09C\",complete:\"#28F09C\",unavailable:\"#8C8C7E\"})[(dk.kinds||[])[index]]||\"#E9E2BF\"},children:line},index))})})()]})})})}),ks=",
+      "count": 1
+    }
+  ],
+  "client_revision": "2671446"
+}

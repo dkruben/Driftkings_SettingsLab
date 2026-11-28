@@ -13,7 +13,7 @@
       "KEY_RALT"
     ]
   ],
-  "enabled": true,
+  "enabled": false,
   "modelPathDot": "objects/artydot.model",
   "modelPathSplash": "objects/artysplash.model",
   "showDotOnDefault": true,

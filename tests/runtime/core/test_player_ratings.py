@@ -10,6 +10,18 @@ from support import RuntimeTest, module, source
 
 
 class PlayerRatingsTests(RuntimeTest):
+    def test_statistics_region_follows_the_account_id_ranges_on_supported_clients(self):
+        events = self.api['Events']
+        self.assertEqual(events.userRegion(1500000000), 'com')
+        self.assertEqual(events.userRegion(2500000000), 'asia')
+
+    def test_cn_client_has_no_statistics_region_and_never_calls_another_api(self):
+        self.api['CURRENT_REALM'] = 'CN'
+        events = self.api['Events']
+        self.assertIsNone(events.userRegion(1500000000))
+        self.assertIsNone(events.userRegion(2500000000))
+        self.assertIsNone(events.request(None, 'wot/account/info', account_id='1'))
+
     def test_marker_consumer_uses_stats_even_with_roster_hidden_but_respects_stats_switch(self):
         self.api['GLOBAL'] = module(ENABLED='enabled')
         self.api['TEAM_PANELS'] = module(STATS_ENABLED='statsEnabled')
@@ -27,6 +39,7 @@ class PlayerRatingsTests(RuntimeTest):
         colors = self.load('common.utils.colorratting')
         self.api = source('core/player_ratings.py', {
             'urllib2': module(), 'Queue': queue,
+            'realm': module(CURRENT_REALM='NA'),
             'gui.battle_control.arena_info.interfaces': module(IArenaVehiclesController=object),
             'gui.battle_control.arena_info.settings': module(ARENA_LISTENER_SCOPE=module(VEHICLES=2)),
             'gui.battle_control.battle_constants': module(BATTLE_CTRL_ID=module(MOD=19)),

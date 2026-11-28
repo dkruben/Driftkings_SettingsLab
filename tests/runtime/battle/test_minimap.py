@@ -34,12 +34,13 @@ class MinimapPolicyTests(RuntimeTest):
         self.assertEqual(self.policy.shell_range(descriptor, 99), 720.0)
         self.assertIsNone(self.policy.shell_range(None, 1))
 
-    def test_defaults_enable_hull_line_marks_and_shell_circle(self):
+    def test_defaults_keep_marks_and_turn_off_hull_line_and_shell_circle(self):
+        # Phase 11.6: the hull line and the shell circle are off by default; the marks setting is unchanged.
         data = defaults()
         self.policy.validate(data)
-        self.assertTrue(data['lines']['hull'])
+        self.assertFalse(data['lines']['hull'])
         self.assertEqual(data['lines']['marks'], 100)
-        self.assertEqual(data['circles']['shell']['mode'], 'on')
+        self.assertEqual(data['circles']['shell']['mode'], 'off')
 
     def test_html_map_size_and_shadow_validation(self):
         data = defaults()

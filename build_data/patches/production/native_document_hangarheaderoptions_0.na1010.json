@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "1010",
+  "feature": "DriftkingsHangarHeaderOptions",
+  "resource": "gui/gameface/_dist/production/mono/hangar/header/header.html",
+  "source_sha256": "aa8f4405c111a1b4b89898c72bafd3b73b0155b28cace9d512ff594934240da0",
+  "output_sha256": "1e25f969364595b3bc4bb69cf5228f2163f48f50668210088e2b5f5915ef1d92",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/hangar_preferences/header_options.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

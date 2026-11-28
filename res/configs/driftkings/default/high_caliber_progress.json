@@ -3,7 +3,7 @@
   "background": {
     "alpha": 80
   },
-  "enabled": true,
+  "enabled": false,
   "mainGun": {
     "dynamic": true,
     "enabled": true

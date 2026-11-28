@@ -20,6 +20,7 @@ from gui.shared.gui_items.Vehicle import getVehicleClassTag
 from gui.shared.personality import ServicesLocator
 from helpers import dependency
 from messenger import g_settings
+from realm import CURRENT_REALM
 from skeletons.gui.battle_session import IBattleSessionProvider
 
 from driftkings._constants import GLOBAL, TEAM_PANELS, WN8_EXPECTED_FIELDS
@@ -285,6 +286,9 @@ class Events(object):
 
     @staticmethod
     def request(region, request, **kwargs):
+        if region is None:
+            # No statistics API serves this client's region (CN); the caller receives no data.
+            return None
         if region not in Events.SUPPORTED_REGIONS:
             LOG.warning(('Unsupported region for stats request: {}').format(region))
             return None
@@ -309,6 +313,9 @@ class Events(object):
 
     @staticmethod
     def userRegion(databaseID):
+        if CURRENT_REALM == 'CN':
+            # CN has no statistics API here. Its accounts must never be sent to the EU, NA or ASIA APIs.
+            return None
         databaseID = int(databaseID)
         if 500000000 <= databaseID < 1000000000:
             return 'eu'
@@ -828,7 +835,9 @@ class Statistics(object):
                     and dbID not in self._pending):
                     missing.append(dbID)
             elif (dbID not in self._pending and dbID not in self._received
-                  and time.time() - self._attempts.get(dbID, 0) >= RETRY_SECONDS):
+                  and time.time() - self._attempts.get(dbID, 0) >= RETRY_SECONDS
+                  and Events.userRegion(dbID) is not None):
+                # No statistics API serves this region (CN): no worker and no retry cycle.
                 # Without the cache, an account answered once this battle is not
                 # fetched again; accounts without data wait before a retry.
                 missing.append(dbID)

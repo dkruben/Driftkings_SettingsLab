@@ -4,12 +4,20 @@ Public facade used by mods: `from driftkings.settings.panel import settings`.
 Mods may register before or after the framework starts; configuration files are
 read at registration, the interface language is resolved when the game starts it.
 """
+from driftkings import locale_support
 from driftkings.i18n import panel as locales
 from driftkings.settings.panel import logger
 from driftkings.settings.panel.registry import ModRegistry
 from driftkings.settings.panel.storage import ConfigStore
 
 CONFIG_ROOT = './mods/configs/driftkings/.settings'
+
+
+def supported_language(code):
+    """True for a bundled language code or alias, including regional forms such as pt_br."""
+    normalized = str(code or '').strip().lower().replace('-', '_')
+    base = normalized.split('_')[0]
+    return any(item in locale_support.CODES or item in locale_support.ALIASES for item in (normalized, base))
 
 
 class SettingsAPI(object):
@@ -78,8 +86,16 @@ class SettingsAPI(object):
         logger.info('Loaded (%d mods)', len(self.registry.mods))
 
     def set_language(self, preference):
+        # Unknown or unloadable locales fall back to the game language, then to English; text is never empty.
         code = self.client_language if preference in (None, 'auto') else preference
-        self.language, self.strings = locales.load(code, self.root)
+        if not supported_language(code):
+            logger.warning('Unsupported interface language %r; game language used', preference)
+            code = self.client_language if supported_language(self.client_language) else 'en'
+        try:
+            self.language, self.strings = locales.load(code, self.root)
+        except Exception:
+            logger.exception('Interface language %r could not be loaded; English used', code)
+            self.language, self.strings = locales.load('en')
         self.registry.language = self.language
         self.registry._notify_structure()
 

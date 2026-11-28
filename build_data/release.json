@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.7",
+  "version": "0.1.8",
   "channel": "stable",
   "version_source": "mod/res/scripts/client/driftkings/__init__.py",
   "repository": "dkruben/Driftkings_SettingsLab",
@@ -8,12 +8,13 @@
   "title": "driftkings",
   "author": "driftkings",
   "changelog": [
-    "Stable release 0.1.7 for World of Tanks 2.4.2.0.",
-    "Added a hangar footer launcher, with updated launcher and account icons.",
-    "Integrated native Gameface for hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency. Several battle HUD components share a native window.",
-    "Updated battle marks presentation.",
-    "Added a cross-server saved-email notice and explicit consent for Tour Coin purchases.",
-    "Updated the minimap enhancements panel and launcher hover behaviour, relative to 0.1.7-beta.1.",
-    "Remove Fog is not included in this release. If an older Driftkings.RemoveFog.wotmod remains in mods/2.4.2.0, delete it manually while the game is closed."
+    "Stable release 0.1.8 for World of Tanks 2.4.2.0 (NA build 1010, EU build 1007).",
+    "Crew barracks cards show crew progression in one line, integrated with the native barracks view.",
+    "Battle loading screen layout is stabilised, including during dynamic loading.",
+    "Settings previews are simplified and formatted text layout is corrected. Multilingual Gameface font rendering is restored.",
+    "Default configurations are simplified. Obsolete settings are removed, and first-time defaults follow the approved set (Account Manager, repair controls, zoom and purchases stay off).",
+    "Installer validates the game destination explicitly before installing.",
+    "Statistics: accounts of a CN client are never sent to the EU, NA or ASIA statistics services. CN statistics are not provided.",
+    "Compatibility: NA and EU are validated for this release. ASIA and CN are not validated for 0.1.8."
   ]
 }

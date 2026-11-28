@@ -8,7 +8,7 @@ Data: 2026-11-11. Cliente: CT 2.4.2.0 #995.
 > migração de fonte no CT #995. Referências a trabalho «por commitar», testes
 > pendentes e ausência de build descrevem essa execução, não o estado após C6.
 > A atualização final deste documento e a secção 43 do
-> [progresso](plans/DRIFTKINGS_REORGANIZATION_PROGRESS.md)
+> The reorganisation progress log was retired; see the git history and [docs/AI_CONTEXT.md](AI_CONTEXT.md).
 > distinguem a implementação atual das evidências históricas.
 
 Veredicto: **OPENWG MIGRATION SOURCE PASS**.

@@ -146,19 +146,19 @@ if __name__ == '__main__':
 
 
 class OutOfScopeTests(unittest.TestCase):
-    """OUT OF SCOPE is accepted only for ASIA and CN, and is never verified compatibility."""
+    """Any production realm may be OUT OF SCOPE for one release record; coverage still applies, and it is never verified."""
     def record(self):
         return RECORD.read_text(encoding='utf-8')
 
-    def test_only_asia_and_cn_may_be_out_of_scope(self):
-        self.assertEqual(OUT_OF_SCOPE_REGIONS, frozenset(('ASIA', 'CN')))
+    def test_scope_is_candidate_specific_not_a_regional_priority(self):
+        self.assertEqual(OUT_OF_SCOPE_REGIONS, frozenset(('EU', 'NA', 'ASIA', 'CN')))
         self.assertEqual(OUT_OF_SCOPE, 'OUT OF SCOPE')
 
     def test_recorded_asia_and_cn_rows_satisfy_the_distribution_rule(self):
         problems = problems_of(self.record(), '0.1.7-beta.2', prerelease_k2=True)
         self.assertNotIn('Each global distribution realm requires runtime or source evidence', problems)
 
-    def test_out_of_scope_for_na_or_eu_is_rejected(self):
+    def test_out_of_scope_for_na_or_eu_is_candidate_scope_and_never_verified(self):
         for region in ('NA', 'EU'):
             text = self.record()
             lines = []
@@ -167,7 +167,7 @@ class OutOfScopeTests(unittest.TestCase):
                     line = '| ' + region + ' | OUT OF SCOPE | - | 2026-11-25 | x | x |'
                 lines.append(line)
             problems = problems_of(chr(10).join(lines), '0.1.7-beta.2', prerelease_k2=True)
-            self.assertIn('Each global distribution realm requires runtime or source evidence', problems, region)
+            self.assertNotIn('Each global distribution realm requires runtime or source evidence', problems, region)
 
     def test_out_of_scope_is_not_counted_as_validated(self):
         # Removing the NA owner waiver must still fail the runtime requirement even with ASIA and CN out of scope.

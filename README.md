@@ -1,195 +1,127 @@
-# Driftkings Modpack
+# Driftkings SettingsLab
 
-> **Development candidate:** `0.1.7-beta.2` targets World of Tanks `2.4.2.0`. The proposed stable is `0.1.7`. Production validation for NA, EU, ASIA and CN is in progress. The download and installation sections describe the published releases. [Production readiness record](docs/releases/0.1.7-beta.2-readiness.md).
+**A customizable interface modpack for World of Tanks**: battle statistics, hangar enhancements, aiming tools, vehicle markers and one integrated settings panel.
 
-> **CT launcher validation (2026-11-09):** the dedicated Driftkings footer launcher is functionally validated by the author on CT 2.4.2.0 without ModsListAPI, including click, hover, X/Esc, shortcut, return to hangar and no duplicates. OpenWG is still used and both dependency packages remain bundled; this is not a fully standalone distribution. Future client versions require revalidation. See [Phase 2 evidence and rollback](docs/NATIVE_FOOTER_LAUNCHER.md). Stable installation instructions below describe the published release.
-
-> **CT clock PoC (Phase 3A):** a native plugin entry point for the hangar clock is implemented and passes automated checks/build, and was installed in the local CT #995: Phase 3A is validated on CT #995 within the owner-confirmed checklist (the local CT client is now #996), including clock behavior, position/scale, prestige toggles, three return-to-hangar cycles and regressions. Direct JS lifecycle telemetry remains unavailable; this is not a claim for all modes or future clients. Other integrations still use OpenWG. See [scope, evidence and rollback](docs/NATIVE_CLOCK_POC.md).
-
-
-A customizable World of Tanks modpack with advanced battle statistics, modern interface enhancements, aiming tools, vehicle markers and integrated settings.
-
-[![Latest Stable: 0.1.6](https://img.shields.io/badge/Latest_Stable-0.1.6-blue)](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6)
-[![World of Tanks: 2.4.1.1](https://img.shields.io/badge/World_of_Tanks-2.4.1.1-red)](https://worldoftanks.eu/)
-[![Regions: EU / NA / ASIA](https://img.shields.io/badge/Regions-EU%20%2F%20NA%20%2F%20ASIA-blue)](#compatibility--languages)
-[![Python 2.7](https://img.shields.io/badge/Python-2.7-orange)](https://www.python.org/downloads/release/python-2718/)
-[![GitHub Release](https://img.shields.io/github/v/release/dkruben/Driftkings_SettingsLab?label=GitHub%20Release)](https://github.com/dkruben/Driftkings_SettingsLab/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/dkruben/Driftkings_SettingsLab?label=Latest%20release)](https://github.com/dkruben/Driftkings_SettingsLab/releases/latest)
+[![World of Tanks 2.4.2.0](https://img.shields.io/badge/World_of_Tanks-2.4.2.0-red)](https://worldoftanks.eu/)
 [![Discord](https://img.shields.io/badge/Discord-Community-5865F2)](https://discord.gg/k2Stjv5fS5)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-green)](licence)
 
-Built for the Wargaming **EU, NA and ASIA** clients. Enable the components you want and customize them through one settings panel, with profiles and previews for markers, the minimap, HUD and vehicle carousel.
+---
 
-[Downloads](#downloads) · [What's new](#whats-new-in-v016) · [Features](#features) · [Installation](#installation) · [Settings & updates](#settings-profiles--updates) · [Contributing](#development--contributions) · [Support](#support-credits--license)
+## Download
 
-## Downloads
-
-**[v0.1.6 is the current stable release](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6)** for World of Tanks **2.4.1.1**.
-
-| Download | Purpose |
+| | |
 | --- | --- |
-| **[Windows installer](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/Driftkings-0.1.6-WoT-2.4.1.1-Setup.exe)** | Guided installation, component selection and required dependencies. |
-| **[Manual installation ZIP](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/Driftkings-0.1.6-WoT-2.4.1.1.zip)** | Modpack and dependencies for manual installation. |
-| [Default configurations](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/Driftkings-defaults.zip) | Initial settings for a new installation; preserve existing profiles when updating. |
-| [SHA-256 checksums](https://github.com/dkruben/Driftkings_SettingsLab/releases/download/v0.1.6/SHA256SUMS.txt) | Verify downloaded files against the published checksums. |
+| **Latest release** | **Driftkings 0.1.7** for World of Tanks **2.4.2.0** (0.1.8 is in preparation and is not yet published) |
+| Release page | [github.com/dkruben/Driftkings_SettingsLab/releases](https://github.com/dkruben/Driftkings_SettingsLab/releases) |
+| Community | [Discord](https://discord.gg/k2Stjv5fS5) |
 
-[All releases and changelogs](https://github.com/dkruben/Driftkings_SettingsLab/releases) include previous stable versions and optional beta releases. Use assets from the same release when installing manually.
+Download every file from the same release. Keep the `SHA256SUMS.txt` file to verify your downloads.
 
-## Beta 0.1.7-beta.1
+## What it offers
 
-Beta preparation for the World of Tanks 2.4.1.1 micro-update: updated carousel and vehicle-marker build resources, refreshed Flash libraries, optimized images and custom minimap support restricted to Random Battles and 7x7/Onslaught. Other modes retain the native minimap. The project owner confirmed the local EU test build in game; NA and ASIA have not been revalidated in game for this beta. Stable downloads above remain at 0.1.6 until the beta is published and validated.
+Enable only the components you want. Each one can be configured from a single settings panel, with profiles and live previews.
 
-## What's New in v0.1.6
+- **Battle** – custom player panels and team statistics, vehicle markers, performance ratings (WN8, EFF, WNX and others), Marks of Excellence and High Caliber progress, vehicle health, minimap enhancements, spotted and assist notifications, Sixth Sense alerts and a battle log.
+- **Aiming & camera** – third-person and sniper camera options, gun traverse limits, aiming reticles and countdown, shell flight time, armour-penetration indicator, artillery blast radius, server turret synchronization, autoaim target highlight and repair shortcuts.
+- **Hangar** – vehicle carousel with statistics, crew management, Marks of Excellence in the hangar and tech tree, service-record ratings, hangar preferences, an editable hangar clock and an account manager.
+- **Utilities** – a footer launcher that opens the settings panel from the hangar, an optional clan-reward collector, and a sound-bank loader.
 
-Version 0.1.6 brings the improvements of the approved 0.1.6-beta.1 into the stable channel, preserving personal profiles and settings.
+Ratings and progress figures are estimates. They do not predict battle results, awards or gun-mark progress. Vehicle-marker customization applies to regular battle modes; special modes keep the native markers.
 
-- **Parallel player statistics:** vehicle-statistics requests run in parallel, and each account is delivered as it answers.
-- **Progressive results:** delivered statistics are applied in small batches across frames, reducing work concentrated in a single frame.
-- **Player-panel optimizations:** battle events and delivered statistics trigger updates; only changed rows are sent to Flash. The loading-screen clock runs inside Flash.
-- **Native side-panel integration:** in standard battles, the panel follows the game's own row redraws. Other modes and panels replaced by another mod retain the fallback renderer.
-- **Leaner combat overlays:** gun traverse limits, the autoaim indicator and target information send only changed values to Flash.
+## Compatibility
 
-The source beta was functionally validated on **EU, NA and ASIA**, including real Random Battle and Frontline battles, replays, installation, updates and configuration persistence. These results are documented declarations by the project owner; the [approved validation record](docs/releases/0.1.6-beta.1-validation.md) distinguishes confirmed checks from features not individually tested.
+Driftkings is a standalone package: it needs no other mod and includes its own interface layer.
 
-Earlier measurements used **EU replays**, CapFrameX and the mod's diagnostics: the player-statistics batch stall fell from about 200 ms to about 11 ms, and side-panel processing in a random replay fell from about 5.4 ms to 0.6–1.4 ms per pass. These measurements describe those scenarios, rather than performance measured across all three regions. See the [measurement context and implementation history](docs/STATUS.md).
-
-## Features
-
-Components can be enabled and configured individually. Availability depends on the vehicle, battle mode and selected options.
-
-### Battle & statistics
-
-| Feature | What it does |
+| Area | Status |
 | --- | --- |
-| Team panels and battle loading | Custom player panels, battle-loading information and team statistics, including player ratings. |
-| Vehicle markers | Editable text, ratings, health bars, floating damage and icons, with team/state/ALT layouts and a tank preview. |
-| Battle performance | WNX, WN8, EFF and XTE calculations, with configurable battle text and native results information. |
-| Battle statistics | Team-statistics comparisons and estimated relative strength. |
-| Marks of Excellence | Estimated gun-mark progress and combined damage in a movable battle panel. |
-| High Caliber progress | Damage, target, remaining damage and eligibility in a movable panel. |
-| Vehicle health | Configurable own-vehicle health display. |
-| Target information and distance | Information about the targeted vehicle and its distance. |
-| Minimap enhancements | Vehicle labels, last positions, HP, circles, direction lines and map-size captions. |
-| Spotted and assist notifications | Configurable messages, colours and sounds for detection and spotting, tracking or stun assistance. |
-| Sixth Sense | Custom icon, sound and alert timing. |
-| Battle damage log | Event filters and optional swapping of the native top/bottom logs. |
-| Battle preferences | Hints, notifications and other native interface options. |
+| Game version | World of Tanks **2.4.2.0** |
+| Production realms the project supports | **EU, NA, ASIA and CN** |
+| Realms validated for **0.1.7** | **EU** and **NA** |
+| Realms validated for **0.1.8** | **EU** and **NA** (after the release gate) |
+| Not validated for 0.1.8 | ASIA and CN |
+| Other regions | Not supported |
 
-### Camera, aiming & controls
-
-| Feature | What it does |
-| --- | --- |
-| Third-person and sniper cameras | Configurable zoom steps, limits and camera behaviour. |
-| Gun traverse limits | Displays the gun's aiming-angle limits. |
-| Aiming reticles | Reticle size and client/server aiming-circle presentation. |
-| Aiming countdown | Estimated remaining aiming time. |
-| Shell flight time | Estimated shell travel time to the aiming point. |
-| Armour penetration indicator | Armour and penetration information for the aimed surface. |
-| Artillery blast radius | Shell blast-radius display in supported artillery aiming modes. |
-| Server turret synchronization | Turret presentation synchronized with server aiming data. |
-| Autoaim target indicator | Configurable highlight for the native autoaim target. |
-| Repair controls | Shortcuts and priorities for repairs, crew treatment and fire extinguishing. |
-
-### Hangar & utilities
-
-| Feature | What it does |
-| --- | --- |
-| Vehicle carousel | Card layouts, filters, sorting and vehicle statistics. |
-| Hangar and tech-tree Marks of Excellence | Gun-mark information for the selected vehicle and supported tech-tree displays. |
-| Crew management | Automatic crew return, progression, remaining XP and estimated battles in supported crew screens. |
-| Service record ratings | Player/vehicle WN8 and configurable rating colours in native service-record screens. |
-| Hangar preferences | Header buttons, widgets, notifications and garage options. |
-| General settings and clock | Editable hangar clock fields with time/date text, background images, positioning and shadows. |
-| Account manager | Account-management interface with its own General settings page: a switch for the login-screen button and **Manage accounts** in the hangar. **Saved accounts and passwords are stored locally** in the `accounts.manager` file in your Windows profile (`Wargaming.net\WorldOfTanks\Driftkings`). Passwords are written with the same protection routine the game uses for its own login data. Nothing is saved unless you add an account yourself. If the same e-mail is saved for more than one server, the manager shows a notice; saving is not blocked. |
-| Clan reward collection | Automatic collection of eligible free clan rewards, **on by default** (the master switch). Separately, **automatic purchase of clan progression stages with Tour Coins is off by default**; if you turn it on, the next stage is bought without a confirmation whenever your Tour Coin balance covers its price. This option only spends Tour Coins: it never spends credits or gold. Turning it off does not stop free reward collection. |
-| Sound bank loader | Loads the mod's packaged sound banks. |
-
-Ratings and progress displays are estimates; they do not guarantee a battle result, server award or gun-mark increase. Vehicle-marker customization applies to supported regular modes; special modes retain native markers. XMQP is not included.
-
-Feature guides: [vehicle markers](docs/vehicle_markers/README.md) · [vehicle carousel](docs/vehicle_carousel/README.md) · [template macros](docs/macros/README.md) · [fonts](docs/fonts/README.md) · [custom Sixth Sense icons](docs/sixthsense_icons/README.md).
+Support for a realm is confirmed release by release. A matching game version alone does not guarantee that a realm is validated for a given Driftkings release.
 
 ## Installation
 
-### Windows installer
+Close World of Tanks before you install or update.
 
-1. Close World of Tanks.
-2. Download the installer for v0.1.6 and pick your language.
-3. Read what's new, then select your game installation.
-4. Choose **Recommended**, **Complete** or **Custom** and pick the components you want enabled; each one shows a preview.
-5. Start the game and open **Driftkings settings** through the mods list.
+### Option 1 – Windows installer (recommended)
 
-The installer checks the game version and region, installs the required dependencies and keeps existing profiles when reinstalling. To choose the components again, select **Reset to defaults and choose the components again** on the folder page; your current settings are backed up first.
+The instructions below are for the latest published release, **0.1.7**, until 0.1.8 is published. 0.1.8 is prepared but not yet published.
 
-### Manual installation
+1. Download `Driftkings-0.1.7-WoT-2.4.2.0-Setup.exe` from the release page and run it.
+2. Choose your language and confirm the game folder (the one that contains `version.xml`).
+3. Pick **Recommended**, **Complete** or **Custom** and choose the components to enable.
+4. Start the game and open **Driftkings settings** from the launcher in the hangar footer.
 
-1. Close World of Tanks and download the ZIP for v0.1.6.
-2. Extract its `mods` folder into the game installation, merging folders.
-3. For a new installation, download `Driftkings-defaults.zip` from the **same release** and extract it into the game installation.
-4. Start the game and open Driftkings settings through the mods list.
+The installer keeps your existing settings when you reinstall. To choose the components again, select **Reset to defaults and choose the components again** on the folder page; your current settings are backed up first.
 
-**Upgrading from the old configuration layout:** back up your personal images and sounds, then remove the old `mods/configs/driftkings` folder before the first launch of version 0.1.3. Configure the mod again in the hangar. Older settings and caches are no longer imported automatically.
+### Option 2 – Manual installation
 
-**Updating an existing installation:** keep personal settings under `mods/configs/driftkings/`. Extract the defaults archive for a new installation; do not overwrite current profiles with defaults during a normal update. The manual ZIP includes the required ModsListAPI and OpenWG Gameface packages.
+1. Download `Driftkings-0.1.7-WoT-2.4.2.0.zip`.
+2. Extract its `mods` folder into the game folder and merge it with the existing one.
+3. For a new installation only, also download `Driftkings-defaults.zip` from the same release and extract it into the game folder. Do not do this when updating; your settings live in `mods/configs/driftkings`.
+4. Start the game and open **Driftkings settings** from the launcher in the hangar footer.
 
-To verify a downloaded file on Windows, compare `Get-FileHash -Algorithm SHA256 -LiteralPath '<downloaded-file>'` with its entry in the published `SHA256SUMS.txt`.
+### Updating
 
-## Settings, profiles & updates
+The in-game updater downloads the signed update, checks its signature, size and SHA-256 before applying it, and applies it after the game has closed. Your settings under `mods/configs/driftkings` are kept.
 
-The integrated settings panel includes **profiles, themes, UI scale, translations and update channels**. Marker changes can be checked in the tank preview before applying them.
+## Settings, profiles and updates
 
-Default configurations are based on the author's EU profile, except vehicle markers, which now follow the reference layout. Personal JSON settings take precedence, and the updater preserves them. Settings remain under `mods/configs/driftkings/<profile>/`.
+The settings panel includes profiles, themes, UI scale, translations and update channels. Marker changes can be previewed on a tank before you apply them. Select the **stable** channel for public releases, or **beta** to receive prerelease updates.
 
-Use the **stable** update channel for stable releases. Select **Beta** only if you want prerelease updates. The updater authenticates the signed manifest, verifies the package size and SHA-256, and applies the update after restarting. Installation runs in a small Windows helper that waits for the game client to close before replacing files, so the update is never applied while the game is running. See [release integrity and security](SECURITY.md).
+Custom images and sounds go in `mods/configs/driftkings/images/` and `mods/configs/driftkings/sixthsense/`. Uninstalling keeps these folders.
 
-For custom media, use `mods/configs/driftkings/images/` and `mods/configs/driftkings/sixthsense/`. The default custom Sixth Sense icon is `SixthSenseIcon.png`. Packaged `gui/maps/driftkings/...` image paths are also supported. Select the paths in settings; uninstall preserves your media folders.
+### Anonymous statistics (optional)
 
-### Ratings and palettes
+Anonymous usage statistics are **off by default**. When you turn them on, the mod sends a random installation ID, the mod and game versions, the region and the error types to Google Analytics. It never sends player names, account details or error messages. Turning the option off stops sending and deletes the installation ID.
 
-Choose from **NoobMeter, Driftkings, WoT-Life and Tomato.gg** palettes. WNX includes assistance damage for your own battle, results and carousel vehicles; missing data displays `--`. Expected values refresh daily in the hangar and retain the last valid cache if a download fails.
+### Optional behaviour explained
 
-The EU battle overlay defaults to **WN8, EFF and DIFF**. Add `{wnx}` and `{c:wnx}` to battle/results text, or `{{v.wnx}}` and `{{v.c:wnx}}` to carousel fields, to display WNX. Carousel sorting by WNX is also available.
+- **Clan reward collection.** Free reward collection is separate from *Automatic purchases with Tour Coins*. That option is **off by default**. When you turn it on, Driftkings spends Tour of Duty coins (Tour Coins) without a confirmation to unlock the next clan progression stage whenever your balance covers its price. It never spends credits or gold.
+- **Account manager.** Account e-mails and passwords are stored only on this computer, in a file protected with the game client's credential protection. This is not a guarantee of encryption. Signing in is still done on the login screen.
+- **Anonymous statistics.** Optional and off by default (see above).
+- **Updates.** A Windows helper applies a prepared update after the World of Tanks client exits.
 
-### Optional anonymous statistics
+## Languages
 
-Anonymous usage statistics are **off by default**. You can enable them in settings. When enabled, the mod sends a random installation ID, mod/game versions, region, activity heartbeats and error-location metadata to Google Analytics. It does not send player names, account details, error messages or full filesystem paths. Disabling the option stops sending and deletes the installation ID. Replays are not counted.
+In-game text is available in 18 languages: Chinese (Simplified and Traditional), Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian and Vietnamese. English is the fallback. Translation corrections are welcome on [Discord](https://discord.gg/k2Stjv5fS5).
 
-## Compatibility & languages
+## What's new in 0.1.8
 
-| Area | Support |
-| --- | --- |
-| Game | Wargaming World of Tanks **2.4.2.0** (0.1.7-beta.2 candidate). Public stable 0.1.6 targets 2.4.1.1. |
-| Regions | **EU, NA and ASIA**; Mir Tankov/RU is outside the project's scope. |
-| Client runtime | Python 2.7, ActionScript 3 / Scaleform and ES5 JavaScript / Gameface. |
-| Dependencies | None. Driftkings 0.1.7 is standalone: OpenWG Gameface and ModsListAPI are neither required nor shipped. Existing third-party installations of those libraries are left untouched. |
+- Crew barracks cards show crew progression in one line.
+- Battle loading screen layout is stabilised.
+- Settings previews and formatted text layout are corrected. Multilingual Gameface fonts are restored.
+- Default configurations are simplified. Account Manager, repair controls, zoom and purchases stay off by default.
+- Installer validates the game destination before installing.
+- CN statistics are not requested from the EU, NA or ASIA services. CN statistics are not provided.
 
-**18 interface languages:** Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian, Vietnamese, Simplified Chinese and Traditional Chinese.
+## What's new in 0.1.7
 
-English is the fallback. Regional Spanish and Portuguese variants reuse the existing catalogs. See the [language guide](docs/i18n/README.md) for aliases and coverage. Translation corrections and native-speaker terminology reviews are welcome.
+- A footer launcher in the hangar, with updated icons.
+- Native Gameface integration for the hangar clock, Marks of Excellence, crew progression, carousel statistics and post-battle efficiency.
+- Battle HUD cards share one window per battle HUD.
+- Updated Marks of Excellence presentation in battle.
+- A notice when your e-mail address is already saved on another server, and explicit confirmation before Tour Coin purchases.
+- Updated minimap enhancements panel and launcher hover behaviour.
 
-Special modes may retain native markers or omit Gameface HUD elements when the game's battle page does not provide that HUD. See the feature guides for limitations.
+## Support and issues
 
-## Release history & changelog
+- Questions and help: [Discord](https://discord.gg/k2Stjv5fS5).
+- Bugs and feature requests: open an issue on [GitHub](https://github.com/dkruben/Driftkings_SettingsLab/issues). Include your game version, realm, the Driftkings version and, if possible, the relevant lines from `game.log`.
+- Security concerns: see [SECURITY.md](SECURITY.md).
 
-- **[v0.1.6 — current stable](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.6):** statistics, player-panel and overlay optimizations described above.
-- **[v0.1.5](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.5):** consolidated the four 0.1.5 betas, including the Classic target card, Gameface HUD, expanded team-panel support, account management and settings improvements.
-- **[v0.1.4](https://github.com/dkruben/Driftkings_SettingsLab/releases/tag/v0.1.4):** account-manager fixes, self-contained fonts, minimap/player-panel corrections and shared configuration contracts.
-- [Complete release history](https://github.com/dkruben/Driftkings_SettingsLab/releases) · [release and promotion process](docs/releases/README.md) · [project status and historical validation](docs/STATUS.md).
+## Fair play
 
-**Older custom profiles:** version 0.1.5 retired the `xvm`/`XVMSymbol` font aliases, `{{xvm-stat}}` and carousel `{{v.c_...}}` macros. Use `dkm`, `{{stat-available}}` and `{{v.c:...}}` instead. Aiming texts support `{name}` fields such as `{timer:.1f}`; older `%(name)s` templates remain supported. See the [macro reference](docs/macros/README.md).
+Driftkings is an interface modpack. Wargaming decides what is permitted in World of Tanks. Check the current rules and terms before you use any mod, and keep the options you enable within them.
 
-## Development & contributions
+## Credits and license
 
-Runtime code targets **Python 2.7**, **ActionScript 3** and **ES5 JavaScript**. Build and validation tools run on **Python 3**. The published stable source is on `main`; `develop` is the development branch. Stable preparation uses a release branch and a reviewed merge commit.
+Driftkings SettingsLab is released under the **GNU General Public License v3.0**; see [licence](licence). Contributors are listed in the project's commit history. Thanks to the Driftkings community for testing and feedback.
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md) for environment setup, architecture, tests, translations and release instructions. The [documentation index](docs/STATUS.md#guias-mantidos) links to feature guides and technical references. Contributions can cover fixes, configuration examples, translations, documentation and reproducible bug reports.
-
-Stable releases promoted through the current process are rebuilt and signed from an approved beta and carry `promotion.json` for traceability. Functional acceptance is recorded separately from automated CI and package checks.
-
-## Support, credits & license
-
-[Join Discord](https://discord.gg/k2Stjv5fS5) · [Report an issue](https://github.com/dkruben/Driftkings_SettingsLab/issues) · [Browse releases](https://github.com/dkruben/Driftkings_SettingsLab/releases)
-
-Include the mod version, full game version, region, steps to reproduce and relevant `game.log` excerpts when reporting a problem. Remove personal information before sharing logs. For security reports, follow [SECURITY.md](SECURITY.md).
-
-Thanks to **poliroid** for ModsListAPI and to the **OpenWG Gameface** project, which Driftkings used in earlier versions.
-
-Licensed under the [GNU General Public License v3.0](licence).
+World of Tanks is a trademark of Wargaming.net. This project is not affiliated with or endorsed by Wargaming.net.

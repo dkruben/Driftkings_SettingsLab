@@ -26,9 +26,9 @@
     "horizontal": 10,
     "vertical": 13
   },
-  "hideBuySlot": true,
+  "hideBuySlot": false,
   "hideBuyTank": false,
-  "hideRestoreTank": true,
+  "hideRestoreTank": false,
   "nations_order": [
     "ussr",
     "germany",
@@ -45,8 +45,8 @@
   "rows": 2,
   "scrollingSpeed": 1.0,
   "showIcons": true,
-  "showTotalSlots": true,
-  "showUsedSlots": true,
+  "showTotalSlots": false,
+  "showUsedSlots": false,
   "slotBackgroundAlpha": 100,
   "slotBorderAlpha": 80,
   "slotSelectedBorderAlpha": 100,

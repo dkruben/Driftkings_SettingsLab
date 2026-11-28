@@ -1,13 +1,16 @@
 # Security policy
 
-The planned stable is `0.1.7` for WoT `2.4.2.0`. Include the exact package SHA-256 and realm when reporting an issue with a candidate.
+The planned stable is `0.1.8` for WoT `2.4.2.0`, following `0.1.7`. Include the exact package SHA-256 and realm when reporting an issue with a candidate.
 
 ## Supported versions
 
 | Version | Channel | Supported |
 | --- | --- | --- |
+| 0.1.8 | Stable in preparation | Not published |
+| 0.1.8-beta.24 | Development candidate | Not published |
 | 0.1.7-beta.2 | Beta in development | Not published |
-| 0.1.7-beta.1 | Beta | Update to 0.1.7 stable when released |
+| 0.1.7 | Stable | Yes |
+| 0.1.7-beta.1 | Beta | Update to 0.1.7 stable |
 | 0.1.6 | Stable | Yes |
 | 0.1.6-beta.1 | Archived beta | Update to stable 0.1.6 |
 | Older releases | — | No; update first |

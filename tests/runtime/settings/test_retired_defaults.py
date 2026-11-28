@@ -20,7 +20,8 @@ class RetiredDefaultsTests(RuntimeTest):
         clock = ('clock', 'clockBackground', 'clockX', 'clockY', 'clockScale', 'customClockText')
         # The account manager has its own page and file.
         self.assertNotIn('accountManager', hangar)
-        self.assertEqual(self.defaults('account_manager'), {'enabled': True})
+        # Phase 11.6: the Account Manager is opt-in by default.
+        self.assertEqual(self.defaults('account_manager'), {'enabled': False})
         self.assertFalse(set(hangar).intersection(clock))
         main = self.defaults('main')
         self.assertFalse(set(main).intersection(clock[1:]))

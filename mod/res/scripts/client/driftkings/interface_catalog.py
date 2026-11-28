@@ -274,7 +274,6 @@ GAMEFACE = {
                     'coui://gui/gameface/mods/driftkings/settings_window/js/minimap.js',
                     'coui://gui/gameface/mods/driftkings/settings_window/js/richtext.js',
                     'coui://gui/gameface/mods/driftkings/shared/health_bar.js',
-                    'coui://gui/gameface/mods/driftkings/settings_window/js/hud.js',
                     'coui://gui/gameface/mods/driftkings/settings_window/js/carousel.js',
                     'coui://gui/gameface/mods/driftkings/settings_window/js/app.js'],
         'section': 'driftkings',

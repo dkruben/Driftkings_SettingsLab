@@ -27,6 +27,8 @@ class EnemySpottingStatusTests(RuntimeTest):
     def setUp(self):
         super(EnemySpottingStatusTests, self).setUp()
         self.data = dict(DEFAULTS)
+        # Behaviour tests run with the custom sound enabled; the shipped default is off (Phase 11.6).
+        self.data['sound'] = True
         self.messages, self.sounds = [], []
         self.controlling = 1
         self.names = {7: module(playerName='Bob', vehicleName='T-34')}

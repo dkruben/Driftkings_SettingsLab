@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "1010",
+  "feature": "DriftkingsCrewDetails",
+  "resource": "gui/gameface/_dist/production/lobby/crew/personal_case/PersonalFileView/PersonalFileView.html",
+  "source_sha256": "c6e95ea4741811aab636fde5a428e242f13fce0805fbb9a3127f94dbb5f45275",
+  "output_sha256": "541f7fd12f62c004d724dccd75d05614e9246224f0031803a09aa0eebd9c3057",
+  "operations": [
+    {
+      "find": "</body>",
+      "replace": "\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/shared/fonts.css\">\n<link rel=\"stylesheet\" href=\"coui://gui/gameface/mods/driftkings/crew_details/details.css\">\n<script defer src=\"coui://gui/gameface/mods/driftkings/crew_details/details.js\"></script>\n</body>",
+      "count": 1
+    }
+  ]
+}

@@ -169,3 +169,123 @@ class ClientPreflightTests(unittest.TestCase):
         patch = dict(source_sha256='0' * 64, output_sha256='0' * 64, operations=[])
         with self.assertRaisesRegex(ValueError, 'bundle hash'):
             apply_patch_set(b'wrong bundle', patch)
+
+
+    def test_explicit_target_selection_and_legacy_inference(self):
+        from unittest.mock import patch
+        from build_tools import compiler
+
+        with patch.object(compiler, 'source_client', wraps=compiler.source_client) as identify:
+            target = compiler.resolve_target(ROOT, self.config, self.tools, 'ct996', 'dev')
+            identify.assert_called_once_with(str(self.game), self.config)
+        self.assertEqual(target['name'], 'ct996')
+        self.assertEqual(target['identity']['build'], '996')
+        self.assertIsNone(target['profile'])
+        self.assertEqual(compiler.resolve_target(ROOT, self.config, self.tools, None, 'debug')['name'], 'ct996')
+
+    def test_wrong_unknown_or_release_ct_target_is_rejected(self):
+        from build_tools.compiler import resolve_target
+
+        for name, mode, error in (
+                ('unknown', 'dev', 'Unknown build target'),
+                (None, 'dev', 'requires --target'),
+                ('ct995', 'dev', 'does not match target'),
+                ('ct996', 'release', 'cannot be used in release'),
+                (None, 'release', 'cannot be used in release')):
+            with self.subTest(name=name, mode=mode), self.assertRaisesRegex(ValueError, error):
+                resolve_target(ROOT, self.config, self.tools, name, mode)
+
+    def test_target_table_must_match_pinned_client_builds(self):
+        from build_tools.compiler import validate_targets
+
+        validate_targets(self.config)
+        drifted = json.loads(json.dumps(self.config))
+        drifted['targets']['na1010']['build'] = '998'
+        with self.assertRaisesRegex(ValueError, 'does not match the pinned NA client build'):
+            validate_targets(drifted)
+
+
+class ProductionReferenceTests(unittest.TestCase):
+    def setUp(self):
+        from build_tools.validate_build_data import production_profile
+
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.source = Path(temp.name)
+        self.config = json.loads((ROOT / 'build_data/build_config.json').read_text())
+        self.identity = dict(realm='NA', build='1010', revision='2671446')
+        self.profile = production_profile(ROOT, self.config, self.identity)
+        self.python_path = self.profile['reference_python_lf'][0]
+        for relative in self.profile['reference_sha256']:
+            target = self.source / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            raw = b'\xef\xbb\xbf# exact reference\nVALUE = 1\n'
+            if relative == 'sources/version.xml':
+                raw = (b'<root><version>v.2.4.2.0 #1010</version><meta><realm>NA</realm>'
+                       b'<client>2671446</client></meta></root>\n')
+            elif relative == 'sources/paths.xml':
+                raw = b'<paths/>\n'
+            target.write_bytes(raw)
+            self.profile['reference_sha256'][relative] = hashlib.sha256(raw).hexdigest()
+        (self.source / '.version_name').write_text('2.4.2.5537')
+
+    def verify(self):
+        from build_tools.compiler import check_production_reference
+
+        return check_production_reference(
+            self.config, {'reference_root': str(self.source)}, self.identity, self.profile)
+
+    def test_reviewed_lf_and_crlf_compare_equal_with_distinct_raw_provenance(self):
+        path = self.source / self.python_path
+        lf = self.verify()[self.python_path]
+        path.write_bytes(path.read_bytes().replace(b'\n', b'\r\n'))
+        crlf = self.verify()[self.python_path]
+        self.assertEqual(crlf['canonical_sha256'], lf['canonical_sha256'])
+        self.assertNotEqual(crlf['raw_sha256'], lf['raw_sha256'])
+        self.assertEqual(crlf['raw_sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
+
+    def test_substantive_change_and_bare_cr_are_rejected(self):
+        path = self.source / self.python_path
+        original = path.read_bytes()
+        for changed, message in (
+                (original.replace(b'VALUE = 1', b'VALUE = 2'), 'source hash mismatch'),
+                (original.replace(b'\n', b'\r'), 'Bare CR'),
+                (original.removeprefix(b'\xef\xbb\xbf'), 'source hash mismatch'),
+                (original.rstrip(b'\n'), 'source hash mismatch')):
+            with self.subTest(message=message):
+                path.write_bytes(changed)
+                with self.assertRaisesRegex(ValueError, message):
+                    self.verify()
+
+    def test_xml_and_unlisted_python_still_use_raw_hashes(self):
+        relative = 'sources/paths.xml'
+        path = self.source / relative
+        raw = path.read_bytes()
+        path.write_bytes(raw.replace(b'\n', b'\r\n'))
+        with self.assertRaisesRegex(ValueError, 'source hash mismatch'):
+            self.verify()
+        self.profile['reference_python_lf'].append(relative)
+        with self.assertRaisesRegex(ValueError, 'limited to reviewed Python'):
+            self.verify()
+        self.profile['reference_python_lf'] = []
+        path.write_bytes(raw)
+        path = self.source / self.python_path
+        path.write_bytes(path.read_bytes().replace(b'\n', b'\r\n'))
+        with self.assertRaisesRegex(ValueError, 'source hash mismatch'):
+            self.verify()
+
+    def test_production_swc_pin_still_requires_exact_binary_bytes(self):
+        from build_tools.compiler import production_generators
+
+        binary = self.source / 'test.swc'
+        raw = b'PK\x00\x01\r\n'
+        binary.write_bytes(raw)
+        (self.source / 'flash.json').write_text(json.dumps(dict(
+            game_version='2.4.2.0', source_version='2.4.2.5537',
+            libraries=[dict(name='test.swc', sha256=hashlib.sha256(raw).hexdigest())])))
+        self.config['generators'] = {'flash': {'kind': 'flash'}}
+        self.profile['generators'] = {'flash': 'flash.json'}
+        production_generators(self.source, self.config, self.profile, self.identity)
+        binary.write_bytes(raw.replace(b'\r\n', b'\n'))
+        with self.assertRaisesRegex(ValueError, 'Flash library hash mismatch'):
+            production_generators(self.source, self.config, self.profile, self.identity)

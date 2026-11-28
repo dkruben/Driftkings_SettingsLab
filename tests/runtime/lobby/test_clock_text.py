@@ -42,8 +42,12 @@ class MainClockSettingsTests(RuntimeTest):
     def test_defaults_hold_the_clock_switch_and_fields(self):
         self.assertTrue(self.defaults['enabled'])
         self.assertTrue(self.defaults['clock']['enabled'])
+        # Phase 11.6: the decorative background image is removed; one text field remains.
+        self.assertEqual(len(self.defaults['clock']['formats']), 1)
         self.assertEqual(self.defaults['clock']['formats'][0]['format'],
-                         "<img src='gui/maps/driftkings/clock/clockbg.svg'>")
+                         "<font face='$FieldFont'><textformat leading='-38'><font size='28' color='#D8D5CD'>%H:%M</font>"
+                         "<br></textformat><textformat leading='-2'><font size='15' color='#959688'>%d %b %Y</font>"
+                         "</textformat></font>")
         self.assertEqual(self.main(), self.defaults['clock'])
 
     def test_clock_object_is_kept_and_saving_other_options_keeps_it(self):
@@ -89,19 +93,21 @@ class MainClockSettingsTests(RuntimeTest):
         description = registry.describe('main')
         values = description['values']
         prefix = 'clock.formats.'
-        self.assertEqual(len(values), 34)  # two switches and 16 properties per field
+        # The shipped clock has one text field: two switches and 16 properties. The two-field array is
+        # covered by test_clock_object_is_kept_and_saving_other_options_keeps_it.
+        self.assertEqual(len(values), 18)
         values[prefix + '0.x'] = 42
         values[prefix + '0.shadow.enabled'] = True
         values[prefix + '0.shadow.alpha'] = 55
-        values[prefix + '1.format'] = '<font size="28">%H:%M:%S</font>'
-        values[prefix + '1.textFormat.color'] = '#aabbcc'
-        values[prefix + '1.screenHAlign'] = 1
+        values[prefix + '0.format'] = '<font size="28">%H:%M:%S</font>'
+        values[prefix + '0.textFormat.color'] = '#aabbcc'
+        values[prefix + '0.screenHAlign'] = 1
         registry.apply('main', values)
         stored = self.main()['formats']
+        self.assertEqual(len(stored), 1)
         self.assertEqual(stored[0]['x'], 42)
         self.assertTrue(stored[0]['shadow']['enabled'])
         self.assertEqual(stored[0]['shadow']['alpha'], 55)
-        self.assertEqual(stored[1]['format'], values[prefix + '1.format'])
-        self.assertEqual(stored[1]['textFormat']['color'], '#aabbcc')
-        self.assertEqual(stored[1]['screenHAlign'], 'center')
-        self.assertEqual(stored[0]['format'], self.defaults['clock']['formats'][0]['format'])
+        self.assertEqual(stored[0]['format'], '<font size="28">%H:%M:%S</font>')
+        self.assertEqual(stored[0]['textFormat']['color'], '#aabbcc')
+        self.assertEqual(stored[0]['screenHAlign'], 'center')

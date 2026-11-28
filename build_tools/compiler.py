@@ -3,7 +3,9 @@ import argparse
 from contextlib import ExitStack
 import ast
 from datetime import datetime, timezone
+import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -13,8 +15,10 @@ import subprocess
 import sys
 import time
 import uuid
-import xml.etree.ElementTree as ET
 import zipfile
+
+if __name__ == '__main__':
+    sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -24,7 +28,7 @@ from build_tools.build_diagnostics import exception_record, record_failure
 from build_tools.isolated_output import IsolatedOutput, active_output, tool_environment
 from build_tools import publication_state
 from build_tools.package_tools import metadata, normalize_swf_compile_date, sha, validate_swf, verify_package, write_json, zip_entries
-from build_tools.toolchain import KEYS as TOOL_KEYS, discover, reference_snapshot_matches, require_tools
+from build_tools.toolchain import KEYS as TOOL_KEYS, discover, reference_snapshot_matches, require_game_root, require_tools
 from build_tools.validate_build_data import apply_patch_set, apply_battleinfo_patch, gameface_patch_for_build, read_gameface_resource, build_plan, source_client, production_profile, input_path, read_json, require
 from build_tools.generate_defaults import TARGET as DEFAULT_VALUES, render as render_defaults, assemble as assemble_defaults
 from build_tools.modpack import create as create_modpack
@@ -116,9 +120,9 @@ def run_tool(command, log, env=None, timeout=240, cwd=None):
         raise ValueError('Build tool failed (%s); see %s\n%s' % (result.returncode, log, tail))
 
 
-def run_worker(tools, run, job, name):
-    job_path = run / (name + '-job.json')
-    result = run / (name + '-result.json')
+def run_worker(tools, work, logs, job, name):
+    job_path = work / (name + '-job.json')
+    result = work / (name + '-result.json')
     job['result'] = str(result)
     write_json(job_path, job)
     worker = ROOT / 'build_tools/python27_worker.py'
@@ -129,7 +133,7 @@ def run_worker(tools, run, job, name):
     else:
         env['DK_COMPILE_JOB'] = str(job_path)
         command = [tools['hg'], '--config', 'extensions.dkcompiler=' + str(worker), 'dkcompile']
-    run_tool(command, run / 'logs' / (name + '.log'), env)
+    run_tool(command, logs / (name + '.log'), env)
     require(result.is_file(), 'Python 2.7 worker did not produce a result')
     return read_json(result)
 
@@ -147,7 +151,7 @@ def supports_deterministic_csharp(csc):
     return b'-deterministic' in result.stdout
 
 
-def generate(root, config, plan, tools, run, epoch):
+def generate(root, config, plan, tools, work, logs, epoch, identity):
     outputs = {}
     deterministic_csharp = None
     needed = {a['generator'] for a in plan['assets'] if a['generator']}
@@ -157,7 +161,7 @@ def generate(root, config, plan, tools, run, epoch):
         if scope:
             scope.phase, scope.component = 'generate', name
         output_path(root, spec['output'])
-        destination = run / 'generated' / spec['output']
+        destination = work / 'generated' / spec['output']
         destination.parent.mkdir(parents=True, exist_ok=True)
         print('Generating: ' + name, flush=True)
         if spec['kind'] == 'flash':
@@ -175,12 +179,12 @@ def generate(root, config, plan, tools, run, epoch):
                         '-default-size=%s,%s' % (spec['width'], spec['height']),
                         '-default-frame-rate=' + str(spec['fps']),
                         '-output=' + str(destination), str(input_path(root, spec['entrypoint']))]
-            run_tool(command, run / 'logs' / (name + '.log'))
+            run_tool(command, logs / (name + '.log'))
             destination.write_bytes(normalize_swf_compile_date(destination.read_bytes(), epoch))
             validate_swf(destination.read_bytes())
         elif spec['kind'] == 'vehicle_markers':
             from build_tools.vehicle_markers import build as build_vehicle_markers
-            build_vehicle_markers(root, destination, spec, tools, tools['game_root'],
+            build_vehicle_markers(root, destination, spec, tools, tools['game_root'], identity['build'],
                                   library_manifest=config['generators']['battle_flash']['library_manifest'])
         elif spec['kind'] == 'gameface_patch':
             raw = None
@@ -190,8 +194,7 @@ def generate(root, config, plan, tools, run, epoch):
                         require(raw is None, 'Ambiguous Gameface resource')
                         raw = archive.read(spec['resource'])
             require(raw is not None, 'Gameface resource not found')
-            build = source_client(tools['game_root'], config)['build']
-            patch = gameface_patch_for_build(root, spec, build)
+            patch = gameface_patch_for_build(root, spec, identity['build'])
             destination.write_bytes(apply_patch_set(raw, patch))
         elif spec['kind'] == 'native_battleinfo_patch':
             raw = read_gameface_resource(tools['game_root'], spec['game_packages'], spec['resource'])
@@ -207,11 +210,11 @@ def generate(root, config, plan, tools, run, epoch):
             command += ['/reference:' + reference for reference in spec['references']]
             command.append(str(input_path(root, spec['source'])))
             command += [str(input_path(root, source)) for source in spec.get('additional_sources', [])]
-            run_tool(command, run / 'logs' / (name + '.log'))
+            run_tool(command, logs / (name + '.log'))
             binary = destination.read_bytes()
             require(binary.startswith(b'MZ') and len(binary) <= 256 * 1024, 'Invalid native helper: ' + name)
             output_path(root, spec['metadata'])
-            meta = run / 'generated' / spec['metadata']
+            meta = work / 'generated' / spec['metadata']
             write_json(meta, dict(schema=1, size=len(binary), sha256=sha(destination)))
             outputs[spec['metadata']] = meta
         else:
@@ -262,29 +265,114 @@ def replace_directory(source, destination):
             time.sleep(min(2.0, 0.25 * (2 ** attempt)))
 
 
-def publish_local(root, candidate, destination, config, generated, compiled, plan):
-    """Promote only verified outputs; preserve the previous version directory."""
-    require(candidate.resolve().is_relative_to((root / 'build').resolve()) and
-            destination.resolve().is_relative_to((root / 'build').resolve()) and
-            candidate.parent.resolve() == destination.parent.resolve(), 'Unsafe artifact promotion paths')
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    previous = None
-    if destination.exists():
-        previous = output_path(root, 'build/previous/' + destination.name + '-' + uuid.uuid4().hex)
-        previous.parent.mkdir(parents=True, exist_ok=True)
-        replace_directory(destination, previous)
+def same_release_bytes(candidate, destination):
+    """A frozen release directory may be reused only when every release file is byte-identical."""
+    def files(folder):
+        return {p.relative_to(folder).as_posix(): sha(p) for p in artifact_files(folder)
+                if p.name not in ('build-report.json', 'SHA256SUMS.txt')}
+    return files(candidate) == files(destination)
+
+
+def require_signed_inventory(candidate):
+    """Both signatures must verify against the trusted production keys before anything is copied."""
+    from build_tools import sign_release
+    signature = sign_release.load_signature()
+    require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty; nothing can be promoted')
+    names = (signature.SIGNATURE_ASSET, 'SHA256SUMS.txt.sig')
+    for name in names:
+        require((candidate / name).is_file(), 'Missing signature: ' + name)
     try:
-        replace_directory(candidate, destination)
+        signature.verify_manifest((candidate / 'release.json').read_bytes(),
+                                  (candidate / signature.SIGNATURE_ASSET).read_bytes(), signature.TRUSTED_KEYS)
+        signature.verify_manifest((candidate / 'SHA256SUMS.txt').read_bytes(),
+                                  (candidate / 'SHA256SUMS.txt.sig').read_bytes(), signature.TRUSTED_KEYS)
+    except ValueError as error:
+        raise ValueError('Candidate is not signed by a trusted production key: %s' % error)
+
+
+def promote_run(root, run):
+    """Final promotion of a frozen release run into the canonical build/releases folder.
+
+    Only a run whose output is FROZEN (stamped and signed) is copied; nothing is rebuilt, and an existing release
+    with other bytes is refused by publish_release.
+    """
+    from build_tools.publication_state import CANDIDATE_FROZEN, candidate_state
+    root = Path(root).resolve()
+    run = Path(run).resolve()
+    require(run.parent == (root / 'build/runs').resolve(), 'Promotion takes a run directory under build/runs')
+    record = read_json(run / 'evidence/build-report.json')
+    require(record.get('mode') == 'release' and record.get('status') == 'success',
+            'Only a successful release run can be promoted')
+    output = run / 'output'
+    require(candidate_state(output) == CANDIDATE_FROZEN,
+            'Only a stamped and signed candidate can be promoted; sign and stamp the run output first')
+    verify_checksums(output)
+    require_signed_inventory(output)
+    config = read_json(root / 'build_data/build_config.json')
+    canonical = output_path(root, config['package']['release_root'] + '/' + record['channel'] + '/' + record['version'])
+    promoted = publish_release(root, output, canonical)
+    # The run and the canonical candidate must not diverge: both hold the same complete inventory.
+    require(sha(promoted / 'SHA256SUMS.txt') == sha(output / 'SHA256SUMS.txt'),
+            'The promoted candidate does not match the run output')
+    return promoted
+
+
+def publish_release(root, candidate, destination):
+    """Copy a verified release run into the canonical build/releases folder; existing release bytes are never replaced."""
+    releases = (root / 'build/releases').resolve()
+    require(destination.resolve().is_relative_to(releases) and destination.resolve() != releases,
+            'Release destination must stay inside build/releases')
+    if destination.exists():
+        require(same_release_bytes(candidate, destination),
+                'Frozen release %s already exists with different bytes; choose a new version' % destination.name)
+        return destination
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staged = destination.with_name('.' + destination.name + '.' + uuid.uuid4().hex + '.tmp')
+    shutil.copytree(candidate, staged)
+    try:
+        replace_directory(staged, destination)
     except OSError:
-        if previous is not None:
-            replace_directory(previous, destination)
+        shutil.rmtree(staged, ignore_errors=True)
         raise
-    atomic_copy(destination / 'driftkings.wotmod', output_path(root, config['package']['output']))
-    for name, source in generated.items():
-        atomic_copy(source, output_path(root, name))
-    for item in plan['python']:
-        name = item['target'][len(config['python']['archive_root']) + 1:]
-        atomic_copy(compiled / item['target'], output_path(root, config['python']['staging_root'] + '/' + name))
+    return destination
+
+
+def write_checksums(candidate):
+    sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix())
+                     for p in artifact_files(candidate)) + '\n'
+    (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
+
+
+# Files that are never listed in the inventory they accompany: each has its own check. A signature cannot cover
+# itself, and a build stamp or attestation records the inventory digest from outside it.
+SIGNATURE_ASSETS = ('release.json.sig', 'SHA256SUMS.txt.sig')
+BUILD_STAMP_ASSETS = ('.promotion-build.json', '.official-build-attestation.json')
+
+
+def verify_checksums(candidate):
+    listed = {}
+    for line in (candidate / 'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
+        digest, name = line.split('  ', 1)
+        listed[name] = digest
+    unlisted = frozenset(('SHA256SUMS.txt',) + SIGNATURE_ASSETS + BUILD_STAMP_ASSETS)
+    actual = {p.relative_to(candidate).as_posix() for p in artifact_files(candidate)
+              if p.relative_to(candidate).as_posix() not in unlisted}
+    require(set(listed) == actual, 'Checksum inventory mismatch')
+    for name, digest in listed.items():
+        require(sha(candidate / name) == digest, 'Checksum mismatch: ' + name)
+
+
+def verify_distribution(candidate, package, manifest, version):
+    """Distribution checks beyond the WOTMOD: manifest identity and distribution ZIP inventory."""
+    require(manifest['file'] == 'driftkings.wotmod' and manifest['sha256'] == sha(package)
+            and manifest['size'] == package.stat().st_size, 'Release manifest does not describe the verified WOTMOD')
+    game = manifest['gameVersion']
+    member = 'mods/%s/driftkings.wotmod' % game
+    with zipfile.ZipFile(candidate / ('Driftkings-%s-WoT-%s.zip' % (version, game))) as archive:
+        names = set(archive.namelist())
+        require({member, 'Driftkings-defaults.zip', 'INSTALL.txt'} <= names, 'Distribution ZIP inventory is incomplete')
+        require(archive.read(member) == package.read_bytes(), 'Distribution WOTMOD differs from the verified package')
+    return dict(status='passed', entries=len(names))
 
 
 def check_release_identity(root, release):
@@ -309,27 +397,29 @@ CT_REFERENCE_FILES = (
 
 
 def check_client(root, config, tools):
-    """Check CT identity and required reference files; never generate build outputs."""
-    version_xml = ET.parse(Path(tools['game_root']) / 'version.xml')
-    public = version_contract(root).normalize_game_version(version_xml.findtext('version'))
-    require(public == config['game']['version'], 'Installed game version differs from build target')
-    identity = source_client(tools['game_root'], config)
+    """Validate client and reference inputs for callers that only need the realm."""
+    identity = source_client(require_game_root(tools), config)
+    check_reference(root, config, tools, identity)
+    return identity['realm']
+
+
+def check_ct_reference(config, tools, identity):
+    public = config['game']['version']
     realm, build, revision = (identity[key] for key in ('realm', 'build', 'revision'))
-    if realm != 'CT':
-        check_production_reference(root, config, tools, identity)
-        return realm
     reference_root = Path(tools['reference_root'])
     name = (reference_root / '.version_name').read_text(encoding='utf-8-sig').strip()
     if name == config['reference']['version']:
-        # The configured source label (2.4.2.5518) is bound to CT #996. Without a
+        # The configured legacy source label is bound to one CT build. Without a
         # manifest, only the provenance files are checked; the label is not a public version.
-        require(build == '996', 'Reference label ' + name + ' is bound to CT #996, not #' + build)
+        legacy_build = config['reference']['legacy_ct_build']
+        require(build == legacy_build, 'Reference label %s is bound to CT #%s, not #%s'
+                % (name, legacy_build, build))
         if not (reference_root / 'manifest.json').exists():
             for relative in CT_REFERENCE_FILES:
                 target = reference_root / 'sources/res/scripts/client' / relative
                 require(target.is_file() and target.resolve().is_relative_to(reference_root.resolve()),
                         'Missing or escaped legacy reference contract: ' + relative)
-            return realm
+            return
     else:
         expected = public + ' Common Test #' + build
         require(name == expected, 'Reference source version/build mismatch')
@@ -357,10 +447,9 @@ def check_client(root, config, tools):
                 and recovered.get('input_sha256') == entry['sha256']
                 and recovered.get('sha256') == sha(target),
                 'CT reference integrity mismatch: ' + relative)
-    return realm
 
-def check_production_reference(root, config, tools, identity):
-    profile = production_profile(root, config, identity)
+
+def check_production_reference(config, tools, identity, profile):
     reference = Path(tools['reference_root']).resolve()
     pin = config['reference']['production_clients'][identity['realm']]
     require(reference_snapshot_matches(reference, pin['snapshot']),
@@ -369,10 +458,108 @@ def check_production_reference(root, config, tools, identity):
     require(source_client(reference / 'sources', config) == identity, 'Production reference identity mismatch')
     hashes = profile['reference_sha256']
     required = {'sources/version.xml', 'sources/paths.xml'}
-    required.update('sources/res/scripts/client/' + path for path in CT_REFERENCE_FILES)
-    require(required <= set(hashes), 'Incomplete production source contract')
+    reviewed_python = {'sources/res/scripts/client/' + path for path in CT_REFERENCE_FILES}
+    require((required | reviewed_python) <= set(hashes), 'Incomplete production source contract')
+    normalize = set(profile.get('reference_python_lf', ()))
+    require(normalize <= reviewed_python, 'Newline normalization is limited to reviewed Python references')
+    observed = {}
     for relative, digest in hashes.items():
-        require(sha(input_path(reference, relative)) == digest, 'Production source hash mismatch: ' + relative)
+        raw = input_path(reference, relative).read_bytes()
+        raw_digest = hashlib.sha256(raw).hexdigest()
+        record = {'raw_sha256': raw_digest}
+        actual = raw_digest
+        if relative in normalize:
+            canonical = raw.replace(b'\r\n', b'\n')
+            require(b'\r' not in canonical, 'Bare CR in reviewed Python reference: ' + relative)
+            actual = hashlib.sha256(canonical).hexdigest()
+            record['canonical_sha256'] = actual
+        require(actual == digest, 'Production source hash mismatch: ' + relative)
+        observed[relative] = record
+    return observed
+
+
+def check_reference(root, config, tools, identity):
+    require(tools.get('reference_root'), 'Reference snapshot missing; configure --reference-root')
+    if identity['realm'] in config['game']['development_realms']:
+        check_ct_reference(config, tools, identity)
+        return None, {}
+    profile = production_profile(root, config, identity)
+    return profile, check_production_reference(config, tools, identity, profile)
+
+
+def validate_targets(config):
+    """Each configured target must name a supported realm and the client build pinned for that realm."""
+    game = config['game']
+    reference = config['reference']
+    for name, target in config.get('targets', {}).items():
+        realm, build = target['realm'], target['build']
+        if realm in game['development_realms']:
+            require(build in reference['ct_builds'], 'Target %s has no reviewed CT build' % name)
+        else:
+            require(realm in game['supported_realms'] and reference['production_clients'][realm]['build'] == build,
+                    'Target %s does not match the pinned %s client build' % (name, realm))
+
+
+def resource_pins(config, build):
+    """Resource inputs selected for this client build; variants keyed by build are narrowed to this build."""
+    keys = ('library_manifest', 'locks', 'patch_file', 'patch_files')
+    pins = {}
+    for name, spec in sorted(config.get('generators', {}).items()):
+        selected = {}
+        for key in keys:
+            if key not in spec:
+                continue
+            value = spec[key]
+            if key in ('locks', 'patch_files') and isinstance(value, dict):
+                value = value.get(build)
+            if value is not None:
+                selected[key] = value
+        if selected:
+            pins[name] = selected
+    return pins
+
+
+def plan_findings(version, source_version, runtime_realms, target):
+    """Read-only compatibility and preflight notes for --plan."""
+    findings = ['tracked version metadata is not modified by compilation or planning']
+    if version != source_version:
+        findings.append('package-only version override %s; tracked source remains %s' % (version, source_version))
+    if target['reference_hashes']:
+        findings.append('production reference verified: %d reviewed entries' % len(target['reference_hashes']))
+    else:
+        findings.append('development reference verified: CT contract, no production pins')
+    if len(runtime_realms) > 1:
+        findings.append('shared production resource profile for runtime realms: %s' % ', '.join(runtime_realms))
+    return findings
+
+
+def resolve_target(root, config, tools, requested, mode, expect_realm=None):
+    """Select one client identity, then verify its reference and production pins."""
+    targets = config.get('targets', {})
+    validate_targets(config)
+    require(requested is None or requested in targets, 'Unknown build target: %s' % requested)
+    require(mode != 'dev' or requested is not None, '--mode dev requires --target')
+    development_realms = config['game']['development_realms']
+    if requested is not None:
+        require(mode != 'release' or targets[requested]['realm'] not in development_realms,
+                'CT targets cannot be used in release mode')
+    identity = source_client(require_game_root(tools), config)
+    realm = identity['realm']
+    if requested is not None:
+        expected = targets[requested]
+        require(all(identity[key] == expected[key] for key in ('realm', 'build')),
+                'Installed client does not match target %s (expected %s #%s, found %s #%s)'
+                % (requested, expected['realm'], expected['build'], realm, identity['build']))
+    require(expect_realm in (None, realm), 'Game installation realm %s differs from --expect-realm %s'
+            % (realm, expect_realm))
+    require(mode != 'release' or realm not in development_realms, 'CT targets cannot be used in release mode')
+    profile, observed = check_reference(root, config, tools, identity)
+    if profile:
+        production_generators(root, config, profile, identity)
+    name = requested or next((name for name, target in targets.items()
+                              if (target['realm'], target['build']) == (realm, identity['build'])), None)
+    snapshot = None if realm in development_realms else config['reference']['production_clients'][realm]['snapshot']
+    return dict(name=name, identity=identity, profile=profile, reference_hashes=observed, snapshot=snapshot)
 
 
 def production_generators(root, config, profile, identity):
@@ -453,9 +640,12 @@ def write_distribution(root, config, plan, candidate, package, version, channel)
     """Write the defaults archive, dependency copies and manual-installation ZIP; return the defaults."""
     game_version = config['game']['version']
     defaults = {item['target']: (root / item['source']).read_bytes() for item in plan['defaults']}
-    zip_entries(candidate / 'Driftkings-defaults.zip', defaults, zipfile.ZIP_DEFLATED)
+    # The defaults archive is required inside the distribution (the updater inventory reads it there); it is not
+    # a standalone release asset, so it is built in memory and never written beside the candidate.
+    buffer = io.BytesIO()
+    zip_entries(buffer, defaults, zipfile.ZIP_DEFLATED)
     distribution = {'mods/' + game_version + '/driftkings.wotmod': package.read_bytes(),
-                    'Driftkings-defaults.zip': (candidate / 'Driftkings-defaults.zip').read_bytes()}
+                    'Driftkings-defaults.zip': buffer.getvalue()}
     for name in plan['dependencies']:
         path = root / name
         target = candidate / 'dependencies' / path.name
@@ -464,7 +654,7 @@ def write_distribution(root, config, plan, candidate, package, version, channel)
         distribution['mods/' + game_version + '/' + path.name] = path.read_bytes()
     instructions = ('Driftkings %s (%s), World of Tanks %s\n\n'
                     'Extract the mods directory into the game directory.\n'
-                    'First installation: extract Driftkings-defaults.zip only when no Driftkings settings exist.\n'
+                    'First installation: extract the Driftkings-defaults.zip inside this archive only when no Driftkings settings exist.\n'
                     'Updates: keep your existing mods/configs/driftkings settings.\n'
                     'No game files were installed by this build.\n') % (version, channel, game_version)
     distribution['INSTALL.txt'] = instructions.encode('utf-8')
@@ -479,7 +669,7 @@ def artifact_files(candidate):
 def validate_isolated_args(args, channel=None):
     if not getattr(args, 'isolated_output', False):
         return
-    require(args.mode == 'debug', '--isolated-output requires --mode debug; publication is forbidden')
+    require(args.mode in ('dev', 'debug'), '--isolated-output requires development mode; publication is forbidden')
     require(args.keep_source_version, '--isolated-output requires --keep-source-version')
     require(args.channel != 'stable' and channel != 'stable', '--isolated-output requires an experimental prerelease')
 
@@ -487,7 +677,7 @@ def validate_isolated_args(args, channel=None):
 def build(args):
     validate_isolated_args(args)
     previous_bytecode = sys.dont_write_bytecode
-    if getattr(args, 'isolated_output', False):
+    if args.plan or getattr(args, 'isolated_output', False):
         sys.dont_write_bytecode = True
     try:
         with ExitStack() as stack:
@@ -502,159 +692,153 @@ def _build(args, stack):
     release = read_json(root / 'build_data/release.json')
     check_release_identity(root, release)
     version, channel, source_version = select_version(root, release, args.version, args.channel)
-    validate_isolated_args(args, channel)
-    isolated = getattr(args, "isolated_output", False)
-    tools = discover(root, vars(args))
-    plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
-    destination = output_path(root,
-                              config['package']['release_root' if args.mode == 'release'
-                                                else 'debug_root'] + '/' + channel + '/' + version)
-    if args.plan:
-        preview = dict(version=version, source_version=source_version, channel=channel, mode=args.mode,
-                       output=str(destination), tools=tools, python=len(plan['python']),
-                       assets=len(plan['assets']), defaults=len(plan['defaults']))
-        if isolated:
-            preview.update(output='build/experiments/<exclusive-run-id>/output', isolated_output=True)
-        print(json.dumps(preview, indent=2))
-        return destination
     if args.mode == 'release':
-        identity = source_client(tools['game_root'], config)
-        profile = production_profile(root, config, identity)
-    require_tools(tools)
-    realm = check_client(root, config, tools)
-    expected_realm = getattr(args, 'expect_realm', None)
-    require(expected_realm in (None, realm),
-            'Game installation realm %s differs from --expect-realm %s' % (realm, expected_realm))
-    identity = source_client(tools['game_root'], config)
-    profile = production_profile(root, config, identity) if realm != 'CT' else None
+        # Legacy publication callers may still pass --version as an assertion.
+        require(version == release['version'], 'Version overrides are only allowed in development mode')
+        require(source_version == version, 'Tracked release.json and source VERSION disagree')
+    validate_isolated_args(args, channel)
+    development = args.mode != 'release'
+    tools = discover(root, vars(args))
+    target = resolve_target(root, config, tools, args.target, args.mode, args.expect_realm)
+    identity, profile = target['identity'], target['profile']
+    realm = identity['realm']
     runtime_realms = sorted(profile['realm_evidence']) if profile else [realm]
-    production_inputs = []
-    if profile:
-        production_generators(root, config, profile, identity)
-        production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values())
-    build_git = git_state(root, True) if isolated else None
-    if not args.keep_source_version:
-        sync_release_version(root, release, version, channel)
-        source_version = version
+    plan = build_plan(root, check_component_list=False, game_root=tools['game_root'], check_defaults=False)
+    # Only frozen release candidates have a canonical location; development output stays in its run.
+    canonical = None if development else output_path(root, config['package']['release_root'] + '/' + channel + '/' + version)
+    if args.plan:
+        preview = dict(mode=args.mode, target=target['name'], version=version, source_version=source_version,
+                       channel=channel, read_only=True, tools=tools,
+                       output=str(canonical) if canonical else 'build/runs/<run-id>/output',
+                       game_root=tools.get('game_root'), reference_root=tools.get('reference_root'),
+                       source_client=identity, runtime_realms=runtime_realms,
+                       pins=resource_pins(config, identity['build']), reference_snapshot=target.get('snapshot'),
+                       python=len(plan['python']), assets=len(plan['assets']), defaults=len(plan['defaults']),
+                       reference_hashes=target['reference_hashes'],
+                       findings=plan_findings(version, source_version, runtime_realms, target))
+        print(json.dumps(preview, indent=2))
+        return canonical
+    require_tools(tools)
+    production_inputs = list(profile['generators'].values()) + list(profile['realm_evidence'].values()) if profile else []
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
-    if isolated:
-        # Validate all configuration-derived output names BEFORE reserving anything.
-        for spec in config['generators'].values():
-            output_path(root, spec['output'])
-            if 'metadata' in spec:
-                output_path(root, spec['metadata'])
-        read_changelog(release, args.changelog)
-        epoch = int(os.environ.get('SOURCE_DATE_EPOCH', build_git['epoch']))
-        require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
-        scope = stack.enter_context(IsolatedOutput(root, stamp))
-        run = scope.path / 'workspace'
-        destination = scope.path / 'output'
-    else:
-        run = output_path(root, 'build/runs/' + stamp)
-        run.mkdir(parents=True)
-    report = dict(schema=1, status='running', version=version, source_version=source_version, channel=channel,
-                  mode=args.mode, publishable=False, gameVersion=config['game']['version'],
-                  realm=realm, source_client=identity, runtime_realms=runtime_realms, tools=tools, git=build_git if isolated else git_state(root), logs=str(run / 'logs'))
+    # Validate all configuration-derived output names BEFORE reserving anything.
+    for spec in config['generators'].values():
+        output_path(root, spec['output'])
+        if 'metadata' in spec:
+            output_path(root, spec['metadata'])
+    read_changelog(release, args.changelog)
+    build_git = git_state(root, True)
+    epoch = int(os.environ.get('SOURCE_DATE_EPOCH', build_git['epoch']))
+    require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
+    # One run-owned layout for every build: workspace (intermediates), output (artifacts), evidence (reports, logs).
+    scope = stack.enter_context(IsolatedOutput(root, stamp))
+    work, out, record = scope.path / 'workspace', scope.path / 'output', scope.path / 'evidence'
+    logs = record / 'logs'
+    report = dict(schema=1, status='running', run_id=stamp, mode=args.mode, version=version,
+                  source_version=source_version, channel=channel, publishable=False,
+                  gameVersion=config['game']['version'], target=target['name'], realm=realm,
+                  source_client=identity, runtime_realms=runtime_realms,
+                  reference_hashes=target['reference_hashes'], tools=tools, git=build_git,
+                  workspace=str(work), output=str(out), evidence=str(record), logs=str(logs),
+                  wotmod=str(out / 'driftkings.wotmod'), canonical=str(canonical) if canonical else None)
     started = time.monotonic()
     try:
-        if isolated:
-            write_json(scope.path / 'diagnostics' / 'state.json', dict(status='running', publishable=False))
+        write_json(record / 'state.json', dict(status='running', publishable=False))
         inventory = source_inventory(root, plan, production_inputs)
         report['inputs'] = inventory
         components = sorted(c['entrypoint'] for c in plan['components'] if c['enabled'] and c['kind'] == 'feature')
         overrides = python_overrides(root, config, release, version, components)
-        epoch = int(os.environ.get('SOURCE_DATE_EPOCH', report['git']['epoch']))
-        require(0 <= epoch <= 0xffffffff, 'SOURCE_DATE_EPOCH outside Python 2.7 header range')
-        if isolated:
-            scope.phase, scope.component = 'compile', 'python27'
-        compiled = run / 'compiled'
+        scope.phase, scope.component = 'compile', 'python27'
+        compiled = work / 'compiled'
         print('Compiling Python 2.7: %d modules (%s, %s)' % (len(plan['python']), version, channel), flush=True)
-        report['python'] = run_worker(tools, run,
+        report['python'] = run_worker(tools, work, logs,
                                       dict(action='compile',
                                            files=[dict(source=str(root / i['source']), target=i['target'])
                                                   for i in plan['python']],
-                                                    output=str(compiled), overrides=overrides, epoch=epoch), 'python')
-        generated = generate(root, config, plan, tools, run, epoch)
-        if isolated:
-            scope.phase, scope.component = 'package', None
+                                           output=str(compiled), overrides=overrides, epoch=epoch), 'python')
+        generated = generate(root, config, plan, tools, work, logs, epoch, identity)
+        scope.phase, scope.component = 'package', None
         entries = package_entries(root, release, plan, compiled, generated, version)
-        candidate = destination if isolated else destination.parent / ('.' + version + '-' + stamp)
-        if not isolated:
-            candidate.mkdir(parents=True)
-        package = candidate / 'driftkings.wotmod'
+        package = out / 'driftkings.wotmod'
         zip_entries(package, entries)
         verify_package(package, entries, version, release['package_id'])
-        release_manifest = dict(schema=1, version=version, channel=channel, gameVersion=config['game']['version'],
-                                file='driftkings.wotmod', size=package.stat().st_size, sha256=sha(package),
-                                download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (release['repository'], version),
-                                changelog=read_changelog(release, args.changelog))
-        defaults = write_distribution(root, config, plan, candidate, package, version, channel)
-        modpack = create_modpack(candidate, version, channel, config['game']['version'], defaults)
-        write_json(candidate / 'modpack.json', modpack)
-        release_manifest.update(schema=2, modpack=modpack)
-        write_json(candidate / 'release.json', release_manifest)
         expected_defaults, selector, _ = assemble_defaults(root)
-        if isolated:
-            scope.phase, scope.component = 'verify', 'python27'
-        report['verification'] = run_worker(tools, run,
-                                            dict(action='verify', package=str(package),
-                                                 manifest=str(candidate / 'release.json'),
-                                                           modpack=str(candidate / 'modpack.json'),
-                                                           version=version, channel=channel,
-                                                           game_version=config['game']['version'],
-                                                           components=components,
-                                                           defaults=expected_defaults, selector=selector), 'verify')
+        verification = dict(action='verify', package=str(package), version=version, channel=channel,
+                            game_version=config['game']['version'], components=components,
+                            defaults=expected_defaults, selector=selector)
+        release_manifest = None
+        if not development:
+            # Distribution artifacts exist only for release builds; WOTMOD verification never reads them.
+            release_manifest = dict(schema=1, version=version, channel=channel, gameVersion=config['game']['version'],
+                                    file='driftkings.wotmod', size=package.stat().st_size, sha256=sha(package),
+                                    download='https://github.com/%s/releases/download/v%s/driftkings.wotmod' % (release['repository'], version),
+                                    changelog=read_changelog(release, args.changelog))
+            defaults = write_distribution(root, config, plan, out, package, version, channel)
+            modpack = create_modpack(out, version, channel, config['game']['version'], defaults)
+            write_json(out / 'modpack.json', modpack)
+            release_manifest.update(schema=2, modpack=modpack)
+            write_json(out / 'release.json', release_manifest)
+            verification.update(manifest=str(out / 'release.json'), modpack=str(out / 'modpack.json'))
+        scope.phase, scope.component = 'verify', 'python27'
+        report['verification'] = run_worker(tools, work, logs, verification, 'verify')
+        report['distribution'] = None if development else verify_distribution(out, package, release_manifest, version)
         require(source_inventory(root, plan, production_inputs) == inventory,
                 'Build inputs changed during compilation; previous output preserved')
         # Publication is never granted by the compiler: signing, runtime evidence and approval are separate facts.
         report.update(status='success', publishable=False,
                       profile=publication_state.DEVELOPMENT_PROFILE if realm == 'CT' else publication_state.PRODUCTION_PROFILE,
+                      verification_result='passed',
                       counts=dict(components=len(components), python=len(plan['python']), assets=len(plan['assets']),
-                                  entries=len(entries), defaults=len(defaults)),
+                                  entries=len(entries), defaults=len(plan['defaults'])),
                       generated={name: sha(path) for name, path in generated.items()},
                       seconds=round(time.monotonic() - started, 3))
         report['eligible_for_signing'] = publication_state.eligible_for_signing(report)
         report['publication_state'] = publication_state.classify(report)
-        report['artifacts'] = {p.relative_to(candidate).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
-                               for p in artifact_files(candidate)}
-        write_json(candidate / 'build-report.json', report)
-        sums = '\n'.join('%s  %s' % (sha(p), p.relative_to(candidate).as_posix())
-                         for p in artifact_files(candidate)) + '\n'
-        (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
-        if isolated:
-            write_json(scope.path / 'manifests' / 'build-report.json', report)
-        else:
-            publish_local(root, candidate, destination, config, generated, compiled, plan)
-        write_json(run / 'build-report.json', report)
-        if isolated:
-            write_json(scope.path / 'diagnostics' / 'state.json', dict(status='complete', publishable=False))
-        print('Build complete: ' + str(destination), flush=True)
-        return destination
+        report['artifacts'] = {p.relative_to(out).as_posix(): dict(size=p.stat().st_size, sha256=sha(p))
+                               for p in artifact_files(out)}
+        write_json(record / 'build-report.json', report)
+        if not development:
+            # The run output is the working release distribution. It stays staging until it is signed and stamped;
+            # promote_run copies it, once, into build/releases.
+            write_json(out / 'build-report.json', report)
+            write_checksums(out)
+            verify_checksums(out)
+        write_json(record / 'state.json', dict(status='complete', publishable=False,
+                                               completed=datetime.now(timezone.utc).isoformat()))
+        print('Build complete: run=%s target=%s mode=%s' % (stamp, target['name'], args.mode), flush=True)
+        print('  WOTMOD:   ' + str(out / 'driftkings.wotmod'), flush=True)
+        print('  output:   ' + str(out), flush=True)
+        print('  evidence: ' + str(record), flush=True)
+        if canonical:
+            print('  staging:  release output is not frozen; sign, stamp, then --promote-run', flush=True)
+        return out
     except Exception as error:
-        if isolated:
-            report['seconds'] = round(time.monotonic() - started, 3)
-            record_failure(scope, report, error, write_json)
-        else:
-            report.update(status='failed', error=str(error), seconds=round(time.monotonic() - started, 3))
-            write_json(run / 'build-report.json', report)
+        report['seconds'] = round(time.monotonic() - started, 3)
+        record_failure(scope, report, error, write_json)
         raise
 
 
 def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--isolated-output', action='store_true',
-                        help='Debug prerelease only; requires --keep-source-version; keep ALL outputs in a fresh experiment')
-    parser.add_argument('--mode', choices=('debug', 'release'), default='debug')
-    parser.add_argument('--version', help='Override JSON version and synchronize release.json and source VERSION')
+                        help='Legacy flag: every build already uses the run layout; keeps the prerelease restrictions')
+    parser.add_argument('--mode', choices=('dev', 'debug', 'release'), default='debug')
+    parser.add_argument('--target', help='Build target ID from build_data/build_config.json')
+    parser.add_argument('--version', help='Override packaged development version; in release mode, assert the committed version')
     parser.add_argument('--keep-source-version', action='store_true',
-                        help='Override only packaged VERSION, for temporary compatibility/update tests')
+                        help='Legacy compatibility flag; compilation always leaves tracked version files unchanged')
     parser.add_argument('--channel', choices=('auto', 'stable', 'beta'), default='auto')
     parser.add_argument('--game-root', help='Read-only game installation override')
     parser.add_argument('--expect-realm', choices=('NA', 'EU', 'ASIA', 'CN', 'CT'),
                         help='Refuse to build unless the installed client has this realm')
     parser.add_argument('--changelog', help='UTF-8 changelog, one entry per line')
     parser.add_argument('--plan', action='store_true',
-                        help='Display version, outputs and tool discovery without building')
+                        help='Verify target references and display version, outputs and tools without writing')
+    parser.add_argument('--retain-runs', action='store_true',
+                        help='Preview build/runs retention; performs no build. Add --apply to delete eligible runs')
+    parser.add_argument('--apply', action='store_true', help='With --retain-runs: delete the eligible paths')
+    parser.add_argument('--promote-run', type=Path,
+                        help='Promote a stamped and signed release run into build/releases; performs no build')
     for key in TOOL_KEYS:
         if key != 'game_root':
             parser.add_argument('--' + key.replace('_', '-'), dest=key)
@@ -664,6 +848,21 @@ def argument_parser():
 def main():
     parser = argument_parser()
     args = parser.parse_args()
+    if args.apply and not args.retain_runs:
+        parser.error('--apply requires --retain-runs')
+    if args.promote_run:
+        try:
+            print('Promoted: ' + str(promote_run(ROOT, args.promote_run)))
+        except (ValueError, OSError, KeyError) as error:
+            parser.exit(1, 'Promotion stopped: %s\n' % error)
+        return
+    if args.retain_runs:
+        from build_tools.run_retention import run_retention
+        try:
+            run_retention(ROOT, apply=args.apply)
+        except (ValueError, OSError, KeyError) as error:
+            parser.exit(1, 'Retention failed: %s\n' % error)
+        return
     try:
         build(args)
     except (ValueError, OSError, KeyError, TypeError, StopIteration, subprocess.SubprocessError,

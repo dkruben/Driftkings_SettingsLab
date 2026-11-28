@@ -14,6 +14,7 @@ class BattlePreferencesSettings(SectionDefinition):
 
         return (
             [
+                control(BATTLE_PREFERENCES.REMOVE_FOG),
                 control(BATTLE_PREFERENCES.SHOW_BATTLE_HINT),
                 control(BATTLE_PREFERENCES.SHOW_POSTMORTEM_DOG_TAG),
                 control(BATTLE_PREFERENCES.STUN_SOUND),

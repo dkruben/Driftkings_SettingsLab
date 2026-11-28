@@ -52,7 +52,7 @@
     "alpha": 90,
     "color": "#FF3020",
     "distance": 300,
-    "enabled": true,
+    "enabled": false,
     "range": "view"
   },
   "permanentMinimapDeath": false,

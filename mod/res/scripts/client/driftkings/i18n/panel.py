@@ -44,6 +44,14 @@ def load(language, override_root=None):
     return code, strings
 
 
+def usable(code):
+    """True when the bundled catalogue of a supported language loads with panel text."""
+    try:
+        return bool(_catalog(code))
+    except (IOError, OSError, ValueError, KeyError):
+        return False
+
+
 def translations(key):
     """{language: text} for a catalog key, for labels of built-in pages."""
     return dict((code, _catalog(code).get(key, _catalog('en').get(key, key))) for code, _ in LANGUAGES)

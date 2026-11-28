@@ -32,9 +32,12 @@ VALIDATED, NOT_VALIDATED = 'VALIDATED', 'NOT VALIDATED'
 RUNTIME_VERIFIED, SOURCE_VERIFIED = 'RUNTIME VERIFIED', 'SOURCE VERIFIED'
 # Owner waiver of a runtime test for one exact candidate and release cycle. It is never RUNTIME VERIFIED.
 OWNER_WAIVER = 'OWNER WAIVER'
-# Owner-approved scope: these regions are outside this release. OUT OF SCOPE is never verified compatibility.
+# Scope is candidate-specific and evidence-based, never a permanent regional priority: any production realm may be
+# marked OUT OF SCOPE by one release record, with owner approval, for that release only. Every region must still be
+# accounted for (validated, source-verified or out of scope), so coverage of each claimed realm is preserved.
+# OUT OF SCOPE is never verified compatibility, and it never counts as validation.
 OUT_OF_SCOPE = 'OUT OF SCOPE'
-OUT_OF_SCOPE_REGIONS = frozenset(('ASIA', 'CN'))
+OUT_OF_SCOPE_REGIONS = frozenset(PRODUCTION_REGIONS)
 APPROVED, PENDING, REJECTED = 'APPROVED', 'PENDING', 'REJECTED'
 SEVERITIES = ('BLOCKER', 'MAJOR', 'MINOR')
 ISSUE_STATES = ('OPEN', 'ACCEPTED', 'FIXED')

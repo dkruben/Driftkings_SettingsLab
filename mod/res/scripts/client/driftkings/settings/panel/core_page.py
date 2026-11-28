@@ -11,6 +11,15 @@ def T(key):
     return locales.translations(key)
 
 
+def language_options():
+    """Only locales with a visible label and a loadable catalogue; 'auto' (game language) first."""
+    options = [('auto', T('core.language.auto'))]
+    for code, label in locales.LANGUAGES:
+        if label and locales.usable(code):
+            options.append((code, label))
+    return options
+
+
 def install(api):
     if api.is_registered(CORE_ID):
         return api.mod(CORE_ID)
@@ -18,9 +27,8 @@ def install(api):
     mod = api.register_mod(CORE_ID, name=T('core.name'), version=VERSION, author=u'DriftKingsMods',
                            description=T('core.description'), icon='gear', order=-1000, config_file='dk_settings',
                            category='system')
-    languages = [('auto', T('core.language.auto'))] + list(locales.LANGUAGES)
     mod.add_section(T('core.general'))
-    mod.add_dropdown('language', T('core.language'), values=languages, default='auto')
+    mod.add_dropdown('language', T('core.language'), values=language_options(), default='auto')
     mod.add_hotkey('openKey', T('core.hotkey'), default=[[68]])
     mod.add_section(T('core.appearance'))
     mod.add_color('accent', T('core.accent'), default='#D98219', description=T('core.accent.tip'))

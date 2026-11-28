@@ -1,0 +1,73 @@
+{
+  "source_version": "2.4.2.5537",
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "build": "1010",
+  "revision": "2671446",
+  "libraries": [
+    {
+      "name": "na1010-base_app-1.0-snapshot.swc",
+      "sha256": "3e51a3c89dcf0d6f3afd72bd938dd802c7790f98243edd0bbd2c18fe4088f7dc",
+      "package": "gui-part3.pkg",
+      "resource": "gui/flash/swc/base_app-1.0-SNAPSHOT.swc",
+      "library_swf_sha256": "ba504303208a188c86e1ff678394810a5c68f150e1ecd40294a091924a770432",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-battle.swc",
+      "sha256": "426c3c5fdaa82fb6145644a7aa7cfd4988db81030fdf77f9a33fc94711beb38d",
+      "package": "gui-part4.pkg",
+      "resource": "gui/flash/swc/battle.swc",
+      "library_swf_sha256": "4086a74430d72b3e0d8fc2a20f8f0239feaa8e9a1dd2b413a6cc4bbf6bc866dd",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-common_i18n_library-1.0-snapshot.swc",
+      "sha256": "f3210466d9191bd4b37465b3b9f6f8d5a26e72e539d9a36956f58a3ce6c6045d",
+      "package": "gui-part2.pkg",
+      "resource": "gui/flash/swc/common_i18n_library-1.0-SNAPSHOT.swc",
+      "library_swf_sha256": "84bfc736cd549991e6446c992b8d614442d5934c6e6009c6797c28f24c32d4f5",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-common-1.0-snapshot.swc",
+      "sha256": "e3049582174bb37a5de461a9b5b855767470fc4cd8c24583bab8d9a3ab638ede",
+      "package": "gui-part4.pkg",
+      "resource": "gui/flash/swc/common-1.0-SNAPSHOT.swc",
+      "library_swf_sha256": "6f151437ef69aa7f875bba000881ac02a16ece9a6f35b33763ec1ebdb4b408d4",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-gui_base-1.0-snapshot.swc",
+      "sha256": "ee5b33658e4df544602ea4b348c61c3f374ccb347e3d58ee4f56a84a8b86849f",
+      "package": "gui-part1.pkg",
+      "resource": "gui/flash/swc/gui_base-1.0-SNAPSHOT.swc",
+      "library_swf_sha256": "3e22a7cc10a4a0b3a207dafd591f94f6110f7401eb647c3378a27ae652a9316f",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-gui_battle-1.0-snapshot.swc",
+      "sha256": "881414b8e7d9bfa4fcdc4d592bfcc333b441f9ce12e85c982aba27a5dbf75735",
+      "package": "gui-part2.pkg",
+      "resource": "gui/flash/swc/gui_battle-1.0-SNAPSHOT.swc",
+      "library_swf_sha256": "8ed138169c0313d9de17e2ad8334236ba62ddd5776605905b0f196ec3581e52e",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-gui_lobby-1.0-snapshot.swc",
+      "sha256": "a46c4ea8805f9cbbd8c58047bd778255eb144b2c72a9b51e82407b247d31e086",
+      "package": "gui-part1.pkg",
+      "resource": "gui/flash/swc/gui_lobby-1.0-SNAPSHOT.swc",
+      "library_swf_sha256": "8fb738c93544ba41179fc22e4c14881c1a27467cc8b49eb97f982165403a0bce",
+      "equals_ct": false
+    },
+    {
+      "name": "na1010-lobby.swc",
+      "sha256": "ff2bbcdee64a0f808a767de168d87f79cd28291931e335a3c50aa5d044f0bc80",
+      "package": "gui-part3.pkg",
+      "resource": "gui/flash/swc/lobby.swc",
+      "library_swf_sha256": "06a6a19fd092e1474407302ca1eab8a92c7b3b5ae1ababd658a3b625c4250f38",
+      "equals_ct": false
+    }
+  ]
+}

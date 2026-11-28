@@ -74,7 +74,7 @@ class GeneratorTests(unittest.TestCase):
         report = json.loads((folder / 'build-report.json').read_text())
         self.assertEqual(report['artifacts'][installer.name]['sha256'], hashlib.sha256(attached.read_bytes()).hexdigest())
         sums = (folder / 'SHA256SUMS.txt').read_text().splitlines()
-        self.assertEqual(len(sums), 3)
+        self.assertEqual(len(sums), 4)  # release.json, the Setup, its WGMods archive and build-report.json
         for line in sums:
             checksum, name = line.split('  ', 1)
             self.assertEqual(checksum, hashlib.sha256((folder / name).read_bytes()).hexdigest())
@@ -85,6 +85,8 @@ class GeneratorTests(unittest.TestCase):
         choices = installer_catalog(self.root)
         expected = {path.stem for path in (self.root / 'res/configs/driftkings/default').glob('*.json')
                     if 'enabled' in json.loads(path.read_text())}
+        # Phase 11.6: the minimap section's switch is minimap_enhancements/minimap.json (its top-level copy was removed).
+        expected.add('minimap_enhancements')
         self.assertEqual({entry['key'] for entry in choices}, expected)
         self.assertNotIn('sound_bank_loader', expected)
         for entry in choices:
@@ -129,9 +131,15 @@ class GeneratorTests(unittest.TestCase):
         components, _, _ = generate_components(self.root, self.root / 'generated')
         script = (self.root / 'generated/components.generated.iss').read_text(encoding='utf-8-sig')
         self.assertIn('Name: "complete"; Description: "{cm:preset_complete}"', script)
+        # Phase 11.6 final: Complete adds only the nine approved default-off modules. Account Manager, clan reward
+        # collection and repair controls stay Custom-only (no Types suffix) and are never auto-enabled by a preset.
+        custom_only = {'account_manager', 'clan_reward_collection', 'repair_controls'}
         for entry in components:
             line = next(line for line in script.splitlines() if 'Name: "' + entry['group'] + '\\' + entry['key'] + '"' in line)
-            self.assertTrue(line.endswith('; Types: recommended complete' if entry['default'] else '; Types: complete'), line)
+            if entry['key'] in custom_only:
+                self.assertFalse(line.endswith(('; Types: complete', '; Types: recommended complete')), line)
+            else:
+                self.assertTrue(line.endswith('; Types: recommended complete' if entry['default'] else '; Types: complete'), line)
         path = self.root / 'installer/setup/presets.json'
         path.write_text(json.dumps({'presets': [{'key': 'bad', 'labels': {'en': 'Bad', 'pt': 'Mau'},
                                                 'disabled': ['clan_reward_collection'], 'enabled': ['clan_reward_collection']}]}))
@@ -143,12 +151,16 @@ class GeneratorTests(unittest.TestCase):
         selected = {entry['key'] for entry in components if entry['default']}
         extras = {entry['component'] + '_' + entry['key'] for entry in options if entry['default']}
         self.assertEqual(partial_choices(components, options, selected, extras), {})
-        selected.difference_update(('clan_reward_collection', 'game_log_manager'))
+        # Phase 11.6: clan_reward_collection is off by default now, so the two disabled choices are default-on modules.
+        selected.difference_update(('battle_performance', 'game_log_manager'))
         self.assertEqual(partial_choices(components, options, selected, extras), {
-            'default/clan_reward_collection.json': {'enabled': False}, 'default/game_log_manager.json': {'enabled': False}})
+            'default/battle_performance.json': {'enabled': False}, 'default/game_log_manager.json': {'enabled': False}})
         selected.add('sixth_sense_alert')
+        # Phase 11.6: userSound is off by default, so the default selection writes nothing for it.
         documents = partial_choices(components, options, selected, set())
-        self.assertEqual(documents['default/sixth_sense_alert.json'], {'userSound': False})
+        self.assertNotIn('default/sixth_sense_alert.json', documents)
+        documents = partial_choices(components, options, selected, {'sixth_sense_alert_userSound'})
+        self.assertEqual(documents['default/sixth_sense_alert.json'], {'userSound': True})
 
     def test_optional_preview_and_branding_are_detected_without_a_second_component_list(self):
         preview = self.root / 'installer/setup/assets/previews/clan_reward_collection.png'
@@ -228,7 +240,7 @@ class GeneratorTests(unittest.TestCase):
         (artifacts / 'modpack.json').write_text(json.dumps(modpack))
         inputs = {path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                   for path in (self.root / 'res/configs/driftkings').rglob('*.json')}
-        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='NA', source_client=dict(realm='NA', build='999', revision='2664941'),
+        (artifacts / 'build-report.json').write_text(json.dumps(dict(status='success', version=version, realm='NA', source_client=dict(realm='NA', build='1010', revision='2671446'),
                                                              runtime_realms=['NA'], inputs=inputs)))
         out = self.root / 'generated'
         generate_components(self.root, out)

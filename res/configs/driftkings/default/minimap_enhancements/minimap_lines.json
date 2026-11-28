@@ -8,7 +8,7 @@
     "directionColor": "#F2BB35",
     "gap": 5,
     "geometry": false,
-    "hull": true,
+    "hull": false,
     "hullColor": "#60FF00",
     "length": 500,
     "marks": 100,

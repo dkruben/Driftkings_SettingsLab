@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "game_version": "2.4.2.0",
+  "realm": "NA",
+  "client_build": "1010",
+  "resource": "gui/gameface/_dist/production/mono/hangar/main/bundle.js",
+  "source_sha256": "81ba2baf167f428204e161e6cc058d657d60ca048cbe687641c6910f4f286250",
+  "output_sha256": "c03f1d989b87d352b29e28e8ba4d572253076b66d1d637875ee3286f6f5ddf98",
+  "operations": [
+    {
+      "find": "import\"../chunks/global.js\";",
+      "replace": "import{Bi as dkObservable,Hi as dkRunInAction}from\"../chunks/lib.js\";import\"../chunks/global.js\";",
+      "count": 1
+    },
+    {
+      "find": "var[ar,sr]=va(\"HeroTankModelProvider\")",
+      "replace": "const dkCarouselRevision=dkObservable.box(0);\nwindow.addEventListener(\"dk-carousel-config\",()=>dkRunInAction(()=>dkCarouselRevision.set(dkCarouselRevision.get()+1)));\nfunction dkCarouselConfig(){dkCarouselRevision.get();return window.DKCarouselNative?window.DKCarouselNative.config():null;}\nvar[ar,sr]=va(\"HeroTankModelProvider\")",
+      "count": 1
+    },
+    {
+      "find": "function Lr(e,t,a,s){",
+      "replace": "function Lr(e,t,a,s){const dk=dkCarouselConfig();if(dk){const value=window.DKCarouselNative.compare(a,s,e);if(value!==null)return value;}",
+      "count": 1
+    },
+    {
+      "find": "p=ls.primitive(()=>{const t=[...c.getAll()]",
+      "replace": "p=ls.primitive(()=>{dkCarouselConfig();const t=[...c.getAll()]",
+      "count": 1
+    },
+    {
+      "find": "jh=(e,t)=>({left:[...t!=Kr?[Ch.rentTank]:[]],right:[Ch.buyTank,...e>0?[Ch.restoreTank]:[],Ch.buySlot]})",
+      "replace": "jh=(e,t)=>{const dk=dkCarouselConfig(),allow=key=>!dk||window.DKCarouselNative.actionAllowed(key);return{left:[...t!=Kr?[Ch.rentTank]:[]].filter(allow),right:[Ch.buyTank,...e>0?[Ch.restoreTank]:[],Ch.buySlot].filter(allow)}}",
+      "count": 1
+    },
+    {
+      "find": "function(e,t,a,s){return(0,Ar.useMemo)(()=>{if(!t)return{activeSlotsAmount:0",
+      "replace": "function(e,t,a,s){const dk=dkCarouselConfig();return(0,Ar.useMemo)(()=>{if(!t)return{activeSlotsAmount:0",
+      "count": 1
+    },
+    {
+      "find": "}},[a,e,t,s])}(l,g,p,o)",
+      "replace": "}},[a,e,t,s,dk])}(l,g,p,o)",
+      "count": 1
+    },
+    {
+      "find": "(0,ai.jsx)(\"div\",{className:Ps(ty,i?.base),children:",
+      "replace": "(0,ai.jsx)(\"div\",{onWheelCapture:event=>{if(dkCarouselConfig())window.DKCarouselNative.wheel(e,event)},className:Ps(ty,i?.base),children:",
+      "count": 1
+    },
+    {
+      "find": "const a=function(e){const t=Ut(zx.default,zx.breakpoints);return Ze(2===e?t.double:t.single)}(t)",
+      "replace": "const dk=dkCarouselConfig(),dkNativeWidth=function(e){const t=Ut(zx.default,zx.breakpoints);return Ze(2===e?t.double:t.single)}(t),a=dk?window.DKCarouselNative.footprint(t):dkNativeWidth",
+      "count": 1
+    },
+    {
+      "find": "function iy({api:e,carouselRows:t}){",
+      "replace": "function iy({api:e,carouselRows:t}){if(dkCarouselConfig())t=window.DKCarouselNative.rowCount(t);",
+      "count": 1
+    },
+    {
+      "find": "s&&n(2!==t?{visibleSlots:",
+      "replace": "s&&n(t<=1?{visibleSlots:",
+      "count": 1
+    },
+    {
+      "find": "b=function(e){return(0,Ar.useMemo)(()=>{const t=[];for(let a=0;a<e.length;a+=2)t.push(e.slice(a,a+2));return 1===t.at(-1)?.length&&t.at(-1)?.push(Tx),t},[e])}(v)",
+      "replace": "b=function(e){return(0,Ar.useMemo)(()=>{if(dkCarouselConfig())return window.DKCarouselNative.groupColumns(e,_,Tx);const t=[];for(let a=0;a<e.length;a+=2)t.push(e.slice(a,a+2));return 1===t.at(-1)?.length&&t.at(-1)?.push(Tx),t},[e,_])}(v)",
+      "count": 1
+    },
+    {
+      "find": "function(e,t,a,s,n){const r=2===s;function i(s)",
+      "replace": "function(e,t,a,s,n){const r=s>1;function i(s)",
+      "count": 1
+    },
+    {
+      "find": "totalElements:2===_?b.length:v.length",
+      "replace": "totalElements:_>1?b.length:v.length",
+      "count": 1
+    },
+    {
+      "find": "return 2===_?(0,ai.jsx)(xs,",
+      "replace": "return _>1?(0,ai.jsx)(xs,",
+      "count": 1
+    },
+    {
+      "find": "elementWidth:t-Ze(1),direction:\"horizontal\"",
+      "replace": "elementWidth:dkCarouselConfig()?t:t-Ze(1),direction:\"horizontal\"",
+      "count": 1
+    },
+    {
+      "find": "function Wx({slotId:e,width:t,currentVehicleId:a,double:s,className:n}){",
+      "replace": "function Wx({slotId:e,width:t,currentVehicleId:a,double:s,className:n}){if(dkCarouselConfig())t-=window.DKCarouselNative.gap(s?2:1);",
+      "count": 1
+    },
+    {
+      "find": "children:fr.map(e=>(0,ai.jsx)(Vb,",
+      "replace": "children:(dkCarouselConfig()?window.DKCarouselNative.vehicleTypes(fr):fr).map(e=>(0,ai.jsx)(Vb,",
+      "count": 1
+    },
+    {
+      "find": "c=a.filter(e=>(0!==r.length||\"rented\"!==e)",
+      "replace": "c=a.filter(e=>(!dkCarouselConfig()||window.DKCarouselNative.filterAllowed(e))&&(0!==r.length||\"rented\"!==e)",
+      "count": 1
+    },
+    {
+      "find": "eg=qt(function({type:e}){const t=Yr()",
+      "replace": "eg=qt(function({type:e}){const dk=dkCarouselConfig(),extra=dk?window.DKCarouselNative.counts(e):\"\";const t=Yr()",
+      "count": 1
+    },
+    {
+      "find": "children:r})})});if(e===Ch.rentTank)",
+      "replace": "children:extra?(0,ai.jsxs)(ai.Fragment,{children:[r,(0,ai.jsx)(\"span\",{style:{marginLeft:\"6px\"},children:extra})]}):r})})});if(e===Ch.rentTank)",
+      "count": 1
+    },
+    {
+      "find": "params:{count:i}}),e===Ch.restoreTank",
+      "replace": "params:{count:i}}),extra&&e===Ch.buyTank&&(0,ai.jsx)(\"span\",{style:{marginLeft:\"6px\"},children:extra}),e===Ch.restoreTank",
+      "count": 1
+    },
+    {
+      "find": "tooltipShowDelay:i}){const[o,l]=(0,Ar.useState)(!1),c=Ys()",
+      "replace": "tooltipShowDelay:i}){dkCarouselRevision.get();const[o,l]=(0,Ar.useState)(!1),c=Ys()",
+      "count": 1
+    },
+    {
+      "find": "(0,Ar.useMemo)(()=>({tankman:_??{},resId:QS.read(e=>e.mono.hangar.tooltips(\"resId\"))}),[_])",
+      "replace": "(0,Ar.useMemo)(()=>({tankman:_??{},dkCrewProgression:window.__dkCrewProgression?window.__dkCrewProgression.getRow(t)||void 0:void 0,resId:QS.read(e=>e.mono.hangar.tooltips(\"resId\"))}),[_,dkCarouselRevision.get()])",
+      "count": 1
+    }
+  ],
+  "client_revision": "2671446"
+}

@@ -44,11 +44,11 @@ class IsolatedOutputTests(unittest.TestCase):
                     scope.path.rmdir()
             with self.assertRaises(FileExistsError):
                 IsolatedOutput(root, 'one').reserve()
-            (root / 'build/experiments/file').write_bytes(b'preexisting')
+            (root / 'build/runs/file').write_bytes(b'preexisting')
             with self.assertRaises(FileExistsError):
                 IsolatedOutput(root, 'file').reserve()
-            self.assertEqual((root / 'build/experiments/file').read_bytes(), b'preexisting')
-            self.assertEqual((root / 'build/experiments/one/output/own.fixture').read_bytes(), b'own')
+            self.assertEqual((root / 'build/runs/file').read_bytes(), b'preexisting')
+            self.assertEqual((root / 'build/runs/one/output/own.fixture').read_bytes(), b'own')
 
     def test_permission_and_creation_failures(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -61,7 +61,7 @@ class IsolatedOutputTests(unittest.TestCase):
                     return original(path, *a, **kw)
                 with patch.object(Path, 'mkdir', fail), self.assertRaises(OSError):
                     IsolatedOutput(root, 'denied').reserve()
-                self.assertFalse((root / 'build/experiments/denied').exists())
+                self.assertFalse((root / 'build/runs/denied').exists())
 
     def test_junction_rejected(self):
         if os.name != 'nt':
@@ -69,7 +69,7 @@ class IsolatedOutputTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); target = root / 'protected'; target.mkdir()
             (root / 'build').mkdir()
-            junction = root / 'build/experiments'
+            junction = root / 'build/runs'
             result = subprocess.run(['cmd', '/c', 'mklink', '/J', str(junction), str(target)], capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             try:
@@ -82,7 +82,7 @@ class IsolatedOutputTests(unittest.TestCase):
     def test_symlink_rejected_without_admin_requirement(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); target = root / 'protected'; target.mkdir(); (root / 'build').mkdir()
-            link = root / 'build/experiments'
+            link = root / 'build/runs'
             try:
                 link.symlink_to(target, target_is_directory=True)
             except OSError:
@@ -109,7 +109,7 @@ class IsolatedOutputTests(unittest.TestCase):
                 env = tool_environment({'EXAMPLE': 'preserved'})
                 self.assertEqual(env['EXAMPLE'], 'preserved')
                 self.assertTrue(Path(env['TEMP']).is_relative_to(scope.path))
-                log = scope.path / 'diagnostics/tool.log'
+                log = scope.path / 'evidence/tool.log'
                 with patch.object(c.subprocess, 'run') as execute:
                     execute.return_value.returncode = 0
                     c.run_tool(['fake-compiler'], log)
@@ -142,7 +142,7 @@ class IsolatedOutputTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     external.write_bytes(b'bad')
                 with self.assertRaises(ValueError):
-                    c.run_tool(['fake'], scope.path / 'diagnostics/log', cwd=root)
+                    c.run_tool(['fake'], scope.path / 'evidence/log', cwd=root)
                 original = scope.identity
                 scope.identity = (-1,-1)
                 with self.assertRaises(ValueError):
@@ -203,25 +203,30 @@ class IsolatedOutputTests(unittest.TestCase):
                       'game':{'version':'2.4.2.0'}, 'python':{'archive_root':'res/scripts/client'},
                       'generators':{}}
             plan = {k:[] for k in ('components','python','assets','defaults','dependencies')}
-            args = c.argument_parser().parse_args(['--keep-source-version', '--mode', mode, '--channel', channel] +
-                                                  (['--isolated-output'] if isolated else []))
-            release = {'package_id':'fixture','repository':'fixture','changelog':[]}
+            args = c.argument_parser().parse_args(['--mode', mode, '--channel', channel] +
+                                                  (['--isolated-output', '--keep-source-version'] if isolated else []))
+            version = '0.1.8-beta.4' if channel == 'beta' else '0.1.8'
+            release = {'package_id':'fixture','repository':'fixture','changelog':[], 'version':version}
+            identity = dict(realm='NA' if mode == 'release' else 'CT', build='fixture', revision='fixture')
+            resolved = dict(name='fixture', identity=identity, reference_hashes={}, profile=(
+                dict(realm_evidence={'NA':'fixture'}, generators={}) if mode == 'release' else None))
             writes=[]
             def stage(name, path):
                 path = Path(path)
                 if isolated:
-                    self.assertTrue(path.is_relative_to(root / 'build/experiments'), path)
+                    self.assertTrue(path.is_relative_to(root / 'build/runs'), path)
                 writes.append((name,str(path)))
                 path.parent.mkdir(parents=True, exist_ok=True)
                 if failure == name:
                     raise OSError('injected '+name)
                 path.write_bytes(b'fixture')
-            def worker(tools, run, job, name):
-                stage('compile' if name == 'python' else 'verify', run / (name+'.fixture'))
+            def worker(tools, work, logs, job, name):
+                stage('compile' if name == 'python' else 'verify', work / (name+'.fixture'))
                 return {}
-            def generate(r, conf, pl, tools, run, epoch):
-                stage('generate', run/'generated/asset.fixture')
-                stage('patch', run/'generated/patch.fixture')
+            def generate(r, conf, pl, tools, work, logs, epoch, selected):
+                self.assertIs(selected, identity)
+                stage('generate', work/'generated/asset.fixture')
+                stage('patch', work/'generated/patch.fixture')
                 return {}
             def package(path, entries, *a):
                 # Deliberately DO NOT create path (.wotmod). Exercise writer destinations with a .fixture.
@@ -234,19 +239,16 @@ class IsolatedOutputTests(unittest.TestCase):
             with ExitStack() as stack:
                 stack.enter_context(patch.object(Path, 'stat', fixture_stat))
                 for name,value in {'ROOT':root,'read_json':lambda p:config if p.name=='build_config.json' else release,
-                    'check_release_identity':lambda *a:None, 'select_version':lambda *a:('0.1.8-beta.4' if channel=='beta' else '0.1.8',channel,'source'),
+                    'check_release_identity':lambda *a:None, 'select_version':lambda *a:(version,channel,version),
                     'discover':lambda *a:{'game_root':'readonly'}, 'build_plan':lambda *a,**k:plan,
                     'require_tools':lambda *a:None,
-                    'check_client':lambda *a:'NA' if mode=='release' else 'CT',
-                    'source_client':lambda *a:{'realm':'NA' if mode=='release' else 'CT',
-                                                'build':'999' if mode=='release' else '996',
-                                                'revision':'2664941' if mode=='release' else '2660091'},
-                    'production_profile':lambda *a:{'realm_evidence':{'NA':'fixture'},'generators':{}},
-                    'production_generators':lambda *a:None,
+                    'sync_release_version':lambda *a:self.fail('Compilation must not synchronize tracked versions'),
                     'git_state':lambda *a:{'epoch':946684800},'source_inventory':lambda *a:{},
                     'python_overrides':lambda *a:{},'run_worker':worker,'generate':generate,
                     'package_entries':lambda *a:{},'zip_entries':package,'verify_package':lambda *a:None,
                     'sha':lambda *a:'fixture-hash', 'write_distribution':distribution,
+                    'verify_distribution':lambda *a:{'status':'passed'}, 'write_checksums':lambda *a:None,
+                    'verify_checksums':lambda *a:None,
                     'assemble_defaults':lambda *a:({},None,{}), 'create_modpack':lambda *a:{},'artifact_files':lambda *a:[]}.items():
                     stack.enter_context(patch.object(c,name,value))
                 original_write_json = c.write_json
@@ -255,28 +257,48 @@ class IsolatedOutputTests(unittest.TestCase):
                         raise OSError('injected diagnostic')
                     original_write_json(path, value)
                 stack.enter_context(patch.object(c, 'write_json', json_writer))
-                publish = stack.enter_context(patch.object(c,'publish_local'))
+                resolve = stack.enter_context(patch.object(c, 'resolve_target', return_value=resolved))
+                publish = stack.enter_context(patch.object(c,'publish_release'))
                 if failure:
                     with self.assertRaisesRegex(OSError,'injected'):
                         c.build(args)
                 else:
                     output=c.build(args)
                     if isolated:
-                        self.assertTrue(output.is_relative_to(root/'build/experiments'))
+                        self.assertTrue(output.is_relative_to(root/'build/runs'))
+                    elif mode == 'release':
+                        self.assertTrue(output.is_relative_to(root/'build/runs'))
                     else:
-                        self.assertEqual(output,root/config['package']['debug_root' if mode=='debug' else 'release_root']/channel/('0.1.8-beta.4' if channel=='beta' else '0.1.8'))
-                self.assertEqual(publish.call_count,0 if isolated else 1)
+                        self.assertTrue(output.is_relative_to(root/'build/runs'))
+                # Only a successful release promotes into build/releases; development never publishes.
+                self.assertEqual(publish.call_count, 0)  # the run output stages; promotion is a separate, explicit step
+                if not isolated and not failure:
+                    run = next((root / 'build/runs').iterdir())
+                    self.assertEqual(sorted(p.name for p in run.iterdir()), ['evidence', 'output', 'workspace'])
+                    artifacts = {p.name for p in (run / 'output').iterdir()}
+                    if mode == 'debug':
+                        # Development builds: WOTMOD and its evidence only, never distribution or release metadata.
+                        self.assertEqual(artifacts, {'driftkings.fixture'})
+                    else:
+                        self.assertTrue({'distribution.fixture', 'build-report.json'} <= artifacts)
+                    self.assertTrue((run / 'evidence' / 'build-report.json').is_file())
+                    self.assertTrue((run / 'evidence' / 'state.json').is_file())
+                    self.assertTrue((run / 'workspace' / 'python.fixture').is_file())
+                if not isolated and failure:
+                    run = next((root / 'build/runs').iterdir())
+                    self.assertEqual(json.loads((run / 'evidence' / 'build-report.json').read_text())['status'], 'failed')
+                resolve.assert_called_once()
             self.assertTrue(writes)
             self.assertFalse(list(root.rglob('*.wotmod')))
             for path,raw in protected.items():
                 self.assertEqual(path.read_bytes(),raw,path)
             if isolated:
-                states=list((root/'build/experiments').glob('*/diagnostics/state.json'))
+                states=list((root/'build/runs').glob('*/evidence/state.json'))
                 self.assertEqual(len(states),1)
                 self.assertEqual(json.loads(states[0].read_text())['status'],'failed' if failure else 'complete')
 
     def test_instrumented_full_flow_and_failures(self):
-        for failure in (None,'compile','generate','patch','package','copy','verify','diagnostic'):
+        for failure in (None,'compile','generate','patch','package','verify','diagnostic'):
             with self.subTest(failure=failure):
                 self.simulate(failure)
 
@@ -284,6 +306,7 @@ class IsolatedOutputTests(unittest.TestCase):
         for mode,channel in (('debug','beta'),('debug','stable'),('release','beta'),('release','stable')):
             with self.subTest(mode=mode,channel=channel):
                 self.simulate(isolated=False,mode=mode,channel=channel)
+        self.simulate(failure='verify', isolated=False, mode='debug', channel='beta')
 
 
 @contextmanager

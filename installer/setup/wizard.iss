@@ -210,13 +210,22 @@ begin
   Result := (Version <> '') and (Realm <> '');
 end;
 
-function ClientError: String;
+// An explicit /DIR is the destination for the whole run; discovery and substitution never replace it.
+function ExplicitDestination: String;
+begin
+  Result := Trim(ExpandConstant('{param:DIR|}'));
+end;
+
+// The destination must be exactly a game root that holds a supported client. Nothing is substituted: a folder
+// inside a game, or a folder without WorldOfTanks.exe, is refused. Every caller uses this one rule.
+function DestinationError(const Path: String): String;
 var
-  Root, Version, Realm: String;
+  Normalized, Root, Version, Realm: String;
 begin
   Result := CustomMessage('WrongClient');
-  Root := GameRoot(WizardDirValue);
-  if Root = '' then Exit;
+  Normalized := RemoveBackslashUnlessRoot(ExpandFileName(RemoveQuotes(Trim(Path))));
+  Root := GameRoot(Normalized);
+  if (Normalized = '') or (Root = '') or (CompareText(Root, Normalized) <> 0) then Exit;
   if not ReadClient(Root, Version, Realm) then Exit;
   if (Version <> '{#GameVersion}') or
      (Pos('|' + Realm + '|', '{#SupportedRealms}') = 0) then begin
@@ -224,6 +233,25 @@ begin
     Exit;
   end;
   Result := '';
+end;
+
+function ClientError: String;
+begin
+  Result := DestinationError(WizardDirValue);
+end;
+
+// Fail before the wizard opens, with a message and an unsuccessful exit, when an explicit /DIR is not a game root.
+function InitializeSetup: Boolean;
+var
+  Error: String;
+begin
+  Result := True;
+  if ExplicitDestination = '' then Exit;
+  Error := DestinationError(ExplicitDestination);
+  if Error <> '' then begin
+    MsgBox(Error, mbCriticalError, MB_OK);
+    Result := False;
+  end;
 end;
 
 // An existing profile is kept unless the user (or /RESETCONFIG=1) asks to choose components again.
@@ -334,20 +362,22 @@ begin
   ScanGameFolders(ExpandConstant('{autopf}'));
   ScanGameFolders(ExpandConstant('{autopf}\Wargaming.net'));
   if IsWin64 then ScanGameFolders(ExpandConstant('{commonpf32}\Wargaming.net'));
-  // Preserve an explicit /DIR or previous valid path; otherwise prefer a matching client.
+  // An explicit /DIR is never selected, replaced or substituted by discovery; otherwise prefer a matching client.
   Match := -1;
-  for I := 0 to Installations.Count - 1 do begin
-    if CompareText(Installations[I], GameRoot(WizardDirValue)) = 0 then begin
-      Match := I;
-      Break;
-    end;
-  end;
-  if (Match < 0) and (ExpandConstant('{param:DIR|}') = '') then
-    for I := 0 to Installations.Count - 1 do
-      if Pos(' | {#GameVersion} | ', InstallationList.Items[I]) > 0 then begin
+  if ExplicitDestination = '' then begin
+    for I := 0 to Installations.Count - 1 do begin
+      if CompareText(Installations[I], GameRoot(WizardDirValue)) = 0 then begin
         Match := I;
         Break;
       end;
+    end;
+    if (Match < 0) and (ExpandConstant('{param:DIR|}') = '') then
+      for I := 0 to Installations.Count - 1 do
+        if Pos(' | {#GameVersion} | ', InstallationList.Items[I]) > 0 then begin
+          Match := I;
+          Break;
+        end;
+  end;
   InstallationList.ItemIndex := Match;
   if Match >= 0 then SelectInstallation(InstallationList);
   RefreshClient(WizardForm.DirEdit);
@@ -361,10 +391,7 @@ begin
   if CurPageID <> wpSelectDir then Exit;
   Error := ClientError;
   Result := Error = '';
-  if Result then begin
-    WizardForm.DirEdit.Text := GameRoot(WizardDirValue);
-    RefreshProfileChoice;
-  end
+  if Result then RefreshProfileChoice
   else MsgBox(Error, mbError, MB_OK);
 end;
 
@@ -496,7 +523,6 @@ var
 begin
   Result := ClientError;
   if Result <> '' then Exit;
-  WizardForm.DirEdit.Text := GameRoot(WizardDirValue);
   Result := ExistingDependenciesError;
   if Result <> '' then Exit;
   Result := ConfigurationPathError;
@@ -661,4 +687,28 @@ begin
   if not PreserveProfile then ApplyConfiguration;
   WriteMediaReadme('SixthSense', 'Custom Sixth Sense icon: SixthSenseIcon.png. Select it in the Driftkings settings panel. This folder is never removed by the uninstaller.');
   WriteMediaReadme('images', 'Custom overlay images: use mods/configs/driftkings/images/<filename>.png in the settings panel. This folder is never removed by the uninstaller.');
+end;
+
+// Uninstall: remove the auxiliary Remove Fog package only when this installation recorded it and its digest is unchanged.
+procedure RemoveOwnedFogPackage();
+var
+  Entries: TArrayOfString;
+  App, OwnershipFile, Target: String;
+begin
+  App := RemoveBackslashUnlessRoot(ExpandConstant('{app}'));
+  OwnershipFile := App + '\mods\configs\driftkings\cache\fog\owned.txt';
+  if not FileExists(OwnershipFile) then Exit;
+  if not LoadStringsFromFile(OwnershipFile, Entries) then Exit;
+  if GetArrayLength(Entries) < 2 then Exit;
+  Target := Trim(Entries[0]);
+  if (Pos(App + '\mods\', Target) <> 1) or (ExtractFileName(Target) <> 'Driftkings.RemoveFog.wotmod') then Exit;
+  if not FileExists(Target) then Exit;
+  if not SameText(GetSHA256OfFile(Target), Trim(Entries[1])) then Exit;
+  DeleteFile(Target);
+  DeleteFile(OwnershipFile);
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then RemoveOwnedFogPackage();
 end;

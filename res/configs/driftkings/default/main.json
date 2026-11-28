@@ -3,28 +3,6 @@
     "enabled": true,
     "formats": [
       {
-        "x": 8,
-        "y": 100,
-        "screenHAlign": "right",
-        "format": "<img src='gui/maps/driftkings/clock/clockbg.svg'>",
-        "height": 0,
-        "shadow": {
-          "alpha": 100,
-          "angle": 0,
-          "blur": 4,
-          "color": "#000000",
-          "distance": 0,
-          "enabled": false,
-          "strength": 1
-        },
-        "textFormat": {
-          "align": "left",
-          "color": "#959688",
-          "valign": "top"
-        },
-        "width": 0
-      },
-      {
         "x": -10,
         "y": 80,
         "width": 200,
@@ -42,9 +20,9 @@
         "textFormat": {
           "align": "right",
           "valign": "bottom",
-          "color": "#959688"
+          "color": "#D8D5CD"
         },
-        "format": "<font face='$FieldFont'><textformat leading='-38'><font size='36'>%H:%M</font><br></textformat><textformat rightMargin='85' leading='-2'>%A<br><font size='15'>%d %b %Y</font></textformat></font>"
+        "format": "<font face='$FieldFont'><textformat leading='-38'><font size='28' color='#D8D5CD'>%H:%M</font><br></textformat><textformat leading='-2'><font size='15' color='#959688'>%d %b %Y</font></textformat></font>"
       }
     ]
   },
