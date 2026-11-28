@@ -28,6 +28,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -36,11 +37,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from build_tools.compiler import override_version, sync_release_version, version_contract
+from build_tools.compiler import artifact_files, override_version, sync_release_version, version_contract
 from build_tools.package_tools import sha, write_json
 from build_tools.publish_release import (create_release, github_json, prepare, releases_for_tag, require_green_ci,
                                          signature_module)
-from build_tools.sign_release import sign_folder
+from build_tools.publication_state import eligible_for_signing
+from build_tools.sign_release import INVENTORY_SIGNATURE, LOCAL_REPORT_FIELDS, sign_folder
 from build_tools.update_release import tag_commit
 from build_tools.validate_build_data import read_json, require
 from build_tools.validation_record import MAX_RECORD, RECORD_FOLDER, evaluate, stable_target
@@ -97,13 +99,8 @@ class Context(object):
                                     cwd=ROOT, stdout=stream, stderr=subprocess.PIPE)
         require(result.returncode == 0, 'Could not download release asset ' + asset['name'])
 
-    def compile(self, stable, key, target):
-        require(key.is_file(), 'Local release signing key is missing')
-        require(subprocess.run(['git', 'ls-files', '--error-unmatch', str(key)], cwd=ROOT,
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0,
-                'The signing key is tracked by git; stop and rotate it')
-        # The run output is the working distribution: it gets the installer and Setup ZIP, is signed, and only then
-        # is stamped and promoted. Nothing is written to build/releases here.
+    def compile_candidate(self, stable, target):
+        """Compile the stable WOTMOD and attach the installer. Reads no signing material."""
         built = subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/compiler.py'), '--mode', 'release',
                                 '--target', target, '--version', stable, '--channel', 'stable'],
                                cwd=ROOT, check=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
@@ -112,9 +109,27 @@ class Context(object):
         folder = Path(match.group(1).strip())
         subprocess.run([sys.executable, '-B', str(ROOT / 'build_tools/build_installer.py'), '--artifacts', str(folder),
                         '--compile', '--attach-to-release'], cwd=ROOT, check=True)
-        sign_folder(folder, key)
+        return folder
+
+    def run_artifact_suite(self, folder):
         subprocess.run([sys.executable, '-B', str(ROOT / 'tests/run_python.py'), '--suite', 'artifacts',
                         '--wotmod', str(folder / 'driftkings.wotmod')], cwd=ROOT, check=True)
+
+    def compile_unsigned(self, stable, target):
+        """Unsigned route: compile, attach the installer and run the artifact suite. Stops before any signature."""
+        folder = self.compile_candidate(stable, target)
+        self.run_artifact_suite(folder)
+        return folder
+
+    def compile(self, stable, key, target):
+        """Legacy combined route: it needs the private seed on this host. Prefer compile_unsigned and finalize."""
+        require(key.is_file(), 'Local release signing key is missing')
+        require(subprocess.run(['git', 'ls-files', '--error-unmatch', str(key)], cwd=ROOT,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0,
+                'The signing key is tracked by git; stop and rotate it')
+        folder = self.compile_candidate(stable, target)
+        sign_folder(folder, key)
+        self.run_artifact_suite(folder)
         return folder
 
     def promote(self, folder, stable):
@@ -185,6 +200,110 @@ ATTESTATION = '.official-build-attestation.json'
 OFFICIAL_SOURCE = 'official-stable-build'
 # Files the official build reported whose bytes signing rewrites (scrubbed build report and its checksum list).
 SIGNING_REWRITTEN = frozenset(('build-report.json', 'SHA256SUMS.txt'))
+
+
+# Unsigned route evidence. It is written beside the run's build report in build/runs/<run>/evidence, never in the
+# candidate, so the owner-signed folder carries only the release files and their signatures.
+UNSIGNED_EVIDENCE = 'unsigned-candidate.json'
+UNSIGNED_INVENTORY = 'unsigned-SHA256SUMS.txt'
+UNSIGNED_SIGNATURES = ('release.json.sig', INVENTORY_SIGNATURE)
+
+
+def write_unsigned_evidence(folder, stable, target, commit):
+    """Record the unsigned candidate after its artifact suite passed; the compilation and suite results come from the run."""
+    report = read_json(folder / 'build-report.json')
+    require(report.get('status') == 'success' and report.get('mode') == 'release' and report.get('version') == stable
+            and report.get('channel') == 'stable' and report.get('git', {}).get('commit') == commit
+            and report['git'].get('dirty') is False, 'The unsigned build report does not match the stable commit')
+    evidence = folder.parent / 'evidence'
+    write_json(evidence / UNSIGNED_EVIDENCE, dict(
+        schema=1, stage='unsigned', version=stable, channel='stable', target=target, commit=commit,
+        artifactSuite='passed', wotmodSha256=sha(folder / 'driftkings.wotmod'),
+        inventorySha256=sha(folder / 'SHA256SUMS.txt')))
+    shutil.copy2(folder / 'SHA256SUMS.txt', evidence / UNSIGNED_INVENTORY)
+
+
+def parse_inventory(text):
+    entries = {}
+    for line in text.splitlines():
+        digest, name = line.split('  ', 1)
+        require(name not in entries, 'Duplicate inventory entry: ' + name)
+        entries[name] = digest
+    return entries
+
+
+def finalize_candidate(context, folder, identity, target, signature=None):
+    """Verify an owner-signed run output against its unsigned build evidence, then stamp it and promote it.
+
+    Nothing is compiled or signed here. Every file must be accounted for, every immutable artifact must match the
+    unsigned inventory, the report may differ only by the scrubbing signing performs and the installer entries, and both
+    signatures must verify against the trusted production keys. The stamp is written only after all of that passes.
+    """
+    signature = signature or signature_module()
+    stable, commit = identity['stable'], identity['commit']
+    folder = Path(folder).resolve()
+    run = folder.parent
+    require(folder.name == 'output' and run.parent == (Path(context.root) / 'build/runs').resolve(),
+            'Finalization takes the run output folder under build/runs')
+    evidence = run / 'evidence'
+    for name in (UNSIGNED_EVIDENCE, UNSIGNED_INVENTORY, 'build-report.json'):
+        require((evidence / name).is_file(), 'Incomplete build evidence: missing ' + name)
+    meta = read_json(evidence / UNSIGNED_EVIDENCE)
+    require(meta.get('stage') == 'unsigned' and meta.get('artifactSuite') == 'passed',
+            'The unsigned build did not pass its artifact suite')
+    require(meta.get('version') == stable and meta.get('channel') == 'stable' and meta.get('target') == target,
+            'The candidate is not %s/stable for target %s' % (stable, target))
+    require(meta.get('commit') == commit, 'The candidate was built from another commit than %s' % commit[:12])
+    require(sha(evidence / UNSIGNED_INVENTORY) == meta.get('inventorySha256'), 'Unsigned inventory evidence was modified')
+    evidence_report = read_json(evidence / 'build-report.json')
+    require(evidence_report.get('status') == 'success' and evidence_report.get('mode') == 'release',
+            'The build evidence is not a successful release build')
+    require(not (folder / BUILD_STAMP).exists() and not (folder / ATTESTATION).exists(),
+            'The candidate is already stamped; it cannot be finalized twice')
+    unsigned = parse_inventory((evidence / UNSIGNED_INVENTORY).read_text(encoding='utf-8'))
+    # Every file is accounted for: the unsigned inventory, the two signatures and the rewritten inventory.
+    expected = set(unsigned) | set(UNSIGNED_SIGNATURES) | {'SHA256SUMS.txt'}
+    present = {path.relative_to(folder).as_posix() for path in artifact_files(folder)}
+    require(not expected - present, 'Missing artifacts: ' + ', '.join(sorted(expected - present)))
+    require(not present - expected, 'Unexpected files in the candidate: ' + ', '.join(sorted(present - expected)))
+    # Immutable artifacts keep the bytes they had when the unsigned build passed its suite.
+    for name, digest in sorted(unsigned.items()):
+        if name not in SIGNING_REWRITTEN:
+            require(sha(folder / name) == digest, 'Artifact differs from the unsigned build: ' + name)
+    require(sha(folder / 'driftkings.wotmod') == meta['wotmodSha256'], 'The WOTMOD differs from the suite-tested build')
+    # The report may differ from the build evidence only by the scrubbing signing performs and the installer entries.
+    report = read_json(folder / 'build-report.json')
+    require(not any(field in report for field in LOCAL_REPORT_FIELDS),
+            'The signed report still carries local build fields')
+    compared = set(evidence_report) - set(LOCAL_REPORT_FIELDS) - {'artifacts', 'setupArchive'}
+    require(set(report) - set(LOCAL_REPORT_FIELDS) - {'artifacts', 'setupArchive'} == compared,
+            'Signed report has keys the build evidence does not hold')
+    for key in compared:
+        require(report.get(key) == evidence_report[key], 'Signed report differs from the build evidence: ' + key)
+    require(set(report['artifacts']) == set(unsigned) - set(SIGNING_REWRITTEN),
+            'Report artifact list differs from the unsigned inventory')
+    for name, record in report['artifacts'].items():
+        require(record['sha256'] == unsigned[name] and record['size'] == (folder / name).stat().st_size,
+                'Report entry differs from the unsigned build: ' + name)
+    require(eligible_for_signing(report), 'Only a successful production release build can be finalized')
+    inventory = (folder / 'SHA256SUMS.txt').read_text(encoding='utf-8')
+    require(inventory == ''.join('%s  %s\n' % (sha(folder / name), name)
+                                 for name in sorted(set(report['artifacts']) | {'build-report.json'})),
+            'The signed checksum inventory does not match the candidate files')
+    # Release metadata and both signatures, against the trusted production keys only.
+    release = read_json(folder / 'release.json')
+    require(release.get('version') == stable and release.get('channel') == 'stable'
+            and release.get('gameVersion') == report.get('gameVersion'), 'Release metadata is not %s/stable' % stable)
+    require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty; no signed candidate can be accepted')
+    try:
+        signature.verify_manifest((folder / 'release.json').read_bytes(),
+                                  (folder / signature.SIGNATURE_ASSET).read_bytes(), signature.TRUSTED_KEYS)
+        signature.verify_manifest(inventory.encode('utf-8'), (folder / INVENTORY_SIGNATURE).read_bytes(),
+                                  signature.TRUSTED_KEYS)
+    except ValueError as error:
+        raise ValueError('Signature is not valid for a trusted production key: %s' % error)
+    write_build_stamp(folder, commit)
+    return context.promote(folder, stable)
 
 
 def require_build_stamp(folder, commit):
@@ -657,8 +776,19 @@ def run_check(context, args):
 def run_build(context, args):
     commit = context.git('rev-parse', 'HEAD')
     require_clean_checkout(context, commit)
+    if getattr(args, 'unsigned', False):
+        require(getattr(args, 'stable', None) and args.key is None,
+                '--unsigned takes the direct stable route and no signing key; sign the folder offline with sign_release.py')
+        state = require_route_preflight(context, args, commit, record=False)
+        folder = context.compile_unsigned(state['identity']['stable'], args.target)
+        write_unsigned_evidence(folder, state['identity']['stable'], args.target, commit)
+        require_clean_checkout(context, commit)
+        print('Unsigned candidate ready in %s; its artifact suite passed. Nothing was signed or promoted.' % folder)
+        print('Owner: sign the folder offline with build_tools/sign_release.py, then run promote_release.py finalize.')
+        return folder
     state = require_route_preflight(context, args, commit, record=False)
-    folder = context.compile(state['identity']['stable'], args.key, args.target)
+    key = args.key or ROOT / 'release-signing.key'
+    folder = context.compile(state['identity']['stable'], key, args.target)
     require_clean_checkout(context, commit)
     verify_stable_folder(context, folder, state)
     write_build_stamp(folder, commit)
@@ -669,6 +799,16 @@ def run_build(context, args):
     if getattr(args, 'stable', None):
         print('Dispatch route=direct version=%s stable_commit=%s artifacts_digest=%s record_digest=<complete sha256 of the record>'
               % (args.stable, commit, artifacts_digest_full(folder)))
+
+
+def run_finalize(context, args):
+    commit = context.git('rev-parse', 'HEAD')
+    require_clean_checkout(context, commit)
+    identity = direct_identity(context, args.stable, commit)
+    promoted = finalize_candidate(context, args.folder, identity, args.target)
+    print('Finalized %s from %s and promoted it to %s. Nothing was signed, compiled or uploaded.'
+          % (args.stable, commit[:12], promoted))
+    print('Next: promote_release.py check, then publish (preview first) with the approved validation record.')
 
 
 def run_attest_official(context, args):
@@ -729,9 +869,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest='command', required=True)
     for name, action in (('prepare', run_prepare), ('check', run_check), ('build', run_build), ('publish', run_publish),
-                         ('attest-official', run_attest_official)):
+                         ('attest-official', run_attest_official), ('finalize', run_finalize)):
         command = commands.add_parser(name)
         command.set_defaults(action=action)
+        if name == 'finalize':
+            command.add_argument('--stable', required=True, help='Direct route: the committed stable version, for example 0.1.8')
+            command.add_argument('--target', required=True, help='Configured build target, for example na1010')
+            command.add_argument('--folder', required=True, type=Path,
+                                 help='Owner-signed run output: build/runs/<run>/output')
+            continue
         if name == 'attest-official':
             command.add_argument('--commit', required=True, help='Original stable artifact commit')
             command.add_argument('--folder', required=True, type=Path, help='Signed stable folder')
@@ -748,8 +894,11 @@ def main():
             command.add_argument('--digest', help='Artifacts digest printed by build, checked for format only')
             command.add_argument('--record-digest', help='Direct route: complete SHA-256 of the record dispatched with it')
         if name == 'build':
-            command.add_argument('--key', type=Path, default=ROOT / 'release-signing.key')
-            command.add_argument('--target', required=True, help='Configured build target, for example na999')
+            command.add_argument('--key', type=Path, default=None,
+                                 help='Legacy combined route only; default release-signing.key. Refused with --unsigned')
+            command.add_argument('--unsigned', action='store_true',
+                                 help='Compile, attach the installer and run the artifact suite; no signing material')
+            command.add_argument('--target', required=True, help='Configured build target, for example na1010')
         if name == 'publish':
             command.add_argument('--commit', help='Original stable artifact commit (the tool itself is always the current checkout)')
             command.add_argument('--target', help='Configured build target the candidate must describe')

@@ -24,11 +24,16 @@ The evaluation refuses a record when the decision is not `APPROVED`, the approve
 ## Direct stable (no beta)
 
 1. `python build_tools/promote_release.py prepare --stable <X.Y.Z>` sets `release.json` and `VERSION`. Commit and push; CI runs on that commit.
-2. `python build_tools/promote_release.py build --stable <X.Y.Z> --target <target>` compiles, attaches the installer and the WGMods archive, signs, stamps and promotes. It takes no record, because the record binds the finished package.
-3. Write the validation record for the stable, bound to the artifact commit and the package digest.
-4. `python build_tools/promote_release.py check --stable <X.Y.Z> --record <file> --record-digest <full-sha256> --commit <sha> --digest <full-sha256>` runs the read-only gate.
-5. Request the approval with the `promotion-gate.yml` workflow, route `direct`, the complete digests and the record file. The approval happens in the protected `stable-release` environment, and it has no waiver.
-6. `python build_tools/promote_release.py publish --stable <X.Y.Z> --record <file> --target <target>` previews the assets. Then `--confirm v<X.Y.Z>@<digest>` publishes exactly those bytes, and the remote asset digests are verified.
+2. Unsigned build, on the build host, with no signing material: `python build_tools/promote_release.py build --stable <X.Y.Z> --target <target> --unsigned`. It requires a clean checkout at the stable commit, compiles, attaches the installer and the WGMods archive, and runs the artifact suite. It writes unsigned evidence to `build/runs/<run>/evidence` and stops before signing. Nothing is stamped or promoted.
+3. Owner-controlled offline signing: copy the run output folder to the offline machine and run `python build_tools/sign_release.py <folder> --key <offline key file>`. This writes `release.json.sig` and `SHA256SUMS.txt.sig`, and rewrites only the report and inventory that signing rewrites. Copy the folder back to `build/runs/<run>/output`. The private key never enters the repository or the build host.
+4. Finalize, on the build host, with no compilation and no signing: `python build_tools/promote_release.py finalize --stable <X.Y.Z> --target <target> --folder build/runs/<run>/output`. It checks that no file is missing or unexpected, that every artifact still matches the unsigned build, that the report differs only by the signing scrub and the installer entries, that both signatures verify against the trusted production keys, and that the commit, version, channel, target and artifact-suite evidence match. Then it writes the build stamp and promotes the candidate to `build/releases/stable/<X.Y.Z>`.
+   If the promotion copy is interrupted, do not finalize again: a stamped candidate is refused. Run `python -B build_tools/compiler.py --promote-run build/runs/<run>` instead. It verifies the checksums and both signatures, copies once, and replaces nothing that already matches. It never rebuilds or signs.
+5. Write the validation record for the stable, bound to the artifact commit and the package digest.
+6. `python build_tools/promote_release.py check --stable <X.Y.Z> --record <file> --record-digest <full-sha256> --commit <sha> --digest <full-sha256>` runs the read-only gate.
+7. Request the approval with the `promotion-gate.yml` workflow, route `direct`, the complete digests and the record file. The approval happens in the protected `stable-release` environment, and it has no waiver.
+8. `python build_tools/promote_release.py publish --stable <X.Y.Z> --record <file> --target <target>` previews the assets. Then `--confirm v<X.Y.Z>@<digest>` publishes exactly those bytes, and the remote asset digests are verified.
+
+The combined `build --stable X.Y.Z --target T` without `--unsigned` still signs on the host with `--key` (default `release-signing.key`). It is the legacy route and needs the private seed on the build host, so it is not used for stable releases.
 
 ## Beta-backed stable (optional)
 

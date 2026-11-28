@@ -273,6 +273,23 @@ def same_release_bytes(candidate, destination):
     return files(candidate) == files(destination)
 
 
+def require_signed_inventory(candidate):
+    """Both signatures must verify against the trusted production keys before anything is copied."""
+    from build_tools import sign_release
+    signature = sign_release.load_signature()
+    require(signature.TRUSTED_KEYS, 'TRUSTED_KEYS is empty; nothing can be promoted')
+    names = (signature.SIGNATURE_ASSET, 'SHA256SUMS.txt.sig')
+    for name in names:
+        require((candidate / name).is_file(), 'Missing signature: ' + name)
+    try:
+        signature.verify_manifest((candidate / 'release.json').read_bytes(),
+                                  (candidate / signature.SIGNATURE_ASSET).read_bytes(), signature.TRUSTED_KEYS)
+        signature.verify_manifest((candidate / 'SHA256SUMS.txt').read_bytes(),
+                                  (candidate / 'SHA256SUMS.txt.sig').read_bytes(), signature.TRUSTED_KEYS)
+    except ValueError as error:
+        raise ValueError('Candidate is not signed by a trusted production key: %s' % error)
+
+
 def promote_run(root, run):
     """Final promotion of a frozen release run into the canonical build/releases folder.
 
@@ -290,6 +307,7 @@ def promote_run(root, run):
     require(candidate_state(output) == CANDIDATE_FROZEN,
             'Only a stamped and signed candidate can be promoted; sign and stamp the run output first')
     verify_checksums(output)
+    require_signed_inventory(output)
     config = read_json(root / 'build_data/build_config.json')
     canonical = output_path(root, config['package']['release_root'] + '/' + record['channel'] + '/' + record['version'])
     promoted = publish_release(root, output, canonical)
@@ -325,13 +343,20 @@ def write_checksums(candidate):
     (candidate / 'SHA256SUMS.txt').write_bytes(sums.encode('utf-8'))
 
 
+# Files that are never listed in the inventory they accompany: each has its own check. A signature cannot cover
+# itself, and a build stamp or attestation records the inventory digest from outside it.
+SIGNATURE_ASSETS = ('release.json.sig', 'SHA256SUMS.txt.sig')
+BUILD_STAMP_ASSETS = ('.promotion-build.json', '.official-build-attestation.json')
+
+
 def verify_checksums(candidate):
     listed = {}
     for line in (candidate / 'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
         digest, name = line.split('  ', 1)
         listed[name] = digest
+    unlisted = frozenset(('SHA256SUMS.txt',) + SIGNATURE_ASSETS + BUILD_STAMP_ASSETS)
     actual = {p.relative_to(candidate).as_posix() for p in artifact_files(candidate)
-              if p.name != 'SHA256SUMS.txt'}
+              if p.relative_to(candidate).as_posix() not in unlisted}
     require(set(listed) == actual, 'Checksum inventory mismatch')
     for name, digest in listed.items():
         require(sha(candidate / name) == digest, 'Checksum mismatch: ' + name)

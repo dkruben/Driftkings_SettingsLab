@@ -7,6 +7,7 @@ import types
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -146,25 +147,60 @@ class CandidateLifecycleTests(ReleaseRunFixture):
         write(self.output / 'release.json.sig', b'sig')
         self.assertEqual(ps.candidate_state(self.output), ps.CANDIDATE_FROZEN)
 
-    def test_promotion_takes_only_a_frozen_release_run_and_copies_it_once(self):
+    def sign_candidate(self, seed=bytes(range(32))):
+        """Synthetic signature over the candidate; returns the trust list that verifies it, never a production key."""
+        from build_tools import sign_release
+        module = sign_release.load_signature()
+        key = self.root / 'synthetic.key'
+        write(key, seed.hex())
+        names = sorted(p.name for p in self.output.iterdir() if p.is_file() and p.name != 'SHA256SUMS.txt')
+        write(self.output / 'SHA256SUMS.txt', ''.join('%s  %s\n' % (sha(self.output / n), n) for n in names))
+        sign_release.sign_folder(self.output, key, module)
+        return types.SimpleNamespace(TRUSTED_KEYS=(module.public_key(seed).hex(),),
+                                     SIGNATURE_ASSET=module.SIGNATURE_ASSET, verify_manifest=module.verify_manifest)
+
+    def test_promotion_takes_only_a_signed_candidate_and_copies_it_once(self):
+        from build_tools import sign_release
         with self.assertRaisesRegex(ValueError, 'stamped and signed'):
             compiler.promote_run(self.root, self.run)
+        trusted = self.sign_candidate()
+        with mock.patch.object(sign_release, 'load_signature', return_value=trusted):
+            destination = compiler.promote_run(self.root, self.run)
+            self.assertEqual(destination, self.root / 'build/releases/stable/0.1.8')
+            self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), WOTMOD)
+            self.assertEqual(compiler.promote_run(self.root, self.run), destination)  # identical bytes: no replacement
+
+    def test_a_build_stamp_alone_is_not_a_signature(self):
+        from build_tools import sign_release
         write(self.output / '.promotion-build.json', '{}')
-        write(self.output / 'SHA256SUMS.txt', ''.join('%s  %s\n' % (sha(p), p.name)
-                                                       for p in sorted(self.output.iterdir()) if p.name != 'SHA256SUMS.txt'))
-        destination = compiler.promote_run(self.root, self.run)
-        self.assertEqual(destination, self.root / 'build/releases/stable/0.1.8')
-        self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), WOTMOD)
-        self.assertEqual(compiler.promote_run(self.root, self.run), destination)  # identical bytes: no replacement
+        names = sorted(p.name for p in self.output.iterdir() if p.is_file() and p.name not in
+                       ('SHA256SUMS.txt', '.promotion-build.json'))
+        write(self.output / 'SHA256SUMS.txt', ''.join('%s  %s\n' % (sha(self.output / n), n) for n in names))
+        module = sign_release.load_signature()
+        with mock.patch.object(sign_release, 'load_signature', return_value=module):
+            with self.assertRaisesRegex(ValueError, 'Missing signature'):
+                compiler.promote_run(self.root, self.run)
+        self.assertFalse((self.root / 'build/releases').exists())
+
+    def test_a_candidate_signed_by_another_key_is_not_promoted(self):
+        from build_tools import sign_release
+        self.sign_candidate()
+        from build_tools import sign_release as module_owner
+        other = types.SimpleNamespace(TRUSTED_KEYS=(sign_release.load_signature().public_key(bytes(range(1, 33))).hex(),),
+                                      SIGNATURE_ASSET='release.json.sig',
+                                      verify_manifest=sign_release.load_signature().verify_manifest)
+        with mock.patch.object(sign_release, 'load_signature', return_value=other):
+            with self.assertRaisesRegex(ValueError, 'trusted production key'):
+                compiler.promote_run(self.root, self.run)
 
     def test_promotion_refuses_a_different_frozen_release(self):
+        from build_tools import sign_release
         destination = self.root / 'build/releases/stable/0.1.8'
         write(destination / 'driftkings.wotmod', b'published bytes')
-        write(self.output / '.promotion-build.json', '{}')
-        write(self.output / 'SHA256SUMS.txt', ''.join('%s  %s\n' % (sha(p), p.name)
-                                                       for p in sorted(self.output.iterdir()) if p.name != 'SHA256SUMS.txt'))
-        with self.assertRaisesRegex(ValueError, 'Frozen release 0.1.8 already exists'):
-            compiler.promote_run(self.root, self.run)
+        trusted = self.sign_candidate()
+        with mock.patch.object(sign_release, 'load_signature', return_value=trusted):
+            with self.assertRaisesRegex(ValueError, 'Frozen release 0.1.8 already exists'):
+                compiler.promote_run(self.root, self.run)
         self.assertEqual((destination / 'driftkings.wotmod').read_bytes(), b'published bytes')
 
     def test_a_run_outside_build_runs_cannot_be_promoted(self):
