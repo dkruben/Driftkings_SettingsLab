@@ -1,7 +1,7 @@
 {
   "allowChannelButtonBlinking": true,
   "allowExchangeXPInTechTree": true,
-  "autoLogin": true,
+  "autoLogin": false,
   "blockVehicleIfLowAmmo": false,
   "enabled": true,
   "fieldMail": true,
@@ -25,10 +25,10 @@
   "showPremiumShopButton": true,
   "showProfilePrestigeWidget": true,
   "showProgressiveDecalsWindow": true,
-  "showPromoPremVehicle": true,
+  "showPromoPremVehicle": false,
   "showRankedBattleResults": false,
   "showReferralButton": true,
   "showUnreadCounter": true,
   "showWotPlusButton": false,
-  "showXpToUnlockVeh": false
+  "showXpToUnlockVeh": true
 }

@@ -1,28 +1,28 @@
 {
   "circles": {
     "draw": {
-      "alpha": 90,
+      "alpha": 80,
       "dash": 0,
       "gap": 5,
       "mode": "client",
       "thickness": 1
     },
     "maxView": {
-      "alpha": 90,
+      "alpha": 80,
       "dash": 0,
       "gap": 5,
       "mode": "client",
       "thickness": 1
     },
     "proximity": {
-      "alpha": 90,
+      "alpha": 80,
       "dash": 0,
       "gap": 5,
       "mode": "client",
       "thickness": 1
     },
     "view": {
-      "alpha": 90,
+      "alpha": 80,
       "dash": 0,
       "gap": 5,
       "mode": "client",
@@ -33,7 +33,7 @@
       "color": "#FF6666",
       "dash": 0,
       "gap": 5,
-      "mode": "on",
+      "mode": "off",
       "thickness": 1
     }
   },

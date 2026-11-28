@@ -1,11 +1,7 @@
 {
   "background": true,
   "colorRating": 0,
-  "compareValuesColor": {
-    "bestValue": "#90EE90",
-    "worstValue": "#FFBCAD"
-  },
-  "enabled": true,
+  "enabled": false,
   "format": "{header}: {allyChance} {compareSign} {enemyChance}",
   "textFormat": {
     "bold": false,

@@ -22,7 +22,14 @@
       "disabled": [],
       "enabled": [
         "aiming_countdown",
-        "shell_flight_time"
+        "artillery_blast_radius",
+        "battle_statistics",
+        "gun_traverse_limits",
+        "high_caliber_progress",
+        "server_turret_sync",
+        "shell_flight_time",
+        "target_information",
+        "third_person_zoom"
       ]
     }
   ]

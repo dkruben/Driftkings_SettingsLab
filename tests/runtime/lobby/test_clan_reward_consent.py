@@ -131,7 +131,8 @@ class ClanRewardConsentTests(RuntimeTest):
         with open(path) as stream:
             defaults = json.load(stream)
         self.assertIs(defaults[PURCHASE], False)
-        self.assertIs(defaults['enabled'], True)
+        # Phase 11.6: free collection is opt-in; purchases stay separately off.
+        self.assertIs(defaults['enabled'], False)
 
     def test_python_fallback_keeps_purchases_off(self):
         path = os.path.join(ROOT, 'mod', 'res', 'scripts', 'client', 'driftkings', 'settings', 'default_values.py')

@@ -17,7 +17,7 @@
     "alternativeAlly": "",
     "alternativeEnemy": "",
     "alternativeSquad": "",
-    "avoidOverlap": false,
+    "avoidOverlap": true,
     "compactLength": 14,
     "customColors": false,
     "dead": "{{vehicle}}",

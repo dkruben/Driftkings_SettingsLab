@@ -10,7 +10,7 @@
   "messageColorAssistStun": "#00FFFF",
   "messageColorAssistTrack": "#00FF00",
   "messageColorSpotted": "#FF69B5",
-  "sound": true,
+  "sound": false,
   "soundAssist": "gun_intuition",
   "soundSpotted": "enemy_sighted_for_team"
 }

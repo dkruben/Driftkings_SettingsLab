@@ -54,7 +54,7 @@
   "showTargets": true,
   "gameface": {
     "miniMode": true,
-    "locked": false,
+    "locked": true,
     "enabled": true,
     "backgroundOpacity": 0.65,
     "accentColor": "#E8C55A",

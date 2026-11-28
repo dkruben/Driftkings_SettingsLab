@@ -1,7 +1,7 @@
 {
   "autoReturnDelay": 1.5,
-  "crewAutoReturn": true,
-  "crewReturnByDefault": true,
+  "crewAutoReturn": false,
+  "crewReturnByDefault": false,
   "enabled": true,
   "excludePremiumVehicles": false,
   "showBarracksProgression": true,

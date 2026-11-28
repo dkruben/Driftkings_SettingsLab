@@ -6,7 +6,7 @@
   "displayMode": 0,
   "drawTextShadow": true,
   "enabled": true,
-  "lockPositionOffsets": false,
+  "lockPositionOffsets": true,
   "markerTarget": 1,
   "textAlpha": 1.0,
   "textColor": "#FFFFFF",

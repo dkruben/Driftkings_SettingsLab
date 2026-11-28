@@ -100,10 +100,11 @@ class OwnWindowCatalogTests(unittest.TestCase):
         assets = [item for manifest in read_components(catalog.ROOT, config['components']['source'])
                   for asset in manifest['assets']
                   for item in expand_asset(catalog.ROOT, asset, config['assets']['exclude'])]
-        # Independent packaging baseline. 334 = 332 + the optional Remove Fog helper (exe and helper.json), restored
-        # as an optional, default-OFF feature. The standalone HUD preview script hud.js was removed in Phase 10.3.2.
-        self.assertEqual(len(assets), 334)
-        self.assertEqual(len({item['target'] for item in assets}), 334)
+        # Independent packaging baseline. 333 = 332 + the optional Remove Fog helper (exe and helper.json), restored
+        # as an optional, default-OFF feature, minus the unreferenced SettingsLab icon autoaimopt.svg (Phase 11.6).
+        # The standalone HUD preview script hud.js was removed in Phase 10.3.2.
+        self.assertEqual(len(assets), 333)
+        self.assertEqual(len({item['target'] for item in assets}), 333)
         self.assertEqual(catalog.validate(plan={'assets': assets})['native'], 20)
         with self.assertRaisesRegex(ValueError, 'Duplicate packaging target'):
             catalog.validate(plan={'assets': assets + assets[:1]})

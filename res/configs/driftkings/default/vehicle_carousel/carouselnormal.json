@@ -5,14 +5,16 @@
       "shadow": "$ref:textFieldShadow",
       "x": 145,
       "y": 26,
-      "alpha": "{{v.battles?100|0}}"
+      "alpha": "{{v.battles?100|0}}",
+      "enabled": false
     },
     {
       "align": "right",
       "format": "<font face='mono' size='16' color='{{v.c:battles}}'><b>{{v.battles}}</b></font>",
       "shadow": "$ref:textFieldShadow",
       "x": 198,
-      "y": 26
+      "y": 26,
+      "enabled": false
     },
     {
       "alpha": "{{v.winrate?100|0}}",
@@ -33,14 +35,16 @@
       "format": "<img src='gui/maps/driftkings/carroucel/shooter.svg' width='18' height='18'>",
       "shadow": "$ref:textFieldShadow",
       "x": 8,
-      "y": 91
+      "y": 91,
+      "enabled": false
     },
     {
       "align": "left",
       "format": "<b><font face='PFDINMax' size='16' color='{{v.c:hitsRatio}}'>{{v.hitsRatio%2d~%}}</font></b>",
       "shadow": "$ref:textFieldShadow",
       "x": 30,
-      "y": 90
+      "y": 90,
+      "enabled": false
     },
     {
       "format": "<img src='gui/maps/driftkings/carroucel/damage.svg' width='20' height='20'>",
@@ -50,7 +54,7 @@
       "alpha": "{{v.tfb?100|0}}"
     },
     {
-      "format": "<font face='PFDINMax' size='16' color='{{v.c:wn8effd}}'><b>{{v.tdb%d}}</b></font> <font size='12' color='#CFCFCF'>{{v.tfb?/|}}{{v.tfb?{{v.wn8expd%d}}|}}</font>",
+      "format": "<font face='PFDINMax' size='16' color='{{v.c:wn8effd}}'><b>{{v.tdb%d}}</b></font>",
       "shadow": "$ref:textFieldShadow",
       "x": 30,
       "y": 110,
@@ -61,7 +65,8 @@
       "x": 195,
       "y": 69,
       "align": "right",
-      "shadow": "$ref:textFieldShadow"
+      "shadow": "$ref:textFieldShadow",
+      "enabled": false
     },
     {
       "format": "<img src='{{icon:mastery}}' width='26' height='26'>",

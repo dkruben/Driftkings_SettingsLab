@@ -8,7 +8,7 @@
   "buttonRepair": [
     "KEY_SPACE"
   ],
-  "enabled": true,
+  "enabled": false,
   "extinguishFire": true,
   "healCrew": true,
   "removeStun": true,

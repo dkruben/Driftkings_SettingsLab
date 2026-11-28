@@ -23,7 +23,7 @@
     }
   },
   "delay": 5,
-  "enabled": true,
+  "enabled": false,
   "formats": [],
   "panelSize": {
     "height": 70.0,

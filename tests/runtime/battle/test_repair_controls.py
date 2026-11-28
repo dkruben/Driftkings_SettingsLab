@@ -46,6 +46,8 @@ class RepairControlsTests(RuntimeTest):
     def setUp(self):
         super(RepairControlsTests, self).setUp()
         self.data = copy.deepcopy(DEFAULTS)
+        # Behaviour tests run with the module enabled; the shipped default is off (Phase 11.6).
+        self.data['enabled'] = True
         self.states = {'fire': False, 'stun': False}
         self.controlling = 5
         self.replay = module(isPlaying=False)

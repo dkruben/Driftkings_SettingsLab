@@ -53,30 +53,36 @@ def installer_catalog(root=ROOT, languages=('en', 'pt')):
     catalogs = {lang: catalog(root / ('mod/res/mods/driftkings/text/' + lang + '.yml'))
                 for lang in languages}
     choices = []
-    for path in sorted((root / config['defaults']['source_root'] / 'default').glob('*.json')):
+    source = root / config['defaults']['source_root']
+    default_dir = source / 'default'
+    # A section is either a top-level document or a directory whose enabled switch lives in its first file
+    # (minimap_enhancements/minimap.json: the file the runtime reads).
+    documents_list = sorted(default_dir.glob('*.json')) + [default_dir / 'minimap_enhancements' / 'minimap.json']
+    for path in documents_list:
         values = json.loads(path.read_text(encoding='utf-8'))
         if 'enabled' not in values:
             continue
-        require(type(values['enabled']) is bool, 'Installer enabled must be boolean: ' + path.stem)
-        spec = manifests.get(path.stem)
+        section = path.parent.name if path.parent != default_dir else path.stem
+        require(type(values['enabled']) is bool, 'Installer enabled must be boolean: ' + section)
+        spec = manifests.get(section)
         require(spec is not None and spec['kind'] == 'feature' and spec['enabled'],
-                'Installer section has no enabled feature: ' + path.stem)
-        relative = 'default/' + path.name
+                'Installer section has no enabled feature: ' + section)
+        relative = path.relative_to(source).as_posix()
         require(relative in spec['config_files'], 'Installer JSON not declared: ' + relative)
         prefix = spec['entrypoint'].split('.')[0]
         group = {'battle': 'battle', 'lobby': 'hangar'}.get(prefix, 'general')
         labels, descriptions, groups = {}, {}, {}
         for lang, document in catalogs.items():
-            text = document['TEXT'].get(path.stem, {})
+            text = document['TEXT'].get(section, {})
             label = text.get('UI_description')
-            require(isinstance(label, str) and label.strip(), 'Missing installer label: ' + lang + '/' + path.stem)
+            require(isinstance(label, str) and label.strip(), 'Missing installer label: ' + lang + '/' + section)
             group_label = document['PANEL'].get('category.' + group)
             require(isinstance(group_label, str) and group_label.strip(),
                     'Missing installer group: ' + lang + '/' + group)
             labels[lang] = label
             descriptions[lang] = text.get('UI_tooltip') or label
             groups[lang] = group_label
-        choices.append(dict(key=path.stem, file=relative, default=values['enabled'], group=group,
+        choices.append(dict(key=section, file=relative, default=values['enabled'], group=group,
                             labels=labels, descriptions=descriptions, group_labels=groups))
     return choices
 

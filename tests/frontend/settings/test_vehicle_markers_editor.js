@@ -70,8 +70,9 @@ for(const property of ['enabled','x','y','alpha','format']) {
 }
 const ratingOn=host.querySelectorAll('[data-property]').find(n=>n.getAttribute('data-property').endsWith('def.rating.enabled'));
 ratingOn.querySelector('.dk-switch').fire('click');
+// Phase 11.6: the normal marker's rating is off by default, so this switch turns it on.
 const ratingSaved=JSON.parse(commits[commits.length-1][1]);
-assert.strictEqual(ratingSaved.def.rating.enabled,false);
+assert.strictEqual(ratingSaved.def.rating.enabled,true);
 assert.strictEqual(commits[commits.length-1][0],mod.preview.bindings.markersAliveNormal);
 assert.strictEqual(ratingSaved.ally.textFields[3],'${def.rating}');
 shared.dispose();DK.app.dispose();

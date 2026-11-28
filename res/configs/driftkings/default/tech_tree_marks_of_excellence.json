@@ -8,10 +8,6 @@
   "showInHangar": true,
   "showInTechTree": true,
   "showInTechTreeMarkOfGunPercent": true,
-  "showInTechTreeMarkOfGunTankNameColored": true,
-  "showInTechTreeMastery": true,
-  "techTreeHeight": 16,
-  "techTreeWidth": 54,
-  "techTreeX": 75,
-  "techTreeY": -12
+  "showInTechTreeMarkOfGunTankNameColored": false,
+  "showInTechTreeMastery": true
 }

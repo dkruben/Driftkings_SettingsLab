@@ -2,7 +2,7 @@
   "colorRating": 0,
   "enabled": true,
   "gameface": {
-    "showAdvancedStatistics": true,
+    "showAdvancedStatistics": false,
     "showDamageStatistics": true,
     "showHistory": true,
     "showMilestones": true,

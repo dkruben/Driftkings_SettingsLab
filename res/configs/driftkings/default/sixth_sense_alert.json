@@ -4,16 +4,16 @@
   "delay": 4.0,
   "enabled": true,
   "helpMessage": false,
-  "iconSize": 90,
+  "iconSize": 80,
   "lampShowTime": 10.0,
   "playTickSound": false,
   "showTimer": true,
   "showTimerGraphics": true,
-  "showTimerGraphicsColor": "#C462FF",
-  "showTimerGraphicsRadius": 45,
+  "showTimerGraphicsColor": "#F98600",
+  "showTimerGraphicsRadius": 40,
   "sixthSenseSound": "SixthSense_06",
   "spottedMessage": false,
   "spottedText": "I'm Spotted at %(pos)s!",
   "userIcon": "mods/configs/driftkings/sixthsense/SixthSenseIcon.png",
-  "userSound": true
+  "userSound": false
 }
