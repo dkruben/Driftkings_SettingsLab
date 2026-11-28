@@ -13,7 +13,7 @@
 
 | | |
 | --- | --- |
-| **Latest release** | **Driftkings 0.1.7** for World of Tanks **2.4.2.0** |
+| **Latest release** | **Driftkings 0.1.7** for World of Tanks **2.4.2.0** (0.1.8 is in preparation and is not yet published) |
 | Release page | [github.com/dkruben/Driftkings_SettingsLab/releases](https://github.com/dkruben/Driftkings_SettingsLab/releases) |
 | Community | [Discord](https://discord.gg/k2Stjv5fS5) |
 
@@ -39,7 +39,8 @@ Driftkings is a standalone package: it needs no other mod and includes its own i
 | Game version | World of Tanks **2.4.2.0** |
 | Production realms the project supports | **EU, NA, ASIA and CN** |
 | Realms validated for **0.1.7** | **EU** and **NA** |
-| Not validated for 0.1.7 | ASIA and CN |
+| Realms validated for **0.1.8** | **EU** and **NA** (after the release gate) |
+| Not validated for 0.1.8 | ASIA and CN |
 | Other regions | Not supported |
 
 Support for a realm is confirmed release by release. A matching game version alone does not guarantee that a realm is validated for a given Driftkings release.
@@ -50,7 +51,7 @@ Close World of Tanks before you install or update.
 
 ### Option 1 – Windows installer (recommended)
 
-1. Download `Driftkings-0.1.7-WoT-2.4.2.0-Setup.exe` from the release page and run it.
+1. Download `Driftkings-0.1.8-WoT-2.4.2.0-Setup.exe` from the release page and run it.
 2. Choose your language and confirm the game folder (the one that contains `version.xml`).
 3. Pick **Recommended**, **Complete** or **Custom** and choose the components to enable.
 4. Start the game and open **Driftkings settings** from the launcher in the hangar footer.
@@ -59,7 +60,7 @@ The installer keeps your existing settings when you reinstall. To choose the com
 
 ### Option 2 – Manual installation
 
-1. Download `Driftkings-0.1.7-WoT-2.4.2.0.zip`.
+1. Download `Driftkings-0.1.8-WoT-2.4.2.0.zip`.
 2. Extract its `mods` folder into the game folder and merge it with the existing one.
 3. For a new installation only, also download `Driftkings-defaults.zip` from the same release and extract it into the game folder. Do not do this when updating; your settings live in `mods/configs/driftkings`.
 4. Start the game and open **Driftkings settings** from the launcher in the hangar footer.
@@ -88,6 +89,15 @@ Anonymous usage statistics are **off by default**. When you turn them on, the mo
 ## Languages
 
 In-game text is available in 18 languages: Chinese (Simplified and Traditional), Czech, German, English, Spanish, French, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Thai, Turkish, Ukrainian and Vietnamese. English is the fallback. Translation corrections are welcome on [Discord](https://discord.gg/k2Stjv5fS5).
+
+## What's new in 0.1.8
+
+- Crew barracks cards show crew progression in one line.
+- Battle loading screen layout is stabilised.
+- Settings previews and formatted text layout are corrected. Multilingual Gameface fonts are restored.
+- Default configurations are simplified. Account Manager, repair controls, zoom and purchases stay off by default.
+- Installer validates the game destination before installing.
+- CN statistics are not requested from the EU, NA or ASIA services. CN statistics are not provided.
 
 ## What's new in 0.1.7
 
