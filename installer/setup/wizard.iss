@@ -693,19 +693,19 @@ end;
 procedure RemoveOwnedFogPackage();
 var
   Entries: TArrayOfString;
-  App, Record, Target: String;
+  App, OwnershipFile, Target: String;
 begin
   App := RemoveBackslashUnlessRoot(ExpandConstant('{app}'));
-  Record := App + '\mods\configs\driftkings\cache\fog\owned.txt';
-  if not FileExists(Record) then Exit;
-  if not LoadStringsFromFile(Record, Entries) then Exit;
+  OwnershipFile := App + '\mods\configs\driftkings\cache\fog\owned.txt';
+  if not FileExists(OwnershipFile) then Exit;
+  if not LoadStringsFromFile(OwnershipFile, Entries) then Exit;
   if GetArrayLength(Entries) < 2 then Exit;
   Target := Trim(Entries[0]);
   if (Pos(App + '\mods\', Target) <> 1) or (ExtractFileName(Target) <> 'Driftkings.RemoveFog.wotmod') then Exit;
   if not FileExists(Target) then Exit;
   if not SameText(GetSHA256OfFile(Target), Trim(Entries[1])) then Exit;
   DeleteFile(Target);
-  DeleteFile(Record);
+  DeleteFile(OwnershipFile);
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
