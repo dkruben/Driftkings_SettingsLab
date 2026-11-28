@@ -865,7 +865,7 @@ def run_finalize(context, args):
                                      artifact, head)
     promoted = finalize_candidate(context, args.folder, identity, args.target)
     print('Finalized %s/%s from %s and promoted it to %s. Nothing was signed, compiled or uploaded.'
-          % (identity['version'], identity['channel'], commit[:12], promoted))
+          % (identity['version'], identity['channel'], artifact[:12], promoted))
     print('Next: promote_release.py check, then publish (preview first) with the approved validation record.')
 
 

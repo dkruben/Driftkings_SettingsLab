@@ -391,6 +391,30 @@ class ArtifactPredatesTooling(unittest.TestCase):
             self.finalize_from(self.artifact, tooling)
 
 
+
+class FinalizeOutputTests(unittest.TestCase):
+    """The finalization command reports the artifact commit without a NameError, for both channels."""
+
+    def run_route(self, **route):
+        import contextlib
+        import io as stdio
+        args = types.SimpleNamespace(commit=None, folder=Path('unused'), target=TARGET, **route)
+        identity = dict(version=route.get('stable') or route.get('beta'),
+                        channel='stable' if route.get('stable') else 'beta', commit=COMMIT)
+        output = stdio.StringIO()
+        with mock.patch.object(promotion, 'require_clean_checkout'),                 mock.patch.object(promotion, 'artifact_identity', return_value=identity),                 mock.patch.object(promotion, 'finalize_candidate', return_value=Path('promoted')),                 contextlib.redirect_stdout(output):
+            promotion.run_finalize(FakeContext(Path('unused')), args)
+        return identity, output.getvalue()
+
+    def test_stable_finalization_reports_the_artifact_commit(self):
+        identity, text = self.run_route(stable=STABLE)
+        self.assertIn('Finalized 0.1.8/stable from %s' % COMMIT[:12], text)
+
+    def test_beta_finalization_reports_the_artifact_commit(self):
+        identity, text = self.run_route(beta='0.1.8-beta.25')
+        self.assertIn('Finalized 0.1.8-beta.25/beta from %s' % COMMIT[:12], text)
+
+
 class UnsignedBetaIdentityTests(unittest.TestCase):
     """The unsigned beta route accepts only committed beta release data for the requested beta."""
 
